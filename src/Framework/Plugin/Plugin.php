@@ -25,6 +25,10 @@ declare(strict_types=1);
 
 namespace Shopware\Framework\Plugin;
 
+use Shopware\Filesystem\PrefixFilesystem;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
@@ -53,5 +57,41 @@ class Plugin extends Bundle
     public function registerBundles(string $environment): array
     {
         return [];
+    }
+
+    public function build(ContainerBuilder $container)
+    {
+        $this->registerFilesystem($container, 'private');
+        $this->registerFilesystem($container, 'public');
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     * @param string           $key
+     */
+    private function registerFilesystem(ContainerBuilder $container, string $key)
+    {
+        $parameterKey = sprintf('shopware.filesystem.%s', $key);
+        $serviceId = sprintf('%s.filesystem.%s', $this->getContainerPrefix(), $key);
+
+        $filesystem = new Definition(
+            PrefixFilesystem::class,
+            [
+                new Reference($parameterKey),
+                'pluginData/' . $this->getName(),
+            ]
+        );
+
+        $container->setDefinition($serviceId, $filesystem);
+    }
+
+    public function getContainerPrefix(): string
+    {
+        return $this->camelCaseToUnderscore($this->getName());
+    }
+
+    private function camelCaseToUnderscore(string $string): string
+    {
+        return strtolower(ltrim(preg_replace('/[A-Z]/', '_$0', $string), '_'));
     }
 }

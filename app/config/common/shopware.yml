@@ -62,19 +62,19 @@ shopware:
         private:
             type: "local"
             config:
-                root: "%kernel.root_dir%/../files"
+                root: "%kernel.project_dir%/files"
         public:
             type: "local"
             config:
-                root: "%kernel.root_dir%/../web"
-
-    custom: ~
-    config: ~
-    trustedproxies: []
+                root: "%kernel.project_dir%/web"
 
     cdn:
         url: ~
         strategy: "md5"
+
+    custom: ~
+    config: ~
+    trustedproxies: []
 
     snippet:
         readFromDb: true

@@ -10,6 +10,7 @@ filter_relation                         SWAG-FILTER-RELATION-UUID-
 filter_option                           SWAG-FILTER-OPTION-UUID-
 filter_option_attribute                 SWAG-FILTER-OPTION-ATTRIBUTE-UUID-
 media                                   SWAG-MEDIA-UUID-
+media_album                             SWAG-MEDIA-ALBUM-UUID-
 product                                 SWAG-PRODUCT-UUID-
 product_attribute                       SWAG-PRODUCT-ATTRIBUTE-UUID-
 product_category                        SWAG-PRODUCT-CATEGORY-UUID-

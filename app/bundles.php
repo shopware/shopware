@@ -48,4 +48,6 @@ return [
     Shopware\ShopTemplate\ShopTemplate::class => ['all' => true],
     Shopware\Tax\Tax::class => ['all' => true],
     Shopware\Unit\Unit::class => ['all' => true],
+    Shopware\Filesystem\Filesystem::class => ['all' => true],
+    Shopware\Media\Media::class => ['all' => true],
 ];

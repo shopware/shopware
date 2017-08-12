@@ -44,20 +44,8 @@ Thumbs.db
 /web/cache/*
 /var/bootstrap.php.cache
 
-# User provided content
-/web/media/archive/*
-/web/media/image/*
-!/web/media/image/thumbnail
-/web/media/image/thumbnail/*
-/web/media/music/*
-/web/media/pdf/*
-/web/media/temp/*
-!/web/media/temp/.htaccess
-/web/media/unknown/*
-/web/media/video/*
-
 /web/*
-!/web/media
+!/web/media/.gitkeep
 !/web/index.php
 !/web/.htaccess
 !/web/css/.gitkeep

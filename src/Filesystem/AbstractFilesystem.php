@@ -102,7 +102,10 @@ abstract class AbstractFilesystem implements FilesystemInterface
 
         $meta = $this->filesystem->getMetadata($path);
         $meta['path'] = $this->stripPath($meta['path']);
-        $meta['dirname'] = $this->stripPath($meta['dirname']);
+
+        if (array_key_exists('dirname', $meta)) {
+            $meta['dirname'] = $this->stripPath($meta['dirname']);
+        }
 
         return $meta;
     }

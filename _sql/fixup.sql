@@ -1008,3 +1008,41 @@ FOREIGN KEY (`product_manufacturer_uuid`) REFERENCES `product_manufacturer` (`uu
     ADD CONSTRAINT `fk_product.main_detail_uuid`
 FOREIGN KEY (`main_detail_uuid`) REFERENCES `product_detail` (`uuid`) ON DELETE RESTRICT ON UPDATE CASCADE
 ;
+
+ALTER TABLE `s_media`
+  RENAME TO `media`,
+  ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+  ADD `album_uuid` varchar(42) NOT NULL AFTER `uuid`,
+  ADD `user_uuid` varchar(42) NULL AFTER `album_uuid`,
+  CHANGE `name` `name` varchar(255) NOT NULL AFTER `album_uuid`,
+  CHANGE `description` `description` text NOT NULL AFTER `name`,
+  CHANGE `path` `file_name` varchar(255) NOT NULL AFTER `description`,
+  CHANGE `type` `mime_type` varchar(50) NOT NULL AFTER `file_name`,
+  CHANGE `file_size` `file_size` int(10) unsigned NOT NULL AFTER `mime_type`,
+  ADD `meta_data` TEXT NULL DEFAULT NULL AFTER `file_size`,
+  CHANGE `created` `created_at` datetime NOT NULL AFTER `meta_data`,
+  ADD `updated_at` datetime NULL
+;
+
+ALTER TABLE `s_media_album`
+  RENAME TO `media_album`,
+  CHANGE `id` `uuid` varchar(42) NOT NULL FIRST,
+  CHANGE `parentID` `parent_uuid` varchar(42) NULL AFTER `name`
+;
+
+UPDATE media
+  SET uuid = CONCAT('SWAG-MEDIA-UUID-', uuid),
+      album_uuid = CONCAT('SWAG-MEDIA-ALBUM-UUID-', album_uuid),
+      file_name = REPLACE(file_name, 'media/image/', ''),
+      file_name = REPLACE(file_name, 'media/video/', ''),
+      file_name = REPLACE(file_name, 'media/archive/', ''),
+      file_name = REPLACE(file_name, 'media/unknown/', ''),
+      file_name = REPLACE(file_name, 'media/pdf/', ''),
+      file_name = REPLACE(file_name, 'media/music/', ''),
+      mime_type = CONCAT('image/', substring(file_name, -3))
+;
+
+UPDATE media_album
+  SET uuid = CONCAT('SWAG-MEDIA-ALBUM-UUID-', uuid),
+  parent_uuid = CONCAT('SWAG-MEDIA-ALBUM-UUID-', parent_uuid)
+;

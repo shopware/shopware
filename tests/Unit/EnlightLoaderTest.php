@@ -118,7 +118,7 @@ class EnlightLoaderTest extends TestCase
             ['', __DIR__],
             ['./', __DIR__],
             ['../', dirname(__DIR__)],
-            ['Bundle/MediaBundle/Strategy/../../', __DIR__ . '/Bundle'],
+            ['Bundle/Media/Strategy/../../', __DIR__ . '/Bundle'],
 
             // Absolute paths
             ['/', '/'],

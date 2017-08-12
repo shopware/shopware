@@ -85,3 +85,9 @@ ALTER TABLE product_category_ro
 # ;
 
 DROP TABLE IF EXISTS `s_core_sessions`;
+
+ALTER TABLE media
+  DROP `extension`,
+  DROP `width`,
+  DROP `height`
+;

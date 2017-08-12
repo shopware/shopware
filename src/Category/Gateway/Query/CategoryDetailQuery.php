@@ -14,7 +14,7 @@ class CategoryDetailQuery extends CategoryIdentityQuery
 
         //assigned category media
         $this->addSelect($fieldHelper->getMediaFields());
-        $this->leftJoin('category', 's_media', 'media', 'media.id = category.media_id');
+        $this->leftJoin('category', 'media', 'media', 'media.id = category.media_id');
         $this->leftJoin('media', 's_media_album_settings', 'mediaSettings', 'mediaSettings.albumID = media.albumID');
         $this->leftJoin('media', 's_media_attributes', 'mediaAttribute', 'mediaAttribute.mediaID = media.id');
         $fieldHelper->addMediaTranslation($this, $context);

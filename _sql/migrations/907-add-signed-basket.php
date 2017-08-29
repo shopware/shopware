@@ -11,12 +11,12 @@ class Migrations_Migration907 extends AbstractMigration
     {
         $sql = <<<'SQL'
 CREATE TABLE `s_order_basket_signatures` (
-  `signature` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
-  `basket` longtext COLLATE utf8_unicode_ci NOT NULL,
+  `signature` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `basket` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` date NOT NULL,
   PRIMARY KEY (`signature`),
   KEY (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
         $this->addSql($sql);
 

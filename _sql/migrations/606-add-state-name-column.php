@@ -3,7 +3,7 @@ class Migrations_Migration606 extends Shopware\Framework\Migration\AbstractMigra
 {
     public function up($modus)
     {
-        $this->addSql("ALTER TABLE `s_core_states` ADD `name` VARCHAR(55) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL AFTER `id`;");
+        $this->addSql("ALTER TABLE `s_core_states` ADD `name` VARCHAR(55) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL AFTER `id`;");
 
         $this->addSql("UPDATE s_core_states SET `name` = 'cancelled' WHERE `description` LIKE 'Abgebrochen' AND `group` LIKE 'state';");
         $this->addSql("UPDATE s_core_states SET `name` = 'open' WHERE `description` LIKE 'Offen' AND `group` LIKE 'state';");

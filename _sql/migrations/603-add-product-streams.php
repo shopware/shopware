@@ -32,13 +32,13 @@ EOD;
         $sql = <<<'EOD'
 CREATE TABLE IF NOT EXISTS `s_product_streams` (
     `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-    `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-    `conditions` text COLLATE utf8_unicode_ci,
-    `type` int(11) COLLATE utf8_unicode_ci,
-    `sorting` text COLLATE utf8_unicode_ci,
-    `description` text COLLATE utf8_unicode_ci,
+    `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `conditions` text COLLATE utf8mb4_unicode_ci,
+    `type` int(11) COLLATE utf8mb4_unicode_ci,
+    `sorting` text COLLATE utf8mb4_unicode_ci,
+    `description` text COLLATE utf8mb4_unicode_ci,
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 EOD;
         $this->addSql($sql);
 
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS `s_product_streams_articles` (
     UNIQUE KEY `stream_id` (`stream_id`,`article_id`),
     CONSTRAINT s_product_streams_articles_fk_stream_id FOREIGN KEY (stream_id) REFERENCES s_product_streams (id) ON DELETE CASCADE,
     CONSTRAINT s_product_streams_articles_fk_article_id FOREIGN KEY (article_id) REFERENCES s_articles (id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 EOD;
         $this->addSql($sql);
 
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS `s_product_streams_selection` (
     UNIQUE KEY `stream_id` (`stream_id`,`article_id`),
     CONSTRAINT s_product_streams_selection_fk_stream_id FOREIGN KEY (stream_id) REFERENCES s_product_streams (id) ON DELETE CASCADE,
     CONSTRAINT s_product_streams_selection_fk_article_id FOREIGN KEY (article_id) REFERENCES s_articles (id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 EOD;
 
         $this->addSql($sql);

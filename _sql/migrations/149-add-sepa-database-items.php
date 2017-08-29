@@ -51,39 +51,39 @@ class Migrations_Migration149 Extends Shopware\Framework\Migration\AbstractMigra
             `payment_mean_id` int(11) DEFAULT NULL,
             `order_id` int(11) DEFAULT NULL,
             `user_id` int(11) DEFAULT NULL,
-            `firstname` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-            `lastname` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-            `address` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-            `zipcode` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
-            `city` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-            `account_number` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-            `account_holder` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-            `bank_name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-            `bank_code` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-            `bic` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-            `iban` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-            `amount` decimal(20,4) COLLATE utf8_unicode_ci DEFAULT NULL,
+            `firstname` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+            `lastname` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+            `address` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+            `zipcode` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+            `city` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+            `account_number` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+            `account_holder` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+            `bank_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+            `bank_code` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+            `bic` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+            `iban` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+            `amount` decimal(20,4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
             `created_at` date NOT NULL,
             PRIMARY KEY (`id`),
             KEY `payment_mean_id` (`payment_mean_id`),
             KEY `payment_mean_id_2` (`payment_mean_id`),
             KEY `order_id` (`order_id`),
             KEY `user_id` (`user_id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
         CREATE TABLE IF NOT EXISTS `s_core_payment_data` (
             `id` int(11) NOT NULL AUTO_INCREMENT,
             `payment_mean_id` int(11) NOT NULL,
             `user_id` int(11) NOT NULL,
-            `use_billing_data` int(1) COLLATE utf8_unicode_ci DEFAULT NULL,
-            `bankname` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-            `bic` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-            `iban` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+            `use_billing_data` int(1) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+            `bankname` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+            `bic` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+            `iban` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
             `created_at` date NOT NULL,
             PRIMARY KEY (`id`),
             KEY `payment_mean_id` (`payment_mean_id`,`user_id`),
             KEY `user_id` (`user_id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
         INSERT IGNORE INTO `s_core_paymentmeans` (`name`, `description`, `template`, `class`, `table`, `hide`, `additionaldescription`, `debit_percent`, `surcharge`, `surchargestring`, `position`, `active`, `esdactive`, `embediframe`, `hideprospect`, `action`, `pluginID`, `source`) VALUES
             ('sepa', 'SEPA', 'sepa.tpl', 'sepa', '', 0, 'SEPA debit', 0, 0, '', 5, 0, 0, '', 0, '', NULL, 1);

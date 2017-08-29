@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `s_articles_categories_seo` (
   `category_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `shop_article` (`shop_id`,`article_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
 EOD;
         $this->addSql($sql);

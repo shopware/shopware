@@ -3,7 +3,7 @@ parameters:
     database_port:     ~
     database_name:     shopware
     database_user:     root
-    database_charset: UTF8
+    database_charset:  utf8mb4
     database_password: ~
 
     mailer_transport:  smtp

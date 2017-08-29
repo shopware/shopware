@@ -6,11 +6,11 @@ class Migrations_Migration422 Extends Shopware\Framework\Migration\AbstractMigra
         $sql = "
             CREATE TABLE IF NOT EXISTS `s_core_plugin_categories` (
                 `id` int(11) NOT NULL,
-                `locale` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+                `locale` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
                 `parent_id` int(11) NULL,
-                `name` text COLLATE utf8_unicode_ci NOT NULL,
+                `name` text COLLATE utf8mb4_unicode_ci NOT NULL,
             PRIMARY KEY (`id`,`locale`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ";
         $this->addSql($sql);
 

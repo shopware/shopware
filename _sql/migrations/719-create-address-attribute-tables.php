@@ -31,7 +31,7 @@ CREATE TABLE `s_user_addresses_attributes` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `address_id` (`address_id`),
   CONSTRAINT `s_user_addresses_attributes_ibfk_1` FOREIGN KEY (`address_id`) REFERENCES `s_user_addresses` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL;
         $this->connection->exec($sql);
     }

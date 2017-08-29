@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS `s_article_configurator_options_attributes` (
   PRIMARY KEY (`id`),
   KEY `optionID` (`optionID`),
   CONSTRAINT `s_article_configurator_options_attributes_ibfk_1` FOREIGN KEY (`optionID`) REFERENCES `s_article_configurator_options` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SQL;
         $this->addSql($sql);
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `s_article_configurator_groups_attributes` (
   PRIMARY KEY (`id`),
   KEY `groupID` (`groupID`),
   CONSTRAINT `s_article_configurator_groups_attributes_ibfk_1` FOREIGN KEY (`groupID`) REFERENCES `s_article_configurator_groups` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SQL;
         $this->addSql($sql);

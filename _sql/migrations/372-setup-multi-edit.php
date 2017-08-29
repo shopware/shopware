@@ -15,21 +15,21 @@ class Migrations_Migration372 Extends Shopware\Framework\Migration\AbstractMigra
             CREATE TABLE IF NOT EXISTS `s_multi_edit_filter`  (
               `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
               `name` varchar(255) NOT NULL COMMENT 'Name of the filter',
-              `filter_string` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'The actual filter string',
-              `description` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'User description of the filter',
+              `filter_string` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'The actual filter string',
+              `description` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'User description of the filter',
               `created` datetime DEFAULT 0 COMMENT 'Creation date',
               `is_favorite` tinyint(1) DEFAULT 0 NOT NULL COMMENT 'Did the user mark this filter as favorite?',
               `is_simple` tinyint(1) DEFAULT 0 NOT NULL COMMENT 'Can the filter be loaded and modified with the simple editor?',
               PRIMARY KEY (`id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 COMMENT 'Holds all multi edit filters';
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 COMMENT 'Holds all multi edit filters';
 EOD;
         $this->addSql($sql);
 
         $sql = <<<'EOD'
             CREATE TABLE IF NOT EXISTS `s_multi_edit_backup`  (
               `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-              `filter_string` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Filter string of the backed up change',
-              `operation_string` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Operations applied after the backup',
+              `filter_string` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Filter string of the backed up change',
+              `operation_string` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Operations applied after the backup',
               `items` int(255) unsigned NOT NULL COMMENT 'Number of items affected by the backup',
               `date` datetime DEFAULT 0 COMMENT 'Creation date',
 		      `size` int(255) unsigned NOT NULL COMMENT 'Size of the backup file',
@@ -39,7 +39,7 @@ EOD;
               KEY (`date`),
               KEY (`size`),
               KEY (`items`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 COMMENT 'Backups known to the system';
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 COMMENT 'Backups known to the system';
 EOD;
         $this->addSql($sql);
 
@@ -47,15 +47,15 @@ EOD;
           CREATE TABLE IF NOT EXISTS `s_multi_edit_queue`  (
               `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
               `resource` varchar(255) NOT NULL COMMENT 'Queued resource (e.g. product)',
-              `filter_string` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'The actual filter string',
-              `operations` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Operations to apply',
+              `filter_string` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'The actual filter string',
+              `operations` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Operations to apply',
               `items` int(255) unsigned NOT NULL COMMENT 'Initial number of objects in the queue',
               `active` tinyint(1) DEFAULT 0 NOT NULL COMMENT 'When active, the queue is allowed to be progressed by cronjob',
               `created` datetime DEFAULT 0 COMMENT 'Creation date',
               PRIMARY KEY (`id`),
               KEY (`filter_string`(255)),
               KEY (`created`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 COMMENT 'Holds the batch process queue';
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 COMMENT 'Holds the batch process queue';
 EOD;
         $this->addSql($sql);
 
@@ -70,7 +70,7 @@ EOD;
               UNIQUE (`queue_id`, `detail_id`),
               CONSTRAINT `s_multi_edit_queue_articles_ibfk_1` FOREIGN KEY (`detail_id`) REFERENCES `s_articles_details` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
               CONSTRAINT `s_multi_edit_queue_articles_ibfk_2` FOREIGN KEY (`queue_id`) REFERENCES `s_multi_edit_queue` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 COMMENT 'Products belonging to a certain queue';
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 COMMENT 'Products belonging to a certain queue';
 EOD;
         $this->addSql($sql);
     }

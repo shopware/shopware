@@ -4,7 +4,7 @@ class Migrations_Migration231 Extends Shopware\Framework\Migration\AbstractMigra
     public function up($modus)
     {
         $sql = <<<'EOD'
-            ALTER TABLE  `s_core_config_elements` CHANGE  `description`  `description` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL ;
+            ALTER TABLE  `s_core_config_elements` CHANGE  `description`  `description` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL ;
 
             SET @oldElementId = (SELECT id FROM `s_core_config_elements` WHERE `name` = 'redirectDownload' LIMIT 1);
             UPDATE s_core_config_elements SET form_id = -1 WHERE id = @oldElementId;

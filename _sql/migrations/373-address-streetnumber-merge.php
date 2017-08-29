@@ -7,7 +7,7 @@ class Migrations_Migration373 Extends Shopware\Framework\Migration\AbstractMigra
          * Migrate s_emarketing_partner
          */
         $sql = <<<'EOD'
-        ALTER TABLE `s_emarketing_partner` CHANGE `street` `street` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL;
+        ALTER TABLE `s_emarketing_partner` CHANGE `street` `street` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
 EOD;
         $this->addSql($sql);
 

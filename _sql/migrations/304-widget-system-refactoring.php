@@ -24,7 +24,7 @@ class Migrations_Migration304 Extends Shopware\Framework\Migration\AbstractMigra
 
             ALTER TABLE `s_core_widgets` ADD `plugin_id` INT( 11 ) NULL ;
 
-            ALTER TABLE `s_core_widgets` CHANGE `label` `label` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL ;
+            ALTER TABLE `s_core_widgets` CHANGE `label` `label` VARCHAR( 255 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL ;
 
 EOD;
 

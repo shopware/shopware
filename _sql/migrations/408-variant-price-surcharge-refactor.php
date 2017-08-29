@@ -21,11 +21,11 @@ class Migrations_Migration408 Extends Shopware\Framework\Migration\AbstractMigra
               `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
               `configurator_set_id` int(10) unsigned NOT NULL,
               `variation` decimal(10,3) NOT NULL,
-              `options` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+              `options` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
               `is_gross` int(1) DEFAULT 0,
               PRIMARY KEY (`id`),
               KEY `configurator_set_id` (`configurator_set_id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 EOT;
         $this->addSql($sql);
     }

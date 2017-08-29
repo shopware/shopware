@@ -18,7 +18,7 @@ DROP TABLE IF EXISTS translation_migration_id;
 
 CREATE TABLE `translation_migration_id` (
   `max_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 EOL
         );
 

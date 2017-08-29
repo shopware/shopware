@@ -15,7 +15,7 @@ CREATE TABLE `s_core_sessions` (
     `data` MEDIUMBLOB NOT NULL,
     `modified` INTEGER UNSIGNED NOT NULL,
     `expiry` MEDIUMINT NOT NULL
-) COLLATE utf8_bin, ENGINE = InnoDB;
+) COLLATE utf8mb4_bin, ENGINE = InnoDB;
 SQL
         );
 
@@ -30,7 +30,7 @@ CREATE TABLE `s_core_sessions_backend` (
     `data` MEDIUMBLOB NOT NULL,
     `modified` INTEGER UNSIGNED NOT NULL,
     `expiry` MEDIUMINT NOT NULL
-) COLLATE utf8_bin, ENGINE = InnoDB;
+) COLLATE utf8mb4_bin, ENGINE = InnoDB;
 SQL
         );
     }

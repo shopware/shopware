@@ -37,12 +37,12 @@ CREATE TABLE IF NOT EXISTS `s_search_custom_facet` (
   `display_in_categories` int(1) unsigned NOT NULL,
   `deletable` int(1) unsigned NOT NULL,
   `position` int(11) NOT NULL,
-  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `facet` LONGTEXT NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE `unique_identifier` (`unique_key`),
   KEY `sorting` (`display_in_categories`,`position`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
         $this->addSql($sql);
     }

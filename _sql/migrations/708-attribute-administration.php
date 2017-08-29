@@ -7,22 +7,22 @@ class Migrations_Migration708 extends AbstractMigration
     public function up($modus)
     {
         if ($modus == AbstractMigration::MODUS_INSTALL) {
-            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr1` `attr1` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;");
-            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr2` `attr2` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;");
-            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr3` `attr3` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;");
-            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr4` `attr4` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;");
-            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr5` `attr5` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;");
-            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr6` `attr6` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;");
-            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr7` `attr7` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;");
-            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr8` `attr8` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;");
-            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr11` `attr11` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;");
-            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr12` `attr12` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;");
-            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr13` `attr13` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;");
-            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr14` `attr14` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;");
-            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr15` `attr15` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;");
-            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr16` `attr16` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;");
-            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr19` `attr19` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;");
-            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr20` `attr20` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;");
+            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr1` `attr1` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;");
+            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr2` `attr2` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;");
+            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr3` `attr3` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;");
+            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr4` `attr4` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;");
+            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr5` `attr5` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;");
+            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr6` `attr6` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;");
+            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr7` `attr7` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;");
+            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr8` `attr8` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;");
+            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr11` `attr11` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;");
+            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr12` `attr12` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;");
+            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr13` `attr13` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;");
+            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr14` `attr14` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;");
+            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr15` `attr15` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;");
+            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr16` `attr16` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;");
+            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr19` `attr19` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;");
+            $this->addSql("ALTER TABLE `s_articles_attributes` CHANGE `attr20` `attr20` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;");
         }
 
         $sql = <<<'SQL'
@@ -36,21 +36,21 @@ SQL;
         $sql = <<<'SQL'
 CREATE TABLE IF NOT EXISTS `s_attribute_configuration` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `table_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `column_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `column_type` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `table_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `column_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `column_type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `position` int(11) NOT NULL,
   `translatable` int(1) NOT NULL,
   `display_in_backend` int(1) NOT NULL,
   `custom` int(1) NOT NULL,
-  `help_text` TEXT COLLATE utf8_unicode_ci NULL DEFAULT NULL,
-  `support_text` varchar(500) COLLATE utf8_unicode_ci NULL DEFAULT NULL,
-  `label` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `entity` varchar(500) COLLATE utf8_unicode_ci NULL DEFAULT NULL,
+  `help_text` TEXT COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `support_text` varchar(500) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `label` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `entity` varchar(500) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
   `plugin_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `table_name` (`table_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 SQL;
         $this->addSql($sql);
 
@@ -61,7 +61,7 @@ CREATE TABLE `s_filter_values_attributes` (
   PRIMARY KEY (`id`),
   KEY `valueID` (`valueID`),
   CONSTRAINT `s_filter_values_attributes_ibfk_1` FOREIGN KEY (`valueID`) REFERENCES `s_filter_values` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
         $this->addSql($sql);
 
@@ -73,7 +73,7 @@ CREATE TABLE `s_filter_options_attributes` (
   PRIMARY KEY (`id`),
   KEY `optionID` (`optionID`),
   CONSTRAINT `s_filter_options_attributes_ibfk_1` FOREIGN KEY (`optionID`) REFERENCES `s_filter_options` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SQL;
         $this->addSql($sql);
@@ -85,7 +85,7 @@ CREATE TABLE `s_product_streams_attributes` (
   PRIMARY KEY (`id`),
   KEY `streamID` (`streamID`),
   CONSTRAINT `s_product_streams_attributes_ibfk_1` FOREIGN KEY (`streamID`) REFERENCES `s_product_streams` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
         $this->addSql($sql);
 

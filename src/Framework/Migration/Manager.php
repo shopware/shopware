@@ -124,7 +124,7 @@ class Manager
             `name` VARCHAR( 255 ) NOT NULL,
             `error_msg` varchar(255) DEFAULT NULL,
             PRIMARY KEY (`version`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ';
         $this->connection->exec($sql);
     }

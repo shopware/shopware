@@ -7,11 +7,11 @@ class Migrations_Migration601 Extends Shopware\Framework\Migration\AbstractMigra
         $sql = <<<'EOD'
 CREATE TABLE IF NOT EXISTS `s_es_backlog` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `event` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `payload` text COLLATE utf8_unicode_ci NOT NULL,
+  `event` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
 EOD;
         $this->addSql($sql);

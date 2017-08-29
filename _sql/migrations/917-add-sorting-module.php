@@ -36,14 +36,14 @@ class Migrations_Migration917 extends AbstractMigration
         $sql = <<<SQL
 CREATE TABLE IF NOT EXISTS `s_search_custom_sorting` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `label` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `label` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `active` int(1) unsigned NOT NULL,
   `display_in_categories` int(1) unsigned NOT NULL,
   `position` int(11) NOT NULL,
   `sortings` LONGTEXT NOT NULL,
   PRIMARY KEY (`id`),
   KEY `sorting` (`display_in_categories`,`position`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
         $this->addSql($sql);
 

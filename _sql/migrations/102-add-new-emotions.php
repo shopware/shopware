@@ -9,13 +9,13 @@ ALTER TABLE  `s_emotion` ADD  `grid_id` INT NOT NULL;
 DROP TABLE s_emotion_grid;
 CREATE TABLE IF NOT EXISTS `s_emotion_grid` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `cols` int(11) NOT NULL,
   `rows` int(11) NOT NULL,
   `cell_height` int(11) NOT NULL,
   `article_height` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
 
 INSERT INTO `s_emotion_grid` (`id`, `name`, `cols`, `rows`, `cell_height`, `article_height`) VALUES
@@ -37,10 +37,10 @@ UPDATE s_emotion SET template_id = 1;
 
 CREATE TABLE IF NOT EXISTS `s_emotion_templates` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `file` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `file` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
 INSERT INTO `s_emotion_templates` (`id`, `name`, `file`) VALUES
 (1, 'Standard', 'index.tpl');

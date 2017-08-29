@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `s_articles_also_bought_ro` (
   KEY `related_article_id` (`related_article_id`),
   KEY `article_id` (`article_id`),
   KEY `get_also_bought_articles` (`article_id`,`sales`,`related_article_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `s_articles_similar_shown_ro` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS `s_articles_similar_shown_ro` (
   PRIMARY KEY (`id`),
   UNIQUE  `viewed_combination` (  `article_id` ,  `related_article_id` ),
   KEY `viewed` (`viewed`,`related_article_id`,`article_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `s_articles_top_seller_ro` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS `s_articles_top_seller_ro` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `article_id` (`article_id`),
   KEY `sales` (`sales`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
 
 ALTER TABLE  `s_emarketing_lastarticles` ADD INDEX  `get_last_articles` (  `sessionID` ,  `time` );

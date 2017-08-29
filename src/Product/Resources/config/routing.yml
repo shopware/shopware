@@ -1,0 +1,20 @@
+product_list:
+  methods: [GET,OPTIONS]
+  path:     /product.{apiFormat}
+  defaults: { _controller: shopware.product.api.controller:listAction}
+product_detail:
+  methods: [GET]
+  path:     /product/{productUuid}.{apiFormat}
+  defaults: { _controller: shopware.product.api.controller:detailAction}
+product_create:
+  methods: [POST]
+  path:     /product.{apiFormat}
+  defaults: { _controller: shopware.product.api.controller:createAction}
+product_update:
+  methods: [PUT]
+  path:     /product/{productUuid}.{apiFormat}
+  defaults: { _controller: shopware.product.api.controller:updateAction}
+product_delete:
+  methods: [DELETE]
+  path:     /product/{productUuid}.{apiFormat}
+  defaults: { _controller: shopware.product.api.controller:deleteAction}

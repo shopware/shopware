@@ -10,4 +10,5 @@ mysql -u __DB_USER__ -p__DB_PASSWORD__ -h __DB_HOST__ __DB_NAME__ < _sql/install
 mysql -u __DB_USER__ -p__DB_PASSWORD__ -h __DB_HOST__ __DB_NAME__ < _sql/demo/latest.sql
 
 mysql -u __DB_USER__ -p__DB_PASSWORD__ -h __DB_HOST__ __DB_NAME__ < _sql/fixup.sql
+mysql -u __DB_USER__ -p__DB_PASSWORD__ -h __DB_HOST__ __DB_NAME__ < _sql/new.sql
 mysql -u __DB_USER__ -p__DB_PASSWORD__ -h __DB_HOST__ __DB_NAME__ < _sql/destructive.sql

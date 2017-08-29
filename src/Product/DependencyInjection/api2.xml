@@ -1,0 +1,135 @@
+<service id="shopware.product.product.resource" class="Shopware\Product\Gateway\Resource\ProductResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-also-bought-ro.resource" class="Shopware\Product\Gateway\Resource\ProductAlsoBoughtRoResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-attribute.resource" class="Shopware\Product\Gateway\Resource\ProductAttributeResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-avoid-customer-group.resource" class="Shopware\Product\Gateway\Resource\ProductAvoidCustomerGroupResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-category.resource" class="Shopware\Product\Gateway\Resource\ProductCategoryResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-category-ro.resource" class="Shopware\Product\Gateway\Resource\ProductCategoryRoResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-category-seo.resource" class="Shopware\Product\Gateway\Resource\ProductCategorySeoResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-configurator-dependency.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorDependencyResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-configurator-group.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorGroupResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-configurator-group-attribute.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorGroupAttributeResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-configurator-option.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorOptionResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-configurator-option-attribute.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorOptionAttributeResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-configurator-option-relation.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorOptionRelationResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-configurator-price-variation.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorPriceVariationResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-configurator-set.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorSetResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-configurator-set-group-relation.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorSetGroupRelationResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-configurator-set-option-relation.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorSetOptionRelationResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-configurator-template.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorTemplateResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-configurator-template-attribute.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorTemplateAttributeResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-configurator-template-price.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorTemplatePriceResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-configurator-template-price-attribute.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorTemplatePriceAttributeResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-detail.resource" class="Shopware\Product\Gateway\Resource\ProductDetailResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-detail-translation.resource" class="Shopware\Product\Gateway\Resource\ProductDetailTranslationResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-download.resource" class="Shopware\Product\Gateway\Resource\ProductDownloadResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-download-attribute.resource" class="Shopware\Product\Gateway\Resource\ProductDownloadAttributeResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-esd.resource" class="Shopware\Product\Gateway\Resource\ProductEsdResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-esd-attribute.resource" class="Shopware\Product\Gateway\Resource\ProductEsdAttributeResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-esd-serial.resource" class="Shopware\Product\Gateway\Resource\ProductEsdSerialResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-image.resource" class="Shopware\Product\Gateway\Resource\ProductImageResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-image-attribute.resource" class="Shopware\Product\Gateway\Resource\ProductImageAttributeResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-image-mapping.resource" class="Shopware\Product\Gateway\Resource\ProductImageMappingResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-image-mapping-rule.resource" class="Shopware\Product\Gateway\Resource\ProductImageMappingRuleResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-information.resource" class="Shopware\Product\Gateway\Resource\ProductInformationResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-information-attribute.resource" class="Shopware\Product\Gateway\Resource\ProductInformationAttributeResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-manufacturer.resource" class="Shopware\Product\Gateway\Resource\ProductManufacturerResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-manufacturer-attribute.resource" class="Shopware\Product\Gateway\Resource\ProductManufacturerAttributeResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-notification.resource" class="Shopware\Product\Gateway\Resource\ProductNotificationResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-price.resource" class="Shopware\Product\Gateway\Resource\ProductPriceResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-price-attribute.resource" class="Shopware\Product\Gateway\Resource\ProductPriceAttributeResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-relationship.resource" class="Shopware\Product\Gateway\Resource\ProductRelationshipResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-similar.resource" class="Shopware\Product\Gateway\Resource\ProductSimilarResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-similar-shown-ro.resource" class="Shopware\Product\Gateway\Resource\ProductSimilarShownRoResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-top-seller-ro.resource" class="Shopware\Product\Gateway\Resource\ProductTopSellerRoResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-translation.resource" class="Shopware\Product\Gateway\Resource\ProductTranslationResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.product.product-vote.resource" class="Shopware\Product\Gateway\Resource\ProductVoteResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>

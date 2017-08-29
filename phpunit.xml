@@ -19,6 +19,9 @@
         <testsuite name="Product tests">
             <directory>src/Product/Tests</directory>
         </testsuite>
+        <testsuite name="Category tests">
+            <directory>src/Product/Tests</directory>
+        </testsuite>
     </testsuites>
 
     <filter>

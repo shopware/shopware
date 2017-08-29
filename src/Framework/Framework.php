@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Framework;
 
+use Shopware\Framework\DependencyInjection\ApiRegistryCollector;
 use Shopware\Framework\DependencyInjection\FrameworkExtension;
 use Shopware\Framework\Doctrine\BridgeDatabaseCompilerPass;
 use Symfony\Component\Config\FileLocator;
@@ -58,7 +59,11 @@ class Framework extends Bundle
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('services.xml');
+//        $loader->load('api.xml');
+        $loader->load('api2.xml');
+        $loader->load('api2-resources.xml');
 
         $container->addCompilerPass(new BridgeDatabaseCompilerPass());
+        $container->addCompilerPass(new ApiRegistryCollector());
     }
 }

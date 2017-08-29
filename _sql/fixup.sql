@@ -17,7 +17,7 @@ ALTER TABLE s_articles
     CHANGE COLUMN filtergroupID filter_group_id INT(11) unsigned,
     CHANGE COLUMN laststock last_stock INT(1) NOT NULL,
     DROP pricegroupActive,
-    ADD COLUMN main_detail_uuid VARCHAR(42) NOT NULL AFTER tax_id,
+    ADD COLUMN main_detail_uuid VARCHAR(42) NULL AFTER tax_id, -- must be nullable because it is a circuilar reference
     ADD COLUMN tax_uuid VARCHAR(42) NOT NULL AFTER tax_id,
     ADD product_manufacturer_uuid VARCHAR(42) NOT NULL AFTER manufacturer_id,
     ADD filter_group_uuid VARCHAR(42) AFTER filter_group_id
@@ -422,7 +422,9 @@ ALTER TABLE s_articles_prices
     CHANGE COLUMN articledetailsID product_detail_id INT(11) NOT NULL DEFAULT '0',
     CHANGE COLUMN articleID product_id INT(11) NOT NULL DEFAULT '0',
     ADD COLUMN product_uuid VARCHAR(42) NOT NULL AFTER product_id,
-    ADD COLUMN product_detail_uuid VARCHAR(42) NOT NULL AFTER product_detail_id
+    ADD COLUMN product_detail_uuid VARCHAR(42) NOT NULL AFTER product_detail_id,
+    CHANGE `to` `to` VARCHAR (30) NULL DEFAULT NULL,
+    CHANGE `from` `from` INT(11) NOT NULL DEFAULT 0
 ;
 
 -- migration
@@ -534,17 +536,46 @@ ALTER TABLE s_articles_translations
     RENAME TO product_translation,
     CHANGE articleID product_id INT(11) NOT NULL,
     CHANGE languageID language_id INT(11) NOT NULL,
+    CHANGE attr1 attr1 VARCHAR(255) NULL,
+    CHANGE attr2 attr2 VARCHAR(255) NULL,
+    CHANGE attr3 attr3 VARCHAR(255) NULL,
+    CHANGE attr4 attr4 VARCHAR(255) NULL,
+    CHANGE attr5 attr5 VARCHAR(255) NULL,
+    CHANGE keywords keywords VARCHAR(255) NULL,
+    CHANGE description description MEDIUMTEXT NULL,
+    CHANGE description_long description_long MEDIUMTEXT NULL ,
     ADD uuid VARCHAR(42) NOT NULL AFTER id,
     ADD product_uuid VARCHAR(42) NOT NULL AFTER product_id,
-    ADD language_uuid VARCHAR(42) NOT NULL AFTER language_id
+    ADD language_uuid VARCHAR(42) NOT NULL AFTER language_id,
+    ADD meta_title VARCHAR(255) NULL AFTER description_long;
 ;
 
 -- migration
 UPDATE product_translation p SET
     p.uuid          = CONCAT('SWAG-PRODUCT-TRANSLATION-UUID-', p.id),
     p.product_uuid  = CONCAT('SWAG-PRODUCT-UUID-', p.product_id),
-    p.language_uuid = CONCAT('SWAG-CONFIG-LOCALES-UUID-', p.language_uuid)
+    p.language_uuid = CONCAT('SWAG-CONFIG-SHOP-UUID-', p.language_id)
 ;
+
+INSERT INTO product_translation (uuid, language_uuid, language_id, product_uuid, product_id, name, keywords, description, description_long, meta_title, description_clear)
+    (
+        SELECT
+            CONCAT('SWAG-PRODUCT-TRANSLATION-TMP-', p.id)   AS uuid,
+            CONCAT('SWAG-CONFIG-SHOP-UUID-', s.id)          AS language_uuid,
+            s.id                                            AS language_id,
+            p.uuid                                          AS product_uuid,
+            p.id                                            AS product_id,
+            p.name                                          AS name,
+            IFNULL(p.keywords, '')                          AS keywords,
+            IFNULL(p.description, '')                       AS description,
+            IFNULL(p.description_long, '')                  AS description_long,
+            IFNULL(p.meta_title, '')                        AS meta_title,
+            ''                                              AS description_clear
+        FROM
+            product p
+        JOIN
+            s_core_shops s ON s.fallback_id IS NULL
+    );
 
 ALTER TABLE s_articles_vote
     RENAME TO product_vote,
@@ -597,6 +628,7 @@ UPDATE s_core_tax s SET
 ALTER TABLE s_categories
     RENAME TO category,
     ADD uuid VARCHAR(42) NOT NULL AFTER id,
+    ADD parent_uuid VARCHAR(42) AFTER parent,
     DROP `left`,
     DROP `right`,
     CHANGE mediaID media_id INT(11) unsigned,
@@ -613,7 +645,8 @@ ALTER TABLE s_categories
 
 -- migration
 UPDATE category c SET
-    c.uuid = CONCAT('SWAG-CATEGORY-UUID-', c.id)
+    c.uuid = CONCAT('SWAG-CATEGORY-UUID-', c.id),
+    c.parent_uuid = CONCAT('SWAG-CATEGORY-UUID-', c.parent)
 ;
 
 ALTER TABLE s_categories_attributes

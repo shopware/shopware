@@ -14,7 +14,8 @@ product                                 SWAG-PRODUCT-UUID-
 product_attribute                       SWAG-PRODUCT-ATTRIBUTE-UUID-
 product_category                        SWAG-PRODUCT-CATEGORY-UUID-
 product_category_ro                     SWAG-PRODUCT-CATEGORY-RO-UUID-
-product_detail                          SWAG-PRODUCT-DETAIL-UUID-
+# product_detail                          SWAG-PRODUCT-DETAIL-UUID-
+product_detail                          former ordernumber
 product_download                        SWAG-PRODUCT-DOWNLOAD-UUID-
 product_download_attribute              SWAG-PRODUCT-DOWNLOAD-ATTRIBUTE-UUID-
 product_es                              SWAG-PRODUCT-ES-UUID-

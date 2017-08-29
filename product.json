@@ -1,0 +1,27 @@
+[
+    {
+        "uuid": "uuid123",
+        "name": "test123",
+        "taxUuid": "SWAG-CONFIG-TAX-UUID-1",
+        "productManufacturer": {
+            "uuid": "SWAG-PRODUCT-MANUFACTURER-UUID-2"
+        },
+        "mode": 0,
+        "lastStock": 0,
+        "crossbundlelook": 1,
+        "notification": 0,
+        "template": "foo"
+    },
+    {
+        "uuid": "uuid123",
+        "taxUuid": "SWAG-CONFIG-TAX-UUID-1",
+        "productManufacturer": {
+            "uuid": "SWAG-PRODUCT-MANUFACTURER-UUID-2"
+        },
+        "mode": 0,
+        "lastStock": 0,
+        "crossbundlelook": 1,
+        "notification": 0,
+        "template": "foo"
+    }
+]

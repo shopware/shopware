@@ -3,7 +3,6 @@
 <container xmlns="http://symfony.com/schema/dic/services"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
-
     <services>
         <service class="Shopware\Product\Struct\ProductHydrator" id="shopware.product.struct.product_hydrator"/>
         <service class="Shopware\Product\Gateway\Handler\CategoryConditionHandler" id="shopware.product.gateway.handler.category_condition_handler"/>
@@ -35,17 +34,22 @@
             <argument id="shopware.product.gateway.product_searcher" type="service"/>
         </service>
 
-
-
-
-        <service id="shopware.product.writer" class="Shopware\Product\Writer\Writer">
-            <argument type="service" id="shopware.product.sql_gateway"/>
-            <argument type="service" id="shopware.product.field_collection"/>
-            <argument type="service" id="validator"/>
+        <!-- Helpers -->
+        <service id="shopware.product.api.controller" class="Shopware\Product\Controller\ApiController">
+            <argument type="service" id="shopware.product.gateway.product_repository"/>
+            <argument type="service" id="shopware.category.gateway.category_denormalization"/>
         </service>
-        <service id="shopware.product.sql_gateway" class="Shopware\Product\Writer\SqlGateway">
-            <argument type="service" id="doctrine.dbal.default_connection"/>
+
+        <service class="Shopware\Category\Gateway\CategoryDenormalization" id="shopware.category.gateway.category_denormalization">
+            <argument id="doctrine.dbal.default_connection" type="service"/>
         </service>
-        <service id="shopware.product.field_collection" class="Shopware\Product\Writer\Api\FieldCollection" />
+
+
+        <defaults autowire="true" />
+
+        <service class="Shopware\Product\Controller\ApiContextValueResolver" id="shopware.product.controller.api_context_value_resolver">
+            <tag name="controller.argument_value_resolver"/>
+        </service>
+
     </services>
 </container>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<products>
+    <product>
+        <uuid>uuid123</uuid>
+        <taxUuid>SWAG-CONFIG-TAX-UUID-1</taxUuid>
+        <name>test123</name>
+        <productManufacturer>
+            <uuid>SWAG-PRODUCT-MANUFACTURER-UUID-2</uuid>
+        </productManufacturer>
+        <mode>0</mode>
+        <lastStock>0</lastStock>
+        <crossbundlelook>1</crossbundlelook>
+        <notification>0</notification>
+        <template>foo</template>
+    </product>
+    <product>
+        <uuid>uuid123</uuid>
+        <taxUuid>SWAG-CONFIG-TAX-UUID-1</taxUuid>
+        <name>test333</name>
+        <productManufacturer>
+            <uuid>SWAG-PRODUCT-MANUFACTURER-UUID-2</uuid>
+        </productManufacturer>
+        <mode>0</mode>
+        <lastStock>0</lastStock>
+        <crossbundlelook>1</crossbundlelook>
+        <notification>0</notification>
+        <template>foo</template>
+    </product>
+</products>

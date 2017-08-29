@@ -1,0 +1,9 @@
+<service id="shopware.category.category.resource" class="Shopware\Category\Gateway\Resource\CategoryResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.category.category-attribute.resource" class="Shopware\Category\Gateway\Resource\CategoryAttributeResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>
+<service id="shopware.category.category-avoid-customer-group.resource" class="Shopware\Category\Gateway\Resource\CategoryAvoidCustomerGroupResource">
+    <tag name="shopware.framework.api.resource"/> 
+</service>

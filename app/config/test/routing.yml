@@ -1,2 +1,2 @@
-imports:
-    - { resource: "../dev/routing.yml" }
+_main:
+    resource: "../prod/routing.yml"

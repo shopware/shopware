@@ -1,0 +1,509 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="shopware.api2.resource.filter.resource" class="Shopware\Framework\Api2\Resource\FilterResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.filter-attribute.resource" class="Shopware\Framework\Api2\Resource\FilterAttributeResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.filter-option.resource" class="Shopware\Framework\Api2\Resource\FilterOptionResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.filter-option-attribute.resource" class="Shopware\Framework\Api2\Resource\FilterOptionAttributeResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.filter-product.resource" class="Shopware\Framework\Api2\Resource\FilterProductResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.filter-relation.resource" class="Shopware\Framework\Api2\Resource\FilterRelationResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.filter-value.resource" class="Shopware\Framework\Api2\Resource\FilterValueResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.filter-value-attribute.resource" class="Shopware\Framework\Api2\Resource\FilterValueAttributeResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.addon-premiums.resource" class="Shopware\Framework\Api2\Resource\AddonPremiumsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.attribute-configuration.resource" class="Shopware\Framework\Api2\Resource\AttributeConfigurationResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.billing-template.resource" class="Shopware\Framework\Api2\Resource\BillingTemplateResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.blog.resource" class="Shopware\Framework\Api2\Resource\BlogResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.blog-assigned-articles.resource" class="Shopware\Framework\Api2\Resource\BlogAssignedArticlesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.blog-comments.resource" class="Shopware\Framework\Api2\Resource\BlogCommentsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.blog-media.resource" class="Shopware\Framework\Api2\Resource\BlogMediaResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.blog-tags.resource" class="Shopware\Framework\Api2\Resource\BlogTagsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.campaigns-articles.resource" class="Shopware\Framework\Api2\Resource\CampaignsArticlesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.campaigns-banner.resource" class="Shopware\Framework\Api2\Resource\CampaignsBannerResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.campaigns-containers.resource" class="Shopware\Framework\Api2\Resource\CampaignsContainersResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.campaigns-groups.resource" class="Shopware\Framework\Api2\Resource\CampaignsGroupsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.campaigns-html.resource" class="Shopware\Framework\Api2\Resource\CampaignsHtmlResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.campaigns-links.resource" class="Shopware\Framework\Api2\Resource\CampaignsLinksResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.campaigns-logs.resource" class="Shopware\Framework\Api2\Resource\CampaignsLogsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.campaigns-mailaddresses.resource" class="Shopware\Framework\Api2\Resource\CampaignsMailaddressesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.campaigns-maildata.resource" class="Shopware\Framework\Api2\Resource\CampaignsMaildataResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.campaigns-mailings.resource" class="Shopware\Framework\Api2\Resource\CampaignsMailingsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.campaigns-positions.resource" class="Shopware\Framework\Api2\Resource\CampaignsPositionsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.campaigns-sender.resource" class="Shopware\Framework\Api2\Resource\CampaignsSenderResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.campaigns-templates.resource" class="Shopware\Framework\Api2\Resource\CampaignsTemplatesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.cart.resource" class="Shopware\Framework\Api2\Resource\CartResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.cart-order.resource" class="Shopware\Framework\Api2\Resource\CartOrderResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.cms-static.resource" class="Shopware\Framework\Api2\Resource\CmsStaticResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.cms-static-groups.resource" class="Shopware\Framework\Api2\Resource\CmsStaticGroupsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.cms-support.resource" class="Shopware\Framework\Api2\Resource\CmsSupportResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.cms-support-fields.resource" class="Shopware\Framework\Api2\Resource\CmsSupportFieldsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-acl-privileges.resource" class="Shopware\Framework\Api2\Resource\CoreAclPrivilegesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-acl-resources.resource" class="Shopware\Framework\Api2\Resource\CoreAclResourcesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-acl-roles.resource" class="Shopware\Framework\Api2\Resource\CoreAclRolesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-auth.resource" class="Shopware\Framework\Api2\Resource\CoreAuthResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-auth-roles.resource" class="Shopware\Framework\Api2\Resource\CoreAuthRolesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-config-element-translations.resource" class="Shopware\Framework\Api2\Resource\CoreConfigElementTranslationsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-config-elements.resource" class="Shopware\Framework\Api2\Resource\CoreConfigElementsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-config-form-translations.resource" class="Shopware\Framework\Api2\Resource\CoreConfigFormTranslationsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-config-forms.resource" class="Shopware\Framework\Api2\Resource\CoreConfigFormsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-config-mails.resource" class="Shopware\Framework\Api2\Resource\CoreConfigMailsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-config-mails-attachments.resource" class="Shopware\Framework\Api2\Resource\CoreConfigMailsAttachmentsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-config-values.resource" class="Shopware\Framework\Api2\Resource\CoreConfigValuesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-countries.resource" class="Shopware\Framework\Api2\Resource\CoreCountriesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-countries-areas.resource" class="Shopware\Framework\Api2\Resource\CoreCountriesAreasResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-countries-states.resource" class="Shopware\Framework\Api2\Resource\CoreCountriesStatesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-currencies.resource" class="Shopware\Framework\Api2\Resource\CoreCurrenciesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-customergroups.resource" class="Shopware\Framework\Api2\Resource\CoreCustomergroupsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-customergroups-discounts.resource" class="Shopware\Framework\Api2\Resource\CoreCustomergroupsDiscountsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-customerpricegroups.resource" class="Shopware\Framework\Api2\Resource\CoreCustomerpricegroupsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-detail-states.resource" class="Shopware\Framework\Api2\Resource\CoreDetailStatesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-documents.resource" class="Shopware\Framework\Api2\Resource\CoreDocumentsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-documents-box.resource" class="Shopware\Framework\Api2\Resource\CoreDocumentsBoxResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-engine-groups.resource" class="Shopware\Framework\Api2\Resource\CoreEngineGroupsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-licenses.resource" class="Shopware\Framework\Api2\Resource\CoreLicensesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-locales.resource" class="Shopware\Framework\Api2\Resource\CoreLocalesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-log.resource" class="Shopware\Framework\Api2\Resource\CoreLogResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-menu.resource" class="Shopware\Framework\Api2\Resource\CoreMenuResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-optin.resource" class="Shopware\Framework\Api2\Resource\CoreOptinResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-payment-data.resource" class="Shopware\Framework\Api2\Resource\CorePaymentDataResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-payment-instance.resource" class="Shopware\Framework\Api2\Resource\CorePaymentInstanceResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-paymentmeans.resource" class="Shopware\Framework\Api2\Resource\CorePaymentmeansResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-paymentmeans-countries.resource" class="Shopware\Framework\Api2\Resource\CorePaymentmeansCountriesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-paymentmeans-subshops.resource" class="Shopware\Framework\Api2\Resource\CorePaymentmeansSubshopsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-plugin-categories.resource" class="Shopware\Framework\Api2\Resource\CorePluginCategoriesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-plugins.resource" class="Shopware\Framework\Api2\Resource\CorePluginsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-pricegroups.resource" class="Shopware\Framework\Api2\Resource\CorePricegroupsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-pricegroups-discounts.resource" class="Shopware\Framework\Api2\Resource\CorePricegroupsDiscountsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-rewrite-urls.resource" class="Shopware\Framework\Api2\Resource\CoreRewriteUrlsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-rulesets.resource" class="Shopware\Framework\Api2\Resource\CoreRulesetsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-sessions.resource" class="Shopware\Framework\Api2\Resource\CoreSessionsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-sessions-backend.resource" class="Shopware\Framework\Api2\Resource\CoreSessionsBackendResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-shop-currencies.resource" class="Shopware\Framework\Api2\Resource\CoreShopCurrenciesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-shop-pages.resource" class="Shopware\Framework\Api2\Resource\CoreShopPagesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-shops.resource" class="Shopware\Framework\Api2\Resource\CoreShopsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-snippets.resource" class="Shopware\Framework\Api2\Resource\CoreSnippetsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-states.resource" class="Shopware\Framework\Api2\Resource\CoreStatesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-subscribes.resource" class="Shopware\Framework\Api2\Resource\CoreSubscribesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-tax.resource" class="Shopware\Framework\Api2\Resource\CoreTaxResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-tax-rules.resource" class="Shopware\Framework\Api2\Resource\CoreTaxRulesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-templates.resource" class="Shopware\Framework\Api2\Resource\CoreTemplatesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-templates-config-elements.resource" class="Shopware\Framework\Api2\Resource\CoreTemplatesConfigElementsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-templates-config-layout.resource" class="Shopware\Framework\Api2\Resource\CoreTemplatesConfigLayoutResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-templates-config-set.resource" class="Shopware\Framework\Api2\Resource\CoreTemplatesConfigSetResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-templates-config-values.resource" class="Shopware\Framework\Api2\Resource\CoreTemplatesConfigValuesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-theme-settings.resource" class="Shopware\Framework\Api2\Resource\CoreThemeSettingsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-translations.resource" class="Shopware\Framework\Api2\Resource\CoreTranslationsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-units.resource" class="Shopware\Framework\Api2\Resource\CoreUnitsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-widget-views.resource" class="Shopware\Framework\Api2\Resource\CoreWidgetViewsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.core-widgets.resource" class="Shopware\Framework\Api2\Resource\CoreWidgetsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.crontab.resource" class="Shopware\Framework\Api2\Resource\CrontabResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.emarketing-banners.resource" class="Shopware\Framework\Api2\Resource\EmarketingBannersResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.emarketing-banners-statistics.resource" class="Shopware\Framework\Api2\Resource\EmarketingBannersStatisticsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.emarketing-lastarticles.resource" class="Shopware\Framework\Api2\Resource\EmarketingLastarticlesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.emarketing-partner.resource" class="Shopware\Framework\Api2\Resource\EmarketingPartnerResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.emarketing-referer.resource" class="Shopware\Framework\Api2\Resource\EmarketingRefererResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.emarketing-tellafriend.resource" class="Shopware\Framework\Api2\Resource\EmarketingTellafriendResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.emarketing-voucher-codes.resource" class="Shopware\Framework\Api2\Resource\EmarketingVoucherCodesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.emarketing-vouchers.resource" class="Shopware\Framework\Api2\Resource\EmarketingVouchersResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.emotion.resource" class="Shopware\Framework\Api2\Resource\EmotionResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.emotion-categories.resource" class="Shopware\Framework\Api2\Resource\EmotionCategoriesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.emotion-element.resource" class="Shopware\Framework\Api2\Resource\EmotionElementResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.emotion-element-value.resource" class="Shopware\Framework\Api2\Resource\EmotionElementValueResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.emotion-element-viewports.resource" class="Shopware\Framework\Api2\Resource\EmotionElementViewportsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.emotion-shops.resource" class="Shopware\Framework\Api2\Resource\EmotionShopsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.emotion-templates.resource" class="Shopware\Framework\Api2\Resource\EmotionTemplatesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.es-backlog.resource" class="Shopware\Framework\Api2\Resource\EsBacklogResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.export.resource" class="Shopware\Framework\Api2\Resource\ExportResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.export-articles.resource" class="Shopware\Framework\Api2\Resource\ExportArticlesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.export-categories.resource" class="Shopware\Framework\Api2\Resource\ExportCategoriesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.export-suppliers.resource" class="Shopware\Framework\Api2\Resource\ExportSuppliersResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.library-component.resource" class="Shopware\Framework\Api2\Resource\LibraryComponentResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.library-component-field.resource" class="Shopware\Framework\Api2\Resource\LibraryComponentFieldResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.media.resource" class="Shopware\Framework\Api2\Resource\MediaResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.media-album.resource" class="Shopware\Framework\Api2\Resource\MediaAlbumResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.media-album-settings.resource" class="Shopware\Framework\Api2\Resource\MediaAlbumSettingsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.media-association.resource" class="Shopware\Framework\Api2\Resource\MediaAssociationResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.multi-edit-backup.resource" class="Shopware\Framework\Api2\Resource\MultiEditBackupResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.multi-edit-filter.resource" class="Shopware\Framework\Api2\Resource\MultiEditFilterResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.multi-edit-queue.resource" class="Shopware\Framework\Api2\Resource\MultiEditQueueResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.multi-edit-queue-articles.resource" class="Shopware\Framework\Api2\Resource\MultiEditQueueArticlesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.order.resource" class="Shopware\Framework\Api2\Resource\OrderResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.order-basket.resource" class="Shopware\Framework\Api2\Resource\OrderBasketResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.order-basket-signatures.resource" class="Shopware\Framework\Api2\Resource\OrderBasketSignaturesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.order-billingaddress.resource" class="Shopware\Framework\Api2\Resource\OrderBillingaddressResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.order-comparisons.resource" class="Shopware\Framework\Api2\Resource\OrderComparisonsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.order-details.resource" class="Shopware\Framework\Api2\Resource\OrderDetailsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.order-documents.resource" class="Shopware\Framework\Api2\Resource\OrderDocumentsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.order-esd.resource" class="Shopware\Framework\Api2\Resource\OrderEsdResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.order-history.resource" class="Shopware\Framework\Api2\Resource\OrderHistoryResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.order-notes.resource" class="Shopware\Framework\Api2\Resource\OrderNotesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.order-number.resource" class="Shopware\Framework\Api2\Resource\OrderNumberResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.order-shippingaddress.resource" class="Shopware\Framework\Api2\Resource\OrderShippingaddressResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.plugin-recommendations.resource" class="Shopware\Framework\Api2\Resource\PluginRecommendationsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.plugin-widgets-notes.resource" class="Shopware\Framework\Api2\Resource\PluginWidgetsNotesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.premium-dispatch.resource" class="Shopware\Framework\Api2\Resource\PremiumDispatchResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.premium-dispatch-categories.resource" class="Shopware\Framework\Api2\Resource\PremiumDispatchCategoriesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.premium-dispatch-countries.resource" class="Shopware\Framework\Api2\Resource\PremiumDispatchCountriesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.premium-dispatch-holidays.resource" class="Shopware\Framework\Api2\Resource\PremiumDispatchHolidaysResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.premium-dispatch-paymentmeans.resource" class="Shopware\Framework\Api2\Resource\PremiumDispatchPaymentmeansResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.premium-holidays.resource" class="Shopware\Framework\Api2\Resource\PremiumHolidaysResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.premium-shippingcosts.resource" class="Shopware\Framework\Api2\Resource\PremiumShippingcostsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.product.product-streams.resource" class="Shopware\Product\Gateway\Resource\ProductStreamsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.product.product-streams-articles.resource" class="Shopware\Product\Gateway\Resource\ProductStreamsArticlesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.product.product-streams-selection.resource" class="Shopware\Product\Gateway\Resource\ProductStreamsSelectionResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.schema-version.resource" class="Shopware\Framework\Api2\Resource\SchemaVersionResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.search.search-custom-facet.resource" class="Shopware\Search\Gateway\Resource\SearchCustomFacetResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.search.search-custom-sorting.resource" class="Shopware\Search\Gateway\Resource\SearchCustomSortingResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.search.search-fields.resource" class="Shopware\Search\Gateway\Resource\SearchFieldsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.search.search-index.resource" class="Shopware\Search\Gateway\Resource\SearchIndexResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.search.search-keywords.resource" class="Shopware\Search\Gateway\Resource\SearchKeywordsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.search.search-tables.resource" class="Shopware\Search\Gateway\Resource\SearchTablesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.statistics-article-impression.resource" class="Shopware\Framework\Api2\Resource\StatisticsArticleImpressionResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.statistics-currentusers.resource" class="Shopware\Framework\Api2\Resource\StatisticsCurrentusersResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.statistics-pool.resource" class="Shopware\Framework\Api2\Resource\StatisticsPoolResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.statistics-referer.resource" class="Shopware\Framework\Api2\Resource\StatisticsRefererResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.statistics-search.resource" class="Shopware\Framework\Api2\Resource\StatisticsSearchResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.statistics-visitors.resource" class="Shopware\Framework\Api2\Resource\StatisticsVisitorsResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.user.resource" class="Shopware\Framework\Api2\Resource\UserResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.user-addresses.resource" class="Shopware\Framework\Api2\Resource\UserAddressesResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.user-billingaddress.resource" class="Shopware\Framework\Api2\Resource\UserBillingaddressResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.user-shippingaddress.resource" class="Shopware\Framework\Api2\Resource\UserShippingaddressResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+<service id="shopware.api2.resource.seo-url.resource" class="Shopware\Framework\Api2\Resource\SeoUrlResource">
+    <tag name="shopware.framework.api2.resource"/> 
+</service>
+    </services>
+</container>

@@ -3,7 +3,9 @@
 namespace Shopware\Product\Controller;
 
 use Shopware\Category\Gateway\CategoryDenormalization;
+use Shopware\Framework\Api2\Resource\ResourceRegistry;
 use Shopware\Product\Gateway\ProductRepository;
+use Shopware\Product\Gateway\Resource\ProductResource;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,12 +23,22 @@ class ApiController
     private $categoryDenormalization;
 
     /**
+     * @var ResourceRegistry
+     */
+    private $resourceRegistry;
+
+    /**
      * @param ProductRepository $productRepository
      */
-    public function __construct(ProductRepository $productRepository, CategoryDenormalization $categoryDenormalization)
+    public function __construct(
+        ProductRepository $productRepository,
+        CategoryDenormalization $categoryDenormalization,
+        ResourceRegistry $resourceRegistry
+    )
     {
         $this->productRepository = $productRepository;
         $this->categoryDenormalization = $categoryDenormalization;
+        $this->resourceRegistry = $resourceRegistry;
     }
 
     public function listAction(Request $request): Response

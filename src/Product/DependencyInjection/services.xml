@@ -38,6 +38,7 @@
         <service id="shopware.product.api.controller" class="Shopware\Product\Controller\ApiController">
             <argument type="service" id="shopware.product.gateway.product_repository"/>
             <argument type="service" id="shopware.category.gateway.category_denormalization"/>
+            <argument type="service" id="shopware.framework.api2.resource_registry"/>
         </service>
 
         <service class="Shopware\Category\Gateway\CategoryDenormalization" id="shopware.category.gateway.category_denormalization">

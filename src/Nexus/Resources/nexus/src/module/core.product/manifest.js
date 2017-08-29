@@ -15,7 +15,7 @@ export default {
         }
     },
 
-    navigation: [{
+    navigation: {
         root: [{
             'core.product.index': {
                 icon: 'box',
@@ -23,7 +23,7 @@ export default {
                 name: 'Produktübersicht'
             }
         }]
-    }],
+    },
 
     commands: [{
         title: 'Übersicht',

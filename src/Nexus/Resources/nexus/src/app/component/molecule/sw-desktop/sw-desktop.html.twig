@@ -2,6 +2,15 @@
     <h1>sw-desktop</h1>
     <aside>
         <ul>
+            <li v-for="entry, routeName in mainMenuEntries">
+                <router-link :to="{ name: routeName}">
+                    <i :class="getIconName(entry.icon)" :style="{ 'color': entry.color }"></i>
+                    {{ entry.name }}
+                </router-link>
+            </li>
+            <li>
+                <strong>Manually registered menu entries</strong>
+            </li>
             <li>
                 <router-link :to="{ name: 'core.dashboard.index'}">
                     Dashboard

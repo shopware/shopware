@@ -1,10 +1,20 @@
 export {
     getModuleRoutes,
-    registerModule
+    registerModule,
+    getModuleRegistry
 };
 
 /** @type Map modules - Registry for modules */
 const modules = new Map();
+
+/**
+ * Returns the registry of all modules mounted in the application.
+ *
+ * @returns {Map} modules - Registry of all modules
+ */
+function getModuleRegistry() {
+    return modules;
+}
 
 /**
  * Registers a module in the application. The module will be mounted using
@@ -51,8 +61,16 @@ function registerModule(module, type = 'plugin') {
         moduleRoutes.push(route);
     });
 
-    // console.log('set module routes', moduleRoutes);
-    modules.set(moduleId, moduleRoutes);
+    const moduleDefinition = {
+        routes: moduleRoutes,
+        manifest: module
+    };
+
+    if (Object.prototype.hasOwnProperty.bind(module, 'navigation') && module.navigation) {
+        moduleDefinition.navigation = module.navigation;
+    }
+
+    modules.set(moduleId, moduleDefinition);
     return moduleRoutes;
 }
 
@@ -66,7 +84,7 @@ function getModuleRoutes() {
     const moduleRoutes = [];
 
     modules.forEach((module) => {
-        module.forEach((route) => {
+        module.routes.forEach((route) => {
             moduleRoutes.push(route);
         });
     });

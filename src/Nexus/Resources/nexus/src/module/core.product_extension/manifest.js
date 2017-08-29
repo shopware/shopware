@@ -18,7 +18,7 @@ export default {
         }
     },
 
-    navigation: [{
+    navigation: {
         root: [{
             'core.product.extension.index': {
                 icon: 'box',
@@ -26,5 +26,5 @@ export default {
                 name: 'Product Extension'
             }
         }]
-    }]
+    }
 };

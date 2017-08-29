@@ -987,4 +987,20 @@ ALTER TABLE filter_option_attribute
 ;
 
 INSERT IGNORE INTO `s_core_templates` (`id`, `template`, `name`, `description`, `author`, `license`, `esi`, `style_support`, `emotion`, `version`, `plugin_id`, `parent_id`) VALUES
-(11,	'Responsive',	'__theme_name__',	'__theme_description__',	'__author__',	'__license__',	1,	1,	1,	3,	NULL,	NULL);
+(11,    'Responsive',    '__theme_name__',    '__theme_description__',    '__author__',    '__license__',    1,    1,    1,    3,    NULL,    NULL);
+
+ALTER TABLE product_translation
+    ADD CONSTRAINT `fk_product_translation.product_uuid`
+FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_product_translation.language_uuid`
+FOREIGN KEY (`language_uuid`) REFERENCES `s_core_shops` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product
+    ADD CONSTRAINT `fk_product.tax_uuid`
+FOREIGN KEY (`tax_uuid`) REFERENCES `s_core_tax` (`uuid`) ON DELETE RESTRICT ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_product.product_manufacturer_uuid`
+FOREIGN KEY (`product_manufacturer_uuid`) REFERENCES `product_manufacturer` (`uuid`) ON DELETE RESTRICT ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_product.main_detail_uuid`
+FOREIGN KEY (`main_detail_uuid`) REFERENCES `product_detail` (`uuid`) ON DELETE RESTRICT ON UPDATE CASCADE
+;

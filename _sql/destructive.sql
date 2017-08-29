@@ -71,15 +71,15 @@ ALTER TABLE product_category_ro
     ADD PRIMARY KEY (product_uuid, category_uuid, parent_category_uuid);
 
 
-ALTER TABLE category_attribute
-    DROP FOREIGN KEY category_attribute_ibfk_1,
-    DROP id,
-    DROP category_id
-;
+# ALTER TABLE category_attribute
+#     DROP FOREIGN KEY category_attribute_ibfk_1,
+#     DROP id,
+#     DROP category_id
+# ;
 
-ALTER TABLE category
-    DROP COLUMN id,
-    DROP COLUMN parent,
-    DROP COLUMN level,
-    DROP COLUMN media_id
-;
+# ALTER TABLE category
+#     DROP COLUMN id,
+#     DROP COLUMN parent,
+#     DROP COLUMN level,
+#     DROP COLUMN media_id
+# ;

@@ -5,11 +5,35 @@ var merge = require('webpack-merge')
 var baseWebpackConfig = require('./webpack.base.conf')
 var HtmlWebpackPlugin = require('html-webpack-plugin')
 var FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
+var plugins = {};
 
-// add hot-reload related code to entry chunks
+// Temporarily save the app entry point and remove it from the entry definition to sort the object the way we need it.
+// We need the following order
+// - commons
+// - [n] plugins
+// - app
+var appEntry = baseWebpackConfig.entry.app;
+delete baseWebpackConfig.entry.app;
+
+// Try to load plugin definition file
+try {
+    plugins = require('../../../../../web/cache/config_nexus_plugins.json');
+
+    // add hot-reload related code to entry chunks
+    Object.keys(plugins).forEach(function (pluginName) {
+        baseWebpackConfig.entry[pluginName] = plugins[pluginName] + '/Resources/Views/src/manifest.js';
+    });
+} catch(e) {}
+
+baseWebpackConfig.entry.app = appEntry;
+
 Object.keys(baseWebpackConfig.entry).forEach(function (name) {
   baseWebpackConfig.entry[name] = ['./build/dev-client'].concat(baseWebpackConfig.entry[name])
-})
+});
+
+var chunks = Object.keys(baseWebpackConfig.entry).map((entry) => {
+    return entry;
+});
 
 module.exports = merge(baseWebpackConfig, {
   module: {
@@ -28,7 +52,9 @@ module.exports = merge(baseWebpackConfig, {
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: 'index.html',
-      inject: true
+      inject: true,
+      chunksSortMode: 'manual',
+      chunks: chunks
     }),
     new FriendlyErrorsPlugin()
   ]

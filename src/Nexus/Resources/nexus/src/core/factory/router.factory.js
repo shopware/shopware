@@ -11,6 +11,7 @@ export default function createRouter(Router, View) {
 
     function createRouterInstance(opts) {
         const mergedRoutes = registerModuleRoutesAsChildren(allRoutes, moduleRoutes);
+
         const options = Object.assign({}, opts, {
             routes: mergedRoutes
         });

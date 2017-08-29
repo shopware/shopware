@@ -1,7 +1,7 @@
-import ComponentFactory from 'src/core/factory/component.factory';
+
 import template from 'src/app/component/atom/grid/sw-grid-row-editing/sw-grid-row-editing.html.twig';
 
-export default ComponentFactory.register('sw-grid-row-editing', {
+export default Shopware.ComponentFactory.register('sw-grid-row-editing', {
     props: ['items'],
 
     methods: {

@@ -1,9 +1,9 @@
-import ComponentFactory from 'src/core/factory/component.factory';
+
 import template from 'src/app/component/atom/grid/sw-grid-row/sw-grid-row.html.twig';
 
 import swRowGridEditing from 'src/app/component/atom/grid/sw-grid-row-editing';
 
-export default ComponentFactory.register('sw-grid-row', {
+export default Shopware.ComponentFactory.register('sw-grid-row', {
     inject: ['eventEmitter'],
     props: ['editable', 'item'],
 

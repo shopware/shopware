@@ -4,11 +4,19 @@ module.exports = {
     root: true,
     parser: 'babel-eslint',
     parserOptions: {
-        sourceType: 'module'
+        sourceType: 'module',
+        ecmaVersion: 6
     },
     env: {
         browser: true,
     },
+
+    globals: {
+        Shopware: true,
+        ComponentFactory: true,
+        ModuleFactory: true
+    },
+
     // https://github.com/airbnb/javascript
     extends: 'airbnb-base',
     // required to lint *.vue files
@@ -48,7 +56,10 @@ module.exports = {
         // Allow reassigning function parameters
         'no-param-reassign': 0,
 
-        'arrow-body-style': 0,
+        // Match the max line length with the phpstorm default settings
+        'max-len': [ 'warn', 125 ],
+
+        'arrow-body-style': [ 'off' ],
 
         // Allow both types of linebreak because of multiple contributors with different systems.
         'linebreak-style': 0,

@@ -9,6 +9,7 @@ function resolve(dir) {
 
 module.exports = {
     entry: {
+        commons: resolve('src') + '/core/common.js',
         app: resolve('src') + '/app/main.js'
     },
     output: {
@@ -19,7 +20,7 @@ module.exports = {
             : config.dev.assetsPublicPath
     },
     resolve: {
-        extensions: [ '.js', '.vue', '.json' ],
+        extensions: [ '.js', '.vue', '.json', '.less' ],
         alias: {
             'vue$': 'vue/dist/vue.esm.js',
             'src': resolve('src'),
@@ -46,7 +47,7 @@ module.exports = {
             },
             {
                 test: /\.(html|twig)$/,
-                include: [ resolve('src'), resolve('test') ],
+                // include: [ resolve('src'), resolve('test') ],
                 loader: 'html-loader'
             },
             {
@@ -54,8 +55,7 @@ module.exports = {
                 loader: 'babel-loader',
                 include: [resolve('src'), resolve('test')],
                 options: {
-                    presets: [['es2015', {modules: false}]],
-                    plugins: ['syntax-dynamic-import']
+                    presets: [['es2015', { modules: false }]]
                 }
             },
             {
@@ -73,7 +73,37 @@ module.exports = {
                     limit: 10000,
                     name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
                 }
+            },
+            {
+                enforce: 'post',
+                test: require.resolve('../src/core/factory/component.factory.js'),
+                use: [{
+                    loader: 'expose-loader',
+                    options: 'ComponentFactory'
+                }]
+            },
+            {
+                test: require.resolve('../src/core/factory/module.factory.js'),
+                use: [{
+                    loader: 'expose-loader',
+                    options: 'ModuleFactory'
+                }]
+            },
+            {
+                enforce: 'post',
+                test: require.resolve('../src/app/main.js'),
+                use: [{
+                    loader: 'expose-loader',
+                    options: 'ShopwareApplication'
+                }]
+            },
+            {
+                test: require.resolve('../src/core/common.js'),
+                use: [{
+                    loader: 'expose-loader',
+                    options: 'Shopware'
+                }]
             }
-        ]
-    }
+        ],
+    },
 }

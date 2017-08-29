@@ -1,7 +1,7 @@
-import ComponentFactory from 'src/core/factory/component.factory';
+
 import template from 'src/app/component/atom/grid/sw-pagination/sw-pagination.html.twig';
 
-export default ComponentFactory.register('sw-pagination', {
+export default Shopware.ComponentFactory.register('sw-pagination', {
     props: ['pageNum', 'maxPage', 'total', 'perPage'],
 
     data() {

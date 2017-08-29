@@ -1,10 +1,10 @@
 import utils from 'src/core/service/util.service';
 import TemplateFactory from 'src/core/factory/template.factory';
 
-export default {
-    register: registerComponent,
-    extend: extendComponent,
-    override: overrideComponent,
+export {
+    register,
+    extend,
+    override,
     getComponentTemplate,
     getComponentRegistry
 };
@@ -27,7 +27,7 @@ function getComponentRegistry() {
  * @param componentConfiguration
  * @returns {*}
  */
-function registerComponent(componentName, componentConfiguration) {
+function register(componentName, componentConfiguration) {
     let config = componentConfiguration;
 
     config = utils.merge(config, {
@@ -60,11 +60,11 @@ function registerComponent(componentName, componentConfiguration) {
  * @param componentConfiguration
  * @returns {*}
  */
-function extendComponent(componentName, extendComponentName, componentConfiguration) {
+function extend(componentName, extendComponentName, componentConfiguration) {
     let config = componentConfiguration;
 
     if (!componentRegistry.has(extendComponentName)) {
-        return registerComponent(componentName, config);
+        return register(componentName, config);
     }
 
     const name = componentName;
@@ -106,11 +106,11 @@ function extendComponent(componentName, extendComponentName, componentConfigurat
  * @param overrideIndex
  * @returns {*}
  */
-function overrideComponent(componentName, componentConfiguration, overrideIndex = null) {
+function override(componentName, componentConfiguration, overrideIndex = null) {
     let config = componentConfiguration;
 
     if (!componentRegistry.has(componentName)) {
-        return registerComponent(componentName, config);
+        return register(componentName, config);
     }
 
     config = Object.assign(config, {

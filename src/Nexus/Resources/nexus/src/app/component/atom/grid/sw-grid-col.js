@@ -1,7 +1,7 @@
-import ComponentFactory from 'src/core/factory/component.factory';
+
 import template from 'src/app/component/atom/grid/sw-grid-col/sw-grid-col.html.twig';
 
-export default ComponentFactory.register('sw-grid-col', {
+export default Shopware.ComponentFactory.register('sw-grid-col', {
     inject: ['eventEmitter'],
     props: ['width', 'flex', 'editor', 'dataIndex'],
     computed: {

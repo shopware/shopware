@@ -1,7 +1,12 @@
-import ModuleFactory from 'src/core/factory/module.factory';
+import coreModules from 'module';
 
 export default function initializeCoreModules(app, configuration, done) {
-    configuration.coreModuleRoutes = ModuleFactory.getModuleRoutes();
+    // Loop through the core modules
+    coreModules.forEach((module) => {
+        Shopware.ModuleFactory.registerModule(module, 'core');
+    });
+
+    configuration.coreModuleRoutes = Shopware.ModuleFactory.getModuleRoutes();
 
     done(configuration);
 }

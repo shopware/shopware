@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import ComponentFactory from 'src/core/factory/component.factory';
+
 import 'src/app/component/atom';
 import 'src/app/component/molecule';
 
@@ -48,7 +48,7 @@ export default function VueAdapter() {
      * @returns {*}
      */
     function initComponents() {
-        const componentRegistry = ComponentFactory.getComponentRegistry();
+        const componentRegistry = Shopware.ComponentFactory.getComponentRegistry();
 
         componentRegistry.forEach((component) => {
             createComponent(component.name);
@@ -65,7 +65,7 @@ export default function VueAdapter() {
      * @returns {*}
      */
     function createComponent(componentName) {
-        const componentRegistry = ComponentFactory.getComponentRegistry();
+        const componentRegistry = Shopware.ComponentFactory.getComponentRegistry();
 
         if (!componentRegistry.has(componentName)) {
             return false;

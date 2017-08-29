@@ -1,7 +1,7 @@
-import ComponentFactory from 'src/core/factory/component.factory';
+
 import template from 'src/app/component/atom/form/sw-form/sw-form.html.twig';
 
-export default ComponentFactory.register('sw-form', {
+export default Shopware.ComponentFactory.register('sw-form', {
     props: {
 
         /**

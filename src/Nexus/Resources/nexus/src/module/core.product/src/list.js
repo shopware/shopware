@@ -1,9 +1,8 @@
-import ComponentFactory from 'src/core/factory/component.factory';
+import 'module/core.product/src/list/list.less';
 import template from 'module/core.product/src/list/list.html';
-
 import PaginationMixin from 'src/app/component/mixin/pagination.mixin';
 
-export default ComponentFactory.register('core-product-list', {
+export default Shopware.ComponentFactory.register('core-product-list', {
     inject: ['productService', 'eventEmitter'],
     mixins: [PaginationMixin],
 

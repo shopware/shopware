@@ -20,6 +20,8 @@ templates:
     destination: "app/config/parameters.yml"
   - source: "dev-ops/docker/docker-compose.override.yml"
     destination: "docker-compose.override.yml"
+  - source: "dev-ops/common/templates/check_requirements.php"
+    destination: "dev-ops/check_requirements.php"
 
 const:
   DB_USER: "app"

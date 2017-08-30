@@ -88,3 +88,4 @@ app/config/parameters.yml
 /.psh.yml
 /dev-ops/docker/containers/*/createuser.sh
 /dev-ops/docker/containers/php7/Dockerfile
+/dev-ops/check_requirements.php

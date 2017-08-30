@@ -57,15 +57,15 @@
         </service>
 
         <!-- Session -->
-        <service id="shopware.session" alias="session" />
+        <service id="shopware.storefront.session" alias="session" />
 
-        <service id="shopware.session.save_handler_factory" class="Shopware\Storefront\Session\SaveHandlerFactory">
+        <service id="shopware.storefront.session.save_handler_factory" class="Shopware\Storefront\Session\SaveHandlerFactory">
             <argument type="service" id="dbal_connection" />
             <argument>s_core_sessions</argument>
         </service>
 
-        <service id="shopware.session.save_handler" class="SessionHandlerInterface">
-            <factory service="shopware.session.save_handler_factory" method="createSaveHandler" />
+        <service id="shopware.storefront.session.save_handler" class="SessionHandlerInterface">
+            <factory service="shopware.storefront.session.save_handler_factory" method="createSaveHandler" />
             <argument>%shopware.session%</argument>
         </service>
 

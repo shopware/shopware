@@ -83,6 +83,7 @@ const:
   DB_HOST: "mysql"
   DB_NAME: "shopware"
   SW_HOST: "10.101.101.56"
+  SW_BASE_PATH: ""
   PHP_VERSION: "7.1"
 ``` 
 Please replace the provided credentials with your own. After that you can provision your installation via psh.phar:

@@ -85,7 +85,7 @@ class ShopFinder
             $paths[$base] = $shop;
         }
 
-        $url = rtrim($requestContext->getPathInfo(), '/') . '/';
+        $url = rtrim($requestContext->getBaseUrl(), '/') . '/';
 
         // direct hit
         if (array_key_exists($url, $paths)) {

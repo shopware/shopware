@@ -26,6 +26,7 @@ namespace Shopware\Framework\Routing;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Plugin\Plugin;
 use Shopware\Storefront\Session\ShopSubscriber;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -61,7 +62,7 @@ class Router implements RouterInterface, RequestMatcherInterface
     private $logger;
 
     /**
-     * @var \PluginCollection
+     * @var Plugin[]
      */
     private $plugins;
 
@@ -170,9 +171,7 @@ class Router implements RouterInterface, RequestMatcherInterface
 
         $matcher = new UrlMatcher($this->getRouteCollection(), $this->getContext());
 
-        $match = $matcher->match($pathinfo);
-
-        return $match;
+        return $matcher->match($pathinfo);
     }
 
     public function matchRequest(Request $request): array
@@ -225,7 +224,7 @@ class Router implements RouterInterface, RequestMatcherInterface
         /** @var RouteCollection $routes */
         $routes = $this->routingLoader->load($this->resource);
 
-        foreach ($this->plugins->getPlugins() as $plugin) {
+        foreach ($this->plugins as $plugin) {
             $file = $plugin->getPath() . '/Resources/config/routing.yml';
 
             if (!file_exists($file)) {

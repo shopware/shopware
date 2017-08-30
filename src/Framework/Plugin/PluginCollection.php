@@ -1,21 +1,25 @@
 <?php
 
+namespace Shopware\Framework\Plugin;
+
+use Closure;
+
 class PluginCollection
 {
     /**
-     * @var \Shopware\Framework\Plugin\Plugin[]
+     * @var Plugin[]
      */
     private $plugins;
 
     /**
-     * @param \Shopware\Framework\Plugin\Plugin[] $plugins
+     * @param Plugin[] $plugins
      */
     public function __construct(array $plugins = [])
     {
         $this->plugins = $plugins;
     }
 
-    public function add(\Shopware\Framework\Plugin\Plugin $plugin)
+    public function add(Plugin $plugin)
     {
         $class = get_class($plugin);
 
@@ -27,7 +31,7 @@ class PluginCollection
     }
 
     /**
-     * @param \Shopware\Framework\Plugin\Plugin[] $plugins
+     * @param Plugin[] $plugins
      */
     public function addList(array $plugins)
     {
@@ -40,7 +44,7 @@ class PluginCollection
     }
 
     /**
-     * @return \Shopware\Framework\Plugin\Plugin[]
+     * @return Plugin[]
      */
     public function getPlugins(): array
     {

@@ -1,5 +1,9 @@
-ALTER TABLE `s_core_sessions`
-  ADD COLUMN `lifetime` INT NULL AFTER `expiry`;
+CREATE TABLE `sessions` (
+    `sess_id` VARCHAR(128) NOT NULL PRIMARY KEY,
+    `sess_data` BLOB NOT NULL,
+    `sess_time` INTEGER UNSIGNED NOT NULL,
+    `sess_lifetime` MEDIUMINT NOT NULL
+) COLLATE utf8mb4_bin, ENGINE = InnoDB;
 
 DROP INDEX articles_by_category_sort_release ON s_articles;
 DROP INDEX articles_by_category_sort_name ON s_articles;

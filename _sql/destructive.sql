@@ -83,3 +83,5 @@ ALTER TABLE product_category_ro
 #     DROP COLUMN level,
 #     DROP COLUMN media_id
 # ;
+
+DROP TABLE IF EXISTS `s_core_sessions`;

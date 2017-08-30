@@ -35,7 +35,7 @@ class Plugin extends Bundle
      */
     private $active;
 
-    public function __construct(bool $active)
+    public function __construct(bool $active = true)
     {
         $this->active = $active;
     }

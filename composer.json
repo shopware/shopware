@@ -17,10 +17,7 @@
       ]
     },
     "classmap": [
-      "app/AppKernel.php",
-      "app/AppCache.php",
-      "app/DatabaseConnector.php",
-      "app/PluginCollection.php"
+      "app/AppKernel.php"
     ],
     "exclude-from-classmap": [
       "custom/plugins/",
@@ -34,20 +31,18 @@
   },
   "require": {
     "php": ">=7.1.0",
-    "symfony/symfony": "^3.4-dev",
+    "symfony/symfony": "^3.3",
     "symfony/swiftmailer-bundle": "^2.5",
     "symfony/monolog-bundle": "^3.1",
     "symfony/polyfill-apcu": "^1.0",
     "symfony/assetic-bundle": "^2.8",
+    "symfony/dotenv": "^3.3",
     "doctrine/doctrine-bundle": "^1.6",
     "doctrine/doctrine-cache-bundle": "^1.3",
-    "doctrine/orm": "^2.5",
     "sensio/distribution-bundle": "^5.0",
     "sensio/framework-extra-bundle": "^3.0",
-    "incenteev/composer-parameter-handler": "^2.1",
     "twig/twig": "^2.4",
     "twig/extensions": "^1.5",
-    "zendframework/zend-escaper": "2.5.2",
     "oyejorge/less.php": "1.7.0.14",
     "linkorb/jsmin-php": "1.0.0",
     "guzzlehttp/guzzle": "^6.3",
@@ -63,6 +58,7 @@
     "ramsey/uuid": "^3.6"
   },
   "require-dev": {
+    "phpunit/phpunit": "^6.2",
     "sensio/generator-bundle": "^3.1",
     "symfony/phpunit-bridge": "^3.2",
     "fzaninotto/faker": "^1.7",
@@ -70,7 +66,6 @@
   },
   "scripts": {
     "symfony-scripts": [
-      "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters",
       "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap",
       "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::clearCache",
       "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::installAssets",
@@ -91,9 +86,6 @@
     "symfony-web-dir": "web",
     "symfony-tests-dir": "tests",
     "symfony-assets-install": "relative",
-    "incenteev-parameters": {
-      "file": "app/config/parameters.yml"
-    },
     "branch-alias": null
   }
 }

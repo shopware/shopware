@@ -58,8 +58,7 @@ Thumbs.db
 
 /web/*
 !/web/media
-!/web/app.php
-!/web/app_dev.php
+!/web/index.php
 !/web/.htaccess
 !/web/css/.gitkeep
 !/web/js/.gitkeep
@@ -88,4 +87,7 @@ app/config/parameters.yml
 /.psh.yml
 /dev-ops/docker/containers/*/createuser.sh
 /dev-ops/docker/containers/php7/Dockerfile
+/.psh.yaml.override
+/.psh.yml.override
+/.env
 /dev-ops/check_requirements.php

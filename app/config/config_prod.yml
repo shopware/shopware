@@ -1,6 +1,4 @@
 imports:
-    - { resource: parameters.yml }
-    - { resource: common/symfony.yml }
     - { resource: prod/security.yml }
     - { resource: common/shopware.yml }
 

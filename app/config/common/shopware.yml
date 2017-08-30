@@ -1,5 +1,49 @@
+framework:
+    esi: true
+    form: ~
+    csrf_protection: ~
+    trusted_hosts: ~
+    fragments: ~
+    assets: ~
+    session: ~
+    secret: "%env(SHOPWARE_SECRET)%"
+    router:
+        resource: "%kernel.root_dir%/config/%kernel.environment%/routing.yml"
+        strict_requirements: ~
+    validation:
+        enable_annotations: true
+    templating:
+        engines: ['twig']
+    default_locale:  en
+    http_method_override: true
+    php_errors:
+        log: true
+    translator:
+        fallbacks: [en_GB]
+    cache:
+        prefix_seed: shopware
+        app: cache.adapter.filesystem
+
 twig:
+    debug:            "%kernel.debug%"
     strict_variables: false
+
+doctrine:
+    dbal:
+        driver:   pdo_mysql
+        host:     "%env(DATABASE_HOST)%"
+        port:     "%env(DATABASE_PORT)%"
+        dbname:   "%env(DATABASE_NAME)%"
+        user:     "%env(DATABASE_USER)%"
+        password: "%env(DATABASE_PASSWORD)%"
+        charset:  "%env(DATABASE_CHARSET)%"
+
+swiftmailer:
+    transport: "%env(MAILER_TRANSPORT)%"
+    host:      "%env(MAILER_HOST)%"
+    username:  "%env(MAILER_USER)%"
+    password:  "%env(MAILER_PASSWORD)%"
+    spool:     { type: memory }
 
 assetic:
     use_controller: false
@@ -8,15 +52,6 @@ assetic:
         jsmin: ~
         lessphp:
             apply_to: '\.less$'
-
-framework:
-    translator:
-        fallbacks: [en_GB]
-    session:
-        handler_id:  shopware.session.save_handler
-    cache:
-        prefix_seed: shopware
-        app: cache.adapter.filesystem
 
 shopware:
     csrfProtection:

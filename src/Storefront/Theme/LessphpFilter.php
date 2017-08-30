@@ -58,7 +58,7 @@ class LessphpFilter extends \Assetic\Filter\LessphpFilter
         $pluginImportTemplate = '@import (optional) "@{%s}%s";';
 
         /** @var Plugin $plugin */
-        foreach ($this->kernel->getPlugins()->getPlugins() as $plugin) {
+        foreach ($this->kernel->getPlugins() as $plugin) {
             $output .= sprintf($pluginImportTemplate, $plugin->getName(), $allPath) . PHP_EOL;
         }
 

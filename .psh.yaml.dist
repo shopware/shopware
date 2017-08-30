@@ -16,10 +16,10 @@ paths:
 templates:
   - source: "dev-ops/docker/templates/php-dockerfile.tpl"
     destination: "dev-ops/docker/containers/php7/Dockerfile"
-  - source: "dev-ops/common/templates/parameters.yml.dist"
-    destination: "app/config/parameters.yml"
   - source: "dev-ops/docker/docker-compose.override.yml"
     destination: "docker-compose.override.yml"
+  - source: ".env.dist"
+    destination: ".env"
   - source: "dev-ops/common/templates/check_requirements.php"
     destination: "dev-ops/check_requirements.php"
 
@@ -29,6 +29,7 @@ const:
   DB_HOST: "mysql"
   DB_NAME: "shopware"
   SW_HOST: "10.101.101.56"
+  SW_BASE_PATH: ""
   PHP_VERSION: "7.1"
 
 dynamic:
@@ -42,13 +43,3 @@ environments:
   docker:
     paths:
       - "dev-ops/docker/actions"
-  mac:
-    paths:
-      - "dev-ops/common/actions"
-    const:
-      DB_USER: "root"
-      DB_PASSWORD: "root"
-      DB_HOST: "localhost"
-      DB_NAME: "next"
-      SW_HOST: "shopware.next"
-      PHP_VERSION: "7.1"

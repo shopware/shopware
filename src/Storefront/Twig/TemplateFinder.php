@@ -54,10 +54,8 @@ class TemplateFinder
     {
         $this->loader = $loader;
 
-        array_map([$this, 'addBundle'], $kernel->getPlugins()->getPlugins());
+        array_map([$this, 'addBundle'], $kernel->getPlugins());
         array_map([$this, 'addTheme'], $kernel->getThemes());
-
-        $this->directories[] = '@Storefront';
     }
 
     public function addBundle(BundleInterface $bundle): void

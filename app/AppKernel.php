@@ -1,6 +1,8 @@
 <?php
 
+use Shopware\Framework\Doctrine\DatabaseConnector;
 use Shopware\Framework\Plugin\Plugin;
+use Shopware\Framework\Plugin\PluginCollection;
 use Shopware\Storefront\Theme\Theme;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\Kernel;
@@ -22,6 +24,11 @@ class AppKernel extends Kernel
      * @var array
      */
     private $themes = [];
+
+    /**
+     * @var \Symfony\Component\DependencyInjection\ContainerInterface
+     */
+    protected $container;
 
     /**
      * @inheritDoc
@@ -61,9 +68,12 @@ class AppKernel extends Kernel
         $this->booted = true;
     }
 
-    public function getPlugins(): PluginCollection
+    /**
+     * @return Plugin[]
+     */
+    public function getPlugins(): array
     {
-        return $this->pluginCollection;
+        return $this->pluginCollection->getPlugins();
     }
 
     /**
@@ -71,7 +81,9 @@ class AppKernel extends Kernel
      */
     public function getThemes(): array
     {
-        return $this->themes;
+        return array_filter($this->bundles, function ($bundle) {
+            return $bundle instanceof Theme;
+        });
     }
 
     public static function getConnection(): ?PDO
@@ -79,60 +91,20 @@ class AppKernel extends Kernel
         return self::$connection;
     }
 
-    public function registerBundles()
+    public function registerBundles(): iterable
     {
-        $bundles = [
-            new Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
-            new Symfony\Bundle\SecurityBundle\SecurityBundle(),
-            new Symfony\Bundle\TwigBundle\TwigBundle(),
-            new Symfony\Bundle\MonologBundle\MonologBundle(),
-            new Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle(),
-            new Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
-            new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
-            new Symfony\Bundle\AsseticBundle\AsseticBundle(),
-            new Shopware\Framework\Framework(),
-            new Shopware\Category\Category(),
-            new Shopware\Product\Product(),
-            new Shopware\Nexus\Nexus(),
-            new Shopware\SeoUrl\SeoUrl(),
-            new Shopware\Address\Address(),
-            new Shopware\Cart\Cart(),
-            new Shopware\CartBridge\CartBridge(),
-            new Shopware\Context\Context(),
-            new Shopware\Country\Country(),
-            new Shopware\CountryArea\CountryArea(),
-            new Shopware\CountryState\CountryState(),
-            new Shopware\Currency\Currency(),
-            new Shopware\Customer\Customer(),
-            new Shopware\CustomerGroup\CustomerGroup(),
-            new Shopware\Locale\Locale(),
-            new Shopware\Media\Media(),
-            new Shopware\MediaThumbnail\MediaThumbnail(),
-            new Shopware\PaymentMethod\PaymentMethod(),
-            new Shopware\PriceGroup\PriceGroup(),
-            new Shopware\PriceGroupDiscount\PriceGroupDiscount(),
-            new Shopware\ProductEsd\ProductEsd(),
-            new Shopware\ProductManufacturer\ProductManufacturer(),
-            new Shopware\ProductStream\ProductStream(),
-            new Shopware\Serializer\Serializer(),
-            new Shopware\ShippingMethod\ShippingMethod(),
-            new Shopware\Shop\Shop(),
-            new Shopware\ShopTemplate\ShopTemplate(),
-            new Shopware\Tax\Tax(),
-            new Shopware\Unit\Unit(),
-        ];
+        $contents = require dirname(__DIR__) . '/app/bundles.php';
+        $contents = array_merge($contents, $this->themes);
 
-        if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
-            $bundles[] = new Symfony\Bundle\DebugBundle\DebugBundle();
-            $bundles[] = new Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
-            $bundles[] = new Sensio\Bundle\DistributionBundle\SensioDistributionBundle();
-            $bundles[] = new Sensio\Bundle\GeneratorBundle\SensioGeneratorBundle();
+        foreach ($this->pluginCollection->getPlugins() as $plugin) {
+            $contents[get_class($plugin)] = ['all' => true];
         }
 
-        $bundles = array_merge($bundles, $this->getPlugins()->getPlugins());
-        $bundles = array_merge($bundles, $this->themes);
-
-        return $bundles;
+        foreach ($contents as $class => $envs) {
+            if (isset($envs['all']) || isset($envs[$this->environment])) {
+                yield new $class();
+            }
+        }
     }
 
     public function getRootDir()
@@ -142,70 +114,81 @@ class AppKernel extends Kernel
 
     public function getCacheDir()
     {
-        return $this->getRootDir() . '/../var/cache/' . $this->getEnvironment() . '_' . \Shopware\Framework\Framework::REVISION;
+        return $this->getProjectDir() . '/var/cache/' . $this->getEnvironment(
+            ) . '_' . \Shopware\Framework\Framework::REVISION;
     }
 
     public function getLogDir()
     {
-        return $this->getRootDir() . '/../var/logs';
+        return $this->getProjectDir() . '/var/logs';
     }
 
     public function getPluginDir()
     {
-        return $this->getRootDir() . '/../custom/plugins';
+        return $this->getProjectDir() . '/custom/plugins';
     }
 
     /**
      * @inheritDoc
      */
-    protected function getKernelParameters()
+    protected function getKernelParameters(): array
     {
         $parameters = parent::getKernelParameters();
 
         $activePluginMeta = [];
 
-        foreach ($this->getPlugins()->getPlugins() as $namespace => $plugin) {
-            if (!$plugin->isActive()) {
-                continue;
-            }
-
-            $activePluginMeta[$plugin->getName()] = [
-                'name' => $plugin->getName(),
+        foreach ($this->getPlugins() as $namespace => $plugin) {
+            $pluginName = $plugin->getName();
+            $activePluginMeta[$pluginName] = [
+                'name' => $pluginName,
                 'path' => $plugin->getPath(),
             ];
         }
 
-
-        return array_merge($parameters, [
-            'kernel.plugin_dir' => $this->getPluginDir(),
-            'kernel.active_plugins' => $activePluginMeta
-        ]);
+        return array_merge(
+            $parameters,
+            [
+                'kernel.plugin_dir' => $this->getPluginDir(),
+                'kernel.active_plugins' => $activePluginMeta,
+            ]
+        );
     }
 
 
-    public function registerContainerConfiguration(LoaderInterface $loader)
+    public function registerContainerConfiguration(LoaderInterface $loader): void
     {
         $loader->load($this->getRootDir() . '/config/config_' . $this->getEnvironment() . '.yml');
     }
 
-    protected function getContainerClass()
+    protected function getContainerClass(): string
     {
         $pluginHash = sha1(implode('', array_keys($this->pluginCollection->getPlugins())));
 
-        return $this->name . ucfirst($this->environment) . $pluginHash . ($this->debug ? 'Debug' : '') . 'ProjectContainer';
+        return $this->name . ucfirst(
+                $this->environment
+            ) . $pluginHash . ($this->debug ? 'Debug' : '') . 'ProjectContainer';
     }
 
-    protected function initializeConnection()
+    protected function initializeThemes(): array
     {
-        self::$connection = DatabaseConnector::connect(
-            $this->getRootDir(),
-            $this->getEnvironment()
+        return $this->themes = [
+            Shopware\Storefront\Storefront::class => ['all' => true],
+        ];
+    }
+
+    private function initializePluginSystem(): void
+    {
+        self::$connection = DatabaseConnector::createPdoConnection();
+
+        $this->initializePlugins();
+        $this->initializeThemes();
+    }
+
+    protected function initializePlugins(): void
+    {
+        $stmt = self::$connection->query(
+            'SELECT `name` FROM `s_core_plugins` WHERE `namespace` LIKE "ShopwarePlugins" AND `active` = 1 AND `installation_date` IS NOT NULL'
         );
-    }
-
-    protected function initializePlugins()
-    {
-        $stmt = self::$connection->query('SELECT `name` FROM `s_core_plugins` WHERE `namespace` LIKE "ShopwarePlugins" AND `active` = 1 AND `installation_date` IS NOT NULL');
         $activePlugins = $stmt->fetchAll(\PDO::FETCH_COLUMN);
 
         $finder = new Finder();
@@ -242,19 +225,5 @@ class AppKernel extends Kernel
 
             $this->pluginCollection->add($plugin);
         }
-    }
-
-    protected function initializeThemes()
-    {
-        return $this->themes = [
-            new Shopware\Storefront\Storefront()
-        ];
-    }
-
-    private function initializePluginSystem()
-    {
-        $this->initializeConnection();
-        $this->initializePlugins();
-        $this->initializeThemes();
     }
 }

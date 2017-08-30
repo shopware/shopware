@@ -51,6 +51,19 @@ Follow the instruction below if you want to install Shopware 5 using Git.
 
 In case you wish to contribute to Shopware, fork the `labs` branch rather than cloning it, and create a pull request via Github. For further information please read the section "Get involved" of this document.
 
+In case you want to use our docker image just type the following commands:
+```yaml
+./psh.phar docker:start
+
+./psh.phar docker:ssh
+
+./psh.phar init
+```
+
+Now your shop is available under the following url: http://10.101.101.56
+
+If you don't want to use docker, please follow the next steps:
+
 2.) Set the correct directory permissions:
 
     chmod -R 755 var

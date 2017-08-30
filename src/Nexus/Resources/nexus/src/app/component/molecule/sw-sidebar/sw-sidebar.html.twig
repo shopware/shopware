@@ -1,0 +1,32 @@
+<aside id="sidebar" class="is--collapsed">
+    <nav id="main-navigation">
+        <ul class="nav">
+            <li v-for="entry, routeName in mainMenuEntries" class="nav--link">
+                <router-link :to="{ name: routeName}">
+                    <i :class="getIconName(entry.icon)" :style="{ 'color': entry.color }"></i>
+                    {{ entry.name }}
+                </router-link>
+            </li>
+            <li class="nav--link">
+                <router-link :to="{ name: 'core.dashboard.index'}">
+                    Dashboard
+                </router-link>
+            </li>
+            <li class="nav--link">
+                <router-link :to="{ name: 'core.login.index'}">
+                    Login / Signin
+                </router-link>
+            </li>
+            <li class="nav--link">
+                <router-link :to="{ name: 'core.product.index'}">
+                    Product overview
+                </router-link>
+            </li>
+            <li class="nav--link">
+                <router-link :to="{ name: 'core.product.extension.index'}">
+                    Product Extension
+                </router-link>
+            </li>
+        </ul>
+    </nav>
+</aside>

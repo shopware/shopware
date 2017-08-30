@@ -1,6 +1,6 @@
 # Shopware 5
 
-[![Build Status](https://travis-ci.org/shopware/shopware.svg?branch=5.2)](https://travis-ci.org/shopware/shopware)
+[![Build Status](https://travis-ci.org/shopware/shopware.svg?branch=labs)](https://travis-ci.org/shopware/shopware)
 [![Crowdin](https://d322cqt584bo4o.cloudfront.net/shopware/localized.svg)](https://crowdin.com/project/shopware)
 
 - **License**: Dual license AGPL v3 / Proprietary
@@ -18,10 +18,10 @@ Visit the forum at <http://forum.shopware.com/>
 
 ### Shopware Server Requirements
 
-- PHP 5.6.4 or above
+- PHP 7.1 or above
 - [Apache 2.2 or 2.4](https://httpd.apache.org/)
 - Apache's `mod_rewrite` module
-- MySQL 5.5.0 or above
+- MySQL 5.7.0 or above
 
 #### Required PHP extensions:
 
@@ -49,45 +49,35 @@ Follow the instruction below if you want to install Shopware 5 using Git.
 
     git clone https://github.com/shopware/shopware.git
 
-In case you wish to contribute to Shopware, fork the `5.2` branch rather than cloning it, and create a pull request via Github. For further information please read the section "Get involved" of this document.
+In case you wish to contribute to Shopware, fork the `labs` branch rather than cloning it, and create a pull request via Github. For further information please read the section "Get involved" of this document.
 
 2.) Set the correct directory permissions:
 
     chmod -R 755 var
     chmod -R 755 web
-    chmod -R 755 files
-    chmod -R 755 media
-    chmod -R 755 engine/Shopware/Plugins/Community
+    chmod -R 755 custom/plugins
 
 Depending on your server configuration, it might be necessary to set whole write permissions (777) to the files and folders above.
 You can also start testing with lower permissions due to security reasons (644 for example) as long as your php process can write to those files.
 
-3.) An [Ant](http://ant.apache.org/) Buildfile is used to set up the configuration and database connection:
+3.) Please configure your web server that the web directory is your root directory. At the moment we didn't support subdirectories.
 
-    cd build/
-    ant configure
-    ant build-unit
-
-4.) Download the test images and extract them:
-
-Go to the root directory of your shopware system and download the test images:
-
-	wget -O test_images.zip http://releases.s3.shopware.com/test_images.zip
-
-Unzip the files inside the root directory:
-
-	unzip test_images.zip
+4.) Copy the .psh.yaml.dist file to .psh.yaml.override and delete everything what is not part of the const section. Your override file should look like this:
+```yaml
+const:
+  DB_USER: "app"
+  DB_PASSWORD: "app"
+  DB_HOST: "mysql"
+  DB_NAME: "shopware"
+  SW_HOST: "10.101.101.56"
+  PHP_VERSION: "7.1"
+``` 
+Please replace the provided credentials with your own. After that you can provision your installation via psh.phar:
+```bash
+./psh.phar init
+```
 
 You can now access your shop
-
-# Backend
-
-The backend is located at `/backend` example `http://your.shop.com/backend`.
-Backend Login: demo/demo
-
-The test_images.zip file includes thumbnails for the new responsive theme and the old deprecated template.
-
-If you want to have full featured demo data, you should download the respective demo data plugin in the First Run Wizard or in the Plugin Manager.
 
 # Get involved
 
@@ -112,7 +102,7 @@ Shopware is distributed under a dual license (AGPL v3 and proprietary license). 
 
 # Changelog
 
-The changelog and all available commits are located under <https://github.com/shopware/shopware/commits/5.2>.
+The changelog and all available commits are located under <https://github.com/shopware/shopware/commits/labs>.
 
 ## Further reading
 

@@ -92,6 +92,10 @@ Please replace the provided credentials with your own. After that you can provis
 
 You can now access your shop
 
+# Backend
+
+The backend is now accessible under http://your.shop.com/nexus
+
 # Get involved
 
 Shopware is available under dual license (AGPL v3 and proprietary license). If you want to contribute code (features or bugfixes), you have to create a pull request and include valid license information. You can either contribute your code under New BSD or MIT license.

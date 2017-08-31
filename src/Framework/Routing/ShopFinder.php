@@ -82,6 +82,11 @@ class ShopFinder
             $shop = $this->fixUrls($shop);
 
             $base = rtrim($base, '/') . '/';
+
+            if (array_key_exists($base, $paths)) {
+                continue;
+            }
+
             $paths[$base] = $shop;
         }
 

@@ -6,12 +6,22 @@ export default {
     description: 'Enter description here...',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#dd4800',
+    color: '#6abff0',
 
     routes: {
         index: {
             component: dashboard,
             path: 'dashboard'
         }
+    },
+
+    navigation: {
+        root: [{
+            'core.dashboard.index': {
+                icon: 'browser',
+                color: '#6abff0',
+                name: 'Dashboard'
+            }
+        }]
     }
 };

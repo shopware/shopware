@@ -6,7 +6,7 @@ export default {
     description: 'Enter description here...',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#dd4800',
+    color: '#7AD5C8',
 
     routes: {
         index: {
@@ -19,8 +19,8 @@ export default {
         root: [{
             'core.product.index': {
                 icon: 'box',
-                color: '#dd4800',
-                name: 'Produktübersicht'
+                color: '#7AD5C8',
+                name: 'Products'
             }
         }]
     },

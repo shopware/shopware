@@ -1,7 +1,6 @@
-
+import 'src/app/component/atom/grid/sw-grid-row/sw-grid-row.less';
 import template from 'src/app/component/atom/grid/sw-grid-row/sw-grid-row.html.twig';
-
-import swRowGridEditing from 'src/app/component/atom/grid/sw-grid-row-editing';
+import swRowGridEditing from 'src/app/component/atom/grid/sw-grid-row-editing/sw-grid-row-editing';
 
 export default Shopware.ComponentFactory.register('sw-grid-row', {
     inject: ['eventEmitter'],

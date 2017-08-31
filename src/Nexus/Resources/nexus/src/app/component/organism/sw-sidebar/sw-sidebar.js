@@ -13,7 +13,7 @@ export default Shopware.ComponentFactory.register('sw-sidebar', {
 
     methods: {
         getIconName(name) {
-            return `icon--${name}`;
+            return `icon-${name}`;
         }
     }
 });

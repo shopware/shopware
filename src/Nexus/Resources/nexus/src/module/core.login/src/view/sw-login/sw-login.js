@@ -1,6 +1,4 @@
-
 import template from 'module/core.login/src/view/sw-login/sw-login.html.twig';
-
 import utils from 'src/core/service/util.service';
 
 export default Shopware.ComponentFactory.register('sw-login', {

@@ -6,7 +6,7 @@ export default {
     description: 'Enter description here...',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#dd4800',
+    color: '#F19D12',
 
     routes: {
         index: {
@@ -14,5 +14,15 @@ export default {
             path: 'login',
             alias: 'signin'
         }
+    },
+
+    navigation: {
+        root: [{
+            'core.login.index': {
+                icon: 'enter',
+                color: '#F19D12',
+                name: 'Login'
+            }
+        }]
     }
 };

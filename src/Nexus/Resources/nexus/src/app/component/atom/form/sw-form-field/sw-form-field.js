@@ -1,4 +1,5 @@
 
+import 'src/app/component/atom/form/sw-form-field/sw-form-field.less';
 import template from 'src/app/component/atom/form/sw-form-field/sw-form-field.html.twig';
 
 export default Shopware.ComponentFactory.register('sw-form-field', {

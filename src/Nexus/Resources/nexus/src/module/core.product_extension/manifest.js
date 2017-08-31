@@ -9,7 +9,7 @@ export default {
     description: 'This is an extension of the existing core product module',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#306cbe',
+    color: '#F285B2',
 
     routes: {
         index: {
@@ -21,8 +21,8 @@ export default {
     navigation: {
         root: [{
             'core.product.extension.index': {
-                icon: 'box',
-                color: '#306cbe',
+                icon: 'browser-upload',
+                color: '#F285B2',
                 name: 'Product Extension'
             }
         }]

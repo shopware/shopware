@@ -1,10 +1,10 @@
 # Shopware Backend Components
 
 ## Introduction
-The Shopware backend view is structured by several smaller pieces. Every part is build from different reusable elements. Starting by simple elements like a button composing up to larger modules like the product editing. So basically everything in the Shopware backend is a component existing out of smaller components. There is a common and very popular design pattern out there which describes this architecture very precise - the "Atomic Design" by Brad Frost. If you want to learn more about this design principle you can visit [atomicdesign.bradfrost.com](http://atomicdesign.bradfrost.com/)for more information.
+The Shopware backend view is structured by several smaller pieces. Every part is build from different reusable elements. Starting by simple elements like a button composing up to larger modules like the product editing. So basically everything in the Shopware backend is a component existing out of smaller components. There is a common and very popular design pattern out there which describes this architecture very precise - the "Atomic Design" by Brad Frost. If you want to learn more about this design principle you can visit [atomicdesign.bradfrost.com](http://atomicdesign.bradfrost.com/) for more information.
 
 ## Atomic Design
-All the components of the Shopware backend are sorted into the different levels of the atomic design describing its functionality for the whole application.
+All the components of the Shopware backend are sorted into the different levels of the atomic design, describing its functionality for the whole application.
 
 ### Atoms
 The atoms are the smallest type of component. They fulfill a single function in a larger layout. Mostly they exist of just one or two HTML elements displaying some information or providing a single action for the user. These elements are the basic material of what larger components are build of. They form the basic toolkit for building your application.

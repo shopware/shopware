@@ -4,8 +4,8 @@ import coreDashboard from 'module/core.dashboard/manifest';
 import coreProductExtension from 'module/core.product_extension/manifest';
 
 export default [
+    coreProductExtension,
     coreProduct,
     coreLogin,
-    coreDashboard,
-    coreProductExtension
+    coreDashboard
 ];

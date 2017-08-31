@@ -1,8 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-
-import 'src/app/component/atom';
-import 'src/app/component/molecule';
+import 'src/app/component/components';
 
 const vueComponents = {};
 

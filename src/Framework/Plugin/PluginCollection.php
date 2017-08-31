@@ -19,9 +19,10 @@ class PluginCollection
         $this->plugins = $plugins;
     }
 
-    public function add(Plugin $plugin)
+    public function add(Plugin $plugin): void
     {
         $class = get_class($plugin);
+        $class = substr($class, 0, strpos($class, '\\'));
 
         if ($this->has($class)) {
             return;
@@ -33,20 +34,25 @@ class PluginCollection
     /**
      * @param Plugin[] $plugins
      */
-    public function addList(array $plugins)
+    public function addList(array $plugins): void
     {
         array_map([$this, 'add'], $plugins);
     }
 
-    public function has($name)
+    public function has($name): bool
     {
         return array_key_exists($name, $this->plugins);
+    }
+
+    public function get($name): ?Plugin
+    {
+        return $this->has($name) ? $this->plugins[$name] : null;
     }
 
     /**
      * @return Plugin[]
      */
-    public function getPlugins(): array
+    public function all(): array
     {
         return $this->plugins;
     }

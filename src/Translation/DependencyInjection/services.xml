@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+
+        <service id="shopware.translation.import_service" class="Shopware\Translation\ImportService">
+            <argument type="service" id="dbal_connection" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="logger" />
+        </service>
+
+        <service id="shopware.translation.command.import" class="Shopware\Translation\Command\TranslationImportCommand">
+            <tag name="kernel.event_subscriber" />
+            <tag name="console.command" />
+
+            <argument type="service" id="shopware.translation.import_service" />
+        </service>
+
+        <!-- Translation / Snippet -->
+        <service id="shopware.translator.database_loader" class="Shopware\Translation\DatabaseLoader">
+            <tag name="translation.loader" alias="database" />
+
+            <argument type="service" id="dbal_connection" />
+        </service>
+
+
+    </services>
+</container>

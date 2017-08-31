@@ -58,7 +58,6 @@
     "ramsey/uuid": "^3.6"
   },
   "require-dev": {
-    "phpunit/phpunit": "^6.2",
     "sensio/generator-bundle": "^3.1",
     "symfony/phpunit-bridge": "^3.2",
     "fzaninotto/faker": "^1.7",

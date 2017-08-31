@@ -23,7 +23,7 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\Translator;
+namespace Shopware\Translation;
 
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Translation\Exception\InvalidResourceException;
@@ -64,8 +64,7 @@ class DatabaseLoader implements LoaderInterface
 
         $snippets = $builder->select(['snippet.namespace', 'snippet.name', 'snippet.value'])
                 ->from('s_core_snippets', 'snippet')
-                ->innerJoin('snippet', 's_core_locales', 'locale', 'snippet.localeID = locale.id')
-                ->where('locale.locale = :locale')
+                ->where('snippet.locale = :locale')
                 ->setParameter('locale', $locale)
                 ->execute()
                 ->fetchAll(\PDO::FETCH_GROUP);

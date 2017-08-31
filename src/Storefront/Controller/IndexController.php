@@ -35,8 +35,6 @@ class IndexController extends FrontendController
      */
     public function indexAction(ShopContext $context, Request $request)
     {
-        
-
         return $this->render('frontend/home/index.html.twig', []);
     }
 }

@@ -1046,3 +1046,27 @@ UPDATE media_album
   SET uuid = CONCAT('SWAG-MEDIA-ALBUM-UUID-', uuid),
   parent_uuid = CONCAT('SWAG-MEDIA-ALBUM-UUID-', parent_uuid)
 ;
+
+
+ALTER TABLE `s_core_snippets`
+    CHANGE `shopID` `shop_id` int(11) unsigned NOT NULL AFTER `namespace`,
+    ADD `shop_uuid` varchar(42) NOT NULL AFTER `shop_id`,
+    CHANGE `localeID` `locale_id` int(11) unsigned NOT NULL AFTER `shop_uuid`,
+    ADD `locale` varchar(5) NOT NULL AFTER `locale_id`,
+    CHANGE `created` `created_at` datetime NOT NULL AFTER `value`,
+    CHANGE `updated` `updated_at` datetime NULL ON UPDATE CURRENT_TIMESTAMP AFTER `created_at`,
+    CHANGE `dirty` `dirty` tinyint NOT NULL DEFAULT '0' AFTER `updated_at`;
+
+UPDATE `s_core_snippets` snippets
+    INNER JOIN s_core_locales locale ON locale.id = snippets.locale_id
+SET
+    snippets.shop_uuid = concat('SWAG-CONFIG-SHOP-UUID-', snippets.shop_id),
+    snippets.locale = locale.locale
+;
+
+ALTER TABLE `s_core_snippets`
+    DROP INDEX `namespace`,
+    ADD UNIQUE `namespace_shop_uuid_name_locale_uuid` (`namespace`, `shop_uuid`, `name`, `locale`),
+    ADD FOREIGN KEY (`shop_uuid`) REFERENCES `s_core_shops` (`uuid`) ON DELETE RESTRICT ON UPDATE CASCADE,
+    ADD FOREIGN KEY (`locale`) REFERENCES `s_core_locales` (`locale`) ON DELETE RESTRICT ON UPDATE CASCADE
+;

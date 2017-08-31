@@ -50,4 +50,5 @@ return [
     Shopware\Unit\Unit::class => ['all' => true],
     Shopware\Filesystem\Filesystem::class => ['all' => true],
     Shopware\Media\Media::class => ['all' => true],
+    Shopware\Translation\Translation::class => ['all' => true],
 ];

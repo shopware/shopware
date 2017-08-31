@@ -94,7 +94,7 @@ class Router implements RouterInterface, RequestMatcherInterface
         $this->context = $context;
         $this->logger = $logger;
 
-        $this->plugins = $kernel->getPlugins();
+        $this->plugins = $kernel::getPlugins()->all();
         $this->urlResolver = $urlResolver;
         $this->shopFinder = $shopFinder;
         $this->routingLoader = $routingLoader;

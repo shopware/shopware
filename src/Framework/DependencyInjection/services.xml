@@ -21,6 +21,11 @@
             <factory class="AppKernel" method="getConnection" />
         </service>
 
+        <!-- plugins -->
+        <service id="shopware.plugins" class="Shopware\Framework\Plugin\PluginCollection">
+            <factory service="kernel" method="getPlugins" />
+        </service>
+
         <!-- Cache -->
         <service id="shopware.cache" alias="cache.app" />
 
@@ -35,13 +40,6 @@
             <argument type="service" id="shopware.framework.routing.url_resolver" />
             <argument type="service" id="shopware.framework.routing.shop_finder" />
             <argument type="service" id="routing.loader" />
-        </service>
-
-        <!-- Translation / Snippet -->
-        <service id="shopware.translator.database_loader" class="Shopware\Framework\Translator\DatabaseLoader">
-            <tag name="translation.loader" alias="database" />
-
-            <argument type="service" id="dbal_connection" />
         </service>
 
         <!-- Config -->

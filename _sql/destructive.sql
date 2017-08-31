@@ -91,3 +91,8 @@ ALTER TABLE media
   DROP `width`,
   DROP `height`
 ;
+
+ALTER TABLE `s_core_snippets`
+  DROP id,
+  DROP shop_id,
+  DROP locale_id;

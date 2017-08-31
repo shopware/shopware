@@ -18,7 +18,7 @@ class AppKernel extends Kernel
     /**
      * @var PluginCollection
      */
-    private $pluginCollection;
+    private static $pluginCollection;
 
     /**
      * @var array
@@ -37,7 +37,7 @@ class AppKernel extends Kernel
     {
         parent::__construct($environment, $debug);
 
-        $this->pluginCollection = new PluginCollection();
+        self::$pluginCollection = new PluginCollection();
     }
 
 
@@ -63,17 +63,16 @@ class AppKernel extends Kernel
         }
 
         $this->container->set('db_connection', self::getConnection());
-        $this->container->set('plugin_collection', $this->getPlugins());
 
         $this->booted = true;
     }
 
     /**
-     * @return Plugin[]
+     * @return PluginCollection
      */
-    public function getPlugins(): array
+    public static function getPlugins(): PluginCollection
     {
-        return $this->pluginCollection->getPlugins();
+        return self::$pluginCollection;
     }
 
     /**
@@ -96,7 +95,7 @@ class AppKernel extends Kernel
         $contents = require dirname(__DIR__) . '/app/bundles.php';
         $contents = array_merge($contents, $this->themes);
 
-        foreach ($this->pluginCollection->getPlugins() as $plugin) {
+        foreach (self::getPlugins() as $plugin) {
             $contents[get_class($plugin)] = ['all' => true];
         }
 
@@ -137,7 +136,7 @@ class AppKernel extends Kernel
 
         $activePluginMeta = [];
 
-        foreach ($this->getPlugins() as $namespace => $plugin) {
+        foreach (self::getPlugins() as $namespace => $plugin) {
             $pluginName = $plugin->getName();
             $activePluginMeta[$pluginName] = [
                 'name' => $pluginName,
@@ -162,7 +161,7 @@ class AppKernel extends Kernel
 
     protected function getContainerClass(): string
     {
-        $pluginHash = sha1(implode('', array_keys($this->pluginCollection->getPlugins())));
+        $pluginHash = sha1(implode('', array_keys(self::getPlugins()->all())));
 
         return $this->name . ucfirst(
                 $this->environment
@@ -223,7 +222,7 @@ class AppKernel extends Kernel
                 );
             }
 
-            $this->pluginCollection->add($plugin);
+            self::$pluginCollection->add($plugin);
         }
     }
 }

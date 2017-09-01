@@ -65,6 +65,7 @@ Thumbs.db
 !/var/logs/.htaccess
 /var/log/*
 !/var/log/.htaccess
+npm-debug.log
 
 # User configurations
 app/config/parameters.yml

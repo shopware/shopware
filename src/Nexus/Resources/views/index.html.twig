@@ -14,9 +14,13 @@
 <div id="app"></div>
 
 <script src="{{ asset('bundles/nexus/static/js/manifest.js') }}"></script>
-<script src="{{ asset('bundles/nexus/static/js/common.js') }}"></script>
 <script src="{{ asset('bundles/nexus/static/js/vendor.js') }}"></script>
+<script src="{{ asset('bundles/nexus/static/js/commons.js') }}"></script>
 <script src="{{ asset('bundles/nexus/static/js/app.js') }}"></script>
+
+<script>
+    ShopwareApplication.default.start();
+</script>
 
 </body>
 </html>

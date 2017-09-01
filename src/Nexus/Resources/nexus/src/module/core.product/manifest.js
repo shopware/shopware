@@ -1,4 +1,5 @@
 import productList from 'module/core.product/src/list';
+import productSidebar from 'module/core.product/src/sidebar';
 
 export default {
     id: 'core.product',
@@ -6,11 +7,15 @@ export default {
     description: 'Enter description here...',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#7AD5C8',
+    color: '#9CD0C8',
+    icon: 'box',
 
     routes: {
         index: {
-            component: productList,
+            components: {
+                default: productList,
+                sidebar: productSidebar
+            },
             path: 'product'
         }
     },
@@ -19,8 +24,8 @@ export default {
         root: [{
             'core.product.index': {
                 icon: 'box',
-                color: '#7AD5C8',
-                name: 'Products'
+                color: '#9CD0C8',
+                name: 'Produktübersicht'
             }
         }]
     },

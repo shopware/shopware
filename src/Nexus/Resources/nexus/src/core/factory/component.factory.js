@@ -9,6 +9,7 @@ export {
     getComponentRegistry
 };
 
+/** @type Map componentRegistry - Registry which holds all component registry */
 const componentRegistry = new Map();
 
 /**
@@ -23,11 +24,11 @@ function getComponentRegistry() {
 /**
  * Register a new component.
  *
- * @param componentName
- * @param componentConfiguration
+ * @param {String} componentName
+ * @param {Object} [componentConfiguration={}]
  * @returns {*}
  */
-function register(componentName, componentConfiguration) {
+function register(componentName, componentConfiguration = {}) {
     let config = componentConfiguration;
 
     config = utils.merge(config, {
@@ -45,6 +46,14 @@ function register(componentName, componentConfiguration) {
          * The complete rendered template including all overrides will be added later.
          */
         delete config.template;
+    } else {
+        utils.warn(
+            'ComponentFactory',
+            `The component "${config.name}" needs a template to be functional.`,
+            'Please add a "template" property to your component definition',
+            config
+        );
+        return config;
     }
 
     componentRegistry.set(componentName, config);
@@ -55,15 +64,22 @@ function register(componentName, componentConfiguration) {
 /**
  * Create a new component extending from another existing component.
  *
- * @param componentName
- * @param extendComponentName
- * @param componentConfiguration
- * @returns {*}
+ * @param {String} componentName
+ * @param {String} extendComponentName
+ * @param {Object} componentConfiguration
+ * @returns {Object} config
  */
 function extend(componentName, extendComponentName, componentConfiguration) {
     let config = componentConfiguration;
 
     if (!componentRegistry.has(extendComponentName)) {
+        utils.warn(
+            'ComponentFactory',
+            `The component ${extendComponentName} doesn't exists,`,
+            `we're registering a new component named ${componentName} instead.`,
+            componentConfiguration
+        );
+
         return register(componentName, config);
     }
 
@@ -131,7 +147,6 @@ function override(componentName, componentConfiguration, overrideIndex = null) {
     }
 
     config = Object.assign({}, componentRegistry.get(componentName), config);
-
     componentRegistry.set(componentName, config);
 
     return config;

@@ -39,9 +39,8 @@ export default function ProductService(client) {
     function readAllProducts() {
         const productList = {};
 
-        return client.get('/articles').then((response) => {
-            productList.products = response.data.data;
-            productList.totalProducts = response.data.total;
+        return client.get('/product.json').then((response) => {
+            productList.products = response.data;
 
             return productList;
         });

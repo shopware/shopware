@@ -1,3 +1,5 @@
+import utils from 'src/core/service/util.service';
+
 export {
     getModuleRoutes,
     registerModule,
@@ -22,22 +24,27 @@ function getModuleRegistry() {
  *
  * @param {Object} module - Module definition - see manifest.js file
  * @param {String} [type=plugin] - Type of the module
- * @returns {Array} registered module routes
+ * @returns {Map} moduleRoutes - registered module routes
  */
 function registerModule(module, type = 'plugin') {
-    const moduleRoutes = [];
+    const moduleRoutes = new Map();
     const moduleId = module.id;
 
     // A module should always have an unique identifier cause overloading modules can cause unexpected side effects
     if (!moduleId) {
-        console.warn('[module.factory] Module has no unique identifier', module);
+        utils.warn(
+            'ModuleFactory',
+            'Module has no unique identifier "id"',
+            module
+        );
     }
 
     // Modules will be mounted using the routes definition in the manifest file. If the module doesn't contains a routes
     // definition it's not accessible in the application.
     if (!Object.prototype.hasOwnProperty.call(module, 'routes')) {
-        console.warn(
-            `[module.factory] Module "${moduleId}" has no defined routes. The module will not be accessible.`,
+        utils.warn(
+            'ModuleFactory',
+            `Module "${moduleId}" has no configured routes. The module will not be accessible in the administration UI.`,
             module
         );
         return moduleRoutes;
@@ -51,14 +58,30 @@ function registerModule(module, type = 'plugin') {
         route.name = `${moduleId}.${routeKey}`;
         route.path = `/${type}/${route.path}`;
         route.type = type;
-        route.component = route.component.name;
+
+        const componentList = {};
+        if (route.components && Object.keys(route.components).length) {
+            Object.keys(route.components).forEach((componentKey) => {
+                const component = route.components[componentKey];
+                componentList[componentKey] = component.name;
+            });
+
+            route.components = componentList;
+        } else {
+            route.components = {
+                default: route.component.name
+            };
+
+            // Remove the component cause we remapped it to the components object of the route object
+            delete route.component;
+        }
 
         // Alias support
         if (route.alias && route.alias.length > 0) {
             route.alias = `/${type}/${route.alias}`;
         }
 
-        moduleRoutes.push(route);
+        moduleRoutes.set(route.name, route);
     });
 
     const moduleDefinition = {

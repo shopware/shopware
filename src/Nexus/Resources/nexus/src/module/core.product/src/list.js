@@ -38,9 +38,8 @@ export default Shopware.ComponentFactory.register('core-product-list', {
 
     methods: {
         getData() {
-            this.isWorking = true;
             this.productService
-                .readAllProductsAsPaginatedList(this.limit, this.offset)
+                .readAllProducts(this.limit, this.offset)
                 .then((productList) => {
                     this.isWorking = false;
                     this.productList = productList.products;

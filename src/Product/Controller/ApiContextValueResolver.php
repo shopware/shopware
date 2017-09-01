@@ -31,11 +31,6 @@ class ApiContextValueResolver implements ArgumentValueResolverInterface
             $context->rawData = $rawArray['product'];
         }
 
-        if (!$context->rawData) {
-            throw new \RuntimeException('Missing data in request');
-        }
-
-
         yield $context;
     }
 

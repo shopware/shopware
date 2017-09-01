@@ -10,6 +10,9 @@ import 'src/app/component/atom/form/sw-form-field/sw-form-field';
 import 'src/app/component/atom/form/sw-form-row/sw-form-row';
 import 'src/app/component/atom/utils/sw-loader/sw-loader';
 
+// Molecules
+import 'src/app/component/molecule/sw-workspace';
+
 // Organisms
 import 'src/app/component/organism/sw-admin/sw-admin';
 import 'src/app/component/organism/sw-desktop/sw-desktop';

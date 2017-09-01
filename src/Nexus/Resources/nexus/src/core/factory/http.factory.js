@@ -14,7 +14,7 @@ export default {
 
 function createClientWithToken() {
     const httpClient = Axios.create({
-        baseURL: 'https://localhost:8888/'
+        baseURL: 'http://shopware-labs.local/api'
     });
 
     // configureRequestCSRFInterceptor(httpClient, token);

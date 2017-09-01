@@ -1,8 +1,6 @@
 .sw-grid {
     display: flex;
     flex-flow: column nowrap;
-    margin: 20px;
-    border: 1px solid #ddd;
     position: relative;
 
     .sw-grid--header, .sw-grid--row {
@@ -12,10 +10,14 @@
     .sw-grid--row {
         display: flex;
         flex-flow: row nowrap;
-        border-bottom: 1px solid #ddd;
-        background: #fff;
+        border-bottom: 1px solid rgba(50,60,71,0.1);
+        background: #fafafa;
         transition: background .25s ease;
         opacity: 1;
+
+        &:nth-child(odd) {
+            background: #f6f7fb;
+        }
 
         &.list-enter-active, &.list-leave-active {
             transition: all 0.3s ease;
@@ -31,12 +33,22 @@
         &:hover {
             background: #eef1f6;
         }
+
+        .sw-grid--header {
+            background: #fff;
+
+            &:hover {
+                background: #fff;
+            }
+        }
     }
 
     .sw-grid--header {
         font-weight: bold;
-        background: #eef1f6;
+        background: #fff;
         font-size: 15px;
+        padding: 22px 20px;
+        border-bottom: 1px solid #D8D8D8;
     }
 
     .sw-grid--body {

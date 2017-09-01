@@ -1,6 +1,7 @@
 export default {
     merge,
-    formDataToObject
+    formDataToObject,
+    warn
 };
 
 // Todo: This has an issue when you want to copy into a new object
@@ -24,4 +25,16 @@ function formDataToObject(formData) {
         result[item[0]] = item[1];
         return result;
     }, {});
+}
+
+/**
+ *
+ * @param {String} name
+ * @param {String|Object|Array} message
+ */
+function warn(name = 'Core', ...message) {
+    if (process.env.NODE_ENV !== 'production' && typeof console !== 'undefined') {
+        message.unshift(`[${name}]`);
+        console.warn.apply(this, message);
+    }
 }

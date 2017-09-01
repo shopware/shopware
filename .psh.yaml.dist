@@ -43,3 +43,6 @@ environments:
   docker:
     paths:
       - "dev-ops/docker/actions"
+  nexus:
+    paths:
+      - "dev-ops/nexus/actions"

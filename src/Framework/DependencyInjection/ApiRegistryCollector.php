@@ -19,25 +19,25 @@ class ApiRegistryCollector implements CompilerPassInterface
     {
         $this->setUpRegistry(
             $container,
-            'shopware.framework.api2.value_transformer_registry',
-            'shopware.framework.api2.value_transformer'
+            'shopware.framework.write.value_transformer_registry',
+            'shopware.framework.write.value_transformer'
         );
 
         $this->setUpRegistry(
             $container,
-            'shopware.framework.api2.uuid_generator_registry',
-            'shopware.framework.api2.uuid_generator'
+            'shopware.framework.write.uuid_generator_registry',
+            'shopware.framework.write.uuid_generator'
         );
 
         $this->setUpRegistry(
             $container,
-            'shopware.framework.api2.filter_registry',
-            'shopware.framework.api2.filter'
+            'shopware.framework.write.filter_registry',
+            'shopware.framework.write.filter'
         );
         $this->setUpRegistry(
             $container,
-            'shopware.framework.api2.resource_registry',
-            'shopware.framework.api2.resource'
+            'shopware.framework.write.resource_registry',
+            'shopware.framework.write.resource'
         );
     }
 

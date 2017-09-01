@@ -3,12 +3,13 @@
 namespace Shopware\Product\Tests;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Api2\FieldAware\FieldExtenderCollection;
-use Shopware\Framework\Api2\FieldException\ApiStackException;
-use Shopware\Framework\Api2\Resource\CoreShopsResource;
-use Shopware\Framework\Api2\WriteContext;
-use Shopware\Framework\Api2\Writer;
+use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Framework\Write\FieldException\WriteStackException;
+use Shopware\Framework\Write\Resource\CoreShopsResource;
+use Shopware\Framework\Write\WriteContext;
+use Shopware\Framework\Write\Writer;
 use Shopware\Product\Gateway\Resource\ProductResource;
+use Shopware\Shop\Gateway\Resource\ShopResource;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class WriterTest extends KernelTestCase
@@ -37,7 +38,7 @@ class WriterTest extends KernelTestCase
 
     private function getWriter(): Writer
     {
-        return self::$kernel->getContainer()->get('shopware.framework.api2.writer');
+        return self::$kernel->getContainer()->get('shopware.framework.write.writer');
     }
 
     public function tearDown()
@@ -52,12 +53,12 @@ class WriterTest extends KernelTestCase
                 'uuid' => self::UUID,
                 'name' => 'test',
                 'the_unknown_field' => 'do nothing?',
-                'taxUuid' => 'SWAG-CONFIG-TAX-UUID-1',
+                'taxUuid' => 'SWAG-TAX-UUID-1',
                 'manufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2'],
                 'mode' => 0,
-                'lastStock' => 1,
+                'lastStock' => true,
                 'crossbundlelook' => 1,
-                'notification' => 0,
+                'notification' => true,
                 'template' => 'foo',
                 'updatedAt' => new \DateTime(),
                 'active' => true,
@@ -92,14 +93,14 @@ class WriterTest extends KernelTestCase
 
         $this->getWriter()->insert(ProductResource::class, [
             'the_unknown_field' => 'do nothing?',
-            'taxUuid' => 'SWAG-CONFIG-TAX-UUID-1',
+            'taxUuid' => 'SWAG-TAX-UUID-1',
             'name' => 'foo',
             'manufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2'],
             'mode' => 0,
             'updatedAt' => new \DateTime(),
-            'lastStock' => 1,
+            'lastStock' => true,
             'crossbundlelook' => 1,
-            'notification' => 0,
+            'notification' => true,
             'template' => 'foo',
         ], $this->createWriteContext(), $this->createExtender());
 
@@ -112,20 +113,18 @@ class WriterTest extends KernelTestCase
 
     public function test_insert_from_docs()
     {
-//        $this->markTestSkipped('Can not resolve the mainDetailUUid bevore insertiung the details  - a wild circular reference appeared here');
-
         $this->getWriter()->insert(ProductResource::class, [
             'uuid' => self::UUID,
             'name' => 'ConfiguratorTest',
             'description' => 'A test article',
             'descriptionLong' => '<p>I\'m a <b>test article</b></p>',
-            'taxUuid' => 'SWAG-CONFIG-TAX-UUID-1',
+            'taxUuid' => 'SWAG-TAX-UUID-1',
             'manufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2'],
             'updatedAt' => new \DateTime(),
             'mode' => 0,
-            'lastStock' => 1,
+            'lastStock' => true,
             'crossbundlelook' => 1,
-            'notification' => 0,
+            'notification' => false,
             'template' => 'foo',
             'active' => true,
 
@@ -236,7 +235,6 @@ class WriterTest extends KernelTestCase
 
     public function test_update_writes_default_columns_if_ommitted()
     {
-        $this->markTestSkipped('Not implemented in v2');
         $this->insertEmptyProduct();
 
         $newProduct = $this->connection->fetchAssoc('SELECT * FROM product WHERE uuid=:uuid', ['uuid' => self::UUID]);
@@ -267,22 +265,22 @@ class WriterTest extends KernelTestCase
         $this->getWriter()->update(ProductResource::class, [
             'uuid' => self::UUID,
             'name' => [
-                'SWAG-CONFIG-SHOP-UUID-1' => '1ABC',
-                'SWAG-CONFIG-SHOP-UUID-2' => '2ABC',
+                'SWAG-SHOP-UUID-1' => '1ABC',
+                'SWAG-SHOP-UUID-2' => '2ABC',
             ],
-            'description' => 'foo', // implicit SWAG-CONFIG-SHOP-UUID-1
+            'description' => 'foo', // implicit SWAG-SHOP-UUID-1
             'descriptionLong' => [
-                'SWAG-CONFIG-SHOP-UUID-2' => '2CBA',
+                'SWAG-SHOP-UUID-2' => '2CBA',
             ],
             'translations' => [
-                'SWAG-CONFIG-SHOP-UUID-2' => [
+                'SWAG-SHOP-UUID-2' => [
                     'name' => 'bar',
                     'description' => 'foo',
                     'keywords' => 'fiz,baz'
                 ]
             ],
             'metaTitle' => [
-                'SWAG-CONFIG-SHOP-UUID-2' => 'bar',
+                'SWAG-SHOP-UUID-2' => 'bar',
             ]
         ], $this->createWriteContext(), $this->createExtender());
 
@@ -306,7 +304,7 @@ class WriterTest extends KernelTestCase
 //
 //        'GET /product/abc/translation/en' => [
 //            'productUuid' => 'abc',
-//            'languageUuid' => 'SWAG-CONFIG-SHOP-UUID-2',
+//            'languageUuid' => 'SWAG-SHOP-UUID-2',
 //            'metaTitle' => 'bar',
 //            'name' => '',
 //            [...]
@@ -340,7 +338,7 @@ class WriterTest extends KernelTestCase
             $tooLongValue .= '#';
         }
 
-        $this->expectException(ApiStackException::class);
+        $this->expectException(WriteStackException::class);
         $this->getWriter()->update(ProductResource::class, [
             'uuid' => self::UUID,
             'name' => $tooLongValue,
@@ -353,7 +351,7 @@ class WriterTest extends KernelTestCase
     protected function createWriteContext(): WriteContext
     {
         $context = new WriteContext();
-        $context->set(CoreShopsResource::class, 'uuid', 'SWAG-CONFIG-SHOP-UUID-1');
+        $context->set(ShopResource::class, 'uuid', 'SWAG-SHOP-UUID-1');
         return $context;
     }
 
@@ -363,8 +361,14 @@ class WriterTest extends KernelTestCase
             'product',
             [
                 'uuid' => self::UUID,
-                'tax_uuid' => 'SWAG-CONFIG-TAX-UUID-1',
+                'tax_uuid' => 'SWAG-TAX-UUID-1',
                 'product_manufacturer_uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2',
+                'updated_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+                'last_stock' => 0,
+//                'crossbundlelook' => 0,
+                'notification' => 0,
+                'template' => 0,
+                'mode' => 0,
             ]);
     }
 
@@ -374,8 +378,7 @@ class WriterTest extends KernelTestCase
     private function createExtender(): FieldExtenderCollection
     {
         $extender = new FieldExtenderCollection();
-        $extender->addExtender(self::$kernel->getContainer()->get('shopware.framework.api2.field_aware.default_extender'));
+        $extender->addExtender(self::$kernel->getContainer()->get('shopware.framework.write.field_aware.default_extender'));
         return $extender;
     }
-
 }

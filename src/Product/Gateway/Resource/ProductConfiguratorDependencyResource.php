@@ -2,31 +2,36 @@
 
 namespace Shopware\Product\Gateway\Resource;
 
-use Shopware\Framework\Api2\ApiFlag\Required;
-use Shopware\Framework\Api2\Field\FkField;
-use Shopware\Framework\Api2\Field\IntField;
-use Shopware\Framework\Api2\Field\ReferenceField;
-use Shopware\Framework\Api2\Field\StringField;
-use Shopware\Framework\Api2\Field\BoolField;
-use Shopware\Framework\Api2\Field\DateField;
-use Shopware\Framework\Api2\Field\SubresourceField;
-use Shopware\Framework\Api2\Field\LongTextField;
-use Shopware\Framework\Api2\Field\LongTextWithHtmlField;
-use Shopware\Framework\Api2\Field\FloatField;
-use Shopware\Framework\Api2\Field\TranslatedField;
-use Shopware\Framework\Api2\Field\UuidField;
-use Shopware\Framework\Api2\Resource\ApiResource;
+use Shopware\Framework\Write\Flag\Required;
+use Shopware\Framework\Write\Field\FkField;
+use Shopware\Framework\Write\Field\IntField;
+use Shopware\Framework\Write\Field\ReferenceField;
+use Shopware\Framework\Write\Field\StringField;
+use Shopware\Framework\Write\Field\BoolField;
+use Shopware\Framework\Write\Field\DateField;
+use Shopware\Framework\Write\Field\SubresourceField;
+use Shopware\Framework\Write\Field\LongTextField;
+use Shopware\Framework\Write\Field\LongTextWithHtmlField;
+use Shopware\Framework\Write\Field\FloatField;
+use Shopware\Framework\Write\Field\TranslatedField;
+use Shopware\Framework\Write\Field\UuidField;
+use Shopware\Framework\Write\Resource;
 
-class ProductConfiguratorDependencyResource extends ApiResource
+class ProductConfiguratorDependencyResource extends Resource
 {
+    protected const UUID_FIELD = 'uuid';
+    protected const CONFIGURATOR_SET_ID_FIELD = 'configuratorSetId';
+    protected const PARENT_ID_FIELD = 'parentId';
+    protected const CHILD_ID_FIELD = 'childId';
+
     public function __construct()
     {
         parent::__construct('product_configurator_dependency');
         
-        $this->primaryKeyFields['uuid'] = (new UuidField('uuid'))->setFlags(new Required());
-        $this->fields['configuratorSetId'] = (new IntField('configurator_set_id'))->setFlags(new Required());
-        $this->fields['parentId'] = new IntField('parent_id');
-        $this->fields['childId'] = new IntField('child_id');
+        $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
+        $this->fields[self::CONFIGURATOR_SET_ID_FIELD] = (new IntField('configurator_set_id'))->setFlags(new Required());
+        $this->fields[self::PARENT_ID_FIELD] = new IntField('parent_id');
+        $this->fields[self::CHILD_ID_FIELD] = new IntField('child_id');
     }
     
     public function getWriteOrder(): array

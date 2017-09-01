@@ -2,43 +2,50 @@
 
 namespace Shopware\Product\Gateway\Resource;
 
-use Shopware\Framework\Api2\ApiFlag\Required;
-use Shopware\Framework\Api2\Field\FkField;
-use Shopware\Framework\Api2\Field\IntField;
-use Shopware\Framework\Api2\Field\ReferenceField;
-use Shopware\Framework\Api2\Field\StringField;
-use Shopware\Framework\Api2\Field\BoolField;
-use Shopware\Framework\Api2\Field\DateField;
-use Shopware\Framework\Api2\Field\SubresourceField;
-use Shopware\Framework\Api2\Field\LongTextField;
-use Shopware\Framework\Api2\Field\LongTextWithHtmlField;
-use Shopware\Framework\Api2\Field\FloatField;
-use Shopware\Framework\Api2\Field\TranslatedField;
-use Shopware\Framework\Api2\Field\UuidField;
-use Shopware\Framework\Api2\Resource\ApiResource;
+use Shopware\Framework\Write\Flag\Required;
+use Shopware\Framework\Write\Field\FkField;
+use Shopware\Framework\Write\Field\IntField;
+use Shopware\Framework\Write\Field\ReferenceField;
+use Shopware\Framework\Write\Field\StringField;
+use Shopware\Framework\Write\Field\BoolField;
+use Shopware\Framework\Write\Field\DateField;
+use Shopware\Framework\Write\Field\SubresourceField;
+use Shopware\Framework\Write\Field\LongTextField;
+use Shopware\Framework\Write\Field\LongTextWithHtmlField;
+use Shopware\Framework\Write\Field\FloatField;
+use Shopware\Framework\Write\Field\TranslatedField;
+use Shopware\Framework\Write\Field\UuidField;
+use Shopware\Framework\Write\Resource;
 
-class ProductConfiguratorTemplatePriceResource extends ApiResource
+class ProductConfiguratorTemplatePriceResource extends Resource
 {
+    protected const TEMPLATE_ID_FIELD = 'templateId';
+    protected const CUSTOMER_GROUP_KEY_FIELD = 'customerGroupKey';
+    protected const FROM_FIELD = 'from';
+    protected const TO_FIELD = 'to';
+    protected const PRICE_FIELD = 'price';
+    protected const PSEUDOPRICE_FIELD = 'pseudoprice';
+    protected const PERCENT_FIELD = 'percent';
+    protected const UUID_FIELD = 'uuid';
+
     public function __construct()
     {
         parent::__construct('product_configurator_template_price');
         
-        $this->fields['templateId'] = new IntField('template_id');
-        $this->fields['customerGroupKey'] = (new StringField('customer_group_key'))->setFlags(new Required());
-        $this->fields['from'] = (new IntField('from'))->setFlags(new Required());
-        $this->fields['to'] = (new StringField('to'))->setFlags(new Required());
-        $this->fields['price'] = new FloatField('price');
-        $this->fields['pseudoprice'] = new FloatField('pseudoprice');
-        $this->fields['percent'] = new FloatField('percent');
-        $this->primaryKeyFields['uuid'] = (new UuidField('uuid'))->setFlags(new Required());
-        $this->fields['attributes'] = new SubresourceField(\Shopware\Product\Gateway\Resource\ProductConfiguratorTemplatePriceAttributeResource::class);
+        $this->fields[self::TEMPLATE_ID_FIELD] = new IntField('template_id');
+        $this->fields[self::CUSTOMER_GROUP_KEY_FIELD] = (new StringField('customer_group_key'))->setFlags(new Required());
+        $this->fields[self::FROM_FIELD] = (new IntField('from'))->setFlags(new Required());
+        $this->fields[self::TO_FIELD] = (new StringField('to'))->setFlags(new Required());
+        $this->fields[self::PRICE_FIELD] = new FloatField('price');
+        $this->fields[self::PSEUDOPRICE_FIELD] = new FloatField('pseudoprice');
+        $this->fields[self::PERCENT_FIELD] = new FloatField('percent');
+        $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
     }
     
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Product\Gateway\Resource\ProductConfiguratorTemplatePriceResource::class,
-            \Shopware\Product\Gateway\Resource\ProductConfiguratorTemplatePriceAttributeResource::class
+            \Shopware\Product\Gateway\Resource\ProductConfiguratorTemplatePriceResource::class
         ];
     }
 }

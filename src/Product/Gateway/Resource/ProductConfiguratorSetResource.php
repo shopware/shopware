@@ -2,31 +2,36 @@
 
 namespace Shopware\Product\Gateway\Resource;
 
-use Shopware\Framework\Api2\ApiFlag\Required;
-use Shopware\Framework\Api2\Field\FkField;
-use Shopware\Framework\Api2\Field\IntField;
-use Shopware\Framework\Api2\Field\ReferenceField;
-use Shopware\Framework\Api2\Field\StringField;
-use Shopware\Framework\Api2\Field\BoolField;
-use Shopware\Framework\Api2\Field\DateField;
-use Shopware\Framework\Api2\Field\SubresourceField;
-use Shopware\Framework\Api2\Field\LongTextField;
-use Shopware\Framework\Api2\Field\LongTextWithHtmlField;
-use Shopware\Framework\Api2\Field\FloatField;
-use Shopware\Framework\Api2\Field\TranslatedField;
-use Shopware\Framework\Api2\Field\UuidField;
-use Shopware\Framework\Api2\Resource\ApiResource;
+use Shopware\Framework\Write\Flag\Required;
+use Shopware\Framework\Write\Field\FkField;
+use Shopware\Framework\Write\Field\IntField;
+use Shopware\Framework\Write\Field\ReferenceField;
+use Shopware\Framework\Write\Field\StringField;
+use Shopware\Framework\Write\Field\BoolField;
+use Shopware\Framework\Write\Field\DateField;
+use Shopware\Framework\Write\Field\SubresourceField;
+use Shopware\Framework\Write\Field\LongTextField;
+use Shopware\Framework\Write\Field\LongTextWithHtmlField;
+use Shopware\Framework\Write\Field\FloatField;
+use Shopware\Framework\Write\Field\TranslatedField;
+use Shopware\Framework\Write\Field\UuidField;
+use Shopware\Framework\Write\Resource;
 
-class ProductConfiguratorSetResource extends ApiResource
+class ProductConfiguratorSetResource extends Resource
 {
+    protected const UUID_FIELD = 'uuid';
+    protected const NAME_FIELD = 'name';
+    protected const PUBLIC_FIELD = 'public';
+    protected const TYPE_FIELD = 'type';
+
     public function __construct()
     {
         parent::__construct('product_configurator_set');
         
-        $this->primaryKeyFields['uuid'] = (new UuidField('uuid'))->setFlags(new Required());
-        $this->fields['name'] = (new StringField('name'))->setFlags(new Required());
-        $this->fields['public'] = (new BoolField('public'))->setFlags(new Required());
-        $this->fields['type'] = new IntField('type');
+        $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
+        $this->fields[self::NAME_FIELD] = (new StringField('name'))->setFlags(new Required());
+        $this->fields[self::PUBLIC_FIELD] = (new BoolField('public'))->setFlags(new Required());
+        $this->fields[self::TYPE_FIELD] = new IntField('type');
     }
     
     public function getWriteOrder(): array

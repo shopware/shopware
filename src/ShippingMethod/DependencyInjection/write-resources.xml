@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+            <service id="shopware.shippingmethod.shipping-method.resource" class="Shopware\ShippingMethod\Gateway\Resource\ShippingMethodResource">
+        <tag name="shopware.framework.write.resource"/> 
+    </service>
+    <service id="shopware.shippingmethod.shipping-method-category.resource" class="Shopware\ShippingMethod\Gateway\Resource\ShippingMethodCategoryResource">
+        <tag name="shopware.framework.write.resource"/> 
+    </service>
+    <service id="shopware.shippingmethod.shipping-method-country.resource" class="Shopware\ShippingMethod\Gateway\Resource\ShippingMethodCountryResource">
+        <tag name="shopware.framework.write.resource"/> 
+    </service>
+    <service id="shopware.shippingmethod.shipping-method-holiday.resource" class="Shopware\ShippingMethod\Gateway\Resource\ShippingMethodHolidayResource">
+        <tag name="shopware.framework.write.resource"/> 
+    </service>
+    <service id="shopware.shippingmethod.shipping-method-payment-method.resource" class="Shopware\ShippingMethod\Gateway\Resource\ShippingMethodPaymentMethodResource">
+        <tag name="shopware.framework.write.resource"/> 
+    </service>
+    </services>
+</container>

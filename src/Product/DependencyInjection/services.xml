@@ -62,7 +62,7 @@
         <service class="Shopware\Product\Controller\ProductController" id="shopware.product.controller.product_controller">
             <argument id="shopware.product.repository" type="service"/>
             <argument id="shopware.category.gateway.category_denormalization" type="service"/>
-            <argument id="shopware.framework.api2.resource_registry" type="service"/>
+            <argument id="shopware.framework.write.resource_registry" type="service"/>
         </service>
 
 

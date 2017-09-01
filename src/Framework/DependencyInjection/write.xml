@@ -1,0 +1,62 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="shopware.framework.write.sql_gateway" class="Shopware\Framework\Write\SqlGateway">
+            <argument type="service" id="doctrine.dbal.default_connection"/>
+        </service>
+
+        <!-- Value transformer -->
+        <service class="Shopware\Framework\Write\ValueTransformer\ValueTransformerRegistry"
+                 id="shopware.framework.write.value_transformer_registry"/>
+        <service class="Shopware\Framework\Write\ValueTransformer\ValueTransformerDate"
+                 id="shopware.framework.write.value_transformer_date">
+            <tag name="shopware.framework.write.value_transformer"/>
+        </service>
+        <service class="Shopware\Framework\Write\ValueTransformer\ValueTransformerBoolean"
+                 id="shopware.framework.write.value_transformer_boolean">
+            <tag name="shopware.framework.write.value_transformer"/>
+        </service>
+
+        <!-- Filter -->
+        <service class="Shopware\Framework\Write\Filter\FilterRegistry" id="shopware.framework.write.filter_registry"/>
+        <service class="Shopware\Framework\Write\Filter\HtmlFilter" id="shopware.framework.write.filter_html">
+            <tag name="shopware.framework.write.filter"/>
+        </service>
+
+        <!-- UUID GENERATOOR -->
+        <service id="shopware.framework.write.uuid_generator_registry"
+                 class="Shopware\Framework\Write\UuidGenerator\GeneratorRegistry"/>
+        <service id="shopware.framework.write.uuid_generator_ramsey"
+                 class="Shopware\Framework\Write\UuidGenerator\RamseyGenerator">
+            <tag name="shopware.framework.write.uuid_generator"/>
+        </service>
+        <service id="shopware.framework.write.uuid_generator_product_number"
+                 class="Shopware\Framework\Write\UuidGenerator\ProductNumberGenerator">
+            <argument type="service" id="doctrine.dbal.default_connection"/>
+
+            <tag name="shopware.framework.write.uuid_generator"/>
+        </service>
+        <service class="Shopware\Framework\Write\ResourceRegistry"
+                 id="shopware.framework.write.resource_registry"/>
+        <service class="Shopware\Framework\Write\FieldAware\DefaultExtender"
+                 id="shopware.framework.write.field_aware.default_extender">
+            <argument type="service" id="shopware.framework.write.resource_registry"/>
+            <argument type="service" id="shopware.framework.write.sql_gateway"/>
+            <argument type="service" id="validator"/>
+            <argument type="service" id="shopware.validation.constraint_builder"/>
+            <argument type="service" id="shopware.framework.write.uuid_generator_registry"/>
+            <argument type="service" id="shopware.framework.write.filter_registry"/>
+            <argument type="service" id="shopware.framework.write.value_transformer_registry"/>
+        </service>
+        <service id="shopware.framework.write.field_extender_collection"
+                 class="Shopware\Framework\Write\FieldAware\FieldExtenderCollection"/>
+        <service id="shopware.framework.write.writer" class="Shopware\Framework\Write\Writer">
+            <argument type="service" id="shopware.framework.write.sql_gateway"/>
+            <argument type="service" id="shopware.framework.write.resource_registry"/>
+            <argument type="service" id="doctrine.dbal.default_connection"/>
+        </service>
+    </services>
+</container>

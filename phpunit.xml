@@ -5,7 +5,7 @@
          xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.1/phpunit.xsd"
          backupGlobals="false"
          colors="true"
-         bootstrap="app/autoload.php"
+         bootstrap="tests/bootstrap.php"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
@@ -16,7 +16,10 @@
     </php>
 
     <testsuites>
-        <testsuite name="Product tests">
+        <testsuite name="Framework tests">
+            <directory>src/Framework/Tests</directory>
+        </testsuite>
+        <testsuite name="Framework tests">
             <directory>src/Product/Tests</directory>
         </testsuite>
         <testsuite name="Category tests">
@@ -34,13 +37,6 @@
                 <directory>src/*/*Bundle/Tests</directory>
                 <directory>src/*/Bundle/*Bundle/Resources</directory>
                 <directory>src/*/Bundle/*Bundle/Tests</directory>
-
-                <!-- code coverage exclude framework glue code -->
-                <directory>src/Shopware/DashboardBundle/DependencyInjection/*</directory>
-                <directory>src/Shopware/ShopwareControlBundle/Inventory/InventoryCompilerPass.php</directory>
-                <directory>src/Shopware/ShopwareControlBundle/Queue/QueueCompilerPass.php</directory>
-                <directory>src/Shopware/ShopwareControlBundle/DependencyInjection/*</directory>
-                <directory>src/Shopware/ShopwareControlBundle/ShopwareControlBundle.php</directory>
             </exclude>
         </whitelist>
     </filter>

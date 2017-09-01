@@ -2,39 +2,44 @@
 
 namespace Shopware\Product\Gateway\Resource;
 
-use Shopware\Framework\Api2\ApiFlag\Required;
-use Shopware\Framework\Api2\Field\FkField;
-use Shopware\Framework\Api2\Field\IntField;
-use Shopware\Framework\Api2\Field\ReferenceField;
-use Shopware\Framework\Api2\Field\StringField;
-use Shopware\Framework\Api2\Field\BoolField;
-use Shopware\Framework\Api2\Field\DateField;
-use Shopware\Framework\Api2\Field\SubresourceField;
-use Shopware\Framework\Api2\Field\LongTextField;
-use Shopware\Framework\Api2\Field\LongTextWithHtmlField;
-use Shopware\Framework\Api2\Field\FloatField;
-use Shopware\Framework\Api2\Field\TranslatedField;
-use Shopware\Framework\Api2\Field\UuidField;
-use Shopware\Framework\Api2\Resource\ApiResource;
+use Shopware\Framework\Write\Flag\Required;
+use Shopware\Framework\Write\Field\FkField;
+use Shopware\Framework\Write\Field\IntField;
+use Shopware\Framework\Write\Field\ReferenceField;
+use Shopware\Framework\Write\Field\StringField;
+use Shopware\Framework\Write\Field\BoolField;
+use Shopware\Framework\Write\Field\DateField;
+use Shopware\Framework\Write\Field\SubresourceField;
+use Shopware\Framework\Write\Field\LongTextField;
+use Shopware\Framework\Write\Field\LongTextWithHtmlField;
+use Shopware\Framework\Write\Field\FloatField;
+use Shopware\Framework\Write\Field\TranslatedField;
+use Shopware\Framework\Write\Field\UuidField;
+use Shopware\Framework\Write\Resource;
 
-class ProductConfiguratorOptionResource extends ApiResource
+class ProductConfiguratorOptionResource extends Resource
 {
+    protected const UUID_FIELD = 'uuid';
+    protected const GROUP_ID_FIELD = 'groupId';
+    protected const PRODUCT_CONFIGURATOR_GROUP_UUID_FIELD = 'productConfiguratorGroupUuid';
+    protected const NAME_FIELD = 'name';
+    protected const POSITION_FIELD = 'position';
+
     public function __construct()
     {
         parent::__construct('product_configurator_option');
         
-        $this->primaryKeyFields['uuid'] = (new UuidField('uuid'))->setFlags(new Required());
-        $this->fields['groupId'] = new IntField('group_id');
-        $this->fields['name'] = (new StringField('name'))->setFlags(new Required());
-        $this->fields['position'] = (new IntField('position'))->setFlags(new Required());
-        $this->fields['attributes'] = new SubresourceField(\Shopware\Product\Gateway\Resource\ProductConfiguratorOptionAttributeResource::class);
+        $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
+        $this->fields[self::GROUP_ID_FIELD] = new IntField('group_id');
+        $this->fields[self::PRODUCT_CONFIGURATOR_GROUP_UUID_FIELD] = (new StringField('product_configurator_group_uuid'))->setFlags(new Required());
+        $this->fields[self::NAME_FIELD] = (new StringField('name'))->setFlags(new Required());
+        $this->fields[self::POSITION_FIELD] = (new IntField('position'))->setFlags(new Required());
     }
     
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Product\Gateway\Resource\ProductConfiguratorOptionResource::class,
-            \Shopware\Product\Gateway\Resource\ProductConfiguratorOptionAttributeResource::class
+            \Shopware\Product\Gateway\Resource\ProductConfiguratorOptionResource::class
         ];
     }
 }

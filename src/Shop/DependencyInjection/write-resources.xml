@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+            <service id="shopware.shop.shop.resource" class="Shopware\Shop\Gateway\Resource\ShopResource">
+        <tag name="shopware.framework.write.resource"/> 
+    </service>
+    <service id="shopware.shop.shop-currency.resource" class="Shopware\Shop\Gateway\Resource\ShopCurrencyResource">
+        <tag name="shopware.framework.write.resource"/> 
+    </service>
+    <service id="shopware.shop.shop-form.resource" class="Shopware\Shop\Gateway\Resource\ShopFormResource">
+        <tag name="shopware.framework.write.resource"/> 
+    </service>
+    <service id="shopware.shop.shop-form-field.resource" class="Shopware\Shop\Gateway\Resource\ShopFormFieldResource">
+        <tag name="shopware.framework.write.resource"/> 
+    </service>
+    <service id="shopware.shop.shop-page.resource" class="Shopware\Shop\Gateway\Resource\ShopPageResource">
+        <tag name="shopware.framework.write.resource"/> 
+    </service>
+    <service id="shopware.shop.shop-page-group.resource" class="Shopware\Shop\Gateway\Resource\ShopPageGroupResource">
+        <tag name="shopware.framework.write.resource"/> 
+    </service>
+    <service id="shopware.shop.shop-page-group-mapping.resource" class="Shopware\Shop\Gateway\Resource\ShopPageGroupMappingResource">
+        <tag name="shopware.framework.write.resource"/> 
+    </service>
+    </services>
+</container>

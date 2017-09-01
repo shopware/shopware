@@ -2,30 +2,34 @@
 
 namespace Shopware\Search\Gateway\Resource;
 
-use Shopware\Framework\Api2\ApiFlag\Required;
-use Shopware\Framework\Api2\Field\FkField;
-use Shopware\Framework\Api2\Field\IntField;
-use Shopware\Framework\Api2\Field\ReferenceField;
-use Shopware\Framework\Api2\Field\StringField;
-use Shopware\Framework\Api2\Field\BoolField;
-use Shopware\Framework\Api2\Field\DateField;
-use Shopware\Framework\Api2\Field\SubresourceField;
-use Shopware\Framework\Api2\Field\LongTextField;
-use Shopware\Framework\Api2\Field\LongTextWithHtmlField;
-use Shopware\Framework\Api2\Field\FloatField;
-use Shopware\Framework\Api2\Field\TranslatedField;
-use Shopware\Framework\Api2\Field\UuidField;
-use Shopware\Framework\Api2\Resource\ApiResource;
+use Shopware\Framework\Write\Flag\Required;
+use Shopware\Framework\Write\Field\FkField;
+use Shopware\Framework\Write\Field\IntField;
+use Shopware\Framework\Write\Field\ReferenceField;
+use Shopware\Framework\Write\Field\StringField;
+use Shopware\Framework\Write\Field\BoolField;
+use Shopware\Framework\Write\Field\DateField;
+use Shopware\Framework\Write\Field\SubresourceField;
+use Shopware\Framework\Write\Field\LongTextField;
+use Shopware\Framework\Write\Field\LongTextWithHtmlField;
+use Shopware\Framework\Write\Field\FloatField;
+use Shopware\Framework\Write\Field\TranslatedField;
+use Shopware\Framework\Write\Field\UuidField;
+use Shopware\Framework\Write\Resource;
 
-class SearchIndexResource extends ApiResource
+class SearchIndexResource extends Resource
 {
+    protected const KEYWORDID_FIELD = 'keywordID';
+    protected const FIELDID_FIELD = 'fieldID';
+    protected const ELEMENTID_FIELD = 'elementID';
+
     public function __construct()
     {
         parent::__construct('s_search_index');
         
-        $this->primaryKeyFields['keywordID'] = (new IntField('keywordID'))->setFlags(new Required());
-        $this->primaryKeyFields['fieldID'] = (new IntField('fieldID'))->setFlags(new Required());
-        $this->primaryKeyFields['elementID'] = (new IntField('elementID'))->setFlags(new Required());
+        $this->primaryKeyFields[self::KEYWORDID_FIELD] = (new IntField('keywordID'))->setFlags(new Required());
+        $this->primaryKeyFields[self::FIELDID_FIELD] = (new IntField('fieldID'))->setFlags(new Required());
+        $this->primaryKeyFields[self::ELEMENTID_FIELD] = (new IntField('elementID'))->setFlags(new Required());
     }
     
     public function getWriteOrder(): array

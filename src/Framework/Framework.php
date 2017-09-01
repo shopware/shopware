@@ -59,9 +59,8 @@ class Framework extends Bundle
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('services.xml');
-//        $loader->load('api.xml');
-        $loader->load('api2.xml');
-        $loader->load('api2-resources.xml');
+        $loader->load('write.xml');
+        $loader->load('write-resources.xml');
 
         $container->addCompilerPass(new BridgeDatabaseCompilerPass());
         $container->addCompilerPass(new ApiRegistryCollector());

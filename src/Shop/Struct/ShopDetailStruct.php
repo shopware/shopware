@@ -39,34 +39,42 @@ class ShopDetailStruct extends ShopBasicStruct
      * @var CategoryBasicStruct
      */
     protected $category;
+
     /**
-     * @var LocaleBasicStruct
+     * @var LocaleBasicStruct|null
      */
     protected $fallbackLocale;
+
     /**
      * @var ShippingMethodBasicStruct
      */
     protected $shippingMethod;
+
     /**
      * @var ShopTemplateBasicStruct
      */
     protected $shopTemplate;
+
     /**
      * @var AreaCountryBasicStruct
      */
     protected $areaCountry;
+
     /**
      * @var PaymentMethodBasicStruct
      */
     protected $paymentMethod;
+
     /**
      * @var CustomerGroupBasicStruct
      */
     protected $customerGroup;
+
     /**
      * @var string[]
      */
     protected $currencyUuids;
+
     /**
      * @var CurrencyBasicCollection
      */
@@ -87,12 +95,12 @@ class ShopDetailStruct extends ShopBasicStruct
         $this->category = $category;
     }
 
-    public function getFallbackLocale(): LocaleBasicStruct
+    public function getFallbackLocale(): ?LocaleBasicStruct
     {
         return $this->fallbackLocale;
     }
 
-    public function setFallbackLocale(LocaleBasicStruct $fallbackLocale): void
+    public function setFallbackLocale(?LocaleBasicStruct $fallbackLocale): void
     {
         $this->fallbackLocale = $fallbackLocale;
     }

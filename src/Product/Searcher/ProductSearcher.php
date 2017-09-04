@@ -27,7 +27,8 @@ namespace Shopware\Product\Searcher;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Product\Loader\ProductBasicLoader;
+use Shopware\Product\Reader\ProductBasicHydrator;
+use Shopware\Product\Reader\Query\ProductBasicQuery;
 use Shopware\Product\Struct\ProductSearchResult;
 use Shopware\Search\Criteria;
 use Shopware\Search\Search;
@@ -36,32 +37,30 @@ use Shopware\Search\SearchResultInterface;
 class ProductSearcher extends Search
 {
     /**
-     * @var ProductBasicLoader
+     * @var ProductBasicHydrator
      */
-    private $basicLoader;
+    private $hydrator;
 
-    public function __construct(Connection $connection, array $handlers, ProductBasicLoader $basicLoader)
+    public function __construct(Connection $connection, array $handlers, ProductBasicHydrator $hydrator)
     {
         parent::__construct($connection, $handlers);
-        $this->basicLoader = $basicLoader;
+        $this->hydrator = $hydrator;
     }
 
     protected function createQuery(Criteria $criteria, TranslationContext $context): QueryBuilder
     {
-        $query = $this->connection->createQueryBuilder();
-        $query->select(['product.uuid']);
-        $query->from('product', 'product');
-
-        return $query;
+        return new ProductBasicQuery($this->connection, $context);
     }
 
     protected function createResult(array $rows, int $total, TranslationContext $context): SearchResultInterface
     {
-        $structs = $this->basicLoader->load(
-            array_column($rows, 'uuid'),
-            $context
+        $structs = array_map(
+            function (array $row) {
+                return $this->hydrator->hydrate($row);
+            },
+            $rows
         );
 
-        return new ProductSearchResult($structs->getIterator()->getArrayCopy(), $total);
+        return new ProductSearchResult($structs, $total);
     }
 }

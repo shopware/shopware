@@ -144,18 +144,20 @@ class ContextFactory implements ContextFactoryInterface
         CustomerScope $customerScope,
         CheckoutScope $checkoutScope
     ): ShopContext {
-        $translationContext = $this->getTranslationContext($shopScope->getShopId());
+        $translationContext = $this->getTranslationContext($shopScope->getShopUuid());
 
         //select shop with all fallbacks
-        $shop = $this->shopRepository->read([$shopScope->getShopId()], $translationContext)
-            ->get($shopScope->getShopId());
+        $shop = $this->shopRepository->read(
+            [$shopScope->getShopUuid()],
+            $translationContext
+        )->get($shopScope->getShopUuid());
 
         if (!$shop) {
-            throw new \RuntimeException(sprintf('Shop with id %s not found or not valid!', $shopScope->getShopId()));
+            throw new \RuntimeException(sprintf('Shop with id %s not found or not valid!', $shopScope->getShopUuid()));
         }
 
         //load active currency, fallback to shop currency
-        $currency = $this->getCurrency($shop, $shopScope->getCurrencyId(), $translationContext);
+        $currency = $this->getCurrency($shop, $shopScope->getCurrencyUuid(), $translationContext);
 
         //fallback customer group is hard coded to 'EK'
         $fallbackGroup = $this->customerGroupRepository->read([StorefrontContextService::FALLBACK_CUSTOMER_GROUP], $translationContext)

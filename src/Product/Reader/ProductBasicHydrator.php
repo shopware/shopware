@@ -27,11 +27,16 @@ namespace Shopware\Product\Reader;
 use Shopware\Framework\Struct\Hydrator;
 use Shopware\Product\Struct\ProductBasicStruct;
 use Shopware\ProductDetail\Reader\ProductDetailBasicHydrator;
+use Shopware\ProductManufacturer\Reader\ProductManufacturerBasicHydrator;
 use Shopware\SeoUrl\Reader\SeoUrlBasicHydrator;
 use Shopware\Tax\Reader\TaxBasicHydrator;
 
 class ProductBasicHydrator extends Hydrator
 {
+    /**
+     * @var ProductManufacturerBasicHydrator
+     */
+    private $productManufacturerBasicHydrator;
     /**
      * @var ProductDetailBasicHydrator
      */
@@ -46,10 +51,12 @@ class ProductBasicHydrator extends Hydrator
     private $seoUrlBasicHydrator;
 
     public function __construct(
+        ProductManufacturerBasicHydrator $productManufacturerBasicHydrator,
         ProductDetailBasicHydrator $productDetailBasicHydrator,
         TaxBasicHydrator $taxBasicHydrator,
         SeoUrlBasicHydrator $seoUrlBasicHydrator
     ) {
+        $this->productManufacturerBasicHydrator = $productManufacturerBasicHydrator;
         $this->productDetailBasicHydrator = $productDetailBasicHydrator;
         $this->taxBasicHydrator = $taxBasicHydrator;
         $this->seoUrlBasicHydrator = $seoUrlBasicHydrator;
@@ -94,9 +101,13 @@ class ProductBasicHydrator extends Hydrator
         $product->setConfiguratorSetId(
             isset($data['__product_configurator_set_id']) ? (int)$data['__product_configurator_set_id'] : null
         );
+        $product->setManufacturer($this->productManufacturerBasicHydrator->hydrate($data));
         $product->setMainDetail($this->productDetailBasicHydrator->hydrate($data));
         $product->setTax($this->taxBasicHydrator->hydrate($data));
-        $product->setCanonicalUrl($this->seoUrlBasicHydrator->hydrate($data));
+
+        if (!empty($data['__seoUrl_uuid'])) {
+            $product->setCanonicalUrl($this->seoUrlBasicHydrator->hydrate($data));
+        }
 
         return $product;
     }

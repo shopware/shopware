@@ -28,6 +28,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\SeoUrl\Reader\Query\SeoUrlBasicQuery;
+use Shopware\Storefront\ListingPage\ListingPageUrlGenerator;
 
 class CategoryBasicQuery extends QueryBuilder
 {
@@ -84,7 +85,7 @@ class CategoryBasicQuery extends QueryBuilder
             'category',
             'seo_url',
             'seoUrl',
-            'category.uuid = seoUrl.foreign_key AND seoUrl.is_canonical = 1 AND seoUrl.shop_uuid = :shopUuid AND seoUrl.name = :seoUrlName'
+            'category.uuid = seoUrl.foreign_key AND seoUrl.is_canonical = 1 AND seoUrl.shop_uuid = :shopUuid AND seoUrl.name = :categorySeoUrlName'
         );
 
         $query->setParameter(':categorySeoUrlName', ListingPageUrlGenerator::ROUTE_NAME);

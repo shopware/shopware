@@ -28,13 +28,20 @@ use Shopware\Cart\Delivery\ShippingLocation;
 use Shopware\Currency\Struct\Currency;
 use Shopware\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Customer\Struct\Customer;
+use Shopware\Customer\Struct\CustomerBasicStruct;
 use Shopware\CustomerGroup\Struct\CustomerGroup;
+use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
 use Shopware\Framework\Struct\Struct;
 use Shopware\PaymentMethod\Struct\PaymentMethod;
+use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
+use Shopware\PriceGroup\Struct\PriceGroupBasicCollection;
 use Shopware\PriceGroup\Struct\PriceGroupCollection;
 use Shopware\ShippingMethod\Struct\ShippingMethod;
+use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
 use Shopware\Shop\Struct\Shop;
+use Shopware\Shop\Struct\ShopBasicStruct;
 use Shopware\Tax\Struct\Tax;
+use Shopware\Tax\Struct\TaxBasicCollection;
 use Shopware\Tax\Struct\TaxCollection;
 
 /**
@@ -45,47 +52,47 @@ use Shopware\Tax\Struct\TaxCollection;
 class ShopContext extends Struct
 {
     /**
-     * @var CustomerGroup
+     * @var CustomerGroupBasicStruct
      */
     protected $currentCustomerGroup;
 
     /**
-     * @var \Shopware\CustomerGroup\Struct\CustomerGroup
+     * @var CustomerGroupBasicStruct
      */
     protected $fallbackCustomerGroup;
 
     /**
-     * @var \Shopware\Currency\Struct\CurrencyBasicStruct
+     * @var CurrencyBasicStruct
      */
     protected $currency;
 
     /**
-     * @var \Shopware\Shop\Struct\Shop
+     * @var ShopBasicStruct
      */
     protected $shop;
 
     /**
-     * @var TaxCollection
+     * @var TaxBasicCollection
      */
     protected $taxRules;
 
     /**
-     * @var PriceGroupCollection
+     * @var PriceGroupBasicCollection
      */
     protected $priceGroups;
 
     /**
-     * @var \Shopware\Customer\Struct\Customer|null
+     * @var CustomerBasicStruct|null
      */
     protected $customer;
 
     /**
-     * @var \Shopware\PaymentMethod\Struct\PaymentMethod
+     * @var PaymentMethodBasicStruct
      */
     protected $paymentMethod;
 
     /**
-     * @var ShippingMethod
+     * @var ShippingMethodBasicStruct
      */
     protected $shippingMethod;
 
@@ -95,16 +102,16 @@ class ShopContext extends Struct
     protected $shippingLocation;
 
     public function __construct(
-        Shop $shop,
-        Currency $currency,
-        CustomerGroup $currentCustomerGroup,
-        CustomerGroup $fallbackCustomerGroup,
-        TaxCollection $taxRules,
-        PriceGroupCollection $priceGroups,
-        PaymentMethod $paymentMethod,
-        ShippingMethod $shippingMethod,
+        ShopBasicStruct $shop,
+        CurrencyBasicStruct $currency,
+        CustomerGroupBasicStruct $currentCustomerGroup,
+        CustomerGroupBasicStruct $fallbackCustomerGroup,
+        TaxBasicCollection $taxRules,
+        PriceGroupBasicCollection $priceGroups,
+        PaymentMethodBasicStruct $paymentMethod,
+        ShippingMethodBasicStruct $shippingMethod,
         ShippingLocation $shippingLocation,
-        ?Customer $customer
+        ?CustomerBasicStruct $customer
     ) {
         $this->currentCustomerGroup = $currentCustomerGroup;
         $this->fallbackCustomerGroup = $fallbackCustomerGroup;
@@ -118,9 +125,14 @@ class ShopContext extends Struct
         $this->shippingLocation = $shippingLocation;
     }
 
-    public function getShop(): Shop
+    public function getCurrentCustomerGroup(): CustomerGroupBasicStruct
     {
-        return $this->shop;
+        return $this->currentCustomerGroup;
+    }
+
+    public function getFallbackCustomerGroup(): CustomerGroupBasicStruct
+    {
+        return $this->fallbackCustomerGroup;
     }
 
     public function getCurrency(): CurrencyBasicStruct
@@ -128,51 +140,43 @@ class ShopContext extends Struct
         return $this->currency;
     }
 
-    public function getCurrentCustomerGroup(): CustomerGroup
+    public function getShop(): ShopBasicStruct
     {
-        return $this->currentCustomerGroup;
+        return $this->shop;
     }
 
-    public function getFallbackCustomerGroup(): CustomerGroup
+    public function getTaxRules(): TaxBasicCollection
     {
-        return $this->fallbackCustomerGroup;
+        return $this->taxRules;
     }
 
-    public function getPriceGroups(): PriceGroupCollection
+    public function getPriceGroups(): PriceGroupBasicCollection
     {
         return $this->priceGroups;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getTaxRule(int $taxId): Tax
-    {
-        return $this->taxRules->get($taxId);
-    }
-
-    public function getCustomer(): ? Customer
+    public function getCustomer(): ?CustomerBasicStruct
     {
         return $this->customer;
     }
 
-    public function getPaymentMethod(): PaymentMethod
+    public function getPaymentMethod(): PaymentMethodBasicStruct
     {
         return $this->paymentMethod;
     }
 
-    public function getShippingMethod(): ShippingMethod
+    public function getShippingMethod(): ShippingMethodBasicStruct
     {
         return $this->shippingMethod;
-    }
-
-    public function getTranslationContext(): TranslationContext
-    {
-        return TranslationContext::createFromShop($this->shop);
     }
 
     public function getShippingLocation(): ShippingLocation
     {
         return $this->shippingLocation;
+    }
+
+    public function getTranslationContext(): TranslationContext
+    {
+        return TranslationContext::createFromShop($this->shop);
     }
 }

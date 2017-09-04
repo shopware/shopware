@@ -46,7 +46,7 @@ class SeoUrlBasicHydrator extends Hydrator
         $seoUrl->setPathInfo((string)$data['__seoUrl_path_info']);
         $seoUrl->setSeoPathInfo((string)$data['__seoUrl_seo_path_info']);
         $seoUrl->setIsCanonical((bool)$data['__seoUrl_is_canonical']);
-        $seoUrl->setCreatedAt(new \DateTime($data['__seoUrl_created_at']));
+        $seoUrl->setCreatedAt(new \DateTime((string) $data['__seoUrl_created_at']));
 
         return $seoUrl;
     }

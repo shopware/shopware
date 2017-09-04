@@ -24,44 +24,41 @@
 
 namespace Shopware\Context\Struct;
 
-class ShopScope implements \JsonSerializable
+use Shopware\Framework\Struct\Struct;
+
+class ShopScope extends Struct
 {
     /**
-     * @var int
+     * @var string
      */
-    protected $shopId;
+    protected $shopUuid;
 
     /**
-     * @var int|null
+     * @var string|null
      */
-    protected $currencyId;
+    protected $currencyUuid;
 
-    public function __construct(int $shopId, ?int $currencyId = null)
+    public function __construct(string $shopUuid, ?string $currencyUuid = null)
     {
-        $this->shopId = $shopId;
-        $this->currencyId = $currencyId;
+        $this->shopUuid = $shopUuid;
+        $this->currencyUuid = $currencyUuid;
     }
 
-    public function getShopId(): int
+    public function getShopUuid(): string
     {
-        return $this->shopId;
+        return $this->shopUuid;
     }
 
-    public function getCurrencyId(): ?int
+    public function getCurrencyUuid(): ?string
     {
-        return $this->currencyId;
+        return $this->currencyUuid;
     }
 
     public static function createFromContext(ShopContext $context): ShopScope
     {
         return new self(
-            $context->getShop()->getId(),
-            $context->getCurrency()->getId()
+            $context->getShop()->getUuid(),
+            $context->getCurrency()->getUuid()
         );
-    }
-
-    public function jsonSerialize()
-    {
-        return get_object_vars($this);
     }
 }

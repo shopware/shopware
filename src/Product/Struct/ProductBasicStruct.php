@@ -140,7 +140,7 @@ class ProductBasicStruct extends Struct
      */
     protected $tax;
     /**
-     * @var SeoUrlBasicStruct
+     * @var SeoUrlBasicStruct|null
      */
     protected $canonicalUrl;
 
@@ -364,12 +364,12 @@ class ProductBasicStruct extends Struct
         $this->tax = $tax;
     }
 
-    public function getCanonicalUrl(): SeoUrlBasicStruct
+    public function getCanonicalUrl(): ?SeoUrlBasicStruct
     {
         return $this->canonicalUrl;
     }
 
-    public function setCanonicalUrl(SeoUrlBasicStruct $canonicalUrl): void
+    public function setCanonicalUrl(?SeoUrlBasicStruct $canonicalUrl): void
     {
         $this->canonicalUrl = $canonicalUrl;
     }

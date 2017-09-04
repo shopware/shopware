@@ -6,6 +6,7 @@
 
     <services>
         <service class="Shopware\Product\Reader\ProductBasicHydrator" id="shopware.product.reader.basic_hydrator">
+            <argument type="service" id="shopware.product_manufacturer.reader.basic_hydrator"/>
             <argument type="service" id="shopware.product_detail.reader.basic_hydrator"/>
             <argument type="service" id="shopware.tax.reader.basic_hydrator"/>
             <argument type="service" id="shopware.seo_url.reader.basic_hydrator"/>
@@ -18,7 +19,7 @@
 
         <service class="Shopware\Product\Loader\ProductBasicLoader" id="shopware.product.loader.basic_loader">
             <argument type="service" id="shopware.product.reader.basic_reader"/>
-            <argument type="service" id="shopware.product_manufacturer.loader.basic_loader"/>
+
         </service>
 
         <service class="Shopware\Product\Searcher\ProductSearcher" id="shopware.product.searcher">
@@ -26,7 +27,7 @@
             <argument type="collection">
 
             </argument>
-            <argument id="shopware.product.loader.basic_loader" type="service"/>
+            <argument id="shopware.product.reader.basic_hydrator" type="service"/>
         </service>
 
         <service class="Shopware\Product\Writer\ProductWriter" id="shopware.product.writer.writer"/>
@@ -53,7 +54,24 @@
             <argument type="service" id="shopware.product.reader.detail_reader"/>
             <argument type="service" id="shopware.product_detail.searcher"/>
             <argument type="service" id="shopware.category.loader.basic_loader"/>
-            <argument type="service" id="shopware.product_manufacturer.loader.basic_loader"/>
+        </service>
+
+
+        <!-- Helpers -->
+        <service id="shopware.product.api.controller" class="Shopware\Product\Controller\ApiController">
+            <argument type="service" id="shopware.product.repository"/>
+            <argument type="service" id="shopware.category.gateway.category_denormalization"/>
+            <argument type="service" id="shopware.framework.api2.resource_registry"/>
+        </service>
+
+        <service class="Shopware\Category\Gateway\CategoryDenormalization" id="shopware.category.gateway.category_denormalization">
+            <argument id="dbal_connection" type="service"/>
+        </service>
+
+        <defaults autowire="true" />
+
+        <service class="Shopware\Product\Controller\ApiContextValueResolver" id="shopware.product.controller.api_context_value_resolver">
+            <tag name="controller.argument_value_resolver"/>
         </service>
 
     </services>

@@ -68,7 +68,7 @@ class GenerateStructCommand
                 'columns' => [
                 ],
                 'associations' => [
-                    self::createAssociation('product_manufacturer', self::ManyToOne, true, true, '', '', 'manufacturer'),
+                    self::createAssociation('product_manufacturer', self::ManyToOne, true, false, '', '', 'manufacturer'),
                     self::createAssociation('product_detail', self::ManyToOne, true, false, '', 'product.main_detail_uuid = productDetail.uuid', 'mainDetail', 'main_detail_uuid'),
                     self::createAssociation('tax', self::ManyToOne, true, false),
                     self::createAssociation('seo_url', self::ManyToOne, true, false, '', 'product.uuid = seoUrl.foreign_key AND seoUrl.is_canonical = 1 AND seoUrl.shop_uuid = :shopUuid AND seoUrl.name = :seoUrlName', 'canonicalUrl'),
@@ -100,6 +100,7 @@ class GenerateStructCommand
                 'search' => [
                 ]
             ],
+
             'product_price' => [
                 'search' => [
                     self::createSearchCriteria('product_detail_uuid', 'string_array'),

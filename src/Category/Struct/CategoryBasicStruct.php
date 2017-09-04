@@ -175,7 +175,7 @@ class CategoryBasicStruct extends Struct
     protected $facetIds;
 
     /**
-     * @var SeoUrlBasicStruct
+     * @var SeoUrlBasicStruct|null
      */
     protected $canonicalUrl;
 
@@ -469,12 +469,12 @@ class CategoryBasicStruct extends Struct
         $this->facetIds = $facetIds;
     }
 
-    public function getCanonicalUrl(): SeoUrlBasicStruct
+    public function getCanonicalUrl(): ?SeoUrlBasicStruct
     {
         return $this->canonicalUrl;
     }
 
-    public function setCanonicalUrl(SeoUrlBasicStruct $canonicalUrl): void
+    public function setCanonicalUrl(?SeoUrlBasicStruct $canonicalUrl): void
     {
         $this->canonicalUrl = $canonicalUrl;
     }

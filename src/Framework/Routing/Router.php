@@ -185,7 +185,9 @@ class Router implements RouterInterface, RequestMatcherInterface
 
         $matcher = new UrlMatcher($this->getRouteCollection(), $this->getContext());
 
-        return $matcher->match($pathinfo);
+        $match = $matcher->match($pathinfo);
+
+        return $match;
     }
 
     public function matchRequest(Request $request): array
@@ -207,7 +209,7 @@ class Router implements RouterInterface, RequestMatcherInterface
         $request->attributes->set('_currency_uuid', $currencyId);
 
         //set shop locale
-        $request->setLocale($shop->getLocale());
+        $request->setLocale($shop->getLocale()->getLocale());
 
         $stripBaseUrl = $this->rewriteBaseUrl($shop->getBaseUrl(), $shop->getBasePath());
 
@@ -216,11 +218,13 @@ class Router implements RouterInterface, RequestMatcherInterface
         $pathinfo = preg_replace('#^' . $stripBaseUrl . '#i', '', $pathinfo);
         $pathinfo = '/' . trim($pathinfo, '/');
 
+        $translationContext = TranslationContext::createFromShop($shop);
+
         //resolve seo urls to use symfony url matcher for route detection
         $seoUrl = $this->urlResolver->getPathInfo(
             $shop->getUuid(),
             $pathinfo,
-            TranslationContext::createFromShop($shop)
+            $translationContext
         );
 
         if (!$seoUrl) {
@@ -228,9 +232,8 @@ class Router implements RouterInterface, RequestMatcherInterface
         }
 
         $pathinfo = $seoUrl->getPathInfo();
-        if (!$seoUrl->isCanonical()) {
-            $redirectUrl = $this->urlResolver->getUrl($shop['uuid'], $seoUrl->getPathInfo());
-
+        if (!$seoUrl->getIsCanonical()) {
+            $redirectUrl = $this->urlResolver->getUrl($shop->getUuid(), $seoUrl->getPathInfo(), $translationContext);
             $request->attributes->set(self::SEO_REDIRECT_URL, $redirectUrl->getSeoPathInfo());
         }
 

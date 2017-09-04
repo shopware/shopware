@@ -99,4 +99,25 @@ class SeoUrlBasicCollection extends Collection
     {
         return $element->getUuid();
     }
+
+
+    public function getByPathInfo(string $pathInfo): ?SeoUrlBasicStruct
+    {
+        foreach ($this->elements as $element) {
+            if ($element->getPathInfo() === $pathInfo) {
+                return $element;
+            }
+        }
+        return null;
+    }
+
+    public function getBySeoPathInfo(string $seoPathInfo): ?SeoUrlBasicStruct
+    {
+        foreach ($this->elements as $element) {
+            if ($element->getSeoPathInfo() === $seoPathInfo) {
+                return $element;
+            }
+        }
+        return null;
+    }
 }

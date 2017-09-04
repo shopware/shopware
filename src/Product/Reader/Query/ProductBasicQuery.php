@@ -28,7 +28,9 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\ProductDetail\Reader\Query\ProductDetailBasicQuery;
+use Shopware\ProductManufacturer\Reader\Query\ProductManufacturerBasicQuery;
 use Shopware\SeoUrl\Reader\Query\SeoUrlBasicQuery;
+use Shopware\Storefront\DetailPage\DetailPageUrlGenerator;
 use Shopware\Tax\Reader\Query\TaxBasicQuery;
 
 class ProductBasicQuery extends QueryBuilder
@@ -72,18 +74,20 @@ class ProductBasicQuery extends QueryBuilder
         //$query->leftJoin('product', 'product_translation', 'productTranslation', 'product.uuid = productTranslation.product_uuid AND productTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());
 
+        $query->leftJoin('product', 'product_manufacturer', 'productManufacturer', 'productManufacturer.uuid = product.product_manufacturer_uuid');
+        ProductManufacturerBasicQuery::addRequirements($query, $context);
+
         $query->leftJoin('product', 'product_detail', 'productDetail', 'product.main_detail_uuid = productDetail.uuid');
         ProductDetailBasicQuery::addRequirements($query, $context);
 
         $query->leftJoin('product', 'tax', 'tax', 'tax.uuid = product.tax_uuid');
         TaxBasicQuery::addRequirements($query, $context);
 
-        $query->leftJoin(
-            'product',
-            'seo_url',
-            'seoUrl',
-            'product.uuid = seoUrl.foreign_key AND seoUrl.is_canonical = 1 AND seoUrl.shop_uuid = :shopUuid AND seoUrl.name = :seoUrlName'
-        );
+        $query->leftJoin('product', 'seo_url', 'seoUrl', 'product.uuid = seoUrl.foreign_key AND seoUrl.is_canonical = 1 AND seoUrl.shop_uuid = :shopUuid AND seoUrl.name = :productSeoUrlName');
         SeoUrlBasicQuery::addRequirements($query, $context);
+
+        $query->setParameter(':shopUuid', $context->getShopUuid());
+        $query->setParameter(':productSeoUrlName', DetailPageUrlGenerator::ROUTE_NAME);
+
     }
 }

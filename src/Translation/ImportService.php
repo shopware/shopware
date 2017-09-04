@@ -5,6 +5,7 @@ namespace Shopware\Translation;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\Uuid;
 use Shopware\Translation\Event\ImportAdvanceEvent;
 use Shopware\Translation\Event\ImportFinishEvent;
 use Shopware\Translation\Event\ImportStartEvent;
@@ -80,8 +81,9 @@ class ImportService implements ImportServiceInterface
             foreach ($content as $locale => $translations) {
                 foreach ($translations as $name => $value) {
                     $snippet = [
+                        'uuid' => Uuid::uuid4()->toString(),
                         'namespace' => $namespace,
-                        'shop_uuid' => 'SWAG-CONFIG-SHOP-UUID-1',
+                        'shop_uuid' => 'SWAG-SHOP-UUID-1',
                         'locale' => $locale,
                         'name' => $name,
                         'value' => $value,
@@ -90,7 +92,7 @@ class ImportService implements ImportServiceInterface
 
                     try {
                         $this->logger->debug('Writing translation to database.', $snippet);
-                        $this->connection->insert('s_core_snippets', $snippet);
+                        $this->connection->insert('snippet', $snippet);
                     } catch (DBALException $exception) {
                         $this->logger->error('Writing translation to database failed due to DBALException.', ['snippet' => $snippet, 'error' => $exception->getMessage()]);
                         // empty catch intended due unique constraint
@@ -115,12 +117,12 @@ class ImportService implements ImportServiceInterface
     private function truncateDatabase()
     {
         $this->logger->debug('Truncating entire table because of truncateBeforeImport = true');
-        $this->connection->executeQuery('TRUNCATE TABLE s_core_snippets');
+        $this->connection->executeQuery('TRUNCATE TABLE snippet');
     }
 
     private function deleteNonDirtyTranslations()
     {
         $this->logger->debug('Deleting non-dirty translations from the table.');
-        $this->connection->delete('s_core_snippets', ['dirty' => 0]);
+        $this->connection->delete('snippet', ['dirty' => 0]);
     }
 }

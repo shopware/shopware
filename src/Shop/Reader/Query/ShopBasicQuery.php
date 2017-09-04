@@ -51,9 +51,6 @@ class ShopBasicQuery extends QueryBuilder
             'shop.name as __shop_name',
             'shop.title as __shop_title',
             'shop.position as __shop_position',
-            'shop.host as __shop_host',
-            'shop.base_path as __shop_base_path',
-            'shop.base_url as __shop_base_url',
             'shop.hosts as __shop_hosts',
             'shop.secure as __shop_secure',
             'shop.shop_template_id as __shop_shop_template_id',
@@ -69,22 +66,27 @@ class ShopBasicQuery extends QueryBuilder
             'shop.payment_method_id as __shop_payment_method_id',
             'shop.shipping_method_id as __shop_shipping_method_id',
             'shop.area_country_id as __shop_area_country_id',
-            'shop.tax_calculation_type as __shop_tax_calculation_type',
             'shop.main_uuid as __shop_main_uuid',
-            'shop.shop_template_uuid as __shop_shop_template_uuid',
-            'shop.document_template_uuid as __shop_document_template_uuid',
             'shop.category_uuid as __shop_category_uuid',
             'shop.locale_uuid as __shop_locale_uuid',
             'shop.currency_uuid as __shop_currency_uuid',
             'shop.customer_group_uuid as __shop_customer_group_uuid',
             'shop.fallback_locale_uuid as __shop_fallback_locale_uuid',
-            'shop.payment_method_uuid as __shop_payment_method_uuid',
-            'shop.shipping_method_uuid as __shop_shipping_method_uuid',
-            'shop.area_country_uuid as __shop_area_country_uuid',
+
+            'main.payment_method_uuid as __shop_payment_method_uuid',
+            'main.shipping_method_uuid as __shop_shipping_method_uuid',
+            'main.area_country_uuid as __shop_area_country_uuid',
+            'main.host as __shop_host',
+            'main.base_path as __shop_base_path',
+            'main.base_url as __shop_base_url',
+            'main.shop_template_uuid as __shop_shop_template_uuid',
+            'main.document_template_uuid as __shop_document_template_uuid',
+            'main.tax_calculation_type as __shop_tax_calculation_type',
         ]);
 
         //$query->leftJoin('shop', 'shop_translation', 'shopTranslation', 'shop.uuid = shopTranslation.shop_uuid AND shopTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());
+        $query->innerJoin('shop', 'shop', 'main', 'IFNULL(shop.main_id, shop.id) = main.id');
 
         $query->leftJoin('shop', 'currency', 'currency', 'currency.uuid = shop.currency_uuid');
         CurrencyBasicQuery::addRequirements($query, $context);

@@ -66,12 +66,13 @@ class ShopBasicStruct extends Struct
     protected $host;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $basePath;
 
+
     /**
-     * @var string|null
+     * @var string
      */
     protected $baseUrl;
 
@@ -289,23 +290,25 @@ class ShopBasicStruct extends Struct
         $this->host = $host;
     }
 
-    public function getBasePath(): ?string
+    public function getBasePath(): string
     {
         return $this->basePath;
     }
 
-    public function setBasePath(?string $basePath): void
+    public function setBasePath(string $basePath): void
     {
+        $basePath = rtrim($basePath, '/').'/';
         $this->basePath = $basePath;
     }
 
-    public function getBaseUrl(): ?string
+    public function getBaseUrl(): string
     {
         return $this->baseUrl;
     }
 
-    public function setBaseUrl(?string $baseUrl): void
+    public function setBaseUrl(string $baseUrl): void
     {
+        $baseUrl = rtrim($baseUrl, '/').'/';
         $this->baseUrl = $baseUrl;
     }
 

@@ -32,6 +32,7 @@ use Shopware\Search\Condition\ShopUuidCondition;
 use Shopware\Search\Criteria;
 use Shopware\SeoUrl\SeoUrlRepository;
 use Shopware\SeoUrl\Struct\SeoUrl;
+use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
 
 class UrlResolver implements UrlResolverInterface
 {
@@ -45,27 +46,22 @@ class UrlResolver implements UrlResolverInterface
         $this->seoUrlRepository = $seoUrlRepository;
     }
 
-    public function getPathInfo(string $shopUuid, string $url): ?SeoUrl
+    public function getPathInfo(string $shopUuid, string $url, TranslationContext $context): ?SeoUrlBasicStruct
     {
         $criteria = new Criteria();
         $criteria->addCondition(new ShopUuidCondition([$shopUuid]));
         $criteria->addCondition(new SeoPathInfoCondition([$url]));
-
-        $context = new TranslationContext(1, true, null);
-
         $urls = $this->seoUrlRepository->search($criteria, $context);
 
         return $urls->getBySeoPathInfo($url);
     }
 
-    public function getUrl(string $shopUuid, string $pathInfo): ?SeoUrl
+    public function getUrl(string $shopUuid, string $pathInfo, TranslationContext $context): ?SeoUrlBasicStruct
     {
         $criteria = new Criteria();
         $criteria->addCondition(new ShopUuidCondition([$shopUuid]));
         $criteria->addCondition(new PathInfoCondition([$pathInfo]));
         $criteria->addCondition(new IsCanonicalCondition(true));
-
-        $context = new TranslationContext(1, true, null);
 
         $urls = $this->seoUrlRepository->search($criteria, $context);
 

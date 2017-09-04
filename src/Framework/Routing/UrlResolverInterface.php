@@ -24,11 +24,13 @@
 
 namespace Shopware\Framework\Routing;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\SeoUrl\Struct\SeoUrl;
+use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
 
 interface UrlResolverInterface
 {
-    public function getPathInfo(string $shopUuid, string $url): ?SeoUrl;
+    public function getPathInfo(string $shopUuid, string $url, TranslationContext $context): ?SeoUrlBasicStruct;
 
-    public function getUrl(string $shopUuid, string $pathInfo): ?SeoUrl;
+    public function getUrl(string $shopUuid, string $pathInfo, TranslationContext $context): ?SeoUrlBasicStruct;
 }

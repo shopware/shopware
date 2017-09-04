@@ -26,6 +26,7 @@ namespace Shopware\Context\Struct;
 
 use Shopware\Cart\Delivery\ShippingLocation;
 use Shopware\Currency\Struct\Currency;
+use Shopware\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Customer\Struct\Customer;
 use Shopware\CustomerGroup\Struct\CustomerGroup;
 use Shopware\Framework\Struct\Struct;
@@ -54,7 +55,7 @@ class ShopContext extends Struct
     protected $fallbackCustomerGroup;
 
     /**
-     * @var \Shopware\Currency\Struct\Currency
+     * @var \Shopware\Currency\Struct\CurrencyBasicStruct
      */
     protected $currency;
 
@@ -122,7 +123,7 @@ class ShopContext extends Struct
         return $this->shop;
     }
 
-    public function getCurrency(): Currency
+    public function getCurrency(): CurrencyBasicStruct
     {
         return $this->currency;
     }

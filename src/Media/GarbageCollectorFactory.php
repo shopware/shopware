@@ -133,7 +133,7 @@ class GarbageCollectorFactory
         // value is just the media ID
         $singleSelectionColumns = $this->connection->createQueryBuilder()
             ->select(['table_name', 'column_name'])
-            ->from('s_attribute_configuration')
+            ->from('attribute_configuration')
             ->andWhere('entity = :entityName')
             ->andWhere('column_type = :columnType')
             ->setParameters([
@@ -150,7 +150,7 @@ class GarbageCollectorFactory
         // values are separated by pipes '|'
         $multiSelectionColumns = $this->connection->createQueryBuilder()
             ->select(['table_name', 'column_name'])
-            ->from('s_attribute_configuration')
+            ->from('attribute_configuration')
             ->andWhere('entity = :entityName')
             ->andWhere('column_type = :columnType')
             ->setParameters([

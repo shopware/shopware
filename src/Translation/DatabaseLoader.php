@@ -63,7 +63,7 @@ class DatabaseLoader implements LoaderInterface
         $builder = $this->connection->createQueryBuilder();
 
         $snippets = $builder->select(['snippet.namespace', 'snippet.name', 'snippet.value'])
-                ->from('s_core_snippets', 'snippet')
+                ->from('snippet', 'snippet')
                 ->where('snippet.locale = :locale')
                 ->setParameter('locale', $locale)
                 ->execute()

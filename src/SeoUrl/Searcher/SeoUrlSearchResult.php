@@ -36,9 +36,34 @@ class SeoUrlSearchResult extends SeoUrlBasicCollection implements SearchResultIn
      */
     protected $total;
 
+    /**
+     * @var SeoUrlBasicStruct[]
+     */
+    protected $elements = [];
+
     public function __construct(array $elements, int $total)
     {
         parent::__construct($elements);
         $this->total = $total;
+    }
+
+    public function getByPathInfo(string $pathInfo): ?SeoUrlBasicStruct
+    {
+        foreach ($this->elements as $element) {
+            if ($element->getPathInfo() === $pathInfo) {
+                return $element;
+            }
+        }
+        return null;
+    }
+
+    public function getBySeoPathInfo(string $seoPathInfo): ?SeoUrlBasicStruct
+    {
+        foreach ($this->elements as $element) {
+            if ($element->getSeoPathInfo() === $seoPathInfo) {
+                return $element;
+            }
+        }
+        return null;
     }
 }

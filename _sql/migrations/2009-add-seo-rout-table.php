@@ -39,7 +39,7 @@ CREATE TABLE `seo_url` (
   `is_canonical` tinyint NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8mb4_unicode_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL;
 
         $this->addSql($sql);

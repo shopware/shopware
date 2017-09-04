@@ -32,8 +32,7 @@ ALTER TABLE product_translation
   DROP `uuid`,
   DROP `product_id`,
   DROP `language_id`,
-  DROP `description_clear`,
-  ADD PRIMARY KEY (`product_uuid`, `language_uuid`);
+  DROP `description_clear`;
 
 ALTER TABLE `product_category`
   DROP id,
@@ -44,14 +43,6 @@ ALTER TABLE `product_category`
 ;
 
 UPDATE product_price SET `to` = NULL WHERE `to` = 'beliebig';
-
-ALTER TABLE product_price
-    CHANGE `to` `to` INT(11) NULL DEFAULT NULL,
---     DROP id,
-    DROP FOREIGN KEY `fk_product_price.product_uuid`,
-    DROP product_uuid,
-    DROP product_detail_id
-;
 
 ALTER TABLE `product_category_ro`
     DROP INDEX articleID,
@@ -91,11 +82,9 @@ ALTER TABLE media
   DROP `width`,
   DROP `height`
 ;
+ALTER TABLE `snippet` DROP INDEX `namespace`;
+ALTER TABLE `snippet` DROP locale_id;
 
-ALTER TABLE `s_core_snippets`
-  DROP id,
-  DROP shop_id,
-  DROP locale_id;
 
 DROP TABLE s_media_album_settings;
 

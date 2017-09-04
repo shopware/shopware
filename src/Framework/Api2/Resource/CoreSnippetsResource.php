@@ -21,7 +21,7 @@ class CoreSnippetsResource extends ApiResource
 {
     public function __construct()
     {
-        parent::__construct('s_core_snippets');
+        parent::__construct('snippet');
         
         $this->fields['namespace'] = (new StringField('namespace'))->setFlags(new Required());
         $this->fields['shopID'] = (new IntField('shopID'))->setFlags(new Required());

@@ -57,8 +57,8 @@ class ShopBasicHydrator extends Hydrator
         $shop->setTitle(isset($data['__shop_title']) ? (string) $data['__shop_title'] : null);
         $shop->setPosition((int) $data['__shop_position']);
         $shop->setHost(isset($data['__shop_host']) ? (string) $data['__shop_host'] : null);
-        $shop->setBasePath(isset($data['__shop_base_path']) ? (string) $data['__shop_base_path'] : null);
-        $shop->setBaseUrl(isset($data['__shop_base_url']) ? (string) $data['__shop_base_url'] : null);
+        $shop->setBasePath((string) $data['__shop_base_path']);
+        $shop->setBaseUrl((string) $data['__shop_base_url']);
         $shop->setHosts((string) $data['__shop_hosts']);
         $shop->setSecure((bool) $data['__shop_secure']);
         $shop->setTemplateId(isset($data['__shop_shop_template_id']) ? (int) $data['__shop_shop_template_id'] : null);

@@ -40,8 +40,10 @@ class CustomerAddressBasicHydrator extends Hydrator
      */
     private $areaCountryStateBasicHydrator;
 
-    public function __construct(AreaCountryBasicHydrator $areaCountryBasicHydrator, AreaCountryStateBasicHydrator $areaCountryStateBasicHydrator)
-    {
+    public function __construct(
+        AreaCountryBasicHydrator $areaCountryBasicHydrator,
+        AreaCountryStateBasicHydrator $areaCountryStateBasicHydrator
+    ) {
         $this->areaCountryBasicHydrator = $areaCountryBasicHydrator;
         $this->areaCountryStateBasicHydrator = $areaCountryStateBasicHydrator;
     }
@@ -50,27 +52,47 @@ class CustomerAddressBasicHydrator extends Hydrator
     {
         $customerAddress = new CustomerAddressBasicStruct();
 
-        $customerAddress->setId((int) $data['__customerAddress_id']);
-        $customerAddress->setUuid((string) $data['__customerAddress_uuid']);
-        $customerAddress->setCustomerId((int) $data['__customerAddress_customer_id']);
-        $customerAddress->setCustomerUuid((string) $data['__customerAddress_customer_uuid']);
-        $customerAddress->setCompany(isset($data['__customerAddress_company']) ? (string) $data['__customerAddress_company'] : null);
-        $customerAddress->setDepartment(isset($data['__customerAddress_department']) ? (string) $data['__customerAddress_department'] : null);
-        $customerAddress->setSalutation((string) $data['__customerAddress_salutation']);
-        $customerAddress->setTitle(isset($data['__customerAddress_title']) ? (string) $data['__customerAddress_title'] : null);
-        $customerAddress->setFirstName((string) $data['__customerAddress_first_name']);
-        $customerAddress->setLastName((string) $data['__customerAddress_last_name']);
-        $customerAddress->setStreet(isset($data['__customerAddress_street']) ? (string) $data['__customerAddress_street'] : null);
-        $customerAddress->setZipcode((string) $data['__customerAddress_zipcode']);
-        $customerAddress->setCity((string) $data['__customerAddress_city']);
-        $customerAddress->setAreaCountryId((int) $data['__customerAddress_area_country_id']);
-        $customerAddress->setAreaCountryUuid((string) $data['__customerAddress_area_country_uuid']);
-        $customerAddress->setAreaCountryStateId(isset($data['__customerAddress_area_country_state_id']) ? (int) $data['__customerAddress_area_country_state_id'] : null);
-        $customerAddress->setAreaCountryStateUuid(isset($data['__customerAddress_area_country_state_uuid']) ? (string) $data['__customerAddress_area_country_state_uuid'] : null);
-        $customerAddress->setVatId(isset($data['__customerAddress_vat_id']) ? (string) $data['__customerAddress_vat_id'] : null);
-        $customerAddress->setPhoneNumber(isset($data['__customerAddress_phone_number']) ? (string) $data['__customerAddress_phone_number'] : null);
-        $customerAddress->setAdditionalAddressLine1(isset($data['__customerAddress_additional_address_line1']) ? (string) $data['__customerAddress_additional_address_line1'] : null);
-        $customerAddress->setAdditionalAddressLine2(isset($data['__customerAddress_additional_address_line2']) ? (string) $data['__customerAddress_additional_address_line2'] : null);
+        $customerAddress->setId((int)$data['__customerAddress_id']);
+        $customerAddress->setUuid((string)$data['__customerAddress_uuid']);
+        $customerAddress->setCustomerId((int)$data['__customerAddress_customer_id']);
+        $customerAddress->setCustomerUuid((string)$data['__customerAddress_customer_uuid']);
+        $customerAddress->setCompany(
+            isset($data['__customerAddress_company']) ? (string)$data['__customerAddress_company'] : null
+        );
+        $customerAddress->setDepartment(
+            isset($data['__customerAddress_department']) ? (string)$data['__customerAddress_department'] : null
+        );
+        $customerAddress->setSalutation((string)$data['__customerAddress_salutation']);
+        $customerAddress->setTitle(
+            isset($data['__customerAddress_title']) ? (string)$data['__customerAddress_title'] : null
+        );
+        $customerAddress->setFirstName((string)$data['__customerAddress_first_name']);
+        $customerAddress->setLastName((string)$data['__customerAddress_last_name']);
+        $customerAddress->setStreet(
+            isset($data['__customerAddress_street']) ? (string)$data['__customerAddress_street'] : null
+        );
+        $customerAddress->setZipcode((string)$data['__customerAddress_zipcode']);
+        $customerAddress->setCity((string)$data['__customerAddress_city']);
+        $customerAddress->setAreaCountryId((int)$data['__customerAddress_area_country_id']);
+        $customerAddress->setAreaCountryUuid((string)$data['__customerAddress_area_country_uuid']);
+        $customerAddress->setAreaCountryStateId(
+            isset($data['__customerAddress_area_country_state_id']) ? (int)$data['__customerAddress_area_country_state_id'] : null
+        );
+        $customerAddress->setAreaCountryStateUuid(
+            isset($data['__customerAddress_area_country_state_uuid']) ? (string)$data['__customerAddress_area_country_state_uuid'] : null
+        );
+        $customerAddress->setVatId(
+            isset($data['__customerAddress_vat_id']) ? (string)$data['__customerAddress_vat_id'] : null
+        );
+        $customerAddress->setPhoneNumber(
+            isset($data['__customerAddress_phone_number']) ? (string)$data['__customerAddress_phone_number'] : null
+        );
+        $customerAddress->setAdditionalAddressLine1(
+            isset($data['__customerAddress_additional_address_line1']) ? (string)$data['__customerAddress_additional_address_line1'] : null
+        );
+        $customerAddress->setAdditionalAddressLine2(
+            isset($data['__customerAddress_additional_address_line2']) ? (string)$data['__customerAddress_additional_address_line2'] : null
+        );
         $customerAddress->setAreaCountry($this->areaCountryBasicHydrator->hydrate($data));
         $customerAddress->setAreaCountryState($this->areaCountryStateBasicHydrator->hydrate($data));
 

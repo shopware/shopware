@@ -40,19 +40,9 @@ class ProductDetailBasicStruct extends Struct
     protected $uuid;
 
     /**
-     * @var int
-     */
-    protected $productId;
-
-    /**
      * @var string
      */
     protected $productUuid;
-
-    /**
-     * @var string
-     */
-    protected $orderNumber;
 
     /**
      * @var string|null
@@ -204,16 +194,6 @@ class ProductDetailBasicStruct extends Struct
         $this->uuid = $uuid;
     }
 
-    public function getProductId(): int
-    {
-        return $this->productId;
-    }
-
-    public function setProductId(int $productId): void
-    {
-        $this->productId = $productId;
-    }
-
     public function getProductUuid(): string
     {
         return $this->productUuid;
@@ -222,16 +202,6 @@ class ProductDetailBasicStruct extends Struct
     public function setProductUuid(string $productUuid): void
     {
         $this->productUuid = $productUuid;
-    }
-
-    public function getOrderNumber(): string
-    {
-        return $this->orderNumber;
-    }
-
-    public function setOrderNumber(string $orderNumber): void
-    {
-        $this->orderNumber = $orderNumber;
     }
 
     public function getSupplierNumber(): ?string

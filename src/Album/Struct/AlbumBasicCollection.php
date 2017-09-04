@@ -70,23 +70,29 @@ class AlbumBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(function (AlbumBasicStruct $album) {
-            return $album->getUuid();
-        });
+        return $this->fmap(
+            function (AlbumBasicStruct $album) {
+                return $album->getUuid();
+            }
+        );
     }
 
     public function getParentUuids(): array
     {
-        return $this->fmap(function (AlbumBasicStruct $album) {
-            return $album->getParentUuid();
-        });
+        return $this->fmap(
+            function (AlbumBasicStruct $album) {
+                return $album->getParentUuid();
+            }
+        );
     }
 
     public function filterByParentUuid(string $uuid): AlbumBasicCollection
     {
-        return $this->filter(function (AlbumBasicStruct $album) use ($uuid) {
-            return $album->getParentUuid() === $uuid;
-        });
+        return $this->filter(
+            function (AlbumBasicStruct $album) use ($uuid) {
+                return $album->getParentUuid() === $uuid;
+            }
+        );
     }
 
     protected function getKey(AlbumBasicStruct $element): string

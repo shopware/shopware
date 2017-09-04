@@ -44,33 +44,41 @@ class ShippingMethodDetailQuery extends ShippingMethodBasicQuery
 
     private static function internalRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect('
+        $query->addSelect(
+            '
             (
                 SELECT GROUP_CONCAT(mapping.area_country_uuid SEPARATOR \'|\') FROM
                 shipping_method_country mapping
-                WHERE shippingMethod.uuid = mapping.uuid
-            ) as __area_country_uuids
-        ');
-        $query->addSelect('
+                WHERE shippingMethod.uuid = mapping.area_country_uuid
+            ) as __shipping_method_area_country_uuids
+        '
+        );
+        $query->addSelect(
+            '
             (
                 SELECT GROUP_CONCAT(mapping.category_uuid SEPARATOR \'|\') FROM
                 shipping_method_category mapping
-                WHERE shippingMethod.uuid = mapping.uuid
-            ) as __category_uuids
-        ');
-        $query->addSelect('
+                WHERE shippingMethod.uuid = mapping.category_uuid
+            ) as __shipping_method_category_uuids
+        '
+        );
+        $query->addSelect(
+            '
             (
                 SELECT GROUP_CONCAT(mapping.holiday_uuid SEPARATOR \'|\') FROM
                 shipping_method_holiday mapping
-                WHERE shippingMethod.uuid = mapping.uuid
-            ) as __holiday_uuids
-        ');
-        $query->addSelect('
+                WHERE shippingMethod.uuid = mapping.holiday_uuid
+            ) as __shipping_method_holiday_uuids
+        '
+        );
+        $query->addSelect(
+            '
             (
                 SELECT GROUP_CONCAT(mapping.payment_method_uuid SEPARATOR \'|\') FROM
                 shipping_method_payment_method mapping
-                WHERE shippingMethod.uuid = mapping.uuid
-            ) as __payment_method_uuids
-        ');
+                WHERE shippingMethod.uuid = mapping.payment_method_uuid
+            ) as __shipping_method_payment_method_uuids
+        '
+        );
     }
 }

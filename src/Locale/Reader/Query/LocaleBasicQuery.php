@@ -41,14 +41,16 @@ class LocaleBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'locale.uuid as _array_key_',
-            'locale.id as __locale_id',
-            'locale.uuid as __locale_uuid',
-            'locale.locale as __locale_locale',
-            'locale.language as __locale_language',
-            'locale.territory as __locale_territory',
-        ]);
+        $query->addSelect(
+            [
+                'locale.uuid as _array_key_',
+                'locale.id as __locale_id',
+                'locale.uuid as __locale_uuid',
+                'locale.locale as __locale_locale',
+                'locale.language as __locale_language',
+                'locale.territory as __locale_territory',
+            ]
+        );
 
         //$query->leftJoin('locale', 'locale_translation', 'localeTranslation', 'locale.uuid = localeTranslation.locale_uuid AND localeTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

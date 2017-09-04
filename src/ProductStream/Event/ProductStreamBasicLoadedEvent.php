@@ -67,8 +67,10 @@ class ProductStreamBasicLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection([
-            new ListingSortingBasicLoadedEvent($this->productStreams->getListingSortings(), $this->context),
-        ]);
+        return new NestedEventCollection(
+            [
+                new ListingSortingBasicLoadedEvent($this->productStreams->getListingSortings(), $this->context),
+            ]
+        );
     }
 }

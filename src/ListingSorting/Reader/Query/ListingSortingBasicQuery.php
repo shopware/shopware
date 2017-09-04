@@ -41,16 +41,18 @@ class ListingSortingBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'listingSorting.uuid as _array_key_',
-            'listingSorting.id as __listingSorting_id',
-            'listingSorting.uuid as __listingSorting_uuid',
-            'listingSorting.label as __listingSorting_label',
-            'listingSorting.active as __listingSorting_active',
-            'listingSorting.display_in_categories as __listingSorting_display_in_categories',
-            'listingSorting.position as __listingSorting_position',
-            'listingSorting.payload as __listingSorting_payload',
-        ]);
+        $query->addSelect(
+            [
+                'listingSorting.uuid as _array_key_',
+                'listingSorting.id as __listingSorting_id',
+                'listingSorting.uuid as __listingSorting_uuid',
+                'listingSorting.label as __listingSorting_label',
+                'listingSorting.active as __listingSorting_active',
+                'listingSorting.display_in_categories as __listingSorting_display_in_categories',
+                'listingSorting.position as __listingSorting_position',
+                'listingSorting.payload as __listingSorting_payload',
+            ]
+        );
 
         //$query->leftJoin('listingSorting', 'listingSorting_translation', 'listingSortingTranslation', 'listingSorting.uuid = listingSortingTranslation.listingSorting_uuid AND listingSortingTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

@@ -82,7 +82,7 @@ class StructGenerator
         $this->createCriteriaParts($table, $config);
         $services = array_merge($services, $handlerServices);
 
-        $this->createServicesXml($table, $config, $services, $handlerServices);
+        $this->createServicesXml($table, $config, $services, array_keys($handlerServices));
     }
 
     private function createDirectories($table, $config)
@@ -861,8 +861,19 @@ class StructGenerator
 
         $template = str_replace(
             ['#services#'],
-            [implode($services)],
+            [implode("\n", $services)],
             file_get_contents(__DIR__ . '/generator_templates/services.xml.txt')
+        );
+
+        $handlerParameters = [];
+        foreach ($handlerServices as $name) {
+            $handlerParameters[] = '<argument id="'.$name.'" type="service"/>';
+        }
+
+        $template = str_replace(
+            ['#search_handlers#'],
+            [implode("\n", $handlerParameters)],
+            $template
         );
 
         $file = $this->directory.'/'.ucfirst($class).'/DependencyInjection/services.xml';
@@ -1697,7 +1708,7 @@ class StructGenerator
     {
         $columns = $this->getColumns($table);
         $class = $this->snakeCaseToCamelCase($table);
-
+        $services = [];
         foreach ($config['search'] as $criteriaPart) {
             $column = $columns[$criteriaPart['column']];
 
@@ -1774,9 +1785,16 @@ class StructGenerator
             $file = $this->directory.'/'.ucfirst($class).'/Searcher/Handler/' . ucfirst($name) . 'Handler.php';
 
             file_put_contents($file, $template);
-        }
 
-        return [];
+            $serviceName = str_replace(
+                ['#table#', '#column#'],
+                [$table, $criteriaPart['column']],
+                'shopware.#table#.searcher.handler.#column#_handler'
+            );
+
+            $services[$serviceName] = $this->createHandlerXml($table, $serviceName, $criteriaPart);
+        }
+        return $services;
     }
 
     private function createCriteriaParts(string $table, array $config)
@@ -1960,5 +1978,17 @@ class StructGenerator
             $columnName = str_replace($table . '_', '', $columnName);
         }
         return $this->snakeCaseToCamelCase($columnName);
+    }
+
+    private function createHandlerXml($table, $serviceName, $criteriaPart)
+    {
+        $class = $this->snakeCaseToCamelCase($table);
+        $name = $this->getConditionName($criteriaPart);
+
+        return str_replace(
+            ['#classUc#', '#nameUc#', '#serviceName#'],
+            [ucfirst($class), ucfirst($name), $serviceName],
+            file_get_contents(__DIR__ . '/generator_templates/handler.xml.txt')
+        );
     }
 }

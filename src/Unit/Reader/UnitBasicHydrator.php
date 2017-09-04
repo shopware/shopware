@@ -37,10 +37,10 @@ class UnitBasicHydrator extends Hydrator
     {
         $unit = new UnitBasicStruct();
 
-        $unit->setId((int) $data['__unit_id']);
-        $unit->setUuid((string) $data['__unit_uuid']);
-        $unit->setUnit((string) $data['__unit_unit']);
-        $unit->setDescription((string) $data['__unit_description']);
+        $unit->setId((int)$data['__unit_id']);
+        $unit->setUuid((string)$data['__unit_uuid']);
+        $unit->setUnit((string)$data['__unit_unit']);
+        $unit->setDescription((string)$data['__unit_description']);
 
         return $unit;
     }

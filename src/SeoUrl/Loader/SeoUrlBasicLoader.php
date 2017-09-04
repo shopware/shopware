@@ -43,6 +43,10 @@ class SeoUrlBasicLoader
 
     public function load(array $uuids, TranslationContext $context): SeoUrlBasicCollection
     {
+        if (empty($uuids)) {
+            return new SeoUrlBasicCollection();
+        }
+
         $collection = $this->reader->read($uuids, $context);
 
         return $collection;

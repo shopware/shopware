@@ -37,15 +37,23 @@ class ProductManufacturerBasicHydrator extends Hydrator
     {
         $productManufacturer = new ProductManufacturerBasicStruct();
 
-        $productManufacturer->setId((int) $data['__productManufacturer_id']);
-        $productManufacturer->setUuid((string) $data['__productManufacturer_uuid']);
-        $productManufacturer->setName((string) $data['__productManufacturer_name']);
-        $productManufacturer->setImg((string) $data['__productManufacturer_img']);
-        $productManufacturer->setLink((string) $data['__productManufacturer_link']);
-        $productManufacturer->setDescription(isset($data['__productManufacturer_description']) ? (string) $data['__productManufacturer_description'] : null);
-        $productManufacturer->setMetaTitle(isset($data['__productManufacturer_meta_title']) ? (string) $data['__productManufacturer_meta_title'] : null);
-        $productManufacturer->setMetaDescription(isset($data['__productManufacturer_meta_description']) ? (string) $data['__productManufacturer_meta_description'] : null);
-        $productManufacturer->setMetaKeywords(isset($data['__productManufacturer_meta_keywords']) ? (string) $data['__productManufacturer_meta_keywords'] : null);
+        $productManufacturer->setId((int)$data['__productManufacturer_id']);
+        $productManufacturer->setUuid((string)$data['__productManufacturer_uuid']);
+        $productManufacturer->setName((string)$data['__productManufacturer_name']);
+        $productManufacturer->setImg((string)$data['__productManufacturer_img']);
+        $productManufacturer->setLink((string)$data['__productManufacturer_link']);
+        $productManufacturer->setDescription(
+            isset($data['__productManufacturer_description']) ? (string)$data['__productManufacturer_description'] : null
+        );
+        $productManufacturer->setMetaTitle(
+            isset($data['__productManufacturer_meta_title']) ? (string)$data['__productManufacturer_meta_title'] : null
+        );
+        $productManufacturer->setMetaDescription(
+            isset($data['__productManufacturer_meta_description']) ? (string)$data['__productManufacturer_meta_description'] : null
+        );
+        $productManufacturer->setMetaKeywords(
+            isset($data['__productManufacturer_meta_keywords']) ? (string)$data['__productManufacturer_meta_keywords'] : null
+        );
         $productManufacturer->setUpdatedAt(new \DateTime($data['__productManufacturer_updated_at']));
 
         return $productManufacturer;

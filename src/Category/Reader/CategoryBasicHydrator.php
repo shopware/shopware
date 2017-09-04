@@ -44,35 +44,51 @@ class CategoryBasicHydrator extends Hydrator
     {
         $category = new CategoryBasicStruct();
 
-        $category->setId((int) $data['__category_id']);
-        $category->setUuid((string) $data['__category_uuid']);
-        $category->setParentId(isset($data['__category_parent_id']) ? (int) $data['__category_parent_id'] : null);
-        $category->setParentUuid(isset($data['__category_parent_uuid']) ? (string) $data['__category_parent_uuid'] : null);
-        $category->setPath(array_filter(explode('|', (string) $data['__category_path'])));
-        $category->setDescription((string) $data['__category_description']);
-        $category->setPosition(isset($data['__category_position']) ? (int) $data['__category_position'] : null);
-        $category->setLevel((int) $data['__category_level']);
+        $category->setId((int)$data['__category_id']);
+        $category->setUuid((string)$data['__category_uuid']);
+        $category->setParentId(isset($data['__category_parent_id']) ? (int)$data['__category_parent_id'] : null);
+        $category->setParentUuid(
+            isset($data['__category_parent_uuid']) ? (string)$data['__category_parent_uuid'] : null
+        );
+        $category->setPath(array_filter(explode('|', (string)$data['__category_path'])));
+        $category->setDescription((string)$data['__category_description']);
+        $category->setPosition(isset($data['__category_position']) ? (int)$data['__category_position'] : null);
+        $category->setLevel((int)$data['__category_level']);
         $category->setAdded(new \DateTime($data['__category_added']));
         $category->setChangedAt(new \DateTime($data['__category_changed_at']));
-        $category->setMetaKeywords(isset($data['__category_meta_keywords']) ? (string) $data['__category_meta_keywords'] : null);
-        $category->setMetaTitle(isset($data['__category_meta_title']) ? (string) $data['__category_meta_title'] : null);
-        $category->setMetaDescription(isset($data['__category_meta_description']) ? (string) $data['__category_meta_description'] : null);
-        $category->setCmsHeadline(isset($data['__category_cms_headline']) ? (string) $data['__category_cms_headline'] : null);
-        $category->setCmsDescription(isset($data['__category_cms_description']) ? (string) $data['__category_cms_description'] : null);
-        $category->setTemplate(isset($data['__category_template']) ? (string) $data['__category_template'] : null);
-        $category->setActive((bool) $data['__category_active']);
-        $category->setIsBlog((bool) $data['__category_is_blog']);
-        $category->setExternal(isset($data['__category_external']) ? (string) $data['__category_external'] : null);
-        $category->setHideFilter((bool) $data['__category_hide_filter']);
-        $category->setHideTop((bool) $data['__category_hide_top']);
-        $category->setMediaId(isset($data['__category_media_id']) ? (int) $data['__category_media_id'] : null);
-        $category->setMediaUuid((string) $data['__category_media_uuid']);
-        $category->setProductBoxLayout(isset($data['__category_product_box_layout']) ? (string) $data['__category_product_box_layout'] : null);
-        $category->setProductStreamId(isset($data['__category_product_stream_id']) ? (int) $data['__category_product_stream_id'] : null);
-        $category->setProductStreamUuid(isset($data['__category_product_stream_uuid']) ? (string) $data['__category_product_stream_uuid'] : null);
-        $category->setHideSortings((bool) $data['__category_hide_sortings']);
-        $category->setSortingIds(array_filter(explode('|', (string) $data['__category_sorting_ids'])));
-        $category->setFacetIds(array_filter(explode('|', (string) $data['__category_facet_ids'])));
+        $category->setMetaKeywords(
+            isset($data['__category_meta_keywords']) ? (string)$data['__category_meta_keywords'] : null
+        );
+        $category->setMetaTitle(isset($data['__category_meta_title']) ? (string)$data['__category_meta_title'] : null);
+        $category->setMetaDescription(
+            isset($data['__category_meta_description']) ? (string)$data['__category_meta_description'] : null
+        );
+        $category->setCmsHeadline(
+            isset($data['__category_cms_headline']) ? (string)$data['__category_cms_headline'] : null
+        );
+        $category->setCmsDescription(
+            isset($data['__category_cms_description']) ? (string)$data['__category_cms_description'] : null
+        );
+        $category->setTemplate(isset($data['__category_template']) ? (string)$data['__category_template'] : null);
+        $category->setActive((bool)$data['__category_active']);
+        $category->setIsBlog((bool)$data['__category_is_blog']);
+        $category->setExternal(isset($data['__category_external']) ? (string)$data['__category_external'] : null);
+        $category->setHideFilter((bool)$data['__category_hide_filter']);
+        $category->setHideTop((bool)$data['__category_hide_top']);
+        $category->setMediaId(isset($data['__category_media_id']) ? (int)$data['__category_media_id'] : null);
+        $category->setMediaUuid((string)$data['__category_media_uuid']);
+        $category->setProductBoxLayout(
+            isset($data['__category_product_box_layout']) ? (string)$data['__category_product_box_layout'] : null
+        );
+        $category->setProductStreamId(
+            isset($data['__category_product_stream_id']) ? (int)$data['__category_product_stream_id'] : null
+        );
+        $category->setProductStreamUuid(
+            isset($data['__category_product_stream_uuid']) ? (string)$data['__category_product_stream_uuid'] : null
+        );
+        $category->setHideSortings((bool)$data['__category_hide_sortings']);
+        $category->setSortingIds(array_filter(explode('|', (string)$data['__category_sorting_ids'])));
+        $category->setFacetIds(array_filter(explode('|', (string)$data['__category_facet_ids'])));
 
         if (!empty($data['__seoUrl_uuid'])) {
             $category->setCanonicalUrl($this->seoUrlBasicHydrator->hydrate($data));

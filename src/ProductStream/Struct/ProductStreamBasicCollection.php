@@ -71,31 +71,39 @@ class ProductStreamBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(function (ProductStreamBasicStruct $productStream) {
-            return $productStream->getUuid();
-        });
+        return $this->fmap(
+            function (ProductStreamBasicStruct $productStream) {
+                return $productStream->getUuid();
+            }
+        );
     }
 
     public function getListingSortingUuids(): array
     {
-        return $this->fmap(function (ProductStreamBasicStruct $productStream) {
-            return $productStream->getListingSortingUuid();
-        });
+        return $this->fmap(
+            function (ProductStreamBasicStruct $productStream) {
+                return $productStream->getListingSortingUuid();
+            }
+        );
     }
 
     public function filterByListingSortingUuid(string $uuid): ProductStreamBasicCollection
     {
-        return $this->filter(function (ProductStreamBasicStruct $productStream) use ($uuid) {
-            return $productStream->getListingSortingUuid() === $uuid;
-        });
+        return $this->filter(
+            function (ProductStreamBasicStruct $productStream) use ($uuid) {
+                return $productStream->getListingSortingUuid() === $uuid;
+            }
+        );
     }
 
     public function getListingSortings(): ListingSortingBasicCollection
     {
         return new ListingSortingBasicCollection(
-            $this->fmap(function (ProductStreamBasicStruct $productStream) {
-                return $productStream->getListingSorting();
-            })
+            $this->fmap(
+                function (ProductStreamBasicStruct $productStream) {
+                    return $productStream->getListingSorting();
+                }
+            )
         );
     }
 

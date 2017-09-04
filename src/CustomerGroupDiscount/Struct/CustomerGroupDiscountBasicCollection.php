@@ -70,23 +70,29 @@ class CustomerGroupDiscountBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(function (CustomerGroupDiscountBasicStruct $customerGroupDiscount) {
-            return $customerGroupDiscount->getUuid();
-        });
+        return $this->fmap(
+            function (CustomerGroupDiscountBasicStruct $customerGroupDiscount) {
+                return $customerGroupDiscount->getUuid();
+            }
+        );
     }
 
     public function getCustomerGroupUuids(): array
     {
-        return $this->fmap(function (CustomerGroupDiscountBasicStruct $customerGroupDiscount) {
-            return $customerGroupDiscount->getCustomerGroupUuid();
-        });
+        return $this->fmap(
+            function (CustomerGroupDiscountBasicStruct $customerGroupDiscount) {
+                return $customerGroupDiscount->getCustomerGroupUuid();
+            }
+        );
     }
 
     public function filterByCustomerGroupUuid(string $uuid): CustomerGroupDiscountBasicCollection
     {
-        return $this->filter(function (CustomerGroupDiscountBasicStruct $customerGroupDiscount) use ($uuid) {
-            return $customerGroupDiscount->getCustomerGroupUuid() === $uuid;
-        });
+        return $this->filter(
+            function (CustomerGroupDiscountBasicStruct $customerGroupDiscount) use ($uuid) {
+                return $customerGroupDiscount->getCustomerGroupUuid() === $uuid;
+            }
+        );
     }
 
     protected function getKey(CustomerGroupDiscountBasicStruct $element): string

@@ -37,14 +37,24 @@ class AreaCountryStateBasicHydrator extends Hydrator
     {
         $areaCountryState = new AreaCountryStateBasicStruct();
 
-        $areaCountryState->setId((int) $data['__areaCountryState_id']);
-        $areaCountryState->setUuid((string) $data['__areaCountryState_uuid']);
-        $areaCountryState->setAreaCountryId(isset($data['__areaCountryState_area_country_id']) ? (int) $data['__areaCountryState_area_country_id'] : null);
-        $areaCountryState->setAreaCountryUuid(isset($data['__areaCountryState_area_country_uuid']) ? (string) $data['__areaCountryState_area_country_uuid'] : null);
-        $areaCountryState->setName(isset($data['__areaCountryState_name']) ? (string) $data['__areaCountryState_name'] : null);
-        $areaCountryState->setShortCode((string) $data['__areaCountryState_short_code']);
-        $areaCountryState->setPosition(isset($data['__areaCountryState_position']) ? (int) $data['__areaCountryState_position'] : null);
-        $areaCountryState->setActive(isset($data['__areaCountryState_active']) ? (bool) $data['__areaCountryState_active'] : null);
+        $areaCountryState->setId((int)$data['__areaCountryState_id']);
+        $areaCountryState->setUuid((string)$data['__areaCountryState_uuid']);
+        $areaCountryState->setAreaCountryId(
+            isset($data['__areaCountryState_area_country_id']) ? (int)$data['__areaCountryState_area_country_id'] : null
+        );
+        $areaCountryState->setAreaCountryUuid(
+            isset($data['__areaCountryState_area_country_uuid']) ? (string)$data['__areaCountryState_area_country_uuid'] : null
+        );
+        $areaCountryState->setName(
+            isset($data['__areaCountryState_name']) ? (string)$data['__areaCountryState_name'] : null
+        );
+        $areaCountryState->setShortCode((string)$data['__areaCountryState_short_code']);
+        $areaCountryState->setPosition(
+            isset($data['__areaCountryState_position']) ? (int)$data['__areaCountryState_position'] : null
+        );
+        $areaCountryState->setActive(
+            isset($data['__areaCountryState_active']) ? (bool)$data['__areaCountryState_active'] : null
+        );
 
         return $areaCountryState;
     }

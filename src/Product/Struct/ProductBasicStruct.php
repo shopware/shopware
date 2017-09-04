@@ -33,11 +33,6 @@ use Shopware\Tax\Struct\TaxBasicStruct;
 class ProductBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
@@ -46,21 +41,6 @@ class ProductBasicStruct extends Struct
      * @var string
      */
     protected $manufacturerUuid;
-
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var string|null
-     */
-    protected $description;
-
-    /**
-     * @var string|null
-     */
-    protected $descriptionLong;
 
     /**
      * @var string|null
@@ -83,7 +63,7 @@ class ProductBasicStruct extends Struct
     protected $taxUuid;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $mainDetailUuid;
 
@@ -96,16 +76,6 @@ class ProductBasicStruct extends Struct
      * @var bool
      */
     protected $topseller;
-
-    /**
-     * @var string|null
-     */
-    protected $metaTitle;
-
-    /**
-     * @var string|null
-     */
-    protected $keywords;
 
     /**
      * @var \DateTime
@@ -170,19 +140,9 @@ class ProductBasicStruct extends Struct
      */
     protected $tax;
     /**
-     * @var SeoUrlBasicStruct|null
+     * @var SeoUrlBasicStruct
      */
     protected $canonicalUrl;
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
 
     public function getUuid(): string
     {
@@ -202,36 +162,6 @@ class ProductBasicStruct extends Struct
     public function setManufacturerUuid(string $manufacturerUuid): void
     {
         $this->manufacturerUuid = $manufacturerUuid;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(?string $description): void
-    {
-        $this->description = $description;
-    }
-
-    public function getDescriptionLong(): ?string
-    {
-        return $this->descriptionLong;
-    }
-
-    public function setDescriptionLong(?string $descriptionLong): void
-    {
-        $this->descriptionLong = $descriptionLong;
     }
 
     public function getShippingTime(): ?string
@@ -274,12 +204,12 @@ class ProductBasicStruct extends Struct
         $this->taxUuid = $taxUuid;
     }
 
-    public function getMainDetailUuid(): string
+    public function getMainDetailUuid(): ?string
     {
         return $this->mainDetailUuid;
     }
 
-    public function setMainDetailUuid(string $mainDetailUuid): void
+    public function setMainDetailUuid(?string $mainDetailUuid): void
     {
         $this->mainDetailUuid = $mainDetailUuid;
     }
@@ -302,26 +232,6 @@ class ProductBasicStruct extends Struct
     public function setTopseller(bool $topseller): void
     {
         $this->topseller = $topseller;
-    }
-
-    public function getMetaTitle(): ?string
-    {
-        return $this->metaTitle;
-    }
-
-    public function setMetaTitle(?string $metaTitle): void
-    {
-        $this->metaTitle = $metaTitle;
-    }
-
-    public function getKeywords(): ?string
-    {
-        return $this->keywords;
-    }
-
-    public function setKeywords(?string $keywords): void
-    {
-        $this->keywords = $keywords;
     }
 
     public function getUpdatedAt(): \DateTime
@@ -454,12 +364,12 @@ class ProductBasicStruct extends Struct
         $this->tax = $tax;
     }
 
-    public function getCanonicalUrl(): ?SeoUrlBasicStruct
+    public function getCanonicalUrl(): SeoUrlBasicStruct
     {
         return $this->canonicalUrl;
     }
 
-    public function setCanonicalUrl(?SeoUrlBasicStruct $canonicalUrl): void
+    public function setCanonicalUrl(SeoUrlBasicStruct $canonicalUrl): void
     {
         $this->canonicalUrl = $canonicalUrl;
     }

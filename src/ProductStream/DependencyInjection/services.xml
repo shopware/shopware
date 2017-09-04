@@ -5,32 +5,40 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-<service class="Shopware\ProductStream\Reader\ProductStreamBasicHydrator" id="shopware.product_stream.reader.basic_hydrator">
-<argument type="service" id="shopware.listing_sorting.reader.basic_hydrator" />
-</service>
-<service class="Shopware\ProductStream\Reader\ProductStreamBasicReader" id="shopware.product_stream.reader.basic_reader">
-  <argument id="dbal_connection" type="service"/>
-  <argument id="shopware.product_stream.reader.basic_hydrator" type="service"/>
-</service>
-<service class="Shopware\ProductStream\Loader\ProductStreamBasicLoader" id="shopware.product_stream.loader.basic_loader">
-    <argument type="service" id="shopware.product_stream.reader.basic_reader" />
+        <service class="Shopware\ProductStream\Reader\ProductStreamBasicHydrator"
+                 id="shopware.product_stream.reader.basic_hydrator">
+            <argument type="service" id="shopware.listing_sorting.reader.basic_hydrator"/>
+        </service>
 
-</service>
-<service class="Shopware\ProductStream\Searcher\ProductStreamSearcher" id="shopware.product_stream.searcher.searcher">
-  <argument id="dbal_connection" type="service"/>
-  <argument type="collection">
-        <!-- #handlers# -->
-  </argument>
-  <argument id="shopware.product_stream.reader.basic_hydrator" type="service"/>
-</service>
-<service class="Shopware\ProductStream\Writer\ProductStreamWriter" id="shopware.product_stream.writer.writer"/>
-<service class="Shopware\ProductStream\ProductStreamRepository" id="shopware.product_stream.repository">
-  <argument id="shopware.product_stream.loader.basic_loader" type="service"/>
-  <argument id="event_dispatcher" type="service"/>
-  <argument id="shopware.product_stream.searcher.searcher" type="service"/>
-  <argument id="shopware.product_stream.writer.writer" type="service"/>
-  
-</service>
+        <service class="Shopware\ProductStream\Reader\ProductStreamBasicReader"
+                 id="shopware.product_stream.reader.basic_reader">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.product_stream.reader.basic_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\ProductStream\Loader\ProductStreamBasicLoader"
+                 id="shopware.product_stream.loader.basic_loader">
+            <argument type="service" id="shopware.product_stream.reader.basic_reader"/>
+
+        </service>
+
+        <service class="Shopware\ProductStream\Searcher\ProductStreamSearcher" id="shopware.product_stream.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection">
+
+            </argument>
+            <argument id="shopware.product_stream.reader.basic_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\ProductStream\Writer\ProductStreamWriter" id="shopware.product_stream.writer.writer"/>
+
+        <service class="Shopware\ProductStream\ProductStreamRepository" id="shopware.product_stream.repository">
+            <argument id="shopware.product_stream.loader.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.product_stream.searcher" type="service"/>
+            <argument id="shopware.product_stream.writer.writer" type="service"/>
+
+        </service>
 
     </services>
 </container>

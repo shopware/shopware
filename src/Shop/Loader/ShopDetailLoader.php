@@ -1,35 +1,13 @@
 <?php
-/**
- * Shopware 5
- * Copyright (c) shopware AG
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Shopware" is a registered trademark of shopware AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
 
 namespace Shopware\Shop\Loader;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Currency\Loader\CurrencyBasicLoader;
-use Shopware\Locale\Loader\LocaleBasicLoader;
 use Shopware\Shop\Reader\ShopDetailReader;
-use Shopware\Shop\Struct\ShopDetailCollection;
 use Shopware\Shop\Struct\ShopDetailStruct;
+use Shopware\Shop\Struct\ShopDetailCollection;
+use Shopware\Locale\Loader\LocaleBasicLoader;
+use Shopware\Currency\Loader\CurrencyBasicLoader;
 
 class ShopDetailLoader
 {
@@ -47,7 +25,8 @@ class ShopDetailLoader
     private $currencyBasicLoader;
 
     public function __construct(
-        ShopDetailReader $reader,
+        ShopDetailReader $reader
+        ,
         LocaleBasicLoader $localeBasicLoader,
         CurrencyBasicLoader $currencyBasicLoader
     ) {
@@ -64,7 +43,7 @@ class ShopDetailLoader
 
         /** @var ShopDetailStruct $shop */
         foreach ($collection as $shop) {
-            if ($shop->getFallbackLocaleUuid()) {
+            if ($shop->getFallbackLocaleUuid())) {
                 $shop->setFallbackLocale($locales->get($shop->getFallbackLocaleUuid()));
             }
             $shop->setCurrencies($currencies->getList($shop->getCurrencyUuids()));

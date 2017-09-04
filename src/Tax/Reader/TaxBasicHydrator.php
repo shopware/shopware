@@ -37,10 +37,10 @@ class TaxBasicHydrator extends Hydrator
     {
         $tax = new TaxBasicStruct();
 
-        $tax->setId((int) $data['__tax_id']);
-        $tax->setUuid((string) $data['__tax_uuid']);
-        $tax->setRate((float) $data['__tax_tax_rate']);
-        $tax->setDescription((string) $data['__tax_description']);
+        $tax->setId((int)$data['__tax_id']);
+        $tax->setUuid((string)$data['__tax_uuid']);
+        $tax->setRate((float)$data['__tax_tax_rate']);
+        $tax->setDescription((string)$data['__tax_description']);
 
         return $tax;
     }

@@ -37,13 +37,13 @@ class ShippingMethodPriceBasicHydrator extends Hydrator
     {
         $shippingMethodPrice = new ShippingMethodPriceBasicStruct();
 
-        $shippingMethodPrice->setId((int) $data['__shippingMethodPrice_id']);
-        $shippingMethodPrice->setUuid((string) $data['__shippingMethodPrice_uuid']);
-        $shippingMethodPrice->setFrom((float) $data['__shippingMethodPrice_from']);
-        $shippingMethodPrice->setValue((float) $data['__shippingMethodPrice_value']);
-        $shippingMethodPrice->setFactor((float) $data['__shippingMethodPrice_factor']);
-        $shippingMethodPrice->setShippingMethodId((int) $data['__shippingMethodPrice_shipping_method_id']);
-        $shippingMethodPrice->setShippingMethodUuid((string) $data['__shippingMethodPrice_shipping_method_uuid']);
+        $shippingMethodPrice->setId((int)$data['__shippingMethodPrice_id']);
+        $shippingMethodPrice->setUuid((string)$data['__shippingMethodPrice_uuid']);
+        $shippingMethodPrice->setFrom((float)$data['__shippingMethodPrice_from']);
+        $shippingMethodPrice->setValue((float)$data['__shippingMethodPrice_value']);
+        $shippingMethodPrice->setFactor((float)$data['__shippingMethodPrice_factor']);
+        $shippingMethodPrice->setShippingMethodId((int)$data['__shippingMethodPrice_shipping_method_id']);
+        $shippingMethodPrice->setShippingMethodUuid((string)$data['__shippingMethodPrice_shipping_method_uuid']);
 
         return $shippingMethodPrice;
     }

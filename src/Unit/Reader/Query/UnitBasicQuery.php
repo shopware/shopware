@@ -41,13 +41,15 @@ class UnitBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'unit.uuid as _array_key_',
-            'unit.id as __unit_id',
-            'unit.uuid as __unit_uuid',
-            'unit.unit as __unit_unit',
-            'unit.description as __unit_description',
-        ]);
+        $query->addSelect(
+            [
+                'unit.uuid as _array_key_',
+                'unit.id as __unit_id',
+                'unit.uuid as __unit_uuid',
+                'unit.unit as __unit_unit',
+                'unit.description as __unit_description',
+            ]
+        );
 
         //$query->leftJoin('unit', 'unit_translation', 'unitTranslation', 'unit.uuid = unitTranslation.unit_uuid AND unitTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

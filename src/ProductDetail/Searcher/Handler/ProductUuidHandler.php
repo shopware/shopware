@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Customer\Searcher\Handler;
+namespace Shopware\ProductDetail\Searcher\Handler;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -42,9 +42,8 @@ class ProductUuidHandler implements HandlerInterface, AggregatorInterface
     {
         return
             $criteriaPart instanceof ProductUuidSorting
- || $criteriaPart instanceof ProductUuidCondition
- || $criteriaPart instanceof ProductUuidFacet
-        ;
+            || $criteriaPart instanceof ProductUuidCondition
+            || $criteriaPart instanceof ProductUuidFacet;
     }
 
     public function handle(
@@ -59,7 +58,7 @@ class ProductUuidHandler implements HandlerInterface, AggregatorInterface
             return;
         }
 
-                /* @var ProductUuidCondition $criteriaPart */
+        /* @var ProductUuidCondition $criteriaPart */
         $builder->andWhere('productDetail.product_uuid IN (:product_uuid_condition)');
         $builder->setParameter('product_uuid_condition', $criteriaPart->getProductUuids(), Connection::PARAM_STR_ARRAY);
     }

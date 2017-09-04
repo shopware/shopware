@@ -54,9 +54,12 @@ class HolidaySearcher extends Search
 
     protected function createResult(array $rows, int $total, TranslationContext $context): SearchResultInterface
     {
-        $structs = array_map(function (array $row) {
-            return $this->hydrator->hydrate($row);
-        }, $rows);
+        $structs = array_map(
+            function (array $row) {
+                return $this->hydrator->hydrate($row);
+            },
+            $rows
+        );
 
         return new HolidaySearchResult($structs, $total);
     }

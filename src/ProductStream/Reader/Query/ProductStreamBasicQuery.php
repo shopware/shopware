@@ -42,22 +42,29 @@ class ProductStreamBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'productStream.uuid as _array_key_',
-            'productStream.id as __productStream_id',
-            'productStream.uuid as __productStream_uuid',
-            'productStream.name as __productStream_name',
-            'productStream.conditions as __productStream_conditions',
-            'productStream.type as __productStream_type',
-            'productStream.description as __productStream_description',
-            'productStream.listing_sorting_id as __productStream_listing_sorting_id',
-            'productStream.listing_sorting_uuid as __productStream_listing_sorting_uuid',
-        ]);
+        $query->addSelect(
+            [
+                'productStream.uuid as _array_key_',
+                'productStream.id as __productStream_id',
+                'productStream.uuid as __productStream_uuid',
+                'productStream.name as __productStream_name',
+                'productStream.conditions as __productStream_conditions',
+                'productStream.type as __productStream_type',
+                'productStream.description as __productStream_description',
+                'productStream.listing_sorting_id as __productStream_listing_sorting_id',
+                'productStream.listing_sorting_uuid as __productStream_listing_sorting_uuid',
+            ]
+        );
 
         //$query->leftJoin('productStream', 'productStream_translation', 'productStreamTranslation', 'productStream.uuid = productStreamTranslation.productStream_uuid AND productStreamTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());
 
-        $query->leftJoin('productStream', 'listing_sorting', 'listingSorting', 'listingSorting.uuid = productStream.listing_sorting_uuid');
+        $query->leftJoin(
+            'productStream',
+            'listing_sorting',
+            'listingSorting',
+            'listingSorting.uuid = productStream.listing_sorting_uuid'
+        );
         ListingSortingBasicQuery::addRequirements($query, $context);
     }
 }

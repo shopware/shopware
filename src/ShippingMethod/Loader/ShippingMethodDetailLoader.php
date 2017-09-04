@@ -96,7 +96,9 @@ class ShippingMethodDetailLoader
 
         /** @var ShippingMethodDetailStruct $shippingMethod */
         foreach ($collection as $shippingMethod) {
-            $shippingMethod->setShippingMethodPrices($shippingMethodPrices->filterByShippingMethodUuid($shippingMethod->getUuid()));
+            $shippingMethod->setShippingMethodPrices(
+                $shippingMethodPrices->filterByShippingMethodUuid($shippingMethod->getUuid())
+            );
             $shippingMethod->setAreaCountries($areaCountries->getList($shippingMethod->getAreaCountryUuids()));
             $shippingMethod->setCategories($categories->getList($shippingMethod->getCategoryUuids()));
             $shippingMethod->setHolidaies($holidaies->getList($shippingMethod->getHolidayUuids()));

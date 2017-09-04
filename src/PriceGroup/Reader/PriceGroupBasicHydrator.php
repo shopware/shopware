@@ -37,9 +37,9 @@ class PriceGroupBasicHydrator extends Hydrator
     {
         $priceGroup = new PriceGroupBasicStruct();
 
-        $priceGroup->setId((int) $data['__priceGroup_id']);
-        $priceGroup->setUuid((string) $data['__priceGroup_uuid']);
-        $priceGroup->setDescription((string) $data['__priceGroup_description']);
+        $priceGroup->setId((int)$data['__priceGroup_id']);
+        $priceGroup->setUuid((string)$data['__priceGroup_uuid']);
+        $priceGroup->setDescription((string)$data['__priceGroup_description']);
 
         return $priceGroup;
     }

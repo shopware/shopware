@@ -49,7 +49,7 @@ class ProductPriceBasicStruct extends Struct
     protected $from;
 
     /**
-     * @var string
+     * @var int|null
      */
     protected $to;
 
@@ -133,12 +133,12 @@ class ProductPriceBasicStruct extends Struct
         $this->from = $from;
     }
 
-    public function getTo(): string
+    public function getTo(): ?int
     {
         return $this->to;
     }
 
-    public function setTo(string $to): void
+    public function setTo(?int $to): void
     {
         $this->to = $to;
     }

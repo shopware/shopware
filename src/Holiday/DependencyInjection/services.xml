@@ -5,32 +5,37 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-<service class="Shopware\Holiday\Reader\HolidayBasicHydrator" id="shopware.holiday.reader.basic_hydrator">
+        <service class="Shopware\Holiday\Reader\HolidayBasicHydrator" id="shopware.holiday.reader.basic_hydrator">
 
-</service>
-<service class="Shopware\Holiday\Reader\HolidayBasicReader" id="shopware.holiday.reader.basic_reader">
-  <argument id="dbal_connection" type="service"/>
-  <argument id="shopware.holiday.reader.basic_hydrator" type="service"/>
-</service>
-<service class="Shopware\Holiday\Loader\HolidayBasicLoader" id="shopware.holiday.loader.basic_loader">
-    <argument type="service" id="shopware.holiday.reader.basic_reader" />
+        </service>
 
-</service>
-<service class="Shopware\Holiday\Searcher\HolidaySearcher" id="shopware.holiday.searcher.searcher">
-  <argument id="dbal_connection" type="service"/>
-  <argument type="collection">
-        <!-- #handlers# -->
-  </argument>
-  <argument id="shopware.holiday.reader.basic_hydrator" type="service"/>
-</service>
-<service class="Shopware\Holiday\Writer\HolidayWriter" id="shopware.holiday.writer.writer"/>
-<service class="Shopware\Holiday\HolidayRepository" id="shopware.holiday.repository">
-  <argument id="shopware.holiday.loader.basic_loader" type="service"/>
-  <argument id="event_dispatcher" type="service"/>
-  <argument id="shopware.holiday.searcher.searcher" type="service"/>
-  <argument id="shopware.holiday.writer.writer" type="service"/>
-  
-</service>
+        <service class="Shopware\Holiday\Reader\HolidayBasicReader" id="shopware.holiday.reader.basic_reader">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.holiday.reader.basic_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\Holiday\Loader\HolidayBasicLoader" id="shopware.holiday.loader.basic_loader">
+            <argument type="service" id="shopware.holiday.reader.basic_reader"/>
+
+        </service>
+
+        <service class="Shopware\Holiday\Searcher\HolidaySearcher" id="shopware.holiday.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection">
+
+            </argument>
+            <argument id="shopware.holiday.reader.basic_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\Holiday\Writer\HolidayWriter" id="shopware.holiday.writer.writer"/>
+
+        <service class="Shopware\Holiday\HolidayRepository" id="shopware.holiday.repository">
+            <argument id="shopware.holiday.loader.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.holiday.searcher" type="service"/>
+            <argument id="shopware.holiday.writer.writer" type="service"/>
+
+        </service>
 
     </services>
 </container>

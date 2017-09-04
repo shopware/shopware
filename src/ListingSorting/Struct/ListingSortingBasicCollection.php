@@ -70,9 +70,11 @@ class ListingSortingBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(function (ListingSortingBasicStruct $listingSorting) {
-            return $listingSorting->getUuid();
-        });
+        return $this->fmap(
+            function (ListingSortingBasicStruct $listingSorting) {
+                return $listingSorting->getUuid();
+            }
+        );
     }
 
     protected function getKey(ListingSortingBasicStruct $element): string

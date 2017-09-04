@@ -70,23 +70,29 @@ class PaymentMethodBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(function (PaymentMethodBasicStruct $paymentMethod) {
-            return $paymentMethod->getUuid();
-        });
+        return $this->fmap(
+            function (PaymentMethodBasicStruct $paymentMethod) {
+                return $paymentMethod->getUuid();
+            }
+        );
     }
 
     public function getPluginUuids(): array
     {
-        return $this->fmap(function (PaymentMethodBasicStruct $paymentMethod) {
-            return $paymentMethod->getPluginUuid();
-        });
+        return $this->fmap(
+            function (PaymentMethodBasicStruct $paymentMethod) {
+                return $paymentMethod->getPluginUuid();
+            }
+        );
     }
 
     public function filterByPluginUuid(string $uuid): PaymentMethodBasicCollection
     {
-        return $this->filter(function (PaymentMethodBasicStruct $paymentMethod) use ($uuid) {
-            return $paymentMethod->getPluginUuid() === $uuid;
-        });
+        return $this->filter(
+            function (PaymentMethodBasicStruct $paymentMethod) use ($uuid) {
+                return $paymentMethod->getPluginUuid() === $uuid;
+            }
+        );
     }
 
     protected function getKey(PaymentMethodBasicStruct $element): string

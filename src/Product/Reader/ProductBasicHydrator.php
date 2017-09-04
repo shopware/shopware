@@ -45,8 +45,11 @@ class ProductBasicHydrator extends Hydrator
      */
     private $seoUrlBasicHydrator;
 
-    public function __construct(ProductDetailBasicHydrator $productDetailBasicHydrator, TaxBasicHydrator $taxBasicHydrator, SeoUrlBasicHydrator $seoUrlBasicHydrator)
-    {
+    public function __construct(
+        ProductDetailBasicHydrator $productDetailBasicHydrator,
+        TaxBasicHydrator $taxBasicHydrator,
+        SeoUrlBasicHydrator $seoUrlBasicHydrator
+    ) {
         $this->productDetailBasicHydrator = $productDetailBasicHydrator;
         $this->taxBasicHydrator = $taxBasicHydrator;
         $this->seoUrlBasicHydrator = $seoUrlBasicHydrator;
@@ -56,37 +59,44 @@ class ProductBasicHydrator extends Hydrator
     {
         $product = new ProductBasicStruct();
 
-        $product->setId((int) $data['__product_id']);
-        $product->setUuid((string) $data['__product_uuid']);
-        $product->setManufacturerUuid((string) $data['__product_product_manufacturer_uuid']);
-        $product->setName((string) $data['__product_name']);
-        $product->setDescription(isset($data['__product_description']) ? (string) $data['__product_description'] : null);
-        $product->setDescriptionLong(isset($data['__product_description_long']) ? (string) $data['__product_description_long'] : null);
-        $product->setShippingTime(isset($data['__product_shipping_time']) ? (string) $data['__product_shipping_time'] : null);
-        $product->setCreatedAt(isset($data['__product_created_at']) ? new \DateTime($data['__product_created_at']) : null);
-        $product->setActive((bool) $data['__product_active']);
-        $product->setTaxUuid((string) $data['__product_tax_uuid']);
-        $product->setMainDetailUuid((string) $data['__product_main_detail_uuid']);
-        $product->setPseudoSales((int) $data['__product_pseudo_sales']);
-        $product->setTopseller((bool) $data['__product_topseller']);
-        $product->setMetaTitle(isset($data['__product_meta_title']) ? (string) $data['__product_meta_title'] : null);
-        $product->setKeywords(isset($data['__product_keywords']) ? (string) $data['__product_keywords'] : null);
+        $product->setUuid((string)$data['__product_uuid']);
+        $product->setManufacturerUuid((string)$data['__product_product_manufacturer_uuid']);
+        $product->setShippingTime(
+            isset($data['__product_shipping_time']) ? (string)$data['__product_shipping_time'] : null
+        );
+        $product->setCreatedAt(
+            isset($data['__product_created_at']) ? new \DateTime($data['__product_created_at']) : null
+        );
+        $product->setActive((bool)$data['__product_active']);
+        $product->setTaxUuid((string)$data['__product_tax_uuid']);
+        $product->setMainDetailUuid(
+            isset($data['__product_main_detail_uuid']) ? (string)$data['__product_main_detail_uuid'] : null
+        );
+        $product->setPseudoSales((int)$data['__product_pseudo_sales']);
+        $product->setTopseller((bool)$data['__product_topseller']);
         $product->setUpdatedAt(new \DateTime($data['__product_updated_at']));
-        $product->setPriceGroupId(isset($data['__product_price_group_id']) ? (int) $data['__product_price_group_id'] : null);
-        $product->setFilterGroupUuid(isset($data['__product_filter_group_uuid']) ? (string) $data['__product_filter_group_uuid'] : null);
-        $product->setLastStock((bool) $data['__product_last_stock']);
-        $product->setNotification((bool) $data['__product_notification']);
-        $product->setTemplate((string) $data['__product_template']);
-        $product->setMode((int) $data['__product_mode']);
-        $product->setAvailableFrom(isset($data['__product_available_from']) ? new \DateTime($data['__product_available_from']) : null);
-        $product->setAvailableTo(isset($data['__product_available_to']) ? new \DateTime($data['__product_available_to']) : null);
-        $product->setConfiguratorSetId(isset($data['__product_configurator_set_id']) ? (int) $data['__product_configurator_set_id'] : null);
+        $product->setPriceGroupId(
+            isset($data['__product_price_group_id']) ? (int)$data['__product_price_group_id'] : null
+        );
+        $product->setFilterGroupUuid(
+            isset($data['__product_filter_group_uuid']) ? (string)$data['__product_filter_group_uuid'] : null
+        );
+        $product->setLastStock((bool)$data['__product_last_stock']);
+        $product->setNotification((bool)$data['__product_notification']);
+        $product->setTemplate((string)$data['__product_template']);
+        $product->setMode((int)$data['__product_mode']);
+        $product->setAvailableFrom(
+            isset($data['__product_available_from']) ? new \DateTime($data['__product_available_from']) : null
+        );
+        $product->setAvailableTo(
+            isset($data['__product_available_to']) ? new \DateTime($data['__product_available_to']) : null
+        );
+        $product->setConfiguratorSetId(
+            isset($data['__product_configurator_set_id']) ? (int)$data['__product_configurator_set_id'] : null
+        );
         $product->setMainDetail($this->productDetailBasicHydrator->hydrate($data));
         $product->setTax($this->taxBasicHydrator->hydrate($data));
-
-        if (!empty($data['__seoUrl_uuid'])) {
-            $product->setCanonicalUrl($this->seoUrlBasicHydrator->hydrate($data));
-        }
+        $product->setCanonicalUrl($this->seoUrlBasicHydrator->hydrate($data));
 
         return $product;
     }

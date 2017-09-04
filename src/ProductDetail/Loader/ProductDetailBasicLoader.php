@@ -43,6 +43,10 @@ class ProductDetailBasicLoader
 
     public function load(array $uuids, TranslationContext $context): ProductDetailBasicCollection
     {
+        if (empty($uuids)) {
+            return new ProductDetailBasicCollection();
+        }
+
         $collection = $this->reader->read($uuids, $context);
 
         return $collection;

@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Customer\Searcher\Handler;
+namespace Shopware\SeoUrl\Searcher\Handler;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -42,9 +42,8 @@ class SeoPathInfoHandler implements HandlerInterface, AggregatorInterface
     {
         return
             $criteriaPart instanceof SeoPathInfoSorting
- || $criteriaPart instanceof SeoPathInfoCondition
- || $criteriaPart instanceof SeoPathInfoFacet
-        ;
+            || $criteriaPart instanceof SeoPathInfoCondition
+            || $criteriaPart instanceof SeoPathInfoFacet;
     }
 
     public function handle(
@@ -59,9 +58,13 @@ class SeoPathInfoHandler implements HandlerInterface, AggregatorInterface
             return;
         }
 
-                /* @var SeoPathInfoCondition $criteriaPart */
+        /* @var SeoPathInfoCondition $criteriaPart */
         $builder->andWhere('seoUrl.seo_path_info IN (:seo_path_info_condition)');
-        $builder->setParameter('seo_path_info_condition', $criteriaPart->getSeoPathInfos(), Connection::PARAM_STR_ARRAY);
+        $builder->setParameter(
+            'seo_path_info_condition',
+            $criteriaPart->getSeoPathInfos(),
+            Connection::PARAM_STR_ARRAY
+        );
     }
 
     public function aggregate(

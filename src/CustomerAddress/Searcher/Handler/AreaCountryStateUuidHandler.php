@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Customer\Searcher\Handler;
+namespace Shopware\CustomerAddress\Searcher\Handler;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -42,9 +42,8 @@ class AreaCountryStateUuidHandler implements HandlerInterface, AggregatorInterfa
     {
         return
             $criteriaPart instanceof AreaCountryStateUuidSorting
- || $criteriaPart instanceof AreaCountryStateUuidCondition
- || $criteriaPart instanceof AreaCountryStateUuidFacet
-        ;
+            || $criteriaPart instanceof AreaCountryStateUuidCondition
+            || $criteriaPart instanceof AreaCountryStateUuidFacet;
     }
 
     public function handle(
@@ -59,9 +58,13 @@ class AreaCountryStateUuidHandler implements HandlerInterface, AggregatorInterfa
             return;
         }
 
-                /* @var AreaCountryStateUuidCondition $criteriaPart */
+        /* @var AreaCountryStateUuidCondition $criteriaPart */
         $builder->andWhere('customerAddress.area_country_state_uuid IN (:area_country_state_uuid_condition)');
-        $builder->setParameter('area_country_state_uuid_condition', $criteriaPart->getAreaCountryStateUuids(), Connection::PARAM_STR_ARRAY);
+        $builder->setParameter(
+            'area_country_state_uuid_condition',
+            $criteriaPart->getAreaCountryStateUuids(),
+            Connection::PARAM_STR_ARRAY
+        );
     }
 
     public function aggregate(

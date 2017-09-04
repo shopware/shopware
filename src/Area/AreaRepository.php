@@ -69,7 +69,7 @@ class AreaRepository
         EventDispatcherInterface $eventDispatcher,
         AreaSearcher $searcher,
         AreaWriter $writer,
-AreaDetailLoader $detailLoader
+        AreaDetailLoader $detailLoader
     ) {
         $this->basicLoader = $basicLoader;
         $this->eventDispatcher = $eventDispatcher;

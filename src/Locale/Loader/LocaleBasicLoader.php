@@ -43,6 +43,10 @@ class LocaleBasicLoader
 
     public function load(array $uuids, TranslationContext $context): LocaleBasicCollection
     {
+        if (empty($uuids)) {
+            return new LocaleBasicCollection();
+        }
+
         $collection = $this->reader->read($uuids, $context);
 
         return $collection;

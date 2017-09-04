@@ -69,12 +69,14 @@ class CustomerBasicLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection([
-            new CustomerGroupBasicLoadedEvent($this->customers->getCustomerGroups(), $this->context),
-            new CustomerAddressBasicLoadedEvent($this->customers->getDefaultShippingAddresss(), $this->context),
-            new CustomerAddressBasicLoadedEvent($this->customers->getDefaultBillingAddresss(), $this->context),
-            new PaymentMethodBasicLoadedEvent($this->customers->getLastPaymentMethods(), $this->context),
-            new PaymentMethodBasicLoadedEvent($this->customers->getDefaultPaymentMethods(), $this->context),
-        ]);
+        return new NestedEventCollection(
+            [
+                new CustomerGroupBasicLoadedEvent($this->customers->getCustomerGroups(), $this->context),
+                new CustomerAddressBasicLoadedEvent($this->customers->getDefaultShippingAddresss(), $this->context),
+                new CustomerAddressBasicLoadedEvent($this->customers->getDefaultBillingAddresss(), $this->context),
+                new PaymentMethodBasicLoadedEvent($this->customers->getLastPaymentMethods(), $this->context),
+                new PaymentMethodBasicLoadedEvent($this->customers->getDefaultPaymentMethods(), $this->context),
+            ]
+        );
     }
 }

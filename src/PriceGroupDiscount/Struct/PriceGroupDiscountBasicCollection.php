@@ -70,37 +70,47 @@ class PriceGroupDiscountBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(function (PriceGroupDiscountBasicStruct $priceGroupDiscount) {
-            return $priceGroupDiscount->getUuid();
-        });
+        return $this->fmap(
+            function (PriceGroupDiscountBasicStruct $priceGroupDiscount) {
+                return $priceGroupDiscount->getUuid();
+            }
+        );
     }
 
     public function getPriceGroupUuids(): array
     {
-        return $this->fmap(function (PriceGroupDiscountBasicStruct $priceGroupDiscount) {
-            return $priceGroupDiscount->getPriceGroupUuid();
-        });
+        return $this->fmap(
+            function (PriceGroupDiscountBasicStruct $priceGroupDiscount) {
+                return $priceGroupDiscount->getPriceGroupUuid();
+            }
+        );
     }
 
     public function filterByPriceGroupUuid(string $uuid): PriceGroupDiscountBasicCollection
     {
-        return $this->filter(function (PriceGroupDiscountBasicStruct $priceGroupDiscount) use ($uuid) {
-            return $priceGroupDiscount->getPriceGroupUuid() === $uuid;
-        });
+        return $this->filter(
+            function (PriceGroupDiscountBasicStruct $priceGroupDiscount) use ($uuid) {
+                return $priceGroupDiscount->getPriceGroupUuid() === $uuid;
+            }
+        );
     }
 
     public function getCustomerGroupUuids(): array
     {
-        return $this->fmap(function (PriceGroupDiscountBasicStruct $priceGroupDiscount) {
-            return $priceGroupDiscount->getCustomerGroupUuid();
-        });
+        return $this->fmap(
+            function (PriceGroupDiscountBasicStruct $priceGroupDiscount) {
+                return $priceGroupDiscount->getCustomerGroupUuid();
+            }
+        );
     }
 
     public function filterByCustomerGroupUuid(string $uuid): PriceGroupDiscountBasicCollection
     {
-        return $this->filter(function (PriceGroupDiscountBasicStruct $priceGroupDiscount) use ($uuid) {
-            return $priceGroupDiscount->getCustomerGroupUuid() === $uuid;
-        });
+        return $this->filter(
+            function (PriceGroupDiscountBasicStruct $priceGroupDiscount) use ($uuid) {
+                return $priceGroupDiscount->getCustomerGroupUuid() === $uuid;
+            }
+        );
     }
 
     protected function getKey(PriceGroupDiscountBasicStruct $element): string

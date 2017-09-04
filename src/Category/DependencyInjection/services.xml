@@ -5,32 +5,37 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-<service class="Shopware\Category\Reader\CategoryBasicHydrator" id="shopware.category.reader.basic_hydrator">
-<argument type="service" id="shopware.seo_url.reader.basic_hydrator" />
-</service>
-<service class="Shopware\Category\Reader\CategoryBasicReader" id="shopware.category.reader.basic_reader">
-  <argument id="dbal_connection" type="service"/>
-  <argument id="shopware.category.reader.basic_hydrator" type="service"/>
-</service>
-<service class="Shopware\Category\Loader\CategoryBasicLoader" id="shopware.category.loader.basic_loader">
-    <argument type="service" id="shopware.category.reader.basic_reader" />
+        <service class="Shopware\Category\Reader\CategoryBasicHydrator" id="shopware.category.reader.basic_hydrator">
+            <argument type="service" id="shopware.seo_url.reader.basic_hydrator"/>
+        </service>
 
-</service>
-<service class="Shopware\Category\Searcher\CategorySearcher" id="shopware.category.searcher.searcher">
-  <argument id="dbal_connection" type="service"/>
-  <argument type="collection">
-        <!-- #handlers# -->
-  </argument>
-  <argument id="shopware.category.reader.basic_hydrator" type="service"/>
-</service>
-<service class="Shopware\Category\Writer\CategoryWriter" id="shopware.category.writer.writer"/>
-<service class="Shopware\Category\CategoryRepository" id="shopware.category.repository">
-  <argument id="shopware.category.loader.basic_loader" type="service"/>
-  <argument id="event_dispatcher" type="service"/>
-  <argument id="shopware.category.searcher.searcher" type="service"/>
-  <argument id="shopware.category.writer.writer" type="service"/>
-  
-</service>
+        <service class="Shopware\Category\Reader\CategoryBasicReader" id="shopware.category.reader.basic_reader">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.category.reader.basic_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\Category\Loader\CategoryBasicLoader" id="shopware.category.loader.basic_loader">
+            <argument type="service" id="shopware.category.reader.basic_reader"/>
+
+        </service>
+
+        <service class="Shopware\Category\Searcher\CategorySearcher" id="shopware.category.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection">
+
+            </argument>
+            <argument id="shopware.category.reader.basic_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\Category\Writer\CategoryWriter" id="shopware.category.writer.writer"/>
+
+        <service class="Shopware\Category\CategoryRepository" id="shopware.category.repository">
+            <argument id="shopware.category.loader.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.category.searcher" type="service"/>
+            <argument id="shopware.category.writer.writer" type="service"/>
+
+        </service>
 
     </services>
 </container>

@@ -43,38 +43,50 @@ class CustomerAddressBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'customerAddress.uuid as _array_key_',
-            'customerAddress.id as __customerAddress_id',
-            'customerAddress.uuid as __customerAddress_uuid',
-            'customerAddress.customer_id as __customerAddress_customer_id',
-            'customerAddress.customer_uuid as __customerAddress_customer_uuid',
-            'customerAddress.company as __customerAddress_company',
-            'customerAddress.department as __customerAddress_department',
-            'customerAddress.salutation as __customerAddress_salutation',
-            'customerAddress.title as __customerAddress_title',
-            'customerAddress.first_name as __customerAddress_first_name',
-            'customerAddress.last_name as __customerAddress_last_name',
-            'customerAddress.street as __customerAddress_street',
-            'customerAddress.zipcode as __customerAddress_zipcode',
-            'customerAddress.city as __customerAddress_city',
-            'customerAddress.area_country_id as __customerAddress_area_country_id',
-            'customerAddress.area_country_uuid as __customerAddress_area_country_uuid',
-            'customerAddress.area_country_state_id as __customerAddress_area_country_state_id',
-            'customerAddress.area_country_state_uuid as __customerAddress_area_country_state_uuid',
-            'customerAddress.vat_id as __customerAddress_vat_id',
-            'customerAddress.phone_number as __customerAddress_phone_number',
-            'customerAddress.additional_address_line1 as __customerAddress_additional_address_line1',
-            'customerAddress.additional_address_line2 as __customerAddress_additional_address_line2',
-        ]);
+        $query->addSelect(
+            [
+                'customerAddress.uuid as _array_key_',
+                'customerAddress.id as __customerAddress_id',
+                'customerAddress.uuid as __customerAddress_uuid',
+                'customerAddress.customer_id as __customerAddress_customer_id',
+                'customerAddress.customer_uuid as __customerAddress_customer_uuid',
+                'customerAddress.company as __customerAddress_company',
+                'customerAddress.department as __customerAddress_department',
+                'customerAddress.salutation as __customerAddress_salutation',
+                'customerAddress.title as __customerAddress_title',
+                'customerAddress.first_name as __customerAddress_first_name',
+                'customerAddress.last_name as __customerAddress_last_name',
+                'customerAddress.street as __customerAddress_street',
+                'customerAddress.zipcode as __customerAddress_zipcode',
+                'customerAddress.city as __customerAddress_city',
+                'customerAddress.area_country_id as __customerAddress_area_country_id',
+                'customerAddress.area_country_uuid as __customerAddress_area_country_uuid',
+                'customerAddress.area_country_state_id as __customerAddress_area_country_state_id',
+                'customerAddress.area_country_state_uuid as __customerAddress_area_country_state_uuid',
+                'customerAddress.vat_id as __customerAddress_vat_id',
+                'customerAddress.phone_number as __customerAddress_phone_number',
+                'customerAddress.additional_address_line1 as __customerAddress_additional_address_line1',
+                'customerAddress.additional_address_line2 as __customerAddress_additional_address_line2',
+            ]
+        );
 
         //$query->leftJoin('customerAddress', 'customerAddress_translation', 'customerAddressTranslation', 'customerAddress.uuid = customerAddressTranslation.customerAddress_uuid AND customerAddressTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());
 
-        $query->leftJoin('customerAddress', 'area_country', 'areaCountry', 'areaCountry.uuid = customerAddress.area_country_uuid');
+        $query->leftJoin(
+            'customerAddress',
+            'area_country',
+            'areaCountry',
+            'areaCountry.uuid = customerAddress.area_country_uuid'
+        );
         AreaCountryBasicQuery::addRequirements($query, $context);
 
-        $query->leftJoin('customerAddress', 'area_country_state', 'areaCountryState', 'areaCountryState.uuid = customerAddress.area_country_state_uuid');
+        $query->leftJoin(
+            'customerAddress',
+            'area_country_state',
+            'areaCountryState',
+            'areaCountryState.uuid = customerAddress.area_country_state_uuid'
+        );
         AreaCountryStateBasicQuery::addRequirements($query, $context);
     }
 }

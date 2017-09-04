@@ -53,7 +53,12 @@ class ShopDetailQuery extends ShopBasicQuery
         $query->leftJoin('shop', 'category', 'category', 'category.uuid = shop.category_uuid');
         CategoryBasicQuery::addRequirements($query, $context);
 
-        $query->leftJoin('shop', 'shipping_method', 'shippingMethod', 'shippingMethod.uuid = shop.shipping_method_uuid');
+        $query->leftJoin(
+            'shop',
+            'shipping_method',
+            'shippingMethod',
+            'shippingMethod.uuid = shop.shipping_method_uuid'
+        );
         ShippingMethodBasicQuery::addRequirements($query, $context);
 
         $query->leftJoin('shop', 'shop_template', 'shopTemplate', 'shopTemplate.uuid = shop.shop_template_uuid');
@@ -68,12 +73,14 @@ class ShopDetailQuery extends ShopBasicQuery
         $query->leftJoin('shop', 'customer_group', 'customerGroup', 'customerGroup.uuid = shop.customer_group_uuid');
         CustomerGroupBasicQuery::addRequirements($query, $context);
 
-        $query->addSelect('
+        $query->addSelect(
+            '
             (
                 SELECT GROUP_CONCAT(mapping.currency_uuid SEPARATOR \'|\') FROM
                 shop_currency mapping
                 WHERE shop.uuid = mapping.currency_uuid
             ) as __shop_currency_uuids
-        ');
+        '
+        );
     }
 }

@@ -70,23 +70,29 @@ class ShippingMethodPriceBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(function (ShippingMethodPriceBasicStruct $shippingMethodPrice) {
-            return $shippingMethodPrice->getUuid();
-        });
+        return $this->fmap(
+            function (ShippingMethodPriceBasicStruct $shippingMethodPrice) {
+                return $shippingMethodPrice->getUuid();
+            }
+        );
     }
 
     public function getShippingMethodUuids(): array
     {
-        return $this->fmap(function (ShippingMethodPriceBasicStruct $shippingMethodPrice) {
-            return $shippingMethodPrice->getShippingMethodUuid();
-        });
+        return $this->fmap(
+            function (ShippingMethodPriceBasicStruct $shippingMethodPrice) {
+                return $shippingMethodPrice->getShippingMethodUuid();
+            }
+        );
     }
 
     public function filterByShippingMethodUuid(string $uuid): ShippingMethodPriceBasicCollection
     {
-        return $this->filter(function (ShippingMethodPriceBasicStruct $shippingMethodPrice) use ($uuid) {
-            return $shippingMethodPrice->getShippingMethodUuid() === $uuid;
-        });
+        return $this->filter(
+            function (ShippingMethodPriceBasicStruct $shippingMethodPrice) use ($uuid) {
+                return $shippingMethodPrice->getShippingMethodUuid() === $uuid;
+            }
+        );
     }
 
     protected function getKey(ShippingMethodPriceBasicStruct $element): string

@@ -69,7 +69,7 @@ class ShippingMethodRepository
         EventDispatcherInterface $eventDispatcher,
         ShippingMethodSearcher $searcher,
         ShippingMethodWriter $writer,
-ShippingMethodDetailLoader $detailLoader
+        ShippingMethodDetailLoader $detailLoader
     ) {
         $this->basicLoader = $basicLoader;
         $this->eventDispatcher = $eventDispatcher;

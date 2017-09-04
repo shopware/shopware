@@ -70,11 +70,13 @@ class ProductBasicLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection([
-            new ProductManufacturerBasicLoadedEvent($this->products->getManufacturers(), $this->context),
-            new ProductDetailBasicLoadedEvent($this->products->getMainDetails(), $this->context),
-            new TaxBasicLoadedEvent($this->products->getTaxs(), $this->context),
-            new SeoUrlBasicLoadedEvent($this->products->getCanonicalUrls(), $this->context),
-        ]);
+        return new NestedEventCollection(
+            [
+                new ProductManufacturerBasicLoadedEvent($this->products->getManufacturers(), $this->context),
+                new ProductDetailBasicLoadedEvent($this->products->getMainDetails(), $this->context),
+                new TaxBasicLoadedEvent($this->products->getTaxs(), $this->context),
+                new SeoUrlBasicLoadedEvent($this->products->getCanonicalUrls(), $this->context),
+            ]
+        );
     }
 }

@@ -5,32 +5,40 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-<service class="Shopware\TaxAreaRule\Reader\TaxAreaRuleBasicHydrator" id="shopware.tax_area_rule.reader.basic_hydrator">
+        <service class="Shopware\TaxAreaRule\Reader\TaxAreaRuleBasicHydrator"
+                 id="shopware.tax_area_rule.reader.basic_hydrator">
 
-</service>
-<service class="Shopware\TaxAreaRule\Reader\TaxAreaRuleBasicReader" id="shopware.tax_area_rule.reader.basic_reader">
-  <argument id="dbal_connection" type="service"/>
-  <argument id="shopware.tax_area_rule.reader.basic_hydrator" type="service"/>
-</service>
-<service class="Shopware\TaxAreaRule\Loader\TaxAreaRuleBasicLoader" id="shopware.tax_area_rule.loader.basic_loader">
-    <argument type="service" id="shopware.tax_area_rule.reader.basic_reader" />
+        </service>
 
-</service>
-<service class="Shopware\TaxAreaRule\Searcher\TaxAreaRuleSearcher" id="shopware.tax_area_rule.searcher.searcher">
-  <argument id="dbal_connection" type="service"/>
-  <argument type="collection">
-        <!-- #handlers# -->
-  </argument>
-  <argument id="shopware.tax_area_rule.reader.basic_hydrator" type="service"/>
-</service>
-<service class="Shopware\TaxAreaRule\Writer\TaxAreaRuleWriter" id="shopware.tax_area_rule.writer.writer"/>
-<service class="Shopware\TaxAreaRule\TaxAreaRuleRepository" id="shopware.tax_area_rule.repository">
-  <argument id="shopware.tax_area_rule.loader.basic_loader" type="service"/>
-  <argument id="event_dispatcher" type="service"/>
-  <argument id="shopware.tax_area_rule.searcher.searcher" type="service"/>
-  <argument id="shopware.tax_area_rule.writer.writer" type="service"/>
-  
-</service>
+        <service class="Shopware\TaxAreaRule\Reader\TaxAreaRuleBasicReader"
+                 id="shopware.tax_area_rule.reader.basic_reader">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.tax_area_rule.reader.basic_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\TaxAreaRule\Loader\TaxAreaRuleBasicLoader"
+                 id="shopware.tax_area_rule.loader.basic_loader">
+            <argument type="service" id="shopware.tax_area_rule.reader.basic_reader"/>
+
+        </service>
+
+        <service class="Shopware\TaxAreaRule\Searcher\TaxAreaRuleSearcher" id="shopware.tax_area_rule.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection">
+
+            </argument>
+            <argument id="shopware.tax_area_rule.reader.basic_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\TaxAreaRule\Writer\TaxAreaRuleWriter" id="shopware.tax_area_rule.writer.writer"/>
+
+        <service class="Shopware\TaxAreaRule\TaxAreaRuleRepository" id="shopware.tax_area_rule.repository">
+            <argument id="shopware.tax_area_rule.loader.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.tax_area_rule.searcher" type="service"/>
+            <argument id="shopware.tax_area_rule.writer.writer" type="service"/>
+
+        </service>
 
     </services>
 </container>

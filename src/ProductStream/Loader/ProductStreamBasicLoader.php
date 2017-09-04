@@ -43,6 +43,10 @@ class ProductStreamBasicLoader
 
     public function load(array $uuids, TranslationContext $context): ProductStreamBasicCollection
     {
+        if (empty($uuids)) {
+            return new ProductStreamBasicCollection();
+        }
+
         $collection = $this->reader->read($uuids, $context);
 
         return $collection;

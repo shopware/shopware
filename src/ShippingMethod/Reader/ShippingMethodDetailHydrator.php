@@ -42,10 +42,14 @@ class ShippingMethodDetailHydrator extends Hydrator
     public function hydrate(array $data): ShippingMethodDetailStruct
     {
         $shippingMethod = ShippingMethodDetailStruct::createFrom($this->basicHydrator->hydrate($data));
-        $shippingMethod->setAreaCountryUuids(array_filter(explode('|', (string) $data['__shippingMethod_area_country_uuids'])));
-        $shippingMethod->setCategoryUuids(array_filter(explode('|', (string) $data['__shippingMethod_category_uuids'])));
-        $shippingMethod->setHolidayUuids(array_filter(explode('|', (string) $data['__shippingMethod_holiday_uuids'])));
-        $shippingMethod->setPaymentMethodUuids(array_filter(explode('|', (string) $data['__shippingMethod_payment_method_uuids'])));
+        $shippingMethod->setAreaCountryUuids(
+            array_filter(explode('|', (string)$data['__shippingMethod_area_country_uuids']))
+        );
+        $shippingMethod->setCategoryUuids(array_filter(explode('|', (string)$data['__shippingMethod_category_uuids'])));
+        $shippingMethod->setHolidayUuids(array_filter(explode('|', (string)$data['__shippingMethod_holiday_uuids'])));
+        $shippingMethod->setPaymentMethodUuids(
+            array_filter(explode('|', (string)$data['__shippingMethod_payment_method_uuids']))
+        );
 
         return $shippingMethod;
     }

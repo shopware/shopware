@@ -41,23 +41,25 @@ class MediaBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'media.uuid as _array_key_',
-            'media.uuid as __media_uuid',
-            'media.album_uuid as __media_album_uuid',
-            'media.name as __media_name',
-            'media.description as __media_description',
-            'media.file_name as __media_file_name',
-            'media.mime_type as __media_mime_type',
-            'media.file_size as __media_file_size',
-            'media.meta_data as __media_meta_data',
-            'media.created_at as __media_created_at',
-            'media.user_uuid as __media_user_uuid',
-            'media.id as __media_id',
-            'media.album_id as __media_album_id',
-            'media.user_id as __media_user_id',
-            'media.updated_at as __media_updated_at',
-        ]);
+        $query->addSelect(
+            [
+                'media.uuid as _array_key_',
+                'media.id as __media_id',
+                'media.uuid as __media_uuid',
+                'media.album_uuid as __media_album_uuid',
+                'media.name as __media_name',
+                'media.description as __media_description',
+                'media.file_name as __media_file_name',
+                'media.mime_type as __media_mime_type',
+                'media.file_size as __media_file_size',
+                'media.meta_data as __media_meta_data',
+                'media.created_at as __media_created_at',
+                'media.user_uuid as __media_user_uuid',
+                'media.album_id as __media_album_id',
+                'media.user_id as __media_user_id',
+                'media.updated_at as __media_updated_at',
+            ]
+        );
 
         //$query->leftJoin('media', 'media_translation', 'mediaTranslation', 'media.uuid = mediaTranslation.media_uuid AND mediaTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

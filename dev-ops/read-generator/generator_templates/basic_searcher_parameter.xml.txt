@@ -1,1 +1,1 @@
-<argument type="service" id="shopware.#table#.searcher.searcher" />
+<argument type="service" id="shopware.#table#.searcher" />

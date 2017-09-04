@@ -42,7 +42,7 @@ class ProductDetailHydrator extends Hydrator
     public function hydrate(array $data): ProductDetailStruct
     {
         $product = ProductDetailStruct::createFrom($this->basicHydrator->hydrate($data));
-        $product->setCategoryUuids(array_filter(explode('|', (string) $data['__product_category_uuids'])));
+        $product->setCategoryUuids(array_filter(explode('|', (string)$data['__product_category_uuids'])));
 
         return $product;
     }

@@ -5,32 +5,41 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-<service class="Shopware\ListingSorting\Reader\ListingSortingBasicHydrator" id="shopware.listing_sorting.reader.basic_hydrator">
+        <service class="Shopware\ListingSorting\Reader\ListingSortingBasicHydrator"
+                 id="shopware.listing_sorting.reader.basic_hydrator">
 
-</service>
-<service class="Shopware\ListingSorting\Reader\ListingSortingBasicReader" id="shopware.listing_sorting.reader.basic_reader">
-  <argument id="dbal_connection" type="service"/>
-  <argument id="shopware.listing_sorting.reader.basic_hydrator" type="service"/>
-</service>
-<service class="Shopware\ListingSorting\Loader\ListingSortingBasicLoader" id="shopware.listing_sorting.loader.basic_loader">
-    <argument type="service" id="shopware.listing_sorting.reader.basic_reader" />
+        </service>
 
-</service>
-<service class="Shopware\ListingSorting\Searcher\ListingSortingSearcher" id="shopware.listing_sorting.searcher.searcher">
-  <argument id="dbal_connection" type="service"/>
-  <argument type="collection">
-        <!-- #handlers# -->
-  </argument>
-  <argument id="shopware.listing_sorting.reader.basic_hydrator" type="service"/>
-</service>
-<service class="Shopware\ListingSorting\Writer\ListingSortingWriter" id="shopware.listing_sorting.writer.writer"/>
-<service class="Shopware\ListingSorting\ListingSortingRepository" id="shopware.listing_sorting.repository">
-  <argument id="shopware.listing_sorting.loader.basic_loader" type="service"/>
-  <argument id="event_dispatcher" type="service"/>
-  <argument id="shopware.listing_sorting.searcher.searcher" type="service"/>
-  <argument id="shopware.listing_sorting.writer.writer" type="service"/>
-  
-</service>
+        <service class="Shopware\ListingSorting\Reader\ListingSortingBasicReader"
+                 id="shopware.listing_sorting.reader.basic_reader">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.listing_sorting.reader.basic_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\ListingSorting\Loader\ListingSortingBasicLoader"
+                 id="shopware.listing_sorting.loader.basic_loader">
+            <argument type="service" id="shopware.listing_sorting.reader.basic_reader"/>
+
+        </service>
+
+        <service class="Shopware\ListingSorting\Searcher\ListingSortingSearcher" id="shopware.listing_sorting.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection">
+
+            </argument>
+            <argument id="shopware.listing_sorting.reader.basic_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\ListingSorting\Writer\ListingSortingWriter"
+                 id="shopware.listing_sorting.writer.writer"/>
+
+        <service class="Shopware\ListingSorting\ListingSortingRepository" id="shopware.listing_sorting.repository">
+            <argument id="shopware.listing_sorting.loader.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.listing_sorting.searcher" type="service"/>
+            <argument id="shopware.listing_sorting.writer.writer" type="service"/>
+
+        </service>
 
     </services>
 </container>

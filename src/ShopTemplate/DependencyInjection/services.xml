@@ -5,32 +5,40 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-<service class="Shopware\ShopTemplate\Reader\ShopTemplateBasicHydrator" id="shopware.shop_template.reader.basic_hydrator">
+        <service class="Shopware\ShopTemplate\Reader\ShopTemplateBasicHydrator"
+                 id="shopware.shop_template.reader.basic_hydrator">
 
-</service>
-<service class="Shopware\ShopTemplate\Reader\ShopTemplateBasicReader" id="shopware.shop_template.reader.basic_reader">
-  <argument id="dbal_connection" type="service"/>
-  <argument id="shopware.shop_template.reader.basic_hydrator" type="service"/>
-</service>
-<service class="Shopware\ShopTemplate\Loader\ShopTemplateBasicLoader" id="shopware.shop_template.loader.basic_loader">
-    <argument type="service" id="shopware.shop_template.reader.basic_reader" />
+        </service>
 
-</service>
-<service class="Shopware\ShopTemplate\Searcher\ShopTemplateSearcher" id="shopware.shop_template.searcher.searcher">
-  <argument id="dbal_connection" type="service"/>
-  <argument type="collection">
-        <!-- #handlers# -->
-  </argument>
-  <argument id="shopware.shop_template.reader.basic_hydrator" type="service"/>
-</service>
-<service class="Shopware\ShopTemplate\Writer\ShopTemplateWriter" id="shopware.shop_template.writer.writer"/>
-<service class="Shopware\ShopTemplate\ShopTemplateRepository" id="shopware.shop_template.repository">
-  <argument id="shopware.shop_template.loader.basic_loader" type="service"/>
-  <argument id="event_dispatcher" type="service"/>
-  <argument id="shopware.shop_template.searcher.searcher" type="service"/>
-  <argument id="shopware.shop_template.writer.writer" type="service"/>
-  
-</service>
+        <service class="Shopware\ShopTemplate\Reader\ShopTemplateBasicReader"
+                 id="shopware.shop_template.reader.basic_reader">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.shop_template.reader.basic_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\ShopTemplate\Loader\ShopTemplateBasicLoader"
+                 id="shopware.shop_template.loader.basic_loader">
+            <argument type="service" id="shopware.shop_template.reader.basic_reader"/>
+
+        </service>
+
+        <service class="Shopware\ShopTemplate\Searcher\ShopTemplateSearcher" id="shopware.shop_template.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection">
+
+            </argument>
+            <argument id="shopware.shop_template.reader.basic_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\ShopTemplate\Writer\ShopTemplateWriter" id="shopware.shop_template.writer.writer"/>
+
+        <service class="Shopware\ShopTemplate\ShopTemplateRepository" id="shopware.shop_template.repository">
+            <argument id="shopware.shop_template.loader.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.shop_template.searcher" type="service"/>
+            <argument id="shopware.shop_template.writer.writer" type="service"/>
+
+        </service>
 
     </services>
 </container>

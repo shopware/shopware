@@ -72,68 +72,86 @@ class CustomerAddressBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(function (CustomerAddressBasicStruct $customerAddress) {
-            return $customerAddress->getUuid();
-        });
+        return $this->fmap(
+            function (CustomerAddressBasicStruct $customerAddress) {
+                return $customerAddress->getUuid();
+            }
+        );
     }
 
     public function getCustomerUuids(): array
     {
-        return $this->fmap(function (CustomerAddressBasicStruct $customerAddress) {
-            return $customerAddress->getCustomerUuid();
-        });
+        return $this->fmap(
+            function (CustomerAddressBasicStruct $customerAddress) {
+                return $customerAddress->getCustomerUuid();
+            }
+        );
     }
 
     public function filterByCustomerUuid(string $uuid): CustomerAddressBasicCollection
     {
-        return $this->filter(function (CustomerAddressBasicStruct $customerAddress) use ($uuid) {
-            return $customerAddress->getCustomerUuid() === $uuid;
-        });
+        return $this->filter(
+            function (CustomerAddressBasicStruct $customerAddress) use ($uuid) {
+                return $customerAddress->getCustomerUuid() === $uuid;
+            }
+        );
     }
 
     public function getAreaCountryUuids(): array
     {
-        return $this->fmap(function (CustomerAddressBasicStruct $customerAddress) {
-            return $customerAddress->getAreaCountryUuid();
-        });
+        return $this->fmap(
+            function (CustomerAddressBasicStruct $customerAddress) {
+                return $customerAddress->getAreaCountryUuid();
+            }
+        );
     }
 
     public function filterByAreaCountryUuid(string $uuid): CustomerAddressBasicCollection
     {
-        return $this->filter(function (CustomerAddressBasicStruct $customerAddress) use ($uuid) {
-            return $customerAddress->getAreaCountryUuid() === $uuid;
-        });
+        return $this->filter(
+            function (CustomerAddressBasicStruct $customerAddress) use ($uuid) {
+                return $customerAddress->getAreaCountryUuid() === $uuid;
+            }
+        );
     }
 
     public function getAreaCountryStateUuids(): array
     {
-        return $this->fmap(function (CustomerAddressBasicStruct $customerAddress) {
-            return $customerAddress->getAreaCountryStateUuid();
-        });
+        return $this->fmap(
+            function (CustomerAddressBasicStruct $customerAddress) {
+                return $customerAddress->getAreaCountryStateUuid();
+            }
+        );
     }
 
     public function filterByAreaCountryStateUuid(string $uuid): CustomerAddressBasicCollection
     {
-        return $this->filter(function (CustomerAddressBasicStruct $customerAddress) use ($uuid) {
-            return $customerAddress->getAreaCountryStateUuid() === $uuid;
-        });
+        return $this->filter(
+            function (CustomerAddressBasicStruct $customerAddress) use ($uuid) {
+                return $customerAddress->getAreaCountryStateUuid() === $uuid;
+            }
+        );
     }
 
     public function getAreaCountries(): AreaCountryBasicCollection
     {
         return new AreaCountryBasicCollection(
-            $this->fmap(function (CustomerAddressBasicStruct $customerAddress) {
-                return $customerAddress->getAreaCountry();
-            })
+            $this->fmap(
+                function (CustomerAddressBasicStruct $customerAddress) {
+                    return $customerAddress->getAreaCountry();
+                }
+            )
         );
     }
 
     public function getAreaCountryStates(): AreaCountryStateBasicCollection
     {
         return new AreaCountryStateBasicCollection(
-            $this->fmap(function (CustomerAddressBasicStruct $customerAddress) {
-                return $customerAddress->getAreaCountryState();
-            })
+            $this->fmap(
+                function (CustomerAddressBasicStruct $customerAddress) {
+                    return $customerAddress->getAreaCountryState();
+                }
+            )
         );
     }
 

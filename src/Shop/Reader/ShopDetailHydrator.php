@@ -65,8 +65,15 @@ class ShopDetailHydrator extends Hydrator
      */
     private $customerGroupBasicHydrator;
 
-    public function __construct(ShopBasicHydrator $basicHydrator, CategoryBasicHydrator $categoryBasicHydrator, ShippingMethodBasicHydrator $shippingMethodBasicHydrator, ShopTemplateBasicHydrator $shopTemplateBasicHydrator, AreaCountryBasicHydrator $areaCountryBasicHydrator, PaymentMethodBasicHydrator $paymentMethodBasicHydrator, CustomerGroupBasicHydrator $customerGroupBasicHydrator)
-    {
+    public function __construct(
+        ShopBasicHydrator $basicHydrator,
+        CategoryBasicHydrator $categoryBasicHydrator,
+        ShippingMethodBasicHydrator $shippingMethodBasicHydrator,
+        ShopTemplateBasicHydrator $shopTemplateBasicHydrator,
+        AreaCountryBasicHydrator $areaCountryBasicHydrator,
+        PaymentMethodBasicHydrator $paymentMethodBasicHydrator,
+        CustomerGroupBasicHydrator $customerGroupBasicHydrator
+    ) {
         $this->basicHydrator = $basicHydrator;
         $this->categoryBasicHydrator = $categoryBasicHydrator;
         $this->shippingMethodBasicHydrator = $shippingMethodBasicHydrator;
@@ -78,7 +85,6 @@ class ShopDetailHydrator extends Hydrator
 
     public function hydrate(array $data): ShopDetailStruct
     {
-
         $shop = ShopDetailStruct::createFrom($this->basicHydrator->hydrate($data));
         $shop->setCategory($this->categoryBasicHydrator->hydrate($data));
         $shop->setShippingMethod($this->shippingMethodBasicHydrator->hydrate($data));
@@ -86,7 +92,7 @@ class ShopDetailHydrator extends Hydrator
         $shop->setAreaCountry($this->areaCountryBasicHydrator->hydrate($data));
         $shop->setPaymentMethod($this->paymentMethodBasicHydrator->hydrate($data));
         $shop->setCustomerGroup($this->customerGroupBasicHydrator->hydrate($data));
-        $shop->setCurrencyUuids(array_filter(explode('|', (string) $data['__shop_currency_uuids'])));
+        $shop->setCurrencyUuids(array_filter(explode('|', (string)$data['__shop_currency_uuids'])));
 
         return $shop;
     }

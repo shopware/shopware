@@ -37,15 +37,15 @@ class CurrencyBasicHydrator extends Hydrator
     {
         $currency = new CurrencyBasicStruct();
 
-        $currency->setId((int) $data['__currency_id']);
-        $currency->setUuid((string) $data['__currency_uuid']);
-        $currency->setCurrency((string) $data['__currency_currency']);
-        $currency->setName((string) $data['__currency_name']);
-        $currency->setStandard((bool) $data['__currency_standard']);
-        $currency->setFactor((float) $data['__currency_factor']);
-        $currency->setTemplateChar((string) $data['__currency_template_char']);
-        $currency->setSymbolPosition((int) $data['__currency_symbol_position']);
-        $currency->setPosition((int) $data['__currency_position']);
+        $currency->setId((int)$data['__currency_id']);
+        $currency->setUuid((string)$data['__currency_uuid']);
+        $currency->setCurrency((string)$data['__currency_currency']);
+        $currency->setName((string)$data['__currency_name']);
+        $currency->setStandard((bool)$data['__currency_standard']);
+        $currency->setFactor((float)$data['__currency_factor']);
+        $currency->setTemplateChar((string)$data['__currency_template_char']);
+        $currency->setSymbolPosition((int)$data['__currency_symbol_position']);
+        $currency->setPosition((int)$data['__currency_position']);
 
         return $currency;
     }

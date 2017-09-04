@@ -41,19 +41,21 @@ class ProductManufacturerBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'productManufacturer.uuid as _array_key_',
-            'productManufacturer.id as __productManufacturer_id',
-            'productManufacturer.uuid as __productManufacturer_uuid',
-            'productManufacturer.name as __productManufacturer_name',
-            'productManufacturer.img as __productManufacturer_img',
-            'productManufacturer.link as __productManufacturer_link',
-            'productManufacturer.description as __productManufacturer_description',
-            'productManufacturer.meta_title as __productManufacturer_meta_title',
-            'productManufacturer.meta_description as __productManufacturer_meta_description',
-            'productManufacturer.meta_keywords as __productManufacturer_meta_keywords',
-            'productManufacturer.updated_at as __productManufacturer_updated_at',
-        ]);
+        $query->addSelect(
+            [
+                'productManufacturer.uuid as _array_key_',
+                'productManufacturer.id as __productManufacturer_id',
+                'productManufacturer.uuid as __productManufacturer_uuid',
+                'productManufacturer.name as __productManufacturer_name',
+                'productManufacturer.img as __productManufacturer_img',
+                'productManufacturer.link as __productManufacturer_link',
+                'productManufacturer.description as __productManufacturer_description',
+                'productManufacturer.meta_title as __productManufacturer_meta_title',
+                'productManufacturer.meta_description as __productManufacturer_meta_description',
+                'productManufacturer.meta_keywords as __productManufacturer_meta_keywords',
+                'productManufacturer.updated_at as __productManufacturer_updated_at',
+            ]
+        );
 
         //$query->leftJoin('productManufacturer', 'productManufacturer_translation', 'productManufacturerTranslation', 'productManufacturer.uuid = productManufacturerTranslation.productManufacturer_uuid AND productManufacturerTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

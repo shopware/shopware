@@ -37,19 +37,25 @@ class ProductPriceBasicHydrator extends Hydrator
     {
         $productPrice = new ProductPriceBasicStruct();
 
-        $productPrice->setId((int) $data['__productPrice_id']);
-        $productPrice->setUuid((string) $data['__productPrice_uuid']);
-        $productPrice->setPricegroup((string) $data['__productPrice_pricegroup']);
-        $productPrice->setFrom((int) $data['__productPrice_from']);
-        $productPrice->setTo((string) $data['__productPrice_to']);
-        $productPrice->setProductId((int) $data['__productPrice_product_id']);
-        $productPrice->setProductUuid((string) $data['__productPrice_product_uuid']);
-        $productPrice->setProductDetailId((int) $data['__productPrice_product_detail_id']);
-        $productPrice->setProductDetailUuid((string) $data['__productPrice_product_detail_uuid']);
-        $productPrice->setPrice((float) $data['__productPrice_price']);
-        $productPrice->setPseudoprice(isset($data['__productPrice_pseudoprice']) ? (float) $data['__productPrice_pseudoprice'] : null);
-        $productPrice->setBaseprice(isset($data['__productPrice_baseprice']) ? (float) $data['__productPrice_baseprice'] : null);
-        $productPrice->setPercent(isset($data['__productPrice_percent']) ? (float) $data['__productPrice_percent'] : null);
+        $productPrice->setId((int)$data['__productPrice_id']);
+        $productPrice->setUuid((string)$data['__productPrice_uuid']);
+        $productPrice->setPricegroup((string)$data['__productPrice_pricegroup']);
+        $productPrice->setFrom((int)$data['__productPrice_from']);
+        $productPrice->setTo(isset($data['__productPrice_to']) ? (int)$data['__productPrice_to'] : null);
+        $productPrice->setProductId((int)$data['__productPrice_product_id']);
+        $productPrice->setProductUuid((string)$data['__productPrice_product_uuid']);
+        $productPrice->setProductDetailId((int)$data['__productPrice_product_detail_id']);
+        $productPrice->setProductDetailUuid((string)$data['__productPrice_product_detail_uuid']);
+        $productPrice->setPrice((float)$data['__productPrice_price']);
+        $productPrice->setPseudoprice(
+            isset($data['__productPrice_pseudoprice']) ? (float)$data['__productPrice_pseudoprice'] : null
+        );
+        $productPrice->setBaseprice(
+            isset($data['__productPrice_baseprice']) ? (float)$data['__productPrice_baseprice'] : null
+        );
+        $productPrice->setPercent(
+            isset($data['__productPrice_percent']) ? (float)$data['__productPrice_percent'] : null
+        );
 
         return $productPrice;
     }

@@ -69,7 +69,7 @@ class PriceGroupRepository
         EventDispatcherInterface $eventDispatcher,
         PriceGroupSearcher $searcher,
         PriceGroupWriter $writer,
-PriceGroupDetailLoader $detailLoader
+        PriceGroupDetailLoader $detailLoader
     ) {
         $this->basicLoader = $basicLoader;
         $this->eventDispatcher = $eventDispatcher;

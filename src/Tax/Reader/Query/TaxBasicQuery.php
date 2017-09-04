@@ -41,13 +41,15 @@ class TaxBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'tax.uuid as _array_key_',
-            'tax.id as __tax_id',
-            'tax.uuid as __tax_uuid',
-            'tax.tax_rate as __tax_tax_rate',
-            'tax.description as __tax_description',
-        ]);
+        $query->addSelect(
+            [
+                'tax.uuid as _array_key_',
+                'tax.id as __tax_id',
+                'tax.uuid as __tax_uuid',
+                'tax.tax_rate as __tax_tax_rate',
+                'tax.description as __tax_description',
+            ]
+        );
 
         //$query->leftJoin('tax', 'tax_translation', 'taxTranslation', 'tax.uuid = taxTranslation.tax_uuid AND taxTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

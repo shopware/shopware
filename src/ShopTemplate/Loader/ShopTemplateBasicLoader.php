@@ -43,6 +43,10 @@ class ShopTemplateBasicLoader
 
     public function load(array $uuids, TranslationContext $context): ShopTemplateBasicCollection
     {
+        if (empty($uuids)) {
+            return new ShopTemplateBasicCollection();
+        }
+
         $collection = $this->reader->read($uuids, $context);
 
         return $collection;

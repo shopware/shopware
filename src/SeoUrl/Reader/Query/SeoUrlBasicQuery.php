@@ -41,19 +41,21 @@ class SeoUrlBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'seoUrl.uuid as _array_key_',
-            'seoUrl.id as __seoUrl_id',
-            'seoUrl.uuid as __seoUrl_uuid',
-            'seoUrl.seo_hash as __seoUrl_seo_hash',
-            'seoUrl.shop_uuid as __seoUrl_shop_uuid',
-            'seoUrl.name as __seoUrl_name',
-            'seoUrl.foreign_key as __seoUrl_foreign_key',
-            'seoUrl.path_info as __seoUrl_path_info',
-            'seoUrl.seo_path_info as __seoUrl_seo_path_info',
-            'seoUrl.is_canonical as __seoUrl_is_canonical',
-            'seoUrl.created_at as __seoUrl_created_at',
-        ]);
+        $query->addSelect(
+            [
+                'seoUrl.uuid as _array_key_',
+                'seoUrl.id as __seoUrl_id',
+                'seoUrl.uuid as __seoUrl_uuid',
+                'seoUrl.seo_hash as __seoUrl_seo_hash',
+                'seoUrl.shop_uuid as __seoUrl_shop_uuid',
+                'seoUrl.name as __seoUrl_name',
+                'seoUrl.foreign_key as __seoUrl_foreign_key',
+                'seoUrl.path_info as __seoUrl_path_info',
+                'seoUrl.seo_path_info as __seoUrl_seo_path_info',
+                'seoUrl.is_canonical as __seoUrl_is_canonical',
+                'seoUrl.created_at as __seoUrl_created_at',
+            ]
+        );
 
         //$query->leftJoin('seoUrl', 'seoUrl_translation', 'seoUrlTranslation', 'seoUrl.uuid = seoUrlTranslation.seoUrl_uuid AND seoUrlTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

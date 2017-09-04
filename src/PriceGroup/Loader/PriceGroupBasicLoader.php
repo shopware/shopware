@@ -43,6 +43,10 @@ class PriceGroupBasicLoader
 
     public function load(array $uuids, TranslationContext $context): PriceGroupBasicCollection
     {
+        if (empty($uuids)) {
+            return new PriceGroupBasicCollection();
+        }
+
         $collection = $this->reader->read($uuids, $context);
 
         return $collection;

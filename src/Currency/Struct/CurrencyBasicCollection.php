@@ -70,9 +70,11 @@ class CurrencyBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(function (CurrencyBasicStruct $currency) {
-            return $currency->getUuid();
-        });
+        return $this->fmap(
+            function (CurrencyBasicStruct $currency) {
+                return $currency->getUuid();
+            }
+        );
     }
 
     protected function getKey(CurrencyBasicStruct $element): string

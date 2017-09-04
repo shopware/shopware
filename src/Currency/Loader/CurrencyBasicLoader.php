@@ -43,6 +43,10 @@ class CurrencyBasicLoader
 
     public function load(array $uuids, TranslationContext $context): CurrencyBasicCollection
     {
+        if (empty($uuids)) {
+            return new CurrencyBasicCollection();
+        }
+
         $collection = $this->reader->read($uuids, $context);
 
         return $collection;

@@ -42,9 +42,8 @@ class PaymentMethodUuidHandler implements HandlerInterface, AggregatorInterface
     {
         return
             $criteriaPart instanceof PaymentMethodUuidSorting
- || $criteriaPart instanceof PaymentMethodUuidCondition
- || $criteriaPart instanceof PaymentMethodUuidFacet
-        ;
+            || $criteriaPart instanceof PaymentMethodUuidCondition
+            || $criteriaPart instanceof PaymentMethodUuidFacet;
     }
 
     public function handle(
@@ -59,9 +58,13 @@ class PaymentMethodUuidHandler implements HandlerInterface, AggregatorInterface
             return;
         }
 
-                /* @var PaymentMethodUuidCondition $criteriaPart */
+        /* @var PaymentMethodUuidCondition $criteriaPart */
         $builder->andWhere('customer.default_payment_method_uuid IN (:default_payment_method_uuid_condition)');
-        $builder->setParameter('default_payment_method_uuid_condition', $criteriaPart->getPaymentMethodUuids(), Connection::PARAM_STR_ARRAY);
+        $builder->setParameter(
+            'default_payment_method_uuid_condition',
+            $criteriaPart->getPaymentMethodUuids(),
+            Connection::PARAM_STR_ARRAY
+        );
     }
 
     public function aggregate(

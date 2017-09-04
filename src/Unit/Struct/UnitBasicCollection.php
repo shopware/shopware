@@ -70,9 +70,11 @@ class UnitBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(function (UnitBasicStruct $unit) {
-            return $unit->getUuid();
-        });
+        return $this->fmap(
+            function (UnitBasicStruct $unit) {
+                return $unit->getUuid();
+            }
+        );
     }
 
     protected function getKey(UnitBasicStruct $element): string

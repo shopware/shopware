@@ -44,12 +44,14 @@ class ProductDetailQuery extends ProductBasicQuery
 
     private static function internalRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect('
+        $query->addSelect(
+            '
             (
                 SELECT GROUP_CONCAT(mapping.category_uuid SEPARATOR \'|\') FROM
                 product_category mapping
-                WHERE product.uuid = mapping.uuid
-            ) as __category_uuids
-        ');
+                WHERE product.uuid = mapping.category_uuid
+            ) as __product_category_uuids
+        '
+        );
     }
 }

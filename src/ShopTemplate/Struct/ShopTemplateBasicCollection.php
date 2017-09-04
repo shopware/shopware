@@ -70,37 +70,47 @@ class ShopTemplateBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(function (ShopTemplateBasicStruct $shopTemplate) {
-            return $shopTemplate->getUuid();
-        });
+        return $this->fmap(
+            function (ShopTemplateBasicStruct $shopTemplate) {
+                return $shopTemplate->getUuid();
+            }
+        );
     }
 
     public function getPluginUuids(): array
     {
-        return $this->fmap(function (ShopTemplateBasicStruct $shopTemplate) {
-            return $shopTemplate->getPluginUuid();
-        });
+        return $this->fmap(
+            function (ShopTemplateBasicStruct $shopTemplate) {
+                return $shopTemplate->getPluginUuid();
+            }
+        );
     }
 
     public function filterByPluginUuid(string $uuid): ShopTemplateBasicCollection
     {
-        return $this->filter(function (ShopTemplateBasicStruct $shopTemplate) use ($uuid) {
-            return $shopTemplate->getPluginUuid() === $uuid;
-        });
+        return $this->filter(
+            function (ShopTemplateBasicStruct $shopTemplate) use ($uuid) {
+                return $shopTemplate->getPluginUuid() === $uuid;
+            }
+        );
     }
 
     public function getParentUuids(): array
     {
-        return $this->fmap(function (ShopTemplateBasicStruct $shopTemplate) {
-            return $shopTemplate->getParentUuid();
-        });
+        return $this->fmap(
+            function (ShopTemplateBasicStruct $shopTemplate) {
+                return $shopTemplate->getParentUuid();
+            }
+        );
     }
 
     public function filterByParentUuid(string $uuid): ShopTemplateBasicCollection
     {
-        return $this->filter(function (ShopTemplateBasicStruct $shopTemplate) use ($uuid) {
-            return $shopTemplate->getParentUuid() === $uuid;
-        });
+        return $this->filter(
+            function (ShopTemplateBasicStruct $shopTemplate) use ($uuid) {
+                return $shopTemplate->getParentUuid() === $uuid;
+            }
+        );
     }
 
     protected function getKey(ShopTemplateBasicStruct $element): string

@@ -41,24 +41,26 @@ class ShopTemplateBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'shopTemplate.uuid as _array_key_',
-            'shopTemplate.id as __shopTemplate_id',
-            'shopTemplate.uuid as __shopTemplate_uuid',
-            'shopTemplate.template as __shopTemplate_template',
-            'shopTemplate.name as __shopTemplate_name',
-            'shopTemplate.description as __shopTemplate_description',
-            'shopTemplate.author as __shopTemplate_author',
-            'shopTemplate.license as __shopTemplate_license',
-            'shopTemplate.esi as __shopTemplate_esi',
-            'shopTemplate.style_support as __shopTemplate_style_support',
-            'shopTemplate.emotion as __shopTemplate_emotion',
-            'shopTemplate.version as __shopTemplate_version',
-            'shopTemplate.plugin_id as __shopTemplate_plugin_id',
-            'shopTemplate.plugin_uuid as __shopTemplate_plugin_uuid',
-            'shopTemplate.parent_id as __shopTemplate_parent_id',
-            'shopTemplate.parent_uuid as __shopTemplate_parent_uuid',
-        ]);
+        $query->addSelect(
+            [
+                'shopTemplate.uuid as _array_key_',
+                'shopTemplate.id as __shopTemplate_id',
+                'shopTemplate.uuid as __shopTemplate_uuid',
+                'shopTemplate.template as __shopTemplate_template',
+                'shopTemplate.name as __shopTemplate_name',
+                'shopTemplate.description as __shopTemplate_description',
+                'shopTemplate.author as __shopTemplate_author',
+                'shopTemplate.license as __shopTemplate_license',
+                'shopTemplate.esi as __shopTemplate_esi',
+                'shopTemplate.style_support as __shopTemplate_style_support',
+                'shopTemplate.emotion as __shopTemplate_emotion',
+                'shopTemplate.version as __shopTemplate_version',
+                'shopTemplate.plugin_id as __shopTemplate_plugin_id',
+                'shopTemplate.plugin_uuid as __shopTemplate_plugin_uuid',
+                'shopTemplate.parent_id as __shopTemplate_parent_id',
+                'shopTemplate.parent_uuid as __shopTemplate_parent_uuid',
+            ]
+        );
 
         //$query->leftJoin('shopTemplate', 'shopTemplate_translation', 'shopTemplateTranslation', 'shopTemplate.uuid = shopTemplateTranslation.shopTemplate_uuid AND shopTemplateTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

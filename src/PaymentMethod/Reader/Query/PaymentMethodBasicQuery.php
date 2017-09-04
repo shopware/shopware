@@ -41,32 +41,34 @@ class PaymentMethodBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'paymentMethod.uuid as _array_key_',
-            'paymentMethod.id as __paymentMethod_id',
-            'paymentMethod.uuid as __paymentMethod_uuid',
-            'paymentMethod.name as __paymentMethod_name',
-            'paymentMethod.description as __paymentMethod_description',
-            'paymentMethod.template as __paymentMethod_template',
-            'paymentMethod.class as __paymentMethod_class',
-            'paymentMethod.table as __paymentMethod_table',
-            'paymentMethod.hide as __paymentMethod_hide',
-            'paymentMethod.additional_description as __paymentMethod_additional_description',
-            'paymentMethod.debit_percent as __paymentMethod_debit_percent',
-            'paymentMethod.surcharge as __paymentMethod_surcharge',
-            'paymentMethod.surcharge_string as __paymentMethod_surcharge_string',
-            'paymentMethod.position as __paymentMethod_position',
-            'paymentMethod.active as __paymentMethod_active',
-            'paymentMethod.allow_esd as __paymentMethod_allow_esd',
-            'paymentMethod.used_iframe as __paymentMethod_used_iframe',
-            'paymentMethod.hide_prospect as __paymentMethod_hide_prospect',
-            'paymentMethod.action as __paymentMethod_action',
-            'paymentMethod.plugin_id as __paymentMethod_plugin_id',
-            'paymentMethod.plugin_uuid as __paymentMethod_plugin_uuid',
-            'paymentMethod.source as __paymentMethod_source',
-            'paymentMethod.mobile_inactive as __paymentMethod_mobile_inactive',
-            'paymentMethod.risk_rules as __paymentMethod_risk_rules',
-        ]);
+        $query->addSelect(
+            [
+                'paymentMethod.uuid as _array_key_',
+                'paymentMethod.id as __paymentMethod_id',
+                'paymentMethod.uuid as __paymentMethod_uuid',
+                'paymentMethod.name as __paymentMethod_name',
+                'paymentMethod.description as __paymentMethod_description',
+                'paymentMethod.template as __paymentMethod_template',
+                'paymentMethod.class as __paymentMethod_class',
+                'paymentMethod.table as __paymentMethod_table',
+                'paymentMethod.hide as __paymentMethod_hide',
+                'paymentMethod.additional_description as __paymentMethod_additional_description',
+                'paymentMethod.debit_percent as __paymentMethod_debit_percent',
+                'paymentMethod.surcharge as __paymentMethod_surcharge',
+                'paymentMethod.surcharge_string as __paymentMethod_surcharge_string',
+                'paymentMethod.position as __paymentMethod_position',
+                'paymentMethod.active as __paymentMethod_active',
+                'paymentMethod.allow_esd as __paymentMethod_allow_esd',
+                'paymentMethod.used_iframe as __paymentMethod_used_iframe',
+                'paymentMethod.hide_prospect as __paymentMethod_hide_prospect',
+                'paymentMethod.action as __paymentMethod_action',
+                'paymentMethod.plugin_id as __paymentMethod_plugin_id',
+                'paymentMethod.plugin_uuid as __paymentMethod_plugin_uuid',
+                'paymentMethod.source as __paymentMethod_source',
+                'paymentMethod.mobile_inactive as __paymentMethod_mobile_inactive',
+                'paymentMethod.risk_rules as __paymentMethod_risk_rules',
+            ]
+        );
 
         //$query->leftJoin('paymentMethod', 'paymentMethod_translation', 'paymentMethodTranslation', 'paymentMethod.uuid = paymentMethodTranslation.paymentMethod_uuid AND paymentMethodTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

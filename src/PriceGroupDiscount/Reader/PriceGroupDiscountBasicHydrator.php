@@ -37,14 +37,14 @@ class PriceGroupDiscountBasicHydrator extends Hydrator
     {
         $priceGroupDiscount = new PriceGroupDiscountBasicStruct();
 
-        $priceGroupDiscount->setId((int) $data['__priceGroupDiscount_id']);
-        $priceGroupDiscount->setUuid((string) $data['__priceGroupDiscount_uuid']);
-        $priceGroupDiscount->setPriceGroupId((int) $data['__priceGroupDiscount_price_group_id']);
-        $priceGroupDiscount->setPriceGroupUuid((string) $data['__priceGroupDiscount_price_group_uuid']);
-        $priceGroupDiscount->setCustomerGroupId((int) $data['__priceGroupDiscount_customer_group_id']);
-        $priceGroupDiscount->setCustomerGroupUuid((string) $data['__priceGroupDiscount_customer_group_uuid']);
-        $priceGroupDiscount->setDiscount((float) $data['__priceGroupDiscount_discount']);
-        $priceGroupDiscount->setDiscountStart((float) $data['__priceGroupDiscount_discount_start']);
+        $priceGroupDiscount->setId((int)$data['__priceGroupDiscount_id']);
+        $priceGroupDiscount->setUuid((string)$data['__priceGroupDiscount_uuid']);
+        $priceGroupDiscount->setPriceGroupId((int)$data['__priceGroupDiscount_price_group_id']);
+        $priceGroupDiscount->setPriceGroupUuid((string)$data['__priceGroupDiscount_price_group_uuid']);
+        $priceGroupDiscount->setCustomerGroupId((int)$data['__priceGroupDiscount_customer_group_id']);
+        $priceGroupDiscount->setCustomerGroupUuid((string)$data['__priceGroupDiscount_customer_group_uuid']);
+        $priceGroupDiscount->setDiscount((float)$data['__priceGroupDiscount_discount']);
+        $priceGroupDiscount->setDiscountStart((float)$data['__priceGroupDiscount_discount_start']);
 
         return $priceGroupDiscount;
     }

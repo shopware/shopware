@@ -41,24 +41,26 @@ class TaxAreaRuleBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'taxAreaRule.uuid as _array_key_',
-            'taxAreaRule.id as __taxAreaRule_id',
-            'taxAreaRule.uuid as __taxAreaRule_uuid',
-            'taxAreaRule.area_id as __taxAreaRule_area_id',
-            'taxAreaRule.area_uuid as __taxAreaRule_area_uuid',
-            'taxAreaRule.area_country_id as __taxAreaRule_area_country_id',
-            'taxAreaRule.area_country_uuid as __taxAreaRule_area_country_uuid',
-            'taxAreaRule.area_country_state_id as __taxAreaRule_area_country_state_id',
-            'taxAreaRule.area_country_state_uuid as __taxAreaRule_area_country_state_uuid',
-            'taxAreaRule.tax_id as __taxAreaRule_tax_id',
-            'taxAreaRule.tax_uuid as __taxAreaRule_tax_uuid',
-            'taxAreaRule.customer_group_id as __taxAreaRule_customer_group_id',
-            'taxAreaRule.customer_group_uuid as __taxAreaRule_customer_group_uuid',
-            'taxAreaRule.tax_rate as __taxAreaRule_tax_rate',
-            'taxAreaRule.name as __taxAreaRule_name',
-            'taxAreaRule.active as __taxAreaRule_active',
-        ]);
+        $query->addSelect(
+            [
+                'taxAreaRule.uuid as _array_key_',
+                'taxAreaRule.id as __taxAreaRule_id',
+                'taxAreaRule.uuid as __taxAreaRule_uuid',
+                'taxAreaRule.area_id as __taxAreaRule_area_id',
+                'taxAreaRule.area_uuid as __taxAreaRule_area_uuid',
+                'taxAreaRule.area_country_id as __taxAreaRule_area_country_id',
+                'taxAreaRule.area_country_uuid as __taxAreaRule_area_country_uuid',
+                'taxAreaRule.area_country_state_id as __taxAreaRule_area_country_state_id',
+                'taxAreaRule.area_country_state_uuid as __taxAreaRule_area_country_state_uuid',
+                'taxAreaRule.tax_id as __taxAreaRule_tax_id',
+                'taxAreaRule.tax_uuid as __taxAreaRule_tax_uuid',
+                'taxAreaRule.customer_group_id as __taxAreaRule_customer_group_id',
+                'taxAreaRule.customer_group_uuid as __taxAreaRule_customer_group_uuid',
+                'taxAreaRule.tax_rate as __taxAreaRule_tax_rate',
+                'taxAreaRule.name as __taxAreaRule_name',
+                'taxAreaRule.active as __taxAreaRule_active',
+            ]
+        );
 
         //$query->leftJoin('taxAreaRule', 'taxAreaRule_translation', 'taxAreaRuleTranslation', 'taxAreaRule.uuid = taxAreaRuleTranslation.taxAreaRule_uuid AND taxAreaRuleTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

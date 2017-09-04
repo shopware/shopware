@@ -37,10 +37,10 @@ class HolidayBasicHydrator extends Hydrator
     {
         $holiday = new HolidayBasicStruct();
 
-        $holiday->setId((int) $data['__holiday_id']);
-        $holiday->setUuid((string) $data['__holiday_uuid']);
-        $holiday->setName((string) $data['__holiday_name']);
-        $holiday->setCalculation((string) $data['__holiday_calculation']);
+        $holiday->setId((int)$data['__holiday_id']);
+        $holiday->setUuid((string)$data['__holiday_uuid']);
+        $holiday->setName((string)$data['__holiday_name']);
+        $holiday->setCalculation((string)$data['__holiday_calculation']);
         $holiday->setDate(new \DateTime($data['__holiday_date']));
 
         return $holiday;

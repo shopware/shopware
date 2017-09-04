@@ -70,9 +70,11 @@ class TaxBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(function (TaxBasicStruct $tax) {
-            return $tax->getUuid();
-        });
+        return $this->fmap(
+            function (TaxBasicStruct $tax) {
+                return $tax->getUuid();
+            }
+        );
     }
 
     protected function getKey(TaxBasicStruct $element): string

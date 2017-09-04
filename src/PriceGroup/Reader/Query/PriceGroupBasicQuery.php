@@ -41,12 +41,14 @@ class PriceGroupBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'priceGroup.uuid as _array_key_',
-            'priceGroup.id as __priceGroup_id',
-            'priceGroup.uuid as __priceGroup_uuid',
-            'priceGroup.description as __priceGroup_description',
-        ]);
+        $query->addSelect(
+            [
+                'priceGroup.uuid as _array_key_',
+                'priceGroup.id as __priceGroup_id',
+                'priceGroup.uuid as __priceGroup_uuid',
+                'priceGroup.description as __priceGroup_description',
+            ]
+        );
 
         //$query->leftJoin('priceGroup', 'priceGroup_translation', 'priceGroupTranslation', 'priceGroup.uuid = priceGroupTranslation.priceGroup_uuid AND priceGroupTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

@@ -37,18 +37,22 @@ class AlbumBasicHydrator extends Hydrator
     {
         $album = new AlbumBasicStruct();
 
-        $album->setUuid((string) $data['__album_uuid']);
-        $album->setId((int) $data['__album_id']);
-        $album->setName((string) $data['__album_name']);
-        $album->setParentUuid(isset($data['__album_parent_uuid']) ? (string) $data['__album_parent_uuid'] : null);
-        $album->setParentId(isset($data['__album_parent_id']) ? (int) $data['__album_parent_id'] : null);
-        $album->setPosition((int) $data['__album_position']);
-        $album->setCreateThumbnails((int) $data['__album_create_thumbnails']);
-        $album->setThumbnailSize((string) $data['__album_thumbnail_size']);
-        $album->setIcon((string) $data['__album_icon']);
-        $album->setThumbnailHighDpi((bool) $data['__album_thumbnail_high_dpi']);
-        $album->setThumbnailQuality(isset($data['__album_thumbnail_quality']) ? (int) $data['__album_thumbnail_quality'] : null);
-        $album->setThumbnailHighDpiQuality(isset($data['__album_thumbnail_high_dpi_quality']) ? (int) $data['__album_thumbnail_high_dpi_quality'] : null);
+        $album->setUuid((string)$data['__album_uuid']);
+        $album->setId((int)$data['__album_id']);
+        $album->setName((string)$data['__album_name']);
+        $album->setParentUuid(isset($data['__album_parent_uuid']) ? (string)$data['__album_parent_uuid'] : null);
+        $album->setParentId(isset($data['__album_parent_id']) ? (int)$data['__album_parent_id'] : null);
+        $album->setPosition((int)$data['__album_position']);
+        $album->setCreateThumbnails((int)$data['__album_create_thumbnails']);
+        $album->setThumbnailSize((string)$data['__album_thumbnail_size']);
+        $album->setIcon((string)$data['__album_icon']);
+        $album->setThumbnailHighDpi((bool)$data['__album_thumbnail_high_dpi']);
+        $album->setThumbnailQuality(
+            isset($data['__album_thumbnail_quality']) ? (int)$data['__album_thumbnail_quality'] : null
+        );
+        $album->setThumbnailHighDpiQuality(
+            isset($data['__album_thumbnail_high_dpi_quality']) ? (int)$data['__album_thumbnail_high_dpi_quality'] : null
+        );
 
         return $album;
     }

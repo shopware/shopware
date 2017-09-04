@@ -87,12 +87,12 @@ class ShopDetailStruct extends ShopBasicStruct
         $this->category = $category;
     }
 
-    public function getFallbackLocale(): ?LocaleBasicStruct
+    public function getFallbackLocale(): LocaleBasicStruct
     {
         return $this->fallbackLocale;
     }
 
-    public function setFallbackLocale(?LocaleBasicStruct $fallbackLocale): void
+    public function setFallbackLocale(LocaleBasicStruct $fallbackLocale): void
     {
         $this->fallbackLocale = $fallbackLocale;
     }

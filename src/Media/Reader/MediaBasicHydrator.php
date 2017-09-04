@@ -37,19 +37,19 @@ class MediaBasicHydrator extends Hydrator
     {
         $media = new MediaBasicStruct();
 
-        $media->setUuid((string) $data['__media_uuid']);
-        $media->setAlbumUuid((string) $data['__media_album_uuid']);
-        $media->setName((string) $data['__media_name']);
-        $media->setDescription((string) $data['__media_description']);
-        $media->setFileName((string) $data['__media_file_name']);
-        $media->setMimeType((string) $data['__media_mime_type']);
-        $media->setFileSize((int) $data['__media_file_size']);
-        $media->setMetaData(isset($data['__media_meta_data']) ? (string) $data['__media_meta_data'] : null);
+        $media->setId((int)$data['__media_id']);
+        $media->setUuid((string)$data['__media_uuid']);
+        $media->setAlbumUuid((string)$data['__media_album_uuid']);
+        $media->setName((string)$data['__media_name']);
+        $media->setDescription((string)$data['__media_description']);
+        $media->setFileName((string)$data['__media_file_name']);
+        $media->setMimeType((string)$data['__media_mime_type']);
+        $media->setFileSize((int)$data['__media_file_size']);
+        $media->setMetaData(isset($data['__media_meta_data']) ? (string)$data['__media_meta_data'] : null);
         $media->setCreatedAt(new \DateTime($data['__media_created_at']));
-        $media->setUserUuid(isset($data['__media_user_uuid']) ? (string) $data['__media_user_uuid'] : null);
-        $media->setId((int) $data['__media_id']);
-        $media->setAlbumId((int) $data['__media_album_id']);
-        $media->setUserId((int) $data['__media_user_id']);
+        $media->setUserUuid(isset($data['__media_user_uuid']) ? (string)$data['__media_user_uuid'] : null);
+        $media->setAlbumId((int)$data['__media_album_id']);
+        $media->setUserId((int)$data['__media_user_id']);
         $media->setUpdatedAt(isset($data['__media_updated_at']) ? new \DateTime($data['__media_updated_at']) : null);
 
         return $media;

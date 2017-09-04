@@ -71,59 +71,75 @@ class CategoryBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(function (CategoryBasicStruct $category) {
-            return $category->getUuid();
-        });
+        return $this->fmap(
+            function (CategoryBasicStruct $category) {
+                return $category->getUuid();
+            }
+        );
     }
 
     public function getParentUuids(): array
     {
-        return $this->fmap(function (CategoryBasicStruct $category) {
-            return $category->getParentUuid();
-        });
+        return $this->fmap(
+            function (CategoryBasicStruct $category) {
+                return $category->getParentUuid();
+            }
+        );
     }
 
     public function filterByParentUuid(string $uuid): CategoryBasicCollection
     {
-        return $this->filter(function (CategoryBasicStruct $category) use ($uuid) {
-            return $category->getParentUuid() === $uuid;
-        });
+        return $this->filter(
+            function (CategoryBasicStruct $category) use ($uuid) {
+                return $category->getParentUuid() === $uuid;
+            }
+        );
     }
 
     public function getMediaUuids(): array
     {
-        return $this->fmap(function (CategoryBasicStruct $category) {
-            return $category->getMediaUuid();
-        });
+        return $this->fmap(
+            function (CategoryBasicStruct $category) {
+                return $category->getMediaUuid();
+            }
+        );
     }
 
     public function filterByMediaUuid(string $uuid): CategoryBasicCollection
     {
-        return $this->filter(function (CategoryBasicStruct $category) use ($uuid) {
-            return $category->getMediaUuid() === $uuid;
-        });
+        return $this->filter(
+            function (CategoryBasicStruct $category) use ($uuid) {
+                return $category->getMediaUuid() === $uuid;
+            }
+        );
     }
 
     public function getProductStreamUuids(): array
     {
-        return $this->fmap(function (CategoryBasicStruct $category) {
-            return $category->getProductStreamUuid();
-        });
+        return $this->fmap(
+            function (CategoryBasicStruct $category) {
+                return $category->getProductStreamUuid();
+            }
+        );
     }
 
     public function filterByProductStreamUuid(string $uuid): CategoryBasicCollection
     {
-        return $this->filter(function (CategoryBasicStruct $category) use ($uuid) {
-            return $category->getProductStreamUuid() === $uuid;
-        });
+        return $this->filter(
+            function (CategoryBasicStruct $category) use ($uuid) {
+                return $category->getProductStreamUuid() === $uuid;
+            }
+        );
     }
 
     public function getCanonicalUrls(): SeoUrlBasicCollection
     {
         return new SeoUrlBasicCollection(
-            $this->fmap(function (CategoryBasicStruct $category) {
-                return $category->getCanonicalUrl();
-            })
+            $this->fmap(
+                function (CategoryBasicStruct $category) {
+                    return $category->getCanonicalUrl();
+                }
+            )
         );
     }
 

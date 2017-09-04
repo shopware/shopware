@@ -43,63 +43,77 @@ class ShopDetailCollection extends ShopBasicCollection
     public function getCategories(): CategoryBasicCollection
     {
         return new CategoryBasicCollection(
-            $this->fmap(function (ShopDetailStruct $shop) {
-                return $shop->getCategory();
-            })
+            $this->fmap(
+                function (ShopDetailStruct $shop) {
+                    return $shop->getCategory();
+                }
+            )
         );
     }
 
     public function getFallbackLocales(): LocaleBasicCollection
     {
         return new LocaleBasicCollection(
-            $this->fmap(function (ShopDetailStruct $shop) {
-                return $shop->getFallbackLocale();
-            })
+            $this->fmap(
+                function (ShopDetailStruct $shop) {
+                    return $shop->getFallbackLocale();
+                }
+            )
         );
     }
 
     public function getShippingMethods(): ShippingMethodBasicCollection
     {
         return new ShippingMethodBasicCollection(
-            $this->fmap(function (ShopDetailStruct $shop) {
-                return $shop->getShippingMethod();
-            })
+            $this->fmap(
+                function (ShopDetailStruct $shop) {
+                    return $shop->getShippingMethod();
+                }
+            )
         );
     }
 
     public function getShopTemplates(): ShopTemplateBasicCollection
     {
         return new ShopTemplateBasicCollection(
-            $this->fmap(function (ShopDetailStruct $shop) {
-                return $shop->getShopTemplate();
-            })
+            $this->fmap(
+                function (ShopDetailStruct $shop) {
+                    return $shop->getShopTemplate();
+                }
+            )
         );
     }
 
     public function getAreaCountries(): AreaCountryBasicCollection
     {
         return new AreaCountryBasicCollection(
-            $this->fmap(function (ShopDetailStruct $shop) {
-                return $shop->getAreaCountry();
-            })
+            $this->fmap(
+                function (ShopDetailStruct $shop) {
+                    return $shop->getAreaCountry();
+                }
+            )
         );
     }
 
     public function getPaymentMethods(): PaymentMethodBasicCollection
     {
         return new PaymentMethodBasicCollection(
-            $this->fmap(function (ShopDetailStruct $shop) {
-                return $shop->getPaymentMethod();
-            })
+            $this->fmap(
+                function (ShopDetailStruct $shop) {
+                    return $shop->getPaymentMethod();
+                }
+            )
         );
     }
 
     public function getCustomerGroups(): CustomerGroupBasicCollection
     {
         return new CustomerGroupBasicCollection(
-            $this->fmap(function (ShopDetailStruct $shop) {
-                return $shop->getCustomerGroup();
-            })
+            $this->fmap(
+                function (ShopDetailStruct $shop) {
+                    return $shop->getCustomerGroup();
+                }
+            )
         );
     }
 

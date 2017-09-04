@@ -37,10 +37,10 @@ class AreaBasicHydrator extends Hydrator
     {
         $area = new AreaBasicStruct();
 
-        $area->setId((int) $data['__area_id']);
-        $area->setUuid((string) $data['__area_uuid']);
-        $area->setName(isset($data['__area_name']) ? (string) $data['__area_name'] : null);
-        $area->setActive(isset($data['__area_active']) ? (bool) $data['__area_active'] : null);
+        $area->setId((int)$data['__area_id']);
+        $area->setUuid((string)$data['__area_uuid']);
+        $area->setName(isset($data['__area_name']) ? (string)$data['__area_name'] : null);
+        $area->setActive(isset($data['__area_active']) ? (bool)$data['__area_active'] : null);
 
         return $area;
     }

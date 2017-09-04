@@ -70,9 +70,11 @@ class ProductManufacturerBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(function (ProductManufacturerBasicStruct $productManufacturer) {
-            return $productManufacturer->getUuid();
-        });
+        return $this->fmap(
+            function (ProductManufacturerBasicStruct $productManufacturer) {
+                return $productManufacturer->getUuid();
+            }
+        );
     }
 
     protected function getKey(ProductManufacturerBasicStruct $element): string

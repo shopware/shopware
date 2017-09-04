@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Customer\Searcher\Handler;
+namespace Shopware\CustomerGroupDiscount\Searcher\Handler;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -42,9 +42,8 @@ class CustomerGroupUuidHandler implements HandlerInterface, AggregatorInterface
     {
         return
             $criteriaPart instanceof CustomerGroupUuidSorting
- || $criteriaPart instanceof CustomerGroupUuidCondition
- || $criteriaPart instanceof CustomerGroupUuidFacet
-        ;
+            || $criteriaPart instanceof CustomerGroupUuidCondition
+            || $criteriaPart instanceof CustomerGroupUuidFacet;
     }
 
     public function handle(
@@ -59,9 +58,13 @@ class CustomerGroupUuidHandler implements HandlerInterface, AggregatorInterface
             return;
         }
 
-                /* @var CustomerGroupUuidCondition $criteriaPart */
+        /* @var CustomerGroupUuidCondition $criteriaPart */
         $builder->andWhere('customerGroupDiscount.customer_group_uuid IN (:customer_group_uuid_condition)');
-        $builder->setParameter('customer_group_uuid_condition', $criteriaPart->getCustomerGroupUuids(), Connection::PARAM_STR_ARRAY);
+        $builder->setParameter(
+            'customer_group_uuid_condition',
+            $criteriaPart->getCustomerGroupUuids(),
+            Connection::PARAM_STR_ARRAY
+        );
     }
 
     public function aggregate(

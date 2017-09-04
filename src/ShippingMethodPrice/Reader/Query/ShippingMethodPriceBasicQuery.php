@@ -41,16 +41,18 @@ class ShippingMethodPriceBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'shippingMethodPrice.uuid as _array_key_',
-            'shippingMethodPrice.id as __shippingMethodPrice_id',
-            'shippingMethodPrice.uuid as __shippingMethodPrice_uuid',
-            'shippingMethodPrice.from as __shippingMethodPrice_from',
-            'shippingMethodPrice.value as __shippingMethodPrice_value',
-            'shippingMethodPrice.factor as __shippingMethodPrice_factor',
-            'shippingMethodPrice.shipping_method_id as __shippingMethodPrice_shipping_method_id',
-            'shippingMethodPrice.shipping_method_uuid as __shippingMethodPrice_shipping_method_uuid',
-        ]);
+        $query->addSelect(
+            [
+                'shippingMethodPrice.uuid as _array_key_',
+                'shippingMethodPrice.id as __shippingMethodPrice_id',
+                'shippingMethodPrice.uuid as __shippingMethodPrice_uuid',
+                'shippingMethodPrice.from as __shippingMethodPrice_from',
+                'shippingMethodPrice.value as __shippingMethodPrice_value',
+                'shippingMethodPrice.factor as __shippingMethodPrice_factor',
+                'shippingMethodPrice.shipping_method_id as __shippingMethodPrice_shipping_method_id',
+                'shippingMethodPrice.shipping_method_uuid as __shippingMethodPrice_shipping_method_uuid',
+            ]
+        );
 
         //$query->leftJoin('shippingMethodPrice', 'shippingMethodPrice_translation', 'shippingMethodPriceTranslation', 'shippingMethodPrice.uuid = shippingMethodPriceTranslation.shippingMethodPrice_uuid AND shippingMethodPriceTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

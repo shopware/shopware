@@ -41,18 +41,20 @@ class CurrencyBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'currency.uuid as _array_key_',
-            'currency.id as __currency_id',
-            'currency.uuid as __currency_uuid',
-            'currency.currency as __currency_currency',
-            'currency.name as __currency_name',
-            'currency.standard as __currency_standard',
-            'currency.factor as __currency_factor',
-            'currency.template_char as __currency_template_char',
-            'currency.symbol_position as __currency_symbol_position',
-            'currency.position as __currency_position',
-        ]);
+        $query->addSelect(
+            [
+                'currency.uuid as _array_key_',
+                'currency.id as __currency_id',
+                'currency.uuid as __currency_uuid',
+                'currency.currency as __currency_currency',
+                'currency.name as __currency_name',
+                'currency.standard as __currency_standard',
+                'currency.factor as __currency_factor',
+                'currency.template_char as __currency_template_char',
+                'currency.symbol_position as __currency_symbol_position',
+                'currency.position as __currency_position',
+            ]
+        );
 
         //$query->leftJoin('currency', 'currency_translation', 'currencyTranslation', 'currency.uuid = currencyTranslation.currency_uuid AND currencyTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

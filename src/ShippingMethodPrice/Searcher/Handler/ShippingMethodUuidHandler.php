@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Customer\Searcher\Handler;
+namespace Shopware\ShippingMethodPrice\Searcher\Handler;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -42,9 +42,8 @@ class ShippingMethodUuidHandler implements HandlerInterface, AggregatorInterface
     {
         return
             $criteriaPart instanceof ShippingMethodUuidSorting
- || $criteriaPart instanceof ShippingMethodUuidCondition
- || $criteriaPart instanceof ShippingMethodUuidFacet
-        ;
+            || $criteriaPart instanceof ShippingMethodUuidCondition
+            || $criteriaPart instanceof ShippingMethodUuidFacet;
     }
 
     public function handle(
@@ -59,9 +58,13 @@ class ShippingMethodUuidHandler implements HandlerInterface, AggregatorInterface
             return;
         }
 
-                /* @var ShippingMethodUuidCondition $criteriaPart */
+        /* @var ShippingMethodUuidCondition $criteriaPart */
         $builder->andWhere('shippingMethodPrice.shipping_method_uuid IN (:shipping_method_uuid_condition)');
-        $builder->setParameter('shipping_method_uuid_condition', $criteriaPart->getShippingMethodUuids(), Connection::PARAM_STR_ARRAY);
+        $builder->setParameter(
+            'shipping_method_uuid_condition',
+            $criteriaPart->getShippingMethodUuids(),
+            Connection::PARAM_STR_ARRAY
+        );
     }
 
     public function aggregate(

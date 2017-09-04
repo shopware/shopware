@@ -69,7 +69,7 @@ class ProductRepository
         EventDispatcherInterface $eventDispatcher,
         ProductSearcher $searcher,
         ProductWriter $writer,
-ProductDetailLoader $detailLoader
+        ProductDetailLoader $detailLoader
     ) {
         $this->basicLoader = $basicLoader;
         $this->eventDispatcher = $eventDispatcher;

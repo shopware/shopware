@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Customer\Searcher\Handler;
+namespace Shopware\PriceGroupDiscount\Searcher\Handler;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -42,9 +42,8 @@ class PriceGroupUuidHandler implements HandlerInterface, AggregatorInterface
     {
         return
             $criteriaPart instanceof PriceGroupUuidSorting
- || $criteriaPart instanceof PriceGroupUuidCondition
- || $criteriaPart instanceof PriceGroupUuidFacet
-        ;
+            || $criteriaPart instanceof PriceGroupUuidCondition
+            || $criteriaPart instanceof PriceGroupUuidFacet;
     }
 
     public function handle(
@@ -59,9 +58,13 @@ class PriceGroupUuidHandler implements HandlerInterface, AggregatorInterface
             return;
         }
 
-                /* @var PriceGroupUuidCondition $criteriaPart */
+        /* @var PriceGroupUuidCondition $criteriaPart */
         $builder->andWhere('priceGroupDiscount.price_group_uuid IN (:price_group_uuid_condition)');
-        $builder->setParameter('price_group_uuid_condition', $criteriaPart->getPriceGroupUuids(), Connection::PARAM_STR_ARRAY);
+        $builder->setParameter(
+            'price_group_uuid_condition',
+            $criteriaPart->getPriceGroupUuids(),
+            Connection::PARAM_STR_ARRAY
+        );
     }
 
     public function aggregate(

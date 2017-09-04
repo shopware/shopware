@@ -5,32 +5,37 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-<service class="Shopware\Album\Reader\AlbumBasicHydrator" id="shopware.album.reader.basic_hydrator">
+        <service class="Shopware\Album\Reader\AlbumBasicHydrator" id="shopware.album.reader.basic_hydrator">
 
-</service>
-<service class="Shopware\Album\Reader\AlbumBasicReader" id="shopware.album.reader.basic_reader">
-  <argument id="dbal_connection" type="service"/>
-  <argument id="shopware.album.reader.basic_hydrator" type="service"/>
-</service>
-<service class="Shopware\Album\Loader\AlbumBasicLoader" id="shopware.album.loader.basic_loader">
-    <argument type="service" id="shopware.album.reader.basic_reader" />
+        </service>
 
-</service>
-<service class="Shopware\Album\Searcher\AlbumSearcher" id="shopware.album.searcher.searcher">
-  <argument id="dbal_connection" type="service"/>
-  <argument type="collection">
-        <!-- #handlers# -->
-  </argument>
-  <argument id="shopware.album.reader.basic_hydrator" type="service"/>
-</service>
-<service class="Shopware\Album\Writer\AlbumWriter" id="shopware.album.writer.writer"/>
-<service class="Shopware\Album\AlbumRepository" id="shopware.album.repository">
-  <argument id="shopware.album.loader.basic_loader" type="service"/>
-  <argument id="event_dispatcher" type="service"/>
-  <argument id="shopware.album.searcher.searcher" type="service"/>
-  <argument id="shopware.album.writer.writer" type="service"/>
-  
-</service>
+        <service class="Shopware\Album\Reader\AlbumBasicReader" id="shopware.album.reader.basic_reader">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.album.reader.basic_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\Album\Loader\AlbumBasicLoader" id="shopware.album.loader.basic_loader">
+            <argument type="service" id="shopware.album.reader.basic_reader"/>
+
+        </service>
+
+        <service class="Shopware\Album\Searcher\AlbumSearcher" id="shopware.album.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection">
+
+            </argument>
+            <argument id="shopware.album.reader.basic_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\Album\Writer\AlbumWriter" id="shopware.album.writer.writer"/>
+
+        <service class="Shopware\Album\AlbumRepository" id="shopware.album.repository">
+            <argument id="shopware.album.loader.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.album.searcher" type="service"/>
+            <argument id="shopware.album.writer.writer" type="service"/>
+
+        </service>
 
     </services>
 </container>

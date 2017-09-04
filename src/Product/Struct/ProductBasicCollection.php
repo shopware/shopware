@@ -74,100 +74,126 @@ class ProductBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(function (ProductBasicStruct $product) {
-            return $product->getUuid();
-        });
+        return $this->fmap(
+            function (ProductBasicStruct $product) {
+                return $product->getUuid();
+            }
+        );
     }
 
     public function getManufacturerUuids(): array
     {
-        return $this->fmap(function (ProductBasicStruct $product) {
-            return $product->getManufacturerUuid();
-        });
+        return $this->fmap(
+            function (ProductBasicStruct $product) {
+                return $product->getManufacturerUuid();
+            }
+        );
     }
 
     public function filterByManufacturerUuid(string $uuid): ProductBasicCollection
     {
-        return $this->filter(function (ProductBasicStruct $product) use ($uuid) {
-            return $product->getManufacturerUuid() === $uuid;
-        });
+        return $this->filter(
+            function (ProductBasicStruct $product) use ($uuid) {
+                return $product->getManufacturerUuid() === $uuid;
+            }
+        );
     }
 
     public function getTaxUuids(): array
     {
-        return $this->fmap(function (ProductBasicStruct $product) {
-            return $product->getTaxUuid();
-        });
+        return $this->fmap(
+            function (ProductBasicStruct $product) {
+                return $product->getTaxUuid();
+            }
+        );
     }
 
     public function filterByTaxUuid(string $uuid): ProductBasicCollection
     {
-        return $this->filter(function (ProductBasicStruct $product) use ($uuid) {
-            return $product->getTaxUuid() === $uuid;
-        });
+        return $this->filter(
+            function (ProductBasicStruct $product) use ($uuid) {
+                return $product->getTaxUuid() === $uuid;
+            }
+        );
     }
 
     public function getMainDetailUuids(): array
     {
-        return $this->fmap(function (ProductBasicStruct $product) {
-            return $product->getMainDetailUuid();
-        });
+        return $this->fmap(
+            function (ProductBasicStruct $product) {
+                return $product->getMainDetailUuid();
+            }
+        );
     }
 
     public function filterByMainDetailUuid(string $uuid): ProductBasicCollection
     {
-        return $this->filter(function (ProductBasicStruct $product) use ($uuid) {
-            return $product->getMainDetailUuid() === $uuid;
-        });
+        return $this->filter(
+            function (ProductBasicStruct $product) use ($uuid) {
+                return $product->getMainDetailUuid() === $uuid;
+            }
+        );
     }
 
     public function getFilterGroupUuids(): array
     {
-        return $this->fmap(function (ProductBasicStruct $product) {
-            return $product->getFilterGroupUuid();
-        });
+        return $this->fmap(
+            function (ProductBasicStruct $product) {
+                return $product->getFilterGroupUuid();
+            }
+        );
     }
 
     public function filterByFilterGroupUuid(string $uuid): ProductBasicCollection
     {
-        return $this->filter(function (ProductBasicStruct $product) use ($uuid) {
-            return $product->getFilterGroupUuid() === $uuid;
-        });
+        return $this->filter(
+            function (ProductBasicStruct $product) use ($uuid) {
+                return $product->getFilterGroupUuid() === $uuid;
+            }
+        );
     }
 
     public function getManufacturers(): ProductManufacturerBasicCollection
     {
         return new ProductManufacturerBasicCollection(
-            $this->fmap(function (ProductBasicStruct $product) {
-                return $product->getManufacturer();
-            })
+            $this->fmap(
+                function (ProductBasicStruct $product) {
+                    return $product->getManufacturer();
+                }
+            )
         );
     }
 
     public function getMainDetails(): ProductDetailBasicCollection
     {
         return new ProductDetailBasicCollection(
-            $this->fmap(function (ProductBasicStruct $product) {
-                return $product->getMainDetail();
-            })
+            $this->fmap(
+                function (ProductBasicStruct $product) {
+                    return $product->getMainDetail();
+                }
+            )
         );
     }
 
     public function getTaxs(): TaxBasicCollection
     {
         return new TaxBasicCollection(
-            $this->fmap(function (ProductBasicStruct $product) {
-                return $product->getTax();
-            })
+            $this->fmap(
+                function (ProductBasicStruct $product) {
+                    return $product->getTax();
+                }
+            )
         );
     }
 
     public function getCanonicalUrls(): SeoUrlBasicCollection
     {
         return new SeoUrlBasicCollection(
-            $this->fmap(function (ProductBasicStruct $product) {
-                return $product->getCanonicalUrl();
-            })
+            $this->fmap(
+                function (ProductBasicStruct $product) {
+                    return $product->getCanonicalUrl();
+                }
+            )
         );
     }
 

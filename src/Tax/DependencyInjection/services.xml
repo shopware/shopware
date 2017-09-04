@@ -5,32 +5,37 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-<service class="Shopware\Tax\Reader\TaxBasicHydrator" id="shopware.tax.reader.basic_hydrator">
+        <service class="Shopware\Tax\Reader\TaxBasicHydrator" id="shopware.tax.reader.basic_hydrator">
 
-</service>
-<service class="Shopware\Tax\Reader\TaxBasicReader" id="shopware.tax.reader.basic_reader">
-  <argument id="dbal_connection" type="service"/>
-  <argument id="shopware.tax.reader.basic_hydrator" type="service"/>
-</service>
-<service class="Shopware\Tax\Loader\TaxBasicLoader" id="shopware.tax.loader.basic_loader">
-    <argument type="service" id="shopware.tax.reader.basic_reader" />
+        </service>
 
-</service>
-<service class="Shopware\Tax\Searcher\TaxSearcher" id="shopware.tax.searcher.searcher">
-  <argument id="dbal_connection" type="service"/>
-  <argument type="collection">
-        <!-- #handlers# -->
-  </argument>
-  <argument id="shopware.tax.reader.basic_hydrator" type="service"/>
-</service>
-<service class="Shopware\Tax\Writer\TaxWriter" id="shopware.tax.writer.writer"/>
-<service class="Shopware\Tax\TaxRepository" id="shopware.tax.repository">
-  <argument id="shopware.tax.loader.basic_loader" type="service"/>
-  <argument id="event_dispatcher" type="service"/>
-  <argument id="shopware.tax.searcher.searcher" type="service"/>
-  <argument id="shopware.tax.writer.writer" type="service"/>
-  
-</service>
+        <service class="Shopware\Tax\Reader\TaxBasicReader" id="shopware.tax.reader.basic_reader">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.tax.reader.basic_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\Tax\Loader\TaxBasicLoader" id="shopware.tax.loader.basic_loader">
+            <argument type="service" id="shopware.tax.reader.basic_reader"/>
+
+        </service>
+
+        <service class="Shopware\Tax\Searcher\TaxSearcher" id="shopware.tax.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection">
+
+            </argument>
+            <argument id="shopware.tax.reader.basic_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\Tax\Writer\TaxWriter" id="shopware.tax.writer.writer"/>
+
+        <service class="Shopware\Tax\TaxRepository" id="shopware.tax.repository">
+            <argument id="shopware.tax.loader.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.tax.searcher" type="service"/>
+            <argument id="shopware.tax.writer.writer" type="service"/>
+
+        </service>
 
     </services>
 </container>

@@ -37,13 +37,13 @@ class ListingSortingBasicHydrator extends Hydrator
     {
         $listingSorting = new ListingSortingBasicStruct();
 
-        $listingSorting->setId((int) $data['__listingSorting_id']);
-        $listingSorting->setUuid((string) $data['__listingSorting_uuid']);
-        $listingSorting->setLabel((string) $data['__listingSorting_label']);
-        $listingSorting->setActive((bool) $data['__listingSorting_active']);
-        $listingSorting->setDisplayInCategories((bool) $data['__listingSorting_display_in_categories']);
-        $listingSorting->setPosition((int) $data['__listingSorting_position']);
-        $listingSorting->setPayload((string) $data['__listingSorting_payload']);
+        $listingSorting->setId((int)$data['__listingSorting_id']);
+        $listingSorting->setUuid((string)$data['__listingSorting_uuid']);
+        $listingSorting->setLabel((string)$data['__listingSorting_label']);
+        $listingSorting->setActive((bool)$data['__listingSorting_active']);
+        $listingSorting->setDisplayInCategories((bool)$data['__listingSorting_display_in_categories']);
+        $listingSorting->setPosition((int)$data['__listingSorting_position']);
+        $listingSorting->setPayload((string)$data['__listingSorting_payload']);
 
         return $listingSorting;
     }

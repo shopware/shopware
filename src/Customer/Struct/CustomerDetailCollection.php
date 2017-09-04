@@ -59,9 +59,11 @@ class CustomerDetailCollection extends CustomerBasicCollection
     public function getShops(): ShopBasicCollection
     {
         return new ShopBasicCollection(
-            $this->fmap(function (CustomerDetailStruct $customer) {
-                return $customer->getShop();
-            })
+            $this->fmap(
+                function (CustomerDetailStruct $customer) {
+                    return $customer->getShop();
+                }
+            )
         );
     }
 }

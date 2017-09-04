@@ -70,23 +70,29 @@ class SeoUrlBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(function (SeoUrlBasicStruct $seoUrl) {
-            return $seoUrl->getUuid();
-        });
+        return $this->fmap(
+            function (SeoUrlBasicStruct $seoUrl) {
+                return $seoUrl->getUuid();
+            }
+        );
     }
 
     public function getShopUuids(): array
     {
-        return $this->fmap(function (SeoUrlBasicStruct $seoUrl) {
-            return $seoUrl->getShopUuid();
-        });
+        return $this->fmap(
+            function (SeoUrlBasicStruct $seoUrl) {
+                return $seoUrl->getShopUuid();
+            }
+        );
     }
 
     public function filterByShopUuid(string $uuid): SeoUrlBasicCollection
     {
-        return $this->filter(function (SeoUrlBasicStruct $seoUrl) use ($uuid) {
-            return $seoUrl->getShopUuid() === $uuid;
-        });
+        return $this->filter(
+            function (SeoUrlBasicStruct $seoUrl) use ($uuid) {
+                return $seoUrl->getShopUuid() === $uuid;
+            }
+        );
     }
 
     protected function getKey(SeoUrlBasicStruct $element): string

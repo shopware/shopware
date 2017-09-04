@@ -43,6 +43,10 @@ class CategoryBasicLoader
 
     public function load(array $uuids, TranslationContext $context): CategoryBasicCollection
     {
+        if (empty($uuids)) {
+            return new CategoryBasicCollection();
+        }
+
         $collection = $this->reader->read($uuids, $context);
 
         return $collection;

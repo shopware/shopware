@@ -44,14 +44,22 @@ class ProductStreamBasicHydrator extends Hydrator
     {
         $productStream = new ProductStreamBasicStruct();
 
-        $productStream->setId((int) $data['__productStream_id']);
-        $productStream->setUuid((string) $data['__productStream_uuid']);
-        $productStream->setName((string) $data['__productStream_name']);
-        $productStream->setConditions(isset($data['__productStream_conditions']) ? (string) $data['__productStream_conditions'] : null);
-        $productStream->setType(isset($data['__productStream_type']) ? (int) $data['__productStream_type'] : null);
-        $productStream->setDescription(isset($data['__productStream_description']) ? (string) $data['__productStream_description'] : null);
-        $productStream->setListingSortingId(isset($data['__productStream_listing_sorting_id']) ? (int) $data['__productStream_listing_sorting_id'] : null);
-        $productStream->setListingSortingUuid(isset($data['__productStream_listing_sorting_uuid']) ? (string) $data['__productStream_listing_sorting_uuid'] : null);
+        $productStream->setId((int)$data['__productStream_id']);
+        $productStream->setUuid((string)$data['__productStream_uuid']);
+        $productStream->setName((string)$data['__productStream_name']);
+        $productStream->setConditions(
+            isset($data['__productStream_conditions']) ? (string)$data['__productStream_conditions'] : null
+        );
+        $productStream->setType(isset($data['__productStream_type']) ? (int)$data['__productStream_type'] : null);
+        $productStream->setDescription(
+            isset($data['__productStream_description']) ? (string)$data['__productStream_description'] : null
+        );
+        $productStream->setListingSortingId(
+            isset($data['__productStream_listing_sorting_id']) ? (int)$data['__productStream_listing_sorting_id'] : null
+        );
+        $productStream->setListingSortingUuid(
+            isset($data['__productStream_listing_sorting_uuid']) ? (string)$data['__productStream_listing_sorting_uuid'] : null
+        );
         $productStream->setListingSorting($this->listingSortingBasicHydrator->hydrate($data));
 
         return $productStream;

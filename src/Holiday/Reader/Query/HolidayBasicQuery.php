@@ -41,14 +41,16 @@ class HolidayBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'holiday.uuid as _array_key_',
-            'holiday.id as __holiday_id',
-            'holiday.uuid as __holiday_uuid',
-            'holiday.name as __holiday_name',
-            'holiday.calculation as __holiday_calculation',
-            'holiday.date as __holiday_date',
-        ]);
+        $query->addSelect(
+            [
+                'holiday.uuid as _array_key_',
+                'holiday.id as __holiday_id',
+                'holiday.uuid as __holiday_uuid',
+                'holiday.name as __holiday_name',
+                'holiday.calculation as __holiday_calculation',
+                'holiday.date as __holiday_date',
+            ]
+        );
 
         //$query->leftJoin('holiday', 'holiday_translation', 'holidayTranslation', 'holiday.uuid = holidayTranslation.holiday_uuid AND holidayTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

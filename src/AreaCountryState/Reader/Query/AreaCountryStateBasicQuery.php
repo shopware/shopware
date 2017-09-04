@@ -41,17 +41,19 @@ class AreaCountryStateBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'areaCountryState.uuid as _array_key_',
-            'areaCountryState.id as __areaCountryState_id',
-            'areaCountryState.uuid as __areaCountryState_uuid',
-            'areaCountryState.area_country_id as __areaCountryState_area_country_id',
-            'areaCountryState.area_country_uuid as __areaCountryState_area_country_uuid',
-            'areaCountryState.name as __areaCountryState_name',
-            'areaCountryState.short_code as __areaCountryState_short_code',
-            'areaCountryState.position as __areaCountryState_position',
-            'areaCountryState.active as __areaCountryState_active',
-        ]);
+        $query->addSelect(
+            [
+                'areaCountryState.uuid as _array_key_',
+                'areaCountryState.id as __areaCountryState_id',
+                'areaCountryState.uuid as __areaCountryState_uuid',
+                'areaCountryState.area_country_id as __areaCountryState_area_country_id',
+                'areaCountryState.area_country_uuid as __areaCountryState_area_country_uuid',
+                'areaCountryState.name as __areaCountryState_name',
+                'areaCountryState.short_code as __areaCountryState_short_code',
+                'areaCountryState.position as __areaCountryState_position',
+                'areaCountryState.active as __areaCountryState_active',
+            ]
+        );
 
         //$query->leftJoin('areaCountryState', 'areaCountryState_translation', 'areaCountryStateTranslation', 'areaCountryState.uuid = areaCountryStateTranslation.areaCountryState_uuid AND areaCountryStateTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

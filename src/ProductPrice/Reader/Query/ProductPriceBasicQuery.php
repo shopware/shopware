@@ -41,22 +41,24 @@ class ProductPriceBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'productPrice.uuid as _array_key_',
-            'productPrice.id as __productPrice_id',
-            'productPrice.uuid as __productPrice_uuid',
-            'productPrice.pricegroup as __productPrice_pricegroup',
-            'productPrice.from as __productPrice_from',
-            'productPrice.to as __productPrice_to',
-            'productPrice.product_id as __productPrice_product_id',
-            'productPrice.product_uuid as __productPrice_product_uuid',
-            'productPrice.product_detail_id as __productPrice_product_detail_id',
-            'productPrice.product_detail_uuid as __productPrice_product_detail_uuid',
-            'productPrice.price as __productPrice_price',
-            'productPrice.pseudoprice as __productPrice_pseudoprice',
-            'productPrice.baseprice as __productPrice_baseprice',
-            'productPrice.percent as __productPrice_percent',
-        ]);
+        $query->addSelect(
+            [
+                'productPrice.uuid as _array_key_',
+                'productPrice.id as __productPrice_id',
+                'productPrice.uuid as __productPrice_uuid',
+                'productPrice.pricegroup as __productPrice_pricegroup',
+                'productPrice.from as __productPrice_from',
+                'productPrice.to as __productPrice_to',
+                'productPrice.product_id as __productPrice_product_id',
+                'productPrice.product_uuid as __productPrice_product_uuid',
+                'productPrice.product_detail_id as __productPrice_product_detail_id',
+                'productPrice.product_detail_uuid as __productPrice_product_detail_uuid',
+                'productPrice.price as __productPrice_price',
+                'productPrice.pseudoprice as __productPrice_pseudoprice',
+                'productPrice.baseprice as __productPrice_baseprice',
+                'productPrice.percent as __productPrice_percent',
+            ]
+        );
 
         //$query->leftJoin('productPrice', 'productPrice_translation', 'productPriceTranslation', 'productPrice.uuid = productPriceTranslation.productPrice_uuid AND productPriceTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

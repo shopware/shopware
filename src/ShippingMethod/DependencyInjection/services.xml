@@ -5,51 +5,66 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-<service class="Shopware\ShippingMethod\Reader\ShippingMethodBasicHydrator" id="shopware.shipping_method.reader.basic_hydrator">
+        <service class="Shopware\ShippingMethod\Reader\ShippingMethodBasicHydrator"
+                 id="shopware.shipping_method.reader.basic_hydrator">
 
-</service>
-<service class="Shopware\ShippingMethod\Reader\ShippingMethodBasicReader" id="shopware.shipping_method.reader.basic_reader">
-  <argument id="dbal_connection" type="service"/>
-  <argument id="shopware.shipping_method.reader.basic_hydrator" type="service"/>
-</service>
-<service class="Shopware\ShippingMethod\Loader\ShippingMethodBasicLoader" id="shopware.shipping_method.loader.basic_loader">
-    <argument type="service" id="shopware.shipping_method.reader.basic_reader" />
+        </service>
 
-</service>
-<service class="Shopware\ShippingMethod\Searcher\ShippingMethodSearcher" id="shopware.shipping_method.searcher.searcher">
-  <argument id="dbal_connection" type="service"/>
-  <argument type="collection">
-        <!-- #handlers# -->
-  </argument>
-  <argument id="shopware.shipping_method.reader.basic_hydrator" type="service"/>
-</service>
-<service class="Shopware\ShippingMethod\Writer\ShippingMethodWriter" id="shopware.shipping_method.writer.writer"/>
-<service class="Shopware\ShippingMethod\ShippingMethodRepository" id="shopware.shipping_method.repository">
-  <argument id="shopware.shipping_method.loader.basic_loader" type="service"/>
-  <argument id="event_dispatcher" type="service"/>
-  <argument id="shopware.shipping_method.searcher.searcher" type="service"/>
-  <argument id="shopware.shipping_method.writer.writer" type="service"/>
-  <argument id="shopware.shipping_method.loader.detail_loader" type="service"/>
-</service>
-<service class="Shopware\ShippingMethod\Reader\ShippingMethodDetailHydrator" id="shopware.shipping_method.reader.detail_hydrator">
-  <argument id="shopware.shipping_method.reader.basic_hydrator" type="service"/>
-  <argument type="service" id="shopware.area_country.reader.basic_hydrator" />
-<argument type="service" id="shopware.category.reader.basic_hydrator" />
-<argument type="service" id="shopware.holiday.reader.basic_hydrator" />
-<argument type="service" id="shopware.payment_method.reader.basic_hydrator" />
-</service>
-<service class="Shopware\ShippingMethod\Reader\ShippingMethodDetailReader" id="shopware.shipping_method.reader.detail_reader">
-  <argument id="dbal_connection" type="service"/>
-  <argument id="shopware.shipping_method.reader.detail_hydrator" type="service"/>
-</service>
-<service class="Shopware\ShippingMethod\Loader\ShippingMethodDetailLoader" id="shopware.shipping_method.loader.detail_loader">
-    <argument type="service" id="shopware.shipping_method.reader.detail_reader" />
-    <argument type="service" id="shopware.shipping_method_price.searcher.searcher" />
-<argument type="service" id="shopware.area_country.loader.basic_loader" />
-<argument type="service" id="shopware.category.loader.basic_loader" />
-<argument type="service" id="shopware.holiday.loader.basic_loader" />
-<argument type="service" id="shopware.payment_method.loader.basic_loader" />
-</service>
+        <service class="Shopware\ShippingMethod\Reader\ShippingMethodBasicReader"
+                 id="shopware.shipping_method.reader.basic_reader">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.shipping_method.reader.basic_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\ShippingMethod\Loader\ShippingMethodBasicLoader"
+                 id="shopware.shipping_method.loader.basic_loader">
+            <argument type="service" id="shopware.shipping_method.reader.basic_reader"/>
+
+        </service>
+
+        <service class="Shopware\ShippingMethod\Searcher\ShippingMethodSearcher" id="shopware.shipping_method.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection">
+
+            </argument>
+            <argument id="shopware.shipping_method.reader.basic_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\ShippingMethod\Writer\ShippingMethodWriter"
+                 id="shopware.shipping_method.writer.writer"/>
+
+        <service class="Shopware\ShippingMethod\ShippingMethodRepository" id="shopware.shipping_method.repository">
+            <argument id="shopware.shipping_method.loader.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.shipping_method.searcher" type="service"/>
+            <argument id="shopware.shipping_method.writer.writer" type="service"/>
+            <argument id="shopware.shipping_method.loader.detail_loader" type="service"/>
+        </service>
+
+        <service class="Shopware\ShippingMethod\Reader\ShippingMethodDetailHydrator"
+                 id="shopware.shipping_method.reader.detail_hydrator">
+            <argument id="shopware.shipping_method.reader.basic_hydrator" type="service"/>
+            <argument type="service" id="shopware.area_country.reader.basic_hydrator"/>
+            <argument type="service" id="shopware.category.reader.basic_hydrator"/>
+            <argument type="service" id="shopware.holiday.reader.basic_hydrator"/>
+            <argument type="service" id="shopware.payment_method.reader.basic_hydrator"/>
+        </service>
+
+        <service class="Shopware\ShippingMethod\Reader\ShippingMethodDetailReader"
+                 id="shopware.shipping_method.reader.detail_reader">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.shipping_method.reader.detail_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\ShippingMethod\Loader\ShippingMethodDetailLoader"
+                 id="shopware.shipping_method.loader.detail_loader">
+            <argument type="service" id="shopware.shipping_method.reader.detail_reader"/>
+            <argument type="service" id="shopware.shipping_method_price.searcher"/>
+            <argument type="service" id="shopware.area_country.loader.basic_loader"/>
+            <argument type="service" id="shopware.category.loader.basic_loader"/>
+            <argument type="service" id="shopware.holiday.loader.basic_loader"/>
+            <argument type="service" id="shopware.payment_method.loader.basic_loader"/>
+        </service>
 
     </services>
 </container>

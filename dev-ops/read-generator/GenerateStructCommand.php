@@ -22,8 +22,10 @@
  * our trademarks remain entirely with us.
  */
 
+
 require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../app/DatabaseConnector.php';
+(new \Symfony\Component\Dotenv\Dotenv())->load(__DIR__.'/../../.env');
+require_once __DIR__ . '/../../src/Framework/Doctrine/DatabaseConnector.php';
 require_once __DIR__ . '/StructGenerator.php';
 
 class GenerateStructCommand
@@ -42,7 +44,7 @@ class GenerateStructCommand
 
     public function execute()
     {
-        $connection = DatabaseConnector::connect(__DIR__ . '/../../app/', 'dev');
+        $connection = \Shopware\Framework\Doctrine\DatabaseConnector::createPdoConnection();
 
         $dbalConnection = new \Doctrine\DBAL\Connection(
             ['pdo' => $connection],

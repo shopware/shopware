@@ -37,15 +37,15 @@ class SeoUrlBasicHydrator extends Hydrator
     {
         $seoUrl = new SeoUrlBasicStruct();
 
-        $seoUrl->setId((int) $data['__seoUrl_id']);
-        $seoUrl->setUuid((string) $data['__seoUrl_uuid']);
-        $seoUrl->setSeoHash((string) $data['__seoUrl_seo_hash']);
-        $seoUrl->setShopUuid((string) $data['__seoUrl_shop_uuid']);
-        $seoUrl->setName((string) $data['__seoUrl_name']);
-        $seoUrl->setForeignKey((string) $data['__seoUrl_foreign_key']);
-        $seoUrl->setPathInfo((string) $data['__seoUrl_path_info']);
-        $seoUrl->setSeoPathInfo((string) $data['__seoUrl_seo_path_info']);
-        $seoUrl->setIsCanonical((bool) $data['__seoUrl_is_canonical']);
+        $seoUrl->setId((int)$data['__seoUrl_id']);
+        $seoUrl->setUuid((string)$data['__seoUrl_uuid']);
+        $seoUrl->setSeoHash((string)$data['__seoUrl_seo_hash']);
+        $seoUrl->setShopUuid((string)$data['__seoUrl_shop_uuid']);
+        $seoUrl->setName((string)$data['__seoUrl_name']);
+        $seoUrl->setForeignKey((string)$data['__seoUrl_foreign_key']);
+        $seoUrl->setPathInfo((string)$data['__seoUrl_path_info']);
+        $seoUrl->setSeoPathInfo((string)$data['__seoUrl_seo_path_info']);
+        $seoUrl->setIsCanonical((bool)$data['__seoUrl_is_canonical']);
         $seoUrl->setCreatedAt(new \DateTime($data['__seoUrl_created_at']));
 
         return $seoUrl;

@@ -43,6 +43,10 @@ class HolidayBasicLoader
 
     public function load(array $uuids, TranslationContext $context): HolidayBasicCollection
     {
+        if (empty($uuids)) {
+            return new HolidayBasicCollection();
+        }
+
         $collection = $this->reader->read($uuids, $context);
 
         return $collection;

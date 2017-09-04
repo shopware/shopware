@@ -41,17 +41,19 @@ class PriceGroupDiscountBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'priceGroupDiscount.uuid as _array_key_',
-            'priceGroupDiscount.id as __priceGroupDiscount_id',
-            'priceGroupDiscount.uuid as __priceGroupDiscount_uuid',
-            'priceGroupDiscount.price_group_id as __priceGroupDiscount_price_group_id',
-            'priceGroupDiscount.price_group_uuid as __priceGroupDiscount_price_group_uuid',
-            'priceGroupDiscount.customer_group_id as __priceGroupDiscount_customer_group_id',
-            'priceGroupDiscount.customer_group_uuid as __priceGroupDiscount_customer_group_uuid',
-            'priceGroupDiscount.discount as __priceGroupDiscount_discount',
-            'priceGroupDiscount.discount_start as __priceGroupDiscount_discount_start',
-        ]);
+        $query->addSelect(
+            [
+                'priceGroupDiscount.uuid as _array_key_',
+                'priceGroupDiscount.id as __priceGroupDiscount_id',
+                'priceGroupDiscount.uuid as __priceGroupDiscount_uuid',
+                'priceGroupDiscount.price_group_id as __priceGroupDiscount_price_group_id',
+                'priceGroupDiscount.price_group_uuid as __priceGroupDiscount_price_group_uuid',
+                'priceGroupDiscount.customer_group_id as __priceGroupDiscount_customer_group_id',
+                'priceGroupDiscount.customer_group_uuid as __priceGroupDiscount_customer_group_uuid',
+                'priceGroupDiscount.discount as __priceGroupDiscount_discount',
+                'priceGroupDiscount.discount_start as __priceGroupDiscount_discount_start',
+            ]
+        );
 
         //$query->leftJoin('priceGroupDiscount', 'priceGroupDiscount_translation', 'priceGroupDiscountTranslation', 'priceGroupDiscount.uuid = priceGroupDiscountTranslation.priceGroupDiscount_uuid AND priceGroupDiscountTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

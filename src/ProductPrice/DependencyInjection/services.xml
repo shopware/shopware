@@ -5,32 +5,42 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-<service class="Shopware\ProductPrice\Reader\ProductPriceBasicHydrator" id="shopware.product_price.reader.basic_hydrator">
+        <service class="Shopware\ProductPrice\Reader\ProductPriceBasicHydrator"
+                 id="shopware.product_price.reader.basic_hydrator">
 
-</service>
-<service class="Shopware\ProductPrice\Reader\ProductPriceBasicReader" id="shopware.product_price.reader.basic_reader">
-  <argument id="dbal_connection" type="service"/>
-  <argument id="shopware.product_price.reader.basic_hydrator" type="service"/>
-</service>
-<service class="Shopware\ProductPrice\Loader\ProductPriceBasicLoader" id="shopware.product_price.loader.basic_loader">
-    <argument type="service" id="shopware.product_price.reader.basic_reader" />
+        </service>
 
-</service>
-<service class="Shopware\ProductPrice\Searcher\ProductPriceSearcher" id="shopware.product_price.searcher.searcher">
-  <argument id="dbal_connection" type="service"/>
-  <argument type="collection">
-        <!-- #handlers# -->
-  </argument>
-  <argument id="shopware.product_price.reader.basic_hydrator" type="service"/>
-</service>
-<service class="Shopware\ProductPrice\Writer\ProductPriceWriter" id="shopware.product_price.writer.writer"/>
-<service class="Shopware\ProductPrice\ProductPriceRepository" id="shopware.product_price.repository">
-  <argument id="shopware.product_price.loader.basic_loader" type="service"/>
-  <argument id="event_dispatcher" type="service"/>
-  <argument id="shopware.product_price.searcher.searcher" type="service"/>
-  <argument id="shopware.product_price.writer.writer" type="service"/>
-  
-</service>
+        <service class="Shopware\ProductPrice\Reader\ProductPriceBasicReader"
+                 id="shopware.product_price.reader.basic_reader">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.product_price.reader.basic_hydrator" type="service"/>
+        </service>
 
+        <service class="Shopware\ProductPrice\Loader\ProductPriceBasicLoader"
+                 id="shopware.product_price.loader.basic_loader">
+            <argument type="service" id="shopware.product_price.reader.basic_reader"/>
+
+        </service>
+
+        <service class="Shopware\ProductPrice\Searcher\ProductPriceSearcher" id="shopware.product_price.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection">
+                <argument id="shopware.product_price.searcher.handler.product_detail_uuid_handler" type="service"/>
+            </argument>
+            <argument id="shopware.product_price.reader.basic_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\ProductPrice\Writer\ProductPriceWriter" id="shopware.product_price.writer.writer"/>
+
+        <service class="Shopware\ProductPrice\ProductPriceRepository" id="shopware.product_price.repository">
+            <argument id="shopware.product_price.loader.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.product_price.searcher" type="service"/>
+            <argument id="shopware.product_price.writer.writer" type="service"/>
+
+        </service>
+
+        <service class="Shopware\ProductPrice\Searcher\Handler\ProductDetailUuidHandler"
+                 id="shopware.product_price.searcher.handler.product_detail_uuid_handler"/>
     </services>
 </container>

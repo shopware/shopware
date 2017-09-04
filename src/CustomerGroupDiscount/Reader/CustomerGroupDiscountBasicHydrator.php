@@ -37,12 +37,12 @@ class CustomerGroupDiscountBasicHydrator extends Hydrator
     {
         $customerGroupDiscount = new CustomerGroupDiscountBasicStruct();
 
-        $customerGroupDiscount->setId((int) $data['__customerGroupDiscount_id']);
-        $customerGroupDiscount->setUuid((string) $data['__customerGroupDiscount_uuid']);
-        $customerGroupDiscount->setCustomerGroupId((int) $data['__customerGroupDiscount_customer_group_id']);
-        $customerGroupDiscount->setCustomerGroupUuid((string) $data['__customerGroupDiscount_customer_group_uuid']);
-        $customerGroupDiscount->setDiscount((float) $data['__customerGroupDiscount_discount']);
-        $customerGroupDiscount->setDiscountStart((float) $data['__customerGroupDiscount_discount_start']);
+        $customerGroupDiscount->setId((int)$data['__customerGroupDiscount_id']);
+        $customerGroupDiscount->setUuid((string)$data['__customerGroupDiscount_uuid']);
+        $customerGroupDiscount->setCustomerGroupId((int)$data['__customerGroupDiscount_customer_group_id']);
+        $customerGroupDiscount->setCustomerGroupUuid((string)$data['__customerGroupDiscount_customer_group_uuid']);
+        $customerGroupDiscount->setDiscount((float)$data['__customerGroupDiscount_discount']);
+        $customerGroupDiscount->setDiscountStart((float)$data['__customerGroupDiscount_discount_start']);
 
         return $customerGroupDiscount;
     }

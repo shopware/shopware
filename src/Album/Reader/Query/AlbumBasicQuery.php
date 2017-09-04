@@ -41,21 +41,23 @@ class AlbumBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'album.uuid as _array_key_',
-            'album.uuid as __album_uuid',
-            'album.id as __album_id',
-            'album.name as __album_name',
-            'album.parent_uuid as __album_parent_uuid',
-            'album.parent_id as __album_parent_id',
-            'album.position as __album_position',
-            'album.create_thumbnails as __album_create_thumbnails',
-            'album.thumbnail_size as __album_thumbnail_size',
-            'album.icon as __album_icon',
-            'album.thumbnail_high_dpi as __album_thumbnail_high_dpi',
-            'album.thumbnail_quality as __album_thumbnail_quality',
-            'album.thumbnail_high_dpi_quality as __album_thumbnail_high_dpi_quality',
-        ]);
+        $query->addSelect(
+            [
+                'album.uuid as _array_key_',
+                'album.uuid as __album_uuid',
+                'album.id as __album_id',
+                'album.name as __album_name',
+                'album.parent_uuid as __album_parent_uuid',
+                'album.parent_id as __album_parent_id',
+                'album.position as __album_position',
+                'album.create_thumbnails as __album_create_thumbnails',
+                'album.thumbnail_size as __album_thumbnail_size',
+                'album.icon as __album_icon',
+                'album.thumbnail_high_dpi as __album_thumbnail_high_dpi',
+                'album.thumbnail_quality as __album_thumbnail_quality',
+                'album.thumbnail_high_dpi_quality as __album_thumbnail_high_dpi_quality',
+            ]
+        );
 
         //$query->leftJoin('album', 'album_translation', 'albumTranslation', 'album.uuid = albumTranslation.album_uuid AND albumTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

@@ -41,15 +41,17 @@ class CustomerGroupDiscountBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'customerGroupDiscount.uuid as _array_key_',
-            'customerGroupDiscount.id as __customerGroupDiscount_id',
-            'customerGroupDiscount.uuid as __customerGroupDiscount_uuid',
-            'customerGroupDiscount.customer_group_id as __customerGroupDiscount_customer_group_id',
-            'customerGroupDiscount.customer_group_uuid as __customerGroupDiscount_customer_group_uuid',
-            'customerGroupDiscount.discount as __customerGroupDiscount_discount',
-            'customerGroupDiscount.discount_start as __customerGroupDiscount_discount_start',
-        ]);
+        $query->addSelect(
+            [
+                'customerGroupDiscount.uuid as _array_key_',
+                'customerGroupDiscount.id as __customerGroupDiscount_id',
+                'customerGroupDiscount.uuid as __customerGroupDiscount_uuid',
+                'customerGroupDiscount.customer_group_id as __customerGroupDiscount_customer_group_id',
+                'customerGroupDiscount.customer_group_uuid as __customerGroupDiscount_customer_group_uuid',
+                'customerGroupDiscount.discount as __customerGroupDiscount_discount',
+                'customerGroupDiscount.discount_start as __customerGroupDiscount_discount_start',
+            ]
+        );
 
         //$query->leftJoin('customerGroupDiscount', 'customerGroupDiscount_translation', 'customerGroupDiscountTranslation', 'customerGroupDiscount.uuid = customerGroupDiscountTranslation.customerGroupDiscount_uuid AND customerGroupDiscountTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

@@ -37,21 +37,31 @@ class TaxAreaRuleBasicHydrator extends Hydrator
     {
         $taxAreaRule = new TaxAreaRuleBasicStruct();
 
-        $taxAreaRule->setId((int) $data['__taxAreaRule_id']);
-        $taxAreaRule->setUuid((string) $data['__taxAreaRule_uuid']);
-        $taxAreaRule->setAreaId(isset($data['__taxAreaRule_area_id']) ? (int) $data['__taxAreaRule_area_id'] : null);
-        $taxAreaRule->setAreaUuid(isset($data['__taxAreaRule_area_uuid']) ? (string) $data['__taxAreaRule_area_uuid'] : null);
-        $taxAreaRule->setAreaCountryId(isset($data['__taxAreaRule_area_country_id']) ? (int) $data['__taxAreaRule_area_country_id'] : null);
-        $taxAreaRule->setAreaCountryUuid(isset($data['__taxAreaRule_area_country_uuid']) ? (string) $data['__taxAreaRule_area_country_uuid'] : null);
-        $taxAreaRule->setAreaCountryStateId(isset($data['__taxAreaRule_area_country_state_id']) ? (int) $data['__taxAreaRule_area_country_state_id'] : null);
-        $taxAreaRule->setAreaCountryStateUuid(isset($data['__taxAreaRule_area_country_state_uuid']) ? (string) $data['__taxAreaRule_area_country_state_uuid'] : null);
-        $taxAreaRule->setTaxId((int) $data['__taxAreaRule_tax_id']);
-        $taxAreaRule->setTaxUuid((string) $data['__taxAreaRule_tax_uuid']);
-        $taxAreaRule->setCustomerGroupId((int) $data['__taxAreaRule_customer_group_id']);
-        $taxAreaRule->setCustomerGroupUuid((string) $data['__taxAreaRule_customer_group_uuid']);
-        $taxAreaRule->setTaxRate((float) $data['__taxAreaRule_tax_rate']);
-        $taxAreaRule->setName((string) $data['__taxAreaRule_name']);
-        $taxAreaRule->setActive((bool) $data['__taxAreaRule_active']);
+        $taxAreaRule->setId((int)$data['__taxAreaRule_id']);
+        $taxAreaRule->setUuid((string)$data['__taxAreaRule_uuid']);
+        $taxAreaRule->setAreaId(isset($data['__taxAreaRule_area_id']) ? (int)$data['__taxAreaRule_area_id'] : null);
+        $taxAreaRule->setAreaUuid(
+            isset($data['__taxAreaRule_area_uuid']) ? (string)$data['__taxAreaRule_area_uuid'] : null
+        );
+        $taxAreaRule->setAreaCountryId(
+            isset($data['__taxAreaRule_area_country_id']) ? (int)$data['__taxAreaRule_area_country_id'] : null
+        );
+        $taxAreaRule->setAreaCountryUuid(
+            isset($data['__taxAreaRule_area_country_uuid']) ? (string)$data['__taxAreaRule_area_country_uuid'] : null
+        );
+        $taxAreaRule->setAreaCountryStateId(
+            isset($data['__taxAreaRule_area_country_state_id']) ? (int)$data['__taxAreaRule_area_country_state_id'] : null
+        );
+        $taxAreaRule->setAreaCountryStateUuid(
+            isset($data['__taxAreaRule_area_country_state_uuid']) ? (string)$data['__taxAreaRule_area_country_state_uuid'] : null
+        );
+        $taxAreaRule->setTaxId((int)$data['__taxAreaRule_tax_id']);
+        $taxAreaRule->setTaxUuid((string)$data['__taxAreaRule_tax_uuid']);
+        $taxAreaRule->setCustomerGroupId((int)$data['__taxAreaRule_customer_group_id']);
+        $taxAreaRule->setCustomerGroupUuid((string)$data['__taxAreaRule_customer_group_uuid']);
+        $taxAreaRule->setTaxRate((float)$data['__taxAreaRule_tax_rate']);
+        $taxAreaRule->setName((string)$data['__taxAreaRule_name']);
+        $taxAreaRule->setActive((bool)$data['__taxAreaRule_active']);
 
         return $taxAreaRule;
     }

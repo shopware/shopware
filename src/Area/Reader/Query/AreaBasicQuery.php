@@ -41,13 +41,15 @@ class AreaBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect([
-            'area.uuid as _array_key_',
-            'area.id as __area_id',
-            'area.uuid as __area_uuid',
-            'area.name as __area_name',
-            'area.active as __area_active',
-        ]);
+        $query->addSelect(
+            [
+                'area.uuid as _array_key_',
+                'area.id as __area_id',
+                'area.uuid as __area_uuid',
+                'area.name as __area_name',
+                'area.active as __area_active',
+            ]
+        );
 
         //$query->leftJoin('area', 'area_translation', 'areaTranslation', 'area.uuid = areaTranslation.area_uuid AND areaTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

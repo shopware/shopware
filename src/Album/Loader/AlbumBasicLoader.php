@@ -43,6 +43,10 @@ class AlbumBasicLoader
 
     public function load(array $uuids, TranslationContext $context): AlbumBasicCollection
     {
+        if (empty($uuids)) {
+            return new AlbumBasicCollection();
+        }
+
         $collection = $this->reader->read($uuids, $context);
 
         return $collection;

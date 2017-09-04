@@ -42,6 +42,11 @@
             <argument type="service" id="routing.loader" />
         </service>
 
+        <service class="Shopware\Framework\Struct\FieldHelper" id="shopware.framework.struct.field_helper">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.cache" type="service"/>
+        </service>
+
         <!-- Config -->
         <service id="shopware.config.cache_warmer" class="Shopware\Framework\Config\CacheWarmer">
             <tag name="kernel.cache_warmer" />
@@ -63,6 +68,7 @@
         <service synthetic="true" id="shopware.config.config" class="Shopware\Framework\Config\Config" />
 
         <service class="Shopware\Framework\Routing\ShopFinder" id="shopware.framework.routing.shop_finder">
+            <argument id="shopware.shop.repository" type="service"/>
             <argument id="dbal_connection" type="service"/>
         </service>
 
@@ -71,7 +77,7 @@
         </service>
 
         <service class="Shopware\Framework\Routing\UrlResolver" id="shopware.framework.routing.url_resolver">
-            <argument id="shopware.seo_url.gateway.seo_url_repository" type="service"/>
+            <argument id="shopware.seo_url.repository" type="service"/>
         </service>
 
         <!-- Validator -->
@@ -79,8 +85,10 @@
 
         <service class="Shopware\Framework\Struct\AttributeHydrator" id="shopware.framework.struct.attribute_hydrator"/>
 
-        <service class="Symfony\Component\Routing\RouteAssembler" id="symfony.component.routing.route_assembler">
-            <argument id="shopware.router" type="service"/>
+        <service id="shopware.framework.event.nested_event_dispatcher"
+                 class="Shopware\Framework\Event\NestedEventDispatcher"
+                 decorates="event_dispatcher">
+            <argument type="service" id="shopware.framework.event.nested_event_dispatcher.inner" />
         </service>
 
     </services>

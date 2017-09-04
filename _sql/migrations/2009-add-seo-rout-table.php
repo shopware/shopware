@@ -29,20 +29,17 @@ class Migrations_Migration2009 extends Shopware\Framework\Migration\AbstractMigr
         $sql = <<<SQL
 CREATE TABLE `seo_url` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `uuid` varchar(42) NOT NULL,
   `seo_hash` char(40) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `shop_id` int(11) NOT NULL,
+  `shop_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `foreign_key` int(11) NOT NULL,
+  `foreign_key` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
   `path_info` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `seo_path_info` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `is_canonical` int(1) NOT NULL,
+  `is_canonical` tinyint NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `shop_id_url` (`shop_id`,`seo_path_info`(500)),
-  KEY `shop_id_path_info` (`shop_id`, `path_info`(500)),
-  KEY `shop_canonical` (`shop_id`, `path_info`(500), `is_canonical`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8mb4_unicode_ci
 SQL;
 
         $this->addSql($sql);

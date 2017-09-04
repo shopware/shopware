@@ -104,5 +104,32 @@
         <service id="shopware.media.optimizer.pngcrush" class="Shopware\Media\Optimizer\PngcrushOptimizer">
             <tag name="shopware.media.optimizer" priority="80" />
         </service>
+
+        <service class="Shopware\Media\Reader\MediaBasicHydrator" id="shopware.media.reader.basic_hydrator">
+
+        </service>
+        <service class="Shopware\Media\Reader\MediaBasicReader" id="shopware.media.reader.basic_reader">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.media.reader.basic_hydrator" type="service"/>
+        </service>
+        <service class="Shopware\Media\Loader\MediaBasicLoader" id="shopware.media.loader.basic_loader">
+            <argument type="service" id="shopware.media.reader.basic_reader" />
+
+        </service>
+        <service class="Shopware\Media\Searcher\MediaSearcher" id="shopware.media.searcher.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection">
+                <!-- #handlers# -->
+            </argument>
+            <argument id="shopware.media.reader.basic_hydrator" type="service"/>
+        </service>
+        <service class="Shopware\Media\Writer\MediaWriter" id="shopware.media.writer.writer"/>
+        <service class="Shopware\Media\MediaRepository" id="shopware.media.repository">
+            <argument id="shopware.media.loader.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.media.searcher.searcher" type="service"/>
+            <argument id="shopware.media.writer.writer" type="service"/>
+
+        </service>
     </services>
 </container>

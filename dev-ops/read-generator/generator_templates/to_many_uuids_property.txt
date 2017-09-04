@@ -1,0 +1,4 @@
+    /**
+     * @var string[]
+     */
+    protected $#classLc#Uuids;

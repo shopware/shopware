@@ -51,6 +51,48 @@
         <service class="Shopware\Product\Controller\ApiContextValueResolver" id="shopware.product.controller.api_context_value_resolver">
             <tag name="controller.argument_value_resolver"/>
         </service>
+        <service class="Shopware\Product\Reader\ProductBasicHydrator" id="shopware.product.reader.basic_hydrator">
+            <argument type="service" id="shopware.product_detail.reader.basic_hydrator" />
+            <argument type="service" id="shopware.tax.reader.basic_hydrator" />
+            <argument type="service" id="shopware.seo_url.reader.basic_hydrator" />
+        </service>
+        <service class="Shopware\Product\Reader\ProductBasicReader" id="shopware.product.reader.basic_reader">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.product.reader.basic_hydrator" type="service"/>
+        </service>
+        <service class="Shopware\Product\Loader\ProductBasicLoader" id="shopware.product.loader.basic_loader">
+            <argument type="service" id="shopware.product.reader.basic_reader" />
+            <argument type="service" id="shopware.product_manufacturer.loader.basic_loader" />
+        </service>
+        <service class="Shopware\Product\Searcher\ProductSearcher" id="shopware.product.searcher.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection">
+                <!-- #handlers# -->
+            </argument>
+            <argument id="shopware.product.loader.basic_loader" type="service"/>
+        </service>
+        <service class="Shopware\Product\Writer\ProductWriter" id="shopware.product.writer.writer"/>
+        <service class="Shopware\Product\ProductRepository" id="shopware.product.repository">
+            <argument id="shopware.product.loader.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.product.searcher.searcher" type="service"/>
+            <argument id="shopware.product.writer.writer" type="service"/>
+            <argument id="shopware.product.loader.detail_loader" type="service"/>
+        </service>
+        <service class="Shopware\Product\Reader\ProductDetailHydrator" id="shopware.product.reader.detail_hydrator">
+            <argument id="shopware.product.reader.basic_hydrator" type="service"/>
+            <argument type="service" id="shopware.category.reader.basic_hydrator" />
+        </service>
+        <service class="Shopware\Product\Reader\ProductDetailReader" id="shopware.product.reader.detail_reader">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.product.reader.detail_hydrator" type="service"/>
+        </service>
+        <service class="Shopware\Product\Loader\ProductDetailLoader" id="shopware.product.loader.detail_loader">
+            <argument type="service" id="shopware.product.reader.detail_reader" />
+            <argument type="service" id="shopware.product_detail.searcher.searcher" />
+            <argument type="service" id="shopware.category.loader.basic_loader" />
+            <argument type="service" id="shopware.product_manufacturer.loader.basic_loader" />
+        </service>
 
     </services>
 </container>

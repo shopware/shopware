@@ -95,7 +95,7 @@ class ListingPageUrlGenerator implements SeoUrlGeneratorInterface
         $criteria->addCondition(new ForeignKeyCondition($categories->getIds()));
         $criteria->addCondition(new NameCondition([self::ROUTE_NAME]));
         $criteria->addCondition(new ShopCondition([$shopId]));
-        
+
         $existingCanonicals = $this->seoUrlRepository->search($criteria, $context);
 
         $routes = new SeoUrlCollection();

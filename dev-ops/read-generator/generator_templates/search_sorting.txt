@@ -1,0 +1,13 @@
+<?php
+
+namespace Shopware\Search\Sorting;
+
+use Shopware\Bundle\SearchBundle\Sorting\Sorting;
+
+class #searchNameUc#Sorting extends Sorting
+{
+    public function getName(): string
+    {
+        return self::class;
+    }
+}

@@ -1,0 +1,32 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\#classUc#\Reader\Query;
+
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
+use Shopware\Context\Struct\TranslationContext;
+#uses#
+
+class #classUc#BasicQuery extends QueryBuilder
+{
+    public function __construct(Connection $connection, TranslationContext $context)
+    {
+        parent::__construct($connection);
+
+        $this->from('#table#', '#classLc#');
+
+        self::addRequirements($this, $context);
+    }
+
+    public static function addRequirements(QueryBuilder $query, TranslationContext $context)
+    {
+        $query->addSelect([
+#fields#
+        ]);
+
+        //$query->leftJoin('#classLc#', '#classLc#_translation', '#classLc#Translation', '#classLc#.uuid = #classLc#Translation.#classLc#_uuid AND #classLc#Translation.language_uuid = :languageUuid');
+        //$query->setParameter('languageUuid', $context->getShopUuid());
+
+#joins#
+    }
+}

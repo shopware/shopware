@@ -5,18 +5,32 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\PaymentMethod\Struct\PaymentMethodHydrator" id="shopware.payment_method.struct.payment_method_hydrator">
-            <argument id="shopware.framework.struct.attribute_hydrator" type="service"/>
-            <argument id="shopware.serializer.json_serializer" type="service"/>
-        </service>
-        <service class="Shopware\PaymentMethod\Gateway\PaymentMethodReader" id="shopware.payment_method.gateway.payment_method_reader">
-            <argument id="shopware.framework.struct.field_helper" type="service"/>
-            <argument id="shopware.payment_method.struct.payment_method_hydrator" type="service"/>
-            <argument id="dbal_connection" type="service"/>
-        </service>
-        <service class="Shopware\PaymentMethod\Gateway\PaymentMethodRepository" id="shopware.payment_method.gateway.payment_method_repository">
-            <argument id="shopware.payment_method.gateway.payment_method_reader" type="service"/>
-        </service>
+<service class="Shopware\PaymentMethod\Reader\PaymentMethodBasicHydrator" id="shopware.payment_method.reader.basic_hydrator">
+
+</service>
+<service class="Shopware\PaymentMethod\Reader\PaymentMethodBasicReader" id="shopware.payment_method.reader.basic_reader">
+  <argument id="dbal_connection" type="service"/>
+  <argument id="shopware.payment_method.reader.basic_hydrator" type="service"/>
+</service>
+<service class="Shopware\PaymentMethod\Loader\PaymentMethodBasicLoader" id="shopware.payment_method.loader.basic_loader">
+    <argument type="service" id="shopware.payment_method.reader.basic_reader" />
+
+</service>
+<service class="Shopware\PaymentMethod\Searcher\PaymentMethodSearcher" id="shopware.payment_method.searcher.searcher">
+  <argument id="dbal_connection" type="service"/>
+  <argument type="collection">
+        <!-- #handlers# -->
+  </argument>
+  <argument id="shopware.payment_method.reader.basic_hydrator" type="service"/>
+</service>
+<service class="Shopware\PaymentMethod\Writer\PaymentMethodWriter" id="shopware.payment_method.writer.writer"/>
+<service class="Shopware\PaymentMethod\PaymentMethodRepository" id="shopware.payment_method.repository">
+  <argument id="shopware.payment_method.loader.basic_loader" type="service"/>
+  <argument id="event_dispatcher" type="service"/>
+  <argument id="shopware.payment_method.searcher.searcher" type="service"/>
+  <argument id="shopware.payment_method.writer.writer" type="service"/>
+  
+</service>
 
     </services>
 </container>

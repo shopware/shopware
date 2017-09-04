@@ -27,20 +27,22 @@ namespace Shopware\Storefront\Controller\Widgets;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Storefront\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
 use Shopware\Search\Condition\ActiveCondition;
 use Shopware\Search\Condition\ParentCondition;
 use Shopware\Search\Condition\ShopCondition;
 use Shopware\Search\Criteria;
+use Shopware\Storefront\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
 class IndexController extends Controller
 {
     /**
      * @Route("/widgets/index/shopMenu", name="widgets/shopMenu")
      * @Method({"GET"})
+     *
      * @param ShopContext $context
-     * @param Request $request
+     * @param Request     $request
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function shopMenuAction(ShopContext $context, Request $request)
@@ -60,7 +62,7 @@ class IndexController extends Controller
         $criteria->addCondition(new ParentCondition([$context->getShop()->getMainId()]));
         $criteria->addCondition(new ActiveCondition(true));
 
-        $repo = $this->get('shopware.shop.gateway.shop_repository');
+        $repo = $this->get('shopware.shop.repository');
 
         $shops = $repo->search($criteria, $context->getTranslationContext());
 

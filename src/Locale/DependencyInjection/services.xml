@@ -5,7 +5,32 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Locale\Struct\LocaleHydrator" id="shopware.locale.struct.locale_hydrator"/>
+<service class="Shopware\Locale\Reader\LocaleBasicHydrator" id="shopware.locale.reader.basic_hydrator">
+
+</service>
+<service class="Shopware\Locale\Reader\LocaleBasicReader" id="shopware.locale.reader.basic_reader">
+  <argument id="dbal_connection" type="service"/>
+  <argument id="shopware.locale.reader.basic_hydrator" type="service"/>
+</service>
+<service class="Shopware\Locale\Loader\LocaleBasicLoader" id="shopware.locale.loader.basic_loader">
+    <argument type="service" id="shopware.locale.reader.basic_reader" />
+
+</service>
+<service class="Shopware\Locale\Searcher\LocaleSearcher" id="shopware.locale.searcher.searcher">
+  <argument id="dbal_connection" type="service"/>
+  <argument type="collection">
+        <!-- #handlers# -->
+  </argument>
+  <argument id="shopware.locale.reader.basic_hydrator" type="service"/>
+</service>
+<service class="Shopware\Locale\Writer\LocaleWriter" id="shopware.locale.writer.writer"/>
+<service class="Shopware\Locale\LocaleRepository" id="shopware.locale.repository">
+  <argument id="shopware.locale.loader.basic_loader" type="service"/>
+  <argument id="event_dispatcher" type="service"/>
+  <argument id="shopware.locale.searcher.searcher" type="service"/>
+  <argument id="shopware.locale.writer.writer" type="service"/>
+  
+</service>
 
     </services>
 </container>

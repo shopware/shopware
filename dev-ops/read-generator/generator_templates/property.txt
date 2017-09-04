@@ -1,0 +1,4 @@
+    /**
+     * @var #type#
+     */
+    protected $#name#;

@@ -1,0 +1,4 @@
+    /**
+     * @var #classUc##suffix#
+     */
+    private $#classLc##suffix#;

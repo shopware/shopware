@@ -96,3 +96,13 @@ ALTER TABLE `s_core_snippets`
   DROP id,
   DROP shop_id,
   DROP locale_id;
+
+DROP TABLE s_media_album_settings;
+
+ALTER TABLE `product_stream` DROP `sorting`;
+
+DELETE FROM plugin WHERE namespace != 'ShopwarePlugins';
+
+ALTER TABLE `plugin`
+  DROP `namespace`,
+  DROP `source`;

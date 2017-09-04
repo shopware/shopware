@@ -31,8 +31,6 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class SeoUrl extends Bundle
 {
-    protected $name = 'SeoUrl';
-
     /**
      * {@inheritdoc}
      */

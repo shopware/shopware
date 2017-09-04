@@ -24,7 +24,7 @@
 
 namespace Shopware\Context\Struct;
 
-use Shopware\Shop\Struct\Shop;
+use Shopware\Shop\Struct\ShopBasicStruct;
 
 class TranslationContext
 {
@@ -44,15 +44,21 @@ class TranslationContext
     private $isDefaultShop;
 
     /**
+     * @var string
+     */
+    private $shopUuid;
+
+    /**
      * @param int      $shopId
      * @param bool     $isDefaultShop
      * @param int|null $fallbackId
      */
-    public function __construct(int $shopId, bool $isDefaultShop, ?int $fallbackId)
+    public function __construct(int $shopId, string $shopUuid, bool $isDefaultShop, ?int $fallbackId)
     {
         $this->shopId = $shopId;
         $this->fallbackId = $fallbackId;
         $this->isDefaultShop = $isDefaultShop;
+        $this->shopUuid = $shopUuid;
     }
 
     public function getShopId(): int
@@ -70,12 +76,18 @@ class TranslationContext
         return $this->isDefaultShop;
     }
 
-    public static function createFromShop(Shop $shop): TranslationContext
+    public static function createFromShop(ShopBasicStruct $shop): TranslationContext
     {
         return new self(
             $shop->getId(),
-            $shop->isDefault(),
+            $shop->getIsDefault(),
+            $shop->getUuid(),
             $shop->getMainId()
         );
+    }
+
+    public function getShopUuid(): string
+    {
+        return $this->shopUuid;
     }
 }

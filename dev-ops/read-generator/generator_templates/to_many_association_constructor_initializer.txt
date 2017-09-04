@@ -1,0 +1,1 @@
+        $this->#plural# = new #classUc#BasicCollection();

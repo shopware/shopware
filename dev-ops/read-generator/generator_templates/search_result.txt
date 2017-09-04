@@ -1,0 +1,22 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\#classUc#\Struct;
+
+use Shopware\Search\SearchResultInterface;
+use Shopware\Search\SearchResultTrait;
+
+class #classUc#SearchResult extends #classUc#BasicCollection implements SearchResultInterface
+{
+    use SearchResultTrait;
+
+    /**
+     * @var int
+     */
+    protected $total;
+
+    public function __construct(array $elements, int $total)
+    {
+        parent::__construct($elements);
+        $this->total = $total;
+    }
+}

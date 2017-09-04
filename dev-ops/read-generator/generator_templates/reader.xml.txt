@@ -1,0 +1,4 @@
+<service class="Shopware\#classUc#\Reader\#classUc##suffixUc#Reader" id="shopware.#table#.reader.#suffixLc#_reader">
+  <argument id="dbal_connection" type="service"/>
+  <argument id="shopware.#table#.reader.#suffixLc#_hydrator" type="service"/>
+</service>

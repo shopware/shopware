@@ -1,0 +1,9 @@
+    public function get#pluralUc#(): #associationClassUc#BasicCollection
+    {
+        return $this->#plural#;
+    }
+
+    public function set#pluralUc#(#associationClassUc#BasicCollection $#plural#): void
+    {
+        $this->#plural# = $#plural#;
+    }

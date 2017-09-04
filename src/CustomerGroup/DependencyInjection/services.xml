@@ -5,17 +5,36 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\CustomerGroup\Struct\CustomerGroupHydrator" id="shopware.customer_group.struct.customer_group_hydrator">
-            <argument id="shopware.framework.struct.attribute_hydrator" type="service"/>
-        </service>
-        <service class="Shopware\CustomerGroup\Gateway\CustomerGroupReader" id="shopware.customer_group.gateway.customer_group_reader">
-            <argument id="dbal_connection" type="service"/>
-            <argument id="shopware.framework.struct.field_helper" type="service"/>
-            <argument id="shopware.customer_group.struct.customer_group_hydrator" type="service"/>
-        </service>
-        <service class="Shopware\CustomerGroup\Gateway\CustomerGroupRepository" id="shopware.customer_group.gateway.customer_group_repository">
-            <argument id="shopware.customer_group.gateway.customer_group_reader" type="service"/>
-        </service>
+<service class="Shopware\CustomerGroup\Reader\CustomerGroupBasicHydrator" id="shopware.customer_group.reader.basic_hydrator">
+
+</service>
+<service class="Shopware\CustomerGroup\Reader\CustomerGroupBasicReader" id="shopware.customer_group.reader.basic_reader">
+  <argument id="dbal_connection" type="service"/>
+  <argument id="shopware.customer_group.reader.basic_hydrator" type="service"/>
+</service>
+<service class="Shopware\CustomerGroup\Loader\CustomerGroupBasicLoader" id="shopware.customer_group.loader.basic_loader">
+    <argument type="service" id="shopware.customer_group.reader.basic_reader" />
+
+</service>
+<service class="Shopware\CustomerGroup\Searcher\CustomerGroupSearcher" id="shopware.customer_group.searcher.searcher">
+  <argument id="dbal_connection" type="service"/>
+  <argument type="collection">
+        <!-- #handlers# -->
+  </argument>
+  <argument id="shopware.customer_group.reader.basic_hydrator" type="service"/>
+</service>
+<service class="Shopware\CustomerGroup\Writer\CustomerGroupWriter" id="shopware.customer_group.writer.writer"/>
+<service class="Shopware\CustomerGroup\CustomerGroupRepository" id="shopware.customer_group.repository">
+  <argument id="shopware.customer_group.loader.basic_loader" type="service"/>
+  <argument id="event_dispatcher" type="service"/>
+  <argument id="shopware.customer_group.searcher.searcher" type="service"/>
+  <argument id="shopware.customer_group.writer.writer" type="service"/>
+  <argument id="shopware.customer_group.loader.detail_loader" type="service"/>
+</service>
+<service class="Shopware\CustomerGroup\Loader\CustomerGroupDetailLoader" id="shopware.customer_group.loader.detail_loader">
+    <argument type="service" id="shopware.customer_group.loader.basic_loader" />
+    <argument type="service" id="shopware.customer_group_discount.searcher.searcher" />
+</service>
 
     </services>
 </container>

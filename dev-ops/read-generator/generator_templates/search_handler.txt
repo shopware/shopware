@@ -1,0 +1,26 @@
+<?php
+
+namespace Shopware\Customer\Searcher\Handler;
+
+use Doctrine\DBAL\Query\QueryBuilder;
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Search\AggregatorInterface;
+use Shopware\Search\Condition\#searchNameUc#Condition;
+use Shopware\Search\Facet\#searchNameUc#Facet;
+use Shopware\Search\Sorting\#searchNameUc#Sorting;
+use Shopware\Search\Criteria;
+use Shopware\Search\CriteriaPartInterface;
+use Shopware\Search\HandlerInterface;
+use Doctrine\DBAL\Connection;
+#uses#
+
+class #searchNameUc#Handler implements #implements#
+{
+    public function supports(CriteriaPartInterface $criteriaPart): bool
+    {
+        return (
+            #supports#
+        );
+    }
+#functions#
+}

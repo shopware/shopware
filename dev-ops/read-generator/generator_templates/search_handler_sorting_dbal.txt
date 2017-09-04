@@ -1,0 +1,4 @@
+        if ($criteriaPart instanceof #searchNameUc#Sorting) {
+            $builder->addOrderBy('#classLc#.#column#', $criteriaPart->getDirection());
+            return;
+        }

@@ -5,17 +5,36 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\PriceGroup\Struct\PriceGroupHydrator" id="shopware.price_group.struct.price_group_hydrator">
-            <argument id="shopware.price_group_discount.struct.price_group_discount_hydrator" type="service"/>
-        </service>
-        <service class="Shopware\PriceGroup\Gateway\PriceGroupReader" id="shopware.price_group.gateway.price_group_reader">
-            <argument id="dbal_connection" type="service"/>
-            <argument id="shopware.framework.struct.field_helper" type="service"/>
-            <argument id="shopware.price_group.struct.price_group_hydrator" type="service"/>
-        </service>
-        <service class="Shopware\PriceGroup\Gateway\PriceGroupRepository" id="shopware.price_group.gateway.price_group_repository">
-            <argument id="shopware.price_group.gateway.price_group_reader" type="service"/>
-        </service>
+<service class="Shopware\PriceGroup\Reader\PriceGroupBasicHydrator" id="shopware.price_group.reader.basic_hydrator">
+
+</service>
+<service class="Shopware\PriceGroup\Reader\PriceGroupBasicReader" id="shopware.price_group.reader.basic_reader">
+  <argument id="dbal_connection" type="service"/>
+  <argument id="shopware.price_group.reader.basic_hydrator" type="service"/>
+</service>
+<service class="Shopware\PriceGroup\Loader\PriceGroupBasicLoader" id="shopware.price_group.loader.basic_loader">
+    <argument type="service" id="shopware.price_group.reader.basic_reader" />
+
+</service>
+<service class="Shopware\PriceGroup\Searcher\PriceGroupSearcher" id="shopware.price_group.searcher.searcher">
+  <argument id="dbal_connection" type="service"/>
+  <argument type="collection">
+        <!-- #handlers# -->
+  </argument>
+  <argument id="shopware.price_group.reader.basic_hydrator" type="service"/>
+</service>
+<service class="Shopware\PriceGroup\Writer\PriceGroupWriter" id="shopware.price_group.writer.writer"/>
+<service class="Shopware\PriceGroup\PriceGroupRepository" id="shopware.price_group.repository">
+  <argument id="shopware.price_group.loader.basic_loader" type="service"/>
+  <argument id="event_dispatcher" type="service"/>
+  <argument id="shopware.price_group.searcher.searcher" type="service"/>
+  <argument id="shopware.price_group.writer.writer" type="service"/>
+  <argument id="shopware.price_group.loader.detail_loader" type="service"/>
+</service>
+<service class="Shopware\PriceGroup\Loader\PriceGroupDetailLoader" id="shopware.price_group.loader.detail_loader">
+    <argument type="service" id="shopware.price_group.loader.basic_loader" />
+    <argument type="service" id="shopware.price_group_discount.searcher.searcher" />
+</service>
 
     </services>
 </container>

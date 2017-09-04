@@ -25,41 +25,26 @@
 namespace Shopware\Search\Condition;
 
 use Shopware\Search\ConditionInterface;
-use Shopware\SeoUrl\Struct\SeoUrl;
 
 class SeoPathInfoCondition implements ConditionInterface
 {
     /**
      * @var string[]
      */
-    protected $urls;
+    protected $seoPathInfos;
 
-    /**
-     * @var array
-     */
-    protected $hashes;
-
-    public function __construct(array $urls)
+    public function __construct(array $seoPathInfos)
     {
-        $this->hashes = array_map(function ($url) {
-            return SeoUrl::createSeoHash($url);
-        }, $urls);
-
-        $this->urls = $urls;
+        $this->seoPathInfos = $seoPathInfos;
     }
 
-    public function getPathInfos(): array
+    public function getSeoPathInfos(): array
     {
-        return $this->urls;
+        return $this->seoPathInfos;
     }
 
     public function getName(): string
     {
         return self::class;
-    }
-
-    public function getHashes(): array
-    {
-        return $this->hashes;
     }
 }

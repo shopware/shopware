@@ -1,0 +1,8 @@
+    public function aggregate(
+        CriteriaPartInterface $criteriaPart,
+        QueryBuilder $builder,
+        Criteria $criteria,
+        TranslationContext $context
+    ) {
+        #aggregate_type#
+    }

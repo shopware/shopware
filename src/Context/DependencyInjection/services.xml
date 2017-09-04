@@ -6,18 +6,18 @@
 
     <services>
         <service class="Shopware\Context\Service\ContextFactory" id="shopware.context.service.context_factory">
-            <argument id="shopware.shop.gateway.shop_repository" type="service"/>
-            <argument id="shopware.currency.gateway.currency_repository" type="service"/>
-            <argument id="shopware.customer.gateway.customer_repository" type="service"/>
-            <argument id="shopware.customer_group.gateway.customer_group_repository" type="service"/>
-            <argument id="shopware.country.gateway.country_repository" type="service"/>
-            <argument id="shopware.tax.gateway.tax_repository" type="service"/>
-            <argument id="shopware.price_group.gateway.price_group_repository" type="service"/>
-            <argument id="shopware.address.gateway.address_repository" type="service"/>
-            <argument id="shopware.payment_method.gateway.payment_method_repository" type="service"/>
-            <argument id="shopware.shipping_method.gateway.shipping_method_repository" type="service"/>
+            <argument id="shopware.shop.repository" type="service"/>
+            <argument id="shopware.currency.repository" type="service"/>
+            <argument id="shopware.customer.repository" type="service"/>
+            <argument id="shopware.customer_group.repository" type="service"/>
+            <argument id="shopware.area_country.repository" type="service"/>
+            <argument id="shopware.tax.repository" type="service"/>
+            <argument id="shopware.price_group.repository" type="service"/>
+            <argument id="shopware.customer_address.repository" type="service"/>
+            <argument id="shopware.payment_method.repository" type="service"/>
+            <argument id="shopware.shipping_method.repository" type="service"/>
             <argument id="dbal_connection" type="service"/>
-            <argument id="shopware.country_state.gateway.country_state_repository" type="service"/>
+            <argument id="shopware.area_country_state.repository" type="service"/>
         </service>
 
     </services>

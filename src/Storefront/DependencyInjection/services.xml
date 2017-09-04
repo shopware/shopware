@@ -19,7 +19,7 @@
             <argument type="service" id="shopware.storefront.component.site_page_menu" />
             <argument type="service" id="dbal_connection" />
             <argument type="service" id="shopware.storefront.component.theme.config_reader" />
-            <argument type="service" id="shopware.category.gateway.category_repository" />
+            <argument type="service" id="shopware.category.repository" />
             <argument type="service" id="shopware.serializer.serializer_registry" />
         </service>
 
@@ -76,18 +76,18 @@
         </service>
 
         <service class="Shopware\Storefront\DetailPage\DetailPageUrlGenerator" id="shopware.storefront.detail_page.detail_page_url_generator">
-            <argument id="shopware.product.gateway.product_repository" type="service"/>
+            <argument id="shopware.product.repository" type="service"/>
             <argument id="slugify" type="service"/>
             <argument id="shopware.router" type="service"/>
-            <argument id="shopware.seo_url.gateway.seo_url_repository" type="service" />
+            <argument id="shopware.seo_url.repository" type="service" />
         </service>
 
         <service class="Shopware\Storefront\ListingPage\ListingPageUrlGenerator" id="shopware.storefront.listing_page.listing_page_url_generator">
             <argument id="dbal_connection" type="service"/>
-            <argument id="shopware.category.gateway.category_repository" type="service"/>
+            <argument id="shopware.category.repository" type="service"/>
             <argument id="slugify" type="service"/>
             <argument id="shopware.router" type="service"/>
-            <argument id="shopware.seo_url.gateway.seo_url_repository" type="service" />
+            <argument id="shopware.seo_url.repository" type="service" />
         </service>
 
         <service class="Shopware\Storefront\Context\ShopContextValueResolver" id="shopware.storefront.context.shop_context_value_resolver">
@@ -107,7 +107,7 @@
         </service>
 
         <service class="Shopware\Storefront\Navigation\NavigationLoader" id="shopware.storefront.navigation.navigation_loader">
-            <argument id="shopware.category.gateway.category_repository" type="service"/>
+            <argument id="shopware.category.repository" type="service"/>
         </service>
 
     </services>

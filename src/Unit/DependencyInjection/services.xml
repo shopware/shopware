@@ -5,7 +5,32 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Unit\Struct\UnitHydrator" id="shopware.unit.struct.unit_hydrator"/>
+<service class="Shopware\Unit\Reader\UnitBasicHydrator" id="shopware.unit.reader.basic_hydrator">
+
+</service>
+<service class="Shopware\Unit\Reader\UnitBasicReader" id="shopware.unit.reader.basic_reader">
+  <argument id="dbal_connection" type="service"/>
+  <argument id="shopware.unit.reader.basic_hydrator" type="service"/>
+</service>
+<service class="Shopware\Unit\Loader\UnitBasicLoader" id="shopware.unit.loader.basic_loader">
+    <argument type="service" id="shopware.unit.reader.basic_reader" />
+
+</service>
+<service class="Shopware\Unit\Searcher\UnitSearcher" id="shopware.unit.searcher.searcher">
+  <argument id="dbal_connection" type="service"/>
+  <argument type="collection">
+        <!-- #handlers# -->
+  </argument>
+  <argument id="shopware.unit.reader.basic_hydrator" type="service"/>
+</service>
+<service class="Shopware\Unit\Writer\UnitWriter" id="shopware.unit.writer.writer"/>
+<service class="Shopware\Unit\UnitRepository" id="shopware.unit.repository">
+  <argument id="shopware.unit.loader.basic_loader" type="service"/>
+  <argument id="event_dispatcher" type="service"/>
+  <argument id="shopware.unit.searcher.searcher" type="service"/>
+  <argument id="shopware.unit.writer.writer" type="service"/>
+  
+</service>
 
     </services>
 </container>

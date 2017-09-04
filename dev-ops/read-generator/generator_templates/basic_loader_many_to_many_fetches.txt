@@ -1,0 +1,1 @@
+        $#plural# = $this->#classLc#BasicLoader->load($collection->get#classUc#Uuids(), $context);

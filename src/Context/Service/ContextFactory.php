@@ -25,29 +25,29 @@
 namespace Shopware\Context\Service;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Address\Gateway\AddressRepository;
+use Shopware\AreaCountry\AreaCountryRepository;
+use Shopware\AreaCountryState\AreaCountryStateRepository;
 use Shopware\Cart\Delivery\ShippingLocation;
 use Shopware\Context\Struct\CheckoutScope;
 use Shopware\Context\Struct\CustomerScope;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\ShopScope;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Country\Gateway\CountryRepository;
-use Shopware\CountryState\Gateway\CountryStateRepository;
-use Shopware\Currency\Gateway\CurrencyRepository;
+use Shopware\Currency\CurrencyRepository;
 use Shopware\Currency\Struct\Currency;
-use Shopware\Customer\Gateway\CustomerRepository;
+use Shopware\Customer\CustomerRepository;
 use Shopware\Customer\Struct\Customer;
-use Shopware\CustomerGroup\Gateway\CustomerGroupRepository;
-use Shopware\PaymentMethod\Gateway\PaymentMethodRepository;
+use Shopware\CustomerAddress\CustomerAddressRepository;
+use Shopware\CustomerGroup\CustomerGroupRepository;
+use Shopware\PaymentMethod\PaymentMethodRepository;
 use Shopware\PaymentMethod\Struct\PaymentMethod;
-use Shopware\PriceGroup\Gateway\PriceGroupRepository;
-use Shopware\ShippingMethod\Gateway\ShippingMethodRepository;
+use Shopware\PriceGroup\PriceGroupRepository;
+use Shopware\ShippingMethod\ShippingMethodRepository;
 use Shopware\ShippingMethod\Struct\ShippingMethod;
-use Shopware\Shop\Gateway\ShopRepository;
+use Shopware\Shop\ShopRepository;
 use Shopware\Shop\Struct\Shop;
 use Shopware\Storefront\Context\StorefrontContextService;
-use Shopware\Tax\Gateway\TaxRepository;
+use Shopware\Tax\TaxRepository;
 
 class ContextFactory implements ContextFactoryInterface
 {
@@ -72,7 +72,7 @@ class ContextFactory implements ContextFactoryInterface
     private $customerGroupRepository;
 
     /**
-     * @var CountryRepository
+     * @var AreaCountryRepository
      */
     private $countryRepository;
 
@@ -87,7 +87,7 @@ class ContextFactory implements ContextFactoryInterface
     private $priceGroupRepository;
 
     /**
-     * @var AddressRepository
+     * @var CustomerAddressRepository
      */
     private $addressRepository;
 
@@ -107,7 +107,7 @@ class ContextFactory implements ContextFactoryInterface
     private $connection;
 
     /**
-     * @var CountryStateRepository
+     * @var AreaCountryStateRepository
      */
     private $countryStateRepository;
 
@@ -116,14 +116,14 @@ class ContextFactory implements ContextFactoryInterface
         CurrencyRepository $currencyRepository,
         CustomerRepository $customerRepository,
         CustomerGroupRepository $customerGroupRepository,
-        CountryRepository $countryRepository,
+        AreaCountryRepository $countryRepository,
         TaxRepository $taxRepository,
         PriceGroupRepository $priceGroupRepository,
-        AddressRepository $addressRepository,
+        CustomerAddressRepository $addressRepository,
         PaymentMethodRepository $paymentMethodRepository,
         ShippingMethodRepository $shippingMethodRepository,
         Connection $connection,
-        CountryStateRepository $countryStateRepository
+        AreaCountryStateRepository $countryStateRepository
     ) {
         $this->shopRepository = $shopRepository;
         $this->currencyRepository = $currencyRepository;

@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+<service class="Shopware\ShippingMethodPrice\Reader\ShippingMethodPriceBasicHydrator" id="shopware.shipping_method_price.reader.basic_hydrator">
+
+</service>
+<service class="Shopware\ShippingMethodPrice\Reader\ShippingMethodPriceBasicReader" id="shopware.shipping_method_price.reader.basic_reader">
+  <argument id="dbal_connection" type="service"/>
+  <argument id="shopware.shipping_method_price.reader.basic_hydrator" type="service"/>
+</service>
+<service class="Shopware\ShippingMethodPrice\Loader\ShippingMethodPriceBasicLoader" id="shopware.shipping_method_price.loader.basic_loader">
+    <argument type="service" id="shopware.shipping_method_price.reader.basic_reader" />
+
+</service>
+<service class="Shopware\ShippingMethodPrice\Searcher\ShippingMethodPriceSearcher" id="shopware.shipping_method_price.searcher.searcher">
+  <argument id="dbal_connection" type="service"/>
+  <argument type="collection">
+        <!-- #handlers# -->
+  </argument>
+  <argument id="shopware.shipping_method_price.reader.basic_hydrator" type="service"/>
+</service>
+<service class="Shopware\ShippingMethodPrice\Writer\ShippingMethodPriceWriter" id="shopware.shipping_method_price.writer.writer"/>
+<service class="Shopware\ShippingMethodPrice\ShippingMethodPriceRepository" id="shopware.shipping_method_price.repository">
+  <argument id="shopware.shipping_method_price.loader.basic_loader" type="service"/>
+  <argument id="event_dispatcher" type="service"/>
+  <argument id="shopware.shipping_method_price.searcher.searcher" type="service"/>
+  <argument id="shopware.shipping_method_price.writer.writer" type="service"/>
+  
+</service>
+
+    </services>
+</container>

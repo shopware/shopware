@@ -1,0 +1,7 @@
+        $builder->select(['DISTINCT #classLc#.#column#']);
+        $values = $builder->execute()->fetchAll(\PDO::FETCH_COLUMN);
+        return new ArrayFacetResult(
+            $criteriaPart->getName(),
+            $criteria->hasCondition($criteriaPart->getName()),
+            $values
+        );

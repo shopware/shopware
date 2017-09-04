@@ -1,0 +1,92 @@
+<?php
+
+namespace Shopware\#classUc#;
+
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Search\Criteria;
+use Shopware\Search\AggregationResult;
+use Shopware\#classUc#\Event\#classUc#BasicLoadedEvent;
+use Shopware\#classUc#\Searcher\#classUc#Searcher;
+use Shopware\#classUc#\Loader\#classUc#BasicLoader;
+use Shopware\#classUc#\Struct\#classUc#BasicCollection;
+use Shopware\#classUc#\Struct\#classUc#SearchResult;
+use Shopware\#classUc#\Writer\#classUc#Writer;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+#uses#
+
+class #classUc#Repository
+{
+    /**
+     * @var #classUc#BasicLoader
+     */
+    private $basicLoader;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @var #classUc#Searcher
+     */
+    private $searcher;
+
+    /**
+     * @var #classUc#Writer
+     */
+    private $writer;
+
+#properties#
+
+    public function __construct(
+        #classUc#BasicLoader $basicLoader,
+        EventDispatcherInterface $eventDispatcher,
+        #classUc#Searcher $searcher,
+        #classUc#Writer $writer#parameters#
+    ) {
+        $this->basicLoader = $basicLoader;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->searcher = $searcher;
+        $this->writer = $writer;
+        #initializer#
+    }
+
+    #functions#
+
+    public function read(array $uuids, TranslationContext $context): #classUc#BasicCollection
+    {
+        $collection = $this->basicLoader->load($uuids, $context);
+
+        $this->eventDispatcher->dispatch(
+            #classUc#BasicLoadedEvent::NAME,
+            new #classUc#BasicLoadedEvent($collection, $context)
+        );
+
+        return $collection;
+    }
+
+    public function search(Criteria $criteria, TranslationContext $context): #classUc#SearchResult
+    {
+        /** @var #classUc#SearchResult $result */
+        $result = $this->searcher->search($criteria, $context);
+
+        $this->eventDispatcher->dispatch(
+            #classUc#BasicLoadedEvent::NAME,
+            new #classUc#BasicLoadedEvent($result, $context)
+        );
+
+        return $result;
+    }
+
+    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    {
+        $result = $this->searcher->aggregate($criteria, $context);
+
+        return $result;
+    }
+
+    public function write(): void
+    {
+        $this->writer->write();
+    }
+}

@@ -71,7 +71,7 @@ class CacheWarmer implements CacheWarmerInterface
         $builder = $this->connection->createQueryBuilder();
 
         return $builder->select(['shop.*'])
-                ->from('s_core_shops', 'shop')
+                ->from('shop', 'shop')
                 ->execute()
                 ->fetchAll();
     }

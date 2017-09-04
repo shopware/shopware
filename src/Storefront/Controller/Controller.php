@@ -24,7 +24,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-
 use Shopware\Serializer\SerializerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller as SymfonyController;
 use Symfony\Component\HttpFoundation\Response;

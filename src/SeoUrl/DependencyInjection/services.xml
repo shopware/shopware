@@ -5,55 +5,32 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\SeoUrl\Struct\SeoUrlHydrator" id="shopware.seo_url.struct.seo_url_hydrator">
-            <argument type="service" id="service_container" />
-        </service>
+<service class="Shopware\SeoUrl\Reader\SeoUrlBasicHydrator" id="shopware.seo_url.reader.basic_hydrator">
 
-        <service class="Shopware\SeoUrl\Gateway\SeoUrlReader" id="shopware.seo_url.gateway.seo_url_reader">
-            <argument id="dbal_connection" type="service"/>
-            <argument id="shopware.framework.struct.field_helper" type="service"/>
-            <argument id="shopware.seo_url.struct.seo_url_hydrator" type="service"/>
-        </service>
+</service>
+<service class="Shopware\SeoUrl\Reader\SeoUrlBasicReader" id="shopware.seo_url.reader.basic_reader">
+  <argument id="dbal_connection" type="service"/>
+  <argument id="shopware.seo_url.reader.basic_hydrator" type="service"/>
+</service>
+<service class="Shopware\SeoUrl\Loader\SeoUrlBasicLoader" id="shopware.seo_url.loader.basic_loader">
+    <argument type="service" id="shopware.seo_url.reader.basic_reader" />
 
-        <service class="Shopware\SeoUrl\Gateway\SeoUrlSearcher" id="shopware.seo_url.gateway.seo_url_searcher">
-            <argument id="dbal_connection" type="service"/>
-            <argument type="collection">
-                <argument type="service" id="shopware.seo_url.gateway.handler.seo_path_info_handler" />
-                <argument type="service" id="shopware.seo_url.gateway.handler.shop_handler" />
-                <argument type="service" id="shopware.seo_url.gateway.handler.path_info_handler" />
-                <argument type="service" id="shopware.seo_url.gateway.handler.canonical_handler" />
-                <argument type="service" id="shopware.seo_url.gateway.handler.name_handler" />
-                <argument type="service" id="shopware.seo_url.gateway.handler.foreign_key_handler" />
-            </argument>
-            <argument id="shopware.framework.struct.field_helper" type="service"/>
-            <argument id="shopware.seo_url.struct.seo_url_hydrator" type="service"/>
-        </service>
-
-        <service class="Shopware\SeoUrl\Gateway\Handler\SeoPathInfoHandler" id="shopware.seo_url.gateway.handler.seo_path_info_handler"/>
-        <service class="Shopware\SeoUrl\Gateway\Handler\ShopHandler" id="shopware.seo_url.gateway.handler.shop_handler"/>
-        <service class="Shopware\SeoUrl\Gateway\Handler\PathInfoHandler" id="shopware.seo_url.gateway.handler.path_info_handler"/>
-        <service class="Shopware\SeoUrl\Gateway\Handler\CanonicalHandler" id="shopware.seo_url.gateway.handler.canonical_handler"/>
-        <service class="Shopware\SeoUrl\Gateway\Handler\NameHandler" id="shopware.seo_url.gateway.handler.name_handler"/>
-        <service class="Shopware\SeoUrl\Gateway\Handler\ForeignKeyHandler" id="shopware.seo_url.gateway.handler.foreign_key_handler"/>
-
-        <service class="Shopware\SeoUrl\Gateway\SeoUrlWriter" id="shopware.seo_url.gateway.seo_url_writer">
-            <argument id="dbal_connection" type="service"/>
-        </service>
-
-        <service class="Shopware\SeoUrl\Gateway\SeoUrlRepository" id="shopware.seo_url.gateway.seo_url_repository">
-            <argument id="shopware.seo_url.gateway.seo_url_reader" type="service"/>
-            <argument id="shopware.seo_url.gateway.seo_url_searcher" type="service"/>
-            <argument id="shopware.seo_url.gateway.seo_url_writer" type="service"/>
-        </service>
-
-        <service class="Shopware\SeoUrl\Generator\SeoUrlGeneratorRegistry" id="shopware.seo_url.generator.seo_url_generator_registry">
-            <argument type="collection">
-                <argument type="service" id="shopware.storefront.detail_page.detail_page_url_generator" />
-                <argument type="service" id="shopware.storefront.listing_page.listing_page_url_generator" />
-            </argument>
-            <argument id="shopware.seo_url.gateway.seo_url_repository" type="service"/>
-            <argument id="dbal_connection" type="service"/>
-        </service>
+</service>
+<service class="Shopware\SeoUrl\Searcher\SeoUrlSearcher" id="shopware.seo_url.searcher.searcher">
+  <argument id="dbal_connection" type="service"/>
+  <argument type="collection">
+        <!-- #handlers# -->
+  </argument>
+  <argument id="shopware.seo_url.reader.basic_hydrator" type="service"/>
+</service>
+<service class="Shopware\SeoUrl\Writer\SeoUrlWriter" id="shopware.seo_url.writer.writer"/>
+<service class="Shopware\SeoUrl\SeoUrlRepository" id="shopware.seo_url.repository">
+  <argument id="shopware.seo_url.loader.basic_loader" type="service"/>
+  <argument id="event_dispatcher" type="service"/>
+  <argument id="shopware.seo_url.searcher.searcher" type="service"/>
+  <argument id="shopware.seo_url.writer.writer" type="service"/>
+  
+</service>
 
     </services>
 </container>

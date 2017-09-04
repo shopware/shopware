@@ -1,0 +1,43 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\#classUc#\Searcher;
+
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
+use Shopware\#classUc#\Loader\#classUc#BasicLoader;
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Search\Criteria;
+use Shopware\Search\Search;
+use Shopware\#classUc#\Struct\#classUc#SearchResult;
+use Shopware\Search\SearchResultInterface;
+
+class #classUc#Searcher extends Search
+{
+    /**
+     * @var #classUc#BasicLoader
+     */
+    private $basicLoader;
+
+    public function __construct(Connection $connection, array $handlers, #classUc#BasicLoader $basicLoader)
+    {
+        parent::__construct($connection, $handlers);
+        $this->basicLoader = $basicLoader;
+    }
+
+    protected function createQuery(Criteria $criteria, TranslationContext $context): QueryBuilder
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->select(['#classLc#.uuid']);
+        $query->from('#table#', '#classLc#');
+        return $query;
+    }
+
+    protected function createResult(array $rows, int $total, TranslationContext $context): SearchResultInterface
+    {
+        $structs = $this->basicLoader->load(
+            array_column($rows, 'uuid'),
+            $context
+        );
+        return new #classUc#SearchResult($structs->getIterator()->getArrayCopy(), $total);
+    }
+}

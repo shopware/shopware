@@ -34,8 +34,4 @@ interface FacetResultInterface
     public function getFacetName(): string;
 
     public function isActive(): bool;
-
-    public function getLabel(): string;
-
-    public function getTemplate(): ?string;
 }

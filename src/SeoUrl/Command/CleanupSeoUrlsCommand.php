@@ -43,7 +43,7 @@ class CleanupSeoUrlsCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $repo = $this->getContainer()->get('shopware.seo_url.gateway.seo_url_repository');
+        $repo = $this->getContainer()->get('shopware.seo_url.repository');
 
         $criteria = new Criteria();
         $criteria->offset(0);

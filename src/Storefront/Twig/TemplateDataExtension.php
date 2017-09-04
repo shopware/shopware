@@ -25,9 +25,9 @@
 namespace Shopware\Storefront\Twig;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Category\Gateway\CategoryRepository;
-use Shopware\Framework\Config\ConfigServiceInterface;
+use Shopware\Category\CategoryRepository;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Config\ConfigServiceInterface;
 use Shopware\Serializer\SerializerRegistry;
 use Shopware\Storefront\Component\SitePageMenu;
 use Shopware\Storefront\Theme\ThemeConfigReader;
@@ -99,7 +99,9 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
     public function getFunctions(): array
     {
         return [
-            new \Twig_Function('snippet', function ($snippet, $namespace = null) { return $this->translator->trans($snippet, [], $namespace); }),
+            new \Twig_Function('snippet', function ($snippet, $namespace = null) {
+                return $this->translator->trans($snippet, [], $namespace);
+            }),
         ];
     }
 
@@ -126,7 +128,7 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
                 'theme' => $this->getThemeConfig(),
             ],
             'context' => $context,
-            'activeRoute' => $request->attributes->get('_route')
+            'activeRoute' => $request->attributes->get('_route'),
         ];
     }
 

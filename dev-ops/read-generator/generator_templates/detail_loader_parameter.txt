@@ -1,0 +1,1 @@
+#classUc#DetailLoader $detailLoader

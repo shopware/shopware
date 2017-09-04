@@ -5,47 +5,32 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Category\Gateway\CategoryReader" id="shopware.category.gateway.category_reader">
-            <argument id="dbal_connection" type="service"/>
-            <argument id="shopware.framework.struct.field_helper" type="service"/>
-            <argument id="shopware.category.struct.category_hydrator" type="service"/>
-        </service>
+<service class="Shopware\Category\Reader\CategoryBasicHydrator" id="shopware.category.reader.basic_hydrator">
+<argument type="service" id="shopware.seo_url.reader.basic_hydrator" />
+</service>
+<service class="Shopware\Category\Reader\CategoryBasicReader" id="shopware.category.reader.basic_reader">
+  <argument id="dbal_connection" type="service"/>
+  <argument id="shopware.category.reader.basic_hydrator" type="service"/>
+</service>
+<service class="Shopware\Category\Loader\CategoryBasicLoader" id="shopware.category.loader.basic_loader">
+    <argument type="service" id="shopware.category.reader.basic_reader" />
 
-        <service class="Shopware\Category\Struct\CategoryHydrator" id="shopware.category.struct.category_hydrator">
-            <argument type="service" id="shopware.framework.struct.attribute_hydrator" />
-            <argument type="service" id="shopware.product_stream.struct.product_stream_hydrator" />
-            <argument type="service" id="shopware.seo_url.struct.seo_url_hydrator" />
-        </service>
-
-        <service class="Shopware\Framework\Struct\FieldHelper" id="shopware.framework.struct.field_helper">
-            <argument id="dbal_connection" type="service"/>
-            <argument id="shopware.cache" type="service"/>
-        </service>
-
-        <service class="Shopware\Category\Gateway\CategorySearcher" id="shopware.category.gateway.category_searcher">
-            <argument id="dbal_connection" type="service"/>
-            <argument type="collection">
-                <argument type="service" id="shopware.category.gateway.handler.shop_condition_handler" />
-                <argument type="service" id="shopware.category.gateway.handler.active_condition_handler" />
-                <argument type="service" id="shopware.category.gateway.handler.parent_category_condition_handler" />
-                <argument type="service" id="shopware.category.gateway.handler.customer_group_condition_handler" />
-                <argument type="service" id="shopware.category.gateway.handler.display_in_navigation_condition_handler" />
-            </argument>
-            <argument id="shopware.framework.struct.field_helper" type="service"/>
-            <argument id="shopware.category.struct.category_hydrator" type="service"/>
-        </service>
-
-        <service class="Shopware\Category\Gateway\CategoryRepository" id="shopware.category.gateway.category_repository">
-            <argument id="shopware.category.gateway.category_reader" type="service"/>
-            <argument id="shopware.category.gateway.category_searcher" type="service"/>
-            <argument id="event_dispatcher" type="service" />
-        </service>
-
-        <service class="Shopware\Category\Gateway\Handler\ShopConditionHandler" id="shopware.category.gateway.handler.shop_condition_handler"/>
-        <service class="Shopware\Category\Gateway\Handler\ActiveConditionHandler" id="shopware.category.gateway.handler.active_condition_handler"/>
-        <service class="Shopware\Category\Gateway\Handler\ParentCategoryConditionHandler" id="shopware.category.gateway.handler.parent_category_condition_handler"/>
-        <service class="Shopware\Category\Gateway\Handler\CustomerGroupConditionHandler" id="shopware.category.gateway.handler.customer_group_condition_handler"/>
-        <service class="Shopware\Category\Gateway\Handler\DisplayInNavigationConditionHandler" id="shopware.category.gateway.handler.display_in_navigation_condition_handler"/>
+</service>
+<service class="Shopware\Category\Searcher\CategorySearcher" id="shopware.category.searcher.searcher">
+  <argument id="dbal_connection" type="service"/>
+  <argument type="collection">
+        <!-- #handlers# -->
+  </argument>
+  <argument id="shopware.category.reader.basic_hydrator" type="service"/>
+</service>
+<service class="Shopware\Category\Writer\CategoryWriter" id="shopware.category.writer.writer"/>
+<service class="Shopware\Category\CategoryRepository" id="shopware.category.repository">
+  <argument id="shopware.category.loader.basic_loader" type="service"/>
+  <argument id="event_dispatcher" type="service"/>
+  <argument id="shopware.category.searcher.searcher" type="service"/>
+  <argument id="shopware.category.writer.writer" type="service"/>
+  
+</service>
 
     </services>
 </container>

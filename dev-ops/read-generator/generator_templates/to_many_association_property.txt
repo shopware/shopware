@@ -1,0 +1,4 @@
+    /**
+     * @var #associationClassUc#BasicCollection
+     */
+    protected $#plural#;

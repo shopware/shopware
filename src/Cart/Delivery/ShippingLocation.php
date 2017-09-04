@@ -48,9 +48,9 @@ class ShippingLocation extends Struct
     protected $address;
 
     /**
-     * @param CountryIdentity $country
+     * @param CountryIdentity   $country
      * @param null|CountryState $state
-     * @param null|Address $address
+     * @param null|Address      $address
      */
     public function __construct(CountryIdentity $country, ?CountryState $state, ?Address $address)
     {

@@ -44,4 +44,7 @@ abstract class Struct implements \JsonSerializable, ExtendableInterface
 
     //allows to add values to an internal attribute storage
     use ExtendableTrait;
+
+    //allows to create a new instance with all data of the provided object
+    use CreateFromTrait;
 }

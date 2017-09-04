@@ -1,0 +1,26 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\#classUc#\Reader;
+
+use Shopware\Framework\Struct\Hydrator;
+use Shopware\#classUc#\Struct\#classUc#BasicStruct;
+#uses#
+
+class #classUc#BasicHydrator extends Hydrator
+{
+#properties#
+
+    public function __construct(#constructorParameters#)
+    {
+#constructorInitializer#
+    }
+
+    public function hydrate(array $data): #classUc#BasicStruct
+    {
+        $#classLc# = new #classUc#BasicStruct();
+
+#assignments#
+
+        return $#classLc#;
+    }
+}

@@ -19,25 +19,23 @@ ALTER TABLE s_articles
     CHANGE COLUMN changetime updated_at DATETIME NOT NULL,
     CHANGE COLUMN pricegroupID price_group_id INT(11) unsigned,
     CHANGE COLUMN filtergroupID filter_group_id INT(11) unsigned,
-    CHANGE COLUMN laststock last_stock INT(1) NOT NULL,
+    CHANGE COLUMN laststock last_stock tinyint NOT NULL,
     DROP pricegroupActive,
     ADD COLUMN main_detail_uuid VARCHAR(42) NULL AFTER tax_id, -- must be nullable because it is a circuilar reference
     ADD COLUMN tax_uuid VARCHAR(42) NOT NULL AFTER tax_id,
     ADD product_manufacturer_uuid VARCHAR(42) NOT NULL AFTER manufacturer_id,
-    ADD filter_group_uuid VARCHAR(42) AFTER filter_group_id
+    ADD filter_group_uuid VARCHAR(42) AFTER filter_group_id,
+    CHANGE `topseller` `topseller` tinyint unsigned NOT NULL DEFAULT '0' AFTER `pseudo_sales`,
+    DROP `crossbundlelook`,
+    CHANGE `notification` `notification` tinyint unsigned NOT NULL COMMENT 'send notification' AFTER `last_stock`,
+    CHANGE `active` `active` tinyint unsigned NOT NULL DEFAULT '0' AFTER `created_at`
 ;
 
 CREATE INDEX product_by_category_sort_name ON product (name, id);
 CREATE INDEX product_by_category_sort_release ON product (created_at, id);
 
 -- migration
-UPDATE product p
-SET p.uuid = CONCAT('SWAG-PRODUCT-UUID-', p.id),
-    p.product_manufacturer_uuid = CONCAT('SWAG-PRODUCT-MANUFACTURER-UUID-', p.manufacturer_id),
-    p.tax_uuid = CONCAT('SWAG-CONFIG-TAX-UUID-', p.tax_id),
-    p.main_detail_uuid = CONCAT('SWAG-PRODUCT-DETAIL-UUID-', p.main_detail_id),
-    p.filter_group_uuid = CONCAT('SWAG-FILTER-GROUP-UUID-', p.filter_group_id)
-;
+
 
 ALTER TABLE s_article_configurator_dependencies
     RENAME TO product_configurator_dependency,
@@ -123,10 +121,6 @@ ALTER TABLE s_articles_also_bought_ro
 ;
 
 -- migration
-UPDATE product_also_bought_ro pabr SET
-    pabr.product_uuid = CONCAT('SWAG-PRODUCT-UUID-',pabr.product_id),
-    pabr.related_product_uuid = CONCAT('SWAG-PRODUCT-UUID-',pabr.related_product_id)
-;
 
 -- clean up task
 DELETE a.* FROM s_articles_attributes a WHERE
@@ -142,10 +136,7 @@ ALTER TABLE s_articles_attributes
 ;
 
 -- migration
-UPDATE product_attribute pa SET
-    pa.uuid                = CONCAT('SWAG-PRODUCT-ATTRIBUTE-UUID-', pa.id),
-    pa.product_detail_uuid = CONCAT('SWAG-PRODUCT-DETAIL-UUID-', pa.product_details_id)
-;
+
 
 ALTER TABLE s_articles_avoid_customergroups
     RENAME TO product_avoid_customer_group,
@@ -158,7 +149,7 @@ ALTER TABLE s_articles_avoid_customergroups
 -- migration
 UPDATE product_avoid_customer_group pac SET
     pac.product_uuid = CONCAT('SWAG-PRODUCT-UUID-', pac.product_id),
-    pac.customer_group_uuid = CONCAT('SWAG-CONFIG-CUSTOMER-GROUP-UUID-', pac.customer_group_id)
+    pac.customer_group_uuid = CONCAT('SWAG-CUSTOMER-GROUP-UUID-', pac.customer_group_id)
 ;
 
 ALTER TABLE s_articles_categories
@@ -206,7 +197,7 @@ ALTER TABLE s_articles_categories_seo
 
 -- migration
 UPDATE product_category_seo pcs SET
-    pcs.shop_uuid     = CONCAT('SWAG-CONFIG-SHOP-UUID-', pcs.shop_id),
+    pcs.shop_uuid     = CONCAT('SWAG-SHOP-UUID-', pcs.shop_id),
     pcs.product_uuid  = CONCAT('SWAG-PRODUCT-UUID-', pcs.product_id),
     pcs.category_uuid = CONCAT('SWAG-CATEGORY-UUID-', pcs.product_id)
 ;
@@ -234,7 +225,10 @@ ALTER TABLE s_articles_details
     CHANGE releasedate release_date DATETIME,
     CHANGE shippingfree shipping_free INT(1) unsigned NOT NULL DEFAULT '0',
     CHANGE shippingtime shipping_time VARCHAR(11),
-    CHANGE purchaseprice purchase_price DOUBLE NOT NULL DEFAULT '0'
+    CHANGE purchaseprice purchase_price DOUBLE NOT NULL DEFAULT '0',
+    CHANGE `active` `active` tinyint unsigned NOT NULL DEFAULT '0' AFTER `sales`,
+    CHANGE `kind` `is_main` tinyint NOT NULL DEFAULT '0' AFTER `supplier_number`,
+    ADD `unit_uuid` varchar(42) NULL AFTER `unit_id`
 ;
 
 -- migration
@@ -242,9 +236,10 @@ UPDATE product_detail pd SET
     pd.uuid = CONCAT('SWAG-PRODUCT-DETAIL-UUID-', pd.id),
     pd.product_uuid = CONCAT('SWAG-PRODUCT-UUID-', pd.product_id)
 ;
+UPDATE product_detail SET unit_uuid = CONCAT('SWAG-UNIT-UUID-', unit_id) WHERE unit_id IS NOT NULL;
 
 ALTER TABLE s_articles_downloads
-    RENAME TO product_download,
+    RENAME TO product_attachment,
     ADD uuid VARCHAR(42) NOT NULL AFTER id,
     CHANGE articleID product_id INT(11) unsigned NOT NULL,
     ADD product_uuid VARCHAR(42) NOT NULL AFTER product_id,
@@ -252,23 +247,23 @@ ALTER TABLE s_articles_downloads
 ;
 
 -- migration
-UPDATE product_download pd SET
+UPDATE product_attachment pd SET
     pd.uuid         = CONCAT('SWAG-PRODUCT-DOWNLOAD-UUID-', pd.id),
     pd.product_uuid = CONCAT('SWAG-PRODUCT-UUID-', pd.product_id)
 ;
 
 ALTER TABLE s_articles_downloads_attributes
-    RENAME TO product_download_attribute,
+    RENAME TO product_attachment_attribute,
     ADD uuid VARCHAR(42) NOT NULL AFTER id,
-    CHANGE downloadID download_id INT(11) unsigned AFTER uuid,
-    ADD product_download_uuid VARCHAR(42) NOT NULL AFTER download_id
+    CHANGE downloadID product_attachment INT(11) unsigned AFTER uuid,
+    ADD product_attachment_uuid VARCHAR(42) NOT NULL AFTER product_attachment
 ;
 
 -- migration
 
-UPDATE product_download_attribute pda SET
+UPDATE product_attachment_attribute pda SET
     pda.uuid          = CONCAT('SWAG-PRODUCT-DOWNLOAD-ATTRIBUTE-UUID-', pda.id),
-    pda.product_download_uuid = CONCAT('SWAG-PRODUCT-DOWNLOAD-UUID-', pda.download_id)
+    pda.product_attachment_uuid = CONCAT('SWAG-PRODUCT-DOWNLOAD-UUID-', pda.product_attachment)
 ;
 
 ALTER TABLE s_articles_esd
@@ -322,7 +317,7 @@ DROP INDEX article_images_query ON s_articles_img;
 DROP INDEX article_detail_id ON s_articles_img;
 DROP INDEX article_cover_image_query ON s_articles_img;
 ALTER TABLE s_articles_img
-    RENAME TO product_image,
+    RENAME TO product_media,
     ADD COLUMN uuid VARCHAR(42) NOT NULL AFTER id,
     CHANGE COLUMN articleID product_id INT(11),
     CHANGE COLUMN article_detail_id product_detail_id INT(10) unsigned,
@@ -331,80 +326,80 @@ ALTER TABLE s_articles_img
 ;
 
 -- clean up task
-DELETE p.* FROM product_image p WHERE
+DELETE p.* FROM product_media p WHERE
     p.product_id IS NULL
 ;
 
 -- migration
-UPDATE product_image p SET
+UPDATE product_media p SET
     p.uuid                = CONCAT('SWAG-PRODUCT-IMAGE-UUID-', p.id),
     p.product_uuid        = CONCAT('SWAG-PRODUCT-UUID-', p.product_id),
     p.product_detail_uuid = CONCAT('SWAG-PRODUCT-DETAIL-UUID-', IFNULL(p.product_detail_id, ''))
 ;
 
 ALTER TABLE s_articles_img_attributes
-    RENAME TO product_image_attribute,
+    RENAME TO product_media_attribute,
     ADD COLUMN uuid VARCHAR(42) NOT NULL AFTER id,
     CHANGE COLUMN imageID image_id INT(11),
-    ADD COLUMN product_image_uuid VARCHAR(42) NOT NULL AFTER image_id
+    ADD COLUMN product_media_uuid VARCHAR(42) NOT NULL AFTER image_id
 ;
 
 -- migration
-UPDATE product_image_attribute p SET
+UPDATE product_media_attribute p SET
     p.uuid = CONCAT('SWAG-PRODUCT-IMAGE-ATTRIBUTE-UUID-', p.id),
-    p.product_image_uuid = CONCAT('SWAG-PRODUCT-IMAGE-UUID-', p.image_id)
+    p.product_media_uuid = CONCAT('SWAG-PRODUCT-IMAGE-UUID-', p.image_id)
 ;
 
 ALTER TABLE s_article_img_mappings
-    RENAME TO product_image_mapping,
+    RENAME TO product_media_mapping,
     ADD COLUMN uuid VARCHAR(42) NOT NULL AFTER id,
-    ADD COLUMN product_image_uuid VARCHAR(42) NOT NULL AFTER image_id
+    ADD COLUMN product_media_uuid VARCHAR(42) NOT NULL AFTER image_id
 ;
 
 -- migration
-UPDATE product_image_mapping p SET
+UPDATE product_media_mapping p SET
     p.uuid = CONCAT('SWAG-PRODUCT-IMAGE-MAPPING-UUID-', p.id),
-    p.product_image_uuid = CONCAT('SWAG-PRODUCT-IMAGE-UUID-', p.image_id)
+    p.product_media_uuid = CONCAT('SWAG-PRODUCT-IMAGE-UUID-', p.image_id)
 ;
 
 -- TODO option_id ???
 ALTER TABLE s_article_img_mapping_rules
-    RENAME TO product_image_mapping_rule,
+    RENAME TO product_media_mapping_rule,
     ADD COLUMN uuid VARCHAR(42) NOT NULL AFTER id,
-    ADD COLUMN product_image_mapping_uuid VARCHAR(42) NOT NULL AFTER mapping_id
+    ADD COLUMN product_media_mapping_uuid VARCHAR(42) NOT NULL AFTER mapping_id
 ;
 
 -- migration
-UPDATE product_image_mapping_rule p SET
+UPDATE product_media_mapping_rule p SET
     p.uuid = CONCAT('SWAG-PRODUCT-IMAGE-MAPPING-RULE-UUID-', p.id),
-    p.product_image_mapping_uuid = CONCAT('SWAG-PRODUCT-IMAGE-MAPPING-UUID-', p.mapping_id)
+    p.product_media_mapping_uuid = CONCAT('SWAG-PRODUCT-IMAGE-MAPPING-UUID-', p.mapping_id)
 ;
 
 ALTER TABLE s_articles_information
-    RENAME TO product_information,
+    RENAME TO product_link,
     ADD COLUMN uuid VARCHAR(42) NOT NULL AFTER id,
     CHANGE COLUMN articleID product_id INT(11) NOT NULL DEFAULT '0',
     ADD COLUMN product_uuid VARCHAR(42) NOT NULL AFTER product_id
 ;
 
 -- migration
-UPDATE product_information p SET
+UPDATE product_link p SET
     p.uuid = CONCAT('SWAG-PRODUCT-INFORMATION-UUID-', p.id),
     p.product_uuid = CONCAT('SWAG-PRODUCT-UUID-', p.product_id)
 ;
 
 
 ALTER TABLE s_articles_information_attributes
-    RENAME TO product_information_attribute,
+    RENAME TO product_link_attribute,
     CHANGE COLUMN informationID information_id INT(11),
     ADD COLUMN uuid VARCHAR(42) NOT NULL AFTER id,
-    ADD COLUMN product_information_uuid VARCHAR(42) NOT NULL AFTER information_id
+    ADD COLUMN product_link_uuid VARCHAR(42) NOT NULL AFTER information_id
 ;
 
 -- migration
-UPDATE product_information_attribute p SET
+UPDATE product_link_attribute p SET
     p.uuid             = CONCAT('SWAG-PRODUCT-INFORMATION-ATTRIBUTE-UUID-', p.id),
-    p.product_information_uuid = CONCAT('SWAG-PRODUCT-INFORMATION-UUID-', p.information_id)
+    p.product_link_uuid = CONCAT('SWAG-PRODUCT-INFORMATION-UUID-', p.information_id)
 ;
 
 ALTER TABLE s_articles_notification
@@ -452,7 +447,7 @@ UPDATE product_price_attribute p SET
 ;
 
 ALTER TABLE s_articles_relationships
-    RENAME TO product_relationship,
+    RENAME TO product_accessory,
     ADD uuid VARCHAR(42) NOT NULL,
     CHANGE relatedarticle related_product VARCHAR(30) NOT NULL,
     CHANGE articleID product_id INT(30) NOT NULL,
@@ -461,7 +456,7 @@ ALTER TABLE s_articles_relationships
 ;
 
 -- migration
-UPDATE product_relationship p SET
+UPDATE product_accessory p SET
     p.uuid                 = CONCAT('SWAG-PRODUCT-RELATIONSHIP-UUID-', p.id),
     p.product_uuid         = CONCAT('SWAG-PRODUCT-UUID-', p.product_id),
     p.related_product_uuid = CONCAT('SWAG-PRODUCT-UUID-', p.related_product)
@@ -533,7 +528,7 @@ ALTER TABLE s_articles_top_seller_ro
 -- migration
 UPDATE product_top_seller_ro p SET
     p.uuid         = CONCAT('SWAG-PRODUCT-TOP-SELLER-RO-UUID-', p.id),
-    p.product_uuid = CONCAT('SWAG-PRODUCT-UUID-', p.product_id);
+    p.product_uuid = CONCAT('SWAG-PRODUCT-UUID-', p.product_id)
 ;
 
 ALTER TABLE s_articles_translations
@@ -608,16 +603,11 @@ ALTER TABlE s_core_customergroups
 
 -- migration
 UPDATE s_core_customergroups s SET
-    s.uuid = CONCAT('SWAG-CONFIG-CUSTOMER-GROUP-UUID-', s.id)
+    s.uuid = CONCAT('SWAG-CUSTOMER-GROUP-UUID-', s.id)
 ;
 
 ALTER TABlE s_core_shops
     ADD COLUMN uuid VARCHAR(42) NOT NULL AFTER id
-;
-
--- migration
-UPDATE s_core_shops s SET
-    s.uuid = CONCAT('SWAG-CONFIG-SHOP-UUID-', s.id)
 ;
 
 ALTER TABlE s_core_tax
@@ -629,29 +619,35 @@ UPDATE s_core_tax s SET
     s.uuid = CONCAT('SWAG-CONFIG-TAX-UUID-', s.id)
 ;
 
-ALTER TABLE s_categories
-    RENAME TO category,
-    ADD uuid VARCHAR(42) NOT NULL AFTER id,
-    ADD parent_uuid VARCHAR(42) AFTER parent,
-    DROP `left`,
-    DROP `right`,
-    CHANGE mediaID media_id INT(11) unsigned,
-    ADD media_uuid VARCHAR(42) NOT NULL AFTER media_id,
-    CHANGE hidetop hide_top INT(1) NOT NULL,
-    CHANGE hidefilter hide_filter INT(1) NOT NULL,
-    CHANGE cmstext cms_description MEDIUMTEXT,
-    CHANGE cmsheadline cms_headline VARCHAR(255),
-    CHANGE metadescription meta_description MEDIUMTEXT,
-    CHANGE metakeywords meta_keywords MEDIUMTEXT,
-    CHANGE changed changed_at DATETIME NOT NULL,
-    MODIFY COLUMN meta_title VARCHAR(255) AFTER meta_keywords
-;
+ALTER TABLE s_categories RENAME TO category;
+ALTER TABLE category ADD uuid VARCHAR(42) NOT NULL AFTER id;
+ALTER TABLE category DROP `left`;
+ALTER TABLE category DROP `right`;
+ALTER TABLE category CHANGE mediaID media_id INT(11) unsigned;
+ALTER TABLE category ADD media_uuid VARCHAR(42) NOT NULL AFTER media_id;
+ALTER TABLE category CHANGE cmstext cms_description MEDIUMTEXT;
+ALTER TABLE category CHANGE cmsheadline cms_headline VARCHAR(255);
+ALTER TABLE category CHANGE metadescription meta_description MEDIUMTEXT;
+ALTER TABLE category CHANGE metakeywords meta_keywords MEDIUMTEXT;
+ALTER TABLE category CHANGE changed changed_at DATETIME NOT NULL;
+ALTER TABLE category MODIFY COLUMN meta_title VARCHAR(255) AFTER meta_keywords;
+ALTER TABLE category CHANGE `parent` `parent_id` int(11) unsigned NULL AFTER `uuid`;
+ALTER TABLE category ADD `parent_uuid` varchar(42) NULL AFTER `parent_id`;
+ALTER TABLE category CHANGE `active` `active` tinyint NOT NULL AFTER `template`;
+ALTER TABLE category CHANGE `hidefilter` `hide_filter` tinyint NOT NULL AFTER `external`;
+ALTER TABLE category CHANGE `hidetop` `hide_top` tinyint NOT NULL AFTER `hide_filter`;
+ALTER TABLE category CHANGE `hide_sortings` `hide_sortings` tinyint NOT NULL DEFAULT '0';
+ALTER TABLE category CHANGE `blog` `is_blog` tinyint NOT NULL  AFTER `active`;
+ALTER TABLE category CHANGE `stream_id` `product_stream_id` int unsigned NULL AFTER `product_box_layout`;
+ALTER TABLE category ADD `product_stream_uuid` varchar(42) NULL AFTER `product_stream_id`;
 
 -- migration
 UPDATE category c SET
     c.uuid = CONCAT('SWAG-CATEGORY-UUID-', c.id),
     c.parent_uuid = CONCAT('SWAG-CATEGORY-UUID-', c.parent)
 ;
+
+UPDATE category c SET c.parent_uuid = CONCAT('SWAG-CATEGORY-UUID-', c.parent_id) WHERE c.parent_id IS NOT NULL;
 
 ALTER TABLE s_categories_attributes
     RENAME TO category_attribute,
@@ -676,7 +672,7 @@ ALTER TABLE s_categories_avoid_customergroups
 
 -- migration
 UPDATE category_avoid_customer_group c SET
-    c.customer_group_uuid = CONCAT('SWAG-CONFIG-CUSTOMER-GROUP-UUID-', c.customer_group_id),
+    c.customer_group_uuid = CONCAT('SWAG-CUSTOMER-GROUP-UUID-', c.customer_group_id),
     c.category_uuid = CONCAT('SWAG-CATEGORY-UUID-', c.category_id)
 ;
 
@@ -800,35 +796,1629 @@ ALTER TABLE product_attribute
     DROP FOREIGN KEY product_attribute_ibfk_2
 ;
 
+ALTER TABLE `product`
+    CHANGE COLUMN `name` `name` VARCHAR(255) NOT NULL AFTER `product_manufacturer_uuid`
+;
+
+INSERT IGNORE INTO `s_core_templates` (`id`, `template`, `name`, `description`, `author`, `license`, `esi`, `style_support`, `emotion`, `version`, `plugin_id`, `parent_id`) VALUES
+(11,	'Responsive',	'__theme_name__',	'__theme_description__',	'__author__',	'__license__',	1,	1,	1,	3,	NULL,	NULL);
+
+
+ALTER TABLE `s_media_attributes`
+    RENAME TO `media_attribute`,
+    ADD `uuid` varchar(42) NOT NULL FIRST,
+    ADD `media_uuid` varchar(42) NOT NULL AFTER `uuid`,
+    CHANGE `mediaID` `media_id` int NULL AFTER `id`
+;
+
+ALTER TABLE `s_media`
+    RENAME TO `media`,
+    ADD `uuid` varchar(42) NOT NULL FIRST,
+    ADD `album_uuid` varchar(42) NOT NULL AFTER `uuid`,
+    ADD `user_uuid` varchar(42) NULL AFTER `album_uuid`,
+    CHANGE `name` `name` varchar(255) NOT NULL AFTER `album_uuid`,
+    CHANGE `description` `description` text NOT NULL AFTER `name`,
+    CHANGE `path` `file_name` varchar(255) NOT NULL AFTER `description`,
+    CHANGE `type` `mime_type` varchar(50) NOT NULL AFTER `file_name`,
+    CHANGE `file_size` `file_size` int(10) unsigned NOT NULL AFTER `mime_type`,
+    ADD `meta_data` TEXT NULL DEFAULT NULL AFTER `file_size`,
+    CHANGE `created` `created_at` datetime NOT NULL AFTER `meta_data`,
+    ADD `updated_at` datetime NULL,
+    CHANGE `albumID` `album_id` int NOT NULL AFTER `id`,
+    CHANGE `userID` `user_id` int(11) NOT NULL AFTER `album_id`
+;
+
+
+ALTER TABLE `s_media_album`
+    RENAME TO `album`,
+    ADD `uuid` varchar(42) NOT NULL FIRST,
+    ADD `parent_uuid` varchar(42) NULL AFTER `name`,
+    ADD `create_thumbnails` int(11) NOT NULL,
+    ADD `thumbnail_size` text COLLATE utf8_unicode_ci NOT NULL,
+    ADD `icon` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+    ADD `thumbnail_high_dpi` tinyint NOT NULL DEFAULT 1,
+    ADD `thumbnail_quality` int(11) DEFAULT NULL,
+    ADD `thumbnail_high_dpi_quality` int(11) DEFAULT NULL,
+    CHANGE `parentID` `parent_id` int(11) NULL AFTER `parent_uuid`
+;
+
+
+
+ALTER TABLE s_core_shops
+    RENAME TO shop,
+    ADD COLUMN main_uuid VARCHAR(42) NULL DEFAULT NULL,
+    ADD COLUMN shop_template_uuid VARCHAR(42) NULL DEFAULT NULL,
+    ADD COLUMN document_template_uuid VARCHAR(42) NULL DEFAULT NULL,
+    ADD COLUMN category_uuid VARCHAR(42) NOT NULL,
+    ADD COLUMN locale_uuid VARCHAR(42) NOT NULL,
+    ADD COLUMN currency_uuid VARCHAR(42) NOT NULL,
+    ADD COLUMN customer_group_uuid VARCHAR(42) NOT NULL,
+    ADD COLUMN fallback_locale_uuid VARCHAR(42) NULL DEFAULT NULL,
+    ADD COLUMN payment_method_uuid VARCHAR(42) NOT NULL,
+    ADD COLUMN shipping_method_uuid VARCHAR(42) NOT NULL,
+    ADD COLUMN area_country_uuid VARCHAR(42) NOT NULL,
+    CHANGE `template_id` `shop_template_id` int(11) unsigned NULL AFTER `secure`,
+    CHANGE `payment_id` `payment_method_id` int(11) NOT NULL AFTER `active`,
+    CHANGE `dispatch_id` `shipping_method_id` int(11) NOT NULL AFTER `payment_method_id`,
+    CHANGE `country_id` `area_country_id` int(11) NOT NULL AFTER `shipping_method_id`,
+    CHANGE `secure` `secure` tinyint unsigned NOT NULL AFTER `hosts`,
+    CHANGE `customer_scope` `customer_scope` tinyint NOT NULL AFTER `fallback_id`,
+    CHANGE `default` `is_default` tinyint unsigned NOT NULL AFTER `customer_scope`,
+    CHANGE `active` `active` tinyint NOT NULL AFTER `is_default`
+;
+
+
+ALTER TABLE s_core_countries
+    RENAME TO area_country,
+    ADD COLUMN uuid VARCHAR(42) NULL DEFAULT NULL,
+    CHANGE `countryname` `name` varchar(255) COLLATE 'utf8_unicode_ci' NULL,
+    CHANGE `countryiso` `iso` varchar(255) COLLATE 'utf8_unicode_ci' NULL AFTER `name`,
+    CHANGE `areaID` `area_id` int(11) NULL AFTER `iso`,
+    CHANGE `countryen` `en` varchar(255) COLLATE 'utf8_unicode_ci' NULL AFTER `area_id`,
+    CHANGE `shippingfree` `shipping_free` tinyint NULL AFTER `notice`,
+    CHANGE `taxfree` `tax_free` tinyint NULL AFTER `shipping_free`,
+    CHANGE `taxfree_ustid` `taxfree_for_vat_id` tinyint NULL AFTER `tax_free`,
+    CHANGE `taxfree_ustid_checked` `taxfree_vatid_checked` tinyint NULL AFTER `taxfree_for_vat_id`,
+    CHANGE `active` `active` tinyint NULL AFTER `taxfree_vatid_checked`,
+    CHANGE `display_state_in_registration` `display_state_in_registration` tinyint NOT NULL AFTER `iso3`,
+    CHANGE `force_state_in_registration` `force_state_in_registration` tinyint NOT NULL AFTER `display_state_in_registration`,
+    ADD `area_uuid` varchar(42) NOT NULL
+;
+
+
+
+ALTER TABLE `s_library_component`
+    RENAME TO shopping_world_component,
+    CHANGE `pluginID` `plugin_id` int(11) NULL AFTER `cls`,
+    ADD `plugin_uuid` varchar(42) COLLATE 'utf8_unicode_ci' NULL,
+    ADD `uuid` varchar(42) NULL;
+
+
+ALTER TABLE `s_library_component_field`
+    ADD `uuid` varchar(42) NULL AFTER `id`,
+    CHANGE `componentID` `shopping_world_component_id` int(11) NOT NULL AFTER `uuid`,
+    ADD `shopping_world_component_uuid` varchar(42) NOT NULL AFTER `shopping_world_component_id`,
+    CHANGE `allow_blank` `allow_blank` tinyint NOT NULL AFTER `default_value`,
+    CHANGE `translatable` `translatable` tinyint NOT NULL DEFAULT '0' AFTER `allow_blank`,
+    RENAME TO `shopping_world_component_field`;
+
+
+ALTER TABLE `s_premium_dispatch`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `active` `active` tinyint unsigned NOT NULL AFTER `comment`,
+    CHANGE `shippingfree` `shipping_free` decimal(10,2) unsigned NULL AFTER `tax_calculation`,
+    CHANGE `multishopID` `shop_id` int(11) unsigned NULL AFTER `shipping_free`,
+    ADD `shop_uuid` varchar(42) NULL AFTER `shop_id`,
+    CHANGE `customergroupID` `customer_group_id` int(11) unsigned NULL AFTER `shop_uuid`,
+    ADD `customer_group_uuid` varchar(42) NULL AFTER `customer_group_id`,
+    RENAME TO `shipping_method`;
+
+
+
+ALTER TABLE `s_premium_dispatch_attributes`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `dispatchID` `shipping_method_id` int NULL AFTER `uuid`,
+    ADD `shipping_method_uuid` varchar(42) NOT NULL,
+    RENAME TO `shipping_method_attribute`;
+
+
+
+ALTER TABLE `s_premium_dispatch_categories`
+    CHANGE `dispatchID` `shipping_method_id` int unsigned NOT NULL FIRST,
+    ADD `shipping_method_uuid` varchar(42) NOT NULL AFTER `shipping_method_id`,
+    CHANGE `categoryID` `category_id` int unsigned NOT NULL AFTER `shipping_method_uuid`,
+    ADD `category_uuid` varchar(42) NOT NULL,
+    RENAME TO `shipping_method_category`;
+
+
+
+ALTER TABLE `s_premium_dispatch_countries`
+    CHANGE `dispatchID` `shipping_method_id` int NOT NULL FIRST,
+    ADD `shipping_method_uuid` varchar(42) NOT NULL AFTER `shipping_method_id`,
+    CHANGE `countryID` `area_country_id` int NOT NULL AFTER `shipping_method_uuid`,
+    ADD `area_country_uuid` varchar(42) NOT NULL,
+    RENAME TO `shipping_method_country`;
+
+
+ALTER TABLE `s_premium_dispatch_holidays`
+    CHANGE `dispatchID` `shipping_method_id` int unsigned NOT NULL FIRST,
+    ADD `shipping_method_uuid` varchar(42) NOT NULL AFTER `shipping_method_id`,
+    CHANGE `holidayID` `holiday_id` int(11) unsigned NOT NULL AFTER `shipping_method_uuid`,
+    ADD `holiday_uuid` varchar(42) NOT NULL,
+    RENAME TO `shipping_method_holiday`;
+
+
+
+ALTER TABLE `s_premium_dispatch_paymentmeans`
+    CHANGE `dispatchID` `shipping_method_id` int NOT NULL FIRST,
+    ADD `shipping_method_uuid` varchar(42) NOT NULL AFTER `shipping_method_id`,
+    CHANGE `paymentID` `payment_method_id` int(11) NOT NULL AFTER `shipping_method_uuid`,
+    ADD `payment_method_uuid` varchar(42) NOT NULL,
+    RENAME TO `shipping_method_payment_method`;
+
+
+ALTER TABLE `s_premium_holidays`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    RENAME TO `holiday`;
+
+
+
+ALTER TABLE `s_premium_shippingcosts`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `dispatchID` `shipping_method_id` int unsigned NOT NULL AFTER `factor`,
+    ADD `shipping_method_uuid` varchar(42) NOT NULL,
+    RENAME TO `shipping_method_price`;
+
+
+
+
+ALTER TABLE `s_product_streams`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `sorting_id` `listing_sorting_id` int(11) NULL AFTER `description`,
+    ADD `listing_sorting_uuid` varchar(42) NULL,
+    RENAME TO `product_stream`;
+
+
+
+ALTER TABLE `s_product_streams_articles`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `stream_id` `product_stream_id` int unsigned NOT NULL AFTER `uuid`,
+    ADD `product_stream_uuid` varchar(42) NOT NULL AFTER `product_stream_id`,
+    CHANGE `article_id` `product_id` int unsigned NOT NULL AFTER `product_stream_uuid`,
+    ADD `product_uuid` varchar(42) NOT NULL,
+    RENAME TO `product_stream_tab`;
+
+
+
+ALTER TABLE `s_product_streams_attributes`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `streamID` `product_stream_id` int unsigned NOT NULL AFTER `uuid`,
+    ADD `product_stream_uuid` varchar(42) NOT NULL,
+    RENAME TO `product_stream_attribute`;
+
+
+
+ALTER TABLE `s_product_streams_selection`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `stream_id` `product_stream_id` int unsigned NOT NULL AFTER `uuid`,
+    ADD `product_stream_uuid` varchar(42) NOT NULL AFTER `product_stream_id`,
+    CHANGE `article_id` `product_id` int unsigned NOT NULL AFTER `product_stream_uuid`,
+    ADD `product_uuid` varchar(42) NOT NULL,
+    RENAME TO `product_stream_assignment`;
+
+
+
+ALTER TABLE `product_stream_tab`
+    COMMENT='used to assign stream as detail page tab item';
+
+ALTER TABLE `product_stream_assignment`
+    COMMENT='Contains the manually assigned products of a stream';
+
+ALTER TABLE `s_schema_version`
+    RENAME TO `schema_version`;
+
+ALTER TABLE `s_search_custom_facet`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `active` `active` tinyint unsigned NOT NULL AFTER `uuid`,
+    CHANGE `display_in_categories` `display_in_categories` tinyint unsigned NOT NULL AFTER `unique_key`,
+    CHANGE `deletable` `deletable` tinyint unsigned NOT NULL AFTER `display_in_categories`,
+    CHANGE `facet` `payload` longtext COLLATE 'utf8_unicode_ci' NOT NULL AFTER `name`,
+    RENAME TO `listing_facet`;
+
+
+ALTER TABLE `s_search_custom_sorting`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `active` `active` tinyint unsigned NOT NULL AFTER `label`,
+    CHANGE `display_in_categories` `display_in_categories` tinyint unsigned NOT NULL AFTER `active`,
+    CHANGE `sortings` `payload` longtext COLLATE 'utf8_unicode_ci' NOT NULL AFTER `position`,
+    RENAME TO `listing_sorting`;
+
+
+ALTER TABLE `s_statistics_article_impression`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `articleId` `product_id` int unsigned NOT NULL AFTER `uuid`,
+    ADD `product_uuid` varchar(42) NOT NULL AFTER `product_id`,
+    CHANGE `shopId` `shop_id` int unsigned NOT NULL AFTER `product_uuid`,
+    ADD `shop_uuid` varchar(42) NOT NULL AFTER `shop_id`,
+    CHANGE `date` `impression_date` date NOT NULL DEFAULT '0000-00-00' AFTER `shop_uuid`,
+    CHANGE `deviceType` `device_type` varchar(50) COLLATE 'utf8_unicode_ci' NOT NULL DEFAULT 'desktop' AFTER `impressions`,
+    RENAME TO `statistic_product_impression`;
+
+
+
+ALTER TABLE `s_statistics_currentusers`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `remoteaddr` `remote_address` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `uuid`,
+    CHANGE `time` `tracking_time` datetime NULL AFTER `page`,
+    CHANGE `userID` `customer_id` int(11) NOT NULL DEFAULT '0' AFTER `tracking_time`,
+    ADD `customer_uuid` varchar(42) NOT NULL AFTER `customer_id`,
+    CHANGE `deviceType` `device_type` varchar(50) COLLATE 'utf8_unicode_ci' NOT NULL DEFAULT 'desktop' AFTER `customer_uuid`,
+    RENAME TO `statistic_current_customer`;
+
+
+
+ALTER TABLE `s_statistics_pool`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `remoteaddr` `remote_address` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `uuid`,
+    CHANGE `datum` `create_date` date NOT NULL DEFAULT '0000-00-00' AFTER `remote_address`,
+    RENAME TO `statistic_address_pool`;
+
+
+
+ALTER TABLE `s_statistics_referer`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `datum` `create_date` date NOT NULL DEFAULT '0000-00-00' AFTER `uuid`,
+    RENAME TO `statistic_referer`;
+
+
+
+ALTER TABLE `s_statistics_search`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `datum` `created_at` datetime NOT NULL AFTER `uuid`,
+    CHANGE `searchterm` `term` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `created_at`,
+    CHANGE `results` `result_count` int(11) NOT NULL AFTER `term`,
+    ADD `shop_uuid` int(11) NULL,
+    RENAME TO `statistic_search`;
+
+
+ALTER TABLE `s_statistics_visitors`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `shopID` `shop_id` int NOT NULL AFTER `uuid`,
+    ADD `shop_uuid` varchar(42) NOT NULL AFTER `shop_id`,
+    CHANGE `datum` `created_at` datetime NOT NULL AFTER `shop_uuid`,
+    CHANGE `pageimpressions` `page_impressions` int(11) NOT NULL DEFAULT '0' AFTER `created_at`,
+    CHANGE `uniquevisits` `unique_visits` int(11) NOT NULL DEFAULT '0' AFTER `page_impressions`,
+    CHANGE `deviceType` `device_type` varchar(50) COLLATE 'utf8_unicode_ci' NOT NULL DEFAULT 'desktop' AFTER `unique_visits`,
+    RENAME TO `statistic_visitor`;
+
+
+ALTER TABLE `s_user`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `active` `active` tinyint NOT NULL DEFAULT '0' AFTER `email`,
+    CHANGE `accountmode` `account_mode` int(11) NOT NULL AFTER `active`,
+    CHANGE `confirmationkey` `confirmation_key` varchar(100) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `account_mode`,
+    CHANGE `paymentID` `last_payment_method_id` int(11) NOT NULL DEFAULT '0' AFTER `confirmation_key`,
+    ADD `last_payment_method_uuid` varchar(42) NOT NULL AFTER `last_payment_method_id`,
+
+    CHANGE `firstlogin` `first_login` date NOT NULL DEFAULT '0000-00-00' AFTER `last_payment_method_uuid`,
+    CHANGE `lastlogin` `last_login` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `first_login`,
+    CHANGE `sessionID` `session_id` varchar(128) COLLATE 'utf8_unicode_ci' NULL AFTER `last_login`,
+    CHANGE `newsletter` `newsletter` tinyint NOT NULL DEFAULT '0' AFTER `session_id`,
+    CHANGE `customergroup` `customer_group_key` varchar(15) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `affiliate`,
+    ADD `customer_group_uuid` varchar(42) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `customer_group_key`,
+    CHANGE `paymentpreset` `default_payment_method_id` int(11) NOT NULL AFTER `customer_group_uuid`,
+    ADD `default_payment_method_uuid` varchar(42) NOT NULL AFTER `default_payment_method_id`,
+    CHANGE `language` `shop_id` int(11) NOT NULL AFTER `default_payment_method_uuid`,
+    ADD `shop_uuid` varchar(42) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `shop_id`,
+    CHANGE `subshopID` `main_shop_id` int(11) NOT NULL AFTER `shop_uuid`,
+    ADD `main_shop_uuid` varchar(42) NOT NULL AFTER `main_shop_id`,
+    CHANGE `pricegroupID` `price_group_id` int(11) unsigned NULL AFTER `referer`,
+    ADD `price_group_uuid` varchar(42) NULL AFTER `price_group_id`,
+    CHANGE `internalcomment` `internal_comment` mediumtext COLLATE 'utf8_unicode_ci' NOT NULL AFTER `price_group_uuid`,
+    CHANGE `failedlogins` `failed_logins` int(11) NOT NULL AFTER `internal_comment`,
+    CHANGE `lockeduntil` `locked_until` datetime NULL AFTER `failed_logins`,
+    ADD `default_billing_address_uuid` varchar(42) NULL AFTER `default_billing_address_id`,
+    ADD `default_shipping_address_uuid` varchar(42) NULL AFTER `default_shipping_address_id`,
+    CHANGE `firstname` `first_name` varchar(255) COLLATE 'utf8_unicode_ci' NULL AFTER `salutation`,
+    CHANGE `lastname` `last_name` varchar(255) COLLATE 'utf8_unicode_ci' NULL AFTER `first_name`,
+    CHANGE `customernumber` `customer_number` varchar(30) COLLATE 'utf8_unicode_ci' NULL AFTER `birthday`,
+    RENAME TO `customer`;
+
+
+
+ALTER TABLE `s_user_addresses`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `user_id` `customer_id` int NOT NULL AFTER `uuid`,
+    ADD `customer_uuid` varchar(42) NOT NULL AFTER `customer_id`,
+    CHANGE `firstname` `first_name` varchar(50) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `title`,
+    CHANGE `lastname` `last_name` varchar(60) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `first_name`,
+    CHANGE `country_id` `area_country_id` int(11) NOT NULL AFTER `city`,
+    ADD `area_country_uuid` varchar(42) NOT NULL AFTER `area_country_id`,
+    CHANGE `state_id` `area_country_state_id` int(11) NULL AFTER `area_country_uuid`,
+    ADD `area_country_state_uuid` varchar(42) NULL AFTER `area_country_state_id`,
+    CHANGE `ustid` `vat_id` varchar(50) COLLATE 'utf8_unicode_ci' NULL AFTER `area_country_state_uuid`,
+    CHANGE `phone` `phone_number` varchar(40) COLLATE 'utf8_unicode_ci' NULL AFTER `vat_id`,
+    RENAME TO `customer_address`;
+
+ALTER TABLE `s_user_addresses_attributes`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    ADD `address_uuid` varchar(42) NOT NULL AFTER `address_id`,
+    RENAME TO `customer_address_attribute`;
+
+
+ALTER TABLE `s_user_attributes`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `userID` `customer_id` int NULL AFTER `uuid`,
+    ADD `customer_uuid` varchar(42) NOT NULL,
+    RENAME TO `customer_attribute`;
+
+
+ALTER TABLE `s_addon_premiums`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `startprice` `amount` double NOT NULL DEFAULT '0' AFTER `uuid`,
+    CHANGE `ordernumber` `product_order_number` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL DEFAULT '0' AFTER `amount`,
+    ADD `product_detail_uuid` varchar(42) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `product_order_number`,
+    CHANGE `ordernumber_export` `premium_order_number` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `product_detail_uuid`,
+    CHANGE `subshopID` `shop_id` int NOT NULL AFTER `premium_order_number`,
+    ADD `shop_uuid` varchar(42) NOT NULL,
+    RENAME TO `premium_product`;
+
+ALTER TABLE `s_attribute_configuration`
+    RENAME TO `attribute_configuration`,
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `translatable` `translatable` tinyint NOT NULL AFTER `position`,
+    CHANGE `display_in_backend` `display_in_backend` tinyint NOT NULL AFTER `translatable`,
+    CHANGE `custom` `custom` tinyint NOT NULL AFTER `display_in_backend`;
+
+ALTER TABLE `s_blog`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `author_id` `user_id` int(11) NULL AFTER `title`,
+    ADD `user_uuid` varchar(42) NULL AFTER `user_id`,
+    CHANGE `active` `active` tinyint NOT NULL AFTER `user_uuid`,
+    ADD `category_uuid` varchar(42) NULL AFTER `category_id`,
+    RENAME TO `blog`;
+
+ALTER TABLE `s_blog_assigned_articles`
+    ADD `blog_uuid` varchar(42) NOT NULL AFTER `blog_id`,
+    CHANGE `article_id` `product_id` int unsigned NOT NULL AFTER `blog_uuid`,
+    ADD `product_uuid` varchar(42) NOT NULL,
+    RENAME TO `blog_product`;
+
+ALTER TABLE `s_blog_attributes`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    ADD `blog_uuid` varchar(42) NULL AFTER `blog_id`,
+    RENAME TO `blog_attribute`;
+
+ALTER TABLE `s_blog_comments`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    ADD `blog_uuid` varchar(42) NULL AFTER `blog_id`,
+    CHANGE `creation_date` `created_at` datetime NOT NULL AFTER `comment`,
+    CHANGE `active` `active` tinyint NOT NULL AFTER `created_at`,
+    RENAME TO `blog_comment`;
+
+ALTER TABLE `s_blog_media`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    ADD `blog_uuid` varchar(42) NOT NULL AFTER `blog_id`,
+    ADD `media_uuid` int(11) unsigned NOT NULL AFTER `media_id`,
+    CHANGE `preview` `preview` tinyint NOT NULL AFTER `media_uuid`,
+    RENAME TO `blog_media`;
+
+ALTER TABLE `s_blog_tags`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    ADD `blog_uuid` varchar(42) NOT NULL AFTER `blog_id`,
+    RENAME TO `blog_tag`;
+
+ALTER TABLE `s_cms_static`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `tpl1variable` `variable_1` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `uuid`,
+    CHANGE `tpl1path` `path_1` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `variable_1`,
+    CHANGE `tpl2variable` `variable_2` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `path_1`,
+    CHANGE `tpl2path` `path_2` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `variable_2`,
+    CHANGE `tpl3variable` `variable_3` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `path_2`,
+    CHANGE `tpl3path` `path_3` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `variable_3`,
+    CHANGE `target` `link_target` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `link`,
+    CHANGE `parentID` `parent_id` int(11) NOT NULL DEFAULT '0' AFTER `link_target`,
+    ADD `parent_uuid` varchar(42) NOT NULL AFTER `parent_id`,
+    ADD `shop_uuids` longtext COLLATE 'utf8_unicode_ci' NULL,
+    RENAME TO `shop_page`;
+
+ALTER TABLE `s_cms_static_attributes`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `cmsStaticID` `shop_page_id` int NULL AFTER `uuid`,
+    ADD `shop_page_uuid` varchar(42) NULL,
+    RENAME TO `shop_page_attribute`;
+
+ALTER TABLE `s_cms_static_groups`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `active` `active` tinyint NOT NULL AFTER `key`,
+    RENAME TO `shop_page_group`;
+
+ALTER TABLE `s_cms_support`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `ticket_typeID` `ticket_type_id` int(10) NOT NULL AFTER `meta_description`,
+    ADD `shop_uuids` longtext COLLATE 'utf8_unicode_ci' NULL,
+    RENAME TO `shop_form`;
+
+ALTER TABLE `s_cms_support_attributes`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `cmsSupportID` `shop_form_id` int NULL AFTER `uuid`,
+    ADD `shop_form_uuid` varchar(42) NULL,
+    RENAME TO `shop_form_attribute`;
+
+
+ALTER TABLE `s_cms_support_fields`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `supportID` `shop_form_id` int NOT NULL AFTER `uuid`,
+    ADD `shop_form_uuid` varchar(42) NOT NULL AFTER `shop_form_id`,
+    CHANGE `error_msg` `error_msg` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `shop_form_uuid`,
+    CHANGE `name` `name` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `error_msg`,
+    CHANGE `note` `note` varchar(255) COLLATE 'utf8_unicode_ci' NULL AFTER `name`,
+    CHANGE `typ` `type` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `note`,
+    CHANGE `required` `required` tinyint NOT NULL AFTER `type`,
+    CHANGE `added` `created_at` datetime NOT NULL AFTER `value`,
+    RENAME TO `shop_form_field`;
+
+ALTER TABLE `s_core_auth`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `roleID` `user_role_id` int(11) NOT NULL AFTER `uuid`,
+    ADD `user_role_uuid` varchar(42) NOT NULL AFTER `user_role_id`,
+    CHANGE `username` `user_name` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `user_role_uuid`,
+    CHANGE `apiKey` `api_key` varchar(40) COLLATE 'utf8_unicode_ci' NULL AFTER `encoder`,
+    CHANGE `localeID` `locale_id` int(11) NOT NULL AFTER `api_key`,
+    ADD `locale_uuid` varchar(42) NOT NULL AFTER `locale_id`,
+    CHANGE `sessionID` `session_id` varchar(128) COLLATE 'utf8_unicode_ci' NULL AFTER `locale_uuid`,
+    CHANGE `lastlogin` `last_login` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `session_id`,
+    CHANGE `active` `active` tinyint NOT NULL DEFAULT '0' AFTER `email`,
+    CHANGE `failedlogins` `failed_logins` int(11) NOT NULL AFTER `active`,
+    CHANGE `lockeduntil` `locked_until` datetime NULL AFTER `failed_logins`,
+    RENAME TO `user`;
+
+ALTER TABLE `s_core_auth_attributes`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `authID` `user_id` int NULL AFTER `uuid`,
+    ADD `user_uuid` varchar(42) NULL,
+    RENAME TO `user_attribute`;
+
+ALTER TABLE `s_core_config_elements`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `form_id` `config_form_id` int(11) unsigned NOT NULL AFTER `uuid`,
+    ADD `config_form_uuid` varchar(42) NOT NULL AFTER `config_form_id`,
+    CHANGE `required` `required` tinyint unsigned NOT NULL AFTER `type`,
+    RENAME TO `config_form_field`;
+
+ALTER TABLE `s_core_config_element_translations`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `element_id` `config_form_field_id` int unsigned NOT NULL AFTER `uuid`,
+    ADD `config_form_field_uuid` varchar(42) NOT NULL AFTER `config_form_field_id`,
+    ADD `locale_uuid` varchar(42) NOT NULL AFTER `locale_id`,
+    RENAME TO `config_form_field_translation`;
+
+ALTER TABLE `s_core_config_forms`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    ADD `parent_uuid` varchar(42) NULL AFTER `parent_id`,
+    ADD `plugin_uuid` varchar(42) NULL,
+    RENAME TO `config_form`;
+
+ALTER TABLE `s_core_config_form_translations`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `form_id` `config_form_id` int unsigned NOT NULL AFTER `uuid`,
+    ADD `config_form_uuid` varchar(42) NOT NULL AFTER `config_form_id`,
+    ADD `locale_uuid` varchar(42) NOT NULL AFTER `locale_id`,
+    RENAME TO `config_form_translation`;
+
+ALTER TABLE `s_core_config_mails` CHANGE `stateId` `order_state_id` int(11) NULL AFTER `id`;
+ALTER TABLE `s_core_config_mails` CHANGE `frommail` `from_mail` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `name`;
+ALTER TABLE `s_core_config_mails` CHANGE `fromname` `from_name` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `from_mail`;
+ALTER TABLE `s_core_config_mails` CHANGE `contentHTML` `content_html` mediumtext COLLATE 'utf8_unicode_ci' NOT NULL AFTER `content`;
+ALTER TABLE `s_core_config_mails` CHANGE `ishtml` `is_html` tinyint NOT NULL AFTER `content_html`;
+ALTER TABLE `s_core_config_mails` CHANGE `mailtype` `mail_type` int(11) NOT NULL DEFAULT '1' AFTER `attachment`;
+ALTER TABLE `s_core_config_mails` CHANGE `dirty` `dirty` tinyint NULL AFTER `context`;
+ALTER TABLE `s_core_config_mails` ADD `uuid` varchar(42) NOT NULL AFTER `id`;
+ALTER TABLE `s_core_config_mails` ADD `order_state_uuid` varchar(42) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `order_state_id`;
+ALTER TABLE `s_core_config_mails` RENAME TO `mail`;
+
+ALTER TABLE `s_core_config_mails_attachments`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `mailID` `mail_id` int NOT NULL AFTER `uuid`,
+    ADD `mail_uuid` varchar(42) NOT NULL AFTER `mail_id`,
+    CHANGE `mediaID` `media_id` int NOT NULL AFTER `mail_uuid`,
+    ADD `media_uuid` varchar(42) NOT NULL AFTER `media_id`,
+    CHANGE `shopID` `shop_id` int NULL DEFAULT '0' AFTER `media_uuid`,
+    ADD `shop_uuid` varchar(42) NULL,
+    RENAME TO `mail_attachment`;
+
+ALTER TABLE `s_core_config_mails_attributes`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `mailID` `mail_id` int NULL AFTER `uuid`,
+    ADD `mail_uuid` varchar(42) NULL,
+    RENAME TO `mail_attribute`;
+
+ALTER TABLE `s_core_config_values`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `element_id` `config_form_field_id` int unsigned NOT NULL AFTER `uuid`,
+    ADD `config_form_field_uuid` varchar(42) NOT NULL AFTER `config_form_field_id`,
+    ADD `shop_uuid` varchar(42) NULL AFTER `shop_id`,
+    RENAME TO `config_form_field_value`;
+
+ALTER TABLE `s_core_countries_areas`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `active` `active` tinyint NULL AFTER `name`,
+    RENAME TO `area`;
+
+ALTER TABLE `s_core_countries_attributes`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `countryID` `area_country_id` int NULL AFTER `uuid`,
+    ADD `area_country_uuid` varchar(42) NULL,
+    RENAME TO `area_country_attribute`;
+
+ALTER TABLE `s_core_countries_states`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `countryID` `area_country_id` int NULL AFTER `uuid`,
+    ADD `area_country_uuid` varchar(42) NULL AFTER `area_country_id`,
+    CHANGE `shortcode` `short_code` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `name`,
+    CHANGE `active` `active` tinyint NULL AFTER `position`,
+    RENAME TO `area_country_state`;
+
+ALTER TABLE `s_core_countries_states_attributes`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `stateID` `area_country_state_id` int NULL AFTER `uuid`,
+    ADD `area_country_state_uuid` varchar(42) NULL,
+    RENAME TO `area_country_state_attribute`;
+
+ALTER TABLE `s_core_currencies`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `standard` `standard` tinyint NOT NULL AFTER `name`,
+    CHANGE `templatechar` `template_char` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `factor`,
+    RENAME TO `currency`;
+
+ALTER TABLE `s_core_customergroups`
+    CHANGE `groupkey` `group_key` varchar(5) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `uuid`,
+    CHANGE `tax` `display_gross_prices` tinyint NOT NULL DEFAULT '0' AFTER `description`,
+    CHANGE `taxinput` `input_gross_prices` tinyint NOT NULL AFTER `display_gross_prices`,
+    CHANGE `minimumorder` `minimum_order_amount` double NOT NULL AFTER `discount`,
+    CHANGE `minimumordersurcharge` `minimum_order_amount_surcharge` double NOT NULL AFTER `minimum_order_amount`,
+    RENAME TO `customer_group`;
+
+ALTER TABLE `s_core_customergroups_attributes`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `customerGroupID` `customer_group_id` int NULL AFTER `uuid`,
+    ADD `customer_group_uuid` varchar(42) NULL,
+    RENAME TO `customer_group_attribute`;
+
+ALTER TABLE `s_core_customergroups_discounts`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `groupID` `customer_group_id` int NOT NULL AFTER `uuid`,
+    ADD `customer_group_uuid` varchar(42) NOT NULL AFTER `customer_group_id`,
+    CHANGE `basketdiscount` `discount` double NOT NULL AFTER `customer_group_uuid`,
+    CHANGE `basketdiscountstart` `discount_start` double NOT NULL AFTER `discount`,
+    RENAME TO `customer_group_discount`;
+
+ALTER TABLE `s_core_locales`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    RENAME TO `locale`;
+
+ALTER TABLE `s_core_log`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    RENAME TO `log`;
+
+ALTER TABLE `s_core_paymentmeans`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `hide` `hide` tinyint NOT NULL AFTER `table`,
+    CHANGE `additionaldescription` `additional_description` mediumtext COLLATE 'utf8_unicode_ci' NOT NULL AFTER `hide`,
+    CHANGE `surchargestring` `surcharge_string` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `surcharge`,
+    CHANGE `active` `active` tinyint NOT NULL DEFAULT '0' AFTER `position`,
+    CHANGE `esdactive` `allow_esd` tinyint NOT NULL AFTER `active`,
+    CHANGE `embediframe` `used_iframe` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `allow_esd`,
+    CHANGE `hideprospect` `hide_prospect` tinyint NOT NULL AFTER `used_iframe`,
+    CHANGE `pluginID` `plugin_id` int(11) unsigned NULL AFTER `action`,
+    ADD `plugin_uuid` varchar(42) NULL AFTER `plugin_id`,
+    CHANGE `mobile_inactive` `mobile_inactive` tinyint NOT NULL DEFAULT '0' AFTER `source`,
+    RENAME TO `payment_method`;
+
+ALTER TABLE `s_core_paymentmeans_attributes`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `paymentmeanID` `payment_method_id` int NULL AFTER `uuid`,
+    ADD `payment_method_uuid` varchar(42) NULL,
+    RENAME TO `payment_method_attribute`;
+
+ALTER TABLE `s_core_paymentmeans_countries`
+    CHANGE `paymentID` `payment_method_id` int unsigned NOT NULL FIRST,
+    ADD `payment_method_uuid` varchar(42) NOT NULL AFTER `payment_method_id`,
+    CHANGE `countryID` `area_country_id` int unsigned NOT NULL AFTER `payment_method_uuid`,
+    ADD `area_country_uuid` varchar(42) NOT NULL,
+    RENAME TO `payment_method_country`;
+
+ALTER TABLE `s_core_paymentmeans_subshops`
+    CHANGE `paymentID` `payment_method_id` int unsigned NOT NULL FIRST,
+    ADD `payment_method_uuid` varchar(42) NOT NULL AFTER `payment_method_id`,
+    CHANGE `subshopID` `shop_id` int(11) unsigned NOT NULL AFTER `payment_method_uuid`,
+    ADD `shop_uuid` varchar(42) NOT NULL,
+    ADD FOREIGN KEY (`shop_id`) REFERENCES `shop` (`id`),
+    RENAME TO `payment_method_shop`;
+
+
+ALTER TABLE `s_core_plugins`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `active` `active` tinyint unsigned NOT NULL AFTER `description_long`,
+    CHANGE `added` `created_at` datetime NOT NULL AFTER `active`,
+    RENAME TO `plugin`;
+
+ALTER TABLE `s_core_plugin_categories`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    ADD `parent_uuid` varchar(42) NULL AFTER `parent_id`,
+    RENAME TO `plugin_category`;
+
+ALTER TABLE `s_core_pricegroups`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    RENAME TO `price_group`;
+
+ALTER TABLE `s_core_pricegroups_discounts`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `groupID` `price_group_id` int NOT NULL AFTER `uuid`,
+    ADD `price_group_uuid` varchar(42) NOT NULL AFTER `price_group_id`,
+    CHANGE `customergroupID` `customer_group_id` int NOT NULL AFTER `price_group_uuid`,
+    ADD `customer_group_uuid` varchar(42) NOT NULL AFTER `customer_group_id`,
+    CHANGE `discountstart` `discount_start` double NOT NULL AFTER `discount`,
+    RENAME TO `price_group_discount`;
+
+ALTER TABLE `s_core_sessions`
+    RENAME TO `session`;
+
+ALTER TABLE `s_core_shop_currencies`
+    ADD `shop_uuid` varchar(42) NOT NULL AFTER `shop_id`,
+    ADD `currency_uuid` varchar(42) NOT NULL,
+    RENAME TO `shop_currency`;
+
+ALTER TABLE `s_core_shop_pages`
+    ADD `shop_uuid` varchar(42) NOT NULL AFTER `shop_id`,
+    CHANGE `group_id` `shop_page_group_id` int unsigned NOT NULL AFTER `shop_uuid`,
+    ADD `shop_page_group_uuid` varchar(42) NOT NULL,
+    RENAME TO `shop_page_group_mapping`;
+
+ALTER TABLE `s_core_snippets`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `shopID` `shop_id` int unsigned NOT NULL AFTER `namespace`,
+    ADD `shop_uuid` varchar(42) NOT NULL AFTER `shop_id`,
+    CHANGE `localeID` `locale_id` int unsigned NOT NULL AFTER `shop_uuid`,
+    ADD `locale_uuid` varchar(42) NOT NULL AFTER `locale_id`,
+    CHANGE `created` `created_at` datetime NOT NULL AFTER `value`,
+    CHANGE `updated` `updated_at` datetime NOT NULL AFTER `created_at`,
+    CHANGE `dirty` `dirty` tinyint NULL DEFAULT '0' AFTER `updated_at`,
+    RENAME TO `snippet`;
+
+ALTER TABLE `s_core_states`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `mail` `mail` tinyint NOT NULL AFTER `group`,
+    RENAME TO `order_state`;
+
+ALTER TABLE `s_core_tax`
+    CHANGE `tax` `tax_rate` decimal(10,2) NOT NULL AFTER `uuid`,
+    RENAME TO `tax`;
+
+ALTER TABLE `s_core_tax_rules`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `areaID` `area_id` int unsigned NULL AFTER `uuid`,
+    CHANGE `countryID` `area_country_id` int unsigned NULL AFTER `area_id`,
+    CHANGE `stateID` `area_country_state_id` int unsigned NULL AFTER `area_country_id`,
+    CHANGE `groupID` `tax_id` int unsigned NOT NULL AFTER `area_country_state_id`,
+    CHANGE `customer_groupID` `customer_group_id` int unsigned NOT NULL AFTER `tax_id`,
+    CHANGE `tax` `tax_rate` decimal(10,2) NOT NULL AFTER `customer_group_id`,
+    CHANGE `active` `active` tinyint unsigned NOT NULL AFTER `name`,
+    ADD `area_uuid` varchar(42) NULL AFTER `area_id`,
+    ADD `area_country_uuid` varchar(42) NULL AFTER `area_country_id`,
+    ADD `area_country_state_uuid` varchar(42) NULL AFTER `area_country_state_id`,
+    ADD `tax_uuid` varchar(42) NOT NULL AFTER `tax_id`,
+    ADD `customer_group_uuid` varchar(42) NOT NULL AFTER `customer_group_id`,
+    RENAME TO `tax_area_rule`;
+
+ALTER TABLE `s_core_templates`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    ADD `plugin_uuid` varchar(42) NULL AFTER `plugin_id`,
+    ADD `parent_uuid` varchar(42) NULL,
+    RENAME TO `shop_template`;
+
+ALTER TABLE `s_core_templates_config_set`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `template_id` `shop_template_id` int NOT NULL AFTER `uuid`,
+    ADD `shop_template_uuid` varchar(42) NOT NULL AFTER `shop_template_id`,
+    CHANGE `element_values` `element_values` longtext COLLATE 'utf8_unicode_ci' NOT NULL AFTER `description`,
+    RENAME TO `shop_template_config_preset`;
+
+ALTER TABLE `s_core_templates_config_elements`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `template_id` `shop_template_id` int NOT NULL AFTER `uuid`,
+    ADD `shop_template_uuid` varchar(42) NOT NULL  AFTER `shop_template_id`,
+    CHANGE `allow_blank` `allow_blank` tinyint NOT NULL DEFAULT '1' AFTER `support_text`,
+    CHANGE `less_compatible` `less_compatible` tinyint NOT NULL DEFAULT '1' AFTER `attributes`,
+    CHANGE `container_id` `shop_template_config_form_id` int NOT NULL AFTER `allow_blank`,
+    ADD `shop_template_config_form_uuid` varchar(42) NOT NULL  AFTER `shop_template_config_form_id`,
+    RENAME TO `shop_template_config_form_field`;
+
+ALTER TABLE `s_core_templates_config_layout`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    ADD `parent_uuid` varchar(42) NULL AFTER `parent_id`,
+    CHANGE `template_id` `shop_template_id` int NOT NULL AFTER `parent_uuid`,
+    ADD `shop_template_uuid` varchar(42) NOT NULL AFTER `shop_template_id`,
+    RENAME TO `shop_template_config_form`;
+
+ALTER TABLE `s_core_templates_config_values`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE `element_id` `shop_template_config_form_field_id` int NOT NULL AFTER `uuid`,
+    ADD `shop_template_config_form_field_uuid` varchar(42) NOT NULL AFTER `shop_template_config_form_field_id`,
+    ADD `shop_uuid` varchar(42) NOT NULL AFTER `shop_id`,
+    RENAME TO `shop_template_config_form_field_value`;
+
+ALTER TABLE `s_core_units`
+    ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    RENAME TO `unit`;
+
+
+UPDATE shop SET uuid = CONCAT('SWAG-SHOP-UUID-', id);
+UPDATE shop SET main_uuid = CONCAT('SWAG-SHOP-UUID-', main_id) WHERE main_id IS NOT NULL;
+UPDATE shop SET shop_template_uuid  = CONCAT('SWAG-SHOP-TEMPLATE-UUID-', shop_template_id) WHERE shop_template_id  IS NOT NULL;
+UPDATE shop SET document_template_uuid  = CONCAT('SWAG-SHOP-TEMPLATE-UUID-', document_template_id) WHERE document_template_id  IS NOT NULL;
+UPDATE shop SET category_uuid  = CONCAT('SWAG-CATEGORY-UUID-', category_id) WHERE category_id IS NOT NULL;
+UPDATE shop SET locale_uuid  = CONCAT('SWAG-LOCALE-UUID-', locale_id) WHERE locale_id  IS NOT NULL;
+UPDATE shop SET currency_uuid  = CONCAT('SWAG-CURRENCY-UUID-', currency_id) WHERE currency_id  IS NOT NULL;
+UPDATE shop SET customer_group_uuid  = CONCAT('SWAG-CUSTOMER-GROUP-UUID-', customer_group_id) WHERE customer_group_id  IS NOT NULL;
+UPDATE shop SET fallback_locale_uuid  = CONCAT('SWAG-LOCALE-UUID-', fallback_id) WHERE fallback_locale_uuid  IS NOT NULL;
+UPDATE shop SET payment_method_uuid  = CONCAT('SWAG-PAYMENT-METHOD-UUID-', payment_method_id) WHERE payment_method_id  IS NOT NULL;
+UPDATE shop SET shipping_method_uuid  = CONCAT('SWAG-SHIPPING-METHOD-UUID-', shipping_method_id) WHERE shipping_method_id  IS NOT NULL;
+UPDATE shop SET area_country_uuid  = CONCAT('SWAG-AREA-COUNTRY-UUID-', area_country_id) WHERE area_country_id  IS NOT NULL;
+UPDATE area_country SET uuid = CONCAT('SWAG-AREA-COUNTRY-UUID-', id);
+UPDATE area_country SET area_uuid = CONCAT('SWAG-AREA-UUID-', area_id) WHERE area_id IS NOT NULL;
+UPDATE shopping_world_component SET uuid = CONCAT('SWAG-SWCF-UUID-', id);
+UPDATE shopping_world_component SET plugin_uuid = CONCAT('SWAG-PLUGIN-UUID-', plugin_id) WHERE plugin_uuid IS NOT NULL;
+UPDATE shopping_world_component_field SET uuid = CONCAT('SWAG-SWCF-UUID-', id);
+UPDATE shopping_world_component_field SET shopping_world_component_uuid = CONCAT('SWAG-SWCF-UUID-', shopping_world_component_id);
+UPDATE shipping_method SET uuid = CONCAT('SWAG-SHIPPING-METHOD-UUID-', id) WHERE id IS NOT NULL;
+UPDATE shipping_method SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
+UPDATE shipping_method SET customer_group_uuid = CONCAT('SWAG-CUSTOMER-GROUP-UUID-', customer_group_id) WHERE customer_group_id IS NOT NULL;
+UPDATE shipping_method_attribute SET shipping_method_uuid = CONCAT('SWAG-SHIPPING-METHOD-UUID-', shipping_method_id) WHERE shipping_method_id IS NOT NULL;
+UPDATE shipping_method_attribute SET uuid = CONCAT('SWAG-SHIPPING-METHOD-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE shipping_method_category SET shipping_method_uuid = CONCAT('SWAG-SHIPPING-METHOD-UUID-', shipping_method_id) WHERE shipping_method_id IS NOT NULL;
+UPDATE shipping_method_category SET category_uuid = CONCAT('SWAG-CATEGORY-UUID-', category_id) WHERE category_id IS NOT NULL;
+UPDATE shipping_method_country SET shipping_method_uuid = CONCAT('SWAG-SHIPPING-METHOD-UUID-', shipping_method_id) WHERE shipping_method_id IS NOT NULL;
+UPDATE shipping_method_country SET area_country_uuid = CONCAT('SWAG-AREA-COUNTRY-UUID-', area_country_id) WHERE area_country_id IS NOT NULL;
+UPDATE shipping_method_holiday SET shipping_method_uuid = CONCAT('SWAG-SHIPPING-METHOD-UUID-', shipping_method_id) WHERE shipping_method_id IS NOT NULL;
+UPDATE shipping_method_holiday SET holiday_uuid = CONCAT('SWAG-HOLIDAY-UUID-', holiday_id) WHERE holiday_id IS NOT NULL;
+UPDATE shipping_method_payment_method SET shipping_method_uuid = CONCAT('SWAG-SHIPPING-METHOD-UUID-', shipping_method_id) WHERE shipping_method_id IS NOT NULL;
+UPDATE shipping_method_payment_method SET payment_method_uuid = CONCAT('SWAG-PAYMENT-METHOD-UUID-', payment_method_id) WHERE payment_method_id IS NOT NULL;
+UPDATE holiday SET uuid = CONCAT('SWAG-HOLIDAY-UUID-', id) WHERE id IS NOT NULL;
+UPDATE shipping_method_price SET uuid = CONCAT('SWAG-SHIPPING-COST-PRICE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE shipping_method_price SET shipping_method_uuid = CONCAT('SWAG-SHIPPING-METHOD-UUID-', shipping_method_id) WHERE shipping_method_id IS NOT NULL;
+UPDATE category SET product_stream_uuid = CONCAT('SWAG-PRODUCT-STREAM-UUID-', product_stream_id) WHERE product_stream_id IS NOT NULL;
+UPDATE product_stream SET uuid = CONCAT('SWAG-PRODUCT-STREAM-UUID-', id) WHERE id IS NOT NULL;
+UPDATE product_stream SET listing_sorting_uuid = CONCAT('SWAG-LISTING-SORTING-UUID-', listing_sorting_id) WHERE listing_sorting_id IS NOT NULL;
+UPDATE product_stream_tab SET product_stream_uuid = CONCAT('SWAG-PRODUCT-STREAM-UUID-', product_stream_id) WHERE product_stream_id IS NOT NULL;
+UPDATE product_stream_tab SET product_uuid = CONCAT('SWAG-PRODUCT-UUID-', product_id) WHERE product_id IS NOT NULL;
+UPDATE product_stream_tab SET uuid = CONCAT('SWAG-PRODUCT-STREAM-TAB-UUID-', id) WHERE id IS NOT NULL;
+UPDATE product_stream_attribute SET product_stream_uuid = CONCAT('SWAG-PRODUCT-STREAM-UUID-', product_stream_id) WHERE product_stream_id IS NOT NULL;
+UPDATE product_stream_attribute SET uuid = CONCAT('SWAG-PRODUCT-STREAM-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE product_stream_assignment SET product_stream_uuid = CONCAT('SWAG-PRODUCT-STREAM-UUID-', product_stream_id) WHERE product_stream_id IS NOT NULL;
+UPDATE product_stream_assignment SET product_uuid = CONCAT('SWAG-PRODUCT-UUID-', product_id) WHERE product_id IS NOT NULL;
+UPDATE product_stream_assignment SET uuid = CONCAT('SWAG-PRODUCT-STREAM-ASSIGNMENT-UUID-', id) WHERE id IS NOT NULL;
+UPDATE listing_facet SET uuid = CONCAT('SWAG-LISTING-FACET-UUID-', id) WHERE id IS NOT NULL;
+UPDATE listing_sorting SET uuid = CONCAT('SWAG-LISTING-SORTING-UUID-', id) WHERE id IS NOT NULL;
+UPDATE statistic_product_impression SET product_uuid = CONCAT('SWAG-PRODUCT-UUID-', product_id) WHERE product_id IS NOT NULL;
+UPDATE statistic_product_impression SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
+UPDATE statistic_product_impression SET uuid = CONCAT('SWAG-STATISTIC-PRODUCT-IMPRESSION-UUID-', id) WHERE id IS NOT NULL;
+UPDATE statistic_current_customer SET uuid = CONCAT('SWAG-CUSTOMER-UUID-', customer_id) WHERE customer_id IS NOT NULL;
+UPDATE statistic_current_customer SET uuid = CONCAT('SWAG-STATISTIC-CURRENT-CUSTOMER-UUID-', id) WHERE id IS NOT NULL;
+UPDATE statistic_address_pool SET uuid = CONCAT('SWAG-STATISTIC-ADDRESS-POOL-UUID-', id) WHERE id IS NOT NULL;
+UPDATE statistic_referer SET uuid = CONCAT('SWAG-STATISTIC-REFERER-UUID-', id) WHERE id IS NOT NULL;
+UPDATE statistic_search SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
+UPDATE statistic_search SET uuid = CONCAT('SWAG-STATISTIC-SEARCH-UUID-', id) WHERE id IS NOT NULL;
+UPDATE statistic_visitor SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
+UPDATE statistic_visitor SET uuid = CONCAT('SWAG-STATISTIC-VISITOR-UUID-', id) WHERE id IS NOT NULL;
+UPDATE customer SET last_payment_method_uuid = CONCAT('SWAG-PAYMENT-METHOD-UUID-', last_payment_method_id) WHERE last_payment_method_id IS NOT NULL;
+UPDATE customer SET default_payment_method_uuid = CONCAT('SWAG-PAYMENT-METHOD-UUID-', default_payment_method_id) WHERE default_payment_method_id IS NOT NULL;
+UPDATE customer SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
+UPDATE customer SET main_shop_uuid = CONCAT('SWAG-SHOP-UUID-', main_shop_id) WHERE main_shop_id IS NOT NULL;
+UPDATE customer SET default_billing_address_uuid = CONCAT('SWAG-CUSTOMER-ADDRESS-UUID-', default_billing_address_id) WHERE default_billing_address_id IS NOT NULL;
+UPDATE customer SET default_shipping_address_uuid = CONCAT('SWAG-CUSTOMER-ADDRESS-UUID-', default_shipping_address_id) WHERE default_shipping_address_id IS NOT NULL;
+UPDATE customer SET customer_group_uuid = CONCAT('SWAG-CUSTOMER-GROUP-UUID-', (SELECT id FROM customer_group WHERE group_key = customer_group_key)) WHERE customer_group_key IS NOT NULL;
+UPDATE customer SET uuid = CONCAT('SWAG-CUSTOMER-UUID-', id) WHERE id IS NOT NULL;
+UPDATE customer_address SET customer_uuid = CONCAT('SWAG-CUSTOMER-UUID-', id) WHERE id IS NOT NULL;
+UPDATE customer_address SET area_country_uuid = CONCAT('SWAG-AREA-COUNTRY-UUID-', id) WHERE id IS NOT NULL;
+UPDATE customer_address SET area_country_state_uuid = CONCAT('SWAG-AREA-COUNTRY-STATE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE customer_address SET uuid = CONCAT('SWAG-CUSTOMER-ADDRESS-UUID-', id) WHERE id IS NOT NULL;
+UPDATE customer_address_attribute SET uuid = CONCAT('SWAG-CUSTOMER-ADDRESS-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE customer_address_attribute SET address_uuid = CONCAT('SWAG-CUSTOMER-ADDRESS-UUID-', address_id) WHERE address_id IS NOT NULL;
+UPDATE customer_attribute SET uuid = CONCAT('SWAG-CUSTOMER-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE customer_attribute SET customer_uuid = CONCAT('SWAG-CUSTOMER-UUID-', customer_id) WHERE customer_id IS NOT NULL;
+UPDATE album SET uuid = CONCAT('SWAG-ALBUM-UUID-', id);
+UPDATE album SET parent_uuid = CONCAT('SWAG-ALBUM-UUID-', parent_id);
+UPDATE media SET user_uuid = CONCAT('SWAG-USER-UUID-', user_id) WHERE user_id IS NOT NULL;
+UPDATE media SET uuid = CONCAT('SWAG-MEDIA-UUID-', id);
+UPDATE media SET album_uuid = CONCAT('SWAG-ALBUM-UUID-', album_id) WHERE album_uuid IS NOT NULL;
+UPDATE media_attribute SET uuid = CONCAT('SWAG-MEDIA-ATTRIBUTE-UUID-', id);
+UPDATE media_attribute SET media_uuid = CONCAT('SWAG-MEDIA-UUID-', media_id);
+UPDATE premium_product SET uuid = CONCAT('SWAG-PREMIUM-PRODUCT-UUID-', id) WHERE id IS NOT NULL;
+UPDATE premium_product SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
+# UPDATE premium_product SET product_detail_uuid = CONCAT('SWAG-PRODUCT-DETAIL-UUID-', (SELECT p.id FROM product p WHERE p.order_number = product_order_number));
+UPDATE attribute_configuration SET uuid = CONCAT('SWAG-ATTRIBUTE-CONFIGURATION-UUID-', id) WHERE id IS NOT NULL;
+UPDATE blog SET uuid = CONCAT('SWAG-BLOG-UUID-', id) WHERE id IS NOT NULL;
+UPDATE blog SET category_uuid = CONCAT('SWAG-CATEGORY-UUID-', category_id) WHERE category_id IS NOT NULL;
+UPDATE blog_attribute SET uuid = CONCAT('SWAG-BLOG-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE blog_attribute SET blog_uuid = CONCAT('SWAG-BLOG-UUID-', blog_id) WHERE blog_id IS NOT NULL;
+UPDATE blog_comment SET uuid = CONCAT('SWAG-BLOG-COMMENT-UUID-', id) WHERE id IS NOT NULL;
+UPDATE blog_comment SET blog_uuid = CONCAT('SWAG-BLOG-UUID-', blog_id) WHERE blog_id IS NOT NULL;
+UPDATE blog_media SET uuid = CONCAT('SWAG-BLOG-MEDIA-UUID-', id) WHERE id IS NOT NULL;
+UPDATE blog_media SET media_uuid = CONCAT('SWAG-MEDIA-UUID-', media_id) WHERE media_id IS NOT NULL;
+UPDATE blog_media SET blog_uuid = CONCAT('SWAG-BLOG-UUID-', blog_id) WHERE blog_id IS NOT NULL;
+UPDATE blog_tag SET uuid = CONCAT('SWAG-BLOG-TAG-UUID-', id) WHERE id IS NOT NULL;
+UPDATE blog_tag SET blog_uuid = CONCAT('SWAG-BLOG-UUID-', blog_id) WHERE blog_id IS NOT NULL;
+UPDATE shop_page SET uuid = CONCAT('SWAG-SHOP-PAGE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE shop_page SET parent_uuid = CONCAT('SWAG-SHOP-PAGE-UUID-', parent_id) WHERE parent_id IS NOT NULL;
+UPDATE shop_page_attribute SET uuid = CONCAT('SWAG-SHOP-PAGE-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE shop_page_attribute SET shop_page_uuid = CONCAT('SWAG-SHOP-PAGE-UUID-', shop_page_id) WHERE shop_page_id IS NOT NULL;
+UPDATE shop_page_group SET uuid = CONCAT('SWAG-SHOP-PAGE-GROUP-UUID-', id) WHERE id IS NOT NULL;
+UPDATE shop_form SET uuid = CONCAT('SWAG-SHOP-FORM-UUID-', id) WHERE id IS NOT NULL;
+UPDATE shop_form_attribute SET uuid = CONCAT('SWAG-SHOP-FORM-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE shop_form_attribute SET shop_form_uuid = CONCAT('SWAG-SHOP-FORM-UUID-', shop_form_id) WHERE shop_form_id IS NOT NULL;
+UPDATE shop_form_field SET uuid = CONCAT('SWAG-SHOP-FORM-FIELD-UUID-', id) WHERE id IS NOT NULL;
+UPDATE shop_form_field SET shop_form_uuid = CONCAT('SWAG-SHOP-FORM-UUID-', shop_form_id) WHERE shop_form_id IS NOT NULL;
+UPDATE `user` SET uuid = CONCAT('SWAG-USER-UUID-', id) WHERE id IS NOT NULL;
+UPDATE `user` SET user_role_uuid = CONCAT('SWAG-USER-ROLE-UUID-', user_role_id) WHERE user_role_id IS NOT NULL;
+UPDATE `user` SET locale_uuid = CONCAT('SWAG-LOCALE-UUID-', locale_id) WHERE locale_id IS NOT NULL;
+UPDATE user_attribute SET uuid = CONCAT('SWAG-USER-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE user_attribute SET user_uuid = CONCAT('SWAG-USER-UUID-', user_id) WHERE user_id IS NOT NULL;
+UPDATE config_form_field SET uuid = CONCAT('SWAG-CONFIG-FORM-FIELD-UUID-', id) WHERE id IS NOT NULL;
+UPDATE config_form_field SET config_form_uuid = CONCAT('SWAG-CONFIG-FORM-UUID-', config_form_id) WHERE config_form_id IS NOT NULL;
+UPDATE config_form_field_translation SET uuid = CONCAT('SWAG-CFFT-UUID-', id) WHERE id IS NOT NULL;
+UPDATE config_form_field_translation SET config_form_field_uuid = CONCAT('SWAG-CONFIG-FORM-FIELD-UUID-', config_form_field_id) WHERE config_form_field_id IS NOT NULL;
+UPDATE config_form_field_translation SET locale_uuid = CONCAT('SWAG-LOCALE-UUID-', locale_id) WHERE locale_id IS NOT NULL;
+UPDATE config_form SET uuid = CONCAT('SWAG-CONFIG-FORM-UUID-', id) WHERE id IS NOT NULL;
+UPDATE config_form SET parent_uuid = CONCAT('SWAG-CONFIG-FORM-UUID-', parent_id) WHERE parent_id IS NOT NULL;
+UPDATE config_form SET plugin_uuid = CONCAT('SWAG-PLUGIN-UUID-', plugin_id) WHERE plugin_id IS NOT NULL;
+UPDATE config_form_translation SET uuid = CONCAT('SWAG-CONFIG-FORM-TRANSLATION-UUID-', id) WHERE id IS NOT NULL;
+UPDATE config_form_translation SET config_form_uuid = CONCAT('SWAG-CONFIG-FORM-UUID-', config_form_id) WHERE config_form_id IS NOT NULL;
+UPDATE config_form_translation SET locale_uuid = CONCAT('SWAG-LOCALE-UUID-', locale_id) WHERE locale_id IS NOT NULL;
+UPDATE mail SET uuid = CONCAT('SWAG-MAIL-UUID-', id) WHERE id IS NOT NULL;
+UPDATE mail SET order_state_uuid = CONCAT('SWAG-ORDER-STATE-UUID-', order_state_id) WHERE order_state_id IS NOT NULL;
+UPDATE mail_attachment SET uuid = CONCAT('SWAG-MAIL-ATTACHMENT-UUID-', id) WHERE id IS NOT NULL;
+UPDATE mail_attachment SET mail_uuid = CONCAT('SWAG-MAIL-UUID-', mail_id) WHERE mail_id IS NOT NULL;
+UPDATE mail_attachment SET media_uuid = CONCAT('SWAG-MEDIA-UUID-', media_id) WHERE media_id IS NOT NULL;
+UPDATE mail_attachment SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
+UPDATE mail_attribute SET uuid = CONCAT('SWAG-MAIL-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE mail_attribute SET mail_uuid = CONCAT('SWAG-MAIL-UUID-', mail_id) WHERE mail_id IS NOT NULL;
+UPDATE config_form_field_value SET uuid = CONCAT('SWAG-CONFIG-FORM-FIELD-VALUE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE config_form_field_value SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
+UPDATE area SET uuid = CONCAT('SWAG-AREA-UUID-', id) WHERE id IS NOT NULL;
+UPDATE area_country_attribute SET uuid = CONCAT('SWAG-AREA-COUNTRY-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE area_country_attribute SET area_country_uuid = CONCAT('SWAG-AREA-COUNTRY-UUID-', area_country_id) WHERE area_country_id IS NOT NULL;
+UPDATE area_country_state SET uuid = CONCAT('SWAG-AREA-COUNTRY-STATE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE area_country_state SET area_country_uuid = CONCAT('SWAG-AREA-COUNTRY-UUID-', area_country_id) WHERE area_country_id IS NOT NULL;
+UPDATE area_country_state_attribute SET uuid = CONCAT('SWAG-AREA-COUNTRY-STATE-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE area_country_state_attribute SET area_country_state_uuid = CONCAT('SWAG-AREA-COUNTRY-STATE-UUID-', area_country_state_id) WHERE area_country_state_id IS NOT NULL;
+UPDATE currency SET uuid = CONCAT('SWAG-CURRENCY-UUID-', id) WHERE id IS NOT NULL;
+UPDATE customer_group SET uuid = CONCAT('SWAG-CUSTOMER-GROUP-UUID-', id) WHERE id IS NOT NULL;
+UPDATE customer_group_attribute SET uuid = CONCAT('SWAG-CUSTOMER-GROUP-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE customer_group_attribute SET customer_group_uuid = CONCAT('SWAG-CUSTOMER-GROUP-UUID-', customer_group_id) WHERE customer_group_id IS NOT NULL;
+UPDATE customer_group_discount SET uuid = CONCAT('SWAG-CUSTOMER-GROUP-DISCOUNT-UUID-', id) WHERE id IS NOT NULL;
+UPDATE customer_group_discount SET customer_group_uuid = CONCAT('SWAG-CUSTOMER-GROUP-UUID-', customer_group_id) WHERE customer_group_id IS NOT NULL;
+UPDATE locale SET uuid = CONCAT('SWAG-LOCALE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE product p SET p.uuid = CONCAT('SWAG-PRODUCT-UUID-', p.id);
+UPDATE product p SET p.product_manufacturer_uuid = CONCAT('SWAG-PRODUCT-MANUFACTURER-UUID-', p.manufacturer_id) WHERE product_manufacturer_uuid IS NOT NULL;
+UPDATE product p SET p.tax_uuid = CONCAT('SWAG-CONFIG-TAX-UUID-', p.tax_id) WHERE tax_uuid IS NOT NULL;
+UPDATE product p SET p.main_detail_uuid = CONCAT('SWAG-PRODUCT-DETAIL-UUID-', p.main_detail_id) WHERE main_detail_uuid IS NOT NULL;
+UPDATE product p SET p.filter_group_uuid = CONCAT('SWAG-FILTER-GROUP-UUID-', p.filter_group_id) WHERE filter_group_uuid IS NOT NULL;
+UPDATE product_also_bought_ro pabr SET pabr.product_uuid = CONCAT('SWAG-PRODUCT-UUID-',pabr.product_id) WHERE product_uuid  IS NOT NULL;
+UPDATE product_also_bought_ro pabr SET pabr.related_product_uuid = CONCAT('SWAG-PRODUCT-UUID-',pabr.related_product_id) WHERE related_product_uuid  IS NOT NULL;
+UPDATE product_attribute pa SET pa.uuid = CONCAT('SWAG-PRODUCT-ATTRIBUTE-UUID-', pa.id);
+# UPDATE product_attribute pa SET pa.product_detail_uuid = CONCAT('SWAG-PRODUCT-DETAIL-UUID-', pa.product_details_id);
+UPDATE log SET uuid = CONCAT('SWAG-LOG-UUID-', id) WHERE id IS NOT NULL;
+UPDATE payment_method SET uuid = CONCAT('SWAG-PAYMENT-METHOD-UUID-', id) WHERE id IS NOT NULL;
+UPDATE payment_method_attribute SET uuid = CONCAT('SWAG-PAYMENT-METHOD-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE plugin SET uuid = CONCAT('SWAG-PLUGIN-UUID-', id) WHERE id IS NOT NULL;
+UPDATE plugin_category SET uuid = CONCAT('SWAG-PLUGIN-CATEGORY-UUID-', id) WHERE id IS NOT NULL;
+UPDATE price_group SET uuid = CONCAT('SWAG-PRICE-GROUP-UUID-', id) WHERE id IS NOT NULL;
+UPDATE price_group_discount SET uuid = CONCAT('SWAG-PRICE-GROUP-DISCOUNT-UUID-', id) WHERE id IS NOT NULL;
+UPDATE snippet SET uuid = CONCAT('SWAG-SNIPPET-UUID-', id) WHERE id IS NOT NULL;
+UPDATE order_state SET uuid = CONCAT('SWAG-ORDER-STATE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE tax SET uuid = CONCAT('SWAG-TAX-UUID-', id) WHERE id IS NOT NULL;
+UPDATE tax_area_rule SET uuid = CONCAT('SWAG-TAX-AREA-RULE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE shop_template SET uuid = CONCAT('SWAG-SHOP-TEMPLATE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE shop_template_config_preset SET uuid = CONCAT('SWAG-SHOP-TEMPLATE-CONFIG-PRESET-UUID-', id) WHERE id IS NOT NULL;
+UPDATE shop_template_config_form_field SET uuid = CONCAT('SWAG-STCFF-UUID-', id) WHERE id IS NOT NULL;
+UPDATE shop_template_config_form SET uuid = CONCAT('SWAG-SHOP-TEMPLATE-CONFIG-FORM-UUID-', id) WHERE id IS NOT NULL;
+UPDATE shop_template_config_form_field_value SET uuid = CONCAT('SWAG-STCFF-VALUE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE unit SET uuid = CONCAT('SWAG-UNIT-UUID-', id) WHERE id IS NOT NULL;
+UPDATE payment_method SET plugin_uuid = CONCAT('SWAG-PLUGIN-UUID-', plugin_id) WHERE plugin_id IS NOT NULL;
+UPDATE payment_method_attribute SET payment_method_uuid = CONCAT('SWAG-PAYMENT-METHOD-UUID-', payment_method_id) WHERE payment_method_id IS NOT NULL;
+UPDATE payment_method_country SET area_country_uuid = CONCAT('SWAG-AREA-COUNTRY-UUID-', area_country_id) WHERE area_country_id IS NOT NULL;
+UPDATE payment_method_country SET payment_method_uuid = CONCAT('SWAG-PAYMENT-METHOD-UUID-', payment_method_id) WHERE payment_method_id IS NOT NULL;
+UPDATE payment_method_shop SET payment_method_uuid = CONCAT('SWAG-PAYMENT-METHOD-UUID-', payment_method_id) WHERE payment_method_id IS NOT NULL;
+UPDATE payment_method_shop SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
+UPDATE plugin_category SET parent_uuid = CONCAT('SWAG-PLUGIN-CATEGORY-UUID-', parent_id) WHERE parent_id IS NOT NULL;
+UPDATE price_group_discount SET price_group_uuid = CONCAT('SWAG-PRICE-GROUP-UUID-', price_group_id) WHERE price_group_id IS NOT NULL;
+UPDATE price_group_discount SET customer_group_uuid = CONCAT('SWAG-CUSTOMER-GROUP-UUID-', customer_group_id) WHERE customer_group_id IS NOT NULL;
+UPDATE shop_currency SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
+UPDATE shop_currency SET currency_uuid = CONCAT('SWAG-CURRENCY-UUID-', currency_id) WHERE currency_id IS NOT NULL;
+UPDATE shop_page_group_mapping SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
+UPDATE shop_page_group_mapping SET shop_page_group_uuid = CONCAT('SWAG-SHOP-PAGE-GROUP-UUID-', shop_page_group_id) WHERE shop_page_group_id IS NOT NULL;
+UPDATE snippet SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
+UPDATE snippet SET locale_uuid = CONCAT('SWAG-LOCALE-UUID-', locale_id) WHERE locale_id IS NOT NULL;
+UPDATE tax_area_rule SET area_country_uuid = CONCAT('SWAG-AREA-COUNTRY-UUID-', area_country_id) WHERE area_country_id IS NOT NULL;
+UPDATE tax_area_rule SET area_uuid = CONCAT('SWAG-AREA-UUID-', area_id) WHERE area_id IS NOT NULL;
+UPDATE tax_area_rule SET area_country_state_uuid = CONCAT('SWAG-AREA-COUNTRY-STATE-UUID-', area_country_state_id) WHERE area_country_state_id IS NOT NULL;
+UPDATE tax_area_rule SET tax_uuid = CONCAT('SWAG-TAX-UUID-', tax_id) WHERE tax_id IS NOT NULL;
+UPDATE tax_area_rule SET customer_group_uuid = CONCAT('SWAG-CUSTOMER-GROUP-UUID-', customer_group_id) WHERE customer_group_id IS NOT NULL;
+UPDATE shop_template SET plugin_uuid = CONCAT('SWAG-PLUGIN-UUID-', plugin_id) WHERE plugin_id IS NOT NULL;
+UPDATE shop_template SET parent_uuid = CONCAT('SWAG-SHOP-TEMPLATE-UUID-', parent_id) WHERE parent_id IS NOT NULL;
+UPDATE shop_template_config_preset SET shop_template_uuid = CONCAT('SWAG-SHOP-TEMPLATE-UUID-', shop_template_id) WHERE shop_template_id IS NOT NULL;
+UPDATE shop_template_config_form_field SET shop_template_uuid = CONCAT('SWAG-SHOP-TEMPLATE-UUID-', shop_template_id) WHERE shop_template_id IS NOT NULL;
+UPDATE shop_template_config_form_field SET shop_template_config_form_uuid = CONCAT('SWAG-SHOP-TEMPLATE-CONFIG-FORM-UUID-', shop_template_config_form_id) WHERE shop_template_config_form_id IS NOT NULL;
+UPDATE shop_template_config_form SET parent_uuid = CONCAT('SWAG-SHOP-TEMPLATE-CONFIG-FORM-UUID-', parent_id) WHERE parent_id IS NOT NULL;
+UPDATE shop_template_config_form SET shop_template_uuid = CONCAT('SWAG-SHOP-TEMPLATE-UUID-', shop_template_id) WHERE shop_template_id IS NOT NULL;
+UPDATE shop_template_config_form_field_value SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
+UPDATE shop_template_config_form_field_value SET shop_template_config_form_field_uuid = CONCAT('SWAG-STCFF-UUID-', shop_template_config_form_field_id) WHERE shop_template_config_form_field_id IS NOT NULL;
+
+
+
+UPDATE album a, s_media_album_settings s
+SET a.create_thumbnails = s.create_thumbnails,
+    a.thumbnail_size = s.thumbnail_size,
+    a.icon = s.icon,
+    a.thumbnail_high_dpi = s.thumbnail_high_dpi,
+    a.thumbnail_quality = s.thumbnail_quality,
+    a.thumbnail_high_dpi_quality = s.thumbnail_high_dpi_quality
+WHERE s.albumID = a.id;
+
+UPDATE media
+SET file_name = REPLACE(file_name, 'media/image/', ''),
+    file_name = REPLACE(file_name, 'media/video/', ''),
+    file_name = REPLACE(file_name, 'media/archive/', ''),
+    file_name = REPLACE(file_name, 'media/unknown/', ''),
+    file_name = REPLACE(file_name, 'media/pdf/', ''),
+    file_name = REPLACE(file_name, 'media/music/', ''),
+    mime_type = CONCAT('image/', substring(file_name, -3))
+;
+
+
+CREATE UNIQUE INDEX `ui_premium_product` ON premium_product (uuid);
+CREATE UNIQUE INDEX `ui_attribute_configuration` ON attribute_configuration (uuid);
+CREATE UNIQUE INDEX `ui_blog` ON blog (uuid);
+CREATE UNIQUE INDEX `ui_blog_attribute` ON blog_attribute (uuid);
+CREATE UNIQUE INDEX `ui_blog_comment` ON blog_comment (uuid);
+CREATE UNIQUE INDEX `ui_blog_media` ON blog_media (uuid);
+CREATE UNIQUE INDEX `ui_blog_tag` ON blog_tag (uuid);
+CREATE UNIQUE INDEX `ui_shop_page` ON shop_page (uuid);
+CREATE UNIQUE INDEX `ui_shop_page_attribute` ON shop_page_attribute (uuid);
+CREATE UNIQUE INDEX `ui_shop_page_group` ON shop_page_group (uuid);
+CREATE UNIQUE INDEX `ui_shop_form` ON shop_form (uuid);
+CREATE UNIQUE INDEX `ui_shop_form_attribute` ON shop_form_attribute (uuid);
+CREATE UNIQUE INDEX `ui_shop_form_field` ON shop_form_field (uuid);
+CREATE UNIQUE INDEX `ui_user` ON user (uuid);
+CREATE UNIQUE INDEX `ui_user_attribute` ON user_attribute (uuid);
+CREATE UNIQUE INDEX `ui_config_form_field` ON config_form_field (uuid);
+CREATE UNIQUE INDEX `ui_config_form_field_translation` ON config_form_field_translation (uuid);
+CREATE UNIQUE INDEX `ui_config_form` ON config_form (uuid);
+CREATE UNIQUE INDEX `ui_config_form_translation` ON config_form_translation (uuid);
+CREATE UNIQUE INDEX `ui_mail` ON mail (uuid);
+CREATE UNIQUE INDEX `ui_mail_attachment` ON mail_attachment (uuid);
+CREATE UNIQUE INDEX `ui_mail_attribute` ON mail_attribute (uuid);
+CREATE UNIQUE INDEX `ui_config_form_field_value` ON config_form_field_value (uuid);
+CREATE UNIQUE INDEX `ui_area` ON area (uuid);
+CREATE UNIQUE INDEX `ui_area_country_attribute` ON area_country_attribute (uuid);
+CREATE UNIQUE INDEX `ui_area_country_state` ON area_country_state (uuid);
+CREATE UNIQUE INDEX `ui_area_country_state_attribute` ON area_country_state_attribute (uuid);
+CREATE UNIQUE INDEX `ui_currency` ON currency (uuid);
+CREATE UNIQUE INDEX `ui_customer_group` ON customer_group (uuid);
+CREATE UNIQUE INDEX `ui_customer_group_attribute` ON customer_group_attribute (uuid);
+CREATE UNIQUE INDEX `ui_customer_group_discount` ON customer_group_discount (uuid);
+CREATE UNIQUE INDEX `ui_locale` ON locale (uuid);
+CREATE UNIQUE INDEX `ui_media_attribute.uuid` ON media_attribute (uuid);
+CREATE UNIQUE INDEX `ui_media.uuid` ON media (uuid);
+CREATE UNIQUE INDEX `ui_album.uuid` ON album (uuid);
+CREATE UNIQUE INDEX `ui_area_country.uuid` ON area_country (uuid);
+CREATE UNIQUE INDEX `ui_shopping_world_component.uuid` ON shopping_world_component (uuid);
+CREATE UNIQUE INDEX `ui_shopping_world_component_field.uuid` ON shopping_world_component_field (uuid);
+CREATE UNIQUE INDEX `ui_shipping_method.uuid` ON shipping_method (uuid);
+CREATE UNIQUE INDEX `ui_shipping_method_attribute.uuid` ON shipping_method_attribute (uuid);
+CREATE UNIQUE INDEX `ui_shipping_method_attribute.shipping_method_id` ON shipping_method_attribute (shipping_method_id);
+CREATE UNIQUE INDEX `ui_shipping_method_category.uuid` ON shipping_method_category (shipping_method_uuid, category_uuid);
+CREATE UNIQUE INDEX `ui_shipping_method_country.uuid` ON shipping_method_country (shipping_method_uuid, area_country_uuid);
+CREATE UNIQUE INDEX `ui_shipping_method_holiday.uuid` ON shipping_method_holiday (shipping_method_uuid, holiday_uuid);
+CREATE UNIQUE INDEX `ui_shipping_method_payment_method.uuid` ON shipping_method_payment_method (shipping_method_uuid, payment_method_uuid);
+CREATE UNIQUE INDEX `ui_holiday.uuid` ON holiday (uuid);
+CREATE UNIQUE INDEX `ui_shipping_method_price.uuid` ON shipping_method_price (uuid);
+CREATE UNIQUE INDEX `ui_product_stream.uuid` ON product_stream (uuid);
+CREATE UNIQUE INDEX `ui_product_stream_tab.uuid` ON product_stream_tab (uuid);
+CREATE UNIQUE INDEX `ui_product_stream_attribute.uuid` ON product_stream_attribute (uuid);
+CREATE UNIQUE INDEX `ui_product_stream_assignment.uuid` ON product_stream_assignment (uuid);
+CREATE UNIQUE INDEX `ui_listing_facet.uuid` ON listing_facet (uuid);
+CREATE UNIQUE INDEX `ui_listing_sorting.uuid` ON listing_sorting (uuid);
+CREATE UNIQUE INDEX `ui_statistic_product_impression.uuid` ON statistic_product_impression (uuid);
+CREATE UNIQUE INDEX `ui_statistic_current_customer.uuid` ON statistic_current_customer (uuid);
+CREATE UNIQUE INDEX `ui_statistic_address_pool.uuid` ON statistic_address_pool (uuid);
+CREATE UNIQUE INDEX `ui_statistic_referer.uuid` ON statistic_referer (uuid);
+CREATE UNIQUE INDEX `ui_statistic_search.uuid` ON statistic_search (uuid);
+CREATE UNIQUE INDEX `ui_statistic_visitor.uuid` ON statistic_visitor (uuid);
+CREATE UNIQUE INDEX `ui_customer.uuid` ON customer (uuid);
+CREATE UNIQUE INDEX `ui_customer_address.uuid` ON customer_address (uuid);
+CREATE UNIQUE INDEX `ui_customer_address_attribute.uuid` ON customer_address_attribute (uuid);
+CREATE UNIQUE INDEX `ui_customer_attribute.uuid` ON customer_attribute (uuid);
 CREATE UNIQUE INDEX `ui_category.uuid` ON category (uuid);
 CREATE UNIQUE INDEX `ui_filter.uuid` ON filter (uuid);
 CREATE UNIQUE INDEX `ui_filter_value.uuid` ON filter_value (uuid);
 CREATE UNIQUE INDEX `ui_filter_option.uuid` ON filter_option (uuid);
 CREATE UNIQUE INDEX `ui_product.uuid` ON product (uuid);
-CREATE UNIQUE INDEX `ui_product_detail.uuid` ON product_detail (uuid);
-CREATE UNIQUE INDEX `ui_product_download.uuid` ON product_download (uuid);
+CREATE UNIQUE INDEX `ui_product_attachment.uuid` ON product_attachment (uuid);
 CREATE UNIQUE INDEX `ui_product_esd.uuid` ON product_esd (uuid);
-CREATE UNIQUE INDEX `ui_product_image.uuid` ON product_image (uuid);
-CREATE UNIQUE INDEX `ui_product_image_mapping.uuid` ON product_image_mapping (uuid);
-CREATE UNIQUE INDEX `ui_product_information.uuid` ON product_information (uuid);
+CREATE UNIQUE INDEX `ui_product_media.uuid` ON product_media (uuid);
+CREATE UNIQUE INDEX `ui_product_media_mapping.uuid` ON product_media_mapping (uuid);
+CREATE UNIQUE INDEX `ui_product_link.uuid` ON product_link (uuid);
 CREATE UNIQUE INDEX `ui_product_manufacturer.uuid` ON product_manufacturer (uuid);
 CREATE UNIQUE INDEX `ui_product_price.uuid` ON product_price (uuid);
-CREATE UNIQUE INDEX `ui_s_core_customergroups.uuid` ON s_core_customergroups (uuid);
-CREATE UNIQUE INDEX `ui_s_core_shops.uuid` ON s_core_shops (uuid);
-CREATE UNIQUE INDEX `ui_s_core_tax.uuid` ON s_core_tax (uuid);
+CREATE UNIQUE INDEX `ui_log.uuid` ON log (uuid);
+CREATE UNIQUE INDEX `ui_payment_method.uuid` ON payment_method (uuid);
+CREATE UNIQUE INDEX `ui_payment_method_attribute.uuid` ON payment_method_attribute (uuid);
+CREATE UNIQUE INDEX `ui_plugin.uuid` ON plugin (uuid);
+CREATE UNIQUE INDEX `ui_plugin_category.uuid` ON plugin_category (uuid);
+CREATE UNIQUE INDEX `ui_price_group.uuid` ON price_group (uuid);
+CREATE UNIQUE INDEX `ui_price_group_discount.uuid` ON price_group_discount (uuid);
+CREATE UNIQUE INDEX `ui_snippet.uuid` ON snippet (uuid);
+CREATE UNIQUE INDEX `ui_order_state.uuid` ON order_state (uuid);
+CREATE UNIQUE INDEX `ui_tax.uuid` ON tax (uuid);
+CREATE UNIQUE INDEX `ui_tax_area_rule.uuid` ON tax_area_rule (uuid);
+CREATE UNIQUE INDEX `ui_shop_template.uuid` ON shop_template (uuid);
+CREATE UNIQUE INDEX `ui_shop_template_config_preset.uuid` ON shop_template_config_preset (uuid);
+CREATE UNIQUE INDEX `ui_shop_template_config_form_field.uuid` ON shop_template_config_form_field (uuid);
+CREATE UNIQUE INDEX `ui_shop_template_config_form.uuid` ON shop_template_config_form (uuid);
+CREATE UNIQUE INDEX `ui_shop_template_config_form_field_value.uuid` ON shop_template_config_form_field_value (uuid);
+CREATE UNIQUE INDEX `ui_unit.uuid` ON unit (uuid);
 
 
-ALTER TABLE product_attribute
-    ADD CONSTRAINT `fk_product_attribute.product_detail_uuid`
-    FOREIGN KEY (product_detail_uuid) REFERENCES product_detail (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-;
+# ALTER TABLE media_attribute
+#     ADD CONSTRAINT `fk_media_attribute.media_uuid`
+# FOREIGN KEY (media_uuid) REFERENCES media (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE media
+#     ADD CONSTRAINT `fk_media.album_uuid`
+# FOREIGN KEY (album_uuid) REFERENCES album (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE media
+#     ADD CONSTRAINT `fk_media.user_uuid`
+# FOREIGN KEY (user_uuid) REFERENCES user (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE album
+#     ADD CONSTRAINT `fk_album.parent_uuid`
+# FOREIGN KEY (parent_uuid) REFERENCES album (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shop
+#     ADD CONSTRAINT `fk_shop.main_uuid`
+# FOREIGN KEY (main_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shop
+#     ADD CONSTRAINT `fk_shop.shop_template_uuid`
+# FOREIGN KEY (shop_template_uuid) REFERENCES shop_template (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shop
+#     ADD CONSTRAINT `fk_shop.document_template_uuid`
+# FOREIGN KEY (document_template_uuid) REFERENCES shop_template (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shop
+#     ADD CONSTRAINT `fk_shop.category_uuid`
+# FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shop
+#     ADD CONSTRAINT `fk_shop.locale_uuid`
+# FOREIGN KEY (locale_uuid) REFERENCES locale (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shop
+#     ADD CONSTRAINT `fk_shop.currency_uuid`
+# FOREIGN KEY (currency_uuid) REFERENCES currency (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shop
+#     ADD CONSTRAINT `fk_shop.customer_group_uuid`
+# FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shop
+#     ADD CONSTRAINT `fk_shop.fallback_locale_uuid`
+# FOREIGN KEY (fallback_locale_uuid) REFERENCES locale (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shop
+#     ADD CONSTRAINT `fk_shop.payment_method_uuid`
+# FOREIGN KEY (payment_method_uuid) REFERENCES payment_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shop
+#     ADD CONSTRAINT `fk_shop.shipping_method_uuid`
+# FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shop
+#     ADD CONSTRAINT `fk_shop.area_country_uuid`
+# FOREIGN KEY (area_country_uuid) REFERENCES area_country (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE area_country
+#     ADD CONSTRAINT `fk_area_country.area_uuid`
+# FOREIGN KEY (area_uuid) REFERENCES area (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shopping_world_component
+#     ADD CONSTRAINT `fk_shopping_world_component.plugin_uuid`
+# FOREIGN KEY (plugin_uuid) REFERENCES plugin (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shopping_world_component_field
+#     ADD CONSTRAINT `fk_shopping_world_component_field.shopping_world_component_uuid`
+# FOREIGN KEY (shopping_world_component_uuid) REFERENCES shopping_world_component (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shipping_method
+#     ADD CONSTRAINT `fk_shipping_method.shop_uuid`
+# FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shipping_method
+#     ADD CONSTRAINT `fk_shipping_method.customer_group_uuid`
+# FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shipping_method_attribute
+#     ADD CONSTRAINT `fk_shipping_method_attribute.shipping_method_uuid`
+# FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shipping_method_category
+#     ADD CONSTRAINT `fk_shipping_method_category.shipping_method_uuid`
+# FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shipping_method_category
+#     ADD CONSTRAINT `fk_shipping_method_category.category_uuid`
+# FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shipping_method_country
+#     ADD CONSTRAINT `fk_shipping_method_country.area_country_uuid`
+# FOREIGN KEY (area_country_uuid) REFERENCES area_country (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shipping_method_country
+#     ADD CONSTRAINT `fk_shipping_method_area_country.shipping_method_uuid`
+# FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shipping_method_holiday
+#     ADD CONSTRAINT `fk_shipping_method_holiday.holiday_uuid`
+# FOREIGN KEY (holiday_uuid) REFERENCES holiday (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shipping_method_holiday
+#     ADD CONSTRAINT `fk_shipping_method_holiday.shipping_method_uuid`
+# FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shipping_method_payment_method
+#     ADD CONSTRAINT `fk_shipping_method_payment_method.payment_method_uuid`
+# FOREIGN KEY (payment_method_uuid) REFERENCES payment_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shipping_method_payment_method
+#     ADD CONSTRAINT `fk_shipping_method_payment_method.shipping_method_uuid`
+# FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shipping_method_price
+#     ADD CONSTRAINT `fk_shipping_method_price.shipping_method_uuid`
+# FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE product_stream
+#     ADD CONSTRAINT `fk_product_stream.listing_sorting_uuid`
+# FOREIGN KEY (listing_sorting_uuid) REFERENCES listing_sorting (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE product_stream_tab
+#     ADD CONSTRAINT `fk_product_stream_tab.product_stream_uuid`
+# FOREIGN KEY (product_stream_uuid) REFERENCES product_stream (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE product_stream_tab
+#     ADD CONSTRAINT `fk_product_stream_tab.product_uuid`
+# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE product_stream_attribute
+#     ADD CONSTRAINT `fk_product_stream_attribute.product_stream_uuid`
+# FOREIGN KEY (product_stream_uuid) REFERENCES product_stream (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE product_stream_assignment
+#     ADD CONSTRAINT `fk_product_stream_assignment.product_stream_uuid`
+# FOREIGN KEY (product_stream_uuid) REFERENCES product_stream (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE product_stream_assignment
+#     ADD CONSTRAINT `fk_product_stream_assignment.product_uuid`
+# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE statistic_product_impression
+#     ADD CONSTRAINT `fk_statistic_product_impression.product_uuid`
+# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE statistic_product_impression
+#     ADD CONSTRAINT `fk_statistic_product_impression.shop_uuid`
+# FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE statistic_current_customer
+#     ADD CONSTRAINT `fk_statistic_current_customer.customer_uuid`
+# FOREIGN KEY (customer_uuid) REFERENCES customer (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE statistic_search
+#     ADD CONSTRAINT `fk_statistic_search.shop_uuid`
+# FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE statistic_visitor
+#     ADD CONSTRAINT `fk_statistic_visitor.shop_uuid`
+# FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE customer
+#     ADD CONSTRAINT `fk_customer.last_payment_method_uuid`
+# FOREIGN KEY (last_payment_method_uuid) REFERENCES payment_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE customer
+#     ADD CONSTRAINT `fk_customer.customer_group_uuid`
+# FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE customer
+#     ADD CONSTRAINT `fk_customer.default_payment_method_uuid`
+# FOREIGN KEY (default_payment_method_uuid) REFERENCES payment_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE customer
+#     ADD CONSTRAINT `fk_customer.shop_uuid`
+# FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE customer
+#     ADD CONSTRAINT `fk_customer.main_shop_uuid`
+# FOREIGN KEY (main_shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE customer
+#     ADD CONSTRAINT `fk_customer.price_group_uuid`
+# FOREIGN KEY (price_group_uuid) REFERENCES price_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE customer
+#     ADD CONSTRAINT `fk_customer.default_billing_address_uuid`
+# FOREIGN KEY (default_billing_address_uuid) REFERENCES customer_address (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE customer
+#     ADD CONSTRAINT `fk_customer.default_shipping_address_uuid`
+# FOREIGN KEY (default_shipping_address_uuid) REFERENCES customer_address (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE customer_address
+#     ADD CONSTRAINT `fk_customer_address.customer_uuid`
+# FOREIGN KEY (customer_uuid) REFERENCES customer (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE customer_address
+#     ADD CONSTRAINT `fk_customer_address.area_country_uuid`
+# FOREIGN KEY (area_country_uuid) REFERENCES area_country (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE customer
+#     ADD CONSTRAINT `fk_customer.area_country_state_uuid`
+# FOREIGN KEY (area_country_state_uuid) REFERENCES area_country_state (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE customer_address_attribute
+#     ADD CONSTRAINT `fk_customer_address_attribute.customer_address_uuid`
+# FOREIGN KEY (customer_address_uuid) REFERENCES customer_address (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE customer_attribute
+#     ADD CONSTRAINT `fk_customer_attribute.customer_uuid`
+# FOREIGN KEY (customer_uuid) REFERENCES customer (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE product_avoid_customer_group
+#     ADD CONSTRAINT `fk_product_avoid_customer_group.product_uuid`
+# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+#
+#     ADD CONSTRAINT `fk_product_avoid_customer_group.customer_group_uuid`
+# FOREIGN KEY (customer_group_uuid) REFERENCES s_core_customergroups (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_category
+#     ADD CONSTRAINT `fk_product_category.product_uuid`
+# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+#
+#     ADD CONSTRAINT `fk_product_category.category_uuid`
+# FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_category_ro
+#     ADD CONSTRAINT `fk_product_category_ro.product_uuid`
+# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+#
+#     ADD CONSTRAINT `fk_product_category_ro.category_uuid`
+# FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+#
+#     ADD CONSTRAINT `fk_product_category_ro.parent_category_uuid`
+# FOREIGN KEY (parent_category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_category_seo
+#     ADD CONSTRAINT `fk_product_category_seo.shop_uuid`
+# FOREIGN KEY (shop_uuid) REFERENCES s_core_shops (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+#
+#     ADD CONSTRAINT `fk_product_category_seo.product_uuid`
+# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+#
+#     ADD CONSTRAINT `fk_product_category_seo.category_uuid`
+# FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_detail
+#     ADD CONSTRAINT `fk_product_detail.product_uuid`
+# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_attachment
+#     ADD CONSTRAINT `fk_product_attachment.product_uuid`
+# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_attachment_attribute
+#     ADD CONSTRAINT `fk_product_attachment_attribute.product_uuid`
+# FOREIGN KEY (product_attachment_uuid) REFERENCES product_attachment (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_esd
+#     ADD CONSTRAINT `fk_product_esd.product_uuid`
+# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_esd_attribute
+#     ADD CONSTRAINT `fk_product_esd_attribute.product_uuid`
+# FOREIGN KEY (product_esd_uuid) REFERENCES product_esd (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_esd_serial
+#     ADD CONSTRAINT `fk_product_esd_serial.product_uuid`
+# FOREIGN KEY (product_esd_uuid) REFERENCES product_esd (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_media
+#     ADD CONSTRAINT `fk_product_media.product_uuid`
+# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_media_attribute
+#     ADD CONSTRAINT `fk_product_media_attribute.product_uuid`
+# FOREIGN KEY (product_media_uuid) REFERENCES product_media (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_media_mapping
+#     ADD CONSTRAINT `fk_product_media_mapping.product_uuid`
+# FOREIGN KEY (product_media_uuid) REFERENCES product_media (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_link
+#     ADD CONSTRAINT `fk_product_link.product_uuid`
+# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_link_attribute
+#     ADD CONSTRAINT `fk_product_link_attribute.product_uuid`
+# FOREIGN KEY (product_link_uuid) REFERENCES product_link (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_manufacturer_attribute
+#     ADD CONSTRAINT `fk_product_manufacturer_attribute.product_uuid`
+# FOREIGN KEY (product_manufacturer_uuid) REFERENCES product_manufacturer (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_price
+#     ADD CONSTRAINT `fk_product_price.product_uuid`
+# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+#
+#     ADD CONSTRAINT `fk_product_price.product_detail_uuid`
+# FOREIGN KEY (product_detail_uuid) REFERENCES product_detail (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_price_attribute
+#     ADD CONSTRAINT `fk_product_price_attribute.product_uuid`
+# FOREIGN KEY (product_price_uuid) REFERENCES product_price (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_accessory
+#     ADD CONSTRAINT `fk_product_accessory.product_uuid`
+# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+#
+#     ADD CONSTRAINT `fk_product_accessory.related_product_uuid`
+# FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_similar
+#     ADD CONSTRAINT `fk_product_similar.product_uuid`
+# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+#
+#     ADD CONSTRAINT `fk_product_similar.related_product_uuid`
+# FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_similar_shown_ro
+#     ADD CONSTRAINT `fk_product_similar_shown_ro.product_uuid`
+# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+#
+#     ADD CONSTRAINT `fk_product_similar_shown_ro.related_product_uuid`
+# FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_top_seller_ro
+#     ADD CONSTRAINT `fk_product_top_seller_ro.product_uuid`
+# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE filter_attribute
+#     ADD CONSTRAINT `fk_filter_attribute.filter_uuid`
+# FOREIGN KEY (filter_uuid) REFERENCES filter (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE filter_value_attribute
+#     ADD CONSTRAINT `fk_filter_value_attribute.filter_value_uuid`
+# FOREIGN KEY (filter_value_uuid) REFERENCES filter_value (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE filter_option_attribute
+#     ADD CONSTRAINT `fk_filter_option_attribute.filter_value_uuid`
+# FOREIGN KEY (filter_option_uuid) REFERENCES filter_option (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_attribute
+#     ADD CONSTRAINT `fk_product_attribute.product_detail_uuid`
+# FOREIGN KEY (product_detail_uuid) REFERENCES product_detail (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+# ALTER TABLE product_also_bought_ro
+#     ADD CONSTRAINT `fk_product_also_bought_ro.product_uuid`
+# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+#     ADD CONSTRAINT `fk_product_also_bought_ro.related_product_uuid`
+# FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
 
-ALTER TABLE product_also_bought_ro
-    ADD CONSTRAINT `fk_product_also_bought_ro.product_uuid`
-    FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-    ADD CONSTRAINT `fk_product_also_bought_ro.related_product_uuid`
-    FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-;
+# ALTER TABLE premium_product
+#     ADD CONSTRAINT `fk_premium_product.shop_uuid`
+# FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE premium_product
+#     ADD CONSTRAINT `fk_premium_product.product_detail_uuid`
+# FOREIGN KEY (product_detail_uuid) REFERENCES product_detail (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE blog
+#     ADD CONSTRAINT `fk_blog.category_uuid`
+# FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE blog_attribute
+#     ADD CONSTRAINT `fk_blog_attribute.blog_uuid`
+# FOREIGN KEY (blog_uuid) REFERENCES blog (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE blog_comment
+#     ADD CONSTRAINT `fk_blog_comment.blog_uuid`
+# FOREIGN KEY (blog_uuid) REFERENCES blog (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE blog_media
+#     ADD CONSTRAINT `fk_blog_media.media_uuid`
+# FOREIGN KEY (media_uuid) REFERENCES media (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE blog_media
+#     ADD CONSTRAINT `fk_blog_media.blog_uuid`
+# FOREIGN KEY (blog_uuid) REFERENCES blog (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE blog_tag
+#     ADD CONSTRAINT `fk_blog_tag.blog_uuid`
+# FOREIGN KEY (blog_uuid) REFERENCES blog (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shop_page
+#     ADD CONSTRAINT `fk_shop_page.shop_uuid`
+# FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shop_page
+#     ADD CONSTRAINT `fk_shop_page.parent_uuid`
+# FOREIGN KEY (parent_uuid) REFERENCES shop_page (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shop_page_attribute
+#     ADD CONSTRAINT `fk_shop_page_attribute.shop_page_uuid`
+# FOREIGN KEY (shop_page_uuid) REFERENCES shop_page (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shop_form_attribute
+#     ADD CONSTRAINT `fk_shop_form_attribute.shop_form_uuid`
+# FOREIGN KEY (shop_form_uuid) REFERENCES shop_form (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE shop_form_field
+#     ADD CONSTRAINT `fk_shop_form_field.shop_form_uuid`
+# FOREIGN KEY (shop_form_uuid) REFERENCES shop_form (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE `user`
+#     ADD CONSTRAINT `fk_user.locale_uuid`
+# FOREIGN KEY (locale_uuid) REFERENCES locale (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE user_attribute
+#     ADD CONSTRAINT `fk_user_attribute.user_uuid`
+# FOREIGN KEY (user_uuid) REFERENCES `user` (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE config_form_field
+#     ADD CONSTRAINT `fk_config_form_field.config_form_uuid`
+# FOREIGN KEY (config_form_uuid) REFERENCES config_form (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE config_form_field_translation
+#     ADD CONSTRAINT `fk_config_form_field_translation.config_form_field_uuid`
+# FOREIGN KEY (config_form_field_uuid) REFERENCES config_form_field (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE config_form_field_translation
+#     ADD CONSTRAINT `fk_config_form_field_translation.locale_uuid`
+# FOREIGN KEY (locale_uuid) REFERENCES locale (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE config_form
+#     ADD CONSTRAINT `fk_config_form.parent_uuid`
+# FOREIGN KEY (parent_uuid) REFERENCES config_form (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE config_form
+#     ADD CONSTRAINT `fk_config_form.plugin_uuid`
+# FOREIGN KEY (plugin_uuid) REFERENCES plugin (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE config_form_translation
+#     ADD CONSTRAINT `fk_config_form_translation.config_form_uuid`
+# FOREIGN KEY (config_form_uuid) REFERENCES config_form (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE config_form_translation
+#     ADD CONSTRAINT `fk_config_form_translation.locale_uuid`
+# FOREIGN KEY (locale_uuid) REFERENCES locale (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE mail
+#     ADD CONSTRAINT `fk_mail.order_state_uuid`
+# FOREIGN KEY (order_state_uuid) REFERENCES order_state (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE mail_attachment
+#     ADD CONSTRAINT `fk_mail_attachment.mail_uuid`
+# FOREIGN KEY (mail_uuid) REFERENCES mail (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE mail_attachment
+#     ADD CONSTRAINT `fk_mail_attachment.media_uuid`
+# FOREIGN KEY (media_uuid) REFERENCES media (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE mail_attachment
+#     ADD CONSTRAINT `fk_mail_attachment.shop_uuid`
+# FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE mail_attribute
+#     ADD CONSTRAINT `fk_mail_attribute.mail_uuid`
+# FOREIGN KEY (mail_uuid) REFERENCES mail (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE config_form_field_value
+#     ADD CONSTRAINT `fk_config_form_field_value.shop_uuid`
+# FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE area_country_attribute
+#     ADD CONSTRAINT `fk_area_country_attribute.area_country_uuid`
+# FOREIGN KEY (area_country_uuid) REFERENCES area_country (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE area_country_state
+#     ADD CONSTRAINT `fk_area_country_state.area_country_uuid`
+# FOREIGN KEY (area_country_uuid) REFERENCES area_country (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE area_country_state_attribute
+#     ADD CONSTRAINT `fk_area_country_state_attribute.area_country_state_uuid`
+# FOREIGN KEY (area_country_state_uuid) REFERENCES area_country_state (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE customer_group_attribute
+#     ADD CONSTRAINT `fk_customer_group_attribute.customer_group_uuid`
+# FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE customer_group_discount
+#     ADD CONSTRAINT `fk_customer_group_discount.customer_group_uuid`
+# FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+#
+# ALTER TABLE payment_method ADD CONSTRAINT `fk_payment_method.plugin_uuid` FOREIGN KEY (plugin_uuid) REFERENCES (uuid) plugin ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE payment_method_attribute ADD CONSTRAINT `fk_payment_method_attribute.payment_method_uuid` FOREIGN KEY (payment_method_uuid) REFERENCES (uuid) payment_method ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE payment_method_country ADD CONSTRAINT `fk_payment_method_country.area_country_uuid` FOREIGN KEY (area_country_uuid) REFERENCES (uuid) area_country ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE payment_method_country ADD CONSTRAINT `fk_payment_method_country.payment_method_uuid` FOREIGN KEY (payment_method_uuid) REFERENCES (uuid) payment_method ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE payment_method_shop ADD CONSTRAINT `fk_payment_method_shop.payment_method_uuid` FOREIGN KEY (payment_method_uuid) REFERENCES (uuid) payment_method ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE payment_method_shop ADD CONSTRAINT `fk_payment_method_shop.shop_uuid` FOREIGN KEY (shop_uuid) REFERENCES (uuid) shop ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE plugin_category ADD CONSTRAINT `fk_plugin_category.parent_uuid` FOREIGN KEY (parent_uuid) REFERENCES (uuid) parent ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE price_group_discount ADD CONSTRAINT `fk_price_group_discount.price_group_uuid` FOREIGN KEY (price_group_uuid) REFERENCES (uuid) price_group ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE price_group_discount ADD CONSTRAINT `fk_price_group_discount.customer_group_uuid` FOREIGN KEY (customer_group_uuid) REFERENCES (uuid) customer_group ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE shop_currency ADD CONSTRAINT `fk_shop_currency.shop_uuid` FOREIGN KEY (shop_uuid) REFERENCES (uuid) shop ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE shop_currency ADD CONSTRAINT `fk_shop_currency.currency_uuid` FOREIGN KEY (currency_uuid) REFERENCES (uuid) currency ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE shop_page_group_mapping ADD CONSTRAINT `fk_shop_page_group_mapping.shop_uuid` FOREIGN KEY (shop_uuid) REFERENCES (uuid) shop ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE shop_page_group_mapping ADD CONSTRAINT `fk_shop_page_group_mapping.shop_page_group_uuid` FOREIGN KEY (shop_page_group_uuid) REFERENCES (uuid) shop_page_group ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE snippet ADD CONSTRAINT `fk_snippet.shop_uuid` FOREIGN KEY (shop_uuid) REFERENCES (uuid) shop ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE snippet ADD CONSTRAINT `fk_snippet.locale_uuid` FOREIGN KEY (locale_uuid) REFERENCES (uuid) locale ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE tax_area_rule ADD CONSTRAINT `fk_tax_area_rule.area_country_uuid` FOREIGN KEY (area_country_uuid) REFERENCES (uuid) area_country ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE tax_area_rule ADD CONSTRAINT `fk_tax_area_rule.area_uuid` FOREIGN KEY (area_uuid) REFERENCES (uuid) area ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE tax_area_rule ADD CONSTRAINT `fk_tax_area_rule.area_country_state_uuid` FOREIGN KEY (area_country_state_uuid) REFERENCES (uuid) area_country_state ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE tax_area_rule ADD CONSTRAINT `fk_tax_area_rule.tax_uuid` FOREIGN KEY (tax_uuid) REFERENCES (uuid) tax ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE tax_area_rule ADD CONSTRAINT `fk_tax_area_rule.customer_group_uuid` FOREIGN KEY (customer_group_uuid) REFERENCES (uuid) customer_group ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE shop_template ADD CONSTRAINT `fk_shop_template.plugin_uuid` FOREIGN KEY (plugin_uuid) REFERENCES (uuid) plugin ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE shop_template ADD CONSTRAINT `fk_shop_template.parent_uuid` FOREIGN KEY (parent_uuid) REFERENCES (uuid) parent ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE shop_template_config_preset ADD CONSTRAINT `fk_shop_template_config_preset.shop_template_uuid` FOREIGN KEY (shop_template_uuid) REFERENCES (uuid) shop_template ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE shop_template_config_form_field ADD CONSTRAINT `fk_shop_template_config_form_field.shop_template_uuid` FOREIGN KEY (shop_template_uuid) REFERENCES (uuid) shop_template ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE shop_template_config_form_field ADD CONSTRAINT `fk_shop_template_config_form_field.shop_template_config_form_uuid` FOREIGN KEY (shop_template_config_form_uuid) REFERENCES (uuid) shop_template_config_form ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE shop_template_config_form ADD CONSTRAINT `fk_shop_template_config_form.parent_uuid` FOREIGN KEY (parent_uuid) REFERENCES (uuid) parent ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE shop_template_config_form ADD CONSTRAINT `fk_shop_template_config_form.shop_template_uuid` FOREIGN KEY (shop_template_uuid) REFERENCES (uuid) shop_template ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE shop_template_config_form_field_value ADD CONSTRAINT `fk_shop_template_config_form_field_value.shop_uuid` FOREIGN KEY (shop_uuid) REFERENCES (uuid) shop ON DELETE CASCADE ON UPDATE CASCADE;
+# ALTER TABLE shop_template_config_form_field_value ADD CONSTRAINT `fk_shop_template_config_form_field_value.shop_template_config_form_field_uuid` FOREIGN KEY (shop_template_config_form_field_uuid) REFERENCES (uuid) shop_template_config_form_field ON DELETE CASCADE ON UPDATE CASCADE;
+#
+#
 
 ALTER TABLE `product`
     CHANGE COLUMN `name` `name` VARCHAR(255) NOT NULL AFTER `product_manufacturer_uuid`

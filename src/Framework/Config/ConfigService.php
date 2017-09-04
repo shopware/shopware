@@ -48,11 +48,11 @@ class ConfigService implements ConfigServiceInterface
                 'e.name',
                 'COALESCE(currentShop.value, parentShop.value, fallbackShop.value, e.value) as value',
             ])
-            ->from('s_core_config_elements', 'e')
-            ->leftJoin('e', 's_core_config_values', 'currentShop', 'currentShop.element_id = e.id AND currentShop.shop_id = :currentShopId')
-            ->leftJoin('e', 's_core_config_values', 'parentShop', 'parentShop.element_id = e.id AND parentShop.shop_id = :parentShopId')
-            ->leftJoin('e', 's_core_config_values', 'fallbackShop', 'fallbackShop.element_id = e.id AND fallbackShop.shop_id = :fallbackShopId')
-            ->leftJoin('e', 's_core_config_forms', 'forms', 'forms.id = e.form_id')
+            ->from('config_form_field', 'e')
+            ->leftJoin('e', 'config_form_field_value', 'currentShop', 'currentShop.config_form_field_id = e.id AND currentShop.shop_id = :currentShopId')
+            ->leftJoin('e', 'config_form_field_value', 'parentShop', 'parentShop.config_form_field_id = e.id AND parentShop.shop_id = :parentShopId')
+            ->leftJoin('e', 'config_form_field_value', 'fallbackShop', 'fallbackShop.config_form_field_id = e.id AND fallbackShop.shop_id = :fallbackShopId')
+            ->leftJoin('e', 'config_form', 'forms', 'forms.id = e.config_form_id')
             ->setParameter('fallbackShopId', 1)
             ->setParameter('currentShopId', $shopId)
             ->setParameter('parentShopId', $parentId ?: 1)

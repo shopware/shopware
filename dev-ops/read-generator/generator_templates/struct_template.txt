@@ -1,0 +1,13 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\#classUc#\Struct;
+
+use Shopware\Framework\Struct\Struct;
+#uses#
+
+class #classUc#BasicStruct extends Struct
+{
+#properties#
+
+#functions#
+}

@@ -1,0 +1,41 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\#classUc#\Searcher;
+
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Search\Criteria;
+use Shopware\Search\Search;
+use Shopware\#classUc#\Struct\#classUc#SearchResult;
+use Shopware\Search\SearchResultInterface;
+use Shopware\#classUc#\Reader\Query\#classUc#BasicQuery;
+use Shopware\#classUc#\Reader\#classUc#BasicHydrator;
+
+class #classUc#Searcher extends Search
+{
+    /**
+     * @var #classUc#BasicHydrator
+     */
+    private $hydrator;
+
+    public function __construct(Connection $connection, array $handlers, #classUc#BasicHydrator $hydrator)
+    {
+        parent::__construct($connection, $handlers);
+        $this->hydrator = $hydrator;
+    }
+
+    protected function createQuery(Criteria $criteria, TranslationContext $context): QueryBuilder
+    {
+        return new #classUc#BasicQuery($this->connection, $context);
+    }
+
+    protected function createResult(array $rows, int $total, TranslationContext $context): SearchResultInterface
+    {
+        $structs = array_map(function(array $row) {
+            return $this->hydrator->hydrate($row);
+        }, $rows);
+
+        return new #classUc#SearchResult($structs, $total);
+    }
+}

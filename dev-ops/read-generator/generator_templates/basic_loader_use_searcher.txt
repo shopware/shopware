@@ -1,0 +1,4 @@
+use Shopware\Search\Criteria;
+use Shopware\Search\Condition\#classUc#UuidCondition;
+use Shopware\#associationClassUc#\Searcher\#associationClassUc#Searcher;
+use Shopware\#associationClassUc#\Struct\#associationClassUc#SearchResult;

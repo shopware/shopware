@@ -28,7 +28,7 @@ use Shopware\SeoUrl\Struct\SeoUrl;
 
 interface UrlResolverInterface
 {
-    public function getPathInfo(int $shopId, string $url): ?SeoUrl;
+    public function getPathInfo(string $shopUuid, string $url): ?SeoUrl;
 
-    public function getUrl(int $shopId, string $pathInfo): ?SeoUrl;
+    public function getUrl(string $shopUuid, string $pathInfo): ?SeoUrl;
 }

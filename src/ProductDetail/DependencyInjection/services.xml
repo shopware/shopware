@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+<service class="Shopware\ProductDetail\Reader\ProductDetailBasicHydrator" id="shopware.product_detail.reader.basic_hydrator">
+<argument type="service" id="shopware.unit.reader.basic_hydrator" />
+</service>
+<service class="Shopware\ProductDetail\Reader\ProductDetailBasicReader" id="shopware.product_detail.reader.basic_reader">
+  <argument id="dbal_connection" type="service"/>
+  <argument id="shopware.product_detail.reader.basic_hydrator" type="service"/>
+</service>
+<service class="Shopware\ProductDetail\Loader\ProductDetailBasicLoader" id="shopware.product_detail.loader.basic_loader">
+    <argument type="service" id="shopware.product_detail.reader.basic_reader" />
+
+</service>
+<service class="Shopware\ProductDetail\Searcher\ProductDetailSearcher" id="shopware.product_detail.searcher.searcher">
+  <argument id="dbal_connection" type="service"/>
+  <argument type="collection">
+        <!-- #handlers# -->
+  </argument>
+  <argument id="shopware.product_detail.reader.basic_hydrator" type="service"/>
+</service>
+<service class="Shopware\ProductDetail\Writer\ProductDetailWriter" id="shopware.product_detail.writer.writer"/>
+<service class="Shopware\ProductDetail\ProductDetailRepository" id="shopware.product_detail.repository">
+  <argument id="shopware.product_detail.loader.basic_loader" type="service"/>
+  <argument id="event_dispatcher" type="service"/>
+  <argument id="shopware.product_detail.searcher.searcher" type="service"/>
+  <argument id="shopware.product_detail.writer.writer" type="service"/>
+  <argument id="shopware.product_detail.loader.detail_loader" type="service"/>
+</service>
+<service class="Shopware\ProductDetail\Loader\ProductDetailDetailLoader" id="shopware.product_detail.loader.detail_loader">
+    <argument type="service" id="shopware.product_detail.loader.basic_loader" />
+    <argument type="service" id="shopware.product_price.searcher.searcher" />
+</service>
+
+    </services>
+</container>

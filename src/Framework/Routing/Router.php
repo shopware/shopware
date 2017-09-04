@@ -29,6 +29,7 @@ use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Plugin\Plugin;
 use Shopware\Storefront\Session\ShopSubscriber;
 use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Matcher\RequestMatcherInterface;
@@ -81,6 +82,11 @@ class Router implements RouterInterface, RequestMatcherInterface
      */
     private $routingLoader;
 
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
     public function __construct(
         $resource,
         \AppKernel $kernel,
@@ -98,6 +104,7 @@ class Router implements RouterInterface, RequestMatcherInterface
         $this->urlResolver = $urlResolver;
         $this->shopFinder = $shopFinder;
         $this->routingLoader = $routingLoader;
+        $this->container = $kernel->getContainer();
     }
 
     public function setContext(RequestContext $context): void
@@ -151,7 +158,7 @@ class Router implements RouterInterface, RequestMatcherInterface
         $pathinfo = str_replace($stripBaseUrl, '', $pathinfo);
         $pathinfo = '/' . trim($pathinfo, '/');
 
-        $seoUrl = $this->urlResolver->getUrl($shop['id'], $pathinfo);
+        $seoUrl = $this->urlResolver->getUrl($shop['uuid'], $pathinfo);
 
         //generate new url with shop base path/url
         $url = $generator->generate($name, $parameters, $referenceType);
@@ -179,6 +186,9 @@ class Router implements RouterInterface, RequestMatcherInterface
         $shop = $this->shopFinder->findShopByRequest($this->context, $request);
         $pathinfo = $this->context->getPathInfo();
 
+        echo '<pre>';
+        print_r($shop);
+        exit();
         if (!$shop) {
             return $this->match($pathinfo);
         }
@@ -203,7 +213,7 @@ class Router implements RouterInterface, RequestMatcherInterface
         $pathinfo = '/' . trim($pathinfo, '/');
 
         //resolve seo urls to use symfony url matcher for route detection
-        $seoUrl = $this->urlResolver->getPathInfo($shop['id'], $pathinfo);
+        $seoUrl = $this->urlResolver->getPathInfo($shop['uuid'], $pathinfo);
 
         if (!$seoUrl) {
             return $this->match($pathinfo);
@@ -211,7 +221,7 @@ class Router implements RouterInterface, RequestMatcherInterface
 
         $pathinfo = $seoUrl->getPathInfo();
         if (!$seoUrl->isCanonical()) {
-            $redirectUrl = $this->urlResolver->getUrl($shop['id'], $seoUrl->getPathInfo());
+            $redirectUrl = $this->urlResolver->getUrl($shop['uuid'], $seoUrl->getPathInfo());
 
             $request->attributes->set(self::SEO_REDIRECT_URL, $redirectUrl->getSeoPathInfo());
         }
@@ -265,11 +275,11 @@ class Router implements RouterInterface, RequestMatcherInterface
     protected function getCurrencyId(Request $request, int $shopCurrencyId): int
     {
         if ($this->context->getMethod() === 'POST' && $request->get('__currency')) {
-            return (int)$request->get('__currency');
+            return (int) $request->get('__currency');
         }
 
         if ($request->cookies->has('currency')) {
-            return (int)$request->cookies->has('currency');
+            return (int) $request->cookies->has('currency');
         }
 
         if ($request->attributes->has('_currency')) {
@@ -279,9 +289,40 @@ class Router implements RouterInterface, RequestMatcherInterface
         if ($request->attributes->has(ShopSubscriber::SHOP_CONTEXT_PROPERTY)) {
             /** @var ShopContext $context */
             $context = $request->attributes->get(ShopSubscriber::SHOP_CONTEXT_PROPERTY);
+
             return $context->getCurrency()->getId();
         }
 
         return $shopCurrencyId;
+    }
+
+    private function loadRoutes(): RouteCollection
+    {
+        /** @var RouteCollection $routes */
+        $routes = $this->routingLoader->load($this->resource);
+
+        foreach ($this->plugins->getPlugins() as $plugin) {
+            $file = $plugin->getPath() . '/Resources/config/routing.yml';
+
+            if (!file_exists($file)) {
+                continue;
+            }
+
+            $routes->addCollection($this->routingLoader->load($file));
+        }
+
+        return $routes;
+    }
+
+    private function rewriteBaseUrl(?string $baseUrl, string $basePath): string
+    {
+        //generate new path info for detected shop
+        $stripBaseUrl = $baseUrl ?? $basePath;
+        $stripBaseUrl = rtrim($stripBaseUrl, '/') . '/';
+
+        //rewrite base url for url generator
+        $this->context->setBaseUrl(rtrim($stripBaseUrl, '/'));
+
+        return $stripBaseUrl;
     }
 }

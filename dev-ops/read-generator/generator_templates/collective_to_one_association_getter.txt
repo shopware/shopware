@@ -1,0 +1,8 @@
+    public function get#pluralUc#(): #associationClassUc#BasicCollection
+    {
+        return new #associationClassUc#BasicCollection(
+            $this->fmap(function(#classUc##suffix#Struct $#classLc#) {
+                return $#classLc#->get#propertyUc#();
+            })
+        );
+    }

@@ -62,7 +62,6 @@ class ObjectDeserializer
             return $this->deserialize($argument);
         }, $data);
 
-
         //create object instance
         return $this->createInstance($class, $arguments);
     }

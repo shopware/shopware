@@ -1,0 +1,8 @@
+    public function get#pluralUc#(): #associationClassUc#BasicCollection
+    {
+        $collection = new #associationClassUc#BasicCollection();
+        foreach ($this->elements as $element) {
+            $collection->fill($element->get#pluralUc#()->getIterator()->getArrayCopy());
+        }
+        return $collection;
+    }

@@ -74,7 +74,7 @@ abstract class Search
             $total = count($rows);
         }
 
-        return $this->createResult($rows, $total);
+        return $this->createResult($rows, $total, $context);
     }
 
     public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
@@ -109,7 +109,7 @@ abstract class Search
      *
      * @return SearchResultInterface
      */
-    abstract protected function createResult(array $rows, int $total): SearchResultInterface;
+    abstract protected function createResult(array $rows, int $total, TranslationContext $context): SearchResultInterface;
 
     protected function addCriteriaPartToQuery(QueryBuilder $query, Criteria $criteria, array $parts, TranslationContext $context): void
     {

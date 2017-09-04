@@ -5,41 +5,52 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Shop\Struct\ShopHydrator" id="shopware.shop.struct.shop_hydrator">
-            <argument id="shopware.shop_template.struct.shop_template_hydrator" type="service"/>
-            <argument id="shopware.category.struct.category_hydrator" type="service"/>
-            <argument id="shopware.locale.struct.locale_hydrator" type="service"/>
-            <argument id="shopware.currency.struct.currency_hydrator" type="service"/>
-            <argument id="shopware.customer_group.struct.customer_group_hydrator" type="service"/>
-            <argument id="shopware.country.struct.country_hydrator" type="service"/>
-            <argument id="shopware.payment_method.struct.payment_method_hydrator" type="service"/>
-            <argument id="shopware.shipping_method.struct.shipping_method_hydrator" type="service"/>
-        </service>
+<service class="Shopware\Shop\Reader\ShopBasicHydrator" id="shopware.shop.reader.basic_hydrator">
+<argument type="service" id="shopware.currency.reader.basic_hydrator" />
+<argument type="service" id="shopware.locale.reader.basic_hydrator" />
+</service>
+<service class="Shopware\Shop\Reader\ShopBasicReader" id="shopware.shop.reader.basic_reader">
+  <argument id="dbal_connection" type="service"/>
+  <argument id="shopware.shop.reader.basic_hydrator" type="service"/>
+</service>
+<service class="Shopware\Shop\Loader\ShopBasicLoader" id="shopware.shop.loader.basic_loader">
+    <argument type="service" id="shopware.shop.reader.basic_reader" />
 
-        <service class="Shopware\Shop\Gateway\ShopReader" id="shopware.shop.gateway.shop_reader">
-            <argument id="shopware.shop.struct.shop_hydrator" type="service"/>
-            <argument id="shopware.framework.struct.field_helper" type="service"/>
-            <argument id="dbal_connection" type="service"/>
-        </service>
-
-        <service class="Shopware\Shop\Gateway\ShopRepository" id="shopware.shop.gateway.shop_repository">
-            <argument id="shopware.shop.gateway.shop_reader" type="service"/>
-            <argument id="shopware.shop.gateway.shop_searcher" type="service"/>
-            <argument id="event_dispatcher" type="service"/>
-        </service>
-
-        <service class="Shopware\Shop\Gateway\ShopSearcher" id="shopware.shop.gateway.shop_searcher">
-            <argument id="dbal_connection" type="service"/>
-            <argument type="collection">
-                <argument type="service" id="shopware.shop.gateway.handler.parent_condition_handler" />
-                <argument type="service" id="shopware.shop.gateway.handler.active_condition_handler" />
-            </argument>
-            <argument id="shopware.framework.struct.field_helper" type="service"/>
-            <argument id="shopware.shop.struct.shop_hydrator" type="service"/>
-        </service>
-
-        <service class="Shopware\Shop\Gateway\Handler\ParentConditionHandler" id="shopware.shop.gateway.handler.parent_condition_handler"/>
-        <service class="Shopware\Shop\Gateway\Handler\ActiveConditionHandler" id="shopware.shop.gateway.handler.active_condition_handler"/>
+</service>
+<service class="Shopware\Shop\Searcher\ShopSearcher" id="shopware.shop.searcher.searcher">
+  <argument id="dbal_connection" type="service"/>
+  <argument type="collection">
+        <!-- #handlers# -->
+  </argument>
+  <argument id="shopware.shop.reader.basic_hydrator" type="service"/>
+</service>
+<service class="Shopware\Shop\Writer\ShopWriter" id="shopware.shop.writer.writer"/>
+<service class="Shopware\Shop\ShopRepository" id="shopware.shop.repository">
+  <argument id="shopware.shop.loader.basic_loader" type="service"/>
+  <argument id="event_dispatcher" type="service"/>
+  <argument id="shopware.shop.searcher.searcher" type="service"/>
+  <argument id="shopware.shop.writer.writer" type="service"/>
+  <argument id="shopware.shop.loader.detail_loader" type="service"/>
+</service>
+<service class="Shopware\Shop\Reader\ShopDetailHydrator" id="shopware.shop.reader.detail_hydrator">
+  <argument id="shopware.shop.reader.basic_hydrator" type="service"/>
+  <argument type="service" id="shopware.category.reader.basic_hydrator" />
+<argument type="service" id="shopware.shipping_method.reader.basic_hydrator" />
+<argument type="service" id="shopware.shop_template.reader.basic_hydrator" />
+<argument type="service" id="shopware.area_country.reader.basic_hydrator" />
+<argument type="service" id="shopware.payment_method.reader.basic_hydrator" />
+<argument type="service" id="shopware.customer_group.reader.basic_hydrator" />
+<argument type="service" id="shopware.currency.reader.basic_hydrator" />
+</service>
+<service class="Shopware\Shop\Reader\ShopDetailReader" id="shopware.shop.reader.detail_reader">
+  <argument id="dbal_connection" type="service"/>
+  <argument id="shopware.shop.reader.detail_hydrator" type="service"/>
+</service>
+<service class="Shopware\Shop\Loader\ShopDetailLoader" id="shopware.shop.loader.detail_loader">
+    <argument type="service" id="shopware.shop.reader.detail_reader" />
+    <argument type="service" id="shopware.locale.loader.basic_loader" />
+<argument type="service" id="shopware.currency.loader.basic_loader" />
+</service>
 
     </services>
 </container>

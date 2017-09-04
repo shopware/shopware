@@ -186,7 +186,7 @@ class AppKernel extends Kernel
     protected function initializePlugins(): void
     {
         $stmt = self::$connection->query(
-            'SELECT `name` FROM `s_core_plugins` WHERE `namespace` LIKE "ShopwarePlugins" AND `active` = 1 AND `installation_date` IS NOT NULL'
+            'SELECT `name` FROM `plugin` WHERE `active` = 1 AND `installation_date` IS NOT NULL'
         );
         $activePlugins = $stmt->fetchAll(\PDO::FETCH_COLUMN);
 

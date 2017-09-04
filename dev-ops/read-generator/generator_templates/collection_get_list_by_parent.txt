@@ -1,0 +1,8 @@
+    public function getListBy#parentClassUc#(array $#parentClasslc#s): #classUc#BasicCollection
+    {
+        return $this->filter(
+            function(#classUc#BasicStruct $#classLc#) use ($#parentClasslc#s) {
+                return in_array($#classLc#->get#parentClassUc#Uuid(), $#parentClasslc#s, true);
+            }
+        );
+    }

@@ -51,7 +51,7 @@ class DeliveryCollection extends Collection
      */
     public function sortDeliveries(): DeliveryCollection
     {
-        $this->sort(function(Delivery $a, Delivery $b) {
+        $this->sort(function (Delivery $a, Delivery $b) {
             if ($a->getLocation() !== $b->getLocation()) {
                 return -1;
             }

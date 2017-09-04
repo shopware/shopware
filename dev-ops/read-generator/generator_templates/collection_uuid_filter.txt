@@ -1,0 +1,6 @@
+    public function filterBy#nameUc#(string $uuid): #classUc#BasicCollection
+    {
+        return $this->filter(function(#classUc#BasicStruct $#classLc#) use ($uuid) {
+            return $#classLc#->get#nameUc#() === $uuid;
+        });
+    }

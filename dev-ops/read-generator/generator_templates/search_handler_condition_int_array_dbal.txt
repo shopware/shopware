@@ -1,0 +1,3 @@
+        /* @var #searchNameUc#Condition $criteriaPart */
+        $builder->andWhere('#classLc#.#column# IN (:#column#_condition)');
+        $builder->setParameter('#column#_condition', $criteriaPart->get#searchNamePluralUc#(), Connection::PARAM_INT_ARRAY);

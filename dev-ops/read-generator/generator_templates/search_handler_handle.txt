@@ -1,0 +1,11 @@
+    public function handle(
+        CriteriaPartInterface $criteriaPart,
+        QueryBuilder $builder,
+        Criteria $criteria,
+        TranslationContext $context
+    ): void {
+
+        #sorting#
+
+        #condition#
+    }

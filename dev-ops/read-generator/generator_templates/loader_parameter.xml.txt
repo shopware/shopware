@@ -1,0 +1,1 @@
+<argument type="service" id="shopware.#table#.loader.basic_loader" />

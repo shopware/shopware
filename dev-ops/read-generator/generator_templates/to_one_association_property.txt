@@ -1,0 +1,4 @@
+    /**
+     * @var #associationClassUc#BasicStruct
+     */
+    protected $#associationClassLc#;

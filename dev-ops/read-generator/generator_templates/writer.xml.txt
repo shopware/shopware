@@ -1,0 +1,1 @@
+<service class="Shopware\#classUc#\Writer\#classUc#Writer" id="shopware.#table#.writer.writer"/>

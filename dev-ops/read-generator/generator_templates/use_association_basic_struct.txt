@@ -1,0 +1,1 @@
+use Shopware\#associationClassUc#\Struct\#associationClassUc##suffix#;

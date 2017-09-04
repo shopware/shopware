@@ -1,0 +1,2 @@
+        $query->leftJoin('#classLc#', '#associationTable#', '#associationClassLc#', '#condition#');
+        #associationClassUc#BasicQuery::addRequirements($query, $context);

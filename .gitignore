@@ -19,20 +19,7 @@ Thumbs.db
 !/vendor/.htaccess
 
 # User installed plugins
-/engine/Shopware/Plugins/Community/Backend/*
-/engine/Shopware/Plugins/Community/Core/*
-/engine/Shopware/Plugins/Community/Frontend/*
-/engine/Shopware/Plugins/Local/Backend/*
-/engine/Shopware/Plugins/Local/Core/*
-/engine/Shopware/Plugins/Local/Frontend/*
-
 /custom/plugins/*
-
-# User installed themes
-/themes/Frontend/*
-!/themes/Frontend/Bare
-!/themes/Frontend/Responsive
-
 
 # Caches/Proxies
 .php_cs
@@ -41,15 +28,22 @@ Thumbs.db
 /var/cache/*
 !/var/cache/.htaccess
 !/var/cache/clear_cache.sh
-/web/cache/*
 /var/bootstrap.php.cache
 
+
 /web/*
-!/web/media/.gitkeep
 !/web/index.php
 !/web/.htaccess
+/web/css/*
+!/web/css/
 !/web/css/.gitkeep
+/web/js/*
+!/web/js/
 !/web/js/.gitkeep
+/web/media/*
+!/web/media/
+!/web/media/.gitkeep
+
 
 /files/documents/*
 !/files/documents/.htaccess

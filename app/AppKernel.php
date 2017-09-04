@@ -136,7 +136,7 @@ class AppKernel extends Kernel
 
         $activePluginMeta = [];
 
-        foreach (self::getPlugins() as $namespace => $plugin) {
+        foreach (self::getPlugins()->all() as $namespace => $plugin) {
             $pluginName = $plugin->getName();
             $activePluginMeta[$pluginName] = [
                 'name' => $pluginName,

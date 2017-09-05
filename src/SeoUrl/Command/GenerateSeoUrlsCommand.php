@@ -43,20 +43,20 @@ class GenerateSeoUrlsCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $shops = $this->getContainer()->get('dbal_connection')->fetchAll(
-            'SELECT id, fallback_id, `default` as is_default FROM s_core_shops'
+            'SELECT uuid, fallback_locale_uuid, `is_default` FROM shop'
         );
 
         $generatorRegistry = $this->getContainer()->get('shopware.seo_url.generator.seo_url_generator_registry');
 
         foreach ($shops as $shop) {
             $context = new TranslationContext(
-                (int) $shop['id'],
+                (string) $shop['uuid'],
                 (bool) $shop['is_default'],
-                $shop['fallback_id'] ? (int) $shop['fallback_id'] : null
+                $shop['fallback_locale_uuid'] ? (int) $shop['fallback_locale_uuid'] : null
             );
 
             $generatorRegistry->generate(
-                (int) $shop['id'],
+                $context->getShopUuid(),
                 $context,
                 (bool) $input->getOption('force')
             );

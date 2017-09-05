@@ -101,8 +101,8 @@ class SeoUrlRepository
         return $result;
     }
 
-    public function write(): void
+    public function create(array $seoUrls): void
     {
-        $this->writer->write();
+        $this->writer->create($seoUrls);
     }
 }

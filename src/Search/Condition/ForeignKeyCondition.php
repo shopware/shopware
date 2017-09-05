@@ -22,16 +22,29 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\SeoUrl\Generator;
+namespace Shopware\Search\Condition;
 
-use Shopware\Context\Struct\TranslationContext;
-use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
-use Shopware\SeoUrl\Struct\SeoUrlCollection;
-use Shopware\Shop\Struct\ShopBasicStruct;
+use Shopware\Search\ConditionInterface;
 
-interface SeoUrlGeneratorInterface
+class ForeignKeyCondition implements ConditionInterface
 {
-    public function fetch(ShopBasicStruct $shop, TranslationContext $context, int $offset, int $limit): SeoUrlBasicCollection;
+    /**
+     * @var string[]
+     */
+    protected $foreignKeies;
 
-    public function getName(): string;
+    public function __construct(array $foreignKeies)
+    {
+        $this->foreignKeies = $foreignKeies;
+    }
+
+    public function getForeignKeies(): array
+    {
+        return $this->foreignKeies;
+    }
+
+    public function getName(): string
+    {
+        return self::class;
+    }
 }

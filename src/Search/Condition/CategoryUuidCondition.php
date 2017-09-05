@@ -22,16 +22,29 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\SeoUrl\Generator;
+namespace Shopware\Search\Condition;
 
-use Shopware\Context\Struct\TranslationContext;
-use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
-use Shopware\SeoUrl\Struct\SeoUrlCollection;
-use Shopware\Shop\Struct\ShopBasicStruct;
+use Shopware\Search\ConditionInterface;
 
-interface SeoUrlGeneratorInterface
+class CategoryUuidCondition implements ConditionInterface
 {
-    public function fetch(ShopBasicStruct $shop, TranslationContext $context, int $offset, int $limit): SeoUrlBasicCollection;
+    /**
+     * @var string[]
+     */
+    protected $categoryUuids;
 
-    public function getName(): string;
+    public function __construct(array $categoryUuids)
+    {
+        $this->categoryUuids = $categoryUuids;
+    }
+
+    public function getCategoryUuids(): array
+    {
+        return $this->categoryUuids;
+    }
+
+    public function getName(): string
+    {
+        return self::class;
+    }
 }

@@ -28,22 +28,22 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Search\AggregatorInterface;
-use Shopware\Search\Condition\SeoPathInfoCondition;
+use Shopware\Search\Condition\ForeignKeyCondition;
 use Shopware\Search\Criteria;
 use Shopware\Search\CriteriaPartInterface;
-use Shopware\Search\Facet\SeoPathInfoFacet;
+use Shopware\Search\Facet\ForeignKeyFacet;
 use Shopware\Search\FacetResult\ArrayFacetResult;
 use Shopware\Search\HandlerInterface;
-use Shopware\Search\Sorting\SeoPathInfoSorting;
+use Shopware\Search\Sorting\ForeignKeySorting;
 
-class SeoPathInfoHandler implements HandlerInterface, AggregatorInterface
+class ForeignKeyHandler implements HandlerInterface, AggregatorInterface
 {
     public function supports(CriteriaPartInterface $criteriaPart): bool
     {
         return
-            $criteriaPart instanceof SeoPathInfoSorting
- || $criteriaPart instanceof SeoPathInfoCondition
- || $criteriaPart instanceof SeoPathInfoFacet
+            $criteriaPart instanceof ForeignKeySorting
+ || $criteriaPart instanceof ForeignKeyCondition
+ || $criteriaPart instanceof ForeignKeyFacet
         ;
     }
 
@@ -53,15 +53,15 @@ class SeoPathInfoHandler implements HandlerInterface, AggregatorInterface
         Criteria $criteria,
         TranslationContext $context
     ): void {
-        if ($criteriaPart instanceof SeoPathInfoSorting) {
-            $builder->addOrderBy('seoUrl.seo_path_info', $criteriaPart->getDirection());
+        if ($criteriaPart instanceof ForeignKeySorting) {
+            $builder->addOrderBy('seoUrl.foreign_key', $criteriaPart->getDirection());
 
             return;
         }
 
-                /* @var SeoPathInfoCondition $criteriaPart */
-        $builder->andWhere('seoUrl.seo_path_info IN (:seo_path_info_condition)');
-        $builder->setParameter('seo_path_info_condition', $criteriaPart->getSeoPathInfos(), Connection::PARAM_STR_ARRAY);
+                /* @var ForeignKeyCondition $criteriaPart */
+        $builder->andWhere('seoUrl.foreign_key IN (:foreign_key_condition)');
+        $builder->setParameter('foreign_key_condition', $criteriaPart->getForeignKeys(), Connection::PARAM_STR_ARRAY);
     }
 
     public function aggregate(
@@ -70,7 +70,7 @@ class SeoPathInfoHandler implements HandlerInterface, AggregatorInterface
         Criteria $criteria,
         TranslationContext $context
     ) {
-        $builder->select(['DISTINCT seoUrl.seo_path_info']);
+        $builder->select(['DISTINCT seoUrl.foreign_key']);
         $values = $builder->execute()->fetchAll(\PDO::FETCH_COLUMN);
 
         return new ArrayFacetResult(

@@ -25,22 +25,29 @@
 namespace Shopware\Storefront\ListingPage;
 
 use Cocur\Slugify\SlugifyInterface;
-use Doctrine\DBAL\Connection;
-use Shopware\Category\Gateway\CategoryRepository;
+use Ramsey\Uuid\Uuid;
+use Shopware\Category\CategoryRepository;
+use Shopware\Category\Struct\CategoryBasicCollection;
+use Shopware\Category\Struct\CategoryBasicStruct;
 use Shopware\Category\Struct\CategoryIdentity;
-use Shopware\Category\Struct\CategoryIdentityCollection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Routing\Router;
 use Shopware\Search\Condition\ActiveCondition;
 use Shopware\Search\Condition\CanonicalCondition;
 use Shopware\Search\Condition\ForeignKeyCondition;
+use Shopware\Search\Condition\IsCanonicalCondition;
 use Shopware\Search\Condition\NameCondition;
+use Shopware\Search\Condition\ParentUuidCondition;
 use Shopware\Search\Condition\ShopCondition;
+use Shopware\Search\Condition\ShopUuidCondition;
 use Shopware\Search\Criteria;
-use Shopware\SeoUrl\Gateway\SeoUrlRepository;
 use Shopware\SeoUrl\Generator\SeoUrlGeneratorInterface;
+use Shopware\SeoUrl\SeoUrlRepository;
 use Shopware\SeoUrl\Struct\SeoUrl;
+use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
+use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
 use Shopware\SeoUrl\Struct\SeoUrlCollection;
+use Shopware\Shop\Struct\ShopBasicStruct;
 
 class ListingPageUrlGenerator implements SeoUrlGeneratorInterface
 {
@@ -67,7 +74,6 @@ class ListingPageUrlGenerator implements SeoUrlGeneratorInterface
     private $seoUrlRepository;
 
     public function __construct(
-        Connection $connection,
         CategoryRepository $categoryRepository,
         SlugifyInterface $slugify,
         Router $generator,
@@ -79,51 +85,48 @@ class ListingPageUrlGenerator implements SeoUrlGeneratorInterface
         $this->seoUrlRepository = $seoUrlRepository;
     }
 
-    public function fetch(int $shopId, TranslationContext $context, int $offset, int $limit): SeoUrlCollection
+    public function fetch(ShopBasicStruct $shop, TranslationContext $context, int $offset, int $limit): SeoUrlBasicCollection
     {
         $criteria = new Criteria();
         $criteria->offset($offset);
         $criteria->limit($limit);
-        $criteria->addCondition(new ShopCondition([$shopId]));
+        $criteria->addCondition(new ParentUuidCondition([$shop->getCategoryUuid()]));
         $criteria->addCondition(new ActiveCondition(true));
 
-        $result = $this->categoryRepository->search($criteria, $context);
-        $categories = $this->categoryRepository->read($result->getIdsIncludingPaths(), $context, CategoryRepository::FETCH_IDENTITY);
+        $categories = $this->categoryRepository->search($criteria, $context);
 
         $criteria = new Criteria();
-        $criteria->addCondition(new CanonicalCondition(true));
-        $criteria->addCondition(new ForeignKeyCondition($categories->getIds()));
+        $criteria->addCondition(new IsCanonicalCondition(true));
+        $criteria->addCondition(new ForeignKeyCondition($categories->getUuids()));
         $criteria->addCondition(new NameCondition([self::ROUTE_NAME]));
-        $criteria->addCondition(new ShopCondition([$shopId]));
+        $criteria->addCondition(new ShopUuidCondition([$shop->getUuid()]));
 
         $existingCanonicals = $this->seoUrlRepository->search($criteria, $context);
 
-        $routes = new SeoUrlCollection();
-        /** @var CategoryIdentity $identity */
-        foreach ($result as $identity) {
-            $pathInfo = $this->generator->generate(self::ROUTE_NAME, ['id' => $identity->getId()]);
+        $routes = new SeoUrlBasicCollection();
 
-            $seoPathInfo = $this->buildSeoUrl($identity->getId(), $categories);
+        /** @var CategoryBasicStruct $category */
+        foreach ($categories as $category) {
+            $pathInfo = $this->generator->generate(self::ROUTE_NAME, ['uuid' => $category->getUuid()]);
+
+            $seoPathInfo = $this->buildSeoUrl($category->getId(), $shop, $categories);
 
             if (!$seoPathInfo || !$pathInfo) {
                 continue;
             }
 
-            $seoPathInfo = rtrim($seoPathInfo, '/') . '/' . $identity->getId();
+            $seoPathInfo = rtrim($seoPathInfo, '/') . '/' . $category->getId();
 
-            $routes->add(
-                new SeoUrl(
-                    null,
-                    $shopId,
-                    self::ROUTE_NAME,
-                    $identity->getId(),
-                    $pathInfo,
-                    $seoPathInfo,
-                    '',
-                    new \DateTime(),
-                    !$existingCanonicals->hasPathInfo($pathInfo)
-                )
-            );
+            $url = new SeoUrlBasicStruct();
+            $url->setUuid(Uuid::uuid4()->toString());
+            $url->setShopUuid($shop->getUuid());
+            $url->setName(self::ROUTE_NAME);
+            $url->setForeignKey($category->getUuid());
+            $url->setPathInfo($pathInfo);
+            $url->setSeoPathInfo($seoPathInfo);
+            $url->setCreatedAt(new \DateTime());
+            $url->setIsCanonical(!$existingCanonicals->hasPathInfo($pathInfo));
+            $routes->add($url);
         }
 
         return $routes;
@@ -134,16 +137,22 @@ class ListingPageUrlGenerator implements SeoUrlGeneratorInterface
         return self::ROUTE_NAME;
     }
 
-    private function buildSeoUrl(?int $id, CategoryIdentityCollection $categories): ?string
+    private function buildSeoUrl(?string $uuid, ShopBasicStruct $shop, CategoryBasicCollection $categories): ?string
     {
-        $category = $categories->get($id);
-        if (!$category->getParent() || $category->isShopCategory()) {
+        $category = $categories->get($uuid);
+        if (!$category) {
+            return null;
+        }
+        if ($category->getUuid() === $shop->getCategoryUuid()) {
+            return null;
+        }
+        if (!$category->getParentUuid()) {
             return null;
         }
 
         $name = $this->slugify->slugify($category->getName());
 
-        $parent = $this->buildSeoUrl($category->getParent(), $categories);
+        $parent = $this->buildSeoUrl($category->getParentUuid(), $shop, $categories);
 
         if (!$parent) {
             return $name . '/';

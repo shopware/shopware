@@ -25,21 +25,28 @@
 namespace Shopware\Storefront\DetailPage;
 
 use Cocur\Slugify\SlugifyInterface;
+use Ramsey\Uuid\Uuid;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Routing\Router;
-use Shopware\Product\Gateway\ProductRepository;
+use Shopware\Product\ProductRepository;
+use Shopware\Product\Struct\ProductBasicStruct;
 use Shopware\Product\Struct\ProductIdentity;
 use Shopware\Search\Condition\ActiveCondition;
 use Shopware\Search\Condition\CanonicalCondition;
 use Shopware\Search\Condition\ForeignKeyCondition;
+use Shopware\Search\Condition\IsCanonicalCondition;
 use Shopware\Search\Condition\MainVariantCondition;
 use Shopware\Search\Condition\NameCondition;
 use Shopware\Search\Condition\ShopCondition;
+use Shopware\Search\Condition\ShopUuidCondition;
 use Shopware\Search\Criteria;
-use Shopware\SeoUrl\Gateway\SeoUrlRepository;
 use Shopware\SeoUrl\Generator\SeoUrlGeneratorInterface;
+use Shopware\SeoUrl\SeoUrlRepository;
 use Shopware\SeoUrl\Struct\SeoUrl;
+use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
+use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
 use Shopware\SeoUrl\Struct\SeoUrlCollection;
+use Shopware\Shop\Struct\ShopBasicStruct;
 
 class DetailPageUrlGenerator implements SeoUrlGeneratorInterface
 {
@@ -77,54 +84,45 @@ class DetailPageUrlGenerator implements SeoUrlGeneratorInterface
         $this->seoUrlRepository = $seoUrlRepository;
     }
 
-    public function fetch(int $shopId, TranslationContext $context, int $offset, int $limit): SeoUrlCollection
+    public function fetch(ShopBasicStruct $shop, TranslationContext $context, int $offset, int $limit): SeoUrlBasicCollection
     {
         $criteria = new Criteria();
         $criteria->offset($offset);
         $criteria->limit($limit);
 
-        $criteria->addCondition(new ShopCondition([$shopId]));
+        $criteria->addCondition(new CategoryUuidCondition([$shop->getUuid()]));
         $criteria->addCondition(new ActiveCondition(true));
-        $criteria->addCondition(new MainVariantCondition());
 
-        $result = $this->repository->search($criteria, $context);
-
-        $products = $this->repository->read($result->getNumbers(), $context, ProductRepository::FETCH_MINIMAL);
+        $products = $this->repository->search($criteria, $context);
 
         $criteria = new Criteria();
-        $criteria->addCondition(new CanonicalCondition(true));
-        $criteria->addCondition(new ForeignKeyCondition($products->getProductUuids()));
+        $criteria->addCondition(new IsCanonicalCondition(true));
+        $criteria->addCondition(new ForeignKeyCondition($products->getUuids()));
         $criteria->addCondition(new NameCondition([self::ROUTE_NAME]));
-        $criteria->addCondition(new ShopCondition([$shopId]));
+        $criteria->addCondition(new ShopUuidCondition([$shop->getUuid()]));
         $existingCanonicals = $this->seoUrlRepository->search($criteria, $context);
 
-        $routes = new SeoUrlCollection();
-        /** @var ProductIdentity $identity */
-        foreach ($result as $identity) {
-            if (!$product = $products->get($identity->getNumber())) {
-                continue;
-            }
+        $routes = new SeoUrlBasicCollection();
+        /** @var ProductBasicStruct $product */
+        foreach ($products as $product) {
+            $pathInfo = $this->generator->generate(self::ROUTE_NAME, ['uuid' => $product->getUuid()]);
 
-            $pathInfo = $this->generator->generate(self::ROUTE_NAME, ['number' => $identity->getNumber()]);
-            $seoPathInfo = $this->slugify->slugify($product->getName()) . '/' . $this->slugify->slugify($product->getNumber());
+            $seoPathInfo = $this->slugify->slugify($product->getName()) . '/' . $this->slugify->slugify($product->getUuid());
 
             if (!$seoPathInfo || !$pathInfo) {
                 continue;
             }
 
-            $routes->add(
-                new SeoUrl(
-                    null,
-                    $shopId,
-                    self::ROUTE_NAME,
-                    $identity->getUuid(),
-                    $pathInfo,
-                    $seoPathInfo,
-                    '',
-                    new \DateTime(),
-                    !$existingCanonicals->hasPathInfo($pathInfo)
-                )
-            );
+            $url = new SeoUrlBasicStruct();
+            $url->setUuid(Uuid::uuid4()->toString());
+            $url->setShopUuid($shop->getUuid());
+            $url->setName(self::ROUTE_NAME);
+            $url->setForeignKey($product->getUuid());
+            $url->setPathInfo($pathInfo);
+            $url->setSeoPathInfo($seoPathInfo);
+            $url->setCreatedAt(new \DateTime());
+            $url->setIsCanonical(!$existingCanonicals->hasPathInfo($pathInfo));
+            $routes->add($url);
         }
 
         return $routes;

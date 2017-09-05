@@ -24,9 +24,54 @@
 
 namespace Shopware\SeoUrl\Writer;
 
+use Doctrine\DBAL\Connection;
+use Shopware\SeoUrl\Struct\SeoUrl;
+use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
+
 class SeoUrlWriter
 {
-    public function write(): void
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function __construct(Connection $connection)
     {
+        $this->connection = $connection;
+    }
+
+    /**
+     * @param SeoUrlBasicStruct[] $urls
+     */
+    public function create(array $urls): void
+    {
+        foreach ($urls as $url) {
+            try {
+                $this->connection->insert(
+                    'seo_url',
+                    [
+                        'uuid' => $url->getUuid(),
+                        'name' => $url->getName(),
+                        'seo_hash' => $url->getSeoHash(),
+                        'foreign_key' => $url->getForeignKey(),
+                        'shop_uuid' => $url->getShopUuid(),
+                        'path_info' => $url->getPathInfo(),
+                        'seo_path_info' => $url->getSeoPathInfo(),
+                        'is_canonical' => $url->getIsCanonical(),
+                        'created_at' => $url->getCreatedAt()->format('Y-m-d H:i:s'),
+                    ]
+                );
+            } catch (\Exception $e) {
+            }
+        }
+    }
+
+    public function delete(array $ids): void
+    {
+        $this->connection->executeUpdate(
+            'DELETE FROM seo_url WHERE id IN (:ids)',
+            [':ids' => $ids],
+            [':ids' => Connection::PARAM_INT_ARRAY]
+        );
     }
 }

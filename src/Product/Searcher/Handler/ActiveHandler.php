@@ -22,28 +22,27 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\SeoUrl\Searcher\Handler;
+namespace Shopware\Product\Searcher\Handler;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Search\AggregatorInterface;
-use Shopware\Search\Condition\SeoPathInfoCondition;
+use Shopware\Search\Condition\ActiveCondition;
 use Shopware\Search\Criteria;
 use Shopware\Search\CriteriaPartInterface;
-use Shopware\Search\Facet\SeoPathInfoFacet;
-use Shopware\Search\FacetResult\ArrayFacetResult;
+use Shopware\Search\Facet\ActiveFacet;
+use Shopware\Search\FacetResult\BooleanFacetResult;
 use Shopware\Search\HandlerInterface;
-use Shopware\Search\Sorting\SeoPathInfoSorting;
+use Shopware\Search\Sorting\ActiveSorting;
 
-class SeoPathInfoHandler implements HandlerInterface, AggregatorInterface
+class ActiveHandler implements HandlerInterface, AggregatorInterface
 {
     public function supports(CriteriaPartInterface $criteriaPart): bool
     {
         return
-            $criteriaPart instanceof SeoPathInfoSorting
- || $criteriaPart instanceof SeoPathInfoCondition
- || $criteriaPart instanceof SeoPathInfoFacet
+            $criteriaPart instanceof ActiveSorting
+ || $criteriaPart instanceof ActiveCondition
+ || $criteriaPart instanceof ActiveFacet
         ;
     }
 
@@ -53,15 +52,15 @@ class SeoPathInfoHandler implements HandlerInterface, AggregatorInterface
         Criteria $criteria,
         TranslationContext $context
     ): void {
-        if ($criteriaPart instanceof SeoPathInfoSorting) {
-            $builder->addOrderBy('seoUrl.seo_path_info', $criteriaPart->getDirection());
+        if ($criteriaPart instanceof ActiveSorting) {
+            $builder->addOrderBy('product.active', $criteriaPart->getDirection());
 
             return;
         }
 
-                /* @var SeoPathInfoCondition $criteriaPart */
-        $builder->andWhere('seoUrl.seo_path_info IN (:seo_path_info_condition)');
-        $builder->setParameter('seo_path_info_condition', $criteriaPart->getSeoPathInfos(), Connection::PARAM_STR_ARRAY);
+                /* @var ActiveCondition $criteriaPart */
+        $builder->andWhere('product.active = :active_condition');
+        $builder->setParameter('active_condition', $criteriaPart->isActive());
     }
 
     public function aggregate(
@@ -70,13 +69,22 @@ class SeoPathInfoHandler implements HandlerInterface, AggregatorInterface
         Criteria $criteria,
         TranslationContext $context
     ) {
-        $builder->select(['DISTINCT seoUrl.seo_path_info']);
-        $values = $builder->execute()->fetchAll(\PDO::FETCH_COLUMN);
+        $builder->groupBy('product.active');
 
-        return new ArrayFacetResult(
-            $criteriaPart->getName(),
-            $criteria->hasCondition($criteriaPart->getName()),
-            $values
-        );
+        $builder->select(['product.active', 'COUNT(product.uuid) as item_count']);
+
+        $counts = $builder->execute()->fetchAll(\PDO::FETCH_KEY_PAIR);
+
+        $true = 0;
+        $false = 0;
+        foreach ($counts as $key => $count) {
+            if ($key === 1) {
+                $true = $count;
+            } else {
+                $false = $count;
+            }
+        }
+
+        return new BooleanFacetResult($criteriaPart->getName(), $true, $false);
     }
 }

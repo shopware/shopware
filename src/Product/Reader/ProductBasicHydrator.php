@@ -37,14 +37,17 @@ class ProductBasicHydrator extends Hydrator
      * @var ProductManufacturerBasicHydrator
      */
     private $productManufacturerBasicHydrator;
+
     /**
      * @var ProductDetailBasicHydrator
      */
     private $productDetailBasicHydrator;
+
     /**
      * @var TaxBasicHydrator
      */
     private $taxBasicHydrator;
+
     /**
      * @var SeoUrlBasicHydrator
      */
@@ -67,6 +70,12 @@ class ProductBasicHydrator extends Hydrator
         $product = new ProductBasicStruct();
 
         $product->setUuid((string)$data['__product_uuid']);
+        $product->setName((string) $data['__productTranslation_name']);
+        $product->setKeywords(isset($data['__productTranslation_keywords']) ? (string) $data['__productTranslation_keywords'] : null);
+        $product->setDescription(isset($data['__productTranslation_description']) ? (string) $data['__productTranslation_description'] : null);
+        $product->setDescriptionLong(isset($data['__productTranslation_description_long']) ? (string) $data['__productTranslation_description_long'] : null);
+        $product->setMetaTitle(isset($data['__productTranslation_meta_title']) ? (string) $data['__productTranslation_meta_title'] : null);
+        
         $product->setManufacturerUuid((string)$data['__product_product_manufacturer_uuid']);
         $product->setShippingTime(
             isset($data['__product_shipping_time']) ? (string)$data['__product_shipping_time'] : null

@@ -34,7 +34,7 @@ class SeoUrlBasicStruct extends Struct
     protected $id;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $uuid;
 
@@ -88,12 +88,12 @@ class SeoUrlBasicStruct extends Struct
         $this->id = $id;
     }
 
-    public function getUuid(): string
+    public function getUuid(): ?string
     {
         return $this->uuid;
     }
 
-    public function setUuid(string $uuid): void
+    public function setUuid(?string $uuid): void
     {
         $this->uuid = $uuid;
     }
@@ -156,6 +156,7 @@ class SeoUrlBasicStruct extends Struct
     public function setSeoPathInfo(string $seoPathInfo): void
     {
         $this->seoPathInfo = $seoPathInfo;
+        $this->seoHash = sha1($seoPathInfo);
     }
 
     public function getIsCanonical(): bool

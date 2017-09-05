@@ -62,6 +62,7 @@ class GenerateStructCommand
         }
 
         $tables = [
+            'product_translation' => [],
             'product' => [
                 'create_detail' => true,
                 'parent' => null,
@@ -80,7 +81,7 @@ class GenerateStructCommand
 //                    self::createSearchCriteria('main_detail_uuid', 'string_array', true, true, true, 'product_detail_uuid'),
 //                    self::createSearchCriteria('product_manufacturer_uuid', 'string_array'),
 //                    self::createSearchCriteria('topseller', 'boolean'),
-//                    self::createSearchCriteria('active', 'boolean'),
+                    self::createSearchCriteria('active', 'boolean'),
 //                    self::createSearchCriteria('last_stock', 'boolean'),
 //                    self::createSearchCriteria('notification', 'boolean'),
                 ]
@@ -89,8 +90,8 @@ class GenerateStructCommand
                 'search' => [
 //                    self::createSearchCriteria('seo_hash', 'string_array'),
                     self::createSearchCriteria('shop_uuid', 'string_array'),
-//                    self::createSearchCriteria('name', 'string_array'),
-//                    self::createSearchCriteria('foreign_key', 'string_array'),
+                    self::createSearchCriteria('name', 'string_array'),
+                    self::createSearchCriteria('foreign_key', 'string_array'),
                     self::createSearchCriteria('path_info', 'string_array'),
                     self::createSearchCriteria('seo_path_info', 'string_array'),
                     self::createSearchCriteria('is_canonical', 'boolean'),
@@ -143,6 +144,7 @@ class GenerateStructCommand
                 ],
                 'search' => [
                     self::createSearchCriteria('parent_uuid', 'string_array'),
+                    self::createSearchCriteria('category_uuid', 'string_array'),
                     self::createSearchCriteria('active', 'boolean'),
                 ]
             ],

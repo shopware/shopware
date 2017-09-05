@@ -22,16 +22,14 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\SeoUrl\Generator;
+namespace Shopware\Search\Facet;
 
-use Shopware\Context\Struct\TranslationContext;
-use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
-use Shopware\SeoUrl\Struct\SeoUrlCollection;
-use Shopware\Shop\Struct\ShopBasicStruct;
+use Shopware\Search\FacetInterface;
 
-interface SeoUrlGeneratorInterface
+class CategoryUuidFacet implements FacetInterface
 {
-    public function fetch(ShopBasicStruct $shop, TranslationContext $context, int $offset, int $limit): SeoUrlBasicCollection;
-
-    public function getName(): string;
+    public function getName(): string
+    {
+        return self::class;
+    }
 }

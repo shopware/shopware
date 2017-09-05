@@ -29,10 +29,15 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Search\Condition\ForeignKeyCondition;
 use Shopware\Search\Condition\NameCondition;
 use Shopware\Search\Condition\ShopCondition;
+use Shopware\Search\Condition\ShopUuidCondition;
 use Shopware\Search\Criteria;
-use Shopware\SeoUrl\Gateway\SeoUrlRepository;
+use Shopware\SeoUrl\SeoUrlRepository;
 use Shopware\SeoUrl\Struct\SeoUrl;
+use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
+use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
 use Shopware\SeoUrl\Struct\SeoUrlCollection;
+use Shopware\Shop\ShopRepository;
+use Shopware\Shop\Struct\ShopBasicStruct;
 
 class SeoUrlGeneratorRegistry
 {
@@ -53,28 +58,31 @@ class SeoUrlGeneratorRegistry
      */
     private $connection;
 
-    public function __construct(array $generators, SeoUrlRepository $repository, Connection $connection)
+    /**
+     * @var ShopRepository
+     */
+    private $shopRepository;
+
+    public function __construct(array $generators, SeoUrlRepository $repository, Connection $connection, ShopRepository $shopRepository)
     {
         $this->generators = $generators;
         $this->repository = $repository;
         $this->connection = $connection;
+        $this->shopRepository = $shopRepository;
     }
 
-    public function generate(int $shopId, TranslationContext $context, bool $force): void
+    public function generate(string $shopUuid, TranslationContext $context, bool $force): void
     {
+        $shop = $this->shopRepository->read([$shopUuid], $context)->get($shopUuid);
+
         foreach ($this->generators as $generator) {
             $this->connection->transactional(
-                function () use ($shopId, $generator, $context, $force) {
+                function () use ($shop, $generator, $context, $force) {
                     $offset = 0;
 
-                    while (count($urls = $generator->fetch($shopId, $context, $offset, self::LIMIT))) {
+                    while (count($urls = $generator->fetch($shop, $context, $offset, self::LIMIT))) {
                         if (!$force) {
-                            $urls = $this->filterNoneExistingRoutes(
-                                $shopId,
-                                $context,
-                                $generator->getName(),
-                                $urls
-                            );
+                            $urls = $this->filterNoneExistingRoutes($shop, $context, $generator->getName(), $urls);
                         }
 
                         $this->repository->create($urls->getIterator()->getArrayCopy());
@@ -86,19 +94,19 @@ class SeoUrlGeneratorRegistry
         }
     }
 
-    private function filterNoneExistingRoutes(int $shopId, TranslationContext $context, string $name, SeoUrlCollection $urls): SeoUrlCollection
+    private function filterNoneExistingRoutes(ShopBasicStruct $shop, TranslationContext $context, string $name, SeoUrlBasicCollection $urls): SeoUrlBasicCollection
     {
         $criteria = new Criteria();
 
         $criteria->addCondition(new NameCondition([$name]));
         $criteria->addCondition(new ForeignKeyCondition($urls->getForeignKeys()));
-        $criteria->addCondition(new ShopCondition([$shopId]));
+        $criteria->addCondition(new ShopUuidCondition([$shop->getUuid()]));
 
         $existing = $this->repository->search($criteria, $context);
 
-        $newUrls = new SeoUrlCollection();
+        $newUrls = new SeoUrlBasicCollection();
 
-        /** @var SeoUrl $url */
+        /** @var SeoUrlBasicStruct $url */
         foreach ($urls as $url) {
             if ($existing->hasForeignKey($name, $url->getForeignKey())) {
                 continue;

@@ -24,7 +24,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

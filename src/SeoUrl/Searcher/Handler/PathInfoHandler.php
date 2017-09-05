@@ -42,8 +42,9 @@ class PathInfoHandler implements HandlerInterface, AggregatorInterface
     {
         return
             $criteriaPart instanceof PathInfoSorting
-            || $criteriaPart instanceof PathInfoCondition
-            || $criteriaPart instanceof PathInfoFacet;
+ || $criteriaPart instanceof PathInfoCondition
+ || $criteriaPart instanceof PathInfoFacet
+        ;
     }
 
     public function handle(
@@ -58,7 +59,7 @@ class PathInfoHandler implements HandlerInterface, AggregatorInterface
             return;
         }
 
-        /* @var PathInfoCondition $criteriaPart */
+                /* @var PathInfoCondition $criteriaPart */
         $builder->andWhere('seoUrl.path_info IN (:path_info_condition)');
         $builder->setParameter('path_info_condition', $criteriaPart->getPathInfos(), Connection::PARAM_STR_ARRAY);
     }

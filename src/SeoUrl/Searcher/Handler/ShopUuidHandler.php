@@ -42,8 +42,9 @@ class ShopUuidHandler implements HandlerInterface, AggregatorInterface
     {
         return
             $criteriaPart instanceof ShopUuidSorting
-            || $criteriaPart instanceof ShopUuidCondition
-            || $criteriaPart instanceof ShopUuidFacet;
+ || $criteriaPart instanceof ShopUuidCondition
+ || $criteriaPart instanceof ShopUuidFacet
+        ;
     }
 
     public function handle(
@@ -58,7 +59,7 @@ class ShopUuidHandler implements HandlerInterface, AggregatorInterface
             return;
         }
 
-        /* @var ShopUuidCondition $criteriaPart */
+                /* @var ShopUuidCondition $criteriaPart */
         $builder->andWhere('seoUrl.shop_uuid IN (:shop_uuid_condition)');
         $builder->setParameter('shop_uuid_condition', $criteriaPart->getShopUuids(), Connection::PARAM_STR_ARRAY);
     }

@@ -41,4 +41,5 @@ class SeoUrlSearchResult extends SeoUrlBasicCollection implements SearchResultIn
         parent::__construct($elements);
         $this->total = $total;
     }
+
 }

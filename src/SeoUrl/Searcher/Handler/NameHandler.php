@@ -28,22 +28,22 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Search\AggregatorInterface;
-use Shopware\Search\Condition\SeoPathInfoCondition;
+use Shopware\Search\Condition\NameCondition;
 use Shopware\Search\Criteria;
 use Shopware\Search\CriteriaPartInterface;
-use Shopware\Search\Facet\SeoPathInfoFacet;
+use Shopware\Search\Facet\NameFacet;
 use Shopware\Search\FacetResult\ArrayFacetResult;
 use Shopware\Search\HandlerInterface;
-use Shopware\Search\Sorting\SeoPathInfoSorting;
+use Shopware\Search\Sorting\NameSorting;
 
-class SeoPathInfoHandler implements HandlerInterface, AggregatorInterface
+class NameHandler implements HandlerInterface, AggregatorInterface
 {
     public function supports(CriteriaPartInterface $criteriaPart): bool
     {
         return
-            $criteriaPart instanceof SeoPathInfoSorting
- || $criteriaPart instanceof SeoPathInfoCondition
- || $criteriaPart instanceof SeoPathInfoFacet
+            $criteriaPart instanceof NameSorting
+ || $criteriaPart instanceof NameCondition
+ || $criteriaPart instanceof NameFacet
         ;
     }
 
@@ -53,15 +53,15 @@ class SeoPathInfoHandler implements HandlerInterface, AggregatorInterface
         Criteria $criteria,
         TranslationContext $context
     ): void {
-        if ($criteriaPart instanceof SeoPathInfoSorting) {
-            $builder->addOrderBy('seoUrl.seo_path_info', $criteriaPart->getDirection());
+        if ($criteriaPart instanceof NameSorting) {
+            $builder->addOrderBy('seoUrl.name', $criteriaPart->getDirection());
 
             return;
         }
 
-                /* @var SeoPathInfoCondition $criteriaPart */
-        $builder->andWhere('seoUrl.seo_path_info IN (:seo_path_info_condition)');
-        $builder->setParameter('seo_path_info_condition', $criteriaPart->getSeoPathInfos(), Connection::PARAM_STR_ARRAY);
+                /* @var NameCondition $criteriaPart */
+        $builder->andWhere('seoUrl.name IN (:name_condition)');
+        $builder->setParameter('name_condition', $criteriaPart->getNames(), Connection::PARAM_STR_ARRAY);
     }
 
     public function aggregate(
@@ -70,7 +70,7 @@ class SeoPathInfoHandler implements HandlerInterface, AggregatorInterface
         Criteria $criteria,
         TranslationContext $context
     ) {
-        $builder->select(['DISTINCT seoUrl.seo_path_info']);
+        $builder->select(['DISTINCT seoUrl.name']);
         $values = $builder->execute()->fetchAll(\PDO::FETCH_COLUMN);
 
         return new ArrayFacetResult(

@@ -25,7 +25,8 @@
         <service class="Shopware\Product\Searcher\ProductSearcher" id="shopware.product.searcher">
             <argument id="dbal_connection" type="service"/>
             <argument type="collection">
-
+                <argument id="shopware.product.searcher.handler.active_handler" type="service"/>
+                <argument id="shopware.product.searcher.handler.category_uuid_handler" type="service"/>
             </argument>
             <argument id="shopware.product.reader.basic_hydrator" type="service"/>
         </service>
@@ -73,6 +74,8 @@
         <service class="Shopware\Product\Controller\ApiContextValueResolver" id="shopware.product.controller.api_context_value_resolver">
             <tag name="controller.argument_value_resolver"/>
         </service>
+        <service class="Shopware\Product\Searcher\Handler\ActiveHandler" id="shopware.product.searcher.handler.active_handler"/>
+        <service class="Shopware\Product\Searcher\Handler\CategoryUuidHandler" id="shopware.product.searcher.handler.category_uuid_handler"/>
 
     </services>
 </container>

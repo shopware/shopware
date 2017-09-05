@@ -31,9 +31,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class DetailController extends FrontendController
 {
     /**
-     * @Route("/detail/{number}", name="detail_page", options={"seo"="true"})
+     * @Route("/detail/{uuid}", name="detail_page", options={"seo"="true"})
      */
-    public function indexAction(string $number, ShopContext $context, Request $request)
+    public function indexAction(string $uuid, ShopContext $context, Request $request)
     {
         return $this->render('frontend/home/index.html.twig', []);
     }

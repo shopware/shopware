@@ -22,28 +22,28 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\SeoUrl\Searcher\Handler;
+namespace Shopware\Product\Searcher\Handler;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Search\AggregatorInterface;
-use Shopware\Search\Condition\SeoPathInfoCondition;
+use Shopware\Search\Condition\CategoryUuidCondition;
 use Shopware\Search\Criteria;
 use Shopware\Search\CriteriaPartInterface;
-use Shopware\Search\Facet\SeoPathInfoFacet;
+use Shopware\Search\Facet\CategoryUuidFacet;
 use Shopware\Search\FacetResult\ArrayFacetResult;
 use Shopware\Search\HandlerInterface;
-use Shopware\Search\Sorting\SeoPathInfoSorting;
+use Shopware\Search\Sorting\CategoryUuidSorting;
 
-class SeoPathInfoHandler implements HandlerInterface, AggregatorInterface
+class CategoryUuidHandler implements HandlerInterface, AggregatorInterface
 {
     public function supports(CriteriaPartInterface $criteriaPart): bool
     {
         return
-            $criteriaPart instanceof SeoPathInfoSorting
- || $criteriaPart instanceof SeoPathInfoCondition
- || $criteriaPart instanceof SeoPathInfoFacet
+            $criteriaPart instanceof CategoryUuidSorting
+         || $criteriaPart instanceof CategoryUuidCondition
+         || $criteriaPart instanceof CategoryUuidFacet
         ;
     }
 
@@ -53,15 +53,16 @@ class SeoPathInfoHandler implements HandlerInterface, AggregatorInterface
         Criteria $criteria,
         TranslationContext $context
     ): void {
-        if ($criteriaPart instanceof SeoPathInfoSorting) {
-            $builder->addOrderBy('seoUrl.seo_path_info', $criteriaPart->getDirection());
+        $this->joinCategories($builder);
+        if ($criteriaPart instanceof CategoryUuidSorting) {
+            $builder->addOrderBy('product_category.category_uuid', $criteriaPart->getDirection());
 
             return;
         }
 
-                /* @var SeoPathInfoCondition $criteriaPart */
-        $builder->andWhere('seoUrl.seo_path_info IN (:seo_path_info_condition)');
-        $builder->setParameter('seo_path_info_condition', $criteriaPart->getSeoPathInfos(), Connection::PARAM_STR_ARRAY);
+                /* @var CategoryUuidCondition $criteriaPart */
+        $builder->andWhere('product_category.category_uuid IN (:category_uuid_condition)');
+        $builder->setParameter('category_uuid_condition', $criteriaPart->getCategoryUuids(), Connection::PARAM_STR_ARRAY);
     }
 
     public function aggregate(
@@ -70,13 +71,16 @@ class SeoPathInfoHandler implements HandlerInterface, AggregatorInterface
         Criteria $criteria,
         TranslationContext $context
     ) {
-        $builder->select(['DISTINCT seoUrl.seo_path_info']);
+        $this->joinCategories($builder);
+        $builder->select(['DISTINCT product_category.category_uuid']);
+
         $values = $builder->execute()->fetchAll(\PDO::FETCH_COLUMN);
 
-        return new ArrayFacetResult(
-            $criteriaPart->getName(),
-            $criteria->hasCondition($criteriaPart->getName()),
-            $values
-        );
+        return new ArrayFacetResult($criteriaPart->getName(), $criteria->hasCondition($criteriaPart->getName()), $values);
+    }
+
+    private function joinCategories(QueryBuilder $builder)
+    {
+        $builder->innerJoin('product', 'product_category_ro', 'product_category', 'product_category.product_uuid = product.uuid');
     }
 }

@@ -120,4 +120,31 @@ class SeoUrlBasicCollection extends Collection
         }
         return null;
     }
+
+    public function getForeignKeys()
+    {
+        return $this->fmap(function(SeoUrlBasicStruct $seoUrl) {
+            return $seoUrl->getForeignKey();
+        });
+    }
+
+    public function hasForeignKey(string $name, string $foreignKey): bool
+    {
+        foreach ($this->elements as $element) {
+            if ($element->getForeignKey() === $foreignKey && $element->getName() === $name) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function hasPathInfo(string $pathInfo): bool
+    {
+        foreach ($this->elements as $element) {
+            if ($element->getPathInfo() === $pathInfo) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

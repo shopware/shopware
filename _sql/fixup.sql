@@ -594,6 +594,7 @@ UPDATE s_core_tax s SET
 ;
 
 ALTER TABLE s_categories RENAME TO category;
+ALTER TABLE category CHANGE `description` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL;
 ALTER TABLE category ADD uuid VARCHAR(42) NOT NULL AFTER id;
 ALTER TABLE category DROP `left`;
 ALTER TABLE category DROP `right`;
@@ -614,6 +615,7 @@ ALTER TABLE category CHANGE `hide_sortings` `hide_sortings` tinyint NOT NULL DEF
 ALTER TABLE category CHANGE `blog` `is_blog` tinyint NOT NULL  AFTER `active`;
 ALTER TABLE category CHANGE `stream_id` `product_stream_id` int unsigned NULL AFTER `product_box_layout`;
 ALTER TABLE category ADD `product_stream_uuid` varchar(42) NULL AFTER `product_stream_id`;
+ALTER TABLE `category` CHANGE `path` `path` longtext COLLATE 'utf8mb4_unicode_ci' NULL AFTER `parent_uuid`;
 
 -- migration
 UPDATE category c SET
@@ -640,7 +642,6 @@ ALTER TABLE s_categories_avoid_customergroups
     RENAME TO category_avoid_customer_group,
     CHANGE categoryID category_id INT(11),
     CHANGE customergroupID customer_group_id INT(11),
-    CHANGE `description` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
     ADD category_uuid VARCHAR(42) NOT NULL AFTER category_id,
     ADD customer_group_uuid VARCHAR(42) NOT NULL AFTER customer_group_id
 ;

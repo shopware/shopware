@@ -22,16 +22,12 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\SeoUrl\Generator;
+namespace Shopware\Search\Sorting;
 
-use Shopware\Context\Struct\TranslationContext;
-use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
-use Shopware\SeoUrl\Struct\SeoUrlCollection;
-use Shopware\Shop\Struct\ShopBasicStruct;
-
-interface SeoUrlGeneratorInterface
+class ForeignKeySorting extends Sorting
 {
-    public function fetch(ShopBasicStruct $shop, TranslationContext $context, int $offset, int $limit): SeoUrlBasicCollection;
-
-    public function getName(): string;
+    public function getName(): string
+    {
+        return self::class;
+    }
 }

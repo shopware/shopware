@@ -41,8 +41,9 @@ class IsCanonicalHandler implements HandlerInterface, AggregatorInterface
     {
         return
             $criteriaPart instanceof IsCanonicalSorting
-            || $criteriaPart instanceof IsCanonicalCondition
-            || $criteriaPart instanceof IsCanonicalFacet;
+ || $criteriaPart instanceof IsCanonicalCondition
+ || $criteriaPart instanceof IsCanonicalFacet
+        ;
     }
 
     public function handle(
@@ -57,7 +58,7 @@ class IsCanonicalHandler implements HandlerInterface, AggregatorInterface
             return;
         }
 
-        /* @var IsCanonicalCondition $criteriaPart */
+                /* @var IsCanonicalCondition $criteriaPart */
         $builder->andWhere('seoUrl.is_canonical = :is_canonical_condition');
         $builder->setParameter('is_canonical_condition', $criteriaPart->isIsCanonical());
     }

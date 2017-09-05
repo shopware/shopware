@@ -68,11 +68,16 @@ class ProductBasicQuery extends QueryBuilder
                 'product.available_from as __product_available_from',
                 'product.available_to as __product_available_to',
                 'product.configurator_set_id as __product_configurator_set_id',
+                'productTranslation.name as __productTranslation_name',
+                'productTranslation.keywords as __productTranslation_keywords',
+                'productTranslation.description as __productTranslation_description',
+                'productTranslation.description_long as __productTranslation_description_long',
+                'productTranslation.meta_title as __productTranslation_meta_title',
             ]
         );
 
-        //$query->leftJoin('product', 'product_translation', 'productTranslation', 'product.uuid = productTranslation.product_uuid AND productTranslation.language_uuid = :languageUuid');
-        //$query->setParameter('languageUuid', $context->getShopUuid());
+        $query->leftJoin('product', 'product_translation', 'productTranslation', 'product.uuid = productTranslation.product_uuid AND productTranslation.language_uuid = :languageUuid');
+        $query->setParameter('languageUuid', $context->getShopUuid());
 
         $query->leftJoin('product', 'product_manufacturer', 'productManufacturer', 'productManufacturer.uuid = product.product_manufacturer_uuid');
         ProductManufacturerBasicQuery::addRequirements($query, $context);
@@ -86,8 +91,8 @@ class ProductBasicQuery extends QueryBuilder
         $query->leftJoin('product', 'seo_url', 'seoUrl', 'product.uuid = seoUrl.foreign_key AND seoUrl.is_canonical = 1 AND seoUrl.shop_uuid = :shopUuid AND seoUrl.name = :productSeoUrlName');
         SeoUrlBasicQuery::addRequirements($query, $context);
 
-        $query->setParameter(':shopUuid', $context->getShopUuid());
-        $query->setParameter(':productSeoUrlName', DetailPageUrlGenerator::ROUTE_NAME);
+        $query->setParameter('shopUuid', $context->getShopUuid());
+        $query->setParameter('productSeoUrlName', DetailPageUrlGenerator::ROUTE_NAME);
 
     }
 }

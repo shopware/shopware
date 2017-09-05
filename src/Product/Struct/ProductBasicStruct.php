@@ -40,6 +40,31 @@ class ProductBasicStruct extends Struct
     /**
      * @var string
      */
+    protected $name;
+
+    /**
+     * @var string|null
+     */
+    protected $keywords;
+
+    /**
+     * @var string|null
+     */
+    protected $description;
+
+    /**
+     * @var string|null
+     */
+    protected $descriptionLong;
+
+    /**
+     * @var string|null
+     */
+    protected $metaTitle;
+
+    /**
+     * @var string
+     */
     protected $manufacturerUuid;
 
     /**
@@ -192,6 +217,57 @@ class ProductBasicStruct extends Struct
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function getKeywords(): ?string
+    {
+        return $this->keywords;
+    }
+
+    public function setKeywords(?string $keywords): void
+    {
+        $this->keywords = $keywords;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
+    }
+
+    public function getDescriptionLong(): ?string
+    {
+        return $this->descriptionLong;
+    }
+
+    public function setDescriptionLong(?string $descriptionLong): void
+    {
+        $this->descriptionLong = $descriptionLong;
+    }
+
+    public function getMetaTitle(): ?string
+    {
+        return $this->metaTitle;
+    }
+
+    public function setMetaTitle(?string $metaTitle): void
+    {
+        $this->metaTitle = $metaTitle;
     }
 
     public function getTaxUuid(): string

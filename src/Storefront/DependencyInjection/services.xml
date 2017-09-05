@@ -83,7 +83,6 @@
         </service>
 
         <service class="Shopware\Storefront\ListingPage\ListingPageUrlGenerator" id="shopware.storefront.listing_page.listing_page_url_generator">
-            <argument id="dbal_connection" type="service"/>
             <argument id="shopware.category.repository" type="service"/>
             <argument id="slugify" type="service"/>
             <argument id="shopware.router" type="service"/>

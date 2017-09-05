@@ -42,7 +42,12 @@ ALTER TABLE `product_category`
   ADD PRIMARY KEY (`product_uuid`, `category_uuid`)
 ;
 
-UPDATE product_price SET `to` = NULL WHERE `to` = 'beliebig';
+ALTER TABLE product_price
+--     DROP id,
+#     DROP FOREIGN KEY `fk_product_price.product_uuid`,
+    DROP product_uuid,
+    DROP product_detail_id
+;
 
 ALTER TABLE `product_category_ro`
     DROP INDEX articleID,

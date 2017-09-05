@@ -281,7 +281,7 @@ ALTER TABLE s_articles_esd
 UPDATE product_esd pe SET
     pe.uuid                = CONCAT('SWAG-PRODUCT-ES-UUID-', pe.id),
     pe.product_uuid        = CONCAT('SWAG-PRODUCT-UUID-', pe.product_id),
-    pe.product_detail_uuid = CONCAT('SWAG-PRODUCT-DETAIL-UUID-', pe.product_detail_id)
+    pe.product_detail_uuid = (SELECT sub.order_number FROM product_detail sub WHERE sub.id = pe.product_detail_id LIMIT 1)
 ;
 
 ALTER TABLE s_articles_esd_attributes
@@ -322,7 +322,7 @@ ALTER TABLE s_articles_img
     CHANGE COLUMN articleID product_id INT(11),
     CHANGE COLUMN article_detail_id product_detail_id INT(10) unsigned,
     ADD COLUMN product_uuid VARCHAR(42) NOT NULL AFTER product_id,
-    ADD COLUMN product_detail_uuid VARCHAR(42) NOT NULL AFTER product_detail_id
+    ADD COLUMN product_detail_uuid VARCHAR(42) NULL AFTER product_detail_id
 ;
 
 -- clean up task
@@ -334,7 +334,7 @@ DELETE p.* FROM product_media p WHERE
 UPDATE product_media p SET
     p.uuid                = CONCAT('SWAG-PRODUCT-IMAGE-UUID-', p.id),
     p.product_uuid        = CONCAT('SWAG-PRODUCT-UUID-', p.product_id),
-    p.product_detail_uuid = CONCAT('SWAG-PRODUCT-DETAIL-UUID-', IFNULL(p.product_detail_id, ''))
+    p.product_detail_uuid = (SELECT sub.order_number FROM product_detail sub WHERE sub.id = p.product_detail_id LIMIT 1)
 ;
 
 ALTER TABLE s_articles_img_attributes
@@ -433,7 +433,7 @@ ALTER TABLE s_articles_prices
 UPDATE product_price p SET
     p.uuid = CONCAT('SWAG-PRODUCT-PRICE-UUID-', p.id),
     p.product_uuid = CONCAT('SWAG-PRODUCT-UUID-', p.product_id),
-    p.product_detail_uuid = CONCAT('SWAG-PRODUCT-DETAIL-UUID-', p.product_detail_id)
+    p.product_detail_uuid = (SELECT sub.order_number FROM product_detail sub WHERE sub.id = p.product_detail_id LIMIT 1)
 ;
 
 ALTER TABLE s_articles_prices_attributes
@@ -592,7 +592,7 @@ ALTER TABlE s_core_tax
 
 -- migration
 UPDATE s_core_tax s SET
-    s.uuid = CONCAT('SWAG-CONFIG-TAX-UUID-', s.id)
+    s.uuid = CONCAT('SWAG-TAX-UUID-', s.id)
 ;
 
 ALTER TABLE s_categories RENAME TO category;
@@ -1729,7 +1729,7 @@ UPDATE customer_group_discount SET customer_group_uuid = CONCAT('SWAG-CUSTOMER-G
 UPDATE locale SET uuid = CONCAT('SWAG-LOCALE-UUID-', id) WHERE id IS NOT NULL;
 UPDATE product p SET p.uuid = CONCAT('SWAG-PRODUCT-UUID-', p.id);
 UPDATE product p SET p.product_manufacturer_uuid = CONCAT('SWAG-PRODUCT-MANUFACTURER-UUID-', p.manufacturer_id) WHERE product_manufacturer_uuid IS NOT NULL;
-UPDATE product p SET p.tax_uuid = CONCAT('SWAG-CONFIG-TAX-UUID-', p.tax_id) WHERE tax_uuid IS NOT NULL;
+UPDATE product p SET p.tax_uuid = CONCAT('SWAG-TAX-UUID-', p.tax_id) WHERE tax_uuid IS NOT NULL;
 UPDATE product p SET p.main_detail_uuid = CONCAT('SWAG-PRODUCT-DETAIL-UUID-', p.main_detail_id) WHERE main_detail_uuid IS NOT NULL;
 UPDATE product p SET p.filter_group_uuid = CONCAT('SWAG-FILTER-GROUP-UUID-', p.filter_group_id) WHERE filter_group_uuid IS NOT NULL;
 UPDATE product_also_bought_ro pabr SET pabr.product_uuid = CONCAT('SWAG-PRODUCT-UUID-',pabr.product_id) WHERE product_uuid  IS NOT NULL;

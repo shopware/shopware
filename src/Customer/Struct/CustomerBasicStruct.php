@@ -252,6 +252,17 @@ class CustomerBasicStruct extends Struct
      */
     protected $defaultPaymentMethod;
 
+    /**
+     * @var CustomerAddressBasicStruct|null
+     */
+    protected $activeBillingAddress;
+
+    /**
+     * @var CustomerAddressBasicStruct|null
+     */
+    protected $activeShippingAddress;
+
+
     public function getId(): int
     {
         return $this->id;
@@ -700,5 +711,41 @@ class CustomerBasicStruct extends Struct
     public function setDefaultPaymentMethod(PaymentMethodBasicStruct $defaultPaymentMethod): void
     {
         $this->defaultPaymentMethod = $defaultPaymentMethod;
+    }
+
+    public function getActiveBillingAddress(): CustomerAddressBasicStruct
+    {
+        if (!$this->activeBillingAddress) {
+            return $this->defaultBillingAddress;
+        }
+
+        return $this->activeBillingAddress;
+    }
+
+    public function setActiveBillingAddress(CustomerAddressBasicStruct $activeBillingAddress): void
+    {
+        $this->activeBillingAddress = $activeBillingAddress;
+    }
+
+    public function getActiveShippingAddress(): CustomerAddressBasicStruct
+    {
+        if (!$this->activeShippingAddress) {
+            return $this->defaultShippingAddress;
+        }
+
+        return $this->activeShippingAddress;
+    }
+
+    public function setActiveShippingAddress(CustomerAddressBasicStruct $activeShippingAddress): void
+    {
+        $this->activeShippingAddress = $activeShippingAddress;
+    }
+
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+        $data['activeShippingAddress'] = $this->getActiveShippingAddress();
+        $data['activeBillingAddress'] = $this->getActiveBillingAddress();
+        return $data;
     }
 }

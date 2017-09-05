@@ -37,16 +37,16 @@ class CustomerGroupBasicHydrator extends Hydrator
     {
         $customerGroup = new CustomerGroupBasicStruct();
 
-        $customerGroup->setId((int)$data['__customerGroup_id']);
-        $customerGroup->setUuid((string)$data['__customerGroup_uuid']);
-        $customerGroup->setGroupKey((string)$data['__customerGroup_group_key']);
-        $customerGroup->setDescription((string)$data['__customerGroup_description']);
-        $customerGroup->setDisplayGrossPrices((bool)$data['__customerGroup_display_gross_prices']);
-        $customerGroup->setInputGrossPrices((bool)$data['__customerGroup_input_gross_prices']);
-        $customerGroup->setMode((int)$data['__customerGroup_mode']);
-        $customerGroup->setDiscount((float)$data['__customerGroup_discount']);
-        $customerGroup->setMinimumOrderAmount((float)$data['__customerGroup_minimum_order_amount']);
-        $customerGroup->setMinimumOrderAmountSurcharge((float)$data['__customerGroup_minimum_order_amount_surcharge']);
+        $customerGroup->setId((int) $data['__customerGroup_id']);
+        $customerGroup->setUuid((string) $data['__customerGroup_uuid']);
+        $customerGroup->setGroupKey((string) $data['__customerGroup_group_key']);
+        $customerGroup->setDescription((string) $data['__customerGroup_description']);
+        $customerGroup->setDisplayGrossPrices((bool) $data['__customerGroup_display_gross_prices']);
+        $customerGroup->setInputGrossPrices((bool) $data['__customerGroup_input_gross_prices']);
+        $customerGroup->setMode((int) $data['__customerGroup_mode']);
+        $customerGroup->setDiscount((float) $data['__customerGroup_discount']);
+        $customerGroup->setMinimumOrderAmount((float) $data['__customerGroup_minimum_order_amount']);
+        $customerGroup->setMinimumOrderAmountSurcharge((float) $data['__customerGroup_minimum_order_amount_surcharge']);
 
         return $customerGroup;
     }

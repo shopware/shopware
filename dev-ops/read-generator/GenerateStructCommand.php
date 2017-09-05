@@ -44,6 +44,10 @@ class GenerateStructCommand
 
     public function execute()
     {
+        echo '<pre>';
+        print_r(\Ramsey\Uuid\Uuid::uuid4()->toString());
+        exit();
+        
         $connection = \Shopware\Framework\Doctrine\DatabaseConnector::createPdoConnection();
 
         $dbalConnection = new \Doctrine\DBAL\Connection(
@@ -255,6 +259,9 @@ class GenerateStructCommand
                 'parent' => null,
                 'associations' => [
                     self::createAssociation('customer_group_discount', self::OneToMany, false, true)
+                ],
+                'search' => [
+                    self::createSearchCriteria('group_key', 'string_array')
                 ]
             ],
             'customer_group_discount' => [

@@ -57,13 +57,13 @@ class ShippingAreaRule extends \Shopware\Cart\Rule\Rule
             case self::OPERATOR_EQ:
 
                 return new Match(
-                    in_array($context->getShippingLocation()->getAreaId(), $this->areaIds, true),
+                    in_array($context->getShippingLocation()->getAreaUuid(), $this->areaIds, true),
                     ['Shipping area id not matched']
                 );
             case self::OPERATOR_NEQ:
 
                 return new Match(
-                    !in_array($context->getShippingLocation()->getAreaId(), $this->areaIds, true),
+                    !in_array($context->getShippingLocation()->getAreaUuid(), $this->areaIds, true),
                     ['Shipping area id matched']
                 );
             default:

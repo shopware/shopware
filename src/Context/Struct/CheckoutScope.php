@@ -27,61 +27,55 @@ namespace Shopware\Context\Struct;
 class CheckoutScope implements \JsonSerializable
 {
     /**
-     * @var int|null
+     * @var string|null
      */
-    protected $paymentId;
+    protected $paymentMethodUuid;
 
     /**
-     * @var int|null
+     * @var string|null
      */
-    protected $dispatchId;
+    protected $shippingMethodUuid;
 
     /**
-     * @var int|null
+     * @var string|null
      */
-    protected $countryId;
+    protected $countryUuid;
 
     /**
-     * @var int|null
+     * @var string|null
      */
-    protected $stateId;
+    protected $stateUuid;
 
-    /**
-     * @param int|null $paymentId
-     * @param int|null $dispatchId
-     * @param int      $countryId
-     * @param int|null $stateId
-     */
     public function __construct(
-        ?int $paymentId = null,
-        ?int $dispatchId = null,
-        ?int $countryId = null,
-        ?int $stateId = null
+        ?string $paymentMethodUuid = null,
+        ?string $shippingMethodUuid = null,
+        ?string $countryUuid = null,
+        ?string $stateUuid = null
     ) {
-        $this->paymentId = $paymentId;
-        $this->dispatchId = $dispatchId;
-        $this->countryId = $countryId;
-        $this->stateId = $stateId;
+        $this->paymentMethodUuid = $paymentMethodUuid;
+        $this->shippingMethodUuid = $shippingMethodUuid;
+        $this->countryUuid = $countryUuid;
+        $this->stateUuid = $stateUuid;
     }
 
-    public function getPaymentId(): ?int
+    public function getPaymentMethodUuid(): ?string
     {
-        return $this->paymentId;
+        return $this->paymentMethodUuid;
     }
 
-    public function getDispatchId(): ?int
+    public function getShippingMethodUuid(): ?string
     {
-        return $this->dispatchId;
+        return $this->shippingMethodUuid;
     }
 
-    public function getCountryId(): ?int
+    public function getCountryUuid(): ?string
     {
-        return $this->countryId;
+        return $this->countryUuid;
     }
 
-    public function getStateId(): ?int
+    public function getStateUuid(): ?string
     {
-        return $this->stateId;
+        return $this->stateUuid;
     }
 
     public static function createFromContext(ShopContext $context): CheckoutScope
@@ -89,10 +83,10 @@ class CheckoutScope implements \JsonSerializable
         $location = $context->getShippingLocation();
 
         return new self(
-            $context->getPaymentMethod()->getId(),
-            $context->getShippingMethod()->getId(),
-            $location->getCountry()->getId(),
-            $location->getState() ? $location->getState()->getId() : null
+            $context->getPaymentMethod()->getUuid(),
+            $context->getShippingMethod()->getUuid(),
+            $location->getCountry()->getUuid(),
+            $location->getState() ? $location->getState()->getUuid() : null
         );
     }
 

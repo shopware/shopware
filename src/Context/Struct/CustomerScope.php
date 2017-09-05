@@ -24,72 +24,69 @@
 
 namespace Shopware\Context\Struct;
 
-class CustomerScope implements \JsonSerializable
+use Shopware\Framework\Struct\Struct;
+
+class CustomerScope extends Struct
 {
     /**
-     * @var int|null
+     * @var string|null
      */
-    protected $customerId;
+    protected $customerUuid;
 
     /**
-     * @var int|null
+     * @var string|null
      */
-    protected $billingId;
+    protected $billingAddressUuid;
 
     /**
-     * @var int|null
+     * @var string|null
      */
-    protected $shippingId;
+    protected $shippingAddressUuid;
 
     /**
      * @var null|string
      */
-    private $customerGroupKey;
+    protected $customerGroupUuid;
 
-    public function __construct(?int $customerId, ?string $customerGroupKey = null, ?int $billingId = null, ?int $shippingId = null)
+    public function __construct(?string $customerId, ?string $customerGroupKey = null, ?string $billingId = null, ?string $shippingId = null)
     {
-        $this->customerId = $customerId;
-        $this->billingId = $billingId;
-        $this->shippingId = $shippingId;
-        $this->customerGroupKey = $customerGroupKey;
+        $this->customerUuid = $customerId;
+        $this->billingAddressUuid = $billingId;
+        $this->shippingAddressUuid = $shippingId;
+        $this->customerGroupUuid = $customerGroupKey;
     }
 
-    public function getCustomerId(): ?int
+    public function getCustomerUuid(): ?string
     {
-        return $this->customerId;
+        return $this->customerUuid;
     }
 
-    public function getBillingId(): ?int
+    public function getBillingAddressUuid(): ?string
     {
-        return $this->billingId;
+        return $this->billingAddressUuid;
     }
 
-    public function getShippingId(): ?int
+    public function getShippingAddressUuid(): ?string
     {
-        return $this->shippingId;
+        return $this->shippingAddressUuid;
     }
 
-    public function getCustomerGroupKey(): ?string
+    public function getCustomerGroupUuid(): ?string
     {
-        return $this->customerGroupKey;
+        return $this->customerGroupUuid;
     }
 
     public static function createFromContext(ShopContext $context): CustomerScope
     {
         if (!$context->getCustomer()) {
-            return new self(null, $context->getCurrentCustomerGroup()->getKey(), null, null);
+            return new self(null, $context->getCurrentCustomerGroup()->getUuid(), null, null);
         }
 
         return new self(
             $context->getCustomer()->getId(),
-            $context->getCurrentCustomerGroup()->getKey(),
+            $context->getCurrentCustomerGroup()->getUuid(),
             $context->getCustomer()->getActiveBillingAddress()->getId(),
             $context->getCustomer()->getActiveShippingAddress()->getId()
         );
-    }
-
-    public function jsonSerialize()
-    {
-        return get_object_vars($this);
     }
 }

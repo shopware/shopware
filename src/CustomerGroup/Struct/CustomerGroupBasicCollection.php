@@ -70,11 +70,9 @@ class CustomerGroupBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(
-            function (CustomerGroupBasicStruct $customerGroup) {
-                return $customerGroup->getUuid();
-            }
-        );
+        return $this->fmap(function (CustomerGroupBasicStruct $customerGroup) {
+            return $customerGroup->getUuid();
+        });
     }
 
     protected function getKey(CustomerGroupBasicStruct $element): string

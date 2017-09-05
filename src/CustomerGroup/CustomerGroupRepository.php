@@ -69,7 +69,7 @@ class CustomerGroupRepository
         EventDispatcherInterface $eventDispatcher,
         CustomerGroupSearcher $searcher,
         CustomerGroupWriter $writer,
-        CustomerGroupDetailLoader $detailLoader
+CustomerGroupDetailLoader $detailLoader
     ) {
         $this->basicLoader = $basicLoader;
         $this->eventDispatcher = $eventDispatcher;

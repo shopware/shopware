@@ -12,7 +12,7 @@
             <argument id="shopware.customer_group.repository" type="service"/>
             <argument id="shopware.area_country.repository" type="service"/>
             <argument id="shopware.tax.repository" type="service"/>
-            <argument id="shopware.price_group.repository" type="service"/>
+            <argument id="shopware.price_group_discount.repository" type="service"/>
             <argument id="shopware.customer_address.repository" type="service"/>
             <argument id="shopware.payment_method.repository" type="service"/>
             <argument id="shopware.shipping_method.repository" type="service"/>

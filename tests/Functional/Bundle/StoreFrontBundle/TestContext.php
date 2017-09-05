@@ -81,7 +81,7 @@ class TestContext extends ShopContext
      */
     public function setPriceGroups($priceGroups)
     {
-        $this->priceGroups = $priceGroups;
+        $this->priceGroupDiscounts = $priceGroups;
     }
 
     /**

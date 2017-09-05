@@ -40,7 +40,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 class StorefrontContextService implements StorefrontContextServiceInterface
 {
-    const FALLBACK_CUSTOMER_GROUP = 'EK';
+    const FALLBACK_CUSTOMER_GROUP = '3294e6f6-372b-415f-ac73-71cbc191548f';
 
     const CACHE_LIFETIME = 3600;
 
@@ -78,7 +78,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
 
     public function getShopContext(): ShopContext
     {
-        return $this->load(true);
+        return $this->load(false);
     }
 
     public function refresh(): void
@@ -89,22 +89,22 @@ class StorefrontContextService implements StorefrontContextServiceInterface
     private function load(bool $useCache): ShopContext
     {
         $shopScope = new ShopScope(
-            $this->getStoreFrontShopId(),
-            $this->getStoreFrontCurrencyId()
+            $this->getStorefrontShopUuid(),
+            $this->getStorefrontCurrencyUuid()
         );
 
         $customerScope = new CustomerScope(
-            $this->getStoreCustomerId(),
+            $this->getStorefrontCustomerUuid(),
             null,
-            $this->getStoreFrontBillingAddressId(),
-            $this->getStoreFrontShippingAddressId()
+            $this->getStorefrontBillingAddressUuid(),
+            $this->getStorefrontShippingAddressUuid()
         );
 
         $checkoutScope = new CheckoutScope(
-            $this->getStoreFrontPaymentId(),
-            $this->getStoreFrontDispatchId(),
-            $this->getStoreFrontCountryId(),
-            $this->getStoreFrontStateId()
+            $this->getStorefrontPaymentMethodUuid(),
+            $this->getStorefrontShippingMethodUuid(),
+            $this->getStorefrontCountryUuid(),
+            $this->getStorefrontStateId()
         );
 
         $inputKey = $this->getCacheKey($shopScope, $customerScope, $checkoutScope);
@@ -147,86 +147,77 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         );
     }
 
-    /**
-     * @return int
-     */
-    private function getStoreFrontShopId(): int
+    private function getStorefrontShopUuid(): string
     {
-        return $this->requestStack->getMasterRequest()->attributes->getInt('_shop_id');
+        return $this->requestStack->getMasterRequest()->attributes->get('_shop_uuid');
     }
 
-    /**
-     * @return int
-     */
-    private function getStoreFrontCurrencyId(): int
+    private function getStorefrontCurrencyUuid(): string
     {
-        return $this->requestStack->getMasterRequest()->attributes->getInt('_currency_id');
+        return $this->requestStack->getMasterRequest()->attributes->get('_currency_uuid');
     }
 
-    /**
-     * @return int|null
-     */
-    private function getStoreFrontCountryId(): ?int
+    private function getStorefrontCountryUuid(): ?string
     {
-        if ($countryId = $this->getSessionValueOrNull('sCountry')) {
-            return (int) $countryId;
+        if ($countryId = $this->getSessionValueOrNull('country_uuid')) {
+            return (string) $countryId;
         }
 
         return null;
     }
 
     /**
-     * @return int|null
+     * @return string|null
      */
-    private function getStoreFrontStateId(): ?int
+    private function getStorefrontStateId(): ?string
     {
-        if ($stateId = $this->getSessionValueOrNull('sState')) {
-            return (int) $stateId;
+        if ($stateId = $this->getSessionValueOrNull('state_uuid')) {
+            return (string) $stateId;
         }
 
         return null;
     }
 
-    private function getStoreCustomerId(): ?int
+    private function getStorefrontCustomerUuid(): ?string
     {
-        if ($customerId = $this->getSessionValueOrNull('sUserId')) {
-            return (int) $customerId;
+        if ($customerId = $this->getSessionValueOrNull('custmer_uuid')) {
+            return (string) $customerId;
         }
 
         return null;
     }
 
-    private function getStoreFrontBillingAddressId(): ?int
+    private function getStorefrontBillingAddressUuid(): ?string
     {
-        if ($addressId = $this->getSessionValueOrNull('checkoutBillingAddressId')) {
-            return (int) $addressId;
+        if ($addressId = $this->getSessionValueOrNull('checkout_billing_address_uuid')) {
+            return (string) $addressId;
         }
 
         return null;
     }
 
-    private function getStoreFrontShippingAddressId(): ?int
+    private function getStorefrontShippingAddressUuid(): ?string
     {
-        if ($addressId = $this->getSessionValueOrNull('checkoutShippingAddressId')) {
-            return (int) $addressId;
+        if ($addressId = $this->getSessionValueOrNull('checkout_shipping_address_uuid')) {
+            return (string) $addressId;
         }
 
         return null;
     }
 
-    private function getStoreFrontPaymentId(): ?int
+    private function getStorefrontPaymentMethodUuid(): ?string
     {
-        if ($paymentId = $this->getSessionValueOrNull('paymentMethodId')) {
-            return (int) $paymentId;
+        if ($paymentId = $this->getSessionValueOrNull('payment_method_uuid')) {
+            return (string) $paymentId;
         }
 
         return null;
     }
 
-    private function getStoreFrontDispatchId(): ?int
+    private function getStorefrontShippingMethodUuid(): ?string
     {
-        if ($dispatchId = $this->getSessionValueOrNull('shippingMethodId')) {
-            return (int) $dispatchId;
+        if ($dispatchId = $this->getSessionValueOrNull('shipping_method_uuid')) {
+            return (string) $dispatchId;
         }
 
         return null;

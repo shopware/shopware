@@ -24,51 +24,36 @@
 
 namespace Shopware\Context\Struct;
 
+use Shopware\Framework\Struct\Struct;
 use Shopware\Shop\Struct\ShopBasicStruct;
 
-class TranslationContext
+class TranslationContext extends Struct
 {
     /**
-     * @var int
+     * @var string|null
      */
-    private $shopId;
-
-    /**
-     * @var int|null
-     */
-    private $fallbackId;
+    protected $fallbackUuid;
 
     /**
      * @var bool
      */
-    private $isDefaultShop;
+    protected $isDefaultShop;
 
     /**
      * @var string
      */
-    private $shopUuid;
+    protected $shopUuid;
 
-    /**
-     * @param int      $shopId
-     * @param bool     $isDefaultShop
-     * @param int|null $fallbackId
-     */
-    public function __construct(int $shopId, string $shopUuid, bool $isDefaultShop, ?int $fallbackId)
+    public function __construct(string $shopUuid, bool $isDefaultShop, ?string $fallbackId)
     {
-        $this->shopId = $shopId;
-        $this->fallbackId = $fallbackId;
+        $this->fallbackUuid = $fallbackId;
         $this->isDefaultShop = $isDefaultShop;
         $this->shopUuid = $shopUuid;
     }
 
-    public function getShopId(): int
+    public function getFallbackUuid(): ? string
     {
-        return $this->shopId;
-    }
-
-    public function getFallbackId(): ? int
-    {
-        return $this->fallbackId;
+        return $this->fallbackUuid;
     }
 
     public function isDefaultShop(): bool
@@ -79,7 +64,6 @@ class TranslationContext
     public static function createFromShop(ShopBasicStruct $shop): TranslationContext
     {
         return new self(
-            $shop->getId(),
             $shop->getIsDefault(),
             $shop->getUuid(),
             $shop->getMainId()

@@ -25,96 +25,74 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Delivery;
 
-use Shopware\Address\Struct\Address;
-use Shopware\Country\Struct\CountryIdentity;
-use Shopware\CountryState\Struct\CountryState;
+use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
+use Shopware\AreaCountryState\Struct\AreaCountryStateBasicStruct;
+use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Framework\Struct\Struct;
 
 class ShippingLocation extends Struct
 {
     /**
-     * @var CountryIdentity
+     * @var AreaCountryBasicStruct
      */
     protected $country;
 
     /**
-     * @var null|CountryState
+     * @var null|AreaCountryStateBasicStruct
      */
     protected $state;
 
     /**
-     * @var null|Address
+     * @var null|CustomerAddressBasicStruct
      */
     protected $address;
 
-    /**
-     * @param CountryIdentity   $country
-     * @param null|CountryState $state
-     * @param null|Address      $address
-     */
-    public function __construct(CountryIdentity $country, ?CountryState $state, ?Address $address)
+    public function __construct(AreaCountryBasicStruct $country, ?AreaCountryStateBasicStruct $state, ?CustomerAddressBasicStruct $address)
     {
         $this->country = $country;
-        if ($state) {
-            $this->country = $state->getCountry();
-        }
-
         $this->state = $state;
         $this->address = $address;
     }
 
-    public static function createFromAddress(Address $address): ShippingLocation
+    public static function createFromAddress(CustomerAddressBasicStruct $address): ShippingLocation
     {
         return new self(
-            $address->getCountry(),
-            $address->getState(),
+            $address->getAreaCountry(),
+            $address->getAreaCountryState(),
             $address
         );
     }
 
-    public static function createFromState(CountryState $state): ShippingLocation
+    public static function createFromCountry(AreaCountryBasicStruct $country): ShippingLocation
     {
-        return new self(
-            $state->getCountry(),
-            $state,
-            null
-        );
+        return new self($country, null, null);
     }
 
-    public static function createFromCountry(CountryIdentity $country): ShippingLocation
-    {
-        return new self(
-            $country,
-            null,
-            null
-        );
-    }
-
-    public function getCountry(): CountryIdentity
+    public function getCountry(): AreaCountryBasicStruct
     {
         if ($this->address) {
-            return $this->address->getCountry();
+            return $this->address->getAreaCountry();
         }
 
         return $this->country;
     }
 
-    public function getState(): ?CountryState
+    public function getState(): ?AreaCountryStateBasicStruct
     {
         if ($this->address) {
-            return $this->address->getState();
+            return $this->address->getAreaCountryState();
         }
 
         return $this->state;
     }
 
-    public function getAddress(): ?Address
+    public function getAddress(): ?CustomerAddressBasicStruct
     {
         return $this->address;
     }
 
-    public function getAreaId(): int
+    public function getAreaUuid(): string
     {
-        return $this->getCountry()->getAreaId();
+        return $this->getCountry()->getAreaUuid();
     }
 }

@@ -33,8 +33,13 @@ class IndexController extends FrontendController
     /**
      * @Route("/", name="homepage", options={"seo"="false"})
      */
-    public function indexAction(ShopContext $context, Request $request)
+    public function indexAction(Request $request)
     {
+        $context = $this->container->get('shopware.storefront.context.storefront_context_service')
+            ->getShopContext();
+        echo '<pre>';
+        print_r($context);
+        exit();
         return $this->render('frontend/home/index.html.twig', []);
     }
 }

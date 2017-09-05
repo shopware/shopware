@@ -41,21 +41,19 @@ class CustomerGroupBasicQuery extends QueryBuilder
 
     public static function addRequirements(QueryBuilder $query, TranslationContext $context)
     {
-        $query->addSelect(
-            [
-                'customerGroup.uuid as _array_key_',
-                'customerGroup.id as __customerGroup_id',
-                'customerGroup.uuid as __customerGroup_uuid',
-                'customerGroup.group_key as __customerGroup_group_key',
-                'customerGroup.description as __customerGroup_description',
-                'customerGroup.display_gross_prices as __customerGroup_display_gross_prices',
-                'customerGroup.input_gross_prices as __customerGroup_input_gross_prices',
-                'customerGroup.mode as __customerGroup_mode',
-                'customerGroup.discount as __customerGroup_discount',
-                'customerGroup.minimum_order_amount as __customerGroup_minimum_order_amount',
-                'customerGroup.minimum_order_amount_surcharge as __customerGroup_minimum_order_amount_surcharge',
-            ]
-        );
+        $query->addSelect([
+            'customerGroup.uuid as _array_key_',
+            'customerGroup.id as __customerGroup_id',
+            'customerGroup.uuid as __customerGroup_uuid',
+            'customerGroup.group_key as __customerGroup_group_key',
+            'customerGroup.description as __customerGroup_description',
+            'customerGroup.display_gross_prices as __customerGroup_display_gross_prices',
+            'customerGroup.input_gross_prices as __customerGroup_input_gross_prices',
+            'customerGroup.mode as __customerGroup_mode',
+            'customerGroup.discount as __customerGroup_discount',
+            'customerGroup.minimum_order_amount as __customerGroup_minimum_order_amount',
+            'customerGroup.minimum_order_amount_surcharge as __customerGroup_minimum_order_amount_surcharge',
+        ]);
 
         //$query->leftJoin('customerGroup', 'customerGroup_translation', 'customerGroupTranslation', 'customerGroup.uuid = customerGroupTranslation.customerGroup_uuid AND customerGroupTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());

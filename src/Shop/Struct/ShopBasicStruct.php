@@ -215,6 +215,7 @@ class ShopBasicStruct extends Struct
      * @var CurrencyBasicStruct
      */
     protected $currency;
+
     /**
      * @var LocaleBasicStruct
      */

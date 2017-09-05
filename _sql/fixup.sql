@@ -1775,8 +1775,8 @@ UPDATE shop_template_config_form SET parent_uuid = CONCAT('SWAG-SHOP-TEMPLATE-CO
 UPDATE shop_template_config_form SET shop_template_uuid = CONCAT('SWAG-SHOP-TEMPLATE-UUID-', shop_template_id) WHERE shop_template_id IS NOT NULL;
 UPDATE shop_template_config_form_field_value SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
 UPDATE shop_template_config_form_field_value SET shop_template_config_form_field_uuid = CONCAT('SWAG-STCFF-UUID-', shop_template_config_form_field_id) WHERE shop_template_config_form_field_id IS NOT NULL;
-
-
+UPDATE customer_group SET uuid = '3294e6f6-372b-415f-ac73-71cbc191548f' WHERE group_key = 'EK';
+UPDATE shop SET customer_group_uuid = '3294e6f6-372b-415f-ac73-71cbc191548f' WHERE customer_group_id = 1;
 
 UPDATE album a, s_media_album_settings s
 SET a.create_thumbnails = s.create_thumbnails,

@@ -64,9 +64,7 @@ class CustomerGroupDetailLoader
 
         foreach ($collection as $customerGroupBasic) {
             $customerGroup = CustomerGroupDetailStruct::createFrom($customerGroupBasic);
-            $customerGroup->setCustomerGroupDiscounts(
-                $customerGroupDiscounts->filterByCustomerGroupUuid($customerGroup->getUuid())
-            );
+            $customerGroup->setCustomerGroupDiscounts($customerGroupDiscounts->filterByCustomerGroupUuid($customerGroup->getUuid()));
             $details->add($customerGroup);
         }
 

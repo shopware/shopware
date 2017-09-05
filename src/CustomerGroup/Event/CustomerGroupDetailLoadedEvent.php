@@ -67,14 +67,9 @@ class CustomerGroupDetailLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection(
-            [
-                new CustomerGroupBasicLoadedEvent($this->customerGroups, $this->context),
-                new CustomerGroupDiscountBasicLoadedEvent(
-                    $this->customerGroups->getCustomerGroupDiscounts(),
-                    $this->context
-                ),
-            ]
-        );
+        return new NestedEventCollection([
+            new CustomerGroupBasicLoadedEvent($this->customerGroups, $this->context),
+            new CustomerGroupDiscountBasicLoadedEvent($this->customerGroups->getCustomerGroupDiscounts(), $this->context),
+        ]);
     }
 }

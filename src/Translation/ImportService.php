@@ -83,6 +83,7 @@ class ImportService implements ImportServiceInterface
                     $snippet = [
                         'uuid' => Uuid::uuid4()->toString(),
                         'namespace' => $namespace,
+                        'shop_id' => 1,
                         'shop_uuid' => 'SWAG-SHOP-UUID-1',
                         'locale' => $locale,
                         'name' => $name,

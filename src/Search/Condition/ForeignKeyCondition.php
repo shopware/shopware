@@ -31,16 +31,16 @@ class ForeignKeyCondition implements ConditionInterface
     /**
      * @var string[]
      */
-    protected $foreignKeies;
+    protected $foreignKeys;
 
-    public function __construct(array $foreignKeies)
+    public function __construct(array $foreignKeys)
     {
-        $this->foreignKeies = $foreignKeies;
+        $this->foreignKeys = $foreignKeys;
     }
 
-    public function getForeignKeies(): array
+    public function getForeignKeys(): array
     {
-        return $this->foreignKeies;
+        return $this->foreignKeys;
     }
 
     public function getName(): string

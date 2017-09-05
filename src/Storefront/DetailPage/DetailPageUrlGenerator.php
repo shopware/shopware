@@ -33,6 +33,7 @@ use Shopware\Product\Struct\ProductBasicStruct;
 use Shopware\Product\Struct\ProductIdentity;
 use Shopware\Search\Condition\ActiveCondition;
 use Shopware\Search\Condition\CanonicalCondition;
+use Shopware\Search\Condition\CategoryUuidCondition;
 use Shopware\Search\Condition\ForeignKeyCondition;
 use Shopware\Search\Condition\IsCanonicalCondition;
 use Shopware\Search\Condition\MainVariantCondition;

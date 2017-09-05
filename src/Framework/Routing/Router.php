@@ -27,11 +27,10 @@ namespace Shopware\Framework\Routing;
 use Psr\Log\LoggerInterface;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Plugin\Plugin;
 use Shopware\Shop\Struct\ShopDetailStruct;
 use Shopware\Storefront\Session\ShopSubscriber;
+use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Config\Loader\LoaderInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Matcher\RequestMatcherInterface;
@@ -65,11 +64,6 @@ class Router implements RouterInterface, RequestMatcherInterface
     private $logger;
 
     /**
-     * @var Plugin[]
-     */
-    private $plugins;
-
-    /**
      * @var ShopFinder
      */
     private $shopFinder;
@@ -80,14 +74,14 @@ class Router implements RouterInterface, RequestMatcherInterface
     private $urlResolver;
 
     /**
-     * @var LoaderInterface
+     * @var Loader
      */
     private $routingLoader;
 
     /**
-     * @var ContainerInterface
+     * @var \Symfony\Component\HttpKernel\Bundle\BundleInterface[]
      */
-    private $container;
+    private $bundles;
 
     public function __construct(
         $resource,
@@ -102,11 +96,10 @@ class Router implements RouterInterface, RequestMatcherInterface
         $this->context = $context;
         $this->logger = $logger;
 
-        $this->plugins = $kernel::getPlugins()->all();
+        $this->bundles = $kernel->getBundles();
         $this->urlResolver = $urlResolver;
         $this->shopFinder = $shopFinder;
         $this->routingLoader = $routingLoader;
-        $this->container = $kernel->getContainer();
     }
 
     public function setContext(RequestContext $context): void
@@ -185,9 +178,7 @@ class Router implements RouterInterface, RequestMatcherInterface
 
         $matcher = new UrlMatcher($this->getRouteCollection(), $this->getContext());
 
-        $match = $matcher->match($pathinfo);
-
-        return $match;
+        return $matcher->match($pathinfo);
     }
 
     public function matchRequest(Request $request): array
@@ -275,20 +266,25 @@ class Router implements RouterInterface, RequestMatcherInterface
 
     private function loadRoutes(): RouteCollection
     {
-        /** @var RouteCollection $routes */
-        $routes = $this->routingLoader->load($this->resource);
+        $routeCollection = new RouteCollection();
 
-        foreach ($this->plugins as $plugin) {
-            $file = $plugin->getPath() . '/Resources/config/routing.yml';
+        if (file_exists($this->resource)) {
+            $routeCollection->addCollection(
+                $this->routingLoader->load($this->resource)
+            );
+        }
 
-            if (!file_exists($file)) {
+        foreach ($this->bundles as $bundle) {
+            if (!file_exists($bundle->getPath() . '/Controller')) {
                 continue;
             }
 
-            $routes->addCollection($this->routingLoader->load($file));
+            $routeCollection->addCollection(
+                $this->routingLoader->import($bundle->getPath() . '/Controller/', 'annotation')
+            );
         }
 
-        return $routes;
+        return $routeCollection;
     }
 
     private function rewriteBaseUrl(?string $baseUrl, string $basePath): string

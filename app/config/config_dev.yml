@@ -1,5 +1,5 @@
 imports:
-    - { resource: common/shopware.yml }
+    - { resource: shopware.yml }
 
 framework:
     router:

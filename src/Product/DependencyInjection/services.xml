@@ -59,11 +59,12 @@
 
 
         <!-- Helpers -->
-        <service id="shopware.product.api.controller" class="Shopware\Product\Controller\ApiController">
-            <argument type="service" id="shopware.product.repository"/>
-            <argument type="service" id="shopware.category.gateway.category_denormalization"/>
-            <argument type="service" id="shopware.framework.api2.resource_registry"/>
+        <service class="Shopware\Product\Controller\ProductController" id="shopware.product.controller.product_controller">
+            <argument id="shopware.product.repository" type="service"/>
+            <argument id="shopware.category.gateway.category_denormalization" type="service"/>
+            <argument id="shopware.framework.api2.resource_registry" type="service"/>
         </service>
+
 
         <service class="Shopware\Category\Gateway\CategoryDenormalization" id="shopware.category.gateway.category_denormalization">
             <argument id="dbal_connection" type="service"/>
@@ -71,7 +72,7 @@
 
         <defaults autowire="true" />
 
-        <service class="Shopware\Product\Controller\ApiContextValueResolver" id="shopware.product.controller.api_context_value_resolver">
+        <service class="Shopware\Api\ApiContextValueResolver" id="shopware.api.api_context_value_resolver">
             <tag name="controller.argument_value_resolver"/>
         </service>
         <service class="Shopware\Product\Searcher\Handler\ActiveHandler" id="shopware.product.searcher.handler.active_handler"/>

@@ -8,7 +8,7 @@ framework:
     session: ~
     secret: "%env(SHOPWARE_SECRET)%"
     router:
-        resource: "%kernel.root_dir%/config/%kernel.environment%/routing.yml"
+        resource: "%kernel.root_dir%/config/routing_%kernel.environment%.yml"
         strict_requirements: ~
     validation:
         enable_annotations: true

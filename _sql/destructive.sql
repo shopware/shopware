@@ -1,17 +1,17 @@
 ALTER TABLE product
-    DROP `manufacturer_id`,
-    DROP `tax_id`,
-    DROP `main_detail_id`,
-    DROP `filter_group_id`,
-    DROP `name`,
-    DROP `description`,
-    DROP `description_long`,
-    DROP `keywords`,
-    DROP `meta_title`,
-    DROP PRIMARY KEY,
-    DROP `id`,
-    DROP INDEX `ui_product.uuid`,
-    ADD PRIMARY KEY (`uuid`);
+  DROP `manufacturer_id`,
+  DROP `tax_id`,
+  DROP `main_detail_id`,
+  DROP `filter_group_id`,
+  DROP `name`,
+  DROP `description`,
+  DROP `description_long`,
+  DROP `keywords`,
+  DROP `meta_title`,
+  DROP PRIMARY KEY,
+  DROP `id`,
+  DROP INDEX `ui_product.uuid`,
+  ADD PRIMARY KEY (`uuid`);
 ;
 
 UPDATE product_detail SET
@@ -19,12 +19,12 @@ UPDATE product_detail SET
 ;
 
 ALTER TABLE product_detail
-    DROP `product_id`,
-    DROP `order_number`
+  DROP `product_id`,
+  DROP `order_number`
 ;
 
 ALTER TABLE product_attribute
-    DROP COLUMN articleID
+  DROP COLUMN articleID
 ;
 
 ALTER TABLE product_translation
@@ -45,26 +45,26 @@ ALTER TABLE `product_category`
 ALTER TABLE product_price
 --     DROP id,
 #     DROP FOREIGN KEY `fk_product_price.product_uuid`,
-    DROP product_uuid,
-    DROP product_detail_id
+  DROP product_uuid,
+  DROP product_detail_id
 ;
 
 ALTER TABLE `product_category_ro`
-    DROP INDEX articleID,
-    DROP INDEX articleID_2,
-    DROP INDEX categoryID,
-    DROP INDEX categoryID_2,
-    DROP INDEX category_id_by_article_id,
-    DROP INDEX elastic_search,
-    DROP COLUMN id,
-    DROP COLUMN category_id,
-    DROP COLUMN parent_category_id,
-    DROP COLUMN product_id,
-    DROP COLUMN uuid
+  DROP INDEX articleID,
+  DROP INDEX articleID_2,
+  DROP INDEX categoryID,
+  DROP INDEX categoryID_2,
+  DROP INDEX category_id_by_article_id,
+  DROP INDEX elastic_search,
+  DROP COLUMN id,
+  DROP COLUMN category_id,
+  DROP COLUMN parent_category_id,
+  DROP COLUMN product_id,
+  DROP COLUMN uuid
 ;
 
 ALTER TABLE product_category_ro
-    ADD PRIMARY KEY (product_uuid, category_uuid, parent_category_uuid);
+  ADD PRIMARY KEY (product_uuid, category_uuid, parent_category_uuid);
 
 
 # ALTER TABLE category_attribute

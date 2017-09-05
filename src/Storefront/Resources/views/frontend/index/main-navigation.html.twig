@@ -23,7 +23,7 @@
                             {% if category.seoUrl %}
                                 {% set url = category.seoUrl.url %}
                             {% else %}
-                                {% set url = url('listing_page', { 'id': category.id }) %}
+                                {% set url = url('listing_page', { 'uuid': category.uuid }) %}
                             {% endif %}
 
                             {% set isActive = (category.id in navigation.activeCategory.path or category.id == navigation.activeCategory.id) %}

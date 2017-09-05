@@ -31,9 +31,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class ListingController extends FrontendController
 {
     /**
-     * @Route("/listing/{id}", name="listing_page", options={"seo"=true})
+     * @Route("/listing/{uuid}", name="listing_page", options={"seo"=true})
      */
-    public function indexAction(int $id, ShopContext $context, Request $request)
+    public function indexAction(string $uuid, ShopContext $context, Request $request)
     {
         return $this->render('frontend/home/index.html.twig');
     }

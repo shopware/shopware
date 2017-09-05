@@ -42,5 +42,10 @@
                  id="shopware.category.searcher.handler.parent_uuid_handler"/>
         <service class="Shopware\Category\Searcher\Handler\ActiveHandler"
                  id="shopware.category.searcher.handler.active_handler"/>
+
+        <service class="Shopware\Category\Command\RebuildTreeCommand" id="shopware.category.command.rebuild_category_tree_command">
+            <tag name="console.command"/>
+        </service>
+
     </services>
 </container>

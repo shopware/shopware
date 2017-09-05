@@ -46,7 +46,7 @@ class ApiController
     {
         $criteria = new Criteria();
 
-        $translationContext = new TranslationContext(1, 'SWAG-SHOP-UUID-1', true, null);
+        $translationContext = new TranslationContext('SWAG-SHOP-UUID-1', true, null);
         $result = $this->productRepository->search($criteria, $translationContext);
 
         return $this->createResponse($result, $context);

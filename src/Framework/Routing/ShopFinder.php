@@ -28,10 +28,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Search\Criteria;
 use Shopware\Shop\ShopRepository;
 use Shopware\Shop\Struct\ShopBasicStruct;
-use Shopware\Shop\Struct\ShopDetailStruct;
 use Shopware\Storefront\Session\ShopSubscriber;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
@@ -54,7 +52,7 @@ class ShopFinder
         $this->connection = $connection;
     }
 
-    public function findShopByRequest(RequestContext $requestContext, Request $request): ShopDetailStruct
+    public function findShopByRequest(RequestContext $requestContext, Request $request): ShopBasicStruct
     {
         //shop switcher used?
         if ($requestContext->getMethod() === 'POST' && $request->get('__shop')) {
@@ -180,9 +178,9 @@ class ShopFinder
         return $shop;
     }
 
-    private function loadShop(string $uuid): ShopDetailStruct
+    private function loadShop(string $uuid): ShopBasicStruct
     {
-        $shops = $this->shopRepository->readDetail([$uuid], new TranslationContext(1, '', true, null));
-        return $shops->get($uuid);
+        return $this->shopRepository->read([$uuid], new TranslationContext('', true, null))
+            ->get($uuid);
     }
 }

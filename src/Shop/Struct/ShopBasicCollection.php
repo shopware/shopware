@@ -79,20 +79,20 @@ class ShopBasicCollection extends Collection
         );
     }
 
-    public function getMainUuids(): array
+    public function getParentUuids(): array
     {
         return $this->fmap(
             function (ShopBasicStruct $shop) {
-                return $shop->getMainUuid();
+                return $shop->getParentUuid();
             }
         );
     }
 
-    public function filterByMainUuid(string $uuid): ShopBasicCollection
+    public function filterByParentUuid(string $uuid): ShopBasicCollection
     {
         return $this->filter(
             function (ShopBasicStruct $shop) use ($uuid) {
-                return $shop->getMainUuid() === $uuid;
+                return $shop->getParentUuid() === $uuid;
             }
         );
     }
@@ -302,5 +302,13 @@ class ShopBasicCollection extends Collection
     protected function getKey(ShopBasicStruct $element): string
     {
         return $element->getUuid();
+    }
+
+    public function sortByPosition(): ShopBasicCollection
+    {
+        $this->sort(function(ShopBasicStruct $a, ShopBasicStruct $b) {
+            return $a->getPosition() <=> $b->getPosition();
+        });
+        return $this;
     }
 }

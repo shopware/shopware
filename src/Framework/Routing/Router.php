@@ -203,10 +203,10 @@ class Router implements RouterInterface, RequestMatcherInterface
         $this->context->setParameter('shop', $shop);
         $request->attributes->set('_shop', $shop);
 
-        $currencyId = $this->getCurrencyId($request, $shop->getCurrencyUuid());
+        $currencyUuid = $this->getCurrencyUuid($request, $shop->getCurrencyUuid());
 
         $request->attributes->set('_shop_uuid', $shop->getUuid());
-        $request->attributes->set('_currency_uuid', $currencyId);
+        $request->attributes->set('_currency_uuid', $currencyUuid);
 
         //set shop locale
         $request->setLocale($shop->getLocale()->getLocale());
@@ -221,11 +221,7 @@ class Router implements RouterInterface, RequestMatcherInterface
         $translationContext = TranslationContext::createFromShop($shop);
 
         //resolve seo urls to use symfony url matcher for route detection
-        $seoUrl = $this->urlResolver->getPathInfo(
-            $shop->getUuid(),
-            $pathinfo,
-            $translationContext
-        );
+        $seoUrl = $this->urlResolver->getPathInfo($shop->getUuid(), $pathinfo, $translationContext);
 
         if (!$seoUrl) {
             return $this->match($pathinfo);
@@ -253,14 +249,14 @@ class Router implements RouterInterface, RequestMatcherInterface
         return rtrim($base, '/') . '/' . ltrim($url, '/');
     }
 
-    protected function getCurrencyId(Request $request, string $currencyUuid): string
+    protected function getCurrencyUuid(Request $request, string $currencyUuid): string
     {
         if ($this->context->getMethod() === 'POST' && $request->get('__currency')) {
             return (string) $request->get('__currency');
         }
 
         if ($request->cookies->has('currency')) {
-            return (string) $request->cookies->has('currency');
+            return (string) $request->cookies->get('currency');
         }
 
         if ($request->attributes->has('_currency_uuid')) {

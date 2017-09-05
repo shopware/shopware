@@ -640,6 +640,7 @@ ALTER TABLE s_categories_avoid_customergroups
     RENAME TO category_avoid_customer_group,
     CHANGE categoryID category_id INT(11),
     CHANGE customergroupID customer_group_id INT(11),
+    CHANGE `description` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
     ADD category_uuid VARCHAR(42) NOT NULL AFTER category_id,
     ADD customer_group_uuid VARCHAR(42) NOT NULL AFTER customer_group_id
 ;
@@ -818,7 +819,7 @@ ALTER TABLE `s_media_album`
 
 ALTER TABLE s_core_shops
     RENAME TO shop,
-    ADD COLUMN main_uuid VARCHAR(42) NULL DEFAULT NULL,
+    ADD COLUMN parent_uuid VARCHAR(42) NULL DEFAULT NULL,
     ADD COLUMN shop_template_uuid VARCHAR(42) NULL DEFAULT NULL,
     ADD COLUMN document_template_uuid VARCHAR(42) NULL DEFAULT NULL,
     ADD COLUMN category_uuid VARCHAR(42) NOT NULL,
@@ -1576,7 +1577,7 @@ INSERT INTO product_translation (uuid, language_uuid, language_id, product_uuid,
 
 
 UPDATE shop SET uuid = CONCAT('SWAG-SHOP-UUID-', id);
-UPDATE shop SET main_uuid = CONCAT('SWAG-SHOP-UUID-', main_id) WHERE main_id IS NOT NULL;
+UPDATE shop SET parent_uuid = CONCAT('SWAG-SHOP-UUID-', main_id) WHERE main_id IS NOT NULL;
 UPDATE shop SET shop_template_uuid  = CONCAT('SWAG-SHOP-TEMPLATE-UUID-', shop_template_id) WHERE shop_template_id  IS NOT NULL;
 UPDATE shop SET document_template_uuid  = CONCAT('SWAG-SHOP-TEMPLATE-UUID-', document_template_id) WHERE document_template_id  IS NOT NULL;
 UPDATE shop SET category_uuid  = CONCAT('SWAG-CATEGORY-UUID-', category_id) WHERE category_id IS NOT NULL;

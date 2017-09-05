@@ -159,7 +159,7 @@ class ShopBasicStruct extends Struct
     /**
      * @var string|null
      */
-    protected $mainUuid;
+    protected $parentUuid;
 
     /**
      * @var string|null
@@ -473,14 +473,14 @@ class ShopBasicStruct extends Struct
         $this->taxCalculationType = $taxCalculationType;
     }
 
-    public function getMainUuid(): ?string
+    public function getParentUuid(): ?string
     {
-        return $this->mainUuid;
+        return $this->parentUuid;
     }
 
-    public function setMainUuid(?string $mainUuid): void
+    public function setParentUuid(?string $parentUuid): void
     {
-        $this->mainUuid = $mainUuid;
+        $this->parentUuid = $parentUuid;
     }
 
     public function getTemplateUuid(): ?string

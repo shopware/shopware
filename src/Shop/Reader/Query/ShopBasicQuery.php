@@ -66,7 +66,7 @@ class ShopBasicQuery extends QueryBuilder
             'shop.payment_method_id as __shop_payment_method_id',
             'shop.shipping_method_id as __shop_shipping_method_id',
             'shop.area_country_id as __shop_area_country_id',
-            'shop.main_uuid as __shop_main_uuid',
+            'shop.parent_uuid as __shop_parent_uuid',
             'shop.category_uuid as __shop_category_uuid',
             'shop.locale_uuid as __shop_locale_uuid',
             'shop.currency_uuid as __shop_currency_uuid',

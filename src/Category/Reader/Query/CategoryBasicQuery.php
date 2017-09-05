@@ -51,7 +51,7 @@ class CategoryBasicQuery extends QueryBuilder
                 'category.parent_id as __category_parent_id',
                 'category.parent_uuid as __category_parent_uuid',
                 'category.path as __category_path',
-                'category.description as __category_description',
+                'category.name as __category_name',
                 'category.position as __category_position',
                 'category.level as __category_level',
                 'category.added as __category_added',
@@ -81,12 +81,7 @@ class CategoryBasicQuery extends QueryBuilder
         //$query->leftJoin('category', 'category_translation', 'categoryTranslation', 'category.uuid = categoryTranslation.category_uuid AND categoryTranslation.language_uuid = :languageUuid');
         //$query->setParameter('languageUuid', $context->getShopUuid());
 
-        $query->leftJoin(
-            'category',
-            'seo_url',
-            'seoUrl',
-            'category.uuid = seoUrl.foreign_key AND seoUrl.is_canonical = 1 AND seoUrl.shop_uuid = :shopUuid AND seoUrl.name = :categorySeoUrlName'
-        );
+        $query->leftJoin('category', 'seo_url', 'seoUrl', 'category.uuid = seoUrl.foreign_key AND seoUrl.is_canonical = 1 AND seoUrl.shop_uuid = :shopUuid AND seoUrl.name = :categorySeoUrlName');
 
         $query->setParameter(':categorySeoUrlName', ListingPageUrlGenerator::ROUTE_NAME);
         $query->setParameter(':shopUuid', $context->getShopUuid());

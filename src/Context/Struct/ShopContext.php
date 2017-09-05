@@ -34,13 +34,12 @@ use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
 use Shopware\Framework\Struct\Struct;
 use Shopware\PaymentMethod\Struct\PaymentMethod;
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
-use Shopware\PriceGroup\Struct\PriceGroupBasicCollection;
 use Shopware\PriceGroup\Struct\PriceGroupCollection;
 use Shopware\PriceGroupDiscount\Struct\PriceGroupDiscountBasicCollection;
 use Shopware\ShippingMethod\Struct\ShippingMethod;
 use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
 use Shopware\Shop\Struct\Shop;
-use Shopware\Shop\Struct\ShopBasicStruct;
+use Shopware\Shop\Struct\ShopDetailStruct;
 use Shopware\Tax\Struct\Tax;
 use Shopware\Tax\Struct\TaxBasicCollection;
 use Shopware\Tax\Struct\TaxCollection;
@@ -68,7 +67,7 @@ class ShopContext extends Struct
     protected $currency;
 
     /**
-     * @var ShopBasicStruct
+     * @var ShopDetailStruct
      */
     protected $shop;
 
@@ -103,7 +102,7 @@ class ShopContext extends Struct
     protected $shippingLocation;
 
     public function __construct(
-        ShopBasicStruct $shop,
+        ShopDetailStruct $shop,
         CurrencyBasicStruct $currency,
         CustomerGroupBasicStruct $currentCustomerGroup,
         CustomerGroupBasicStruct $fallbackCustomerGroup,
@@ -141,7 +140,7 @@ class ShopContext extends Struct
         return $this->currency;
     }
 
-    public function getShop(): ShopBasicStruct
+    public function getShop(): ShopDetailStruct
     {
         return $this->shop;
     }

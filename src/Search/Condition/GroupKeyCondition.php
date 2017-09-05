@@ -22,10 +22,27 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Search\Sorting;
+namespace Shopware\Search\Condition;
 
-class CustomerGroupUuidSorting extends Sorting
+use Shopware\Search\ConditionInterface;
+
+class GroupKeyCondition implements ConditionInterface
 {
+    /**
+     * @var string[]
+     */
+    protected $groupKeies;
+
+    public function __construct(array $groupKeies)
+    {
+        $this->groupKeies = $groupKeies;
+    }
+
+    public function getGroupKeies(): array
+    {
+        return $this->groupKeies;
+    }
+
     public function getName(): string
     {
         return self::class;

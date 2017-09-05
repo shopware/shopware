@@ -46,8 +46,8 @@ class ThemeConfigReader
             'LOWER(REPLACE(e.name, "_", "")) as name',
             'COALESCE(currentTheme.value, e.default_value) as value',
         ])
-            ->from('s_core_templates_config_elements', 'e')
-            ->leftJoin('e', 's_core_templates_config_values', 'currentTheme', 'currentTheme.element_id = e.id')
+            ->from('shop_template_config_form_field', 'e')
+            ->leftJoin('e', 'shop_template_config_form_field_value', 'currentTheme', 'currentTheme.shop_template_config_form_field_uuid = e.uuid')
 //            ->leftJoin('e', 's_core_templates_config_values', 'parentTheme', 'parentShop.element_id = e.id AND parentTheme.template_id = :parentThemeId')
             ->setParameter('currentThemeId', 23)
 //            ->setParameter('parentThemeId', 0)

@@ -57,7 +57,7 @@ class CategoryBasicStruct extends Struct
     /**
      * @var string
      */
-    protected $description;
+    protected $name;
 
     /**
      * @var int|null
@@ -179,6 +179,11 @@ class CategoryBasicStruct extends Struct
      */
     protected $canonicalUrl;
 
+    /**
+     * @var CategoryBasicStruct[]
+     */
+    protected $children = [];
+
     public function getId(): int
     {
         return $this->id;
@@ -229,14 +234,14 @@ class CategoryBasicStruct extends Struct
         $this->path = $path;
     }
 
-    public function getDescription(): string
+    public function getName(): string
     {
-        return $this->description;
+        return $this->name;
     }
 
-    public function setDescription(string $description): void
+    public function setName(string $name): void
     {
-        $this->description = $description;
+        $this->name = $name;
     }
 
     public function getPosition(): ?int
@@ -477,5 +482,15 @@ class CategoryBasicStruct extends Struct
     public function setCanonicalUrl(?SeoUrlBasicStruct $canonicalUrl): void
     {
         $this->canonicalUrl = $canonicalUrl;
+    }
+
+    public function setChildren(array $children)
+    {
+        $this->children = $children;
+    }
+
+    public function getChildren(): array
+    {
+        return $this->children;
     }
 }

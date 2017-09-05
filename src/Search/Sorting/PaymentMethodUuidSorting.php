@@ -24,8 +24,6 @@
 
 namespace Shopware\Search\Sorting;
 
-use Shopware\Bundle\SearchBundle\Sorting\Sorting;
-
 class PaymentMethodUuidSorting extends Sorting
 {
     public function getName(): string

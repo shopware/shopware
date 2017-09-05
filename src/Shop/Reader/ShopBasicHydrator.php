@@ -75,7 +75,7 @@ class ShopBasicHydrator extends Hydrator
         $shop->setShippingMethodId((int) $data['__shop_shipping_method_id']);
         $shop->setAreaCountryId((int) $data['__shop_area_country_id']);
         $shop->setTaxCalculationType((string) $data['__shop_tax_calculation_type']);
-        $shop->setMainUuid(isset($data['__shop_main_uuid']) ? (string) $data['__shop_main_uuid'] : null);
+        $shop->setParentUuid(isset($data['__shop_parent_uuid']) ? (string) $data['__shop_parent_uuid'] : null);
         $shop->setTemplateUuid(isset($data['__shop_shop_template_uuid']) ? (string) $data['__shop_shop_template_uuid'] : null);
         $shop->setDocumentTemplateUuid(isset($data['__shop_document_template_uuid']) ? (string) $data['__shop_document_template_uuid'] : null);
         $shop->setCategoryUuid((string) $data['__shop_category_uuid']);

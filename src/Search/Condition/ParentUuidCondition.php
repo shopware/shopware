@@ -22,10 +22,27 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Search\Sorting;
+namespace Shopware\Search\Condition;
 
-class CustomerGroupUuidSorting extends Sorting
+use Shopware\Search\ConditionInterface;
+
+class ParentUuidCondition implements ConditionInterface
 {
+    /**
+     * @var string[]
+     */
+    protected $parentUuids;
+
+    public function __construct(array $parentUuids)
+    {
+        $this->parentUuids = $parentUuids;
+    }
+
+    public function getParentUuids(): array
+    {
+        return $this->parentUuids;
+    }
+
     public function getName(): string
     {
         return self::class;

@@ -81,4 +81,12 @@ class CurrencyBasicCollection extends Collection
     {
         return $element->getUuid();
     }
+
+    public function sortByPosition(): CurrencyBasicCollection
+    {
+        $this->sort(function(CurrencyBasicStruct $a, CurrencyBasicStruct $b) {
+            return $a->getPosition() <=> $b->getPosition();
+        });
+        return $this;
+    }
 }

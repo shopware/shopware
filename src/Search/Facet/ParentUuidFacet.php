@@ -22,9 +22,11 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Search\Sorting;
+namespace Shopware\Search\Facet;
 
-class CustomerGroupUuidSorting extends Sorting
+use Shopware\Search\FacetInterface;
+
+class ParentUuidFacet implements FacetInterface
 {
     public function getName(): string
     {

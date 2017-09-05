@@ -147,4 +147,34 @@ class CategoryBasicCollection extends Collection
     {
         return $element->getUuid();
     }
+
+    public function sortByPosition(): CategoryBasicCollection
+    {
+        $this->sort(function(CategoryBasicStruct $a, CategoryBasicStruct $b) {
+            return $a->getPosition() <=> $b->getPosition();
+        });
+        return $this;
+    }
+
+    /**
+     * @param int|null $parentId
+     *
+     * @return CategoryBasicStruct[]
+     */
+    public function getTree(?int $parentId): array
+    {
+        $result = [];
+        foreach ($this->elements as $category) {
+            if ($category->getParentId() != $parentId) {
+                continue;
+            }
+            $category->setChildren(
+                $this->getTree((int) $category->getId())
+            );
+            $result[] = $category;
+        }
+
+        return $result;
+    }
+
 }

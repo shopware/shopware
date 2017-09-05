@@ -24,8 +24,6 @@
 
 namespace Shopware\Search\Sorting;
 
-use Shopware\Bundle\SearchBundle\Sorting\Sorting;
-
 class PathInfoSorting extends Sorting
 {
     public function getName(): string

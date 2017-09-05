@@ -24,7 +24,7 @@
 
 namespace Shopware\Search\Sorting;
 
-class CustomerGroupUuidSorting extends Sorting
+class ActiveSorting extends Sorting
 {
     public function getName(): string
     {

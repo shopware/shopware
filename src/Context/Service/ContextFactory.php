@@ -224,9 +224,6 @@ class ContextFactory implements ContextFactoryInterface
             $customer
         );
 
-        echo '<pre>';
-        print_r($context);
-        exit();
         return $context;
     }
 

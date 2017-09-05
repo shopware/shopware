@@ -22,10 +22,27 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Search\Sorting;
+namespace Shopware\Search\Condition;
 
-class CustomerGroupUuidSorting extends Sorting
+use Shopware\Search\ConditionInterface;
+
+class ActiveCondition implements ConditionInterface
 {
+    /**
+     * @var bool
+     */
+    protected $active;
+
+    public function __construct(bool $active = true)
+    {
+        $this->active = $active;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
     public function getName(): string
     {
         return self::class;

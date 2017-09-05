@@ -44,10 +44,6 @@ class GenerateStructCommand
 
     public function execute()
     {
-        echo '<pre>';
-        print_r(\Ramsey\Uuid\Uuid::uuid4()->toString());
-        exit();
-        
         $connection = \Shopware\Framework\Doctrine\DatabaseConnector::createPdoConnection();
 
         $dbalConnection = new \Doctrine\DBAL\Connection(
@@ -144,6 +140,10 @@ class GenerateStructCommand
                     self::createAssociation('payment_method', self::ManyToOne, false, false),
                     self::createAssociation('customer_group', self::ManyToOne, false, false),
                     self::createAssociation('currency', self::ManyToMany, false, true, 'shop_currency')
+                ],
+                'search' => [
+                    self::createSearchCriteria('parent_uuid', 'string_array'),
+                    self::createSearchCriteria('active', 'boolean'),
                 ]
             ],
             'payment_method' => [
@@ -184,6 +184,11 @@ class GenerateStructCommand
                     self::createAssociation('product_stream', self::ManyToOne, false, false),
                     self::createAssociation('media', self::ManyToOne, false, false),
                     self::createAssociation('seo_url', self::ManyToOne, true, false, '', 'category.uuid = seoUrl.foreign_key AND seoUrl.is_canonical = 1 AND seoUrl.shop_uuid = :shopUuid AND seoUrl.name = :seoUrlName', 'canonicalUrl'),
+                ],
+                'search' => [
+                    self::createSearchCriteria('parent_uuid', 'string_array'),
+                    self::createSearchCriteria('active', 'boolean'),
+//                    self::createSearchCriteria('customer_group_uuid', 'string_array')
                 ]
             ],
             'customer' => [

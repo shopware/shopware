@@ -29,7 +29,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Search\Condition\ActiveCondition;
 use Shopware\Search\Condition\ParentCondition;
+use Shopware\Search\Condition\ParentUuidCondition;
 use Shopware\Search\Condition\ShopCondition;
+use Shopware\Search\Condition\ShopUuidCondition;
 use Shopware\Search\Criteria;
 use Shopware\Storefront\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -59,28 +61,17 @@ class IndexController extends Controller
     {
         $criteria = new Criteria();
 
-        $criteria->addCondition(new ParentCondition([$context->getShop()->getMainId()]));
+        $criteria->addCondition(new ParentUuidCondition([$context->getShop()->getParentUuid(), $context->getShop()->getUuid()]));
         $criteria->addCondition(new ActiveCondition(true));
 
         $repo = $this->get('shopware.shop.repository');
-
         $shops = $repo->search($criteria, $context->getTranslationContext());
-
-        $ids = array_merge([$context->getShop()->getMainId()], $shops->getIds());
-        $shops = $repo->read($ids, $context->getTranslationContext());
 
         return $shops->sortByPosition();
     }
 
     private function loadCurrencies(ShopContext $context)
     {
-        $criteria = new Criteria();
-        $criteria->addCondition(new ShopCondition([$context->getShop()->getMainId()]));
-
-        $repo = $this->get('shopware.currency.gateway.currency_repository');
-        $currencies = $repo->search($criteria, $context->getTranslationContext());
-        $currencies->sortByPosition();
-
-        return $currencies;
+        return $context->getShop()->getCurrencies()->sortByPosition();
     }
 }

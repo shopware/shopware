@@ -22,7 +22,8 @@
         <service class="Shopware\Category\Searcher\CategorySearcher" id="shopware.category.searcher">
             <argument id="dbal_connection" type="service"/>
             <argument type="collection">
-
+                <argument id="shopware.category.searcher.handler.parent_uuid_handler" type="service"/>
+                <argument id="shopware.category.searcher.handler.active_handler" type="service"/>
             </argument>
             <argument id="shopware.category.reader.basic_hydrator" type="service"/>
         </service>
@@ -37,5 +38,9 @@
 
         </service>
 
+        <service class="Shopware\Category\Searcher\Handler\ParentUuidHandler"
+                 id="shopware.category.searcher.handler.parent_uuid_handler"/>
+        <service class="Shopware\Category\Searcher\Handler\ActiveHandler"
+                 id="shopware.category.searcher.handler.active_handler"/>
     </services>
 </container>

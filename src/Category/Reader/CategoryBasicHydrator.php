@@ -51,7 +51,7 @@ class CategoryBasicHydrator extends Hydrator
             isset($data['__category_parent_uuid']) ? (string)$data['__category_parent_uuid'] : null
         );
         $category->setPath(array_filter(explode('|', (string)$data['__category_path'])));
-        $category->setDescription((string)$data['__category_description']);
+        $category->setName((string)$data['__category_name']);
         $category->setPosition(isset($data['__category_position']) ? (int)$data['__category_position'] : null);
         $category->setLevel((int)$data['__category_level']);
         $category->setAdded(new \DateTime($data['__category_added']));

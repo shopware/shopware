@@ -17,13 +17,13 @@
 
         <service class="Shopware\Shop\Loader\ShopBasicLoader" id="shopware.shop.loader.basic_loader">
             <argument type="service" id="shopware.shop.reader.basic_reader"/>
-
         </service>
 
         <service class="Shopware\Shop\Searcher\ShopSearcher" id="shopware.shop.searcher">
             <argument id="dbal_connection" type="service"/>
             <argument type="collection">
-
+                <argument id="shopware.shop.searcher.handler.parent_uuid_handler" type="service"/>
+                <argument id="shopware.shop.searcher.handler.active_handler" type="service"/>
             </argument>
             <argument id="shopware.shop.reader.basic_hydrator" type="service"/>
         </service>
@@ -60,5 +60,9 @@
             <argument type="service" id="shopware.currency.loader.basic_loader"/>
         </service>
 
+        <service class="Shopware\Shop\Searcher\Handler\ParentUuidHandler"
+                 id="shopware.shop.searcher.handler.parent_uuid_handler"/>
+        <service class="Shopware\Shop\Searcher\Handler\ActiveHandler"
+                 id="shopware.shop.searcher.handler.active_handler"/>
     </services>
 </container>

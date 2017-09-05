@@ -113,7 +113,7 @@ class ShopSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $shopId = $request->attributes->get('_shop_id');
+        $shopId = $request->attributes->get('_shop_uuid');
         if (empty($shopId)) {
             return;
         }
@@ -134,8 +134,9 @@ class ShopSubscriber implements EventSubscriberInterface
     public function loadContext(GetResponseEvent $event)
     {
         $request = $event->getRequest();
-        $shopId = $request->attributes->get('_shop_id');
-        if (empty($shopId)) {
+        $shopUuid = $request->attributes->get('_shop_uuid');
+
+        if (empty($shopUuid)) {
             return;
         }
         if ($request->attributes->has(self::SHOP_CONTEXT_PROPERTY)) {
@@ -150,35 +151,36 @@ class ShopSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
         $context = $request->attributes->get(self::SHOP_CONTEXT_PROPERTY);
+
         if (!$context) {
             return;
         }
-        $request->attributes->set('active_category_id', $this->getActiveCategoryId($request, $context));
+        $request->attributes->set('active_category_uuid', $this->getActiveCategoryUuid($request, $context));
     }
 
     public function setShopCookie(FilterResponseEvent $event)
     {
         $request = $event->getRequest();
 
-        if (!$request->attributes->has('_shop_id')) {
+        if (!$request->attributes->has('_shop_uuid')) {
             return;
         }
 
-        $event->getResponse()->headers->setCookie(new Cookie('shop', $request->attributes->get('_shop_id')));
-        $event->getResponse()->headers->setCookie(new Cookie('currency', $request->attributes->get('_currency_id')));
+        $event->getResponse()->headers->setCookie(new Cookie('shop', $request->attributes->get('_shop_uuid')));
+        $event->getResponse()->headers->setCookie(new Cookie('currency', $request->attributes->get('_currency_uuid')));
     }
 
-    private function getActiveCategoryId(Request $request, ShopContext $context)
+    private function getActiveCategoryUuid(Request $request, ShopContext $context)
     {
         $route = $request->attributes->get('_route');
-
+        
         switch ($route) {
             case ListingPageUrlGenerator::ROUTE_NAME:
-                return $request->attributes->get('_route_params')['id'];
+                return $request->attributes->get('_route_params')['uuid'];
 
             case DetailPageUrlGenerator::ROUTE_NAME:
             default:
-                return $context->getShop()->getCategory()->getId();
+                return $context->getShop()->getCategory()->getUuid();
         }
     }
 }

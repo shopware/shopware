@@ -24,22 +24,21 @@
 
 namespace Shopware\Storefront\Navigation;
 
-use Shopware\Category\Struct\Category;
-use Shopware\Category\Struct\CategoryIdentity;
+use Shopware\Category\Struct\CategoryBasicStruct;
 
 class Navigation
 {
     /**
-     * @var CategoryIdentity[]
+     * @var CategoryBasicStruct[]
      */
     protected $tree;
 
     /**
-     * @var Category
+     * @var CategoryBasicStruct
      */
     protected $activeCategory;
 
-    public function __construct(Category $activeCategory, array $tree)
+    public function __construct(CategoryBasicStruct $activeCategory, array $tree)
     {
         $this->tree = $tree;
         $this->activeCategory = $activeCategory;
@@ -55,12 +54,12 @@ class Navigation
         $this->tree = $tree;
     }
 
-    public function getActiveCategory(): Category
+    public function getActiveCategory(): CategoryBasicStruct
     {
         return $this->activeCategory;
     }
 
-    public function setActiveCategory(Category $activeCategory): void
+    public function setActiveCategory(CategoryBasicStruct $activeCategory): void
     {
         $this->activeCategory = $activeCategory;
     }

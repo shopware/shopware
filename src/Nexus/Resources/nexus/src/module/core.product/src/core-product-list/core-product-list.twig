@@ -26,28 +26,28 @@
                         <input type="checkbox" readonly="true" />
                     </sw-grid-col>
                     <sw-grid-col :width="50">
-                        {{item.id}}
+                        {{index + 1}}
                     </sw-grid-col>
                     <sw-grid-col :width="500" data-index="name" editor="text">
                         {{item.name}}
                     </sw-grid-col>
                     <sw-grid-col :width="300">
-                        {{item.productManufacturer.name}}
+                        {{item.manufacturer.name}}
                     </sw-grid-col>
                     <sw-grid-col :width="100">
                         <input type="checkbox" readonly="true" v-model="item.active" />
                     </sw-grid-col>
                     <sw-grid-col :width="250">
-                       {{item.mainDetail.purchasePrice}} €
+                       {{item.mainDetail.purchasePrice | currency }}
                     </sw-grid-col>
                     <sw-grid-col :width="150" data-index="pseudoSales" editor="number">
                         {{item.pseudoSales}} auf Lager
                     </sw-grid-col>
 
                     <sw-grid-col :width="100">
-                        <router-link :to="{ name: 'product-detail', params: { id: item.id }}">
+                        <!-- <router-link :to="{ name: 'product-detail', params: { id: item.id }}">
                             Details
-                        </router-link>
+                        </router-link> -->
                     </sw-grid-col>
                     {% endblock %}
                 </sw-grid-row>

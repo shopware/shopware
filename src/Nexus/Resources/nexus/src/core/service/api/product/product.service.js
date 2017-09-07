@@ -1,7 +1,6 @@
 export default function ProductService(client) {
     return {
-        readAllProducts,
-        readAllProductsAsPaginatedList,
+        readAll,
         readProductById,
         readProductByOrderNumber,
         updateProductById,
@@ -36,24 +35,9 @@ export default function ProductService(client) {
         });
     }
 
-    function readAllProducts() {
-        const productList = {};
-
-        return client.get('/product.json').then((response) => {
-            productList.products = response.data;
-
-            return productList;
-        });
-    }
-
-    function readAllProductsAsPaginatedList(limit = 25, offset = 0) {
-        const productList = {};
-
-        return client.get(`/articles?limit=${limit}&start=${offset}`).then((response) => {
-            productList.products = response.data.data;
-            productList.totalProducts = response.data.total;
-
-            return productList;
+    function readAll(limit = 25, offset = 0) {
+        return client.get(`/product.json?limit=${limit}&offset=${offset}`).then((response) => {
+            return response.data;
         });
     }
 

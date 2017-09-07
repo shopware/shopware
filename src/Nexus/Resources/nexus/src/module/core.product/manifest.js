@@ -1,4 +1,4 @@
-import productList from 'module/core.product/src/list';
+import productList from 'module/core.product/src/core-product-list';
 import productSidebar from 'module/core.product/src/sidebar';
 
 export default {

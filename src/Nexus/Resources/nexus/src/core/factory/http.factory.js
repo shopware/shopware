@@ -12,9 +12,9 @@ export default {
     }, Promise.reject);
 } */
 
-function createClientWithToken() {
+function createClientWithToken(token, baseURL) {
     const httpClient = Axios.create({
-        baseURL: 'http://shopware-labs.local/api'
+        baseURL: `${baseURL}/api`
     });
 
     // configureRequestCSRFInterceptor(httpClient, token);

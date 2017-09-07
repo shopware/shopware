@@ -20,17 +20,17 @@ export default class ShopwareApplication {
         return this;
     }
 
-    start() {
-        this.runInitializers().then(this.createApplicationRoot.bind(this));
+    start(context = {}) {
+        this.runInitializers(context).then(this.createApplicationRoot.bind(this));
     }
 
-    runInitializers() {
+    runInitializers(context) {
         const applicationInstance = this;
 
         return this.initializers.reduce((promise, initializer) => {
             return promise.then((configuration) => {
                 return new Promise((resolve) => {
-                    initializer(applicationInstance, configuration, resolve);
+                    initializer(applicationInstance, configuration, resolve, context);
                 });
             });
         }, Promise.resolve([]));

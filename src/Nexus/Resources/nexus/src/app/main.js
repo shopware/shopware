@@ -2,6 +2,7 @@
 import ShopwareApplication from 'src/core/application';
 
 // import initCSRF from 'src/app/init/csrf.init';
+import initContext from 'src/app/init/context.init';
 import initHttpClient from 'src/app/init/http.init';
 import initAppState from 'src/app/init/state.init';
 import initCoreModules from 'src/app/init/modules.init';
@@ -14,6 +15,7 @@ const application = new ShopwareApplication();
 
 application
 // .addInitializer(initializeCSRFToken)
+    .addInitializer(initContext)
     .addInitializer(initHttpClient)
     .addInitializer(initAppState)
     .addInitializer(initCoreModules)

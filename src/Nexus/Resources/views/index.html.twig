@@ -42,8 +42,6 @@
         basePath:           /next/web
         pathInfo:           /nexus
     */
-
-
     const shopware_context = {
         host: '{{ app.request.host }}',
         port: {{ app.request.port }},
@@ -54,7 +52,7 @@
         pathInfo: '{{ app.request.pathInfo }}'
     };
 
-    ShopwareApplication.default.start();
+    ShopwareApplication.default.start(shopware_context);
 </script>
 
 </body>

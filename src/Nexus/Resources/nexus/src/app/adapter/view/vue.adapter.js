@@ -4,8 +4,16 @@ import 'src/app/component/components';
 
 const vueComponents = {};
 
-export default function VueAdapter() {
+export default function VueAdapter(context) {
     Vue.use(VueRouter);
+
+    Vue.filter('image', (value) => {
+        if (!value) {
+            return '';
+        }
+
+        return `${context.assetsPath}${value}`;
+    });
 
     return {
         createInstance,

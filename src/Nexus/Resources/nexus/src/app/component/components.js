@@ -11,13 +11,14 @@ import 'src/app/component/atom/form/sw-form-row/sw-form-row';
 import 'src/app/component/atom/utils/sw-loader/sw-loader';
 
 // Molecules
-import 'src/app/component/molecule/sw-workspace';
+
 
 // Organisms
 import 'src/app/component/organism/sw-admin/sw-admin';
 import 'src/app/component/organism/sw-desktop/sw-desktop';
 import 'src/app/component/organism/sw-sidebar/sw-sidebar';
 import 'src/app/component/organism/sw-search-bar/sw-search-bar';
+import 'src/app/component/organism/sw-workspace';
 
 // Mixins
 import 'src/app/component/mixin/pagination.mixin';

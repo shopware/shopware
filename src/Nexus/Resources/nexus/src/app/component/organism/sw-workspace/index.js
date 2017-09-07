@@ -1,5 +1,5 @@
-import template from 'src/app/component/molecule/sw-workspace/sw-workspace.html.twig';
-import 'src/app/component/molecule/sw-workspace/sw-workspace.less';
+import template from 'src/app/component/organism/sw-workspace/sw-workspace.html.twig';
+import 'src/app/component/organism/sw-workspace/sw-workspace.less';
 
 export default Shopware.ComponentFactory.register('sw-workspace', {
     template,

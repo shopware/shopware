@@ -1,4 +1,4 @@
-.sw-sidebar {
+.sw--sidebar {
     width: 80px;
     height: 100%;
     position: relative;
@@ -9,9 +9,22 @@
     &.is--collapsed {
         width: 255px;
     }
+    
+    .sidebar--logo {
+        padding: 25px;
+
+        img {
+            border: 1px solid darken(#2A3345, 5%);
+            border-left: 1px solid darken(#2A3345, 10%);
+            border-top: 1px solid darken(#2A3345, 10%);
+            border-radius: 3px;
+            max-width: 100%;
+            display: inline-block;
+        }
+    }
 
     .main-navigation {
-        margin: 40px 0 0 0;
+        margin: 15px 0 0 0;
 
         .nav {
             list-style: none;

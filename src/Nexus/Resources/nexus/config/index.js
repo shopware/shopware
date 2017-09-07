@@ -7,7 +7,7 @@ module.exports = {
     index: path.resolve(__dirname, '../src/app/index.html'),
     assetsRoot: path.resolve(__dirname, '../../public/'),
     assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
+    assetsPublicPath: '/bundles/nexus/',
     productionSourceMap: true,
     // Gzip off by default as many popular static hosts such as
     // Surge or Netlify already gzip all static assets for you.

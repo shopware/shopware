@@ -601,7 +601,7 @@ ALTER TABLE category ADD uuid VARCHAR(42) NOT NULL AFTER id;
 ALTER TABLE category DROP `left`;
 ALTER TABLE category DROP `right`;
 ALTER TABLE category CHANGE mediaID media_id INT(11) unsigned;
-ALTER TABLE category ADD media_uuid VARCHAR(42) NOT NULL AFTER media_id;
+ALTER TABLE category ADD media_uuid VARCHAR(42) NULL AFTER media_id;
 ALTER TABLE category CHANGE cmstext cms_description MEDIUMTEXT;
 ALTER TABLE category CHANGE cmsheadline cms_headline VARCHAR(255);
 ALTER TABLE category CHANGE metadescription meta_description MEDIUMTEXT;
@@ -1190,7 +1190,7 @@ ALTER TABLE `s_cms_static`
     CHANGE `tpl3path` `path_3` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `variable_3`,
     CHANGE `target` `link_target` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `link`,
     CHANGE `parentID` `parent_id` int(11) NOT NULL DEFAULT '0' AFTER `link_target`,
-    ADD `parent_uuid` varchar(42) NOT NULL AFTER `parent_id`,
+    ADD `parent_uuid` varchar(42) NULL AFTER `parent_id`,
     ADD `shop_uuids` longtext COLLATE 'utf8mb4_unicode_ci' NULL,
     RENAME TO `shop_page`;
 
@@ -1254,7 +1254,7 @@ ALTER TABLE `s_core_auth_attributes`
 ALTER TABLE `s_core_config_elements`
     ADD `uuid` varchar(42) NOT NULL AFTER `id`,
     CHANGE `form_id` `config_form_id` int(11) unsigned NOT NULL AFTER `uuid`,
-    ADD `config_form_uuid` varchar(42) NOT NULL AFTER `config_form_id`,
+    ADD `config_form_uuid` varchar(42) NULL AFTER `config_form_id`,
     CHANGE `required` `required` tinyint unsigned NOT NULL AFTER `type`,
     RENAME TO `config_form_field`;
 
@@ -1286,7 +1286,7 @@ ALTER TABLE `s_core_config_mails` CHANGE `ishtml` `is_html` tinyint NOT NULL AFT
 ALTER TABLE `s_core_config_mails` CHANGE `mailtype` `mail_type` int(11) NOT NULL DEFAULT '1' AFTER `attachment`;
 ALTER TABLE `s_core_config_mails` CHANGE `dirty` `dirty` tinyint NULL AFTER `context`;
 ALTER TABLE `s_core_config_mails` ADD `uuid` varchar(42) NOT NULL AFTER `id`;
-ALTER TABLE `s_core_config_mails` ADD `order_state_uuid` varchar(42) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `order_state_id`;
+ALTER TABLE `s_core_config_mails` ADD `order_state_uuid` varchar(42) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `order_state_id`;
 ALTER TABLE `s_core_config_mails` RENAME TO `mail`;
 
 ALTER TABLE `s_core_config_mails_attachments`
@@ -1580,6 +1580,7 @@ INSERT INTO product_translation (uuid, language_uuid, language_id, product_uuid,
             shop s ON s.fallback_id IS NULL
     );
 
+UPDATE premium_product SET shop_id = (SELECT id FROM shop LIMIT 1), shop_uuid = concat('SWAG-SHOP-UUID-', shop_id);
 
 UPDATE shop SET uuid = CONCAT('SWAG-SHOP-UUID-', id);
 UPDATE shop SET parent_uuid = CONCAT('SWAG-SHOP-UUID-', main_id) WHERE main_id IS NOT NULL;
@@ -1616,6 +1617,7 @@ UPDATE holiday SET uuid = CONCAT('SWAG-HOLIDAY-UUID-', id) WHERE id IS NOT NULL;
 UPDATE shipping_method_price SET uuid = CONCAT('SWAG-SHIPPING-COST-PRICE-UUID-', id) WHERE id IS NOT NULL;
 UPDATE shipping_method_price SET shipping_method_uuid = CONCAT('SWAG-SHIPPING-METHOD-UUID-', shipping_method_id) WHERE shipping_method_id IS NOT NULL;
 UPDATE category SET product_stream_uuid = CONCAT('SWAG-PRODUCT-STREAM-UUID-', product_stream_id) WHERE product_stream_id IS NOT NULL;
+UPDATE category SET media_uuid = CONCAT('SWAG-MEDIA-UUID-', media_id) WHERE media_id IS NOT NULL AND media_id > 0;
 UPDATE product_stream SET uuid = CONCAT('SWAG-PRODUCT-STREAM-UUID-', id) WHERE id IS NOT NULL;
 UPDATE product_stream SET listing_sorting_uuid = CONCAT('SWAG-LISTING-SORTING-UUID-', listing_sorting_id) WHERE listing_sorting_id IS NOT NULL;
 UPDATE product_stream_tab SET product_stream_uuid = CONCAT('SWAG-PRODUCT-STREAM-UUID-', product_stream_id) WHERE product_stream_id IS NOT NULL;
@@ -1647,9 +1649,9 @@ UPDATE customer SET default_billing_address_uuid = CONCAT('SWAG-CUSTOMER-ADDRESS
 UPDATE customer SET default_shipping_address_uuid = CONCAT('SWAG-CUSTOMER-ADDRESS-UUID-', default_shipping_address_id) WHERE default_shipping_address_id IS NOT NULL;
 UPDATE customer SET customer_group_uuid = CONCAT('SWAG-CUSTOMER-GROUP-UUID-', (SELECT id FROM customer_group WHERE group_key = customer_group_key)) WHERE customer_group_key IS NOT NULL;
 UPDATE customer SET uuid = CONCAT('SWAG-CUSTOMER-UUID-', id) WHERE id IS NOT NULL;
-UPDATE customer_address SET customer_uuid = CONCAT('SWAG-CUSTOMER-UUID-', id) WHERE id IS NOT NULL;
-UPDATE customer_address SET area_country_uuid = CONCAT('SWAG-AREA-COUNTRY-UUID-', id) WHERE id IS NOT NULL;
-UPDATE customer_address SET area_country_state_uuid = CONCAT('SWAG-AREA-COUNTRY-STATE-UUID-', id) WHERE id IS NOT NULL;
+UPDATE customer_address SET customer_uuid = CONCAT('SWAG-CUSTOMER-UUID-', customer_id) WHERE customer_id IS NOT NULL;
+UPDATE customer_address SET area_country_uuid = CONCAT('SWAG-AREA-COUNTRY-UUID-', area_country_id) WHERE area_country_id IS NOT NULL;
+UPDATE customer_address SET area_country_state_uuid = CONCAT('SWAG-AREA-COUNTRY-STATE-UUID-', area_country_state_id) WHERE area_country_state_id IS NOT NULL;
 UPDATE customer_address SET uuid = CONCAT('SWAG-CUSTOMER-ADDRESS-UUID-', id) WHERE id IS NOT NULL;
 UPDATE customer_address_attribute SET uuid = CONCAT('SWAG-CUSTOMER-ADDRESS-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
 UPDATE customer_address_attribute SET address_uuid = CONCAT('SWAG-CUSTOMER-ADDRESS-UUID-', address_id) WHERE address_id IS NOT NULL;
@@ -1663,8 +1665,8 @@ UPDATE media SET album_uuid = CONCAT('SWAG-ALBUM-UUID-', album_id) WHERE album_u
 UPDATE media_attribute SET uuid = CONCAT('SWAG-MEDIA-ATTRIBUTE-UUID-', id);
 UPDATE media_attribute SET media_uuid = CONCAT('SWAG-MEDIA-UUID-', media_id);
 UPDATE premium_product SET uuid = CONCAT('SWAG-PREMIUM-PRODUCT-UUID-', id) WHERE id IS NOT NULL;
-UPDATE premium_product SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
-# UPDATE premium_product SET product_detail_uuid = CONCAT('SWAG-PRODUCT-DETAIL-UUID-', (SELECT p.id FROM product p WHERE p.order_number = product_order_number));
+UPDATE premium_product SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL AND shop_id > 0;
+UPDATE premium_product SET product_detail_uuid = CONCAT('SWAG-PRODUCT-DETAIL-UUID-', (SELECT p.id FROM product_detail p WHERE p.order_number = product_order_number));
 UPDATE attribute_configuration SET uuid = CONCAT('SWAG-ATTRIBUTE-CONFIGURATION-UUID-', id) WHERE id IS NOT NULL;
 UPDATE blog SET uuid = CONCAT('SWAG-BLOG-UUID-', id) WHERE id IS NOT NULL;
 UPDATE blog SET category_uuid = CONCAT('SWAG-CATEGORY-UUID-', category_id) WHERE category_id IS NOT NULL;
@@ -1677,8 +1679,10 @@ UPDATE blog_media SET media_uuid = CONCAT('SWAG-MEDIA-UUID-', media_id) WHERE me
 UPDATE blog_media SET blog_uuid = CONCAT('SWAG-BLOG-UUID-', blog_id) WHERE blog_id IS NOT NULL;
 UPDATE blog_tag SET uuid = CONCAT('SWAG-BLOG-TAG-UUID-', id) WHERE id IS NOT NULL;
 UPDATE blog_tag SET blog_uuid = CONCAT('SWAG-BLOG-UUID-', blog_id) WHERE blog_id IS NOT NULL;
+UPDATE blog_product SET blog_uuid = CONCAT('SWAG-BLOG-UUID-', blog_id) WHERE blog_id IS NOT NULL;
+UPDATE blog_product SET product_uuid = CONCAT('SWAG-PRODUCT-UUID-', product_id) WHERE blog_id IS NOT NULL;
 UPDATE shop_page SET uuid = CONCAT('SWAG-SHOP-PAGE-UUID-', id) WHERE id IS NOT NULL;
-UPDATE shop_page SET parent_uuid = CONCAT('SWAG-SHOP-PAGE-UUID-', parent_id) WHERE parent_id IS NOT NULL;
+UPDATE shop_page SET parent_uuid = CONCAT('SWAG-SHOP-PAGE-UUID-', parent_id) WHERE parent_id IS NOT NULL AND parent_id > 0;
 UPDATE shop_page_attribute SET uuid = CONCAT('SWAG-SHOP-PAGE-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
 UPDATE shop_page_attribute SET shop_page_uuid = CONCAT('SWAG-SHOP-PAGE-UUID-', shop_page_id) WHERE shop_page_id IS NOT NULL;
 UPDATE shop_page_group SET uuid = CONCAT('SWAG-SHOP-PAGE-GROUP-UUID-', id) WHERE id IS NOT NULL;
@@ -1693,7 +1697,7 @@ UPDATE `user` SET locale_uuid = CONCAT('SWAG-LOCALE-UUID-', locale_id) WHERE loc
 UPDATE user_attribute SET uuid = CONCAT('SWAG-USER-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
 UPDATE user_attribute SET user_uuid = CONCAT('SWAG-USER-UUID-', user_id) WHERE user_id IS NOT NULL;
 UPDATE config_form_field SET uuid = CONCAT('SWAG-CONFIG-FORM-FIELD-UUID-', id) WHERE id IS NOT NULL;
-UPDATE config_form_field SET config_form_uuid = CONCAT('SWAG-CONFIG-FORM-UUID-', config_form_id) WHERE config_form_id IS NOT NULL;
+UPDATE config_form_field SET config_form_uuid = CONCAT('SWAG-CONFIG-FORM-UUID-', config_form_id) WHERE config_form_id IS NOT NULL AND config_form_id > 0;
 UPDATE config_form_field_translation SET uuid = CONCAT('SWAG-CFFT-UUID-', id) WHERE id IS NOT NULL;
 UPDATE config_form_field_translation SET config_form_field_uuid = CONCAT('SWAG-CONFIG-FORM-FIELD-UUID-', config_form_field_id) WHERE config_form_field_id IS NOT NULL;
 UPDATE config_form_field_translation SET locale_uuid = CONCAT('SWAG-LOCALE-UUID-', locale_id) WHERE locale_id IS NOT NULL;
@@ -1735,7 +1739,7 @@ UPDATE product p SET p.filter_group_uuid = CONCAT('SWAG-FILTER-GROUP-UUID-', p.f
 UPDATE product_also_bought_ro pabr SET pabr.product_uuid = CONCAT('SWAG-PRODUCT-UUID-',pabr.product_id) WHERE product_uuid  IS NOT NULL;
 UPDATE product_also_bought_ro pabr SET pabr.related_product_uuid = CONCAT('SWAG-PRODUCT-UUID-',pabr.related_product_id) WHERE related_product_uuid  IS NOT NULL;
 UPDATE product_attribute pa SET pa.uuid = CONCAT('SWAG-PRODUCT-ATTRIBUTE-UUID-', pa.id);
-# UPDATE product_attribute pa SET pa.product_detail_uuid = CONCAT('SWAG-PRODUCT-DETAIL-UUID-', pa.product_details_id);
+UPDATE product_attribute pa SET pa.product_detail_uuid = CONCAT('SWAG-PRODUCT-DETAIL-UUID-', pa.product_details_id);
 UPDATE log SET uuid = CONCAT('SWAG-LOG-UUID-', id) WHERE id IS NOT NULL;
 UPDATE payment_method SET uuid = CONCAT('SWAG-PAYMENT-METHOD-UUID-', id) WHERE id IS NOT NULL;
 UPDATE payment_method_attribute SET uuid = CONCAT('SWAG-PAYMENT-METHOD-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
@@ -1897,725 +1901,639 @@ CREATE UNIQUE INDEX `ui_shop_template_config_form.uuid` ON shop_template_config_
 CREATE UNIQUE INDEX `ui_shop_template_config_form_field_value.uuid` ON shop_template_config_form_field_value (uuid);
 CREATE UNIQUE INDEX `ui_unit.uuid` ON unit (uuid);
 
+-- Fixes for foreign keys
 
-# ALTER TABLE media_attribute
-#     ADD CONSTRAINT `fk_media_attribute.media_uuid`
-# FOREIGN KEY (media_uuid) REFERENCES media (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE media
-#     ADD CONSTRAINT `fk_media.album_uuid`
-# FOREIGN KEY (album_uuid) REFERENCES album (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE media
-#     ADD CONSTRAINT `fk_media.user_uuid`
-# FOREIGN KEY (user_uuid) REFERENCES user (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE album
-#     ADD CONSTRAINT `fk_album.parent_uuid`
-# FOREIGN KEY (parent_uuid) REFERENCES album (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shop
-#     ADD CONSTRAINT `fk_shop.main_uuid`
-# FOREIGN KEY (main_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shop
-#     ADD CONSTRAINT `fk_shop.shop_template_uuid`
-# FOREIGN KEY (shop_template_uuid) REFERENCES shop_template (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shop
-#     ADD CONSTRAINT `fk_shop.document_template_uuid`
-# FOREIGN KEY (document_template_uuid) REFERENCES shop_template (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shop
-#     ADD CONSTRAINT `fk_shop.category_uuid`
-# FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shop
-#     ADD CONSTRAINT `fk_shop.locale_uuid`
-# FOREIGN KEY (locale_uuid) REFERENCES locale (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shop
-#     ADD CONSTRAINT `fk_shop.currency_uuid`
-# FOREIGN KEY (currency_uuid) REFERENCES currency (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shop
-#     ADD CONSTRAINT `fk_shop.customer_group_uuid`
-# FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shop
-#     ADD CONSTRAINT `fk_shop.fallback_locale_uuid`
-# FOREIGN KEY (fallback_locale_uuid) REFERENCES locale (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shop
-#     ADD CONSTRAINT `fk_shop.payment_method_uuid`
-# FOREIGN KEY (payment_method_uuid) REFERENCES payment_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shop
-#     ADD CONSTRAINT `fk_shop.shipping_method_uuid`
-# FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shop
-#     ADD CONSTRAINT `fk_shop.area_country_uuid`
-# FOREIGN KEY (area_country_uuid) REFERENCES area_country (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE area_country
-#     ADD CONSTRAINT `fk_area_country.area_uuid`
-# FOREIGN KEY (area_uuid) REFERENCES area (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shopping_world_component
-#     ADD CONSTRAINT `fk_shopping_world_component.plugin_uuid`
-# FOREIGN KEY (plugin_uuid) REFERENCES plugin (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shopping_world_component_field
-#     ADD CONSTRAINT `fk_shopping_world_component_field.shopping_world_component_uuid`
-# FOREIGN KEY (shopping_world_component_uuid) REFERENCES shopping_world_component (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shipping_method
-#     ADD CONSTRAINT `fk_shipping_method.shop_uuid`
-# FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shipping_method
-#     ADD CONSTRAINT `fk_shipping_method.customer_group_uuid`
-# FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shipping_method_attribute
-#     ADD CONSTRAINT `fk_shipping_method_attribute.shipping_method_uuid`
-# FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shipping_method_category
-#     ADD CONSTRAINT `fk_shipping_method_category.shipping_method_uuid`
-# FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shipping_method_category
-#     ADD CONSTRAINT `fk_shipping_method_category.category_uuid`
-# FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shipping_method_country
-#     ADD CONSTRAINT `fk_shipping_method_country.area_country_uuid`
-# FOREIGN KEY (area_country_uuid) REFERENCES area_country (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shipping_method_country
-#     ADD CONSTRAINT `fk_shipping_method_area_country.shipping_method_uuid`
-# FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shipping_method_holiday
-#     ADD CONSTRAINT `fk_shipping_method_holiday.holiday_uuid`
-# FOREIGN KEY (holiday_uuid) REFERENCES holiday (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shipping_method_holiday
-#     ADD CONSTRAINT `fk_shipping_method_holiday.shipping_method_uuid`
-# FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shipping_method_payment_method
-#     ADD CONSTRAINT `fk_shipping_method_payment_method.payment_method_uuid`
-# FOREIGN KEY (payment_method_uuid) REFERENCES payment_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shipping_method_payment_method
-#     ADD CONSTRAINT `fk_shipping_method_payment_method.shipping_method_uuid`
-# FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shipping_method_price
-#     ADD CONSTRAINT `fk_shipping_method_price.shipping_method_uuid`
-# FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE product_stream
-#     ADD CONSTRAINT `fk_product_stream.listing_sorting_uuid`
-# FOREIGN KEY (listing_sorting_uuid) REFERENCES listing_sorting (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE product_stream_tab
-#     ADD CONSTRAINT `fk_product_stream_tab.product_stream_uuid`
-# FOREIGN KEY (product_stream_uuid) REFERENCES product_stream (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE product_stream_tab
-#     ADD CONSTRAINT `fk_product_stream_tab.product_uuid`
-# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE product_stream_attribute
-#     ADD CONSTRAINT `fk_product_stream_attribute.product_stream_uuid`
-# FOREIGN KEY (product_stream_uuid) REFERENCES product_stream (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE product_stream_assignment
-#     ADD CONSTRAINT `fk_product_stream_assignment.product_stream_uuid`
-# FOREIGN KEY (product_stream_uuid) REFERENCES product_stream (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE product_stream_assignment
-#     ADD CONSTRAINT `fk_product_stream_assignment.product_uuid`
-# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE statistic_product_impression
-#     ADD CONSTRAINT `fk_statistic_product_impression.product_uuid`
-# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE statistic_product_impression
-#     ADD CONSTRAINT `fk_statistic_product_impression.shop_uuid`
-# FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE statistic_current_customer
-#     ADD CONSTRAINT `fk_statistic_current_customer.customer_uuid`
-# FOREIGN KEY (customer_uuid) REFERENCES customer (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE statistic_search
-#     ADD CONSTRAINT `fk_statistic_search.shop_uuid`
-# FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE statistic_visitor
-#     ADD CONSTRAINT `fk_statistic_visitor.shop_uuid`
-# FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE customer
-#     ADD CONSTRAINT `fk_customer.last_payment_method_uuid`
-# FOREIGN KEY (last_payment_method_uuid) REFERENCES payment_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE customer
-#     ADD CONSTRAINT `fk_customer.customer_group_uuid`
-# FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE customer
-#     ADD CONSTRAINT `fk_customer.default_payment_method_uuid`
-# FOREIGN KEY (default_payment_method_uuid) REFERENCES payment_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE customer
-#     ADD CONSTRAINT `fk_customer.shop_uuid`
-# FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE customer
-#     ADD CONSTRAINT `fk_customer.main_shop_uuid`
-# FOREIGN KEY (main_shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE customer
-#     ADD CONSTRAINT `fk_customer.price_group_uuid`
-# FOREIGN KEY (price_group_uuid) REFERENCES price_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE customer
-#     ADD CONSTRAINT `fk_customer.default_billing_address_uuid`
-# FOREIGN KEY (default_billing_address_uuid) REFERENCES customer_address (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE customer
-#     ADD CONSTRAINT `fk_customer.default_shipping_address_uuid`
-# FOREIGN KEY (default_shipping_address_uuid) REFERENCES customer_address (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE customer_address
-#     ADD CONSTRAINT `fk_customer_address.customer_uuid`
-# FOREIGN KEY (customer_uuid) REFERENCES customer (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE customer_address
-#     ADD CONSTRAINT `fk_customer_address.area_country_uuid`
-# FOREIGN KEY (area_country_uuid) REFERENCES area_country (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE customer
-#     ADD CONSTRAINT `fk_customer.area_country_state_uuid`
-# FOREIGN KEY (area_country_state_uuid) REFERENCES area_country_state (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE customer_address_attribute
-#     ADD CONSTRAINT `fk_customer_address_attribute.customer_address_uuid`
-# FOREIGN KEY (customer_address_uuid) REFERENCES customer_address (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE customer_attribute
-#     ADD CONSTRAINT `fk_customer_attribute.customer_uuid`
-# FOREIGN KEY (customer_uuid) REFERENCES customer (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE product_avoid_customer_group
-#     ADD CONSTRAINT `fk_product_avoid_customer_group.product_uuid`
-# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#
-#     ADD CONSTRAINT `fk_product_avoid_customer_group.customer_group_uuid`
-# FOREIGN KEY (customer_group_uuid) REFERENCES s_core_customergroups (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_category
-#     ADD CONSTRAINT `fk_product_category.product_uuid`
-# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#
-#     ADD CONSTRAINT `fk_product_category.category_uuid`
-# FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_category_ro
-#     ADD CONSTRAINT `fk_product_category_ro.product_uuid`
-# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#
-#     ADD CONSTRAINT `fk_product_category_ro.category_uuid`
-# FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#
-#     ADD CONSTRAINT `fk_product_category_ro.parent_category_uuid`
-# FOREIGN KEY (parent_category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_category_seo
-#     ADD CONSTRAINT `fk_product_category_seo.shop_uuid`
-# FOREIGN KEY (shop_uuid) REFERENCES s_core_shops (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#
-#     ADD CONSTRAINT `fk_product_category_seo.product_uuid`
-# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#
-#     ADD CONSTRAINT `fk_product_category_seo.category_uuid`
-# FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_detail
-#     ADD CONSTRAINT `fk_product_detail.product_uuid`
-# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_attachment
-#     ADD CONSTRAINT `fk_product_attachment.product_uuid`
-# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_attachment_attribute
-#     ADD CONSTRAINT `fk_product_attachment_attribute.product_uuid`
-# FOREIGN KEY (product_attachment_uuid) REFERENCES product_attachment (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_esd
-#     ADD CONSTRAINT `fk_product_esd.product_uuid`
-# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_esd_attribute
-#     ADD CONSTRAINT `fk_product_esd_attribute.product_uuid`
-# FOREIGN KEY (product_esd_uuid) REFERENCES product_esd (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_esd_serial
-#     ADD CONSTRAINT `fk_product_esd_serial.product_uuid`
-# FOREIGN KEY (product_esd_uuid) REFERENCES product_esd (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_media
-#     ADD CONSTRAINT `fk_product_media.product_uuid`
-# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_media_attribute
-#     ADD CONSTRAINT `fk_product_media_attribute.product_uuid`
-# FOREIGN KEY (product_media_uuid) REFERENCES product_media (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_media_mapping
-#     ADD CONSTRAINT `fk_product_media_mapping.product_uuid`
-# FOREIGN KEY (product_media_uuid) REFERENCES product_media (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_link
-#     ADD CONSTRAINT `fk_product_link.product_uuid`
-# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_link_attribute
-#     ADD CONSTRAINT `fk_product_link_attribute.product_uuid`
-# FOREIGN KEY (product_link_uuid) REFERENCES product_link (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_manufacturer_attribute
-#     ADD CONSTRAINT `fk_product_manufacturer_attribute.product_uuid`
-# FOREIGN KEY (product_manufacturer_uuid) REFERENCES product_manufacturer (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_price
-#     ADD CONSTRAINT `fk_product_price.product_uuid`
-# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#
-#     ADD CONSTRAINT `fk_product_price.product_detail_uuid`
-# FOREIGN KEY (product_detail_uuid) REFERENCES product_detail (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_price_attribute
-#     ADD CONSTRAINT `fk_product_price_attribute.product_uuid`
-# FOREIGN KEY (product_price_uuid) REFERENCES product_price (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_accessory
-#     ADD CONSTRAINT `fk_product_accessory.product_uuid`
-# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#
-#     ADD CONSTRAINT `fk_product_accessory.related_product_uuid`
-# FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_similar
-#     ADD CONSTRAINT `fk_product_similar.product_uuid`
-# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#
-#     ADD CONSTRAINT `fk_product_similar.related_product_uuid`
-# FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_similar_shown_ro
-#     ADD CONSTRAINT `fk_product_similar_shown_ro.product_uuid`
-# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#
-#     ADD CONSTRAINT `fk_product_similar_shown_ro.related_product_uuid`
-# FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_top_seller_ro
-#     ADD CONSTRAINT `fk_product_top_seller_ro.product_uuid`
-# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE filter_attribute
-#     ADD CONSTRAINT `fk_filter_attribute.filter_uuid`
-# FOREIGN KEY (filter_uuid) REFERENCES filter (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE filter_value_attribute
-#     ADD CONSTRAINT `fk_filter_value_attribute.filter_value_uuid`
-# FOREIGN KEY (filter_value_uuid) REFERENCES filter_value (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE filter_option_attribute
-#     ADD CONSTRAINT `fk_filter_option_attribute.filter_value_uuid`
-# FOREIGN KEY (filter_option_uuid) REFERENCES filter_option (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_attribute
-#     ADD CONSTRAINT `fk_product_attribute.product_detail_uuid`
-# FOREIGN KEY (product_detail_uuid) REFERENCES product_detail (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_also_bought_ro
-#     ADD CONSTRAINT `fk_product_also_bought_ro.product_uuid`
-# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#     ADD CONSTRAINT `fk_product_also_bought_ro.related_product_uuid`
-# FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
+UPDATE media SET album_uuid = 'SWAG-ALBUM-UUID-1' WHERE album_uuid = 'SWAG-ALBUM-UUID-2';
+UPDATE media SET user_uuid = NULL;
+ALTER TABLE `shop`
+  ADD INDEX `parent_uuid` (`parent_uuid`),
+  ADD UNIQUE `uuid` (`uuid`);
+ALTER TABLE `statistic_search`
+  CHANGE `shop_uuid` `shop_uuid` varchar(42) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `shop_id`,
+  ADD INDEX `shop_uuid` (`shop_uuid`);
+ALTER TABLE `customer`
+  ADD INDEX `customer_group_uuid` (`customer_group_uuid`);
+UPDATE `customer` SET `customer_group_uuid` = '3294e6f6-372b-415f-ac73-71cbc191548f' WHERE `customer_group_uuid` = 'SWAG-CUSTOMER-GROUP-UUID-1';
+UPDATE `customer` SET `default_payment_method_uuid` = 'SWAG-PAYMENT-METHOD-UUID-2' WHERE `default_payment_method_uuid` = 'SWAG-PAYMENT-METHOD-UUID-0';
+ALTER TABLE `customer_address`
+  ADD INDEX `customer_uuid` (`customer_uuid`),
+  ADD INDEX `area_country_state_uuid` (`area_country_state_uuid`),
+  ADD INDEX `area_country_uuid` (`area_country_uuid`);
 
-# ALTER TABLE premium_product
-#     ADD CONSTRAINT `fk_premium_product.shop_uuid`
-# FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE premium_product
-#     ADD CONSTRAINT `fk_premium_product.product_detail_uuid`
-# FOREIGN KEY (product_detail_uuid) REFERENCES product_detail (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE blog
-#     ADD CONSTRAINT `fk_blog.category_uuid`
-# FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE blog_attribute
-#     ADD CONSTRAINT `fk_blog_attribute.blog_uuid`
-# FOREIGN KEY (blog_uuid) REFERENCES blog (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE blog_comment
-#     ADD CONSTRAINT `fk_blog_comment.blog_uuid`
-# FOREIGN KEY (blog_uuid) REFERENCES blog (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE blog_media
-#     ADD CONSTRAINT `fk_blog_media.media_uuid`
-# FOREIGN KEY (media_uuid) REFERENCES media (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE blog_media
-#     ADD CONSTRAINT `fk_blog_media.blog_uuid`
-# FOREIGN KEY (blog_uuid) REFERENCES blog (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE blog_tag
-#     ADD CONSTRAINT `fk_blog_tag.blog_uuid`
-# FOREIGN KEY (blog_uuid) REFERENCES blog (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shop_page
-#     ADD CONSTRAINT `fk_shop_page.shop_uuid`
-# FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shop_page
-#     ADD CONSTRAINT `fk_shop_page.parent_uuid`
-# FOREIGN KEY (parent_uuid) REFERENCES shop_page (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shop_page_attribute
-#     ADD CONSTRAINT `fk_shop_page_attribute.shop_page_uuid`
-# FOREIGN KEY (shop_page_uuid) REFERENCES shop_page (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shop_form_attribute
-#     ADD CONSTRAINT `fk_shop_form_attribute.shop_form_uuid`
-# FOREIGN KEY (shop_form_uuid) REFERENCES shop_form (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE shop_form_field
-#     ADD CONSTRAINT `fk_shop_form_field.shop_form_uuid`
-# FOREIGN KEY (shop_form_uuid) REFERENCES shop_form (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE `user`
-#     ADD CONSTRAINT `fk_user.locale_uuid`
-# FOREIGN KEY (locale_uuid) REFERENCES locale (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE user_attribute
-#     ADD CONSTRAINT `fk_user_attribute.user_uuid`
-# FOREIGN KEY (user_uuid) REFERENCES `user` (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE config_form_field
-#     ADD CONSTRAINT `fk_config_form_field.config_form_uuid`
-# FOREIGN KEY (config_form_uuid) REFERENCES config_form (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE config_form_field_translation
-#     ADD CONSTRAINT `fk_config_form_field_translation.config_form_field_uuid`
-# FOREIGN KEY (config_form_field_uuid) REFERENCES config_form_field (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE config_form_field_translation
-#     ADD CONSTRAINT `fk_config_form_field_translation.locale_uuid`
-# FOREIGN KEY (locale_uuid) REFERENCES locale (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE config_form
-#     ADD CONSTRAINT `fk_config_form.parent_uuid`
-# FOREIGN KEY (parent_uuid) REFERENCES config_form (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE config_form
-#     ADD CONSTRAINT `fk_config_form.plugin_uuid`
-# FOREIGN KEY (plugin_uuid) REFERENCES plugin (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE config_form_translation
-#     ADD CONSTRAINT `fk_config_form_translation.config_form_uuid`
-# FOREIGN KEY (config_form_uuid) REFERENCES config_form (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE config_form_translation
-#     ADD CONSTRAINT `fk_config_form_translation.locale_uuid`
-# FOREIGN KEY (locale_uuid) REFERENCES locale (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE mail
-#     ADD CONSTRAINT `fk_mail.order_state_uuid`
-# FOREIGN KEY (order_state_uuid) REFERENCES order_state (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE mail_attachment
-#     ADD CONSTRAINT `fk_mail_attachment.mail_uuid`
-# FOREIGN KEY (mail_uuid) REFERENCES mail (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE mail_attachment
-#     ADD CONSTRAINT `fk_mail_attachment.media_uuid`
-# FOREIGN KEY (media_uuid) REFERENCES media (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE mail_attachment
-#     ADD CONSTRAINT `fk_mail_attachment.shop_uuid`
-# FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE mail_attribute
-#     ADD CONSTRAINT `fk_mail_attribute.mail_uuid`
-# FOREIGN KEY (mail_uuid) REFERENCES mail (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE config_form_field_value
-#     ADD CONSTRAINT `fk_config_form_field_value.shop_uuid`
-# FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE area_country_attribute
-#     ADD CONSTRAINT `fk_area_country_attribute.area_country_uuid`
-# FOREIGN KEY (area_country_uuid) REFERENCES area_country (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE area_country_state
-#     ADD CONSTRAINT `fk_area_country_state.area_country_uuid`
-# FOREIGN KEY (area_country_uuid) REFERENCES area_country (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE area_country_state_attribute
-#     ADD CONSTRAINT `fk_area_country_state_attribute.area_country_state_uuid`
-# FOREIGN KEY (area_country_state_uuid) REFERENCES area_country_state (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE customer_group_attribute
-#     ADD CONSTRAINT `fk_customer_group_attribute.customer_group_uuid`
-# FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE customer_group_discount
-#     ADD CONSTRAINT `fk_customer_group_discount.customer_group_uuid`
-# FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-#
-# ALTER TABLE payment_method ADD CONSTRAINT `fk_payment_method.plugin_uuid` FOREIGN KEY (plugin_uuid) REFERENCES (uuid) plugin ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE payment_method_attribute ADD CONSTRAINT `fk_payment_method_attribute.payment_method_uuid` FOREIGN KEY (payment_method_uuid) REFERENCES (uuid) payment_method ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE payment_method_country ADD CONSTRAINT `fk_payment_method_country.area_country_uuid` FOREIGN KEY (area_country_uuid) REFERENCES (uuid) area_country ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE payment_method_country ADD CONSTRAINT `fk_payment_method_country.payment_method_uuid` FOREIGN KEY (payment_method_uuid) REFERENCES (uuid) payment_method ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE payment_method_shop ADD CONSTRAINT `fk_payment_method_shop.payment_method_uuid` FOREIGN KEY (payment_method_uuid) REFERENCES (uuid) payment_method ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE payment_method_shop ADD CONSTRAINT `fk_payment_method_shop.shop_uuid` FOREIGN KEY (shop_uuid) REFERENCES (uuid) shop ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE plugin_category ADD CONSTRAINT `fk_plugin_category.parent_uuid` FOREIGN KEY (parent_uuid) REFERENCES (uuid) parent ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE price_group_discount ADD CONSTRAINT `fk_price_group_discount.price_group_uuid` FOREIGN KEY (price_group_uuid) REFERENCES (uuid) price_group ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE price_group_discount ADD CONSTRAINT `fk_price_group_discount.customer_group_uuid` FOREIGN KEY (customer_group_uuid) REFERENCES (uuid) customer_group ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE shop_currency ADD CONSTRAINT `fk_shop_currency.shop_uuid` FOREIGN KEY (shop_uuid) REFERENCES (uuid) shop ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE shop_currency ADD CONSTRAINT `fk_shop_currency.currency_uuid` FOREIGN KEY (currency_uuid) REFERENCES (uuid) currency ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE shop_page_group_mapping ADD CONSTRAINT `fk_shop_page_group_mapping.shop_uuid` FOREIGN KEY (shop_uuid) REFERENCES (uuid) shop ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE shop_page_group_mapping ADD CONSTRAINT `fk_shop_page_group_mapping.shop_page_group_uuid` FOREIGN KEY (shop_page_group_uuid) REFERENCES (uuid) shop_page_group ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE snippet ADD CONSTRAINT `fk_snippet.shop_uuid` FOREIGN KEY (shop_uuid) REFERENCES (uuid) shop ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE tax_area_rule ADD CONSTRAINT `fk_tax_area_rule.area_country_uuid` FOREIGN KEY (area_country_uuid) REFERENCES (uuid) area_country ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE tax_area_rule ADD CONSTRAINT `fk_tax_area_rule.area_uuid` FOREIGN KEY (area_uuid) REFERENCES (uuid) area ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE tax_area_rule ADD CONSTRAINT `fk_tax_area_rule.area_country_state_uuid` FOREIGN KEY (area_country_state_uuid) REFERENCES (uuid) area_country_state ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE tax_area_rule ADD CONSTRAINT `fk_tax_area_rule.tax_uuid` FOREIGN KEY (tax_uuid) REFERENCES (uuid) tax ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE tax_area_rule ADD CONSTRAINT `fk_tax_area_rule.customer_group_uuid` FOREIGN KEY (customer_group_uuid) REFERENCES (uuid) customer_group ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE shop_template ADD CONSTRAINT `fk_shop_template.plugin_uuid` FOREIGN KEY (plugin_uuid) REFERENCES (uuid) plugin ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE shop_template ADD CONSTRAINT `fk_shop_template.parent_uuid` FOREIGN KEY (parent_uuid) REFERENCES (uuid) parent ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE shop_template_config_preset ADD CONSTRAINT `fk_shop_template_config_preset.shop_template_uuid` FOREIGN KEY (shop_template_uuid) REFERENCES (uuid) shop_template ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE shop_template_config_form_field ADD CONSTRAINT `fk_shop_template_config_form_field.shop_template_uuid` FOREIGN KEY (shop_template_uuid) REFERENCES (uuid) shop_template ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE shop_template_config_form_field ADD CONSTRAINT `fk_shop_template_config_form_field.shop_template_config_form_uuid` FOREIGN KEY (shop_template_config_form_uuid) REFERENCES (uuid) shop_template_config_form ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE shop_template_config_form ADD CONSTRAINT `fk_shop_template_config_form.parent_uuid` FOREIGN KEY (parent_uuid) REFERENCES (uuid) parent ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE shop_template_config_form ADD CONSTRAINT `fk_shop_template_config_form.shop_template_uuid` FOREIGN KEY (shop_template_uuid) REFERENCES (uuid) shop_template ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE shop_template_config_form_field_value ADD CONSTRAINT `fk_shop_template_config_form_field_value.shop_uuid` FOREIGN KEY (shop_uuid) REFERENCES (uuid) shop ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE shop_template_config_form_field_value ADD CONSTRAINT `fk_shop_template_config_form_field_value.shop_template_config_form_field_uuid` FOREIGN KEY (shop_template_config_form_field_uuid) REFERENCES (uuid) shop_template_config_form_field ON DELETE CASCADE ON UPDATE CASCADE;
-# ALTER TABLE `product`
-#     CHANGE COLUMN `name` `name` VARCHAR(255) NOT NULL AFTER `product_manufacturer_uuid`
-# ;
-#
-# ALTER TABLE product_avoid_customer_group
-#     ADD CONSTRAINT `fk_product_avoid_customer_group.product_uuid`
-#     FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#
-#     ADD CONSTRAINT `fk_product_avoid_customer_group.customer_group_uuid`
-#     FOREIGN KEY (customer_group_uuid) REFERENCES s_core_customergroups (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_category
-#     ADD CONSTRAINT `fk_product_category.product_uuid`
-#     FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#
-#     ADD CONSTRAINT `fk_product_category.category_uuid`
-#     FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_category_ro
-#     ADD CONSTRAINT `fk_product_category_ro.product_uuid`
-#     FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#
-#     ADD CONSTRAINT `fk_product_category_ro.category_uuid`
-#     FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#
-#     ADD CONSTRAINT `fk_product_category_ro.parent_category_uuid`
-#     FOREIGN KEY (parent_category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_category_seo
-#     ADD CONSTRAINT `fk_product_category_seo.shop_uuid`
-#     FOREIGN KEY (shop_uuid) REFERENCES s_core_shops (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#
-#     ADD CONSTRAINT `fk_product_category_seo.product_uuid`
-#     FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#
-#     ADD CONSTRAINT `fk_product_category_seo.category_uuid`
-#     FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_detail
-#     ADD CONSTRAINT `fk_product_detail.product_uuid`
-#     FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_download
-#     ADD CONSTRAINT `fk_product_download.product_uuid`
-#     FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_download_attribute
-#     ADD CONSTRAINT `fk_product_download_attribute.product_uuid`
-#     FOREIGN KEY (product_download_uuid) REFERENCES product_download (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_esd
-#     ADD CONSTRAINT `fk_product_esd.product_uuid`
-#     FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_esd_attribute
-#     ADD CONSTRAINT `fk_product_esd_attribute.product_uuid`
-#     FOREIGN KEY (product_esd_uuid) REFERENCES product_esd (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_esd_serial
-#     ADD CONSTRAINT `fk_product_esd_serial.product_uuid`
-#     FOREIGN KEY (product_esd_uuid) REFERENCES product_esd (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_image
-#     ADD CONSTRAINT `fk_product_image.product_uuid`
-#     FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_image_attribute
-#     ADD CONSTRAINT `fk_product_image_attribute.product_uuid`
-#     FOREIGN KEY (product_image_uuid) REFERENCES product_image (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_image_mapping
-#     ADD CONSTRAINT `fk_product_image_mapping.product_uuid`
-#     FOREIGN KEY (product_image_uuid) REFERENCES product_image (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_information
-#     ADD CONSTRAINT `fk_product_information.product_uuid`
-#     FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_information_attribute
-#     ADD CONSTRAINT `fk_product_information_attribute.product_uuid`
-#     FOREIGN KEY (product_information_uuid) REFERENCES product_information (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_manufacturer_attribute
-#     ADD CONSTRAINT `fk_product_manufacturer_attribute.product_uuid`
-#     FOREIGN KEY (product_manufacturer_uuid) REFERENCES product_manufacturer (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_price
-#     ADD CONSTRAINT `fk_product_price.product_uuid`
-#     FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#
-#     ADD CONSTRAINT `fk_product_price.product_detail_uuid`
-#     FOREIGN KEY (product_detail_uuid) REFERENCES product_detail (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_price_attribute
-#     ADD CONSTRAINT `fk_product_price_attribute.product_uuid`
-#     FOREIGN KEY (product_price_uuid) REFERENCES product_price (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_relationship
-#     ADD CONSTRAINT `fk_product_relationship.product_uuid`
-#     FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#
-#     ADD CONSTRAINT `fk_product_relationship.related_product_uuid`
-#     FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-#
-# ALTER TABLE product_similar
-#     ADD CONSTRAINT `fk_product_similar.product_uuid`
-#     FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#
-#     ADD CONSTRAINT `fk_product_similar.related_product_uuid`
-#     FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_similar_shown_ro
-#     ADD CONSTRAINT `fk_product_similar_shown_ro.product_uuid`
-#     FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-#
-#     ADD CONSTRAINT `fk_product_similar_shown_ro.related_product_uuid`
-#     FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_top_seller_ro
-#     ADD CONSTRAINT `fk_product_top_seller_ro.product_uuid`
-#     FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE filter_attribute
-#     ADD CONSTRAINT `fk_filter_attribute.filter_uuid`
-#     FOREIGN KEY (filter_uuid) REFERENCES filter (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE filter_value_attribute
-#     ADD CONSTRAINT `fk_filter_value_attribute.filter_value_uuid`
-#     FOREIGN KEY (filter_value_uuid) REFERENCES filter_value (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE filter_option_attribute
-#     ADD CONSTRAINT `fk_filter_option_attribute.filter_value_uuid`
-#     FOREIGN KEY (filter_option_uuid) REFERENCES filter_option (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product_translation
-#     ADD CONSTRAINT `fk_product_translation.product_uuid`
-# FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
-#     ADD CONSTRAINT `fk_product_translation.language_uuid`
-# FOREIGN KEY (`language_uuid`) REFERENCES `s_core_shops` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
-# ;
-#
-# ALTER TABLE product
-#     ADD CONSTRAINT `fk_product.tax_uuid`
-# FOREIGN KEY (`tax_uuid`) REFERENCES `s_core_tax` (`uuid`) ON DELETE RESTRICT ON UPDATE CASCADE,
-#     ADD CONSTRAINT `fk_product.product_manufacturer_uuid`
-# FOREIGN KEY (`product_manufacturer_uuid`) REFERENCES `product_manufacturer` (`uuid`) ON DELETE RESTRICT ON UPDATE CASCADE,
-#     ADD CONSTRAINT `fk_product.main_detail_uuid`
-# FOREIGN KEY (`main_detail_uuid`) REFERENCES `product_detail` (`uuid`) ON DELETE RESTRICT ON UPDATE CASCADE
-# ;
+ALTER TABLE `product_avoid_customer_group`
+  ADD UNIQUE `product_uuid_customer_group_uuid` (`product_uuid`, `customer_group_uuid`);
 
+DELETE FROM config_form_field_translation WHERE config_form_field_uuid = 'SWAG-CONFIG-FORM-FIELD-UUID-0';
+
+ALTER TABLE `customer_address_attribute`
+  ADD UNIQUE `address_uuid` (`address_uuid`);
+
+ALTER TABLE `product_category_seo`
+  ADD INDEX `shop_uuid_product_uuid` (`shop_uuid`, `product_uuid`),
+  ADD INDEX `category_uuid` (`category_uuid`);
+
+ALTER TABLE `product_price`
+  ADD INDEX `product_detail_uuid_from` (`product_detail_uuid`, `from`),
+  ADD INDEX `product_uuid` (`product_uuid`),
+  ADD INDEX `product_detail_uuid` (`product_detail_uuid`),
+  ADD INDEX `pricegroup_from_product_detail_uuid` (`pricegroup`, `from`, `product_detail_uuid`),
+  ADD INDEX `pricegroup_to_product_detail_uuid` (`pricegroup`, `to`, `product_detail_uuid`);
+
+ALTER TABLE `product_detail`
+  ADD UNIQUE `uuid` (`uuid`);
+
+ALTER TABLE `premium_product`
+  ADD INDEX `shop_uuid` (`shop_uuid`),
+  ADD INDEX `product_detail_uuid` (`product_detail_uuid`);
+
+ALTER TABLE `shop_page`
+  ADD INDEX `parent_uuid` (`parent_uuid`);
+
+ALTER TABLE `config_form_field`
+  ADD INDEX `config_form_uuid` (`config_form_uuid`);
+
+ALTER TABLE `config_form_field_translation`
+  ADD INDEX `config_form_field_uuid` (`config_form_field_uuid`);
+
+ALTER TABLE `config_form_translation`
+  ADD INDEX `config_form_uuid` (`config_form_uuid`);
+
+DELETE a FROM config_form_field_translation a LEFT JOIN config_form_field b on a.config_form_field_uuid = b.uuid WHERE b.uuid IS NULL;
+DELETE a FROM config_form_translation a LEFT JOIN config_form b on a.config_form_uuid = b.uuid WHERE b.uuid IS NULL;
+
+ALTER TABLE `mail_attachment`
+  CHANGE `uuid` `uuid` varchar(42) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `id`,
+  CHANGE `mail_uuid` `mail_uuid` varchar(42) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `mail_id`,
+  CHANGE `media_uuid` `media_uuid` varchar(42) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `media_id`,
+  CHANGE `shop_uuid` `shop_uuid` varchar(42) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `shop_id`,
+  ADD UNIQUE `mail_uuid` (`mail_uuid`),
+  ADD INDEX `media_uuid` (`media_uuid`),
+  ADD INDEX `shop_uuid` (`shop_uuid`),
+  ADD UNIQUE `mail_uuid_media_uuid_shop_uuid` (`mail_uuid`, `media_uuid`, `shop_uuid`);
+
+ALTER TABLE `plugin_category`
+  ADD INDEX `parent_uuid` (`parent_uuid`);
+
+ALTER TABLE `shop_template`
+  ADD INDEX `parent_uuid` (`parent_uuid`);
+
+ALTER TABLE `shop_template_config_form`
+  ADD INDEX `parent_uuid` (`parent_uuid`);
+-- END Fixes for foreign keys
+
+ALTER TABLE media_attribute
+    ADD CONSTRAINT `fk_media_attribute.media_uuid`
+FOREIGN KEY (media_uuid) REFERENCES media (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE media
+    ADD CONSTRAINT `fk_media.album_uuid`
+FOREIGN KEY (album_uuid) REFERENCES album (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE media
+    ADD CONSTRAINT `fk_media.user_uuid`
+FOREIGN KEY (user_uuid) REFERENCES user (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE album
+    ADD CONSTRAINT `fk_album.parent_uuid`
+FOREIGN KEY (parent_uuid) REFERENCES album (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shop
+    ADD CONSTRAINT `fk_shop.parent_uuid`
+FOREIGN KEY (parent_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shop
+    ADD CONSTRAINT `fk_shop.shop_template_uuid`
+FOREIGN KEY (shop_template_uuid) REFERENCES shop_template (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shop
+    ADD CONSTRAINT `fk_shop.document_template_uuid`
+FOREIGN KEY (document_template_uuid) REFERENCES shop_template (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shop
+    ADD CONSTRAINT `fk_shop.category_uuid`
+FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shop
+    ADD CONSTRAINT `fk_shop.locale_uuid`
+FOREIGN KEY (locale_uuid) REFERENCES locale (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shop
+    ADD CONSTRAINT `fk_shop.currency_uuid`
+FOREIGN KEY (currency_uuid) REFERENCES currency (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shop
+    ADD CONSTRAINT `fk_shop.customer_group_uuid`
+FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shop
+    ADD CONSTRAINT `fk_shop.fallback_locale_uuid`
+FOREIGN KEY (fallback_locale_uuid) REFERENCES locale (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shop
+    ADD CONSTRAINT `fk_shop.payment_method_uuid`
+FOREIGN KEY (payment_method_uuid) REFERENCES payment_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shop
+    ADD CONSTRAINT `fk_shop.shipping_method_uuid`
+FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shop
+    ADD CONSTRAINT `fk_shop.area_country_uuid`
+FOREIGN KEY (area_country_uuid) REFERENCES area_country (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE area_country
+    ADD CONSTRAINT `fk_area_country.area_uuid`
+FOREIGN KEY (area_uuid) REFERENCES area (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shopping_world_component
+    ADD CONSTRAINT `fk_shopping_world_component.plugin_uuid`
+FOREIGN KEY (plugin_uuid) REFERENCES plugin (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shopping_world_component_field
+    ADD CONSTRAINT `fk_shopping_world_component_field.shopping_world_component_uuid`
+FOREIGN KEY (shopping_world_component_uuid) REFERENCES shopping_world_component (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shipping_method
+    ADD CONSTRAINT `fk_shipping_method.shop_uuid`
+FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shipping_method
+    ADD CONSTRAINT `fk_shipping_method.customer_group_uuid`
+FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shipping_method_attribute
+    ADD CONSTRAINT `fk_shipping_method_attribute.shipping_method_uuid`
+FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shipping_method_category
+    ADD CONSTRAINT `fk_shipping_method_category.shipping_method_uuid`
+FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shipping_method_category
+    ADD CONSTRAINT `fk_shipping_method_category.category_uuid`
+FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shipping_method_country
+    ADD CONSTRAINT `fk_shipping_method_country.area_country_uuid`
+FOREIGN KEY (area_country_uuid) REFERENCES area_country (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shipping_method_country
+    ADD CONSTRAINT `fk_shipping_method_area_country.shipping_method_uuid`
+FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shipping_method_holiday
+    ADD CONSTRAINT `fk_shipping_method_holiday.holiday_uuid`
+FOREIGN KEY (holiday_uuid) REFERENCES holiday (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shipping_method_holiday
+    ADD CONSTRAINT `fk_shipping_method_holiday.shipping_method_uuid`
+FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shipping_method_payment_method
+    ADD CONSTRAINT `fk_shipping_method_payment_method.payment_method_uuid`
+FOREIGN KEY (payment_method_uuid) REFERENCES payment_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shipping_method_payment_method
+    ADD CONSTRAINT `fk_shipping_method_payment_method.shipping_method_uuid`
+FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shipping_method_price
+    ADD CONSTRAINT `fk_shipping_method_price.shipping_method_uuid`
+FOREIGN KEY (shipping_method_uuid) REFERENCES shipping_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE product_stream
+    ADD CONSTRAINT `fk_product_stream.listing_sorting_uuid`
+FOREIGN KEY (listing_sorting_uuid) REFERENCES listing_sorting (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE product_stream_tab
+    ADD CONSTRAINT `fk_product_stream_tab.product_stream_uuid`
+FOREIGN KEY (product_stream_uuid) REFERENCES product_stream (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE product_stream_tab
+    ADD CONSTRAINT `fk_product_stream_tab.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE product_stream_attribute
+    ADD CONSTRAINT `fk_product_stream_attribute.product_stream_uuid`
+FOREIGN KEY (product_stream_uuid) REFERENCES product_stream (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE product_stream_assignment
+    ADD CONSTRAINT `fk_product_stream_assignment.product_stream_uuid`
+FOREIGN KEY (product_stream_uuid) REFERENCES product_stream (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE product_stream_assignment
+    ADD CONSTRAINT `fk_product_stream_assignment.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE statistic_product_impression
+    ADD CONSTRAINT `fk_statistic_product_impression.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE statistic_product_impression
+    ADD CONSTRAINT `fk_statistic_product_impression.shop_uuid`
+FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE statistic_current_customer
+    ADD CONSTRAINT `fk_statistic_current_customer.customer_uuid`
+FOREIGN KEY (customer_uuid) REFERENCES customer (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE statistic_search
+    ADD CONSTRAINT `fk_statistic_search.shop_uuid`
+FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE statistic_visitor
+    ADD CONSTRAINT `fk_statistic_visitor.shop_uuid`
+FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE customer
+    ADD CONSTRAINT `fk_customer.last_payment_method_uuid`
+FOREIGN KEY (last_payment_method_uuid) REFERENCES payment_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE customer
+    ADD CONSTRAINT `fk_customer.customer_group_uuid`
+FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE customer
+    ADD CONSTRAINT `fk_customer.default_payment_method_uuid`
+FOREIGN KEY (default_payment_method_uuid) REFERENCES payment_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE customer
+    ADD CONSTRAINT `fk_customer.shop_uuid`
+FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE customer
+    ADD CONSTRAINT `fk_customer.main_shop_uuid`
+FOREIGN KEY (main_shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE customer
+    ADD CONSTRAINT `fk_customer.price_group_uuid`
+FOREIGN KEY (price_group_uuid) REFERENCES price_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE customer
+    ADD CONSTRAINT `fk_customer.default_billing_address_uuid`
+FOREIGN KEY (default_billing_address_uuid) REFERENCES customer_address (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE customer
+    ADD CONSTRAINT `fk_customer.default_shipping_address_uuid`
+FOREIGN KEY (default_shipping_address_uuid) REFERENCES customer_address (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE customer_address
+    ADD CONSTRAINT `fk_customer_address.customer_uuid`
+FOREIGN KEY (customer_uuid) REFERENCES customer (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE customer_address
+    ADD CONSTRAINT `fk_customer_address.area_country_uuid`
+FOREIGN KEY (area_country_uuid) REFERENCES area_country (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE customer_address_attribute
+  ADD CONSTRAINT `fk_customer_address_attribute.customer_address_uuid`
+FOREIGN KEY (address_uuid) REFERENCES customer_address (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE customer_attribute
+    ADD CONSTRAINT `fk_customer_attribute.customer_uuid`
+FOREIGN KEY (customer_uuid) REFERENCES customer (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE product_avoid_customer_group
+  ADD CONSTRAINT `fk_product_avoid_customer_group.product_uuid`
+    FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_product_avoid_customer_group.customer_group_uuid`
+    FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+ALTER TABLE product_category
+    ADD CONSTRAINT `fk_product_category.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+
+    ADD CONSTRAINT `fk_product_category.category_uuid`
+FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_category_ro
+    ADD CONSTRAINT `fk_product_category_ro.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+
+    ADD CONSTRAINT `fk_product_category_ro.category_uuid`
+FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+
+    ADD CONSTRAINT `fk_product_category_ro.parent_category_uuid`
+FOREIGN KEY (parent_category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_category_seo
+  ADD CONSTRAINT `fk_product_category_seo.shop_uuid`
+FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+
+  ADD CONSTRAINT `fk_product_category_seo.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+
+  ADD CONSTRAINT `fk_product_category_seo.category_uuid`
+FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_detail
+    ADD CONSTRAINT `fk_product_detail.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_attachment
+    ADD CONSTRAINT `fk_product_attachment.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_attachment_attribute
+    ADD CONSTRAINT `fk_product_attachment_attribute.product_uuid`
+FOREIGN KEY (product_attachment_uuid) REFERENCES product_attachment (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_esd
+    ADD CONSTRAINT `fk_product_esd.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_esd_attribute
+    ADD CONSTRAINT `fk_product_esd_attribute.product_uuid`
+FOREIGN KEY (product_esd_uuid) REFERENCES product_esd (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_esd_serial
+    ADD CONSTRAINT `fk_product_esd_serial.product_uuid`
+FOREIGN KEY (product_esd_uuid) REFERENCES product_esd (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_media
+    ADD CONSTRAINT `fk_product_media.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_media_attribute
+    ADD CONSTRAINT `fk_product_media_attribute.product_uuid`
+FOREIGN KEY (product_media_uuid) REFERENCES product_media (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_media_mapping
+    ADD CONSTRAINT `fk_product_media_mapping.product_uuid`
+FOREIGN KEY (product_media_uuid) REFERENCES product_media (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_link
+    ADD CONSTRAINT `fk_product_link.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_link_attribute
+    ADD CONSTRAINT `fk_product_link_attribute.product_uuid`
+FOREIGN KEY (product_link_uuid) REFERENCES product_link (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_manufacturer_attribute
+    ADD CONSTRAINT `fk_product_manufacturer_attribute.product_uuid`
+FOREIGN KEY (product_manufacturer_uuid) REFERENCES product_manufacturer (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_price
+    ADD CONSTRAINT `fk_product_price.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+
+    ADD CONSTRAINT `fk_product_price.product_detail_uuid`
+FOREIGN KEY (product_detail_uuid) REFERENCES product_detail (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_price_attribute
+    ADD CONSTRAINT `fk_product_price_attribute.product_uuid`
+FOREIGN KEY (product_price_uuid) REFERENCES product_price (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_accessory
+    ADD CONSTRAINT `fk_product_accessory.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+
+    ADD CONSTRAINT `fk_product_accessory.related_product_uuid`
+FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_similar
+    ADD CONSTRAINT `fk_product_similar.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+
+    ADD CONSTRAINT `fk_product_similar.related_product_uuid`
+FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_similar_shown_ro
+    ADD CONSTRAINT `fk_product_similar_shown_ro.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+
+    ADD CONSTRAINT `fk_product_similar_shown_ro.related_product_uuid`
+FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_top_seller_ro
+    ADD CONSTRAINT `fk_product_top_seller_ro.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE filter_attribute
+    ADD CONSTRAINT `fk_filter_attribute.filter_uuid`
+FOREIGN KEY (filter_uuid) REFERENCES filter (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE filter_value_attribute
+    ADD CONSTRAINT `fk_filter_value_attribute.filter_value_uuid`
+FOREIGN KEY (filter_value_uuid) REFERENCES filter_value (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE filter_option_attribute
+    ADD CONSTRAINT `fk_filter_option_attribute.filter_value_uuid`
+FOREIGN KEY (filter_option_uuid) REFERENCES filter_option (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_attribute
+    ADD CONSTRAINT `fk_product_attribute.product_detail_uuid`
+FOREIGN KEY (product_detail_uuid) REFERENCES product_detail (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE product_also_bought_ro
+    ADD CONSTRAINT `fk_product_also_bought_ro.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_product_also_bought_ro.related_product_uuid`
+FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
+ALTER TABLE premium_product
+    ADD CONSTRAINT `fk_premium_product.shop_uuid`
+FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE premium_product
+    ADD CONSTRAINT `fk_premium_product.product_detail_uuid`
+FOREIGN KEY (product_detail_uuid) REFERENCES product_detail (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE blog
+    ADD CONSTRAINT `fk_blog.category_uuid`
+FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE blog_attribute
+    ADD CONSTRAINT `fk_blog_attribute.blog_uuid`
+FOREIGN KEY (blog_uuid) REFERENCES blog (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE blog_comment
+    ADD CONSTRAINT `fk_blog_comment.blog_uuid`
+FOREIGN KEY (blog_uuid) REFERENCES blog (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE blog_media
+    ADD CONSTRAINT `fk_blog_media.media_uuid`
+FOREIGN KEY (media_uuid) REFERENCES media (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE blog_media
+    ADD CONSTRAINT `fk_blog_media.blog_uuid`
+FOREIGN KEY (blog_uuid) REFERENCES blog (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE blog_tag
+    ADD CONSTRAINT `fk_blog_tag.blog_uuid`
+FOREIGN KEY (blog_uuid) REFERENCES blog (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shop_page
+    ADD CONSTRAINT `fk_shop_page.parent_uuid`
+FOREIGN KEY (parent_uuid) REFERENCES shop_page (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shop_page_attribute
+    ADD CONSTRAINT `fk_shop_page_attribute.shop_page_uuid`
+FOREIGN KEY (shop_page_uuid) REFERENCES shop_page (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shop_form_attribute
+    ADD CONSTRAINT `fk_shop_form_attribute.shop_form_uuid`
+FOREIGN KEY (shop_form_uuid) REFERENCES shop_form (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE shop_form_field
+    ADD CONSTRAINT `fk_shop_form_field.shop_form_uuid`
+FOREIGN KEY (shop_form_uuid) REFERENCES shop_form (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `user`
+    ADD CONSTRAINT `fk_user.locale_uuid`
+FOREIGN KEY (locale_uuid) REFERENCES locale (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE user_attribute
+    ADD CONSTRAINT `fk_user_attribute.user_uuid`
+FOREIGN KEY (user_uuid) REFERENCES `user` (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE config_form_field
+    ADD CONSTRAINT `fk_config_form_field.config_form_uuid`
+FOREIGN KEY (config_form_uuid) REFERENCES config_form (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE config_form_field_translation
+    ADD CONSTRAINT `fk_config_form_field_translation.config_form_field_uuid`
+FOREIGN KEY (config_form_field_uuid) REFERENCES config_form_field (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE config_form_field_translation
+    ADD CONSTRAINT `fk_config_form_field_translation.locale_uuid`
+FOREIGN KEY (locale_uuid) REFERENCES locale (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE config_form
+    ADD CONSTRAINT `fk_config_form.parent_uuid`
+FOREIGN KEY (parent_uuid) REFERENCES config_form (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE config_form
+    ADD CONSTRAINT `fk_config_form.plugin_uuid`
+FOREIGN KEY (plugin_uuid) REFERENCES plugin (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE config_form_translation
+    ADD CONSTRAINT `fk_config_form_translation.config_form_uuid`
+FOREIGN KEY (config_form_uuid) REFERENCES config_form (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE config_form_translation
+    ADD CONSTRAINT `fk_config_form_translation.locale_uuid`
+FOREIGN KEY (locale_uuid) REFERENCES locale (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE mail
+    ADD CONSTRAINT `fk_mail.order_state_uuid`
+FOREIGN KEY (order_state_uuid) REFERENCES order_state (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE mail_attachment
+    ADD CONSTRAINT `fk_mail_attachment.mail_uuid`
+FOREIGN KEY (mail_uuid) REFERENCES mail (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE mail_attachment
+    ADD CONSTRAINT `fk_mail_attachment.media_uuid`
+FOREIGN KEY (media_uuid) REFERENCES media (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE mail_attachment
+    ADD CONSTRAINT `fk_mail_attachment.shop_uuid`
+FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE mail_attribute
+    ADD CONSTRAINT `fk_mail_attribute.mail_uuid`
+FOREIGN KEY (mail_uuid) REFERENCES mail (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE config_form_field_value
+    ADD CONSTRAINT `fk_config_form_field_value.shop_uuid`
+FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE area_country_attribute
+    ADD CONSTRAINT `fk_area_country_attribute.area_country_uuid`
+FOREIGN KEY (area_country_uuid) REFERENCES area_country (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE area_country_state
+    ADD CONSTRAINT `fk_area_country_state.area_country_uuid`
+FOREIGN KEY (area_country_uuid) REFERENCES area_country (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE area_country_state_attribute
+    ADD CONSTRAINT `fk_area_country_state_attribute.area_country_state_uuid`
+FOREIGN KEY (area_country_state_uuid) REFERENCES area_country_state (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE customer_group_attribute
+    ADD CONSTRAINT `fk_customer_group_attribute.customer_group_uuid`
+FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE customer_group_discount
+    ADD CONSTRAINT `fk_customer_group_discount.customer_group_uuid`
+FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE payment_method ADD CONSTRAINT `fk_payment_method.plugin_uuid` FOREIGN KEY (plugin_uuid) REFERENCES plugin (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE payment_method_attribute ADD CONSTRAINT `fk_payment_method_attribute.payment_method_uuid` FOREIGN KEY (payment_method_uuid) REFERENCES payment_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE payment_method_country ADD CONSTRAINT `fk_payment_method_country.area_country_uuid` FOREIGN KEY (area_country_uuid) REFERENCES area_country (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE payment_method_country ADD CONSTRAINT `fk_payment_method_country.payment_method_uuid` FOREIGN KEY (payment_method_uuid) REFERENCES payment_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE payment_method_shop ADD CONSTRAINT `fk_payment_method_shop.payment_method_uuid` FOREIGN KEY (payment_method_uuid) REFERENCES payment_method (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE payment_method_shop ADD CONSTRAINT `fk_payment_method_shop.shop_uuid` FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE plugin_category ADD CONSTRAINT `fk_plugin_category.parent_uuid` FOREIGN KEY (parent_uuid) REFERENCES plugin_category (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE price_group_discount ADD CONSTRAINT `fk_price_group_discount.price_group_uuid` FOREIGN KEY (price_group_uuid) REFERENCES price_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE price_group_discount ADD CONSTRAINT `fk_price_group_discount.customer_group_uuid` FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE shop_currency ADD CONSTRAINT `fk_shop_currency.shop_uuid` FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE shop_currency ADD CONSTRAINT `fk_shop_currency.currency_uuid` FOREIGN KEY (currency_uuid) REFERENCES currency (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE shop_page_group_mapping ADD CONSTRAINT `fk_shop_page_group_mapping.shop_uuid` FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE shop_page_group_mapping ADD CONSTRAINT `fk_shop_page_group_mapping.shop_page_group_uuid` FOREIGN KEY (shop_page_group_uuid) REFERENCES shop_page_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE snippet ADD CONSTRAINT `fk_snippet.shop_uuid` FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE tax_area_rule ADD CONSTRAINT `fk_tax_area_rule.area_country_uuid` FOREIGN KEY (area_country_uuid) REFERENCES area_country (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE tax_area_rule ADD CONSTRAINT `fk_tax_area_rule.area_uuid` FOREIGN KEY (area_uuid) REFERENCES area (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE tax_area_rule ADD CONSTRAINT `fk_tax_area_rule.area_country_state_uuid` FOREIGN KEY (area_country_state_uuid) REFERENCES area_country_state (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE tax_area_rule ADD CONSTRAINT `fk_tax_area_rule.tax_uuid` FOREIGN KEY (tax_uuid) REFERENCES tax (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE tax_area_rule ADD CONSTRAINT `fk_tax_area_rule.customer_group_uuid` FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE shop_template ADD CONSTRAINT `fk_shop_template.plugin_uuid` FOREIGN KEY (plugin_uuid) REFERENCES plugin (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE shop_template ADD CONSTRAINT `fk_shop_template.parent_uuid` FOREIGN KEY (parent_uuid) REFERENCES shop_template (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE shop_template_config_preset ADD CONSTRAINT `fk_shop_template_config_preset.shop_template_uuid` FOREIGN KEY (shop_template_uuid) REFERENCES shop_template (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE shop_template_config_form_field ADD CONSTRAINT `fk_shop_template_config_form_field.shop_template_uuid` FOREIGN KEY (shop_template_uuid) REFERENCES shop_template (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE shop_template_config_form_field ADD CONSTRAINT `fk_shop_template_cff.shop_template_config_form_uuid` FOREIGN KEY (shop_template_config_form_uuid) REFERENCES shop_template_config_form (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE shop_template_config_form ADD CONSTRAINT `fk_shop_template_config_form.parent_uuid` FOREIGN KEY (parent_uuid) REFERENCES shop_template_config_form (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE shop_template_config_form ADD CONSTRAINT `fk_shop_template_config_form.shop_template_uuid` FOREIGN KEY (shop_template_uuid) REFERENCES shop_template (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE shop_template_config_form_field_value ADD CONSTRAINT `fk_shop_template_cffv.shop_uuid` FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE shop_template_config_form_field_value ADD CONSTRAINT `fk_shop_template_cffv.shop_template_config_form_field_uuid` FOREIGN KEY (shop_template_config_form_field_uuid) REFERENCES shop_template_config_form_field (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `product` CHANGE COLUMN `name` `name` VARCHAR(255) NOT NULL AFTER `product_manufacturer_uuid`;
+ALTER TABLE `blog` ADD FOREIGN KEY (`user_uuid`) REFERENCES `user` (`uuid`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE `blog_product`
+    ADD INDEX `blog_uuid` (`blog_uuid`),
+    ADD INDEX `product_uuid` (`product_uuid`);
+
+ALTER TABLE `blog_product`
+    ADD FOREIGN KEY (`blog_uuid`) REFERENCES `blog` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `category`
+    ADD INDEX `media_uuid` (`media_uuid`),
+    ADD FOREIGN KEY (`media_uuid`) REFERENCES `media` (`uuid`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD FOREIGN KEY (`parent_uuid`) REFERENCES `category` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `category_avoid_customer_group`
+    ADD INDEX `customer_group_uuid` (`customer_group_uuid`),
+    ADD FOREIGN KEY (`category_uuid`) REFERENCES `category` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD FOREIGN KEY (`customer_group_uuid`) REFERENCES `customer_group` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;

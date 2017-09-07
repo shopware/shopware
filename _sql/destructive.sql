@@ -43,8 +43,9 @@ ALTER TABLE `product_category`
 ;
 
 ALTER TABLE product_price
---     DROP id,
-#     DROP FOREIGN KEY `fk_product_price.product_uuid`,
+    DROP id,
+    DROP FOREIGN KEY `fk_product_price.product_uuid`,
+    DROP FOREIGN KEY `fk_product_price.product_detail_uuid`,
   DROP product_uuid,
   DROP product_detail_id
 ;

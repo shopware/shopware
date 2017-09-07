@@ -80,7 +80,7 @@ class ProductController extends ApiController
     {
         $result = [];
         foreach ($context->getPayload() as $product) {
-            $result[] = $this->productRepository->create($product);
+//            $result[] = $this->productRepository->create($product);
         }
 
         return $this->createResponse($result, $context);
@@ -89,7 +89,7 @@ class ProductController extends ApiController
     /**
      * @Route("/product/{productUuid}.{responseFormat}", name="api.product.update", methods={"PUT"})
      */
-    public function updateAction(ApiContext $context): Response
+    public function updateAction(Request $request, ApiContext $context): Response
     {
         $result = [];
 
@@ -104,7 +104,7 @@ class ProductController extends ApiController
 //            $result[] = $this->productRepository->update($product);
 //        }
 
-        return $this->createResponse($result, $context);
+        return $this->detailAction($request, $context);
     }
 
     /**

@@ -1,0 +1,23 @@
+```
+- dist
+	- <plugin-name>.js (ggf. mit Map)
+	- <plugin-name>.css 
+- src
+	- assets
+	- components	
+		- atom
+		- molecule
+		- organism
+		- pages
+		- index.js
+	- decorator
+	- service / factory
+		- github.service.js 
+	- override  
+		- core.product.list.override.js 
+- manifest.js
+- package.json
+	- scripts
+		- build
+		- dev  
+```

@@ -1,6 +1,6 @@
 export default function createContext(context) {
-    const installationPath = getInstallationPath(context);
     const isDevMode = (process.env.NODE_ENV !== 'production');
+    const installationPath = getInstallationPath(context, isDevMode);
 
     return {
         installationPath,
@@ -9,8 +9,15 @@ export default function createContext(context) {
     };
 }
 
-function getInstallationPath(context) {
-    if (process.env.NODE_ENV !== 'production') {
+/**
+ * Provides the installation path of the application. The path provides the scheme, host and sub directory.
+ *
+ * @param {Object} context
+ * @param {Boolean} isDevMode
+ * @returns {string}
+ */
+function getInstallationPath(context, isDevMode) {
+    if (isDevMode) {
         return '';
     }
 
@@ -22,16 +29,30 @@ function getInstallationPath(context) {
     return fullPath;
 }
 
-function getApiPath(installationPath, isDevPath) {
-    if (isDevPath) {
-        return '';
+/**
+ * Provides the full path to the API end point of the application
+ *
+ * @param {String} installationPath
+ * @param {Boolean} isDevMode
+ * @returns {string}
+ */
+function getApiPath(installationPath, isDevMode) {
+    if (isDevMode) {
+        installationPath = process.env.BASE_PATH;
     }
 
     return `${installationPath}/api`;
 }
 
-function getAssetsPath(installationPath, isDevPath) {
-    if (isDevPath) {
+/**
+ * Provides the path to the assets directory.
+ *
+ * @param {String} installationPath
+ * @param {Boolean} isDevMode
+ * @returns {string}
+ */
+function getAssetsPath(installationPath, isDevMode) {
+    if (isDevMode) {
         return '';
     }
 

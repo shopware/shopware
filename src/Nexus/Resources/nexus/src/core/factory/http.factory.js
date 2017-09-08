@@ -12,9 +12,9 @@ export default {
     }, Promise.reject);
 } */
 
-function createClientWithToken(token, baseURL) {
+function createClientWithToken(token, context) {
     const httpClient = Axios.create({
-        baseURL: `${baseURL}/api`
+        baseURL: context.apiPath
     });
 
     // configureRequestCSRFInterceptor(httpClient, token);

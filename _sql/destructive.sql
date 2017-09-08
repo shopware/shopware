@@ -1,53 +1,601 @@
-ALTER TABLE product
-  DROP `manufacturer_id`,
-  DROP `tax_id`,
-  DROP `main_detail_id`,
-  DROP `filter_group_id`,
-  DROP `name`,
-  DROP `description`,
-  DROP `description_long`,
-  DROP `keywords`,
-  DROP `meta_title`,
-  DROP PRIMARY KEY,
-  DROP `id`,
-  DROP INDEX `ui_product.uuid`,
-  ADD PRIMARY KEY (`uuid`);
+-- DROP FOREIGN KEYS BEFORE DROPPING IDs
+ALTER TABLE area_country_attribute
+    DROP FOREIGN KEY `area_country_attribute_ibfk_1`
 ;
+
+ALTER TABLE area_country_state_attribute
+    DROP FOREIGN KEY `area_country_state_attribute_ibfk_1`
+;
+
+ALTER TABLE blog_attribute
+    DROP FOREIGN KEY `blog_attribute_ibfk_1`
+;
+
+ALTER TABLE category
+    DROP FOREIGN KEY `s_categories_fk_stream_id`
+;
+
+ALTER TABLE category_attribute
+    DROP FOREIGN KEY `category_attribute_ibfk_1`
+;
+
+ALTER TABLE customer_address
+    DROP FOREIGN KEY `customer_address_ibfk_1`,
+    DROP FOREIGN KEY `customer_address_ibfk_2`,
+    DROP FOREIGN KEY `customer_address_ibfk_3`
+;
+
+ALTER TABLE customer_address_attribute
+    DROP FOREIGN KEY `customer_address_attribute_ibfk_1`
+;
+
+ALTER TABLE customer_attribute
+    DROP FOREIGN KEY `customer_attribute_ibfk_1`
+;
+
+ALTER TABLE customer_group_attribute
+    DROP FOREIGN KEY `customer_group_attribute_ibfk_1`
+;
+
+ALTER TABLE filter_attribute
+    DROP FOREIGN KEY `filter_attribute_ibfk_1`
+;
+
+ALTER TABLE filter_option_attribute
+    DROP FOREIGN KEY `filter_option_attribute_ibfk_1`
+;
+
+ALTER TABLE filter_value_attribute
+    DROP FOREIGN KEY `filter_value_attribute_ibfk_1`
+;
+
+ALTER TABLE mail_attribute
+    DROP FOREIGN KEY `mail_attribute_ibfk_1`
+;
+
+ALTER TABLE mail
+    DROP FOREIGN KEY `mail_ibfk_1`
+;
+
+ALTER TABLE media_attribute
+    DROP FOREIGN KEY `media_attribute_ibfk_1`
+;
+
+ALTER TABLE payment_method_attribute
+    DROP FOREIGN KEY `payment_method_attribute_ibfk_1`
+;
+
+ALTER TABLE payment_method_shop
+    DROP FOREIGN KEY `payment_method_shop_ibfk_1`
+;
+
+ALTER TABLE product_attachment_attribute
+    DROP FOREIGN KEY `product_attachment_attribute_ibfk_1`
+;
+
+-- ALTER TABLE product_configurator_group_attribute
+--     DROP FOREIGN KEY `product_configurator_group_attribute_ibfk_1`
+-- ;
+--
+-- ALTER TABLE product_configurator_option_attribute
+--     DROP FOREIGN KEY `product_configurator_option_attribute_ibfk_1`
+-- ;
+--
+-- ALTER TABLE product_configurator_template_attribute
+--     DROP FOREIGN KEY `product_configurator_template_attribute_ibfk_1`
+-- ;
+--
+-- ALTER TABLE product_configurator_template_price_attribute
+--     DROP FOREIGN KEY `product_configurator_template_price_attribute_ibfk_1`
+-- ;
+
+ALTER TABLE product_esd_attribute
+    DROP FOREIGN KEY `product_esd_attribute_ibfk_1`
+;
+
+ALTER TABLE product_link_attribute
+    DROP FOREIGN KEY `product_link_attribute_ibfk_1`
+;
+
+ALTER TABLE product_manufacturer_attribute
+    DROP FOREIGN KEY `product_manufacturer_attribute_ibfk_1`
+;
+
+ALTER TABLE product_media_attribute
+    DROP FOREIGN KEY `product_media_attribute_ibfk_1`
+;
+
+ALTER TABLE product_price_attribute
+    DROP FOREIGN KEY `product_price_attribute_ibfk_1`
+;
+
+ALTER TABLE product_stream_assignment
+    DROP FOREIGN KEY `s_product_streams_selection_fk_article_id`,
+    DROP FOREIGN KEY `s_product_streams_selection_fk_stream_id`
+;
+
+ALTER TABLE product_stream_attribute
+    DROP FOREIGN KEY `product_stream_attribute_ibfk_1`
+;
+
+ALTER TABLE product_stream_tab
+    DROP FOREIGN KEY `s_product_streams_articles_fk_article_id`,
+    DROP FOREIGN KEY `s_product_streams_articles_fk_stream_id`
+;
+
+-- DROP IDs
+ALTER TABLE album
+    DROP `id`,
+    DROP `parent_id`
+;
+
+ALTER TABLE area
+    DROP `id`
+;
+
+ALTER TABLE area_country
+    DROP `id`,
+    DROP `area_id`
+;
+
+ALTER TABLE area_country_attribute
+    DROP `id`,
+    DROP `area_country_id`
+;
+
+ALTER TABLE area_country_state
+    DROP `id`,
+    DROP `area_country_id`
+;
+
+ALTER TABLE attribute_configuration
+    DROP `id`
+;
+
+ALTER TABLE blog
+    DROP `id`,
+    DROP `user_id`,
+    DROP `category_id`
+;
+
+ALTER TABLE blog_attribute
+    DROP `id`,
+    DROP `blog_id`
+;
+
+ALTER TABLE blog_comment
+    DROP `id`,
+    DROP `blog_id`
+;
+
+ALTER TABLE blog_media
+    DROP `id`,
+    DROP `blog_id`,
+    DROP `media_id`
+;
+
+ALTER TABLE blog_product
+    DROP `id`,
+    DROP `blog_id`,
+    DROP `product_id`
+;
+
+ALTER TABLE blog_tag
+    DROP `id`,
+    DROP `blog_id`
+;
+
+ALTER TABLE category
+    DROP `id`,
+    DROP `parent_id`,
+    DROP `media_id`,
+    DROP `product_stream_id`
+--    DROP `level // todo: still required?
+;
+
+ALTER TABLE category_attribute
+    DROP `id`,
+    DROP `category_id`
+;
+
+ALTER TABLE category_avoid_customer_group
+    DROP `category_id`,
+    DROP `customer_group_id`
+;
+
+ALTER TABLE config_form
+    DROP `id`,
+    DROP `parent_id`,
+    DROP `plugin_id`
+;
+
+ALTER TABLE config_form_field
+    DROP `id`,
+    DROP `config_form_id`
+;
+
+ALTER TABLE config_form_field_translation
+    DROP `id`,
+    DROP `config_form_field_id`,
+    DROP `locale_id`
+;
+
+ALTER TABLE config_form_field_value
+    DROP `id`,
+    DROP `config_form_field_id`, -- todo: still empty -> migrate uuid!!
+    DROP `shop_id`
+;
+
+ALTER TABLE config_form_translation
+    DROP `id`,
+    DROP `config_form_id`,
+    DROP `locale_id`
+;
+
+ALTER TABLE currency
+    DROP `id`
+;
+
+ALTER TABLE customer
+    DROP `id`,
+    DROP `last_payment_method_id`,
+    DROP `default_payment_method_id`,
+    DROP `shop_id`,
+    DROP `main_shop_id`,
+    DROP `price_group_id`,
+    DROP `default_billing_address_id`,
+    DROP `default_shipping_address_id`
+;
+
+ALTER TABLE customer_address
+    DROP `id`,
+    DROP `customer_id`
+    #DROP `area_country_id`,
+    #DROP `area_country_state_id`
+;
+
+ALTER TABLE customer_address_attribute
+    DROP `id`,
+    DROP `address_id`
+;
+
+ALTER TABLE customer_attribute
+    DROP `id`,
+    DROP `customer_id`
+;
+
+ALTER TABLE customer_group
+    DROP `id`
+;
+
+ALTER TABLE customer_group_attribute
+    DROP `id`,
+    DROP `customer_group_id`
+;
+
+ALTER TABLE customer_group_discount
+    DROP `id`,
+    DROP `customer_group_id`
+;
+
+ALTER TABLE filter
+    DROP `id`
+;
+
+ALTER TABLE filter_attribute
+    DROP `id`,
+    DROP `filter_id`
+;
+
+ALTER TABLE filter_option
+    DROP `id`
+;
+
+ALTER TABLE filter_option_attribute
+    DROP `id`,
+    DROP `option_id`
+;
+
+ALTER TABLE filter_product
+    DROP `product_id`,
+    DROP `value_id`
+;
+
+ALTER TABLE filter_relation
+    DROP `id`,
+    DROP `group_id`,
+    DROP `option_id`
+;
+
+ALTER TABLE filter_value
+    DROP `id`,
+    DROP `option_id`,
+    DROP `media_id`
+;
+
+ALTER TABLE filter_value_attribute
+    DROP `id`,
+    DROP `value_id`
+;
+
+ALTER TABLE holiday
+    DROP `id`
+;
+
+ALTER TABLE listing_facet
+    DROP `id`
+;
+
+ALTER TABLE listing_sorting
+    DROP `id`
+;
+
+ALTER TABLE locale
+    DROP `id`
+;
+
+ALTER TABLE log
+    DROP `id`
+;
+
+ALTER TABLE mail
+    DROP `id`,
+    DROP `order_state_id`
+;
+
+ALTER TABLE mail_attachment
+    DROP `id`,
+    DROP `mail_id`,
+    DROP `media_id`,
+    DROP `shop_id`
+;
+
+ALTER TABLE mail_attribute
+    DROP `id`,
+    DROP `mail_id`
+;
+
+ALTER TABLE media
+    DROP `id`,
+    DROP `album_id`,
+    DROP `user_id`,
+    DROP `extension`,
+    DROP `width`,
+    DROP `height`
+;
+
+ALTER TABLE media_attribute
+    DROP `id`,
+    DROP `media_id`
+;
+
+ALTER TABLE order_state
+    DROP `id`
+;
+
+ALTER TABLE payment_method
+    DROP `id`,
+    DROP `plugin_id`
+;
+
+ALTER TABLE payment_method_attribute
+    DROP `id`,
+    DROP `payment_method_id`
+;
+
+ALTER TABLE payment_method_country
+    DROP `payment_method_id`,
+    DROP `area_country_id`
+;
+
+ALTER TABLE payment_method_shop
+    DROP `payment_method_id`,
+    DROP `shop_id`
+;
+
+DELETE FROM plugin WHERE namespace != 'ShopwarePlugins';
+
+ALTER TABLE plugin
+    DROP `id`,
+    DROP `namespace`,
+    DROP `source`
+;
+
+ALTER TABLE plugin_category
+    DROP `id`,
+    DROP `parent_id`
+;
+
+ALTER TABLE premium_product
+    DROP `id`,
+    DROP `shop_id`
+;
+
+ALTER TABLE price_group
+    DROP `id`
+;
+
+ALTER TABLE price_group_discount
+    DROP `id`,
+    DROP `price_group_id`,
+    DROP `customer_group_id`
+;
+
+ALTER TABLE product
+-- `price_group_id` // todo: not migrated yet > still required?
+-- `configurator_set_id` // todo: not migrated yet > still required?
+    DROP `manufacturer_id`,
+    DROP `tax_id`,
+    DROP `main_detail_id`,
+    DROP `filter_group_id`,
+    DROP `name`,
+    DROP `description`,
+    DROP `description_long`,
+    DROP `keywords`,
+    DROP `meta_title`,
+    DROP PRIMARY KEY,
+    DROP `id`,
+    DROP INDEX `ui_product.uuid`,
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE product_accessory
+    DROP `id`,
+    DROP `product_id`,
+    DROP `related_product`
+;
+
+--     product_also_bought_ro missing here // todo: migrate?
+
+ALTER TABLE product_attachment
+    DROP `id`,
+    DROP `product_id`
+;
+
+ALTER TABLE product_attachment_attribute
+    DROP `id`,
+    DROP `product_attachment`
+;
+
+ALTER TABLE product_attribute
+    DROP `id`,
+    DROP `product_details_id`,
+    DROP `articleID`
+;
+
+ALTER TABLE product_avoid_customer_group
+    DROP `product_id`,
+    DROP `customer_group_id`
+;
+
+ALTER TABLE product_category
+  DROP `id`,
+  DROP `uuid`,
+  DROP `product_id`,
+  DROP `category_id`,
+  ADD PRIMARY KEY (`product_uuid`, `category_uuid`)
+;
+
+ALTER TABLE product_category_ro
+    DROP INDEX `articleID`,
+    DROP INDEX `articleID_2`,
+    DROP INDEX `categoryID`,
+    DROP INDEX `categoryID_2`,
+    DROP INDEX `category_id_by_article_id`,
+    DROP INDEX `elastic_search`,
+    DROP `id`,
+    DROP `category_id`,
+    DROP `parent_category_id`,
+    DROP `product_id`,
+    DROP `uuid`,
+    ADD PRIMARY KEY (`product_uuid`, `category_uuid`, `parent_category_uuid`)
+;
+
+ALTER TABLE product_category_seo
+-- todo: id not migrated to uuid yet
+    DROP `shop_id`,
+    DROP `product_id`,
+    DROP `category_id`
+;
+
+-- ALTER product_configurator_dependency
+--     DROP `id`
+-- ;
+
+-- ALTER TABLE product_configurator_group
+--     DROP `id`
+-- ;
 
 UPDATE product_detail SET
   uuid = order_number
 ;
 
 ALTER TABLE product_detail
-  DROP `product_id`,
-  DROP `order_number`
+    DROP `id`,
+    DROP `unit_id`,
+    DROP `product_id`,
+    DROP `order_number`
 ;
 
 ALTER TABLE product_attribute
   DROP COLUMN articleID
 ;
 
-ALTER TABLE product_translation
-  DROP `id`,
-  DROP `uuid`,
-  DROP `product_id`,
-  DROP `language_id`,
-  DROP `description_clear`;
+ALTER TABLE product_esd
+    DROP `id`,
+    DROP `product_id`,
+    DROP `product_detail_id`
+;
 
-ALTER TABLE `product_category`
-  DROP id,
-  DROP uuid,
-  DROP product_id,
-  DROP category_id,
-  ADD PRIMARY KEY (`product_uuid`, `category_uuid`)
+ALTER TABLE product_esd_attribute
+    DROP `id`,
+    DROP `esd_id`
+;
+
+ALTER TABLE product_esd_serial
+    DROP `id`,
+    DROP `esd_id`
+;
+
+ALTER TABLE product_link
+    DROP `id`,
+    DROP `product_id`
+;
+
+ALTER TABLE product_link_attribute
+    DROP `id`,
+    DROP `information_id`
+;
+
+ALTER TABLE product_manufacturer
+    DROP `id`
+;
+
+ALTER TABLE product_manufacturer_attribute
+    DROP `id`,
+    DROP `manufacturer_id`
+;
+
+ALTER TABLE product_media
+    DROP `id`,
+    DROP `product_id`,
+    DROP `product_detail_id`
+--     todo: handle parent_id -> migration?
+--           media_id ?
+;
+
+ALTER TABLE product_media_attribute
+    DROP `id`,
+    DROP `image_id`
+;
+
+ALTER TABLE product_media_mapping
+    DROP `id`,
+    DROP `image_id`
+;
+
+ALTER TABLE product_media_mapping_rule
+    DROP `id`,
+    DROP `mapping_id`
+--     todo: option_id
+;
+
+ALTER TABLE product_notification
+    DROP `id`
 ;
 
 ALTER TABLE product_price
-    DROP id,
+    DROP `id`,
+    DROP `product_id`,
     DROP FOREIGN KEY `fk_product_price.product_uuid`,
     DROP FOREIGN KEY `fk_product_price.product_detail_uuid`,
-  DROP product_uuid,
-  DROP product_detail_id
+    DROP `product_uuid`,
+    DROP `product_detail_id`
+;
+
+ALTER TABLE product_price_attribute
+    DROP `id`,
+    DROP `price_id`
 ;
 
 ALTER TABLE `product_category_ro`
@@ -61,33 +609,76 @@ ALTER TABLE `product_category_ro`
   DROP COLUMN category_id,
   DROP COLUMN parent_category_id,
   DROP COLUMN product_id,
-  DROP COLUMN uuid
+  DROP COLUMN uuid,
+    ADD PRIMARY KEY (product_uuid, category_uuid, parent_category_uuid)
 ;
 
-ALTER TABLE product_category_ro
-  ADD PRIMARY KEY (product_uuid, category_uuid, parent_category_uuid);
+ALTER TABLE product_similar
+    DROP `id`,
+    DROP `product_id`,
+    DROP `related_product`
+;
 
+ALTER TABLE product_similar_shown_ro -- todo: all migrated?
+    DROP `id`,
+    DROP `product_id`,
+    DROP `related_product_id`
+;
 
-# ALTER TABLE category_attribute
-#     DROP FOREIGN KEY category_attribute_ibfk_1,
-#     DROP id,
-#     DROP category_id
-# ;
+ALTER TABLE product_stream
+    DROP `id`,
+    DROP `listing_sorting_id`
+;
 
-# ALTER TABLE category
-#     DROP COLUMN id,
-#     DROP COLUMN parent,
-#     DROP COLUMN level,
-#     DROP COLUMN media_id
-# ;
+ALTER TABLE product_stream_assignment
+    DROP `id`,
+    DROP `product_stream_id`,
+    DROP `product_id`
+;
+
+ALTER TABLE product_stream_attribute
+    DROP `id`,
+    DROP `product_stream_id`
+;
+
+ALTER TABLE product_stream_tab
+    DROP `id`,
+    DROP `product_stream_id`,
+    DROP `product_id`
+;
+
+ALTER TABLE product_top_seller_ro
+    DROP `id`,
+    DROP `product_id`
+;
+
+ALTER TABLE product_translation
+    DROP `id`,
+    DROP `uuid`,
+    DROP `product_id`,
+    DROP `language_id`,
+    DROP `description_clear`
+;
+
+ALTER TABLE product_vote
+    DROP `id`,
+    DROP `product_id`,
+    DROP `shop_id`
+;
+
+ALTER TABLE seo_url
+    DROP `id`
+;
+
 
 DROP TABLE IF EXISTS `s_core_sessions`;
 
 ALTER TABLE media
-  DROP `extension`,
-  DROP `width`,
-  DROP `height`
+    DROP `extension`,
+    DROP `width`,
+    DROP `height`
 ;
+
 ALTER TABLE `snippet` DROP INDEX `namespace`;
 ALTER TABLE `snippet` DROP locale_id;
 

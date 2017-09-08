@@ -27,7 +27,7 @@ namespace Shopware\Framework\Config;
 
 interface ConfigServiceInterface
 {
-    public function getByShop(int $shopId, ?int $parentId): array;
+    public function getByShop(string $shopUuid, ?string $parentUuid): array;
 
     public function hydrate(array $config): array;
 }

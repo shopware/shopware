@@ -1842,6 +1842,7 @@ UPDATE mail_attribute SET uuid = CONCAT('SWAG-MAIL-ATTRIBUTE-UUID-', id) WHERE i
 UPDATE mail_attribute SET mail_uuid = CONCAT('SWAG-MAIL-UUID-', mail_id) WHERE mail_id IS NOT NULL;
 UPDATE config_form_field_value SET uuid = CONCAT('SWAG-CONFIG-FORM-FIELD-VALUE-UUID-', id) WHERE id IS NOT NULL;
 UPDATE config_form_field_value SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
+UPDATE config_form_field_value SET config_form_field_uuid = CONCAT('SWAG-CONFIG-FORM-FIELD-UUID-', config_form_field_id) WHERE config_form_field_id IS NOT NULL;
 UPDATE area SET uuid = CONCAT('SWAG-AREA-UUID-', id) WHERE id IS NOT NULL;
 UPDATE area_country_attribute SET uuid = CONCAT('SWAG-AREA-COUNTRY-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
 UPDATE area_country_attribute SET area_country_uuid = CONCAT('SWAG-AREA-COUNTRY-UUID-', area_country_id) WHERE area_country_id IS NOT NULL;

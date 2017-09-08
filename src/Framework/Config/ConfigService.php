@@ -40,7 +40,7 @@ class ConfigService implements ConfigServiceInterface
         $this->connection = $connection;
     }
 
-    public function getByShop(int $shopId, ?int $parentId): array
+    public function getByShop(string $shopUuid, ?string $parentUuid): array
     {
         $builder = $this->connection->createQueryBuilder();
 
@@ -49,13 +49,13 @@ class ConfigService implements ConfigServiceInterface
                 'COALESCE(currentShop.value, parentShop.value, fallbackShop.value, e.value) as value',
             ])
             ->from('config_form_field', 'e')
-            ->leftJoin('e', 'config_form_field_value', 'currentShop', 'currentShop.config_form_field_id = e.id AND currentShop.shop_id = :currentShopId')
-            ->leftJoin('e', 'config_form_field_value', 'parentShop', 'parentShop.config_form_field_id = e.id AND parentShop.shop_id = :parentShopId')
-            ->leftJoin('e', 'config_form_field_value', 'fallbackShop', 'fallbackShop.config_form_field_id = e.id AND fallbackShop.shop_id = :fallbackShopId')
-            ->leftJoin('e', 'config_form', 'forms', 'forms.id = e.config_form_id')
-            ->setParameter('fallbackShopId', 1)
-            ->setParameter('currentShopId', $shopId)
-            ->setParameter('parentShopId', $parentId ?: 1)
+            ->leftJoin('e', 'config_form_field_value', 'currentShop', 'currentShop.config_form_field_uuid = e.uuid AND currentShop.shop_uuid = :currentShopUuid')
+            ->leftJoin('e', 'config_form_field_value', 'parentShop', 'parentShop.config_form_field_uuid = e.uuid AND parentShop.shop_uuid = :parentShopUuid')
+            ->leftJoin('e', 'config_form_field_value', 'fallbackShop', 'fallbackShop.config_form_field_uuid = e.uuid AND fallbackShop.shop_uuid = :fallbackShopUuid')
+            ->leftJoin('e', 'config_form', 'forms', 'forms.uuid = e.config_form_uuid')
+            ->setParameter('fallbackShopUuid', 'SWAG-SHOP-UUID-1')
+            ->setParameter('currentShopUuid', $shopUuid)
+            ->setParameter('parentShopUuid', $parentUuid ?: 'SWAG-SHOP-UUID-1')
         ;
 
         $data = $builder->execute()->fetchAll(\PDO::FETCH_KEY_PAIR);

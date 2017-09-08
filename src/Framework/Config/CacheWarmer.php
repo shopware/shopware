@@ -60,8 +60,8 @@ class CacheWarmer implements CacheWarmerInterface
 
         foreach ($shops as $shop) {
             $this->configService->getByShop(
-                (int) $shop['id'],
-                $shop['main_id'] ? (int) $shop['main_id'] : null
+                (string) $shop['uuid'],
+                $shop['parent_uuid'] ? (string) $shop['parent_uuid'] : null
             );
         }
     }

@@ -17,8 +17,6 @@ UPDATE s_articles_prices SET `to` = 0 WHERE `to` = 'beliebig';
 
 
 
-
-
 -- change structure
 
 
@@ -385,6 +383,8 @@ ALTER TABLE s_articles_top_seller_ro
 
 ALTER TABLE s_articles_translations
     RENAME TO product_translation,
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11) NULL,
     CHANGE articleID product_id INT(11) NOT NULL,
     CHANGE languageID language_id INT(11) NOT NULL,
     CHANGE attr1 attr1 VARCHAR(255) NULL,
@@ -1684,26 +1684,6 @@ UPDATE `snippet` snippets
         snippets.shop_uuid = concat('SWAG-SHOP-UUID-', snippets.shop_id);
 
 
-INSERT INTO product_translation (uuid, language_uuid, language_id, product_uuid, product_id, name, keywords, description, description_long, meta_title, description_clear)
-    (
-        SELECT
-            CONCAT('SWAG-PRODUCT-TRANSLATION-TMP-', p.id)   AS uuid,
-            CONCAT('SWAG-SHOP-UUID-', s.id)                 AS language_uuid,
-            s.id                                            AS language_id,
-            p.uuid                                          AS product_uuid,
-            p.id                                            AS product_id,
-            p.name                                          AS name,
-            IFNULL(p.keywords, '')                          AS keywords,
-            IFNULL(p.description, '')                       AS description,
-            IFNULL(p.description_long, '')                  AS description_long,
-            IFNULL(p.meta_title, '')                        AS meta_title,
-            ''                                              AS description_clear
-        FROM
-            product p
-            JOIN
-            shop s ON s.fallback_id IS NULL
-    );
-
 UPDATE premium_product SET shop_id = (SELECT id FROM shop LIMIT 1), shop_uuid = concat('SWAG-SHOP-UUID-', shop_id);
 
 UPDATE shop SET uuid = CONCAT('SWAG-SHOP-UUID-', id);
@@ -1916,8 +1896,27 @@ UPDATE shop SET customer_group_uuid = '3294e6f6-372b-415f-ac73-71cbc191548f' WHE
 UPDATE product_vote SET uuid = CONCAT('SWAG-PRODUCT-VOTE-UUID-', id) WHERE id IS NOT NULL;
 UPDATE product_vote SET product_uuid = CONCAT('SWAG-PRODUCT-UUID-', product_id) WHERE product_id IS NOT NULL;
 UPDATE product_vote SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
+UPDATE product_translation SET uuid = CONCAT('SWAG-PRODUCT-TRANSLATION-', id), product_uuid = CONCAT('SWAG-PRODUCT-UUID-', product_id), language_uuid = CONCAT('SWAG-SHOP-UUID-', language_id);
 
-
+INSERT INTO product_translation (uuid, language_uuid, language_id, product_uuid, product_id, name, keywords, description, description_long, meta_title, description_clear)
+  (
+    SELECT
+      CONCAT('SWAG-PRODUCT-TRANSLATION-', p.id)   AS uuid,
+      CONCAT('SWAG-SHOP-UUID-', s.id)                 AS language_uuid,
+      s.id                                            AS language_id,
+      p.uuid                                          AS product_uuid,
+      p.id                                            AS product_id,
+      p.name                                          AS name,
+      IFNULL(p.keywords, '')                          AS keywords,
+      IFNULL(p.description, '')                       AS description,
+      IFNULL(p.description_long, '')                  AS description_long,
+      IFNULL(p.meta_title, '')                        AS meta_title,
+      ''                                              AS description_clear
+    FROM
+      product p
+      JOIN
+      shop s ON s.fallback_id IS NULL
+  );
 
 
 
@@ -2173,6 +2172,8 @@ ALTER TABLE `product_vote`
     ADD INDEX `product_uuid` (`product_uuid`),
     ADD INDEX `shop_uuid` (`shop_uuid`);
 
+ALTER TABLE `product_translation`
+    ADD PRIMARY KEY `product_uuid_language_uuid` (`product_uuid`, `language_uuid`);
 
 
 
@@ -2195,7 +2196,10 @@ ALTER TABLE `product_vote`
 
 
 -- add foreign keys
-
+ALTER TABLE `product_translation`
+    ADD FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
+;
 
 
 ALTER TABLE media_attribute

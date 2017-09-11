@@ -131,7 +131,8 @@ ALTER TABLE area
 
 ALTER TABLE area_country
     DROP `id`,
-    DROP `area_id`
+    DROP `area_id`,
+    DROP `en`
 ;
 
 ALTER TABLE area_country_attribute
@@ -142,6 +143,11 @@ ALTER TABLE area_country_attribute
 ALTER TABLE area_country_state
     DROP `id`,
     DROP `area_country_id`
+;
+
+ALTER TABLE area_country_state_attribute
+    DROP `id`,
+    DROP `area_country_state_id`
 ;
 
 ALTER TABLE attribute_configuration

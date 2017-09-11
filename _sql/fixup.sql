@@ -1104,6 +1104,7 @@ ALTER TABLE `s_core_customergroups`
     CHANGE `taxinput` `input_gross_prices` tinyint NOT NULL AFTER `display_gross_prices`,
     CHANGE `minimumorder` `minimum_order_amount` double NOT NULL AFTER `discount`,
     CHANGE `minimumordersurcharge` `minimum_order_amount_surcharge` double NOT NULL AFTER `minimum_order_amount`,
+    CHANGE `description` `description` VARCHAR(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
     RENAME TO `customer_group`;
 
 ALTER TABLE `s_core_customergroups_attributes`
@@ -1176,6 +1177,7 @@ ALTER TABLE `s_core_plugin_categories`
 
 ALTER TABLE `s_core_pricegroups`
     ADD `uuid` varchar(42) NOT NULL AFTER `id`,
+    CHANGE COLUMN `description` `description` VARCHAR(255),
     RENAME TO `price_group`;
 
 ALTER TABLE `s_core_pricegroups_discounts`

@@ -46,7 +46,7 @@ class AreaCountryBasicQuery extends QueryBuilder
                 'areaCountry.uuid as _array_key_',
                 'areaCountry.name as __areaCountry_name',
                 'areaCountry.iso as __areaCountry_iso',
-                'areaCountry.en as __areaCountry_en',
+//                'areaCountry.en as __areaCountry_en',
                 'areaCountry.position as __areaCountry_position',
                 'areaCountry.notice as __areaCountry_notice',
                 'areaCountry.shipping_free as __areaCountry_shipping_free',

@@ -1,31 +1,38 @@
 .sw-form-field {
     width: 100%;
+    margin-bottom: 22px;
 
     * {
         box-sizing: border-box;
     }
 
-    label, input, textarea {
-        float: left;
-    }
-
     label {
-        width: 25%;
         display: block;
-        text-align: right;
-        padding: 0 10px;
+        margin-bottom: 12px;
         font-weight: bold;
-
-        &:after {
-            content: ':';
-        }
+        color: rgba(20,36,50,0.8);
     }
 
     input, textarea {
-        width: 50%;
         display: block;
-        border: 1px solid #ccc;
-        padding: 5px;
+        width: 100%;
+        padding: 8px 16px;
+        border-radius: 4px;
+        border: 1px solid #E9EFF4;
+        background: #fff;
+        font-size: 14px;
+        line-height: 27px;
+        transition: border-color 0.3s ease-out;
+        color: #142432;
+
+        &:focus {
+            border-color: darken(#E9EFF4, 10%);
+            outline: none;
+        }
+
+        &::placeholder {
+            color: #d2d4d8;
+        }
     }
 
     textarea {

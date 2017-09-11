@@ -22,7 +22,8 @@ export default Shopware.ComponentFactory.register('sw-form-field', {
         },
         value: {
             type: [String, Boolean],
-            default: ''
+            default: '',
+            sync: true
         },
         label: {
             type: String,

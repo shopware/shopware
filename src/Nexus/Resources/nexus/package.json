@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "axios": "^0.16.2",
+    "deep-object-diff": "^1.0.4",
     "expose-loader": "^0.7.3",
     "rxjs": "^5.4.3",
     "twig": "^1.10.5",

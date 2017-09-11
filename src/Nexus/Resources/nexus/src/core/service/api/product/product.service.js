@@ -1,71 +1,53 @@
 export default function ProductService(client) {
     return {
         readAll,
-        readProductById,
-        readProductByOrderNumber,
-        updateProductById,
-        deleteProductById
+        readByUuid,
+        updateByUuid
     };
 
-    function readProductById(id) {
-        let product = {};
-
-        if (!id) {
-            return Promise.reject(new Error('"id" argument needs to be provided'));
-        }
-
-        return client.get(`/articles/${id}`).then((response) => {
-            product = response.data.data;
-
-            return product;
-        });
-    }
-
-    function readProductByOrderNumber(orderNumber) {
-        let product = {};
-
-        if (!orderNumber) {
-            return Promise.reject(new Error('"orderNumber" argument needs to be provided'));
-        }
-
-        return client.get(`/articles/${orderNumber}?useNumberAsId=true`).then((response) => {
-            product = response.data.data;
-
-            return product;
-        });
-    }
-
+    /**
+     * Reads out products from the API end point as a paginated list.
+     *
+     * @param {Number} limit - The limit of products you want to receive
+     * @param {Number} offset - Offset of the products you want to receive
+     * @returns {Promise}
+     */
     function readAll(limit = 25, offset = 0) {
         return client.get(`/product.json?limit=${limit}&offset=${offset}`).then((response) => {
             return response.data;
         });
     }
 
-    function updateProductById(id, changes = {}) {
-        let changedProduct = {};
-
-        if (!id) {
-            return Promise.reject(new Error('"id" argument needs to be provided'));
+    /**
+     * Reads out a single product from the API end point.
+     *
+     * @param {String} uuid - Product UUID
+     * @returns {Promise}
+     */
+    function readByUuid(uuid) {
+        if (!uuid) {
+            return Promise.reject(new Error('"uuid" argument needs to be provided'));
         }
 
-        return client.put(`/articles/${id}`, changes).then((response) => {
-            changedProduct = response.data.data;
-
-            return changedProduct;
+        return client.get(`/product/${uuid}.json`).then((response) => {
+            return response.data;
         });
     }
 
-    function deleteProductById(id) {
-        let success = false;
-
-        if (!id) {
-            return Promise.reject(new Error('"id" argument needs to be provided'));
+    /**
+     * Updates a single product. Partial updates are supported using the {@param payload}.
+     *
+     * @param {String} uuid - Product UUID
+     * @param {Object} payload - Changeset
+     * @returns {Promise}
+     */
+    function updateByUuid(uuid, payload) {
+        if (!uuid) {
+            return Promise.reject(new Error('"uuid" argument needs to be provided'));
         }
 
-        return client.delete(`/articles/${id}`).then((response) => {
-            success = response.data.data.success;
-
-            return success;
+        return client.put(`/product/${uuid}.json`, payload).then((response) => {
+            return response.data;
         });
     }
 }

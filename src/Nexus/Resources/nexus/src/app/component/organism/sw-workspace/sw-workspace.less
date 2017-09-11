@@ -10,14 +10,50 @@
         background: #fff;
         opacity: 0.7;
     }
-    .toolbar--middle-section {
-        width: 30%;
-        margin: 0 auto;
-    }
 
     .workspace--headline {
-        color: #000;
-        padding-top: 14px;
         display: block;
+        padding-top: 24px;
+        font-size: 18px;
+        line-height: 23px;
+        color: #000;
+        float: left;
+
+        .headline--empty {
+            color: rgba(20,36,50,0.2);
+            font-style: italic;
+        }
+    }
+
+    .toolbar--middle-section {
+        max-width: 800px;
+        margin: 0 auto;
+
+        .toolbar--primary-actions {
+            float: right;
+            margin-top: 12px;
+        }
+    }
+
+    .toolbar--back-btn {
+        text-decoration: none;
+        padding-left: 32px;
+        display: block;
+        float: left;
+
+        i {
+            font-size: 21px;
+            line-height: 28px;
+
+            &.chevron {
+                font-style: normal;
+                font-size: 38px;
+                line-height: 65px;
+            }
+        }
+    }
+
+    .workspace--content {
+        background: #f5f6fa;
     }
 }

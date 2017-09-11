@@ -1,9 +1,10 @@
 import productList from 'module/core.product/src/core-product-list';
 import productSidebar from 'module/core.product/src/sidebar';
+import productDetail from 'module/core.product/src/core-product-detail';
 
 export default {
     id: 'core.product',
-    name: 'Core Product Module',
+    name: 'Produkt Übersicht',
     description: 'Enter description here...',
     version: '1.0.0',
     targetVersion: '1.0.0',
@@ -17,6 +18,14 @@ export default {
                 sidebar: productSidebar
             },
             path: 'product'
+        },
+
+        detail: {
+            component: productDetail,
+            path: 'product/detail/:uuid',
+            meta: {
+                parentPath: 'core.product.index'
+            }
         }
     },
 

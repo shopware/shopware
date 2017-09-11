@@ -2,9 +2,10 @@
     <div class="workspace--toolbar" :style="{ 'border-bottom-color': primaryColor }">
 
         <!-- Contains the name and icon of the parent root if defined -->
-        <a href="#" title="Main Route" v-if="parentRoute">
+        <router-link :to="{ name: parentRoute }" v-if="parentRoute" :style="{ 'color': primaryColor }" class="toolbar--back-btn">
+            <i class="chevron">&#8249;</i>
             <i :class="iconClassName"></i>
-        </a>
+        </router-link>
 
         <!-- Mainly for primary actions like saving, canceling, etc. -->
         <slot name="header">
@@ -20,7 +21,7 @@
 
     <div class="workspace--content">
         <main class="content--main">
-            <router-view></router-view>
+            <slot></slot>
         </main>
         <aside class="content--sidebar">
             <!-- <router-view name="sidebar"></router-view> -->

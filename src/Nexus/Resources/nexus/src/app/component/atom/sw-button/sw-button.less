@@ -1,0 +1,30 @@
+.sw-button {
+    display: inline-block;
+
+    .sw-button--inner {
+        border-radius: 6px;
+        background: #F9FAFB;
+        padding: 13px 24px;
+        border: 0 none;
+        font-size: 14px;
+        line-height: 19px;
+        color: #5c5c5c;
+        transition: all 0.3s ease-out;
+        outline: none;
+        text-decoration: none;
+
+        &:hover {
+            color: darken(#5c5c5c, 10%);
+            background: darken(#F9FAFB, 10%);
+        }
+
+        &.is--primary {
+            background: #189EFF;
+            color: #fff;
+
+            &:hover {
+                background: darken(#189EFF, 10%);
+            }
+        }
+    }
+}

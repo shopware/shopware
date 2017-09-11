@@ -27,6 +27,7 @@ export default Shopware.ComponentFactory.register('sw-workspace', {
     created() {
         this.setupWorkspace();
     },
+
     updated() {
         this.setupWorkspace();
     },
@@ -34,6 +35,7 @@ export default Shopware.ComponentFactory.register('sw-workspace', {
     methods: {
         setupWorkspace() {
             const module = this.$route.meta.$module;
+
             if (!module) {
                 return;
             }
@@ -41,6 +43,10 @@ export default Shopware.ComponentFactory.register('sw-workspace', {
             this.icon = module.icon;
             this.title = module.name;
             this.primaryColor = module.color;
+
+            if (this.$route.meta.parentPath) {
+                this.parentRoute = this.$route.meta.parentPath;
+            }
         }
     }
 });

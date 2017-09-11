@@ -1,0 +1,68 @@
+<sw-workspace>
+    <header class="toolbar--middle-section" slot="header">
+        <h1 class="workspace--headline">
+            <span v-if="product.name">{{ product.name }}</span>
+            <span v-else class="headline--empty">(lade Produkt...)</span>
+        </h1>
+
+        <div class="toolbar--primary-actions">
+            <sw-button :isDisabled="isWorking" link="core.product.index">
+                Abbrechen
+            </sw-button>
+
+            <sw-button :isPrimary="true" :isDisabled="isWorking" @click.prevent="onSaveForm">
+                Speichern
+            </sw-button>
+        </div>
+    </header>
+
+    <div class="sw-core-product--detail" slot="default">
+        <ul class="container--tabs">
+            <li class="tabs--item router-link-active">
+                <a href="#" class="item--link">
+                    Allgemein
+                </a>
+            </li>
+            <li class="tabs--item">
+                <a href="#" class="item--link">
+                    Cross Selling
+                </a>
+            </li>
+            <li class="tabs--item">
+                <a href="#" class="item--link">
+                    Inaktivier Tab
+                </a>
+            </li>
+            <li class="tabs--item">
+                <a href="#" class="item--link">
+                    Inaktivier Tab
+                </a>
+            </li>
+            <li class="tabs--item">
+                <a href="#" class="item--link">
+                    Inaktivier Tab
+                </a>
+            </li>
+        </ul>
+
+        <sw-card title="Produkt Informationen">
+            <form ref="form" method="post">
+                <sw-form-field label="Titel" id="title" type="text" name="name" placeholder="Your product title..." v-model="product.name"></sw-form-field>
+                <sw-form-field label="Artikel-Beschreibung" id="descriptionLong" type="textarea" name="descriptionLong" placeholder="Your product description..." v-model="product.descriptionLong"></sw-form-field>
+
+                <div class="split--container">
+                    <div class="container--item">
+                        <sw-form-field label="Artikelnummer" id="uuid" type="text" name="uuid" placeholder="Your product Uuid" :value="product.mainDetailUuid"></sw-form-field>
+                    </div>
+                    <div class="container--item">
+                        <sw-form-field label="Hersteller" id="manufacturer" type="text" name="manufacturer" placeholder="Your product manufacturer" v-model="product.manufacturer.name"></sw-form-field>
+                    </div>
+                </div>
+
+                <sw-form-field label="Kategorie" id="category" type="text" name="" placeholder="Your product category"></sw-form-field>
+
+                <sw-loader v-if="isWorking"></sw-loader>
+            </form>
+        </sw-card>
+    </div>
+</sw-workspace>

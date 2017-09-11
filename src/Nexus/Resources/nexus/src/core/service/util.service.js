@@ -1,8 +1,11 @@
+import { updatedDiff } from 'deep-object-diff';
+
 export default {
     merge,
     formDataToObject,
     warn,
-    currency
+    currency,
+    compareObjects: updatedDiff
 };
 
 // Todo: This has an issue when you want to copy into a new object

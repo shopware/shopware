@@ -65,10 +65,6 @@ ALTER TABLE payment_method_attribute
     DROP FOREIGN KEY `payment_method_attribute_ibfk_1`
 ;
 
-ALTER TABLE payment_method_shop
-    DROP FOREIGN KEY `payment_method_shop_ibfk_1`
-;
-
 ALTER TABLE product_attachment_attribute
     DROP FOREIGN KEY `product_attachment_attribute_ibfk_1`
 ;
@@ -477,12 +473,6 @@ ALTER TABLE product_category
 ;
 
 ALTER TABLE product_category_ro
-    DROP INDEX `articleID`,
-    DROP INDEX `articleID_2`,
-    DROP INDEX `categoryID`,
-    DROP INDEX `categoryID_2`,
-    DROP INDEX `category_id_by_article_id`,
-    DROP INDEX `elastic_search`,
     DROP `id`,
     DROP `category_id`,
     DROP `parent_category_id`,
@@ -515,10 +505,6 @@ ALTER TABLE product_detail
     DROP `unit_id`,
     DROP `product_id`,
     DROP `order_number`
-;
-
-ALTER TABLE product_attribute
-  DROP COLUMN articleID
 ;
 
 ALTER TABLE product_esd
@@ -598,21 +584,6 @@ ALTER TABLE product_price_attribute
     DROP `price_id`
 ;
 
-ALTER TABLE `product_category_ro`
-  DROP INDEX articleID,
-  DROP INDEX articleID_2,
-  DROP INDEX categoryID,
-  DROP INDEX categoryID_2,
-  DROP INDEX category_id_by_article_id,
-  DROP INDEX elastic_search,
-  DROP COLUMN id,
-  DROP COLUMN category_id,
-  DROP COLUMN parent_category_id,
-  DROP COLUMN product_id,
-  DROP COLUMN uuid,
-    ADD PRIMARY KEY (product_uuid, category_uuid, parent_category_uuid)
-;
-
 ALTER TABLE product_similar
     DROP `id`,
     DROP `product_id`,
@@ -670,14 +641,7 @@ ALTER TABLE seo_url
     DROP `id`
 ;
 
-
 DROP TABLE IF EXISTS `s_core_sessions`;
-
-ALTER TABLE media
-    DROP `extension`,
-    DROP `width`,
-    DROP `height`
-;
 
 ALTER TABLE `snippet` DROP INDEX `namespace`;
 ALTER TABLE `snippet` DROP locale_id;
@@ -687,8 +651,3 @@ DROP TABLE s_media_album_settings;
 
 ALTER TABLE `product_stream` DROP `sorting`;
 
-DELETE FROM plugin WHERE namespace != 'ShopwarePlugins';
-
-ALTER TABLE `plugin`
-  DROP `namespace`,
-  DROP `source`;

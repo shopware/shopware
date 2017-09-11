@@ -8,7 +8,6 @@ use Shopware\Api\ApiController;
 use Shopware\Api\ResultFormat;
 use Shopware\Product\ProductRepository;
 use Shopware\Search\Criteria;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -106,18 +105,10 @@ class ProductController extends ApiController
      */
     public function updateAction(Request $request, ApiContext $context): Response
     {
-        $result = [];
+        $payload = $context->getPayload();
+        $payload['uuid'] = $request->get('productUuid');
 
-        // todo: update data
-//        foreach ($context->getPayload() as $product) {
-//            // todo check data types from xml
-//            $product['lastStock'] = (int) $product['lastStock'];
-//            $product['crossbundlelook'] = (int) $product['crossbundlelook'];
-//            $product['notification'] = (int) $product['notification'];
-//            $product['mode'] = (int) $product['mode'];
-//
-//            $result[] = $this->productRepository->update($product);
-//        }
+        $this->productRepository->update($payload, $context->getShopContext()->getTranslationContext());
 
         return $this->detailAction($request, $context);
     }

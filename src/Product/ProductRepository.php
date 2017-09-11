@@ -25,6 +25,7 @@
 namespace Shopware\Product;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Write\WriteContext;
 use Shopware\Product\Event\ProductBasicLoadedEvent;
 use Shopware\Product\Event\ProductDetailLoadedEvent;
 use Shopware\Product\Loader\ProductBasicLoader;
@@ -36,6 +37,8 @@ use Shopware\Product\Struct\ProductSearchResult;
 use Shopware\Product\Writer\ProductWriter;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
+use Shopware\Shop\Gateway\Resource\ShopResource;
+use Shopware\Translation\Translation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductRepository
@@ -122,8 +125,19 @@ class ProductRepository
         return $result;
     }
 
-    public function write(): void
+    public function update(array $data, TranslationContext $context): array
     {
-        $this->writer->write();
+        $writeContext = new WriteContext();
+        $writeContext->set(ShopResource::class, 'uuid', $context->getShopUuid());
+
+        return $this->writer->update($data, $writeContext);
+    }
+
+    public function create(array $data, TranslationContext $context): array
+    {
+        $writeContext = new WriteContext();
+        $writeContext->set(ShopResource::class, 'uuid', $context->getShopUuid());
+
+        return $this->writer->create($data, $writeContext);
     }
 }

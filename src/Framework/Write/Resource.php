@@ -24,6 +24,7 @@
 
 namespace Shopware\Framework\Write;
 
+use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\DataStack\DataStack;
 use Shopware\Framework\Write\DataStack\ExceptionNoStackItemFound;
@@ -132,6 +133,8 @@ abstract class Resource
 
                 $kvPair = new KeyValuePair($key, null, true);
             }
+
+            $kvPair = $this->convertValue($field, $kvPair);
 
             $fieldExtender->extend($field);
 
@@ -266,5 +269,14 @@ abstract class Resource
         } else {
             $queryQueue->add(get_class($this), new InsertQuery($this->tableName, array_merge($pkData, $data)));
         }
+    }
+
+    private function convertValue(Field $field, KeyValuePair $kvPair): KeyValuePair
+    {
+        if ($field instanceof DateField && is_string($kvPair->getValue())) {
+            $kvPair = new KeyValuePair($kvPair->getKey(), new \DateTime($kvPair->getValue()), $kvPair->isRaw());
+        }
+
+        return $kvPair;
     }
 }

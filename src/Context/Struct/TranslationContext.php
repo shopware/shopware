@@ -64,8 +64,8 @@ class TranslationContext extends Struct
     public static function createFromShop(ShopBasicStruct $shop): TranslationContext
     {
         return new self(
-            $shop->getIsDefault(),
             $shop->getUuid(),
+            $shop->getIsDefault(),
             $shop->getMainId()
         );
     }

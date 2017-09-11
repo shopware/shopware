@@ -55,7 +55,7 @@ class Writer
         $this->sqlGateway = $sqlGateway;
     }
 
-    public function upsert(string $resourceClass, array $rawData, WriteContext $writeContext, FieldExtenderCollection $extender)
+    public function upsert(string $resourceClass, array $rawData, WriteContext $writeContext, FieldExtenderCollection $extender): array
     {
         $resource = $this->resourceRegistry->get($resourceClass);
 

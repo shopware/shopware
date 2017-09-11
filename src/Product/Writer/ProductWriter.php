@@ -24,9 +24,51 @@
 
 namespace Shopware\Product\Writer;
 
+use Shopware\Framework\Write\FieldAware\DefaultExtender;
+use Shopware\Framework\Write\FieldAware\FieldExtender;
+use Shopware\Framework\Write\WriteContext;
+use Shopware\Framework\Write\Writer;
+use Shopware\Product\Gateway\Resource\ProductResource;
+
 class ProductWriter
 {
-    public function write(): void
+    /**
+     * @var Writer
+     */
+    private $writer;
+
+    /**
+     * @var DefaultExtender
+     */
+    private $extender;
+
+    public function __construct(Writer $writer, DefaultExtender $extender)
     {
+        $this->writer = $writer;
+        $this->extender = $extender;
+    }
+
+    public function update(array $data, WriteContext $context, FieldExtender $extender = null): array
+    {
+        $extenderCollection = new \Shopware\Framework\Write\FieldAware\FieldExtenderCollection();
+        $extenderCollection->addExtender($this->extender);
+
+        if ($extender) {
+            $extenderCollection->addExtender($extender);
+        }
+
+        return $this->writer->update(ProductResource::class, $data, $context, $extenderCollection);
+    }
+
+    public function create(array $data, WriteContext $context, FieldExtender $extender = null): array
+    {
+        $extenderCollection = new \Shopware\Framework\Write\FieldAware\FieldExtenderCollection();
+        $extenderCollection->addExtender($this->extender);
+
+        if ($extender) {
+            $extenderCollection->addExtender($extender);
+        }
+
+        return $this->writer->insert(ProductResource::class, $data, $context, $extenderCollection);
     }
 }

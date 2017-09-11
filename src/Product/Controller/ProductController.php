@@ -40,9 +40,19 @@ class ProductController extends ApiController
     /**
      * @Route("/product.{responseFormat}", name="api.product.list", methods={"GET", "OPTIONS"})
      */
-    public function listAction(ApiContext $context): Response
+    public function listAction(Request $request, ApiContext $context): Response
     {
         $criteria = new Criteria();
+
+        if ($request->query->has('offset')) {
+            $criteria->offset($request->query->get('offset'));
+        }
+
+        if ($request->query->has('limit')) {
+            $criteria->limit($request->query->get('limit'));
+        }
+
+        $criteria->setFetchCount(true);
 
         $searchResult = $this->productRepository->search($criteria, $context->getShopContext()->getTranslationContext());
 
@@ -57,7 +67,12 @@ class ProductController extends ApiController
                 throw new \Exception("Result format not supported.");
         }
 
-        return $this->createResponse($products, $context);
+        $response = [
+            'data' => $products,
+            'total' => $searchResult->getTotal()
+        ];
+
+        return $this->createResponse($response, $context);
     }
 
     /**

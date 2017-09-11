@@ -25,7 +25,7 @@ abstract class ApiController extends AbstractController
      */
     protected function createResponse($responseData, ApiContext $context): Response
     {
-        $responseEnvelope = $this->envelope($responseData);
+        $responseEnvelope = $this->createEnvelope($responseData);
         $responseEnvelope->setParameters($context->getParameters());
 
         switch ($context->getOutputFormat()) {
@@ -48,19 +48,29 @@ abstract class ApiController extends AbstractController
         return $response;
     }
 
-    private function envelope($result): ResponseEnvelope
+    private function createEnvelope($result): ResponseEnvelope
     {
         $response = new ResponseEnvelope();
 
+        // todo: should be changed to something better than convetion
+        if (is_array($result)) {
+            if (array_key_exists('total', $result)) {
+                $response->setTotal($result['total']);
+            }
+
+            if (array_key_exists('data', $result)) {
+                $response->setData($result['data']);
+            }
+        }
+
         switch (true) {
-            case $result instanceof Collection:
-                $data = array_values(json_decode(json_encode($result->getIterator()), true));
+            case $response->getData() instanceof Collection:
+                $data = array_values(json_decode(json_encode($response->getData()->getIterator()), true));
 
                 $response->setData($data);
-                $response->setTotal($result->count());
                 break;
-            case $result instanceof Struct:
-                $data = json_decode(json_encode($result), true);
+            case $response->getData() instanceof Struct:
+                $data = json_decode(json_encode($response->getData()), true);
 
                 $response->setData($data);
                 break;

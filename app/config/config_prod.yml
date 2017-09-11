@@ -1,5 +1,4 @@
 imports:
-    - { resource: security_prod.yml }
     - { resource: shopware.yml }
 
 monolog:

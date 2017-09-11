@@ -37,10 +37,8 @@ class AreaCountryBasicHydrator extends Hydrator
     {
         $areaCountry = new AreaCountryBasicStruct();
 
-        $areaCountry->setId((int)$data['__areaCountry_id']);
         $areaCountry->setName(isset($data['__areaCountry_name']) ? (string)$data['__areaCountry_name'] : null);
         $areaCountry->setIso(isset($data['__areaCountry_iso']) ? (string)$data['__areaCountry_iso'] : null);
-        $areaCountry->setAreaId(isset($data['__areaCountry_area_id']) ? (int)$data['__areaCountry_area_id'] : null);
         $areaCountry->setEn(isset($data['__areaCountry_en']) ? (string)$data['__areaCountry_en'] : null);
         $areaCountry->setPosition(isset($data['__areaCountry_position']) ? (int)$data['__areaCountry_position'] : null);
         $areaCountry->setNotice(isset($data['__areaCountry_notice']) ? (string)$data['__areaCountry_notice'] : null);

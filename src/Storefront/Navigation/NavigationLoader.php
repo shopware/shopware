@@ -58,7 +58,7 @@ class NavigationLoader
 
         $categories = $this->repository->search($criteria, $context->getTranslationContext());
 
-        $tree = $categories->sortByPosition()->getTree($systemCategory->getId());
+        $tree = $categories->sortByPosition()->getTree($systemCategory->getUuid());
 
         return new Navigation($activeCategory, $tree);
     }

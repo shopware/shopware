@@ -44,7 +44,6 @@ class PaymentMethodBasicQuery extends QueryBuilder
         $query->addSelect(
             [
                 'paymentMethod.uuid as _array_key_',
-                'paymentMethod.id as __paymentMethod_id',
                 'paymentMethod.uuid as __paymentMethod_uuid',
                 'paymentMethod.name as __paymentMethod_name',
                 'paymentMethod.description as __paymentMethod_description',
@@ -62,7 +61,6 @@ class PaymentMethodBasicQuery extends QueryBuilder
                 'paymentMethod.used_iframe as __paymentMethod_used_iframe',
                 'paymentMethod.hide_prospect as __paymentMethod_hide_prospect',
                 'paymentMethod.action as __paymentMethod_action',
-                'paymentMethod.plugin_id as __paymentMethod_plugin_id',
                 'paymentMethod.plugin_uuid as __paymentMethod_plugin_uuid',
                 'paymentMethod.source as __paymentMethod_source',
                 'paymentMethod.mobile_inactive as __paymentMethod_mobile_inactive',

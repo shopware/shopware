@@ -44,7 +44,6 @@ class SeoUrlBasicQuery extends QueryBuilder
         $query->addSelect(
             [
                 'seoUrl.uuid as _array_key_',
-                'seoUrl.id as __seoUrl_id',
                 'seoUrl.uuid as __seoUrl_uuid',
                 'seoUrl.seo_hash as __seoUrl_seo_hash',
                 'seoUrl.shop_uuid as __seoUrl_shop_uuid',

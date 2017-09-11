@@ -37,7 +37,6 @@ class CurrencyBasicHydrator extends Hydrator
     {
         $currency = new CurrencyBasicStruct();
 
-        $currency->setId((int)$data['__currency_id']);
         $currency->setUuid((string)$data['__currency_uuid']);
         $currency->setCurrency((string)$data['__currency_currency']);
         $currency->setName((string)$data['__currency_name']);

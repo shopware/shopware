@@ -37,7 +37,6 @@ class LocaleBasicHydrator extends Hydrator
     {
         $locale = new LocaleBasicStruct();
 
-        $locale->setId((int)$data['__locale_id']);
         $locale->setUuid((string)$data['__locale_uuid']);
         $locale->setLocale((string)$data['__locale_locale']);
         $locale->setLanguage((string)$data['__locale_language']);

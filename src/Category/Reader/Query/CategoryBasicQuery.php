@@ -46,9 +46,7 @@ class CategoryBasicQuery extends QueryBuilder
         $query->addSelect(
             [
                 'category.uuid as _array_key_',
-                'category.id as __category_id',
                 'category.uuid as __category_uuid',
-                'category.parent_id as __category_parent_id',
                 'category.parent_uuid as __category_parent_uuid',
                 'category.path as __category_path',
                 'category.name as __category_name',
@@ -67,10 +65,8 @@ class CategoryBasicQuery extends QueryBuilder
                 'category.external as __category_external',
                 'category.hide_filter as __category_hide_filter',
                 'category.hide_top as __category_hide_top',
-                'category.media_id as __category_media_id',
                 'category.media_uuid as __category_media_uuid',
                 'category.product_box_layout as __category_product_box_layout',
-                'category.product_stream_id as __category_product_stream_id',
                 'category.product_stream_uuid as __category_product_stream_uuid',
                 'category.hide_sortings as __category_hide_sortings',
                 'category.sorting_ids as __category_sorting_ids',

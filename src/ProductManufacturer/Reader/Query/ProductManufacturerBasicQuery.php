@@ -44,7 +44,6 @@ class ProductManufacturerBasicQuery extends QueryBuilder
         $query->addSelect(
             [
                 'productManufacturer.uuid as _array_key_',
-                'productManufacturer.id as __productManufacturer_id',
                 'productManufacturer.uuid as __productManufacturer_uuid',
                 'productManufacturer.name as __productManufacturer_name',
                 'productManufacturer.img as __productManufacturer_img',

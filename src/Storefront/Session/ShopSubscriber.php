@@ -155,6 +155,7 @@ class ShopSubscriber implements EventSubscriberInterface
         if (!$context) {
             return;
         }
+
         $request->attributes->set('active_category_uuid', $this->getActiveCategoryUuid($request, $context));
     }
 

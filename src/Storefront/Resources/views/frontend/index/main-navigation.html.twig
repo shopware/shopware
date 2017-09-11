@@ -26,7 +26,7 @@
                                 {% set url = url('listing_page', { 'uuid': category.uuid }) %}
                             {% endif %}
 
-                            {% set isActive = (category.id in navigation.activeCategory.path or category.id == navigation.activeCategory.id) %}
+                            {% set isActive = (category.uuid in navigation.activeCategory.path or category.uuid == navigation.activeCategory.uuid) %}
 
                             <li class="navigation--entry{% if isActive %} is--active{% endif %}" role="menuitem">
 

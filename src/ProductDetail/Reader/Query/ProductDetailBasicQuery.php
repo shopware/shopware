@@ -45,7 +45,6 @@ class ProductDetailBasicQuery extends QueryBuilder
         $query->addSelect(
             [
                 'productDetail.uuid as _array_key_',
-                'productDetail.id as __productDetail_id',
                 'productDetail.uuid as __productDetail_uuid',
                 'productDetail.product_uuid as __productDetail_product_uuid',
                 'productDetail.supplier_number as __productDetail_supplier_number',
@@ -61,7 +60,6 @@ class ProductDetailBasicQuery extends QueryBuilder
                 'productDetail.height as __productDetail_height',
                 'productDetail.length as __productDetail_length',
                 'productDetail.ean as __productDetail_ean',
-                'productDetail.unit_id as __productDetail_unit_id',
                 'productDetail.unit_uuid as __productDetail_unit_uuid',
                 'productDetail.purchase_steps as __productDetail_purchase_steps',
                 'productDetail.max_purchase as __productDetail_max_purchase',

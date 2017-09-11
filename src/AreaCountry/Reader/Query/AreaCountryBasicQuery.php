@@ -44,10 +44,8 @@ class AreaCountryBasicQuery extends QueryBuilder
         $query->addSelect(
             [
                 'areaCountry.uuid as _array_key_',
-                'areaCountry.id as __areaCountry_id',
                 'areaCountry.name as __areaCountry_name',
                 'areaCountry.iso as __areaCountry_iso',
-                'areaCountry.area_id as __areaCountry_area_id',
                 'areaCountry.en as __areaCountry_en',
                 'areaCountry.position as __areaCountry_position',
                 'areaCountry.notice as __areaCountry_notice',

@@ -37,7 +37,6 @@ class CustomerGroupBasicHydrator extends Hydrator
     {
         $customerGroup = new CustomerGroupBasicStruct();
 
-        $customerGroup->setId((int) $data['__customerGroup_id']);
         $customerGroup->setUuid((string) $data['__customerGroup_uuid']);
         $customerGroup->setGroupKey((string) $data['__customerGroup_group_key']);
         $customerGroup->setDescription((string) $data['__customerGroup_description']);

@@ -43,7 +43,6 @@ class CustomerGroupBasicQuery extends QueryBuilder
     {
         $query->addSelect([
             'customerGroup.uuid as _array_key_',
-            'customerGroup.id as __customerGroup_id',
             'customerGroup.uuid as __customerGroup_uuid',
             'customerGroup.group_key as __customerGroup_group_key',
             'customerGroup.description as __customerGroup_description',

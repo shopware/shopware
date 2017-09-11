@@ -30,19 +30,9 @@ use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
 class CategoryBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
-
-    /**
-     * @var int|null
-     */
-    protected $parentId;
 
     /**
      * @var string|null
@@ -184,16 +174,6 @@ class CategoryBasicStruct extends Struct
      */
     protected $children = [];
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
-
     public function getUuid(): string
     {
         return $this->uuid;
@@ -202,16 +182,6 @@ class CategoryBasicStruct extends Struct
     public function setUuid(string $uuid): void
     {
         $this->uuid = $uuid;
-    }
-
-    public function getParentId(): ?int
-    {
-        return $this->parentId;
-    }
-
-    public function setParentId(?int $parentId): void
-    {
-        $this->parentId = $parentId;
     }
 
     public function getParentUuid(): ?string

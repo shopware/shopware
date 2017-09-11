@@ -157,19 +157,19 @@ class CategoryBasicCollection extends Collection
     }
 
     /**
-     * @param int|null $parentId
+     * @param string|null $parentUuid
      *
      * @return CategoryBasicStruct[]
      */
-    public function getTree(?int $parentId): array
+    public function getTree(?string $parentUuid): array
     {
         $result = [];
         foreach ($this->elements as $category) {
-            if ($category->getParentId() != $parentId) {
+            if ($category->getParentUuid() !== $parentUuid) {
                 continue;
             }
             $category->setChildren(
-                $this->getTree((int) $category->getId())
+                $this->getTree($category->getUuid())
             );
             $result[] = $category;
         }

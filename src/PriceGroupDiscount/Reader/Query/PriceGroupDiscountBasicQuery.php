@@ -44,11 +44,8 @@ class PriceGroupDiscountBasicQuery extends QueryBuilder
         $query->addSelect(
             [
                 'priceGroupDiscount.uuid as _array_key_',
-                'priceGroupDiscount.id as __priceGroupDiscount_id',
                 'priceGroupDiscount.uuid as __priceGroupDiscount_uuid',
-                'priceGroupDiscount.price_group_id as __priceGroupDiscount_price_group_id',
                 'priceGroupDiscount.price_group_uuid as __priceGroupDiscount_price_group_uuid',
-                'priceGroupDiscount.customer_group_id as __priceGroupDiscount_customer_group_id',
                 'priceGroupDiscount.customer_group_uuid as __priceGroupDiscount_customer_group_uuid',
                 'priceGroupDiscount.discount as __priceGroupDiscount_discount',
                 'priceGroupDiscount.discount_start as __priceGroupDiscount_discount_start',

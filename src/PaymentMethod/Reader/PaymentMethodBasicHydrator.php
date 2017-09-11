@@ -37,7 +37,6 @@ class PaymentMethodBasicHydrator extends Hydrator
     {
         $paymentMethod = new PaymentMethodBasicStruct();
 
-        $paymentMethod->setId((int)$data['__paymentMethod_id']);
         $paymentMethod->setUuid((string)$data['__paymentMethod_uuid']);
         $paymentMethod->setName((string)$data['__paymentMethod_name']);
         $paymentMethod->setDescription((string)$data['__paymentMethod_description']);

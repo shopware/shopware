@@ -44,7 +44,6 @@ class ProductDetailBasicHydrator extends Hydrator
     {
         $productDetail = new ProductDetailBasicStruct();
 
-        $productDetail->setId((int)$data['__productDetail_id']);
         $productDetail->setUuid((string)$data['__productDetail_uuid']);
         $productDetail->setProductUuid((string)$data['__productDetail_product_uuid']);
         $productDetail->setSupplierNumber(

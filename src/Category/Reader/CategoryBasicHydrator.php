@@ -44,9 +44,7 @@ class CategoryBasicHydrator extends Hydrator
     {
         $category = new CategoryBasicStruct();
 
-        $category->setId((int)$data['__category_id']);
         $category->setUuid((string)$data['__category_uuid']);
-        $category->setParentId(isset($data['__category_parent_id']) ? (int)$data['__category_parent_id'] : null);
         $category->setParentUuid(
             isset($data['__category_parent_uuid']) ? (string)$data['__category_parent_uuid'] : null
         );
@@ -79,9 +77,6 @@ class CategoryBasicHydrator extends Hydrator
         $category->setMediaUuid((string)$data['__category_media_uuid']);
         $category->setProductBoxLayout(
             isset($data['__category_product_box_layout']) ? (string)$data['__category_product_box_layout'] : null
-        );
-        $category->setProductStreamId(
-            isset($data['__category_product_stream_id']) ? (int)$data['__category_product_stream_id'] : null
         );
         $category->setProductStreamUuid(
             isset($data['__category_product_stream_uuid']) ? (string)$data['__category_product_stream_uuid'] : null

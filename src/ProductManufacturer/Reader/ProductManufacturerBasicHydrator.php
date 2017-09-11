@@ -37,7 +37,6 @@ class ProductManufacturerBasicHydrator extends Hydrator
     {
         $productManufacturer = new ProductManufacturerBasicStruct();
 
-        $productManufacturer->setId((int)$data['__productManufacturer_id']);
         $productManufacturer->setUuid((string)$data['__productManufacturer_uuid']);
         $productManufacturer->setName((string)$data['__productManufacturer_name']);
         $productManufacturer->setImg((string)$data['__productManufacturer_img']);

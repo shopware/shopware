@@ -160,7 +160,7 @@ class ShopFinder
         ]);
         $query->from('shop', 'shop');
         $query->leftJoin('shop', 'shop', 'main', 'main.id = shop.main_id');
-        $query->innerJoin('shop', 'locale', 'locale', 'locale.id=shop.locale_id');
+        $query->innerJoin('shop', 'locale', 'locale', 'locale.uuid=shop.locale_uuid');
 
         return $query;
     }

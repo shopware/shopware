@@ -44,7 +44,6 @@ class CurrencyBasicQuery extends QueryBuilder
         $query->addSelect(
             [
                 'currency.uuid as _array_key_',
-                'currency.id as __currency_id',
                 'currency.uuid as __currency_uuid',
                 'currency.currency as __currency_currency',
                 'currency.name as __currency_name',

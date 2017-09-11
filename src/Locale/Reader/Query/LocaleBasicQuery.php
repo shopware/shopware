@@ -44,7 +44,6 @@ class LocaleBasicQuery extends QueryBuilder
         $query->addSelect(
             [
                 'locale.uuid as _array_key_',
-                'locale.id as __locale_id',
                 'locale.uuid as __locale_uuid',
                 'locale.locale as __locale_locale',
                 'locale.language as __locale_language',

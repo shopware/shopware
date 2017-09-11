@@ -138,10 +138,8 @@ class FieldHelper
     {
         return [
             'areaCountry.uuid as __array_key',
-            'areaCountry.id as __areaCountry_id',
             'areaCountry.name as __areaCountry_name',
             'areaCountry.iso as __areaCountry_iso',
-            'areaCountry.area_id as __areaCountry_area_id',
             'areaCountry.en as __areaCountry_en',
             'areaCountry.position as __areaCountry_position',
             'areaCountry.notice as __areaCountry_notice',
@@ -166,9 +164,7 @@ class FieldHelper
     {
         return [
             'areaCountryState.uuid as __array_key',
-            'areaCountryState.id as __areaCountryState_id',
             'areaCountryState.uuid as __areaCountryState_uuid',
-            'areaCountryState.area_country_id as __areaCountryState_area_country_id',
             'areaCountryState.area_country_uuid as __areaCountryState_area_country_uuid',
             'areaCountryState.name as __areaCountryState_name',
             'areaCountryState.short_code as __areaCountryState_short_code',
@@ -185,9 +181,7 @@ class FieldHelper
     {
         return [
             'category.uuid as __array_key',
-            'category.id as __category_id',
             'category.uuid as __category_uuid',
-            'category.parent_id as __category_parent_id',
             'category.parent_uuid as __category_parent_uuid',
             'category.path as __category_path',
             'category.description as __category_description',
@@ -206,7 +200,6 @@ class FieldHelper
             'category.external as __category_external',
             'category.hide_filter as __category_hide_filter',
             'category.hide_top as __category_hide_top',
-            'category.media_id as __category_media_id',
             'category.media_uuid as __category_media_uuid',
             'category.product_box_layout as __category_product_box_layout',
             'category.stream_id as __category_stream_id',
@@ -224,7 +217,6 @@ class FieldHelper
     {
         return [
             'currency.uuid as __array_key',
-            'currency.id as __currency_id',
             'currency.uuid as __currency_uuid',
             'currency.currency as __currency_currency',
             'currency.name as __currency_name',
@@ -327,7 +319,6 @@ class FieldHelper
     {
         return [
             'customerGroup.uuid as __array_key',
-            'customerGroup.id as __customerGroup_id',
             'customerGroup.uuid as __customerGroup_uuid',
             'customerGroup.group_key as __customerGroup_group_key',
             'customerGroup.description as __customerGroup_description',
@@ -364,7 +355,6 @@ class FieldHelper
     {
         return [
             'locale.uuid as __array_key',
-            'locale.id as __locale_id',
             'locale.uuid as __locale_uuid',
             'locale.locale as __locale_locale',
             'locale.language as __locale_language',
@@ -405,7 +395,6 @@ class FieldHelper
     {
         return [
             'paymentMethod.uuid as __array_key',
-            'paymentMethod.id as __paymentMethod_id',
             'paymentMethod.uuid as __paymentMethod_uuid',
             'paymentMethod.name as __paymentMethod_name',
             'paymentMethod.description as __paymentMethod_description',
@@ -423,7 +412,6 @@ class FieldHelper
             'paymentMethod.used_iframe as __paymentMethod_used_iframe',
             'paymentMethod.hide_prospect as __paymentMethod_hide_prospect',
             'paymentMethod.action as __paymentMethod_action',
-            'paymentMethod.plugin_id as __paymentMethod_plugin_id',
             'paymentMethod.plugin_uuid as __paymentMethod_plugin_uuid',
             'paymentMethod.source as __paymentMethod_source',
             'paymentMethod.mobile_inactive as __paymentMethod_mobile_inactive',
@@ -453,11 +441,8 @@ class FieldHelper
     {
         return [
             'priceGroupDiscount.uuid as __array_key',
-            'priceGroupDiscount.id as __priceGroupDiscount_id',
             'priceGroupDiscount.uuid as __priceGroupDiscount_uuid',
-            'priceGroupDiscount.price_group_id as __priceGroupDiscount_price_group_id',
             'priceGroupDiscount.price_group_uuid as __priceGroupDiscount_price_group_uuid',
-            'priceGroupDiscount.customer_group_id as __priceGroupDiscount_customer_group_id',
             'priceGroupDiscount.customer_group_uuid as __priceGroupDiscount_customer_group_uuid',
             'priceGroupDiscount.discount as __priceGroupDiscount_discount',
             'priceGroupDiscount.discount_start as __priceGroupDiscount_discount_start',

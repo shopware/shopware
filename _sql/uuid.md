@@ -35,7 +35,7 @@ product_similar_ro                      SWAG-PRODUCT-SIMILAR-RO-UUID-
 product_top_seller_ro                   SWAG-PRODUCT-TOP-SELLER-RO-UUID-
 product_translation                     SWAG-PRODUCT-TRANSLATION-UUID-
 product_vote                            SWAG-PRODUCT-VOTE-UUID-
-s_core_tax                              SWAG-CONFIG-TAX-UUID-
+s_core_tax                              SWAG-TAX-UUID-
 plugin                                  SWAG-PLUGIN-UUID-
 shop_template                           SWAG-SHOP-TEMPLATE-UUID-
 locale                                  SWAG-LOCALE-UUID-

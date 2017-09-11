@@ -24,3 +24,10 @@ INSERT INTO product_detail_translation (language_uuid, product_detail_uuid,  add
         JOIN
             shop s ON s.fallback_id IS NULL
     );
+
+CREATE TABLE `sessions` (
+  `sess_id` VARCHAR(128) NOT NULL PRIMARY KEY,
+  `sess_data` BLOB NOT NULL,
+  `sess_time` INTEGER UNSIGNED NOT NULL,
+  `sess_lifetime` MEDIUMINT NOT NULL
+) COLLATE utf8mb4_bin, ENGINE = InnoDB;

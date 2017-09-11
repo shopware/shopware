@@ -40,7 +40,7 @@ class ConfigFormResource extends Resource
         $this->fields['pluginUuid'] = (new FkField('plugin_uuid', \Shopware\Framework\Write\Resource\PluginResource::class, 'uuid'));
         $this->fields[self::LABEL_FIELD] = new TranslatedField('label', \Shopware\Shop\Gateway\Resource\ShopResource::class, 'uuid');
         $this->fields[self::DESCRIPTION_FIELD] = new TranslatedField('description', \Shopware\Shop\Gateway\Resource\ShopResource::class, 'uuid');
-        $this->fields['translations'] = (new SubresourceField(\Shopware\Framework\Write\Resource\ConfigFormTranslationResource::class, 'languageUuid'))->setFlags(new Required());
+        $this->fields['translations'] = new SubresourceField(\Shopware\Framework\Write\Resource\ConfigFormTranslationResource::class, 'languageUuid');
         $this->fields['s'] = new SubresourceField(\Shopware\Framework\Write\Resource\ConfigFormResource::class);
         $this->fields['fields'] = new SubresourceField(\Shopware\Framework\Write\Resource\ConfigFormFieldResource::class);
     }

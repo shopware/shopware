@@ -230,6 +230,8 @@ EOD;
             $translationColumns = $schemaManager->listTableColumns($translationTable);
             $translationTableResourceTemplate = $resourceTemplates[$translationTable];
 
+            $hasRequiredFields = false;
+            /** @var Column $translationColumn */
             foreach ($translationColumns as $translationColumn) {
                 if (in_array($translationColumn->getName(), $this->ignoreColumnNames)) {
                     continue;
@@ -241,11 +243,15 @@ EOD;
                     continue;
                 }
 
+                if (!$hasRequiredFields && $translationColumn->getNotnull() && null === $translationColumn->getDefault()) {
+                    $hasRequiredFields = true;
+                }
+
                 $resourceTemplate->addField($translationField);
                 $resourceTemplate->addConst(FieldName::getConstDeclaration($translationColumn->getName(), $table));
             }
 
-            if ($translationTableResourceTemplate->hasARequiredField()) {
+            if ($hasRequiredFields) {
                 $resourceTemplate->addField(sprintf(
                         '$this->fields[\'translations\'] = (new SubresourceField(%s::class, \'languageUuid\'))->setFlags(new Required());',
                         '\\' . $translationTableResourceTemplate->getNamespace() . '\\' . $translationTableResourceTemplate->getClassName()

@@ -31,7 +31,7 @@ class AreaResource extends Resource
         $this->fields[self::NAME_FIELD] = new StringField('name');
         $this->fields[self::ACTIVE_FIELD] = new BoolField('active');
         $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Gateway\Resource\ShopResource::class, 'uuid');
-        $this->fields['translations'] = (new SubresourceField(\Shopware\Area\Gateway\Resource\AreaTranslationResource::class, 'languageUuid'))->setFlags(new Required());
+        $this->fields['translations'] = new SubresourceField(\Shopware\Area\Gateway\Resource\AreaTranslationResource::class, 'languageUuid');
         $this->fields['countrys'] = new SubresourceField(\Shopware\AreaCountry\Gateway\Resource\AreaCountryResource::class);
         $this->fields['taxAreaRules'] = new SubresourceField(\Shopware\TaxAreaRule\Gateway\Resource\TaxAreaRuleResource::class);
     }

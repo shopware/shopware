@@ -46,7 +46,7 @@ class ConfigFormFieldResource extends Resource
         $this->fields['configFormUuid'] = (new FkField('config_form_uuid', \Shopware\Framework\Write\Resource\ConfigFormResource::class, 'uuid'));
         $this->fields[self::LABEL_FIELD] = new TranslatedField('label', \Shopware\Shop\Gateway\Resource\ShopResource::class, 'uuid');
         $this->fields[self::DESCRIPTION_FIELD] = new TranslatedField('description', \Shopware\Shop\Gateway\Resource\ShopResource::class, 'uuid');
-        $this->fields['translations'] = (new SubresourceField(\Shopware\Framework\Write\Resource\ConfigFormFieldTranslationResource::class, 'languageUuid'))->setFlags(new Required());
+        $this->fields['translations'] = new SubresourceField(\Shopware\Framework\Write\Resource\ConfigFormFieldTranslationResource::class, 'languageUuid');
     }
     
     public function getWriteOrder(): array

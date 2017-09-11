@@ -80,7 +80,7 @@ class ProductDetailResource extends Resource
         $this->fields['productUuid'] = (new FkField('product_uuid', \Shopware\Product\Gateway\Resource\ProductResource::class, 'uuid'))->setFlags(new Required());
         $this->fields[self::ADDITIONAL_TEXT_FIELD] = new TranslatedField('additionalText', \Shopware\Shop\Gateway\Resource\ShopResource::class, 'uuid');
         $this->fields[self::PACK_UNIT_FIELD] = new TranslatedField('packUnit', \Shopware\Shop\Gateway\Resource\ShopResource::class, 'uuid');
-        $this->fields['translations'] = (new SubresourceField(\Shopware\ProductDetail\Gateway\Resource\ProductDetailTranslationResource::class, 'languageUuid'));
+        $this->fields['translations'] = new SubresourceField(\Shopware\ProductDetail\Gateway\Resource\ProductDetailTranslationResource::class, 'languageUuid');
         $this->fields['productMedias'] = new SubresourceField(\Shopware\Product\Gateway\Resource\ProductMediaResource::class);
         $this->fields['productPrices'] = new SubresourceField(\Shopware\ProductPrice\Gateway\Resource\ProductPriceResource::class);
     }

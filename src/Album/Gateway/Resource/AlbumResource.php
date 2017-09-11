@@ -45,7 +45,7 @@ class AlbumResource extends Resource
         $this->fields['parent'] = new ReferenceField('parentUuid', 'uuid', \Shopware\Album\Gateway\Resource\AlbumResource::class);
         $this->fields['parentUuid'] = (new FkField('parent_uuid', \Shopware\Album\Gateway\Resource\AlbumResource::class, 'uuid'));
         $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Gateway\Resource\ShopResource::class, 'uuid');
-        $this->fields['translations'] = (new SubresourceField(\Shopware\Album\Gateway\Resource\AlbumTranslationResource::class, 'languageUuid'))->setFlags(new Required());
+        $this->fields['translations'] = new SubresourceField(\Shopware\Album\Gateway\Resource\AlbumTranslationResource::class, 'languageUuid');
         $this->fields['s'] = new SubresourceField(\Shopware\Album\Gateway\Resource\AlbumResource::class);
         $this->fields['medias'] = new SubresourceField(\Shopware\Media\Gateway\Resource\MediaResource::class);
     }

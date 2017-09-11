@@ -6,11 +6,11 @@ use Shopware\Api\Exception\FormatNotSupportedException;
 use Shopware\Framework\Struct\Collection;
 use Shopware\Framework\Struct\Struct;
 use Shopware\Product\Controller\XmlResponse;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-abstract class ApiController extends AbstractController
+abstract class ApiController extends Controller
 {
     abstract public function getXmlRootKey(): string;
     abstract public function getXmlChildKey(): string;
@@ -34,6 +34,13 @@ abstract class ApiController extends AbstractController
                 break;
             case 'xml':
                 $response = XmlResponse::createXmlResponse($this->getXmlRootKey(), $this->getXmlChildKey(), $responseEnvelope);
+                break;
+            case 'profile':
+                if ($this->container->getParameter('kernel.debug') !== true) {
+                    throw new \RuntimeException('Profiling is only allowed in debug mode.');
+                }
+
+                $response = $this->render('@Api/profile.html.twig', ['data' => $responseEnvelope]);
                 break;
             default:
                 throw new FormatNotSupportedException($context->getOutputFormat());

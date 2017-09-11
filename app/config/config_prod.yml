@@ -7,14 +7,13 @@ monolog:
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%.log"
             level: debug
-            channels: [!event]
+            channels: ['!event']
         console:
             type:   console
-            channels: [!event, !doctrine]
+            channels: ['!event', '!doctrine']
 
 parameters:
     swag_test.param1: 1000
-
 #framework:
 #    cache:
 #        app: cache.adapter.apcu

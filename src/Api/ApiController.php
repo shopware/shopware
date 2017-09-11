@@ -69,6 +69,11 @@ abstract class ApiController extends AbstractController
 
                 $response->setData($data);
                 break;
+            case $result instanceof Struct:
+                $data = json_decode(json_encode($result), true);
+
+                $response->setData($data);
+                break;
             case $response->getData() instanceof Struct:
                 $data = json_decode(json_encode($response->getData()), true);
 

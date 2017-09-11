@@ -1,3 +1,45 @@
+CREATE TABLE `album_translation` (
+  `album_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `name` VARCHAR(255) NOT NULL DEFAULT '' COLLATE 'utf8mb4_unicode_ci'
+)
+COLLATE='utf8mb4_unicode_ci'
+ENGINE=InnoDB
+;
+
+INSERT INTO album_translation (language_uuid, album_uuid,  name)
+    (
+        SELECT
+            s.uuid                                    AS language_uuid,
+            a.uuid                                    AS album_uuid,
+            a.name                                    AS name
+        FROM
+            album a
+        JOIN
+            shop s ON s.fallback_locale_uuid IS NULL
+    );
+
+CREATE TABLE `area_translation` (
+  `album_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `name` VARCHAR(255) NOT NULL DEFAULT '' COLLATE 'utf8mb4_unicode_ci'
+)
+COLLATE='utf8mb4_unicode_ci'
+ENGINE=InnoDB
+;
+
+INSERT INTO area_translation (language_uuid, album_uuid,  name)
+    (
+        SELECT
+            s.uuid                                    AS language_uuid,
+            a.uuid                                    AS area_uuid,
+            a.name                                    AS name
+        FROM
+            area a
+        JOIN
+            shop s ON s.fallback_locale_uuid IS NULL
+    );
+
 CREATE TABLE `product_detail_translation` (
   `product_detail_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
   `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',

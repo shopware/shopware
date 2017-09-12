@@ -28,18 +28,18 @@ class MailAttachmentResource extends Resource
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
         $this->fields['mail'] = new ReferenceField('mailUuid', 'uuid', \Shopware\Framework\Write\Resource\MailResource::class);
         $this->fields['mailUuid'] = (new FkField('mail_uuid', \Shopware\Framework\Write\Resource\MailResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['media'] = new ReferenceField('mediaUuid', 'uuid', \Shopware\Media\Writer\Resource\MediaResource::class);
-        $this->fields['mediaUuid'] = (new FkField('media_uuid', \Shopware\Media\Writer\Resource\MediaResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopResource::class);
-        $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid'));
+        $this->fields['media'] = new ReferenceField('mediaUuid', 'uuid', \Shopware\Media\Writer\MediaResource::class);
+        $this->fields['mediaUuid'] = (new FkField('media_uuid', \Shopware\Media\Writer\MediaResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Writer\ShopResource::class);
+        $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Writer\ShopResource::class, 'uuid'));
     }
     
     public function getWriteOrder(): array
     {
         return [
             \Shopware\Framework\Write\Resource\MailResource::class,
-            \Shopware\Media\Writer\Resource\MediaResource::class,
-            \Shopware\Shop\Writer\Resource\ShopResource::class,
+            \Shopware\Media\Writer\MediaResource::class,
+            \Shopware\Shop\Writer\ShopResource::class,
             \Shopware\Framework\Write\Resource\MailAttachmentResource::class
         ];
     }

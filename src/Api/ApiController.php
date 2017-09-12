@@ -16,24 +16,24 @@ abstract class ApiController extends Controller
     abstract public function getXmlChildKey(): string;
 
     /**
-     * @param mixed      $responseData
+     * @param mixed $responseData
      * @param ApiContext $context
+     * @param int $statusCode
      *
      * @return Response
-     *
      * @throws FormatNotSupportedException
      */
-    protected function createResponse($responseData, ApiContext $context): Response
+    protected function createResponse($responseData, ApiContext $context, int $statusCode = 200): Response
     {
         $responseEnvelope = $this->createEnvelope($responseData);
         $responseEnvelope->setParameters($context->getParameters());
 
         switch ($context->getOutputFormat()) {
             case 'json':
-                $response = JsonResponse::create($responseEnvelope);
+                $response = JsonResponse::create($responseEnvelope, $statusCode);
                 break;
             case 'xml':
-                $response = XmlResponse::createXmlResponse($this->getXmlRootKey(), $this->getXmlChildKey(), $responseEnvelope);
+                $response = XmlResponse::createXmlResponse($this->getXmlRootKey(), $this->getXmlChildKey(), $responseEnvelope, $statusCode);
                 break;
             case 'profile':
                 if ($this->container->getParameter('kernel.debug') !== true) {
@@ -61,6 +61,10 @@ abstract class ApiController extends Controller
 
             if (array_key_exists('data', $result)) {
                 $response->setData($result['data']);
+            }
+
+            if (array_key_exists('errors', $result)) {
+                $response->setErrors($result['errors']);
             }
         }
 

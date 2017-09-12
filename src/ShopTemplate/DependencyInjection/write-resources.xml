@@ -4,19 +4,19 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-                <service id="shopware.shoptemplate.shop-template.resource" class="Shopware\ShopTemplate\Writer\Resource\ShopTemplateResource">
+                <service id="shopware.shoptemplate.shop-template.resource" class="Shopware\ShopTemplate\Writer\ShopTemplateResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shoptemplate.shop-template-config-form.resource" class="Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigFormResource">
+        <service id="shopware.shoptemplate.shop-template-config-form.resource" class="Shopware\ShopTemplate\Writer\ShopTemplateConfigFormResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shoptemplate.shop-template-config-form-field.resource" class="Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigFormFieldResource">
+        <service id="shopware.shoptemplate.shop-template-config-form-field.resource" class="Shopware\ShopTemplate\Writer\ShopTemplateConfigFormFieldResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shoptemplate.shop-template-config-form-field-value.resource" class="Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigFormFieldValueResource">
+        <service id="shopware.shoptemplate.shop-template-config-form-field-value.resource" class="Shopware\ShopTemplate\Writer\ShopTemplateConfigFormFieldValueResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shoptemplate.shop-template-config-preset.resource" class="Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigPresetResource">
+        <service id="shopware.shoptemplate.shop-template-config-preset.resource" class="Shopware\ShopTemplate\Writer\ShopTemplateConfigPresetResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
     </services>

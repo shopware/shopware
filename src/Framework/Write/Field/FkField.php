@@ -24,10 +24,17 @@
 
 namespace Shopware\Framework\Write\Field;
 
+use Shopware\Framework\Write\FieldAware\PathAware;
+use Shopware\Framework\Write\FieldAware\ValidatorAware;
 use Shopware\Framework\Write\FieldAware\WriteContextAware;
+use Shopware\Framework\Write\FieldException\InvalidFieldException;
 use Shopware\Framework\Write\WriteContext;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class FkField extends Field implements WriteContextAware
+class FkField extends Field implements WriteContextAware, ValidatorAware, PathAware
 {
     /**
      * @var string
@@ -50,6 +57,16 @@ class FkField extends Field implements WriteContextAware
     private $foreignFieldName;
 
     /**
+     * @var ValidatorInterface
+     */
+    private $validator;
+
+    /**
+     * @var string
+     */
+    private $path;
+
+    /**
      * @param string $storageName
      * @param string $foreignClassName
      * @param string $foreignFieldName
@@ -61,31 +78,70 @@ class FkField extends Field implements WriteContextAware
         $this->storageName = $storageName;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(string $type, string $key, $value = null): \Generator
     {
         if (!$value) {
-            $value = $this->writeContext->get($this->foreignClassName, $this->foreignFieldName);
+            try {
+                $value = $this->writeContext->get($this->foreignClassName, $this->foreignFieldName);
+            } catch (\InvalidArgumentException $exception) {
+                $this->validate($key, $value);
+            }
         }
 
         yield $this->storageName => $value;
     }
 
-    /**
-     * @return string
-     */
     public function getStorageName(): string
     {
         return $this->storageName;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setWriteContext(WriteContext $writeContext): void
     {
         $this->writeContext = $writeContext;
+    }
+
+    public function setValidator(ValidatorInterface $validator): void
+    {
+        $this->validator = $validator;
+    }
+
+    public function setPath(string $path = ''): void
+    {
+        $this->path = $path;
+    }
+
+    /**
+     * @param string $fieldName
+     * @param $value
+     *
+     * @throws InvalidFieldException
+     */
+    private function validate(string $fieldName, $value): void
+    {
+        $violationList = new ConstraintViolationList();
+        $violations = $this->validator->validate($value, [new NotBlank()]);
+
+        /** @var ConstraintViolation $violation */
+        foreach ($violations as $violation) {
+            $violationList->add(
+                new ConstraintViolation(
+                    $violation->getMessage(),
+                    $violation->getMessageTemplate(),
+                    $violation->getParameters(),
+                    $violation->getRoot(),
+                    $fieldName,
+                    $violation->getInvalidValue(),
+                    $violation->getPlural(),
+                    $violation->getCode(),
+                    $violation->getConstraint(),
+                    $violation->getCause()
+                )
+            );
+        }
+
+        if (count($violationList)) {
+            throw new InvalidFieldException($this->path . '/' . $fieldName, $violationList);
+        }
     }
 }

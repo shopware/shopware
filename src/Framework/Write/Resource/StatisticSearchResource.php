@@ -34,14 +34,14 @@ class StatisticSearchResource extends Resource
         $this->fields[self::TERM_FIELD] = (new StringField('term'))->setFlags(new Required());
         $this->fields[self::RESULT_COUNT_FIELD] = (new IntField('result_count'))->setFlags(new Required());
         $this->fields[self::SHOP_ID_FIELD] = new IntField('shop_id');
-        $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopResource::class);
-        $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid'));
+        $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Writer\ShopResource::class);
+        $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Writer\ShopResource::class, 'uuid'));
     }
     
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Shop\Writer\Resource\ShopResource::class,
+            \Shopware\Shop\Writer\ShopResource::class,
             \Shopware\Framework\Write\Resource\StatisticSearchResource::class
         ];
     }    

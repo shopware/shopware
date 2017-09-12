@@ -58,11 +58,9 @@ class ResponseEnvelope implements \JsonSerializable
 
     public function jsonSerialize()
     {
-        $errors = $this->transformExceptionsToErrors($this->getErrors());
-
         return [
             'parameters' => $this->getParameters(),
-            'errors' => $errors,
+            'errors' => $this->getErrors(),
             'total' => $this->getTotal(),
             'data' => $this->getData(),
         ];

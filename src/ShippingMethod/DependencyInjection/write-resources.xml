@@ -4,19 +4,19 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-                <service id="shopware.shippingmethod.shipping-method.resource" class="Shopware\ShippingMethod\Writer\Resource\ShippingMethodResource">
+                <service id="shopware.shippingmethod.shipping-method.resource" class="Shopware\ShippingMethod\Writer\ShippingMethodResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shippingmethod.shipping-method-category.resource" class="Shopware\ShippingMethod\Writer\Resource\ShippingMethodCategoryResource">
+        <service id="shopware.shippingmethod.shipping-method-category.resource" class="Shopware\ShippingMethod\Writer\ShippingMethodCategoryResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shippingmethod.shipping-method-country.resource" class="Shopware\ShippingMethod\Writer\Resource\ShippingMethodCountryResource">
+        <service id="shopware.shippingmethod.shipping-method-country.resource" class="Shopware\ShippingMethod\Writer\ShippingMethodCountryResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shippingmethod.shipping-method-holiday.resource" class="Shopware\ShippingMethod\Writer\Resource\ShippingMethodHolidayResource">
+        <service id="shopware.shippingmethod.shipping-method-holiday.resource" class="Shopware\ShippingMethod\Writer\ShippingMethodHolidayResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shippingmethod.shipping-method-payment-method.resource" class="Shopware\ShippingMethod\Writer\Resource\ShippingMethodPaymentMethodResource">
+        <service id="shopware.shippingmethod.shipping-method-payment-method.resource" class="Shopware\ShippingMethod\Writer\ShippingMethodPaymentMethodResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
     </services>

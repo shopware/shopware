@@ -25,8 +25,8 @@ class FilterProductResource extends Resource
     {
         parent::__construct('filter_product');
         
-        $this->fields['product'] = new ReferenceField('productUuid', 'uuid', \Shopware\Product\Writer\Resource\ProductResource::class);
-        $this->fields['productUuid'] = (new FkField('product_uuid', \Shopware\Product\Writer\Resource\ProductResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['product'] = new ReferenceField('productUuid', 'uuid', \Shopware\Product\Writer\ProductResource::class);
+        $this->fields['productUuid'] = (new FkField('product_uuid', \Shopware\Product\Writer\ProductResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['filterValue'] = new ReferenceField('filterValueUuid', 'uuid', \Shopware\Framework\Write\Resource\FilterValueResource::class);
         $this->fields['filterValueUuid'] = (new FkField('filter_value_uuid', \Shopware\Framework\Write\Resource\FilterValueResource::class, 'uuid'))->setFlags(new Required());
     }
@@ -34,7 +34,7 @@ class FilterProductResource extends Resource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Product\Writer\Resource\ProductResource::class,
+            \Shopware\Product\Writer\ProductResource::class,
             \Shopware\Framework\Write\Resource\FilterValueResource::class,
             \Shopware\Framework\Write\Resource\FilterProductResource::class
         ];

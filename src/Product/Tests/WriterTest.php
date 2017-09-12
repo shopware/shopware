@@ -7,8 +7,8 @@ use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Framework\Write\FieldException\WriteStackException;
 use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
-use Shopware\Product\Writer\Resource\ProductResource;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\Product\Writer\ProductResource;
+use Shopware\Shop\Writer\ShopResource;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class WriterTest extends KernelTestCase

@@ -32,17 +32,17 @@ class PremiumProductResource extends Resource
         $this->fields[self::AMOUNT_FIELD] = new FloatField('amount');
         $this->fields[self::PRODUCT_ORDER_NUMBER_FIELD] = new StringField('product_order_number');
         $this->fields[self::PREMIUM_ORDER_NUMBER_FIELD] = (new StringField('premium_order_number'))->setFlags(new Required());
-        $this->fields['productDetail'] = new ReferenceField('productDetailUuid', 'uuid', \Shopware\ProductDetail\Writer\Resource\ProductDetailResource::class);
-        $this->fields['productDetailUuid'] = (new FkField('product_detail_uuid', \Shopware\ProductDetail\Writer\Resource\ProductDetailResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopResource::class);
-        $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['productDetail'] = new ReferenceField('productDetailUuid', 'uuid', \Shopware\ProductDetail\Writer\ProductDetailResource::class);
+        $this->fields['productDetailUuid'] = (new FkField('product_detail_uuid', \Shopware\ProductDetail\Writer\ProductDetailResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Writer\ShopResource::class);
+        $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Writer\ShopResource::class, 'uuid'))->setFlags(new Required());
     }
     
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\ProductDetail\Writer\Resource\ProductDetailResource::class,
-            \Shopware\Shop\Writer\Resource\ShopResource::class,
+            \Shopware\ProductDetail\Writer\ProductDetailResource::class,
+            \Shopware\Shop\Writer\ShopResource::class,
             \Shopware\Framework\Write\Resource\PremiumProductResource::class
         ];
     }

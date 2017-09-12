@@ -27,15 +27,15 @@ class BlogProductResource extends Resource
         
         $this->fields['blog'] = new ReferenceField('blogUuid', 'uuid', \Shopware\Framework\Write\Resource\BlogResource::class);
         $this->fields['blogUuid'] = (new FkField('blog_uuid', \Shopware\Framework\Write\Resource\BlogResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['product'] = new ReferenceField('productUuid', 'uuid', \Shopware\Product\Writer\Resource\ProductResource::class);
-        $this->fields['productUuid'] = (new FkField('product_uuid', \Shopware\Product\Writer\Resource\ProductResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['product'] = new ReferenceField('productUuid', 'uuid', \Shopware\Product\Writer\ProductResource::class);
+        $this->fields['productUuid'] = (new FkField('product_uuid', \Shopware\Product\Writer\ProductResource::class, 'uuid'))->setFlags(new Required());
     }
     
     public function getWriteOrder(): array
     {
         return [
             \Shopware\Framework\Write\Resource\BlogResource::class,
-            \Shopware\Product\Writer\Resource\ProductResource::class,
+            \Shopware\Product\Writer\ProductResource::class,
             \Shopware\Framework\Write\Resource\BlogProductResource::class
         ];
     }

@@ -30,15 +30,15 @@ class BlogMediaResource extends Resource
         $this->fields[self::PREVIEW_FIELD] = (new BoolField('preview'))->setFlags(new Required());
         $this->fields['blog'] = new ReferenceField('blogUuid', 'uuid', \Shopware\Framework\Write\Resource\BlogResource::class);
         $this->fields['blogUuid'] = (new FkField('blog_uuid', \Shopware\Framework\Write\Resource\BlogResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['media'] = new ReferenceField('mediaUuid', 'uuid', \Shopware\Media\Writer\Resource\MediaResource::class);
-        $this->fields['mediaUuid'] = (new FkField('media_uuid', \Shopware\Media\Writer\Resource\MediaResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['media'] = new ReferenceField('mediaUuid', 'uuid', \Shopware\Media\Writer\MediaResource::class);
+        $this->fields['mediaUuid'] = (new FkField('media_uuid', \Shopware\Media\Writer\MediaResource::class, 'uuid'))->setFlags(new Required());
     }
     
     public function getWriteOrder(): array
     {
         return [
             \Shopware\Framework\Write\Resource\BlogResource::class,
-            \Shopware\Media\Writer\Resource\MediaResource::class,
+            \Shopware\Media\Writer\MediaResource::class,
             \Shopware\Framework\Write\Resource\BlogMediaResource::class
         ];
     }

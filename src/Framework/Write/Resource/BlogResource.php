@@ -48,8 +48,8 @@ class BlogResource extends Resource
         $this->fields[self::META_TITLE_FIELD] = new StringField('meta_title');
         $this->fields['user'] = new ReferenceField('userUuid', 'uuid', \Shopware\Framework\Write\Resource\UserResource::class);
         $this->fields['userUuid'] = (new FkField('user_uuid', \Shopware\Framework\Write\Resource\UserResource::class, 'uuid'));
-        $this->fields['category'] = new ReferenceField('categoryUuid', 'uuid', \Shopware\Category\Writer\Resource\CategoryResource::class);
-        $this->fields['categoryUuid'] = (new FkField('category_uuid', \Shopware\Category\Writer\Resource\CategoryResource::class, 'uuid'));
+        $this->fields['category'] = new ReferenceField('categoryUuid', 'uuid', \Shopware\Category\Writer\CategoryResource::class);
+        $this->fields['categoryUuid'] = (new FkField('category_uuid', \Shopware\Category\Writer\CategoryResource::class, 'uuid'));
         $this->fields['comments'] = new SubresourceField(\Shopware\Framework\Write\Resource\BlogCommentResource::class);
         $this->fields['medias'] = new SubresourceField(\Shopware\Framework\Write\Resource\BlogMediaResource::class);
         $this->fields['products'] = new SubresourceField(\Shopware\Framework\Write\Resource\BlogProductResource::class);
@@ -60,7 +60,7 @@ class BlogResource extends Resource
     {
         return [
             \Shopware\Framework\Write\Resource\UserResource::class,
-            \Shopware\Category\Writer\Resource\CategoryResource::class,
+            \Shopware\Category\Writer\CategoryResource::class,
             \Shopware\Framework\Write\Resource\BlogResource::class,
             \Shopware\Framework\Write\Resource\BlogCommentResource::class,
             \Shopware\Framework\Write\Resource\BlogMediaResource::class,

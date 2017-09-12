@@ -6,6 +6,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\ApiContext;
 use Shopware\Api\ApiController;
 use Shopware\Api\ResultFormat;
+use Shopware\Framework\Write\FieldException\WriteStackException;
 use Shopware\Product\ProductRepository;
 use Shopware\Search\Criteria;
 use Symfony\Component\HttpFoundation\Request;
@@ -92,12 +93,36 @@ class ProductController extends ApiController
      */
     public function createAction(ApiContext $context): Response
     {
-        $result = [];
-        foreach ($context->getPayload() as $product) {
-            $result[] = $this->productRepository->create($product, $context->getShopContext()->getTranslationContext());
+        $success = [];
+        $errors = [];
+        $products = [];
+
+        if (!is_array($context->getPayload())) {
+            try {
+                $this->productRepository->create([], $context->getShopContext()->getTranslationContext());
+            } catch (WriteStackException $exception) {
+                return $this->createResponse(['errors' => $exception->toArray()], $context, 400);
+            }
         }
 
-        return $this->createResponse($result, $context);
+        foreach ($context->getPayload() as $product) {
+            try {
+                $success[] = $this->productRepository->create($product, $context->getShopContext()->getTranslationContext());
+            } catch (WriteStackException $exception) {
+                $errors[] = $exception->toArray();
+            }
+        }
+
+        if (count($success)) {
+            $products = $this->productRepository->read(array_column($success, 'uuid'), $context->getShopContext()->getTranslationContext());
+        }
+
+        $response = [
+            'data' => $products,
+            'errors' => $errors
+        ];
+
+        return $this->createResponse($response, $context);
     }
 
     /**
@@ -110,8 +135,8 @@ class ProductController extends ApiController
 
         try {
             $this->productRepository->update($payload, $context->getShopContext()->getTranslationContext());
-        } catch (\Exception $ex) {
-            
+        } catch (WriteStackException $exception) {
+            return $this->createResponse(['errors' => $exception->toArray()], $context, 400);
         }
 
         return $this->detailAction($request, $context);

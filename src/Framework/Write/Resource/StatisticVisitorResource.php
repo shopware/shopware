@@ -36,14 +36,14 @@ class StatisticVisitorResource extends Resource
         $this->fields[self::PAGE_IMPRESSIONS_FIELD] = new IntField('page_impressions');
         $this->fields[self::UNIQUE_VISITS_FIELD] = new IntField('unique_visits');
         $this->fields[self::DEVICE_TYPE_FIELD] = new StringField('device_type');
-        $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopResource::class);
-        $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Writer\ShopResource::class);
+        $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Writer\ShopResource::class, 'uuid'))->setFlags(new Required());
     }
     
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Shop\Writer\Resource\ShopResource::class,
+            \Shopware\Shop\Writer\ShopResource::class,
             \Shopware\Framework\Write\Resource\StatisticVisitorResource::class
         ];
     }    

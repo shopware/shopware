@@ -4,25 +4,25 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-                <service id="shopware.shop.shop.resource" class="Shopware\Shop\Writer\Resource\ShopResource">
+                <service id="shopware.shop.shop.resource" class="Shopware\Shop\Writer\ShopResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shop.shop-currency.resource" class="Shopware\Shop\Writer\Resource\ShopCurrencyResource">
+        <service id="shopware.shop.shop-currency.resource" class="Shopware\Shop\Writer\ShopCurrencyResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shop.shop-form.resource" class="Shopware\Shop\Writer\Resource\ShopFormResource">
+        <service id="shopware.shop.shop-form.resource" class="Shopware\Shop\Writer\ShopFormResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shop.shop-form-field.resource" class="Shopware\Shop\Writer\Resource\ShopFormFieldResource">
+        <service id="shopware.shop.shop-form-field.resource" class="Shopware\Shop\Writer\ShopFormFieldResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shop.shop-page.resource" class="Shopware\Shop\Writer\Resource\ShopPageResource">
+        <service id="shopware.shop.shop-page.resource" class="Shopware\Shop\Writer\ShopPageResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shop.shop-page-group.resource" class="Shopware\Shop\Writer\Resource\ShopPageGroupResource">
+        <service id="shopware.shop.shop-page-group.resource" class="Shopware\Shop\Writer\ShopPageGroupResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shop.shop-page-group-mapping.resource" class="Shopware\Shop\Writer\Resource\ShopPageGroupMappingResource">
+        <service id="shopware.shop.shop-page-group-mapping.resource" class="Shopware\Shop\Writer\ShopPageGroupMappingResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
     </services>

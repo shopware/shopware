@@ -31,14 +31,13 @@
             <argument id="shopware.product.reader.basic_hydrator" type="service"/>
         </service>
 
-        <service class="Shopware\Product\Writer\ProductWriter" id="shopware.product.writer.writer"/>
-
         <service class="Shopware\Product\ProductRepository" id="shopware.product.repository">
             <argument id="shopware.product.loader.basic_loader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.product.searcher" type="service"/>
-            <argument id="shopware.product.writer.writer" type="service"/>
             <argument id="shopware.product.loader.detail_loader" type="service"/>
+            <argument id="shopware.framework.write.writer" type="service"/>
+            <argument id="shopware.framework.write.field_aware.default_extender" type="service"/>
         </service>
 
         <service class="Shopware\Product\Reader\ProductDetailHydrator" id="shopware.product.reader.detail_hydrator">

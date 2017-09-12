@@ -75,8 +75,8 @@ class PluginResource extends Resource
         $this->fields[self::UPDATE_VERSION_FIELD] = new StringField('update_version');
         $this->fields[self::CAPABILITY_SECURE_UNINSTALL_FIELD] = new IntField('capability_secure_uninstall');
         $this->fields['configForms'] = new SubresourceField(\Shopware\Framework\Write\Resource\ConfigFormResource::class);
-        $this->fields['paymentMethods'] = new SubresourceField(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::class);
-        $this->fields['shopTemplates'] = new SubresourceField(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateResource::class);
+        $this->fields['paymentMethods'] = new SubresourceField(\Shopware\PaymentMethod\Writer\PaymentMethodResource::class);
+        $this->fields['shopTemplates'] = new SubresourceField(\Shopware\ShopTemplate\Writer\ShopTemplateResource::class);
         $this->fields['shoppingWorldComponents'] = new SubresourceField(\Shopware\Framework\Write\Resource\ShoppingWorldComponentResource::class);
     }
     
@@ -84,9 +84,9 @@ class PluginResource extends Resource
     {
         return [
             \Shopware\Framework\Write\Resource\ConfigFormResource::class,
-            \Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::class,
+            \Shopware\PaymentMethod\Writer\PaymentMethodResource::class,
             \Shopware\Framework\Write\Resource\PluginResource::class,
-            \Shopware\ShopTemplate\Writer\Resource\ShopTemplateResource::class,
+            \Shopware\ShopTemplate\Writer\ShopTemplateResource::class,
             \Shopware\Framework\Write\Resource\ShoppingWorldComponentResource::class
         ];
     }    

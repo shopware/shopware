@@ -38,8 +38,8 @@ class ConfigFormResource extends Resource
         $this->fields['parentUuid'] = (new FkField('parent_uuid', \Shopware\Framework\Write\Resource\ConfigFormResource::class, 'uuid'));
         $this->fields['plugin'] = new ReferenceField('pluginUuid', 'uuid', \Shopware\Framework\Write\Resource\PluginResource::class);
         $this->fields['pluginUuid'] = (new FkField('plugin_uuid', \Shopware\Framework\Write\Resource\PluginResource::class, 'uuid'));
-        $this->fields[self::LABEL_FIELD] = new TranslatedField('label', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
-        $this->fields[self::DESCRIPTION_FIELD] = new TranslatedField('description', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
+        $this->fields[self::LABEL_FIELD] = new TranslatedField('label', \Shopware\Shop\Writer\ShopResource::class, 'uuid');
+        $this->fields[self::DESCRIPTION_FIELD] = new TranslatedField('description', \Shopware\Shop\Writer\ShopResource::class, 'uuid');
         $this->fields['translations'] = new SubresourceField(\Shopware\Framework\Write\Resource\ConfigFormTranslationResource::class, 'languageUuid');
         $this->fields['s'] = new SubresourceField(\Shopware\Framework\Write\Resource\ConfigFormResource::class);
         $this->fields['fields'] = new SubresourceField(\Shopware\Framework\Write\Resource\ConfigFormFieldResource::class);

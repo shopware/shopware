@@ -42,14 +42,14 @@ class SnippetResource extends Resource
         $this->fields[self::CREATED_AT_FIELD] = (new DateField('created_at'))->setFlags(new Required());
         $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields[self::DIRTY_FIELD] = new BoolField('dirty');
-        $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopResource::class);
-        $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Writer\ShopResource::class);
+        $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Writer\ShopResource::class, 'uuid'))->setFlags(new Required());
     }
     
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Shop\Writer\Resource\ShopResource::class,
+            \Shopware\Shop\Writer\ShopResource::class,
             \Shopware\Framework\Write\Resource\SnippetResource::class
         ];
     }    

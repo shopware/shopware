@@ -56,7 +56,7 @@ class WriteStackException extends \DomainException implements ShopwareException
                 $result[$exception->getPath()] = [];
             }
 
-            $result[$exception->getPath()][$exception->getConcern()] = [$exception->toArray(), $exception->getTraceAsString()];
+            $result[$exception->getPath()][$exception->getConcern()] = $exception->toArray();
         }
 
         return $result;

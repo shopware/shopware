@@ -25,19 +25,21 @@
 namespace Shopware\Product;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Write\FieldAware\DefaultExtender;
+use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Framework\Write\WriteContext;
+use Shopware\Framework\Write\Writer;
 use Shopware\Product\Event\ProductBasicLoadedEvent;
 use Shopware\Product\Event\ProductDetailLoadedEvent;
+use Shopware\Product\Event\ProductWriteExtenderEvent;
 use Shopware\Product\Loader\ProductBasicLoader;
 use Shopware\Product\Loader\ProductDetailLoader;
 use Shopware\Product\Searcher\ProductSearcher;
 use Shopware\Product\Struct\ProductBasicCollection;
 use Shopware\Product\Struct\ProductDetailCollection;
 use Shopware\Product\Struct\ProductSearchResult;
-use Shopware\Product\Writer\ProductWriter;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
-use Shopware\Shop\Writer\Resource\ShopResource;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductRepository
@@ -46,6 +48,7 @@ class ProductRepository
      * @var ProductDetailLoader
      */
     protected $detailLoader;
+
     /**
      * @var ProductBasicLoader
      */
@@ -62,22 +65,29 @@ class ProductRepository
     private $searcher;
 
     /**
-     * @var ProductWriter
+     * @var Writer
      */
     private $writer;
+
+    /**
+     * @var DefaultExtender
+     */
+    private $extender;
 
     public function __construct(
         ProductBasicLoader $basicLoader,
         EventDispatcherInterface $eventDispatcher,
         ProductSearcher $searcher,
-        ProductWriter $writer,
-        ProductDetailLoader $detailLoader
+        ProductDetailLoader $detailLoader,
+        Writer $writer,
+        DefaultExtender $extender
     ) {
         $this->basicLoader = $basicLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
         $this->detailLoader = $detailLoader;
+        $this->extender = $extender;
     }
 
     public function readDetail(array $uuids, TranslationContext $context): ProductDetailCollection
@@ -126,17 +136,35 @@ class ProductRepository
 
     public function update(array $data, TranslationContext $context): array
     {
-        $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $context->getShopUuid());
+        $writeContext = $this->createWriteContext($context->getShopUuid());
+        $extender = $this->getExtender();
 
-        return $this->writer->update($data, $writeContext);
+        return $this->writer->update(\Shopware\Product\Writer\ProductResource::class, $data, $writeContext, $extender);
     }
 
     public function create(array $data, TranslationContext $context): array
     {
-        $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $context->getShopUuid());
+        $writeContext = $this->createWriteContext($context->getShopUuid());
+        $extender = $this->getExtender();
 
-        return $this->writer->create($data, $writeContext);
+        return $this->writer->insert(\Shopware\Product\Writer\ProductResource::class, $data, $writeContext, $extender);
+    }
+
+    private function createWriteContext(string $shopUuid): WriteContext
+    {
+        $writeContext = new WriteContext();
+        $writeContext->set(\Shopware\Shop\Writer\ShopResource::class, 'uuid', $shopUuid);
+
+        return $writeContext;
+    }
+
+    private function getExtender(): FieldExtenderCollection
+    {
+        $extenderCollection = new FieldExtenderCollection();
+        $extenderCollection->addExtender($this->extender);
+
+        $event = $this->eventDispatcher->dispatch(ProductWriteExtenderEvent::EVENT_NAME, new ProductWriteExtenderEvent($extenderCollection));
+
+        return $event->getExtenderCollection();
     }
 }

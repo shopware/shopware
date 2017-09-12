@@ -88,10 +88,8 @@ EOD;
     {
         exec('rm -R ' . __DIR__ . '/../../**/Gateway/Resource');
         exec('rm -R ' . __DIR__ . '/../../**/Writer/ResourceDefinition');
+        exec('rm -R ' . __DIR__ . '/../../**/Writer/Resource');
         exec('rm -R ' . __DIR__ . '/Resource/*.php');
-
-        $path = __DIR__ . '/../../Product/Writer/ResourceDefinition';
-        @mkdir($path, 0777, true);
 
         $connection = $this->container->get('dbal_connection');
         $schemaManager = $connection->getSchemaManager();
@@ -601,7 +599,7 @@ EOD;
             return $srcDir . 'Framework/Write/Resource';
         }
 
-        return $srcDir . $bundleName . '/Writer/Resource';
+        return $srcDir . $bundleName . '/Writer';
     }
 
     public function getDiPath(): string
@@ -635,7 +633,7 @@ EOD;
             return 'Shopware\\Framework\\Write\\Resource';
         }
 
-        return 'Shopware\\' . $bundleName . '\\Writer\\Resource';
+        return 'Shopware\\' . $bundleName . '\\Writer';
     }
 
     public function getClassName(): string

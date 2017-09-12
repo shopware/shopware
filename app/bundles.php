@@ -17,6 +17,9 @@ return [
     Sensio\Bundle\DistributionBundle\SensioDistributionBundle::class => ['dev' => true, 'test' => true],
     Sensio\Bundle\GeneratorBundle\SensioGeneratorBundle::class => ['dev' => true, 'test' => true],
 
+    Shopware\Framework\Framework::class => ['all' => true],
+    Shopware\Api\Api::class => ['all' => true],
+
     Shopware\Album\Album::class => ['all' => true],
     Shopware\Area\Area::class => ['all' => true],
     Shopware\AreaCountry\AreaCountry::class => ['all' => true],
@@ -31,7 +34,6 @@ return [
     Shopware\CustomerGroup\CustomerGroup::class => ['all' => true],
     Shopware\CustomerGroupDiscount\CustomerGroupDiscount::class => ['all' => true],
     Shopware\Filesystem\Filesystem::class => ['all' => true],
-    Shopware\Framework\Framework::class => ['all' => true],
     Shopware\Holiday\Holiday::class => ['all' => true],
     Shopware\ListingSorting\ListingSorting::class => ['all' => true],
     Shopware\Locale\Locale::class => ['all' => true],

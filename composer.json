@@ -47,21 +47,21 @@
     "linkorb/jsmin-php": "1.0.0",
     "guzzlehttp/guzzle": "^6.3",
     "egulias/email-validator": "1.2.12",
-    "elasticsearch/elasticsearch": "2.2.0",
-    "ongr/elasticsearch-dsl": "2.0.2",
-    "cocur/slugify": "2.4",
+    "elasticsearch/elasticsearch": "^5.3",
+    "ongr/elasticsearch-dsl": "^5.0",
+    "cocur/slugify": "^3.0",
     "bcremer/line-reader": "^0.2.0",
-    "superbalist/flysystem-google-storage": "4.0.2",
+    "superbalist/flysystem-google-storage": "^5.0",
     "league/flysystem": "^1.0",
     "league/flysystem-aws-s3-v3": "^1.0",
     "league/flysystem-azure": "^1.0",
-    "ramsey/uuid": "^3.6"
+    "ramsey/uuid": "^3.7"
   },
   "require-dev": {
     "sensio/generator-bundle": "^3.1",
-    "symfony/phpunit-bridge": "^3.2",
+    "symfony/phpunit-bridge": "^3.3",
     "fzaninotto/faker": "^1.7",
-    "phpunit/phpunit": "^6.2"
+    "phpunit/phpunit": "^6.3"
   },
   "scripts": {
     "symfony-scripts": [

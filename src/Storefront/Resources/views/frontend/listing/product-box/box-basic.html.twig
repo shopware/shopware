@@ -1,0 +1,86 @@
+{#{namespace name="frontend/listing/box_article"}#}
+
+{% block frontend_listing_box_article %}
+    <div class="product--box box--{{ productBoxLayout }}"
+         data-page-index="{{ pageIndex }}"
+         data-ordernumber="{{ product.ordernumber }}"
+         {% if shopware.config.disableArticleNavigation == false %}data-category-id="{{ sCategoryCurrent }}"{% endif %}>
+
+        {% block frontend_listing_box_article_content %}
+            <div class="box--content is--rounded">
+
+                {# Product box badges - highlight, newcomer, ESD product and discount #}
+                {% block frontend_listing_box_article_badges %}
+                    {#{% sw_include "@Shopware/frontend/listing/product-box/product-badges.html.twig" %}#}
+                {% endblock %}
+
+                {% block frontend_listing_box_article_info_container %}
+                    <div class="product--info">
+
+                        {# Product image #}
+                        {% block frontend_listing_box_article_picture %}
+                            {% sw_include "@Shopware/frontend/listing/product-box/product-image.html.twig" %}
+                        {% endblock %}
+
+                        {# Customer rating for the product #}
+                        {% block frontend_listing_box_article_rating %}
+                            <div class="product--rating-container">
+                                {#{if product.sVoteAverage.average %}#}
+                                    {#{% sw_include '@Shopware/frontend/_includes/rating.tpl' points=$sArticle.sVoteAverage.average type="aggregated" label=false microData=false %}#}
+                                {#{% endif %}#}
+                            </div>
+                        {% endblock %}
+
+                        {# Product name #}
+                        {% block frontend_listing_box_article_name %}
+                            <a href="{{ product.linkDetails }}"
+                               class="product--title"
+                               title="{{ product.name|escape }}">
+                                {{ product.name|slice(0, 50)|escape }}
+                            </a>
+                        {% endblock %}
+
+                        {# Product description #}
+                        {%  block frontend_listing_box_article_description %}
+                            <div class="product--description">
+                                {{ product.description_long|striptags|slice(0, 240) }}
+                            </div>
+                        {% endblock %}
+
+                        {% block frontend_listing_box_article_price_info %}
+                            <div class="product--price-info">
+
+                                {# Product price - Unit price #}
+                                {% block frontend_listing_box_article_unit %}
+                                    {#{% sw_include "@Shopware/frontend/listing/product-box/product-price-unit.html.twig" %}#}
+                                {% endblock %}
+
+                                {# Product price - Default and discount price #}
+                                {% block frontend_listing_box_article_price %}
+                                    {#{% sw_include "@Shopware/frontend/listing/product-box/product-price.html.twig" %}#}
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+
+                        {% block frontend_listing_box_article_buy %}
+                            {% if shopware.config.displayListingBuyButton %}
+                                <div class="product--btn-container">
+                                    {% if product.allowBuyInListing %}
+                                        {#{% sw_include "@Shopware/frontend/listing/product-box/button-buy.html.twig" %}#}
+                                    {% else %}
+                                        {% sw_include "@Shopware/frontend/listing/product-box/button-detail.html.twig" %}
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endblock %}
+
+                        {# Product actions - Compare product, more information #}
+                        {% block frontend_listing_box_article_actions %}
+                            {#{% sw_include "@Shopware/frontend/listing/product-box/product-actions.html.twig" %}#}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -75,14 +75,14 @@
             <tag name="kernel.event_subscriber" />
         </service>
 
-        <service class="Shopware\Storefront\DetailPage\DetailPageUrlGenerator" id="shopware.storefront.detail_page.detail_page_url_generator">
+        <service class="Shopware\Storefront\Page\Detail\DetailPageUrlGenerator" id="shopware.storefront.detail_page.detail_page_url_generator">
             <argument id="shopware.product.repository" type="service"/>
             <argument id="slugify" type="service"/>
             <argument id="shopware.router" type="service"/>
             <argument id="shopware.seo_url.repository" type="service" />
         </service>
 
-        <service class="Shopware\Storefront\ListingPage\ListingPageUrlGenerator" id="shopware.storefront.listing_page.listing_page_url_generator">
+        <service class="Shopware\Storefront\Page\Listing\ListingPageUrlGenerator" id="shopware.storefront.listing_page.listing_page_url_generator">
             <argument id="shopware.category.repository" type="service"/>
             <argument id="slugify" type="service"/>
             <argument id="shopware.router" type="service"/>
@@ -107,6 +107,10 @@
 
         <service class="Shopware\Storefront\Navigation\NavigationLoader" id="shopware.storefront.navigation.navigation_loader">
             <argument id="shopware.category.repository" type="service"/>
+        </service>
+
+        <service class="Shopware\Storefront\Page\Listing\ListingPageLoader" id="shopware.storefront.page.listing.listing_page_loader">
+            <argument id="shopware.category.repository" type="service" />
         </service>
 
     </services>

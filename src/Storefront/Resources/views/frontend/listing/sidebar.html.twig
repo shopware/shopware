@@ -1,0 +1,21 @@
+{% sw_extends "@Shopware/frontend/index/sidebar.html.twig" %}
+
+{% block frontend_index_sidebar %}
+    {% if theme.sidebarFilter %}
+        {% block frontend_listing_sidebar %}
+            <div class="listing--sidebar">
+                {{ parent() }}
+
+                {% if criteria %}
+                    <div class="sidebar-filter">
+                        <div class="sidebar-filter--content">
+                            {#{% sw_include "@Shopware/frontend/listing/actions/action-filter-panel.tpl" %}#}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        {% endblock %}
+    {% else %}
+        {{ parent() }}
+    {% endif  %}
+{% endblock %}

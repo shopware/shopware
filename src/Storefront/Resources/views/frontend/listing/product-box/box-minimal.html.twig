@@ -1,0 +1,45 @@
+{% sw_extends "@Shopware/frontend/listing/product-box/box-basic.html.twig" %}
+
+{#{namespace name="frontend/listing/box_article"}#}
+
+{% block frontend_listing_box_article_description %}{% endblock %}
+
+{% block frontend_listing_box_article_actions %}{% endblock %}
+
+{% block frontend_listing_box_article_price %}
+    <div class="product--price-outer">
+        <div class="product--price">
+
+            {# Discount price #}
+            {% block frontend_listing_box_article_price_discount %}
+                {% if product.has_pseudoprice %}
+                    <span class="price--pseudo">
+
+                        {% block frontend_listing_box_article_price_discount_before %}
+                            {#{s name="priceDiscountLabel" namespace="frontend/detail/data"}{/s}#}
+                        {% endblock %}
+
+                        <span class="price--discount is--nowrap">
+                            {{ sArticle.pseudoprice|localizedcurrency('EUR') }}
+                            {#{s name="Star"}{/s}#}
+                        </span>
+
+                        {% block frontend_listing_box_article_price_discount_after %}
+                            {#{s name="priceDiscountInfo" namespace="frontend/detail/data"}{/s}#}
+                        {% endblock %}
+                    </span>
+                {% endif %}
+            {% endblock %}
+
+            {# Default price #}
+            {% block frontend_listing_box_article_price_default %}
+            <span class="price--default is--nowrap{% if product.has_pseudoprice %} is--discount{% endif %}">
+                        {#{if $sArticle.priceStartingFrom && !$sArticle.liveshoppingData}{s name='ListingBoxArticleStartsAt'}{/s} {/if}#}
+                        {#{$sArticle.price|currency}#}
+                        {#{s name="Star"}{/s}#}
+                    </span>
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}
+

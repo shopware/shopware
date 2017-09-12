@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Storefront\DetailPage;
+namespace Shopware\Storefront\Page\Detail;
 
 use Cocur\Slugify\SlugifyInterface;
 use Ramsey\Uuid\Uuid;

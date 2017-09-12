@@ -1,0 +1,69 @@
+{% sw_extends "@Shopware/frontend/index/index.html.twig" %}
+
+{% block frontend_index_header %}
+    {% sw_include '@Shopware/frontend/listing/header.html.twig' %}
+{% endblock %}
+
+{% block frontend_index_content_left %}
+
+    {% block frontend_index_controller_url %}
+        {# Controller url for the found products counter #}
+        {#{% set countCtrlUrl = "{url module="widgets" controller="listing" action="listingCount" params=$ajaxCountUrlParams fullPath}"}#}
+    {% endblock %}
+
+    {% sw_include '@Shopware/frontend/listing/sidebar.html.twig' %}
+{% endblock %}
+
+{# Main content #}
+{% block frontend_index_content %}
+    <div class="content listing--content">
+
+        {# Banner #}
+        {% block frontend_listing_index_banner %}
+            {% if hasEmotion == false %}
+                {% sw_include '@Shopware/frontend/listing/banner.html.twig' %}
+            {% endif %}
+        {%  endblock %}
+
+        {# Category headline #}
+        {% block frontend_listing_index_text %}
+            {% if hasEmotion == false %}
+                {% sw_include '@Shopware/frontend/listing/text.html.twig' %}
+            {% endif %}
+        {%  endblock %}
+
+        {# Topseller #}
+        {#{% block frontend_listing_index_topseller %}#}
+            {#{% if hasEmotion == false and {% config name=topSellerActive %} %}#}
+                {#{action module=widgets controller=listing action=top_seller sCategory=$sCategoryContent.id}#}
+            {#{% endif %}#}
+        {#{% endblock %}#}
+
+        {# Define all necessary template variables for the listing #}
+        {% block frontend_listing_index_layout_variables %}
+            {% set emotionViewports = {0: 'xl', 1: 'l', 2: 'm', 3: 's', 4: 'xs'} %}
+
+            {# Count of available product pages #}
+            {% set pages = 1 %}
+
+            {% if criteria %}
+                {% set pages = (numberOfProducts / criteria.getLimit())|round %}
+            {% endif %}
+
+            {# Layout for the product boxes #}
+            {% set productBoxLayout = 'basic' %}
+
+            {% if category.productBoxLayout != null and category.productBoxLayout != 'extend' %}
+                {% set productBoxLayout = category.productBoxLayout %}
+            {% endif %}
+        {% endblock %}
+
+        {# Listing #}
+        {% block frontend_listing_index_listing %}
+            {% sw_include '@Shopware/frontend/listing/listing.html.twig' %}
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{# Sidebar right #}
+{% block frontend_index_content_right %}{% endblock %}

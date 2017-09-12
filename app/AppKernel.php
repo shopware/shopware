@@ -159,7 +159,7 @@ class AppKernel extends Kernel
         $loader->load($this->getRootDir() . '/config/config_' . $this->getEnvironment() . '.yml');
     }
 
-    protected function getContainerClass(): string
+    protected function getContainerClass()
     {
         $pluginHash = sha1(implode('', array_keys(self::getPlugins()->all())));
 

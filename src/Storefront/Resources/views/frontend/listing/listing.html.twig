@@ -1,0 +1,101 @@
+{# Shopping worlds #}
+{#{% block frontend_listing_list_promotion %}#}
+    {#{% if hasEmotion %}#}
+        {#{% set fullscreen = false %}#}
+
+    {#{% block frontend_listing_emotions %}#}
+        {#<div class="content--emotions">#}
+
+    {#{foreach $emotions as $emotion}#}
+    {#{if $emotion.fullscreen == 1}#}
+    {#{$fullscreen = true}#}
+    {#{/if}#}
+
+    {#<div class="emotion--wrapper"#}
+         {#data-controllerUrl="{url module=widgets controller=emotion action=index emotionId=$emotion.id controllerName=$Controller}"#}
+         {#data-availableDevices="{$emotion.devices}">#}
+    {#</div>#}
+    {#{/foreach}#}
+
+    {#{block name="frontend_listing_list_promotion_link_show_listing"}#}
+
+    {#{$showListingCls = "emotion--show-listing"}#}
+
+    {#{foreach $showListingDevices as $device}#}
+    {#{$showListingCls = "{$showListingCls} hidden--{$emotionViewports[$device]}"}#}
+    {#{/foreach}#}
+
+    {#<div class="{$showListingCls}{if $fullscreen} is--align-center{/if}">#}
+        {#<a href="{url controller='cat' sPage=1 sCategory=$sCategoryContent.id}" title="{$sCategoryContent.name|escape}" class="link--show-listing{if $fullscreen} btn is--primary{/if}">#}
+            {#{s name="ListingActionsOffersLink"}Weitere Artikel in dieser Kategorie &raquo;{/s}#}
+        {#</a>#}
+    {#</div>#}
+    {#{/block}#}
+{#</div>#}
+{#{/block}#}
+{#{/if}#}
+{#{/block}#}
+
+{# Listing wrapper #}
+{% block frontend_listing_listing_wrapper %}
+    {% if showListing %}
+
+        {% set listingCssClass = "listing--wrapper" %}
+
+        {% for device in showListingDevices %}
+            {% set listingCssClass = "{{ listingCssClass }} visible--{{ emotionViewports[device] }}" %}
+        {% endfor %}
+
+        {% if theme.sidebarFilter %}
+            {% set listingCssClass = "{{ listingCssClass }} has--sidebar-filter" %}
+        {% endif %}
+
+        <div class="{{ listingCssClass }}">
+
+            {# Sorting and changing layout #}
+            {% block frontend_listing_top_actions %}
+                {#{% sw_include '@Shopware/frontend/listing/listing_actions.html.twig' %}#}
+            {% endblock %}
+
+            {% block frontend_listing_listing_container %}
+                <div class="listing--container">
+
+                    {% block frontend_listing_no_filter_result %}
+                        <div class="listing-no-filter-result">
+                            {#{% sw_include "@Shopwarwe/frontend/_includes/messages.html.twig" type="info" content="{s name=noFilterResult}Für die Filterung wurden keine Ergebnisse gefunden!{/s}" visible=false %}#}
+                        </div>
+                    {% endblock %}
+
+                    {% block frontend_listing_listing_content %}
+                        <div class="listing"
+                             data-ajax-wishlist="true"
+                             data-compare-ajax="true"
+                            {% if theme.infiniteScrolling %}
+                                data-infinite-scrolling="true"
+                                data-loadPreviousSnippet="{% trans from 'frontend/listing/listing' %}ListingActionsLoadPrevious{% endtrans %}"
+                                data-loadMoreSnippet="{% trans from 'frontend/listing/listing' %}ListingActionsLoadMore{% endtrans %}"
+                                data-categoryId="{{ category.id }}"
+                                data-pages="{{ pages }}"
+                                data-threshold="{{ theme.infiniteThreshold }}"
+                            {% endif %}>
+
+                            {# Actual listing #}
+                            {% block frontend_listing_list_inline %}
+                                {% for product in products %}
+                                    {% sw_include "@Shopware/frontend/listing/box_product.html.twig" %}
+                                {% endfor %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {# Paging #}
+            {% block frontend_listing_bottom_paging %}
+                <div class="listing--bottom-paging">
+                    {#{% sw_include "@Shopware/frontend/listing/actions/action-pagination.html.twig" %}#}
+                </div>
+            {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}

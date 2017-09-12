@@ -1,0 +1,22 @@
+{% block frontend_listing_box_article_includes %}
+
+    {#{% if productBoxLayout == 'minimal' %}#}
+        {% sw_include "@Shopware/frontend/listing/product-box/box-minimal.html.twig" %}
+
+    {#{% elseif productBoxLayout == 'image' %}#}
+        {#{% sw_include "@Shopware/frontend/listing/product-box/box-big-image.html.twig" %}#}
+
+    {#{% elseif productBoxLayout == 'slider' %}#}
+        {#{% sw_include "@Shopware/frontend/listing/product-box/box-product-slider.html.twig" %}#}
+
+    {#{%  elseif productBoxLayout == 'emotion' %}#}
+        {#{% sw_include "@Shopware/frontend/listing/product-box/box-emotion.html.twig" %}#}
+    {#{% elseif productBoxLayout == 'list' %}#}
+        {#{% sw_include "@Shopware/frontend/listing/product-box/box-list.html.twig" %}#}
+
+    {#{% else %}#}
+        {#{% block frontend_listing_box_article_includes_additional %}#}
+            {#{% sw_include "@Shopware/frontend/listing/product-box/box-basic.html.twig" productBoxLayout="basic" %}#}
+        {#{% enblock %}#}
+    {#{% endif%}#}
+{% endblock %}

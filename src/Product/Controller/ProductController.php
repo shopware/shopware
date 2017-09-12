@@ -93,33 +93,11 @@ class ProductController extends ApiController
      */
     public function createAction(ApiContext $context): Response
     {
-        $success = [];
-        $errors = [];
-        $products = [];
-
-        if (!is_array($context->getPayload())) {
-            try {
-                $this->productRepository->create([], $context->getShopContext()->getTranslationContext());
-            } catch (WriteStackException $exception) {
-                return $this->createResponse(['errors' => $exception->toArray()], $context, 400);
-            }
-        }
-
-        foreach ($context->getPayload() as $product) {
-            try {
-                $success[] = $this->productRepository->create($product, $context->getShopContext()->getTranslationContext());
-            } catch (WriteStackException $exception) {
-                $errors[] = $exception->toArray();
-            }
-        }
-
-        if (count($success)) {
-            $products = $this->productRepository->read(array_column($success, 'uuid'), $context->getShopContext()->getTranslationContext());
-        }
+        $createEvent = $this->productRepository->create($context->getPayload(), $context->getShopContext()->getTranslationContext());
 
         $response = [
-            'data' => $products,
-            'errors' => $errors
+            'data' => $this->productRepository->read($createEvent->getCreatedUuids(), $context->getShopContext()->getTranslationContext()),
+            'errors' => $createEvent->getErrors()
         ];
 
         return $this->createResponse($response, $context);
@@ -133,13 +111,19 @@ class ProductController extends ApiController
         $payload = $context->getPayload();
         $payload['uuid'] = $request->get('productUuid');
 
-        try {
-            $this->productRepository->update($payload, $context->getShopContext()->getTranslationContext());
-        } catch (WriteStackException $exception) {
-            return $this->createResponse(['errors' => $exception->toArray()], $context, 400);
+        $updateEvent = $this->productRepository->update([$payload], $context->getShopContext()->getTranslationContext());
+
+        if ($updateEvent->hasErrors()) {
+            $errors = $updateEvent->getErrors();
+            $error = array_shift($errors);
+
+            return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        return $this->detailAction($request, $context);
+        return $this->createResponse(
+            ['data' => $this->productRepository->read([$payload['uuid']], $context->getShopContext()->getTranslationContext())->get($payload['uuid'])],
+            $context
+        );
     }
 
     /**

@@ -1,6 +1,10 @@
-<div class="sw-form-field">
+<div :class="['sw-form-field',suffix.length ? 'has--suffix': '']">
     <label v-if="label" :for="id">{{ label }}</label>
     <textarea v-if="type === 'textarea'" v-html="value" :name="name" :id="id" :placeholder="placeholder" @input="$emit('input', $event.target.value)"></textarea>
     <input v-else-if="type === 'checkbox'" type="checkbox" :name="name" :id="id" :value="value" @input="$emit('input', $event.target.value)">
     <input v-else :type="type" :name="name" :id="id" :placeholder="placeholder" :value="value" @input="$emit('input', $event.target.value)" />
+
+    <span v-if="suffix" class="sw-form-field--suffix">
+        {{ suffix }}
+    </span>
 </div>

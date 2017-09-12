@@ -1,7 +1,7 @@
 <sw-workspace>
     <header class="toolbar--middle-section" slot="header">
         <h1 class="workspace--headline">
-            <span v-if="product.name">{{ product.name }}</span>
+            <span v-if="product.name">{{ product.name }} <span class="is--small">von {{ product.manufacturer.name }}</span></span>
             <span v-else class="headline--empty">(lade Produkt...)</span>
         </h1>
 
@@ -30,39 +30,52 @@
             </li>
             <li class="tabs--item">
                 <a href="#" class="item--link">
-                    Inaktivier Tab
+                    Tab
                 </a>
             </li>
             <li class="tabs--item">
                 <a href="#" class="item--link">
-                    Inaktivier Tab
+                    Tab
                 </a>
             </li>
             <li class="tabs--item">
                 <a href="#" class="item--link">
-                    Inaktivier Tab
+                    Tab
                 </a>
             </li>
         </ul>
 
-        <sw-card title="Produkt Informationen">
-            <form ref="form" method="post">
-                <sw-form-field label="Titel" id="title" type="text" name="name" placeholder="Your product title..." v-model="product.name"></sw-form-field>
-                <sw-form-field label="Artikel-Beschreibung" id="descriptionLong" type="textarea" name="descriptionLong" placeholder="Your product description..." v-model="product.descriptionLong"></sw-form-field>
+        <sw-card title="Produkt Informationen" description="Allgemeine Informationen zum Produkt. Lorem ipsum dolor sit amet, consectetur adipisicing elit. A dolor praesentium repellat sequi tempora. Facilis minima, quibusdam. Assumenda atque commodi dicta, eum excepturi nostrum optio quis quos reiciendis vel voluptatem.">
+            <sw-form-field label="Titel" id="title" type="text" name="name" placeholder="Your product title..." v-model="product.name"></sw-form-field>
+            <sw-form-field label="Artikel-Beschreibung" id="descriptionLong" type="textarea" name="descriptionLong" placeholder="Your product description..." v-model="product.descriptionLong"></sw-form-field>
 
-                <div class="split--container">
-                    <div class="container--item">
-                        <sw-form-field label="Artikelnummer" id="uuid" type="text" name="uuid" placeholder="Your product Uuid" :value="product.mainDetailUuid"></sw-form-field>
-                    </div>
-                    <div class="container--item">
-                        <sw-form-field label="Hersteller" id="manufacturer" type="text" name="manufacturer" placeholder="Your product manufacturer" v-model="product.manufacturer.name"></sw-form-field>
-                    </div>
+            <div class="split--container">
+                <div class="container--item">
+                    <sw-form-field label="Artikelnummer" id="uuid" type="text" name="uuid" placeholder="Your product Uuid" :value="product.mainDetailUuid"></sw-form-field>
                 </div>
+                <div class="container--item">
+                    <sw-form-field label="Hersteller" id="manufacturer" type="text" name="manufacturer" placeholder="Your product manufacturer" v-model="product.manufacturer.name"></sw-form-field>
+                </div>
+            </div>
 
-                <sw-form-field label="Kategorie" id="category" type="text" name="" placeholder="Your product category"></sw-form-field>
+            <sw-form-field label="Kategorie" id="category" type="text" name="" placeholder="Your product category"></sw-form-field>
 
-                <sw-loader v-if="isWorking"></sw-loader>
-            </form>
+            <sw-loader v-if="isWorking"></sw-loader>
+        </sw-card>
+
+        <sw-card title="Preise">
+            <div class="split--container">
+                <div class="container--item">
+                    <sw-form-field label="Preis" id="price" type="number" name="uuid" placeholder="Your product price" v-model="product.mainDetail.purchasePrice" suffix="€"></sw-form-field>
+                    <sw-form-field label="Mehrwertsteuer" id="tax" type="text" name="tax" placeholder="Your product tax" :value="product.mainDetailUuid"></sw-form-field>
+                </div>
+                <div class="container--item">
+                    <sw-form-field label="Rabatt" id="rebate" type="text" name="rebate" placeholder="Your product rebate" v-model="product.manufacturer.name"></sw-form-field>
+                    <sw-form-field label="Letzter Einkaufspreis (brutto)" id="rebate" type="text" name="prime_cost" placeholder="Your product prime cost" v-model="product.manufacturer.name"></sw-form-field>
+                </div>
+            </div>
+
+            <sw-loader v-if="isWorking"></sw-loader>
         </sw-card>
     </div>
 </sw-workspace>

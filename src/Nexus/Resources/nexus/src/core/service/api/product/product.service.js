@@ -46,7 +46,7 @@ export default function ProductService(client) {
             return Promise.reject(new Error('"uuid" argument needs to be provided'));
         }
 
-        return client.put(`/product/${uuid}.json`, payload).then((response) => {
+        return client.patch(`/product/${uuid}.json`, payload).then((response) => {
             return response.data;
         });
     }

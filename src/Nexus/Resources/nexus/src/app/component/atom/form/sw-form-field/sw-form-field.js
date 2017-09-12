@@ -21,13 +21,22 @@ export default Shopware.ComponentFactory.register('sw-form-field', {
             default: ''
         },
         value: {
-            type: [String, Boolean],
+            type: [String, Boolean, Number],
+            default: ''
+        },
+        suffix: {
+            type: String,
             default: '',
-            sync: true
+            required: false
         },
         label: {
             type: String,
             default: ''
+        },
+        isCurrency: {
+            type: Boolean,
+            default: false,
+            required: false
         }
     },
     template

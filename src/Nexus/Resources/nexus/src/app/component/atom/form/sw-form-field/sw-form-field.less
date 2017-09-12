@@ -29,9 +29,37 @@
             border-color: darken(#E9EFF4, 10%);
             outline: none;
         }
+        &:focus + .sw-form-field--suffix {
+            border-color: darken(#E9EFF4, 10%);
+        }
 
         &::placeholder {
             color: #d2d4d8;
+        }
+    }
+
+    .sw-form-field--suffix {
+        background: #FBFCFD;
+        border-radius: 0 4px 4px 0;
+        border: 1px solid #E9EFF4;
+        border-left: 0 none;
+        line-height: 27px;
+        text-align: center;
+        padding: 8px 0;
+        font-size: 14px;
+        color: #142432;
+        transition: border-color 0.3s ease-out;
+    }
+
+    &.has--suffix {
+        input {
+            width: 85%;
+            float: left;
+            border-radius: 4px 0 0 4px;
+        }
+        .sw-form-field--suffix {
+            width: 15%;
+            float: left;
         }
     }
 

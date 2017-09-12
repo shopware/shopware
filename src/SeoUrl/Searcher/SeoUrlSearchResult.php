@@ -22,10 +22,11 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\SeoUrl\Struct;
+namespace Shopware\SeoUrl\Searcher;
 
 use Shopware\Search\SearchResultInterface;
 use Shopware\Search\SearchResultTrait;
+use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
 
 class SeoUrlSearchResult extends SeoUrlBasicCollection implements SearchResultInterface
 {

@@ -32,15 +32,15 @@ class ConfigFormTranslationResource extends Resource
         $this->fields[self::DESCRIPTION_FIELD] = new LongTextField('description');
         $this->fields['configForm'] = new ReferenceField('configFormUuid', 'uuid', \Shopware\Framework\Write\Resource\ConfigFormResource::class);
         $this->fields['configFormUuid'] = (new FkField('config_form_uuid', \Shopware\Framework\Write\Resource\ConfigFormResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['locale'] = new ReferenceField('localeUuid', 'uuid', \Shopware\Locale\Gateway\Resource\LocaleResource::class);
-        $this->fields['localeUuid'] = (new FkField('locale_uuid', \Shopware\Locale\Gateway\Resource\LocaleResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['locale'] = new ReferenceField('localeUuid', 'uuid', \Shopware\Locale\Writer\Resource\LocaleResource::class);
+        $this->fields['localeUuid'] = (new FkField('locale_uuid', \Shopware\Locale\Writer\Resource\LocaleResource::class, 'uuid'))->setFlags(new Required());
     }
     
     public function getWriteOrder(): array
     {
         return [
             \Shopware\Framework\Write\Resource\ConfigFormResource::class,
-            \Shopware\Locale\Gateway\Resource\LocaleResource::class,
+            \Shopware\Locale\Writer\Resource\LocaleResource::class,
             \Shopware\Framework\Write\Resource\ConfigFormTranslationResource::class
         ];
     }

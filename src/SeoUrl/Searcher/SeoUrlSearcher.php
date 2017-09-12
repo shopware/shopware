@@ -32,7 +32,6 @@ use Shopware\Search\Search;
 use Shopware\Search\SearchResultInterface;
 use Shopware\SeoUrl\Reader\Query\SeoUrlBasicQuery;
 use Shopware\SeoUrl\Reader\SeoUrlBasicHydrator;
-use Shopware\SeoUrl\Struct\SeoUrlSearchResult;
 
 class SeoUrlSearcher extends Search
 {

@@ -36,17 +36,17 @@ class StatisticProductImpressionResource extends Resource
         $this->fields[self::IMPRESSION_DATE_FIELD] = new DateField('impression_date');
         $this->fields[self::IMPRESSIONS_FIELD] = (new IntField('impressions'))->setFlags(new Required());
         $this->fields[self::DEVICE_TYPE_FIELD] = new StringField('device_type');
-        $this->fields['product'] = new ReferenceField('productUuid', 'uuid', \Shopware\Product\Gateway\Resource\ProductResource::class);
-        $this->fields['productUuid'] = (new FkField('product_uuid', \Shopware\Product\Gateway\Resource\ProductResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Gateway\Resource\ShopResource::class);
-        $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Gateway\Resource\ShopResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['product'] = new ReferenceField('productUuid', 'uuid', \Shopware\Product\Writer\Resource\ProductResource::class);
+        $this->fields['productUuid'] = (new FkField('product_uuid', \Shopware\Product\Writer\Resource\ProductResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopResource::class);
+        $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid'))->setFlags(new Required());
     }
     
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Product\Gateway\Resource\ProductResource::class,
-            \Shopware\Shop\Gateway\Resource\ShopResource::class,
+            \Shopware\Product\Writer\Resource\ProductResource::class,
+            \Shopware\Shop\Writer\Resource\ShopResource::class,
             \Shopware\Framework\Write\Resource\StatisticProductImpressionResource::class
         ];
     }

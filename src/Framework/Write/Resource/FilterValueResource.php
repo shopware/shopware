@@ -33,8 +33,8 @@ class FilterValueResource extends Resource
         $this->fields['filterProducts'] = new SubresourceField(\Shopware\Framework\Write\Resource\FilterProductResource::class);
         $this->fields['option'] = new ReferenceField('optionUuid', 'uuid', \Shopware\Framework\Write\Resource\FilterOptionResource::class);
         $this->fields['optionUuid'] = (new FkField('option_uuid', \Shopware\Framework\Write\Resource\FilterOptionResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['media'] = new ReferenceField('mediaUuid', 'uuid', \Shopware\Media\Gateway\Resource\MediaResource::class);
-        $this->fields['mediaUuid'] = (new FkField('media_uuid', \Shopware\Media\Gateway\Resource\MediaResource::class, 'uuid'));
+        $this->fields['media'] = new ReferenceField('mediaUuid', 'uuid', \Shopware\Media\Writer\Resource\MediaResource::class);
+        $this->fields['mediaUuid'] = (new FkField('media_uuid', \Shopware\Media\Writer\Resource\MediaResource::class, 'uuid'));
     }
     
     public function getWriteOrder(): array
@@ -42,7 +42,7 @@ class FilterValueResource extends Resource
         return [
             \Shopware\Framework\Write\Resource\FilterProductResource::class,
             \Shopware\Framework\Write\Resource\FilterOptionResource::class,
-            \Shopware\Media\Gateway\Resource\MediaResource::class,
+            \Shopware\Media\Writer\Resource\MediaResource::class,
             \Shopware\Framework\Write\Resource\FilterValueResource::class
         ];
     }

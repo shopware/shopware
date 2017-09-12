@@ -87,6 +87,7 @@ EOD;
     public function generateAll()
     {
         exec('rm -R ' . __DIR__ . '/../../**/Gateway/Resource');
+        exec('rm -R ' . __DIR__ . '/../../**/Writer/ResourceDefinition');
         exec('rm -R ' . __DIR__ . '/Resource/*.php');
 
         $path = __DIR__ . '/../../Product/Writer/ResourceDefinition';
@@ -541,9 +542,9 @@ EOD;
 EOD;
 
     private $serviceDefinitionTemplate = <<<'EOD'
-    <service id="shopware.%s.%s.resource" class="%s">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
+        <service id="shopware.%s.%s.resource" class="%s">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
 EOD;
 
     /**
@@ -600,7 +601,7 @@ EOD;
             return $srcDir . 'Framework/Write/Resource';
         }
 
-        return $srcDir . $bundleName . '/Gateway/Resource';
+        return $srcDir . $bundleName . '/Writer/Resource';
     }
 
     public function getDiPath(): string
@@ -634,7 +635,7 @@ EOD;
             return 'Shopware\\Framework\\Write\\Resource';
         }
 
-        return 'Shopware\\' . $bundleName . '\\Gateway\\Resource';
+        return 'Shopware\\' . $bundleName . '\\Writer\\Resource';
     }
 
     public function getClassName(): string

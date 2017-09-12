@@ -30,8 +30,8 @@ use Shopware\Search\Criteria;
 use Shopware\SeoUrl\Event\SeoUrlBasicLoadedEvent;
 use Shopware\SeoUrl\Loader\SeoUrlBasicLoader;
 use Shopware\SeoUrl\Searcher\SeoUrlSearcher;
+use Shopware\SeoUrl\Searcher\SeoUrlSearchResult;
 use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
-use Shopware\SeoUrl\Struct\SeoUrlSearchResult;
 use Shopware\SeoUrl\Writer\SeoUrlWriter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

@@ -37,8 +37,7 @@ use Shopware\Product\Struct\ProductSearchResult;
 use Shopware\Product\Writer\ProductWriter;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
-use Shopware\Shop\Gateway\Resource\ShopResource;
-use Shopware\Translation\Translation;
+use Shopware\Shop\Writer\Resource\ShopResource;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductRepository

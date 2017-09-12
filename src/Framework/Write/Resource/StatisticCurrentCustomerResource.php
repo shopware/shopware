@@ -36,14 +36,14 @@ class StatisticCurrentCustomerResource extends Resource
         $this->fields[self::TRACKING_TIME_FIELD] = new DateField('tracking_time');
         $this->fields[self::CUSTOMER_ID_FIELD] = new IntField('customer_id');
         $this->fields[self::DEVICE_TYPE_FIELD] = new StringField('device_type');
-        $this->fields['customer'] = new ReferenceField('customerUuid', 'uuid', \Shopware\Customer\Gateway\Resource\CustomerResource::class);
-        $this->fields['customerUuid'] = (new FkField('customer_uuid', \Shopware\Customer\Gateway\Resource\CustomerResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['customer'] = new ReferenceField('customerUuid', 'uuid', \Shopware\Customer\Writer\Resource\CustomerResource::class);
+        $this->fields['customerUuid'] = (new FkField('customer_uuid', \Shopware\Customer\Writer\Resource\CustomerResource::class, 'uuid'))->setFlags(new Required());
     }
     
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Customer\Gateway\Resource\CustomerResource::class,
+            \Shopware\Customer\Writer\Resource\CustomerResource::class,
             \Shopware\Framework\Write\Resource\StatisticCurrentCustomerResource::class
         ];
     }

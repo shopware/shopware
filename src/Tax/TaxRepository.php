@@ -30,8 +30,8 @@ use Shopware\Search\Criteria;
 use Shopware\Tax\Event\TaxBasicLoadedEvent;
 use Shopware\Tax\Loader\TaxBasicLoader;
 use Shopware\Tax\Searcher\TaxSearcher;
+use Shopware\Tax\Searcher\TaxSearchResult;
 use Shopware\Tax\Struct\TaxBasicCollection;
-use Shopware\Tax\Struct\TaxSearchResult;
 use Shopware\Tax\Writer\TaxWriter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

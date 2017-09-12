@@ -4,83 +4,83 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-            <service id="shopware.product.product.resource" class="Shopware\Product\Gateway\Resource\ProductResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-accessory.resource" class="Shopware\Product\Gateway\Resource\ProductAccessoryResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-attachment.resource" class="Shopware\Product\Gateway\Resource\ProductAttachmentResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-avoid-customer-group.resource" class="Shopware\Product\Gateway\Resource\ProductAvoidCustomerGroupResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-category.resource" class="Shopware\Product\Gateway\Resource\ProductCategoryResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-category-seo.resource" class="Shopware\Product\Gateway\Resource\ProductCategorySeoResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-configurator-dependency.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorDependencyResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-configurator-group.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorGroupResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-configurator-option.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorOptionResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-configurator-option-relation.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorOptionRelationResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-configurator-price-variation.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorPriceVariationResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-configurator-set.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorSetResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-configurator-set-group-relation.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorSetGroupRelationResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-configurator-set-option-relation.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorSetOptionRelationResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-configurator-template.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorTemplateResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-configurator-template-price.resource" class="Shopware\Product\Gateway\Resource\ProductConfiguratorTemplatePriceResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-esd.resource" class="Shopware\Product\Gateway\Resource\ProductEsdResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-esd-serial.resource" class="Shopware\Product\Gateway\Resource\ProductEsdSerialResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-link.resource" class="Shopware\Product\Gateway\Resource\ProductLinkResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-media.resource" class="Shopware\Product\Gateway\Resource\ProductMediaResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-media-mapping.resource" class="Shopware\Product\Gateway\Resource\ProductMediaMappingResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-media-mapping-rule.resource" class="Shopware\Product\Gateway\Resource\ProductMediaMappingRuleResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-notification.resource" class="Shopware\Product\Gateway\Resource\ProductNotificationResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-similar.resource" class="Shopware\Product\Gateway\Resource\ProductSimilarResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-translation.resource" class="Shopware\Product\Gateway\Resource\ProductTranslationResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.product.product-vote.resource" class="Shopware\Product\Gateway\Resource\ProductVoteResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
+                <service id="shopware.product.product.resource" class="Shopware\Product\Writer\Resource\ProductResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-accessory.resource" class="Shopware\Product\Writer\Resource\ProductAccessoryResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-attachment.resource" class="Shopware\Product\Writer\Resource\ProductAttachmentResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-avoid-customer-group.resource" class="Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-category.resource" class="Shopware\Product\Writer\Resource\ProductCategoryResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-category-seo.resource" class="Shopware\Product\Writer\Resource\ProductCategorySeoResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-configurator-dependency.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorDependencyResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-configurator-group.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorGroupResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-configurator-option.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorOptionResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-configurator-option-relation.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorOptionRelationResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-configurator-price-variation.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorPriceVariationResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-configurator-set.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorSetResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-configurator-set-group-relation.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorSetGroupRelationResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-configurator-set-option-relation.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorSetOptionRelationResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-configurator-template.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorTemplateResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-configurator-template-price.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorTemplatePriceResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-esd.resource" class="Shopware\Product\Writer\Resource\ProductEsdResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-esd-serial.resource" class="Shopware\Product\Writer\Resource\ProductEsdSerialResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-link.resource" class="Shopware\Product\Writer\Resource\ProductLinkResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-media.resource" class="Shopware\Product\Writer\Resource\ProductMediaResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-media-mapping.resource" class="Shopware\Product\Writer\Resource\ProductMediaMappingResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-media-mapping-rule.resource" class="Shopware\Product\Writer\Resource\ProductMediaMappingRuleResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-notification.resource" class="Shopware\Product\Writer\Resource\ProductNotificationResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-similar.resource" class="Shopware\Product\Writer\Resource\ProductSimilarResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-translation.resource" class="Shopware\Product\Writer\Resource\ProductTranslationResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.product.product-vote.resource" class="Shopware\Product\Writer\Resource\ProductVoteResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
     </services>
 </container>

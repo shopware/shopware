@@ -32,7 +32,6 @@ use Shopware\Search\Search;
 use Shopware\Search\SearchResultInterface;
 use Shopware\Tax\Reader\Query\TaxBasicQuery;
 use Shopware\Tax\Reader\TaxBasicHydrator;
-use Shopware\Tax\Struct\TaxSearchResult;
 
 class TaxSearcher extends Search
 {

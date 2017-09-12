@@ -94,7 +94,7 @@ class ProductController extends ApiController
     {
         $result = [];
         foreach ($context->getPayload() as $product) {
-//            $result[] = $this->productRepository->create($product);
+            $result[] = $this->productRepository->create($product, $context->getShopContext()->getTranslationContext());
         }
 
         return $this->createResponse($result, $context);
@@ -108,7 +108,11 @@ class ProductController extends ApiController
         $payload = $context->getPayload();
         $payload['uuid'] = $request->get('productUuid');
 
-        $this->productRepository->update($payload, $context->getShopContext()->getTranslationContext());
+        try {
+            $this->productRepository->update($payload, $context->getShopContext()->getTranslationContext());
+        } catch (\Exception $ex) {
+            
+        }
 
         return $this->detailAction($request, $context);
     }

@@ -35,7 +35,7 @@ class FilterResource extends Resource
         $this->fields[self::COMPARABLE_FIELD] = (new IntField('comparable'))->setFlags(new Required());
         $this->fields[self::SORTMODE_FIELD] = (new IntField('sortmode'))->setFlags(new Required());
         $this->fields['relations'] = new SubresourceField(\Shopware\Framework\Write\Resource\FilterRelationResource::class);
-        $this->fields['products'] = new SubresourceField(\Shopware\Product\Gateway\Resource\ProductResource::class);
+        $this->fields['products'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductResource::class);
     }
     
     public function getWriteOrder(): array
@@ -43,7 +43,7 @@ class FilterResource extends Resource
         return [
             \Shopware\Framework\Write\Resource\FilterResource::class,
             \Shopware\Framework\Write\Resource\FilterRelationResource::class,
-            \Shopware\Product\Gateway\Resource\ProductResource::class
+            \Shopware\Product\Writer\Resource\ProductResource::class
         ];
     }
 }

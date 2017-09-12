@@ -5,11 +5,10 @@ namespace Shopware\Product\Tests;
 use Doctrine\DBAL\Connection;
 use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Framework\Write\FieldException\WriteStackException;
-use Shopware\Framework\Write\Resource\CoreShopsResource;
 use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
-use Shopware\Product\Gateway\Resource\ProductResource;
-use Shopware\Shop\Gateway\Resource\ShopResource;
+use Shopware\Product\Writer\Resource\ProductResource;
+use Shopware\Shop\Writer\Resource\ShopResource;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class WriterTest extends KernelTestCase

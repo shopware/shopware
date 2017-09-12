@@ -26,9 +26,10 @@ namespace Shopware\Product\Writer;
 
 use Shopware\Framework\Write\FieldAware\DefaultExtender;
 use Shopware\Framework\Write\FieldAware\FieldExtender;
+use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
-use Shopware\Product\Gateway\Resource\ProductResource;
+use Shopware\Product\Writer\Resource\ProductResource;
 
 class ProductWriter
 {
@@ -50,7 +51,7 @@ class ProductWriter
 
     public function update(array $data, WriteContext $context, FieldExtender $extender = null): array
     {
-        $extenderCollection = new \Shopware\Framework\Write\FieldAware\FieldExtenderCollection();
+        $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
         if ($extender) {
@@ -62,7 +63,7 @@ class ProductWriter
 
     public function create(array $data, WriteContext $context, FieldExtender $extender = null): array
     {
-        $extenderCollection = new \Shopware\Framework\Write\FieldAware\FieldExtenderCollection();
+        $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
         if ($extender) {

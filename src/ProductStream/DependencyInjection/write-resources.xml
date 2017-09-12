@@ -4,14 +4,14 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-            <service id="shopware.productstream.product-stream.resource" class="Shopware\ProductStream\Gateway\Resource\ProductStreamResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.productstream.product-stream-assignment.resource" class="Shopware\ProductStream\Gateway\Resource\ProductStreamAssignmentResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.productstream.product-stream-tab.resource" class="Shopware\ProductStream\Gateway\Resource\ProductStreamTabResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
+                <service id="shopware.productstream.product-stream.resource" class="Shopware\ProductStream\Writer\Resource\ProductStreamResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.productstream.product-stream-assignment.resource" class="Shopware\ProductStream\Writer\Resource\ProductStreamAssignmentResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.productstream.product-stream-tab.resource" class="Shopware\ProductStream\Writer\Resource\ProductStreamTabResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
     </services>
 </container>

@@ -4,11 +4,11 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-            <service id="shopware.productdetail.product-detail.resource" class="Shopware\ProductDetail\Gateway\Resource\ProductDetailResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
-    <service id="shopware.productdetail.product-detail-translation.resource" class="Shopware\ProductDetail\Gateway\Resource\ProductDetailTranslationResource">
-        <tag name="shopware.framework.write.resource"/> 
-    </service>
+                <service id="shopware.productdetail.product-detail.resource" class="Shopware\ProductDetail\Writer\Resource\ProductDetailResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.productdetail.product-detail-translation.resource" class="Shopware\ProductDetail\Writer\Resource\ProductDetailTranslationResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
     </services>
 </container>

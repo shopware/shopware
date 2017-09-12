@@ -4,29 +4,29 @@ namespace Shopware\Product\Event;
 
 use Symfony\Component\EventDispatcher\Event;
 
-class ProductCreatedEvent extends Event
+class ProductWrittenEvent extends Event
 {
-    const EVENT_NAME = 'product.created';
+    const EVENT_NAME = 'product.written';
 
     /**
      * @var string[]
      */
-    private $createdUuids;
+    private $productUuids;
 
     private $errors;
 
-    public function __construct(array $createdUuids, array $errors)
+    public function __construct(array $productUuids, array $errors = [])
     {
-        $this->createdUuids = $createdUuids;
+        $this->productUuids = $productUuids;
         $this->errors = $errors;
     }
 
     /**
      * @return string[]
      */
-    public function getCreatedUuids(): array
+    public function getProductUuids(): array
     {
-        return $this->createdUuids;
+        return $this->productUuids;
     }
 
     public function getErrors(): array

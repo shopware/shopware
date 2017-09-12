@@ -38,7 +38,7 @@ class ProductController extends ApiController
     }
 
     /**
-     * @Route("/product.{responseFormat}", name="api.product.list", methods={"GET", "OPTIONS"})
+     * @Route("/product.{responseFormat}", name="api.product.list", methods={"GET"})
      */
     public function listAction(Request $request, ApiContext $context): Response
     {
@@ -96,7 +96,7 @@ class ProductController extends ApiController
         $createEvent = $this->productRepository->create($context->getPayload(), $context->getShopContext()->getTranslationContext());
 
         $response = [
-            'data' => $this->productRepository->read($createEvent->getCreatedUuids(), $context->getShopContext()->getTranslationContext()),
+            'data' => $this->productRepository->read($createEvent->getProductUuids(), $context->getShopContext()->getTranslationContext()),
             'errors' => $createEvent->getErrors()
         ];
 
@@ -104,9 +104,39 @@ class ProductController extends ApiController
     }
 
     /**
-     * @Route("/product/{productUuid}.{responseFormat}", name="api.product.update", methods={"PUT"})
+     * @Route("/product.{responseFormat}", name="api.product.upsert", methods={"PUT"})
      */
-    public function updateAction(Request $request, ApiContext $context): Response
+    public function upsertAction(ApiContext $context): Response
+    {
+        $createEvent = $this->productRepository->upsert($context->getPayload(), $context->getShopContext()->getTranslationContext());
+
+        $response = [
+            'data' => $this->productRepository->read($createEvent->getProductUuids(), $context->getShopContext()->getTranslationContext()),
+            'errors' => $createEvent->getErrors()
+        ];
+
+        return $this->createResponse($response, $context);
+    }
+
+    /**
+     * @Route("/product.{responseFormat}", name="api.product.update", methods={"PATCH"})
+     */
+    public function updateAction(ApiContext $context): Response
+    {
+        $createEvent = $this->productRepository->update($context->getPayload(), $context->getShopContext()->getTranslationContext());
+
+        $response = [
+            'data' => $this->productRepository->read($createEvent->getProductUuids(), $context->getShopContext()->getTranslationContext()),
+            'errors' => $createEvent->getErrors()
+        ];
+
+        return $this->createResponse($response, $context);
+    }
+
+    /**
+     * @Route("/product/{productUuid}.{responseFormat}", name="api.product.single_update", methods={"PATCH"})
+     */
+    public function singleUpdateAction(Request $request, ApiContext $context): Response
     {
         $payload = $context->getPayload();
         $payload['uuid'] = $request->get('productUuid');

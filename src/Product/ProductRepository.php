@@ -27,16 +27,13 @@ namespace Shopware\Product;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\FieldAware\DefaultExtender;
 use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
-use Shopware\Framework\Write\FieldException\MalformatDataException;
 use Shopware\Framework\Write\FieldException\WriteStackException;
 use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
 use Shopware\Product\Event\ProductBasicLoadedEvent;
-use Shopware\Product\Event\ProductCreatedEvent;
 use Shopware\Product\Event\ProductDetailLoadedEvent;
-use Shopware\Product\Event\ProductUpdatedEvent;
+use Shopware\Product\Event\ProductWrittenEvent;
 use Shopware\Product\Event\ProductWriteExtenderEvent;
-use Shopware\Product\Exception\MalformatInputException;
 use Shopware\Product\Loader\ProductBasicLoader;
 use Shopware\Product\Loader\ProductDetailLoader;
 use Shopware\Product\Searcher\ProductSearcher;
@@ -139,7 +136,7 @@ class ProductRepository
         return $result;
     }
 
-    public function update(array $data, TranslationContext $context): ProductUpdatedEvent
+    public function update(array $data, TranslationContext $context): ProductWrittenEvent
     {
         $writeContext = $this->createWriteContext($context->getShopUuid());
         $extender = $this->getExtender();
@@ -156,12 +153,34 @@ class ProductRepository
             }
         }
 
-        $event = new ProductUpdatedEvent(array_column($updated, 'uuid'), $errors);
+        $event = new ProductWrittenEvent(array_column($updated, 'uuid'), $errors);
 
-        return $this->eventDispatcher->dispatch(ProductUpdatedEvent::EVENT_NAME, $event);
+        return $this->eventDispatcher->dispatch(ProductWrittenEvent::EVENT_NAME, $event);
     }
 
-    public function create(array $data, TranslationContext $context): ProductCreatedEvent
+    public function upsert(array $data, TranslationContext $context): ProductWrittenEvent
+    {
+        $writeContext = $this->createWriteContext($context->getShopUuid());
+        $extender = $this->getExtender();
+
+        $this->validateWriteInput($data);
+
+        $created = $errors = [];
+
+        foreach ($data as $product) {
+            try {
+                $created[] = $this->writer->upsert(\Shopware\Product\Writer\ProductResource::class, $product, $writeContext, $extender);
+            } catch (WriteStackException $exception) {
+                $errors[] = $exception->toArray();
+            }
+        }
+
+        $event = new ProductWrittenEvent(array_column($created, 'uuid'), $errors);
+
+        return $this->eventDispatcher->dispatch(ProductWrittenEvent::EVENT_NAME, $event);
+    }
+
+    public function create(array $data, TranslationContext $context): ProductWrittenEvent
     {
         $writeContext = $this->createWriteContext($context->getShopUuid());
         $extender = $this->getExtender();
@@ -178,9 +197,9 @@ class ProductRepository
             }
         }
 
-        $event = new ProductCreatedEvent(array_column($created, 'uuid'), $errors);
+        $event = new ProductWrittenEvent(array_column($created, 'uuid'), $errors);
 
-        return $this->eventDispatcher->dispatch(ProductCreatedEvent::EVENT_NAME, $event);
+        return $this->eventDispatcher->dispatch(ProductWrittenEvent::EVENT_NAME, $event);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext

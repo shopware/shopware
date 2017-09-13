@@ -43,5 +43,9 @@
 
         </service>
 
+        <service class="Shopware\ProductManufacturer\Controller\ProductManufacturerController" id="shopware.product_manufacturer.controller.product_manufacturer_controller">
+            <argument id="shopware.product_manufacturer.repository" type="service"/>
+        </service>
+
     </services>
 </container>

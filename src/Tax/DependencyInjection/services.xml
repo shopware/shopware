@@ -37,5 +37,10 @@
 
         </service>
 
+        <service class="Shopware\Tax\Controller\TaxController" id="shopware.tax.controller.tax_controller">
+            <argument id="shopware.tax.repository" type="service"/>
+        </service>
+
+
     </services>
 </container>

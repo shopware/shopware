@@ -18,8 +18,8 @@ if (!class_exists(Application::class)) {
 (new Dotenv())->load(__DIR__.'/../.env');
 
 $input = new ArgvInput();
-$env = $input->getParameterOption(['--env', '-e'], $_SERVER['SHOPWARE_ENV'] ?? 'dev');
-$debug = ($_SERVER['SHOPWARE_DEBUG'] ?? true) !== '0' && !$input->hasParameterOption(['--no-debug', '']);
+$env = $input->getParameterOption(['--env', '-e'], $_SERVER['APP_ENV'] ?? 'dev');
+$debug = ($_SERVER['APP_DEBUG'] ?? true) !== '0' && !$input->hasParameterOption(['--no-debug', '']);
 
 if ($debug && class_exists(Debug::class)) {
     Debug::enable();

@@ -6,7 +6,7 @@ framework:
     fragments: ~
     assets: ~
     session: ~
-    secret: "%env(SHOPWARE_SECRET)%"
+    secret: "%env(APP_SECRET)%"
     router:
         resource: "%kernel.root_dir%/config/routing_%kernel.environment%.yml"
         strict_requirements: ~

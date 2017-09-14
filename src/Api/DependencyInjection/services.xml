@@ -6,8 +6,13 @@
 
     <services>
 
-        <service id="shopware.api.cors_listener" class="Shopware\Api\CorsListener">
+        <service id="shopware.api.cors_listener" class="Shopware\Api\EventListener\CorsListener">
             <tag name="kernel.event_subscriber" />
+        </service>
+
+        <service id="shopware.api.event_listener.api_exception_listener" class="Shopware\Api\EventListener\ApiExceptionListener">
+            <tag name="kernel.event_subscriber" />
+            <argument type="service" id="logger" />
         </service>
 
     </services>

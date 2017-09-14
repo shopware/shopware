@@ -42,6 +42,7 @@ use Symfony\Component\Routing\RouterInterface;
 class Router implements RouterInterface, RequestMatcherInterface
 {
     const SEO_REDIRECT_URL = 'seo_redirect_url';
+    const IS_API_REQUEST_ATTRIBUTE = '_api';
 
     /**
      * @var RequestContext
@@ -226,6 +227,11 @@ class Router implements RouterInterface, RequestMatcherInterface
             return $this->match($pathInfo);
         }
 
+        // save decision if it's an api request
+        $isApiRequest = $this->isApiRequest($request);
+        $this->context->setParameter(self::IS_API_REQUEST_ATTRIBUTE, $isApiRequest);
+        $request->attributes->set(self::IS_API_REQUEST_ATTRIBUTE, $isApiRequest);
+
         //save detected shop to context for further processes
         $currencyUuid = $this->getCurrencyUuid($request, $shop['currency_uuid']);
 
@@ -333,5 +339,10 @@ class Router implements RouterInterface, RequestMatcherInterface
         $this->context->setBaseUrl(rtrim($stripBaseUrl, '/'));
 
         return $stripBaseUrl;
+    }
+
+    private function isApiRequest(Request $request): bool
+    {
+        return stripos($request->getPathInfo(), '/api/') === 0;
     }
 }

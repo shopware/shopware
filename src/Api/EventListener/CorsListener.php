@@ -1,9 +1,9 @@
 <?php
 
-namespace Shopware\Api;
+namespace Shopware\Api\EventListener;
 
+use Shopware\Framework\Routing\Router;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
@@ -27,7 +27,7 @@ class CorsListener implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
-        if (false === $this->isApiRequest($request)) {
+        if (false === $event->getRequest()->attributes->get(Router::IS_API_REQUEST_ATTRIBUTE)) {
             return;
         }
 
@@ -45,9 +45,7 @@ class CorsListener implements EventSubscriberInterface
             return;
         }
 
-        $request = $event->getRequest();
-
-        if (false === $this->isApiRequest($request)) {
+        if (false === $event->getRequest()->attributes->get(Router::IS_API_REQUEST_ATTRIBUTE)) {
             return;
         }
 
@@ -55,10 +53,5 @@ class CorsListener implements EventSubscriberInterface
         $response->headers->set('Access-Control-Allow-Origin', '*');
         $response->headers->set('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE');
         $response->headers->set('Access-Control-Allow-Headers', 'Content-Type');
-    }
-
-    private function isApiRequest(Request $request): bool
-    {
-        return strpos($request->getPathInfo(), '/api/') === 0;
     }
 }

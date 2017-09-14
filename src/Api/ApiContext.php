@@ -8,7 +8,7 @@ use Shopware\Context\Struct\ShopContext;
 class ApiContext
 {
     /**
-     * @var mixed
+     * @var array
      */
     private $payload;
 
@@ -32,7 +32,7 @@ class ApiContext
      */
     private $parameters;
 
-    public function __construct($payload, ShopContext $shopContext, array $parameters = [], string $outputFormat, string $resultFormat)
+    public function __construct(array $payload = [], ShopContext $shopContext, array $parameters = [], string $outputFormat, string $resultFormat)
     {
         $this->outputFormat = $outputFormat;
         $this->payload = $payload;
@@ -40,7 +40,7 @@ class ApiContext
         $this->parameters = $parameters;
     }
 
-    public function getPayload()
+    public function getPayload(): array
     {
         return $this->payload;
     }

@@ -2,6 +2,8 @@
 
 namespace Shopware\Api;
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
+
 class ResponseEnvelope implements \JsonSerializable
 {
     /**
@@ -23,6 +25,11 @@ class ResponseEnvelope implements \JsonSerializable
      * @var array
      */
     private $parameters = [];
+
+    /**
+     * @var HttpException
+     */
+    private $exception;
 
     /**
      * @param mixed $data
@@ -56,34 +63,33 @@ class ResponseEnvelope implements \JsonSerializable
         return $this->errors;
     }
 
+    public function getException(): ?HttpException
+    {
+        return $this->exception;
+    }
+
     public function jsonSerialize()
     {
         return [
             'parameters' => $this->getParameters(),
+            'exception' => $this->transformExceptionToArray($this->getException()),
             'errors' => $this->getErrors(),
             'total' => $this->getTotal(),
             'data' => $this->getData(),
         ];
     }
 
-    /**
-     * @param \Exception[] $errors
-     *
-     * @return array
-     */
-    private function transformExceptionsToErrors(array $errors): array
+    private function transformExceptionToArray(?HttpException $exception): ?array
     {
-        $arrayExceptions = [];
-
-        foreach ($errors as $error) {
-            $arrayExceptions[] = [
-                'type' => get_class($error),
-                'message' => $error->getMessage(),
-                'trace' => $error->getTraceAsString()
-            ];
+        if (!$exception) {
+            return null;
         }
 
-        return $arrayExceptions;
+        return [
+            'type' => get_class($exception),
+            'message' => $exception->getMessage(),
+            'statusCode' => $exception->getStatusCode(),
+        ];
     }
 
     /**
@@ -110,6 +116,11 @@ class ResponseEnvelope implements \JsonSerializable
     public function setParameters(array $parameters)
     {
         $this->parameters = $parameters;
+    }
+
+    public function setException(HttpException $exception)
+    {
+        $this->exception = $exception;
     }
 
     /**

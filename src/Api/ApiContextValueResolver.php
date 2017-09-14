@@ -7,6 +7,7 @@ use Shopware\Storefront\Session\ShopSubscriber;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ApiContextValueResolver implements ArgumentValueResolverInterface
 {
@@ -37,16 +38,29 @@ class ApiContextValueResolver implements ArgumentValueResolverInterface
             return $request->request->all();
         }
 
+        $payload = null;
+        $error = null;
+
         switch ($format) {
             case 'json':
-                return json_decode($request->getContent(), true);
+                $payload = json_decode($request->getContent(), true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    $error = json_last_error_msg();
+                }
+                break;
             case 'xml':
                 $xml = simplexml_load_string($request->getContent());
                 $rawArray = json_decode(json_encode($xml), true);
+                $error = 'XML syntax error';
 
-                return $rawArray['product'];
+                $payload = $rawArray['product'];
+                break;
         }
 
-        return [];
+        if (!empty($request->getContent()) && $error) {
+            throw new BadRequestHttpException(sprintf('Request content is malformed. (Error: %s)', $error));
+        }
+
+        return $payload ?? [];
     }
 }

@@ -6,8 +6,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\ApiContext;
 use Shopware\Api\ApiController;
 use Shopware\Api\ResultFormat;
-use Shopware\Framework\Write\FieldException\WriteStackException;
-use Shopware\Product\ProductRepository;
+use Shopware\Product\Repository\ProductRepository;
 use Shopware\Search\Criteria;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -45,11 +44,11 @@ class ProductController extends ApiController
         $criteria = new Criteria();
 
         if ($request->query->has('offset')) {
-            $criteria->offset($request->query->get('offset'));
+            $criteria->setOffset((int) $request->query->get('offset'));
         }
 
         if ($request->query->has('limit')) {
-            $criteria->limit($request->query->get('limit'));
+            $criteria->setLimit((int) $request->query->get('limit'));
         }
 
         $criteria->setFetchCount(true);
@@ -60,9 +59,9 @@ class ProductController extends ApiController
             case ResultFormat::BASIC:
                 $products = $this->productRepository->read($searchResult->getUuids(), $context->getShopContext()->getTranslationContext());
                 break;
-            case ResultFormat::BASIC_NEXUS:
-                $products = $this->productBackendRepository->readBasic($searchResult->getUuids(), $context->getShopContext());
-                break;
+//            case ResultFormat::BASIC_NEXUS:
+//                $products = $this->productBackendRepository->readBasic($searchResult->getUuids(), $context->getShopContext());
+//                break;
             default:
                 throw new \Exception("Result format not supported.");
         }

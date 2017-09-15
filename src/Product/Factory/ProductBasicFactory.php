@@ -68,11 +68,6 @@ class ProductBasicFactory extends Factory
        'description' => 'translation.description',
        'description_long' => 'translation.description_long',
        'meta_title' => 'translation.meta_title',
-       'attr1' => 'translation.attr1',
-       'attr2' => 'translation.attr2',
-       'attr3' => 'translation.attr3',
-       'attr4' => 'translation.attr4',
-       'attr5' => 'translation.attr5',
     ];
 
     /**
@@ -151,15 +146,10 @@ class ProductBasicFactory extends Factory
         $product->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
         $product->setMainDetailUuid((string) $data[$selection->getField('main_detail_uuid')]);
         $product->setName((string) $data[$selection->getField('name')]);
-        $product->setKeywords(isset($data[$selection->getField('keywords')]) ? (string) $data[$selection->getField('keywords')] : null);
-        $product->setDescription(isset($data[$selection->getField('description')]) ? (string) $data[$selection->getField('description')] : null);
-        $product->setDescriptionLong(isset($data[$selection->getField('description_long')]) ? (string) $data[$selection->getField('description_long')] : null);
+        $product->setKeywords((string) $data[$selection->getField('keywords')]);
+        $product->setDescription((string) $data[$selection->getField('description')]);
+        $product->setDescriptionLong((string) $data[$selection->getField('description_long')]);
         $product->setMetaTitle(isset($data[$selection->getField('meta_title')]) ? (string) $data[$selection->getField('meta_title')] : null);
-        $product->setAttr1(isset($data[$selection->getField('attr1')]) ? (string) $data[$selection->getField('attr1')] : null);
-        $product->setAttr2(isset($data[$selection->getField('attr2')]) ? (string) $data[$selection->getField('attr2')] : null);
-        $product->setAttr3(isset($data[$selection->getField('attr3')]) ? (string) $data[$selection->getField('attr3')] : null);
-        $product->setAttr4(isset($data[$selection->getField('attr4')]) ? (string) $data[$selection->getField('attr4')] : null);
-        $product->setAttr5(isset($data[$selection->getField('attr5')]) ? (string) $data[$selection->getField('attr5')] : null);
         $productManufacturer = $selection->filter('manufacturer');
         if ($productManufacturer && !empty($data[$productManufacturer->getField('uuid')])) {
             $product->setManufacturer(

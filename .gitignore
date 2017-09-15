@@ -75,3 +75,4 @@ app/config/parameters.yml
 /.env
 /dev-ops/check_requirements.php
 /performance/_fixtures.php
+/src/Nexus/Resources/public

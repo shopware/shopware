@@ -115,17 +115,17 @@ class ProductBasicStruct extends Struct
     protected $name;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $keywords;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $description;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $descriptionLong;
 
@@ -133,31 +133,6 @@ class ProductBasicStruct extends Struct
      * @var string|null
      */
     protected $metaTitle;
-
-    /**
-     * @var string|null
-     */
-    protected $attr1;
-
-    /**
-     * @var string|null
-     */
-    protected $attr2;
-
-    /**
-     * @var string|null
-     */
-    protected $attr3;
-
-    /**
-     * @var string|null
-     */
-    protected $attr4;
-
-    /**
-     * @var string|null
-     */
-    protected $attr5;
 
     /**
      * @var ProductManufacturerBasicStruct
@@ -354,32 +329,32 @@ class ProductBasicStruct extends Struct
         $this->name = $name;
     }
 
-    public function getKeywords(): ?string
+    public function getKeywords(): string
     {
         return $this->keywords;
     }
 
-    public function setKeywords(?string $keywords): void
+    public function setKeywords(string $keywords): void
     {
         $this->keywords = $keywords;
     }
 
-    public function getDescription(): ?string
+    public function getDescription(): string
     {
         return $this->description;
     }
 
-    public function setDescription(?string $description): void
+    public function setDescription(string $description): void
     {
         $this->description = $description;
     }
 
-    public function getDescriptionLong(): ?string
+    public function getDescriptionLong(): string
     {
         return $this->descriptionLong;
     }
 
-    public function setDescriptionLong(?string $descriptionLong): void
+    public function setDescriptionLong(string $descriptionLong): void
     {
         $this->descriptionLong = $descriptionLong;
     }
@@ -392,56 +367,6 @@ class ProductBasicStruct extends Struct
     public function setMetaTitle(?string $metaTitle): void
     {
         $this->metaTitle = $metaTitle;
-    }
-
-    public function getAttr1(): ?string
-    {
-        return $this->attr1;
-    }
-
-    public function setAttr1(?string $attr1): void
-    {
-        $this->attr1 = $attr1;
-    }
-
-    public function getAttr2(): ?string
-    {
-        return $this->attr2;
-    }
-
-    public function setAttr2(?string $attr2): void
-    {
-        $this->attr2 = $attr2;
-    }
-
-    public function getAttr3(): ?string
-    {
-        return $this->attr3;
-    }
-
-    public function setAttr3(?string $attr3): void
-    {
-        $this->attr3 = $attr3;
-    }
-
-    public function getAttr4(): ?string
-    {
-        return $this->attr4;
-    }
-
-    public function setAttr4(?string $attr4): void
-    {
-        $this->attr4 = $attr4;
-    }
-
-    public function getAttr5(): ?string
-    {
-        return $this->attr5;
-    }
-
-    public function setAttr5(?string $attr5): void
-    {
-        $this->attr5 = $attr5;
     }
 
     public function getManufacturer(): ProductManufacturerBasicStruct

@@ -61,14 +61,6 @@ COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
 
-CREATE TABLE `blog_tag_translation` (
-  `blog_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `name` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_unicode_ci'
-)
-COLLATE='utf8mb4_unicode_ci'
-ENGINE=InnoDB
-;
 
 CREATE TABLE `category_translation` (
   `category_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
@@ -246,41 +238,6 @@ COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
 
-CREATE TABLE `product_detail_translation` (
-  `product_detail_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `additional_text` VARCHAR(255) NOT NULL DEFAULT '' COLLATE 'utf8mb4_unicode_ci',
-  `pack_unit` VARCHAR(255) NULL DEFAULT NULL DEFAULT '' COLLATE 'utf8mb4_unicode_ci',
-  PRIMARY KEY (`product_detail_uuid`, `language_uuid`),
-  INDEX `fk_product_detail_translation.language_uuid` (`language_uuid`)
---   CONSTRAINT `fk_product_detail_translation.language_uuid` FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`) ON UPDATE CASCADE ON DELETE CASCADE,
---   CONSTRAINT `fk_product_detail_translation.product_detail_uuid` FOREIGN KEY (`product_detail_uuid`) REFERENCES `product_detail` (`uuid`) ON UPDATE CASCADE ON DELETE CASCADE
-)
-COLLATE='utf8mb4_unicode_ci'
-ENGINE=InnoDB
-;
-
-CREATE TABLE `product_link_translation` (
-  `product_link_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `description` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_unicode_ci'
-)
-COLLATE='utf8mb4_unicode_ci'
-ENGINE=InnoDB
-;
-
-CREATE TABLE `product_manufacturer_translation` (
-  `product_manufacturer_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `description` LONGTEXT NULL COLLATE 'utf8mb4_unicode_ci',
-  `meta_title` VARCHAR(255) NULL COLLATE 'utf8mb4_unicode_ci',
-  `meta_description` VARCHAR(255) NULL COLLATE 'utf8mb4_unicode_ci',
-  `meta_keywords` VARCHAR(255) NULL COLLATE 'utf8mb4_unicode_ci'
-)
-COLLATE='utf8mb4_unicode_ci'
-ENGINE=InnoDB
-;
-
 CREATE TABLE `product_media_translation` (
   `product_media_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
   `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
@@ -353,15 +310,6 @@ COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
 
-CREATE TABLE `statistic_search_translation` (
-  `statistic_search_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `term` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_unicode_ci'
-)
-COLLATE='utf8mb4_unicode_ci'
-ENGINE=InnoDB
-;
-
 CREATE TABLE `tax_area_rule_translation` (
   `tax_area_rule_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
   `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
@@ -382,7 +330,177 @@ ENGINE=InnoDB
 ;
 
 
+CREATE TABLE `blog_tag_translation` (
+  `blog_tag_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `name` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_unicode_ci'
+)
+  COLLATE='utf8mb4_unicode_ci'
+  ENGINE=InnoDB
+;
+CREATE TABLE `product_detail_translation` (
+  `product_detail_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `additional_text` VARCHAR(255) NOT NULL DEFAULT '' COLLATE 'utf8mb4_unicode_ci',
+  `pack_unit` VARCHAR(255) NULL DEFAULT NULL DEFAULT '' COLLATE 'utf8mb4_unicode_ci'
+)
+  COLLATE='utf8mb4_unicode_ci'
+  ENGINE=InnoDB
+;
+CREATE TABLE `product_link_translation` (
+  `product_link_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `description` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `link` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL
+)
+  COLLATE='utf8mb4_unicode_ci'
+  ENGINE=InnoDB
+;
 
+CREATE TABLE `product_manufacturer_translation` (
+  `product_manufacturer_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
+  `description` LONGTEXT NULL COLLATE 'utf8mb4_unicode_ci',
+  `meta_title` VARCHAR(255) NULL COLLATE 'utf8mb4_unicode_ci',
+  `meta_description` VARCHAR(255) NULL COLLATE 'utf8mb4_unicode_ci',
+  `meta_keywords` VARCHAR(255) NULL COLLATE 'utf8mb4_unicode_ci'
+)
+  COLLATE='utf8mb4_unicode_ci'
+  ENGINE=InnoDB
+;
+
+
+ALTER TABLE `album_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `area_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `area_country_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `area_country_state_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `attribute_configuration_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `blog_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `blog_tag_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `category_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `currency_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `customer_group_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `filter_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `filter_option_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `filter_value_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `holiday_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `listing_facet_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `listing_sorting_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `locale_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `mail_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `media_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `order_state_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `payment_method_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `price_group_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `product_attachment_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `product_detail_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `product_link_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `product_manufacturer_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `product_media_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `shipping_method_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `shop_form_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `shop_form_field_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `tax_area_rule_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `unit_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+
+ALTER TABLE `album_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `area_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `area_country_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `area_country_state_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `attribute_configuration_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `blog_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `blog_tag_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `category_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `currency_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `customer_group_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `filter_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `filter_option_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `filter_value_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `holiday_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `listing_facet_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `listing_sorting_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `locale_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `mail_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `media_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `order_state_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `payment_method_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `price_group_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `product_attachment_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `product_detail_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `product_link_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `product_manufacturer_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `product_media_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `shipping_method_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `shop_form_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `shop_form_field_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `tax_area_rule_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `unit_translation` ADD INDEX `language_uuid` (`language_uuid`);
+
+ALTER TABLE `album_translation` ADD PRIMARY KEY `album_uuid_language_uuid` (`album_uuid`, `language_uuid`);
+ALTER TABLE `area_translation` ADD PRIMARY KEY `area_uuid_language_uuid` (`area_uuid`, `language_uuid`);
+ALTER TABLE `area_country_translation` ADD PRIMARY KEY `area_country_uuid_language_uuid` (`area_country_uuid`, `language_uuid`);
+ALTER TABLE `area_country_state_translation` ADD PRIMARY KEY `area_country_state_uuid_language_uuid` (`area_country_state_uuid`, `language_uuid`);
+ALTER TABLE `attribute_configuration_translation` ADD PRIMARY KEY `attribute_configuration_uuid_language_uuid` (`attribute_configuration_uuid`, `language_uuid`);
+ALTER TABLE `blog_translation` ADD PRIMARY KEY `blog_uuid_language_uuid` (`blog_uuid`, `language_uuid`);
+ALTER TABLE `blog_tag_translation` ADD PRIMARY KEY `blog_tag_uuid_language_uuid` (`blog_tag_uuid`, `language_uuid`);
+ALTER TABLE `category_translation` ADD PRIMARY KEY `category_uuid_language_uuid` (`category_uuid`, `language_uuid`);
+ALTER TABLE `currency_translation` ADD PRIMARY KEY `currency_uuid_language_uuid` (`currency_uuid`, `language_uuid`);
+ALTER TABLE `customer_group_translation` ADD PRIMARY KEY `customer_group_uuid_language_uuid` (`customer_group_uuid`, `language_uuid`);
+ALTER TABLE `filter_translation` ADD PRIMARY KEY `filter_uuid_language_uuid` (`filter_uuid`, `language_uuid`);
+ALTER TABLE `filter_option_translation` ADD PRIMARY KEY `filter_option_uuid_language_uuid` (`filter_option_uuid`, `language_uuid`);
+ALTER TABLE `filter_value_translation` ADD PRIMARY KEY `filter_value_uuid_language_uuid` (`filter_value_uuid`, `language_uuid`);
+ALTER TABLE `holiday_translation` ADD PRIMARY KEY `holiday_uuid_language_uuid` (`holiday_uuid`, `language_uuid`);
+ALTER TABLE `listing_facet_translation` ADD PRIMARY KEY `listing_facet_uuid_language_uuid` (`listing_facet_uuid`, `language_uuid`);
+ALTER TABLE `listing_sorting_translation` ADD PRIMARY KEY `listing_sorting_uuid_language_uuid` (`listing_sorting_uuid`, `language_uuid`);
+ALTER TABLE `locale_translation` ADD PRIMARY KEY `locale_uuid_language_uuid` (`locale_uuid`, `language_uuid`);
+ALTER TABLE `mail_translation` ADD PRIMARY KEY `mail_uuid_language_uuid` (`mail_uuid`, `language_uuid`);
+ALTER TABLE `media_translation` ADD PRIMARY KEY `media_uuid_language_uuid` (`media_uuid`, `language_uuid`);
+ALTER TABLE `order_state_translation` ADD PRIMARY KEY `order_state_uuid_language_uuid` (`order_state_uuid`, `language_uuid`);
+ALTER TABLE `payment_method_translation` ADD PRIMARY KEY `payment_method_uuid_language_uuid` (`payment_method_uuid`, `language_uuid`);
+ALTER TABLE `price_group_translation` ADD PRIMARY KEY `price_group_uuid_language_uuid` (`price_group_uuid`, `language_uuid`);
+ALTER TABLE `product_attachment_translation` ADD PRIMARY KEY `product_attachment_uuid_language_uuid` (`product_attachment_uuid`, `language_uuid`);
+ALTER TABLE `product_detail_translation` ADD PRIMARY KEY `product_detail_uuid_language_uuid` (`product_detail_uuid`, `language_uuid`);
+ALTER TABLE `product_link_translation` ADD PRIMARY KEY `product_link_uuid_language_uuid` (`product_link_uuid`, `language_uuid`);
+ALTER TABLE `product_manufacturer_translation` ADD PRIMARY KEY `product_manufacturer_uuid_language_uuid` (`product_manufacturer_uuid`, `language_uuid`);
+ALTER TABLE `product_media_translation` ADD PRIMARY KEY `product_media_uuid_language_uuid` (`product_media_uuid`, `language_uuid`);
+ALTER TABLE `shipping_method_translation` ADD PRIMARY KEY `shipping_method_uuid_language_uuid` (`shipping_method_uuid`, `language_uuid`);
+ALTER TABLE `shop_form_translation` ADD PRIMARY KEY `shop_form_uuid_language_uuid` (`shop_form_uuid`, `language_uuid`);
+ALTER TABLE `shop_form_field_translation` ADD PRIMARY KEY `shop_form_field_uuid_language_uuid` (`shop_form_field_uuid`, `language_uuid`);
+ALTER TABLE `tax_area_rule_translation` ADD PRIMARY KEY `tax_area_rule_uuid_language_uuid` (`tax_area_rule_uuid`, `language_uuid`);
+ALTER TABLE `unit_translation` ADD PRIMARY KEY `unit_uuid_language_uuid` (`unit_uuid`, `language_uuid`);
+ALTER TABLE `album_translation` ADD FOREIGN KEY (`album_uuid`) REFERENCES `album` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `area_translation` ADD FOREIGN KEY (`area_uuid`) REFERENCES `area` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `area_country_translation` ADD FOREIGN KEY (`area_country_uuid`) REFERENCES `area_country` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `area_country_state_translation` ADD FOREIGN KEY (`area_country_state_uuid`) REFERENCES `area_country_state` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `attribute_configuration_translation` ADD FOREIGN KEY (`attribute_configuration_uuid`) REFERENCES `attribute_configuration` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `blog_translation` ADD FOREIGN KEY (`blog_uuid`) REFERENCES `blog` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `blog_tag_translation` ADD FOREIGN KEY (`blog_tag_uuid`) REFERENCES `blog_tag` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `category_translation` ADD FOREIGN KEY (`category_uuid`) REFERENCES `category` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `currency_translation` ADD FOREIGN KEY (`currency_uuid`) REFERENCES `currency` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `customer_group_translation` ADD FOREIGN KEY (`customer_group_uuid`) REFERENCES `customer_group` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `filter_translation` ADD FOREIGN KEY (`filter_uuid`) REFERENCES `filter` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `filter_option_translation` ADD FOREIGN KEY (`filter_option_uuid`) REFERENCES `filter_option` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `filter_value_translation` ADD FOREIGN KEY (`filter_value_uuid`) REFERENCES `filter_value` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `holiday_translation` ADD FOREIGN KEY (`holiday_uuid`) REFERENCES `holiday` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `listing_facet_translation` ADD FOREIGN KEY (`listing_facet_uuid`) REFERENCES `listing_facet` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `listing_sorting_translation` ADD FOREIGN KEY (`listing_sorting_uuid`) REFERENCES `listing_sorting` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `locale_translation` ADD FOREIGN KEY (`locale_uuid`) REFERENCES `locale` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `mail_translation` ADD FOREIGN KEY (`mail_uuid`) REFERENCES `mail` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `media_translation` ADD FOREIGN KEY (`media_uuid`) REFERENCES `media` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `order_state_translation` ADD FOREIGN KEY (`order_state_uuid`) REFERENCES `order_state` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `payment_method_translation` ADD FOREIGN KEY (`payment_method_uuid`) REFERENCES `payment_method` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `price_group_translation` ADD FOREIGN KEY (`price_group_uuid`) REFERENCES `price_group` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `product_attachment_translation` ADD FOREIGN KEY (`product_attachment_uuid`) REFERENCES `product_attachment` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `product_detail_translation` ADD FOREIGN KEY (`product_detail_uuid`) REFERENCES `product_detail` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `product_link_translation` ADD FOREIGN KEY (`product_link_uuid`) REFERENCES `product_link` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `product_manufacturer_translation` ADD FOREIGN KEY (`product_manufacturer_uuid`) REFERENCES `product_manufacturer` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `product_media_translation` ADD FOREIGN KEY (`product_media_uuid`) REFERENCES `product_media` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `shipping_method_translation` ADD FOREIGN KEY (`shipping_method_uuid`) REFERENCES `shipping_method` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `shop_form_translation` ADD FOREIGN KEY (`shop_form_uuid`) REFERENCES `shop_form` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `shop_form_field_translation` ADD FOREIGN KEY (`shop_form_field_uuid`) REFERENCES `shop_form_field` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `tax_area_rule_translation` ADD FOREIGN KEY (`tax_area_rule_uuid`) REFERENCES `tax_area_rule` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `unit_translation` ADD FOREIGN KEY (`unit_uuid`) REFERENCES `unit` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 
 -- TABLE INSERTS
@@ -466,20 +584,7 @@ INSERT INTO blog_translation (language_uuid, blog_uuid, title, short_description
             shop s ON s.fallback_locale_uuid IS NULL
     );
 
-<<<<<<< Updated upstream
-INSERT INTO blog_tag_translation (language_uuid, blog_uuid, name)
-=======
-CREATE TABLE `blog_tag_translation` (
-  `blog_tag_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `name` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_unicode_ci'
-)
-COLLATE='utf8mb4_unicode_ci'
-ENGINE=InnoDB
-;
-
 INSERT INTO blog_tag_translation (language_uuid, blog_tag_uuid, name)
->>>>>>> Stashed changes
     (
         SELECT
             s.uuid                                    AS language_uuid,
@@ -696,20 +801,6 @@ INSERT INTO product_attachment_translation (language_uuid, product_attachment_uu
             shop s ON s.fallback_locale_uuid IS NULL
     );
 
-<<<<<<< Updated upstream
-INSERT INTO product_configurator_group_translation (language_uuid, product_configurator_group_uuid, name, description)
-    (
-        SELECT
-            s.uuid                                    AS language_uuid,
-            p.uuid                                    AS product_configurator_group_uuid,
-            p.name                                    AS name,
-            p.description                                    AS description
-        FROM
-            product_configurator_group p
-        JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
-    );
-
 INSERT INTO product_configurator_option_translation (language_uuid, product_configurator_option_uuid, name)
     (
         SELECT
@@ -721,17 +812,7 @@ INSERT INTO product_configurator_option_translation (language_uuid, product_conf
         JOIN
             shop s ON s.fallback_locale_uuid IS NULL
     );
-=======
-CREATE TABLE `product_detail_translation` (
-  `product_detail_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `additional_text` VARCHAR(255) NOT NULL DEFAULT '' COLLATE 'utf8mb4_unicode_ci',
-  `pack_unit` VARCHAR(255) NULL DEFAULT NULL DEFAULT '' COLLATE 'utf8mb4_unicode_ci'
-)
-COLLATE='utf8mb4_unicode_ci'
-ENGINE=InnoDB
-;
->>>>>>> Stashed changes
+
 
 INSERT INTO product_detail_translation (language_uuid, product_detail_uuid,  additional_text, pack_unit)
     (
@@ -746,21 +827,8 @@ INSERT INTO product_detail_translation (language_uuid, product_detail_uuid,  add
             shop s ON s.fallback_id IS NULL
     );
 
-<<<<<<< Updated upstream
-INSERT INTO product_link_translation (language_uuid, product_link_uuid, description)
-=======
-CREATE TABLE `product_link_translation` (
-  `product_link_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `description` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `link` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL
-)
-COLLATE='utf8mb4_unicode_ci'
-ENGINE=InnoDB
-;
 
 INSERT INTO product_link_translation (language_uuid, product_link_uuid, description, link)
->>>>>>> Stashed changes
     (
         SELECT
             s.uuid                                    AS language_uuid,
@@ -773,24 +841,9 @@ INSERT INTO product_link_translation (language_uuid, product_link_uuid, descript
             shop s ON s.fallback_locale_uuid IS NULL
     );
 
-<<<<<<< Updated upstream
-INSERT INTO product_manufacturer_translation (language_uuid, product_manufacturer_uuid, description, meta_title, meta_description, meta_keywords)
-=======
-CREATE TABLE `product_manufacturer_translation` (
-  `product_manufacturer_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
-  `description` LONGTEXT NULL COLLATE 'utf8mb4_unicode_ci',
-  `meta_title` VARCHAR(255) NULL COLLATE 'utf8mb4_unicode_ci',
-  `meta_description` VARCHAR(255) NULL COLLATE 'utf8mb4_unicode_ci',
-  `meta_keywords` VARCHAR(255) NULL COLLATE 'utf8mb4_unicode_ci'
-)
-COLLATE='utf8mb4_unicode_ci'
-ENGINE=InnoDB
-;
+
 
 INSERT INTO product_manufacturer_translation (language_uuid, product_manufacturer_uuid, name, description, meta_title, meta_description, meta_keywords)
->>>>>>> Stashed changes
     (
         SELECT
             s.uuid                                    AS language_uuid,
@@ -884,29 +937,6 @@ INSERT INTO shop_form_field_translation (language_uuid, shop_form_field_uuid, na
             shop s ON s.fallback_locale_uuid IS NULL
     );
 
-<<<<<<< Updated upstream
-INSERT INTO statistic_search_translation (language_uuid, statistic_search_uuid, term)
-    (
-        SELECT
-            s.uuid                                    AS language_uuid,
-            ss.uuid                                   AS statistic_search_uuid,
-            ss.term                                   AS term
-        FROM
-            statistic_search ss
-        JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
-    );
-=======
-CREATE TABLE `tax_area_rule_translation` (
-  `tax_area_rule_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `name` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_unicode_ci'
-)
-COLLATE='utf8mb4_unicode_ci'
-ENGINE=InnoDB
-;
->>>>>>> Stashed changes
-
 INSERT INTO tax_area_rule_translation (language_uuid, tax_area_rule_uuid, name)
     (
         SELECT
@@ -932,10 +962,6 @@ INSERT INTO unit_translation (language_uuid, unit_uuid, unit, description)
             shop s ON s.fallback_locale_uuid IS NULL
     );
 
-<<<<<<< Updated upstream
-
-
-
 
 -- Constraints
 
@@ -944,7 +970,7 @@ ALTER TABLE `product_translation`
     ADD FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
 ;
-=======
+
 ALTER TABLE `album_translation`
   CHANGE `name` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `language_uuid`;
 
@@ -985,4 +1011,3 @@ ALTER TABLE `shipping_method_translation`
 ALTER TABLE `unit_translation`
   CHANGE `unit` `short_code` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `language_uuid`,
   CHANGE `description` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `short_code`;
->>>>>>> Stashed changes

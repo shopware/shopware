@@ -128,7 +128,7 @@ VALUES ('SWAG-MAIL-UUID-" . $translation['objectkey'] . "', 'SWAG-SHOP-UUID-" . 
             $paymentMethod = array_merge($translationData, $paymentMethod);
             $translationData = $this->fixQuotes($paymentMethod);
 
-            $sql = "INSERT IGNORE INTO `payment_method_translation` (payment_method_uuid, language_uuid, description, additional_description)
+            $sql = "INSERT IGNORE INTO `payment_method_translation` (payment_method_uuid, language_uuid, name, additional_description)
 VALUES ((SELECT uuid as payment_method_uuid FROM `payment_method` WHERE id = ". $key ."), 'SWAG-SHOP-UUID-" . $translation['objectlanguage'] ."', ". $translationData['description'] .", ". $translationData['additionalDescription'] .")";
 
             $this->addSql($sql);

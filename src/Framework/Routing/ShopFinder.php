@@ -59,7 +59,7 @@ class ShopFinder
 
         //first use default shop than main shops
         $query->addOrderBy('shop.is_default', 'DESC');
-        $query->addOrderBy('shop.main_id', 'ASC');
+        $query->addOrderBy('shop.parent_uuid', 'ASC');
 
         $shops = $query->execute()->fetchAll();
 

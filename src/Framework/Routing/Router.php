@@ -159,9 +159,7 @@ class Router implements RouterInterface, RequestMatcherInterface
             return $generator->generate($name, $parameters, $referenceType);
         }
 
-        $master = $this->requestStack->getMasterRequest();
-
-        if (!$shop = $master->attributes->get('router_shop')) {
+        if (!$shop = $context->getParameter('router_shop')) {
             return $generator->generate($name, $parameters, $referenceType);
         }
 
@@ -174,9 +172,12 @@ class Router implements RouterInterface, RequestMatcherInterface
         }
 
         //find seo url for path info
-        $pathinfo = $generator->generate($name, $parameters, UrlGenerator::ABSOLUTE_PATH);
-        $pathinfo = str_replace($stripBaseUrl, '', $pathinfo);
-        $pathinfo = '/' . trim($pathinfo, '/');
+        $pathInfo = $generator->generate($name, $parameters, UrlGenerator::ABSOLUTE_PATH);
+        if ($stripBaseUrl !== '/') {
+            $pathInfo = str_replace($stripBaseUrl, '', $pathInfo);
+        }
+
+        $pathInfo = '/' . trim($pathInfo, '/');
 
         $translationContext = new TranslationContext(
             (string) $shop['uuid'],
@@ -184,13 +185,13 @@ class Router implements RouterInterface, RequestMatcherInterface
             (string) $shop['fallback_locale_uuid']
         );
 
-        $seoUrl = $this->urlResolver->getUrl($shop['uuid'], $pathinfo, $translationContext);
+        $seoUrl = $this->urlResolver->getUrl($shop['uuid'], $pathInfo, $translationContext);
 
         //generate new url with shop base path/url
         $url = $generator->generate($name, $parameters, $referenceType);
 
         if ($seoUrl) {
-            $url = str_replace($pathinfo, $seoUrl->getSeoPathInfo(), $url);
+            $url = str_replace($pathInfo, $seoUrl->getSeoPathInfo(), $url);
         }
 
         return rtrim($url, '/');
@@ -228,6 +229,7 @@ class Router implements RouterInterface, RequestMatcherInterface
         //save detected shop to context for further processes
         $currencyUuid = $this->getCurrencyUuid($request, $shop['currency_uuid']);
 
+        $this->context->setParameter('router_shop', $shop);
         $request->attributes->set('router_shop', $shop);
         $request->attributes->set('_shop_uuid', $shop['uuid']);
         $request->attributes->set('_currency_uuid', $currencyUuid);
@@ -251,6 +253,7 @@ class Router implements RouterInterface, RequestMatcherInterface
             return $this->match($pathInfo);
         }
 
+//        error_log(print_r("match: " . $pathInfo, true) . "\n", 3, '/var/log/test.log');
         //resolve seo urls to use symfony url matcher for route detection
         $seoUrl = $this->urlResolver->getPathInfo($shop['uuid'], $pathInfo, $translationContext);
 

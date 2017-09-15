@@ -43,6 +43,7 @@ use Shopware\Product\Struct\ProductDetailCollection;
 use Shopware\Product\Writer\ProductResource;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
+use Shopware\Search\UuidSearchResult;
 use Shopware\Shop\Writer\ShopResource;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

@@ -54,7 +54,7 @@ abstract class Searcher
     public function search(Criteria $criteria, TranslationContext $context): SearchResultInterface
     {
         $result = $this->searchUuids($criteria, $context);
-        
+
         return $this->load($result, $context);
     }
 

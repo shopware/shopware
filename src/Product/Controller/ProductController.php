@@ -53,7 +53,7 @@ class ProductController extends ApiController
 
         $criteria->setFetchCount(true);
 
-        $searchResult = $this->productRepository->search($criteria, $context->getShopContext()->getTranslationContext());
+        $searchResult = $this->productRepository->searchUuids($criteria, $context->getShopContext()->getTranslationContext());
 
         switch ($context->getResultFormat()) {
             case ResultFormat::BASIC:

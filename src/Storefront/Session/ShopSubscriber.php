@@ -73,20 +73,8 @@ class ShopSubscriber implements EventSubscriberInterface
             ],
             KernelEvents::RESPONSE => [
                 ['setShopCookie', 10],
-            ],
-            KernelEvents::EXCEPTION => [
-                ['handleRouterException', 20],
-            ],
+            ]
         ];
-    }
-
-    public function handleRouterException(GetResponseForExceptionEvent $event)
-    {
-        switch (true) {
-            case $event->getException() instanceof NotFoundHttpException:
-                $event->setResponse(new RedirectResponse($this->router->generate('homepage')));
-                break;
-        }
     }
 
     public function setSeoRedirect(GetResponseEvent $event): void

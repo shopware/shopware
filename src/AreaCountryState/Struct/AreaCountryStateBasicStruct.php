@@ -29,29 +29,14 @@ use Shopware\Framework\Struct\Struct;
 class AreaCountryStateBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
 
     /**
-     * @var int|null
-     */
-    protected $areaCountryId;
-
-    /**
-     * @var string|null
+     * @var string
      */
     protected $areaCountryUuid;
-
-    /**
-     * @var string|null
-     */
-    protected $name;
 
     /**
      * @var string
@@ -59,24 +44,19 @@ class AreaCountryStateBasicStruct extends Struct
     protected $shortCode;
 
     /**
-     * @var int|null
+     * @var int
      */
     protected $position;
 
     /**
-     * @var bool|null
+     * @var bool
      */
     protected $active;
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
+    /**
+     * @var string
+     */
+    protected $name;
 
     public function getUuid(): string
     {
@@ -88,34 +68,14 @@ class AreaCountryStateBasicStruct extends Struct
         $this->uuid = $uuid;
     }
 
-    public function getAreaCountryId(): ?int
-    {
-        return $this->areaCountryId;
-    }
-
-    public function setAreaCountryId(?int $areaCountryId): void
-    {
-        $this->areaCountryId = $areaCountryId;
-    }
-
-    public function getAreaCountryUuid(): ?string
+    public function getAreaCountryUuid(): string
     {
         return $this->areaCountryUuid;
     }
 
-    public function setAreaCountryUuid(?string $areaCountryUuid): void
+    public function setAreaCountryUuid(string $areaCountryUuid): void
     {
         $this->areaCountryUuid = $areaCountryUuid;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(?string $name): void
-    {
-        $this->name = $name;
     }
 
     public function getShortCode(): string
@@ -128,23 +88,33 @@ class AreaCountryStateBasicStruct extends Struct
         $this->shortCode = $shortCode;
     }
 
-    public function getPosition(): ?int
+    public function getPosition(): int
     {
         return $this->position;
     }
 
-    public function setPosition(?int $position): void
+    public function setPosition(int $position): void
     {
         $this->position = $position;
     }
 
-    public function getActive(): ?bool
+    public function getActive(): bool
     {
         return $this->active;
     }
 
-    public function setActive(?bool $active): void
+    public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
     }
 }

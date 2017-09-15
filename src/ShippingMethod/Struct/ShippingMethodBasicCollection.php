@@ -70,47 +70,37 @@ class ShippingMethodBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(
-            function (ShippingMethodBasicStruct $shippingMethod) {
-                return $shippingMethod->getUuid();
-            }
-        );
+        return $this->fmap(function (ShippingMethodBasicStruct $shippingMethod) {
+            return $shippingMethod->getUuid();
+        });
     }
 
     public function getShopUuids(): array
     {
-        return $this->fmap(
-            function (ShippingMethodBasicStruct $shippingMethod) {
-                return $shippingMethod->getShopUuid();
-            }
-        );
+        return $this->fmap(function (ShippingMethodBasicStruct $shippingMethod) {
+            return $shippingMethod->getShopUuid();
+        });
     }
 
     public function filterByShopUuid(string $uuid): ShippingMethodBasicCollection
     {
-        return $this->filter(
-            function (ShippingMethodBasicStruct $shippingMethod) use ($uuid) {
-                return $shippingMethod->getShopUuid() === $uuid;
-            }
-        );
+        return $this->filter(function (ShippingMethodBasicStruct $shippingMethod) use ($uuid) {
+            return $shippingMethod->getShopUuid() === $uuid;
+        });
     }
 
     public function getCustomerGroupUuids(): array
     {
-        return $this->fmap(
-            function (ShippingMethodBasicStruct $shippingMethod) {
-                return $shippingMethod->getCustomerGroupUuid();
-            }
-        );
+        return $this->fmap(function (ShippingMethodBasicStruct $shippingMethod) {
+            return $shippingMethod->getCustomerGroupUuid();
+        });
     }
 
     public function filterByCustomerGroupUuid(string $uuid): ShippingMethodBasicCollection
     {
-        return $this->filter(
-            function (ShippingMethodBasicStruct $shippingMethod) use ($uuid) {
-                return $shippingMethod->getCustomerGroupUuid() === $uuid;
-            }
-        );
+        return $this->filter(function (ShippingMethodBasicStruct $shippingMethod) use ($uuid) {
+            return $shippingMethod->getCustomerGroupUuid() === $uuid;
+        });
     }
 
     protected function getKey(ShippingMethodBasicStruct $element): string

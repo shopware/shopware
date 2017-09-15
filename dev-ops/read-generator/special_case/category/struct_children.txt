@@ -1,0 +1,14 @@
+    /**
+     * @var CategoryBasicStruct[]
+     */
+    protected $children = [];
+
+    public function setChildren(array $children)
+    {
+        $this->children = $children;
+    }
+
+    public function getChildren(): array
+    {
+        return $this->children;
+    }

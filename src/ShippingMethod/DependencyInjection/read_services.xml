@@ -1,0 +1,51 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\ShippingMethod\Factory\ShippingMethodBasicFactory" id="shopware.shipping_method.basic_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection" />
+        </service>
+
+        <service class="Shopware\ShippingMethod\Factory\ShippingMethodDetailFactory" id="shopware.shipping_method.detail_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection" />
+            <argument id="shopware.category.basic_factory" type="service"/>
+            <argument id="shopware.area_country.basic_factory" type="service"/>
+            <argument id="shopware.holiday.basic_factory" type="service"/>
+            <argument id="shopware.payment_method.basic_factory" type="service"/>
+            <argument id="shopware.shipping_method_price.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\ShippingMethod\Loader\ShippingMethodBasicLoader" id="shopware.shipping_method.basic_loader">
+            <argument id="shopware.shipping_method.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\ShippingMethod\Loader\ShippingMethodDetailLoader" id="shopware.shipping_method.detail_loader">
+            <argument id="shopware.shipping_method.detail_factory" type="service"/>
+            <argument id="shopware.category.basic_loader" type="service"/>
+            <argument id="shopware.area_country.basic_loader" type="service"/>
+            <argument id="shopware.holiday.basic_loader" type="service"/>
+            <argument id="shopware.payment_method.basic_loader" type="service"/>
+            <argument id="shopware.shipping_method_price.searcher" type="service"/>
+        </service>
+
+        <service class="Shopware\ShippingMethod\Searcher\ShippingMethodSearcher" id="shopware.shipping_method.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.search.sql_parser" type="service"/>
+            <argument id="shopware.shipping_method.detail_factory" type="service"/>
+            <argument id="shopware.shipping_method.basic_loader" type="service"/>
+        </service>
+
+        <service class="Shopware\ShippingMethod\Repository\ShippingMethodRepository" id="shopware.shipping_method.repository">
+            <argument id="shopware.shipping_method.detail_loader" type="service"/>
+            <argument id="shopware.shipping_method.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.shipping_method.searcher" type="service"/>
+        </service>
+
+    </services>
+</container>

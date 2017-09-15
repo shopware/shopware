@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -25,42 +25,48 @@
 namespace Shopware\ListingSorting\Searcher;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\ListingSorting\Reader\ListingSortingBasicHydrator;
-use Shopware\ListingSorting\Reader\Query\ListingSortingBasicQuery;
-use Shopware\ListingSorting\Struct\ListingSortingSearchResult;
+use Shopware\ListingSorting\Factory\ListingSortingBasicFactory;
+use Shopware\ListingSorting\Loader\ListingSortingBasicLoader;
 use Shopware\Search\Criteria;
-use Shopware\Search\Search;
+use Shopware\Search\QueryBuilder;
+use Shopware\Search\Searcher;
 use Shopware\Search\SearchResultInterface;
+use Shopware\Search\SqlParser\SqlParser;
+use Shopware\Search\UuidSearchResult;
 
-class ListingSortingSearcher extends Search
+class ListingSortingSearcher extends Searcher
 {
     /**
-     * @var ListingSortingBasicHydrator
+     * @var ListingSortingBasicFactory
      */
-    private $hydrator;
+    private $factory;
 
-    public function __construct(Connection $connection, array $handlers, ListingSortingBasicHydrator $hydrator)
+    /**
+     * @var ListingSortingBasicLoader
+     */
+    private $loader;
+
+    public function __construct(Connection $connection, SqlParser $parser, ListingSortingBasicFactory $factory, ListingSortingBasicLoader $loader)
     {
-        parent::__construct($connection, $handlers);
-        $this->hydrator = $hydrator;
+        parent::__construct($connection, $parser);
+        $this->factory = $factory;
+        $this->loader = $loader;
     }
 
     protected function createQuery(Criteria $criteria, TranslationContext $context): QueryBuilder
     {
-        return new ListingSortingBasicQuery($this->connection, $context);
+        return $this->factory->createSearchQuery($criteria, $context);
     }
 
-    protected function createResult(array $rows, int $total, TranslationContext $context): SearchResultInterface
+    protected function load(UuidSearchResult $uuidResult, TranslationContext $context): SearchResultInterface
     {
-        $structs = array_map(
-            function (array $row) {
-                return $this->hydrator->hydrate($row);
-            },
-            $rows
-        );
+        $collection = $this->loader->load($uuidResult->getUuids(), $context);
 
-        return new ListingSortingSearchResult($structs, $total);
+        $result = new ListingSortingSearchResult($collection->getElements());
+
+        $result->setTotal($uuidResult->getTotal());
+
+        return $result;
     }
 }

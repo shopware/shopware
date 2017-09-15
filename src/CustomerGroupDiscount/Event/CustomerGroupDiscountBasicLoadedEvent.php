@@ -43,10 +43,8 @@ class CustomerGroupDiscountBasicLoadedEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(
-        CustomerGroupDiscountBasicCollection $customerGroupDiscounts,
-        TranslationContext $context
-    ) {
+    public function __construct(CustomerGroupDiscountBasicCollection $customerGroupDiscounts, TranslationContext $context)
+    {
         $this->customerGroupDiscounts = $customerGroupDiscounts;
         $this->context = $context;
     }
@@ -68,9 +66,7 @@ class CustomerGroupDiscountBasicLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection(
-            [
-            ]
-        );
+        return new NestedEventCollection([
+        ]);
     }
 }

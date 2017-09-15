@@ -22,23 +22,25 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\CustomerAddress\Struct;
+namespace Shopware\CustomerAddress\Searcher;
 
+use Shopware\CustomerAddress\Struct\CustomerAddressBasicCollection;
 use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
 
 class CustomerAddressSearchResult extends CustomerAddressBasicCollection implements SearchResultInterface
 {
-    use SearchResultTrait;
-
     /**
      * @var int
      */
     protected $total;
 
-    public function __construct(array $elements, int $total)
+    public function getTotal(): int
     {
-        parent::__construct($elements);
+        return $this->total;
+    }
+
+    public function setTotal(int $total): void
+    {
         $this->total = $total;
     }
 }

@@ -1,3 +1,0 @@
-        /* @var #searchNameUc#Condition $criteriaPart */
-        $builder->andWhere('#classLc#.#column# = :#column#_condition');
-        $builder->setParameter('#column#_condition', $criteriaPart->is#searchNameUc#());

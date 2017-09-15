@@ -1,0 +1,235 @@
+<?php
+/**
+ * Shopware 5
+ * Copyright (c) shopware AG
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Shopware" is a registered trademark of shopware AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+namespace Shopware\Category\Factory;
+
+use Doctrine\DBAL\Connection;
+use Shopware\Category\Struct\CategoryBasicStruct;
+use Shopware\Category\Struct\CategoryDetailStruct;
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\CustomerGroup\Factory\CustomerGroupBasicFactory;
+use Shopware\Media\Factory\MediaBasicFactory;
+use Shopware\Media\Struct\MediaBasicStruct;
+use Shopware\Product\Factory\ProductBasicFactory;
+use Shopware\ProductStream\Factory\ProductStreamBasicFactory;
+use Shopware\ProductStream\Struct\ProductStreamBasicStruct;
+use Shopware\Search\QueryBuilder;
+use Shopware\Search\QuerySelection;
+use Shopware\SeoUrl\Factory\SeoUrlBasicFactory;
+
+class CategoryDetailFactory extends CategoryBasicFactory
+{
+    /**
+     * @var ProductStreamBasicFactory
+     */
+    protected $productStreamFactory;
+
+    /**
+     * @var MediaBasicFactory
+     */
+    protected $mediaFactory;
+
+    /**
+     * @var ProductBasicFactory
+     */
+    protected $productFactory;
+
+    /**
+     * @var CustomerGroupBasicFactory
+     */
+    protected $customerGroupFactory;
+
+    public function __construct(
+        Connection $connection,
+        array $extensions,
+        ProductStreamBasicFactory $productStreamFactory,
+        MediaBasicFactory $mediaFactory,
+        ProductBasicFactory $productFactory,
+        CustomerGroupBasicFactory $customerGroupFactory,
+        SeoUrlBasicFactory $seoUrlFactory
+    ) {
+        parent::__construct($connection, $extensions, $seoUrlFactory);
+        $this->productStreamFactory = $productStreamFactory;
+        $this->mediaFactory = $mediaFactory;
+        $this->productFactory = $productFactory;
+        $this->customerGroupFactory = $customerGroupFactory;
+    }
+
+    public function getFields(): array
+    {
+        $fields = array_merge(parent::getFields(), $this->getExtensionFields());
+        $fields['productStream'] = $this->productStreamFactory->getFields();
+        $fields['media'] = $this->mediaFactory->getFields();
+        $fields['_sub_select_product_uuids'] = '_sub_select_product_uuids';
+        $fields['_sub_select_customerGroup_uuids'] = '_sub_select_customerGroup_uuids';
+
+        return $fields;
+    }
+
+    public function hydrate(
+        array $data,
+        CategoryBasicStruct $category,
+        QuerySelection $selection,
+        TranslationContext $context
+    ): CategoryBasicStruct {
+        /** @var CategoryDetailStruct $category */
+        $category = parent::hydrate($data, $category, $selection, $context);
+        $productStream = $selection->filter('productStream');
+        if ($productStream && !empty($data[$productStream->getField('uuid')])) {
+            $category->setProductStream(
+                $this->productStreamFactory->hydrate($data, new ProductStreamBasicStruct(), $productStream, $context)
+            );
+        }
+        $media = $selection->filter('media');
+        if ($media && !empty($data[$media->getField('uuid')])) {
+            $category->setMedia(
+                $this->mediaFactory->hydrate($data, new MediaBasicStruct(), $media, $context)
+            );
+        }
+
+        if ($selection->hasField('_sub_select_product_uuids')) {
+            $uuids = explode('|', $data[$selection->getField('_sub_select_product_uuids')]);
+            $category->setProductUuids(array_filter($uuids));
+        }
+
+        if ($selection->hasField('_sub_select_customerGroup_uuids')) {
+            $uuids = explode('|', $data[$selection->getField('_sub_select_customerGroup_uuids')]);
+            $category->setBlockedCustomerGroupsUuids(array_filter($uuids));
+        }
+
+        return $category;
+    }
+
+    public function joinDependencies(QuerySelection $selection, QueryBuilder $query, TranslationContext $context): void
+    {
+        parent::joinDependencies($selection, $query, $context);
+
+        if ($productStream = $selection->filter('productStream')) {
+            $query->leftJoin(
+                $selection->getRootEscaped(),
+                'product_stream',
+                $productStream->getRootEscaped(),
+                sprintf('%s.uuid = %s.product_stream_uuid', $productStream->getRootEscaped(), $selection->getRootEscaped())
+            );
+            $this->productStreamFactory->joinDependencies($productStream, $query, $context);
+        }
+
+        if ($media = $selection->filter('media')) {
+            $query->leftJoin(
+                $selection->getRootEscaped(),
+                'media',
+                $media->getRootEscaped(),
+                sprintf('%s.uuid = %s.media_uuid', $media->getRootEscaped(), $selection->getRootEscaped())
+            );
+            $this->mediaFactory->joinDependencies($media, $query, $context);
+        }
+
+        if ($products = $selection->filter('products')) {
+            $mapping = QuerySelection::escape($products->getRoot() . '.mapping');
+
+            $query->leftJoin(
+                $selection->getRootEscaped(),
+                'product_category_ro',
+                $mapping,
+                sprintf('%s.uuid = %s.category_uuid', $selection->getRootEscaped(), $mapping)
+            );
+            $query->leftJoin(
+                $mapping,
+                'product',
+                $products->getRootEscaped(),
+                sprintf('%s.product_uuid = %s.uuid', $mapping, $products->getRootEscaped())
+            );
+
+            $this->productFactory->joinDependencies($products, $query, $context);
+
+            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+        }
+
+        if ($selection->hasField('_sub_select_product_uuids')) {
+            $query->addSelect('
+                (
+                    SELECT GROUP_CONCAT(mapping.product_uuid SEPARATOR \'|\')
+                    FROM product_category_ro mapping
+                    WHERE mapping.category_uuid = ' . $selection->getRootEscaped() . '.uuid
+                ) as ' . QuerySelection::escape($selection->getField('_sub_select_product_uuids'))
+            );
+        }
+
+        if ($blockedCustomerGroupss = $selection->filter('blockedCustomerGroupss')) {
+            $mapping = QuerySelection::escape($blockedCustomerGroupss->getRoot() . '.mapping');
+
+            $query->leftJoin(
+                $selection->getRootEscaped(),
+                'category_avoid_customer_group',
+                $mapping,
+                sprintf('%s.uuid = %s.category_uuid', $selection->getRootEscaped(), $mapping)
+            );
+            $query->leftJoin(
+                $mapping,
+                'customer_group',
+                $blockedCustomerGroupss->getRootEscaped(),
+                sprintf('%s.customer_group_uuid = %s.uuid', $mapping, $blockedCustomerGroupss->getRootEscaped())
+            );
+
+            $this->customerGroupFactory->joinDependencies($blockedCustomerGroupss, $query, $context);
+
+            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+        }
+
+        if ($selection->hasField('_sub_select_customerGroup_uuids')) {
+            $query->addSelect('
+                (
+                    SELECT GROUP_CONCAT(mapping.customer_group_uuid SEPARATOR \'|\')
+                    FROM category_avoid_customer_group mapping
+                    WHERE mapping.category_uuid = ' . $selection->getRootEscaped() . '.uuid
+                ) as ' . QuerySelection::escape($selection->getField('_sub_select_customerGroup_uuids'))
+            );
+        }
+    }
+
+    public function getAllFields(): array
+    {
+        $fields = parent::getAllFields();
+        $fields['productStream'] = $this->productStreamFactory->getAllFields();
+        $fields['media'] = $this->mediaFactory->getAllFields();
+        $fields['products'] = $this->productFactory->getAllFields();
+        $fields['blockedCustomerGroupss'] = $this->customerGroupFactory->getAllFields();
+
+        return $fields;
+    }
+
+    protected function getExtensionFields(): array
+    {
+        $fields = parent::getExtensionFields();
+
+        foreach ($this->extensions as $extension) {
+            $extensionFields = $extension->getDetailFields();
+            foreach ($extensionFields as $key => $field) {
+                $fields[$key] = $field;
+            }
+        }
+
+        return $fields;
+    }
+}

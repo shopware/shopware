@@ -1,0 +1,8 @@
+
+    public function sortByPosition(): ShopBasicCollection
+    {
+        $this->sort(function(ShopBasicStruct $a, ShopBasicStruct $b) {
+            return $a->getPosition() <=> $b->getPosition();
+        });
+        return $this;
+    }

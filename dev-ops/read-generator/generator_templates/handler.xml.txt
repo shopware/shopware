@@ -1,1 +1,0 @@
-<service class="Shopware\#classUc#\Searcher\Handler\#nameUc#Handler" id="#serviceName#"/>

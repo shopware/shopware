@@ -66,9 +66,7 @@ class AlbumBasicLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection(
-            [
-            ]
-        );
+        return new NestedEventCollection([
+        ]);
     }
 }

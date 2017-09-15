@@ -32,14 +32,29 @@ use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
 class CustomerBasicStruct extends Struct
 {
     /**
-     * @var int
+     * @var string
      */
-    protected $id;
+    protected $uuid;
 
     /**
      * @var string
      */
-    protected $uuid;
+    protected $number;
+
+    /**
+     * @var string
+     */
+    protected $salutation;
+
+    /**
+     * @var string
+     */
+    protected $firstName;
+
+    /**
+     * @var string
+     */
+    protected $lastName;
 
     /**
      * @var string
@@ -49,12 +64,37 @@ class CustomerBasicStruct extends Struct
     /**
      * @var string
      */
-    protected $encoder;
+    protected $email;
 
     /**
      * @var string
      */
-    protected $email;
+    protected $groupUuid;
+
+    /**
+     * @var string
+     */
+    protected $defaultPaymentMethodUuid;
+
+    /**
+     * @var string
+     */
+    protected $shopUuid;
+
+    /**
+     * @var string
+     */
+    protected $mainShopUuid;
+
+    /**
+     * @var string|null
+     */
+    protected $title;
+
+    /**
+     * @var string
+     */
+    protected $encoder;
 
     /**
      * @var bool
@@ -67,27 +107,22 @@ class CustomerBasicStruct extends Struct
     protected $accountMode;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $confirmationKey;
 
     /**
-     * @var int
-     */
-    protected $lastPaymentMethodId;
-
-    /**
-     * @var string
+     * @var string|null
      */
     protected $lastPaymentMethodUuid;
 
     /**
-     * @var \DateTime
+     * @var \DateTime|null
      */
     protected $firstLogin;
 
     /**
-     * @var \DateTime
+     * @var \DateTime|null
      */
     protected $lastLogin;
 
@@ -102,72 +137,22 @@ class CustomerBasicStruct extends Struct
     protected $newsletter;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $validation;
 
     /**
-     * @var int
+     * @var bool|null
      */
     protected $affiliate;
 
     /**
-     * @var string
-     */
-    protected $groupKey;
-
-    /**
-     * @var string
-     */
-    protected $groupUuid;
-
-    /**
-     * @var int
-     */
-    protected $defaultPaymentMethodId;
-
-    /**
-     * @var string
-     */
-    protected $defaultPaymentMethodUuid;
-
-    /**
-     * @var int
-     */
-    protected $shopId;
-
-    /**
-     * @var string
-     */
-    protected $shopUuid;
-
-    /**
-     * @var int
-     */
-    protected $mainShopId;
-
-    /**
-     * @var string
-     */
-    protected $mainShopUuid;
-
-    /**
-     * @var string
+     * @var string|null
      */
     protected $referer;
 
     /**
-     * @var int|null
-     */
-    protected $priceGroupId;
-
-    /**
      * @var string|null
-     */
-    protected $priceGroupUuid;
-
-    /**
-     * @var string
      */
     protected $internalComment;
 
@@ -182,19 +167,9 @@ class CustomerBasicStruct extends Struct
     protected $lockedUntil;
 
     /**
-     * @var int|null
-     */
-    protected $defaultBillingAddressId;
-
-    /**
      * @var string|null
      */
     protected $defaultBillingAddressUuid;
-
-    /**
-     * @var int|null
-     */
-    protected $defaultShippingAddressId;
 
     /**
      * @var string|null
@@ -202,51 +177,30 @@ class CustomerBasicStruct extends Struct
     protected $defaultShippingAddressUuid;
 
     /**
-     * @var string|null
-     */
-    protected $title;
-
-    /**
-     * @var string|null
-     */
-    protected $salutation;
-
-    /**
-     * @var string|null
-     */
-    protected $firstName;
-
-    /**
-     * @var string|null
-     */
-    protected $lastName;
-
-    /**
      * @var \DateTime|null
      */
     protected $birthday;
 
     /**
-     * @var string|null
-     */
-    protected $number;
-
-    /**
      * @var CustomerGroupBasicStruct
      */
     protected $customerGroup;
+
     /**
      * @var CustomerAddressBasicStruct
      */
     protected $defaultShippingAddress;
+
     /**
      * @var CustomerAddressBasicStruct
      */
     protected $defaultBillingAddress;
+
     /**
      * @var PaymentMethodBasicStruct|null
      */
     protected $lastPaymentMethod;
+
     /**
      * @var PaymentMethodBasicStruct
      */
@@ -262,17 +216,6 @@ class CustomerBasicStruct extends Struct
      */
     protected $activeShippingAddress;
 
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
-
     public function getUuid(): string
     {
         return $this->uuid;
@@ -281,6 +224,46 @@ class CustomerBasicStruct extends Struct
     public function setUuid(string $uuid): void
     {
         $this->uuid = $uuid;
+    }
+
+    public function getNumber(): string
+    {
+        return $this->number;
+    }
+
+    public function setNumber(string $number): void
+    {
+        $this->number = $number;
+    }
+
+    public function getSalutation(): string
+    {
+        return $this->salutation;
+    }
+
+    public function setSalutation(string $salutation): void
+    {
+        $this->salutation = $salutation;
+    }
+
+    public function getFirstName(): string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(string $firstName): void
+    {
+        $this->firstName = $firstName;
+    }
+
+    public function getLastName(): string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(string $lastName): void
+    {
+        $this->lastName = $lastName;
     }
 
     public function getPassword(): string
@@ -293,16 +276,6 @@ class CustomerBasicStruct extends Struct
         $this->password = $password;
     }
 
-    public function getEncoder(): string
-    {
-        return $this->encoder;
-    }
-
-    public function setEncoder(string $encoder): void
-    {
-        $this->encoder = $encoder;
-    }
-
     public function getEmail(): string
     {
         return $this->email;
@@ -311,6 +284,66 @@ class CustomerBasicStruct extends Struct
     public function setEmail(string $email): void
     {
         $this->email = $email;
+    }
+
+    public function getGroupUuid(): string
+    {
+        return $this->groupUuid;
+    }
+
+    public function setGroupUuid(string $groupUuid): void
+    {
+        $this->groupUuid = $groupUuid;
+    }
+
+    public function getDefaultPaymentMethodUuid(): string
+    {
+        return $this->defaultPaymentMethodUuid;
+    }
+
+    public function setDefaultPaymentMethodUuid(string $defaultPaymentMethodUuid): void
+    {
+        $this->defaultPaymentMethodUuid = $defaultPaymentMethodUuid;
+    }
+
+    public function getShopUuid(): string
+    {
+        return $this->shopUuid;
+    }
+
+    public function setShopUuid(string $shopUuid): void
+    {
+        $this->shopUuid = $shopUuid;
+    }
+
+    public function getMainShopUuid(): string
+    {
+        return $this->mainShopUuid;
+    }
+
+    public function setMainShopUuid(string $mainShopUuid): void
+    {
+        $this->mainShopUuid = $mainShopUuid;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): void
+    {
+        $this->title = $title;
+    }
+
+    public function getEncoder(): string
+    {
+        return $this->encoder;
+    }
+
+    public function setEncoder(string $encoder): void
+    {
+        $this->encoder = $encoder;
     }
 
     public function getActive(): bool
@@ -333,52 +366,42 @@ class CustomerBasicStruct extends Struct
         $this->accountMode = $accountMode;
     }
 
-    public function getConfirmationKey(): string
+    public function getConfirmationKey(): ?string
     {
         return $this->confirmationKey;
     }
 
-    public function setConfirmationKey(string $confirmationKey): void
+    public function setConfirmationKey(?string $confirmationKey): void
     {
         $this->confirmationKey = $confirmationKey;
     }
 
-    public function getLastPaymentMethodId(): int
-    {
-        return $this->lastPaymentMethodId;
-    }
-
-    public function setLastPaymentMethodId(int $lastPaymentMethodId): void
-    {
-        $this->lastPaymentMethodId = $lastPaymentMethodId;
-    }
-
-    public function getLastPaymentMethodUuid(): string
+    public function getLastPaymentMethodUuid(): ?string
     {
         return $this->lastPaymentMethodUuid;
     }
 
-    public function setLastPaymentMethodUuid(string $lastPaymentMethodUuid): void
+    public function setLastPaymentMethodUuid(?string $lastPaymentMethodUuid): void
     {
         $this->lastPaymentMethodUuid = $lastPaymentMethodUuid;
     }
 
-    public function getFirstLogin(): \DateTime
+    public function getFirstLogin(): ?\DateTime
     {
         return $this->firstLogin;
     }
 
-    public function setFirstLogin(\DateTime $firstLogin): void
+    public function setFirstLogin(?\DateTime $firstLogin): void
     {
         $this->firstLogin = $firstLogin;
     }
 
-    public function getLastLogin(): \DateTime
+    public function getLastLogin(): ?\DateTime
     {
         return $this->lastLogin;
     }
 
-    public function setLastLogin(\DateTime $lastLogin): void
+    public function setLastLogin(?\DateTime $lastLogin): void
     {
         $this->lastLogin = $lastLogin;
     }
@@ -403,142 +426,42 @@ class CustomerBasicStruct extends Struct
         $this->newsletter = $newsletter;
     }
 
-    public function getValidation(): string
+    public function getValidation(): ?string
     {
         return $this->validation;
     }
 
-    public function setValidation(string $validation): void
+    public function setValidation(?string $validation): void
     {
         $this->validation = $validation;
     }
 
-    public function getAffiliate(): int
+    public function getAffiliate(): ?bool
     {
         return $this->affiliate;
     }
 
-    public function setAffiliate(int $affiliate): void
+    public function setAffiliate(?bool $affiliate): void
     {
         $this->affiliate = $affiliate;
     }
 
-    public function getGroupKey(): string
-    {
-        return $this->groupKey;
-    }
-
-    public function setGroupKey(string $groupKey): void
-    {
-        $this->groupKey = $groupKey;
-    }
-
-    public function getGroupUuid(): string
-    {
-        return $this->groupUuid;
-    }
-
-    public function setGroupUuid(string $groupUuid): void
-    {
-        $this->groupUuid = $groupUuid;
-    }
-
-    public function getDefaultPaymentMethodId(): int
-    {
-        return $this->defaultPaymentMethodId;
-    }
-
-    public function setDefaultPaymentMethodId(int $defaultPaymentMethodId): void
-    {
-        $this->defaultPaymentMethodId = $defaultPaymentMethodId;
-    }
-
-    public function getDefaultPaymentMethodUuid(): string
-    {
-        return $this->defaultPaymentMethodUuid;
-    }
-
-    public function setDefaultPaymentMethodUuid(string $defaultPaymentMethodUuid): void
-    {
-        $this->defaultPaymentMethodUuid = $defaultPaymentMethodUuid;
-    }
-
-    public function getShopId(): int
-    {
-        return $this->shopId;
-    }
-
-    public function setShopId(int $shopId): void
-    {
-        $this->shopId = $shopId;
-    }
-
-    public function getShopUuid(): string
-    {
-        return $this->shopUuid;
-    }
-
-    public function setShopUuid(string $shopUuid): void
-    {
-        $this->shopUuid = $shopUuid;
-    }
-
-    public function getMainShopId(): int
-    {
-        return $this->mainShopId;
-    }
-
-    public function setMainShopId(int $mainShopId): void
-    {
-        $this->mainShopId = $mainShopId;
-    }
-
-    public function getMainShopUuid(): string
-    {
-        return $this->mainShopUuid;
-    }
-
-    public function setMainShopUuid(string $mainShopUuid): void
-    {
-        $this->mainShopUuid = $mainShopUuid;
-    }
-
-    public function getReferer(): string
+    public function getReferer(): ?string
     {
         return $this->referer;
     }
 
-    public function setReferer(string $referer): void
+    public function setReferer(?string $referer): void
     {
         $this->referer = $referer;
     }
 
-    public function getPriceGroupId(): ?int
-    {
-        return $this->priceGroupId;
-    }
-
-    public function setPriceGroupId(?int $priceGroupId): void
-    {
-        $this->priceGroupId = $priceGroupId;
-    }
-
-    public function getPriceGroupUuid(): ?string
-    {
-        return $this->priceGroupUuid;
-    }
-
-    public function setPriceGroupUuid(?string $priceGroupUuid): void
-    {
-        $this->priceGroupUuid = $priceGroupUuid;
-    }
-
-    public function getInternalComment(): string
+    public function getInternalComment(): ?string
     {
         return $this->internalComment;
     }
 
-    public function setInternalComment(string $internalComment): void
+    public function setInternalComment(?string $internalComment): void
     {
         $this->internalComment = $internalComment;
     }
@@ -563,16 +486,6 @@ class CustomerBasicStruct extends Struct
         $this->lockedUntil = $lockedUntil;
     }
 
-    public function getDefaultBillingAddressId(): ?int
-    {
-        return $this->defaultBillingAddressId;
-    }
-
-    public function setDefaultBillingAddressId(?int $defaultBillingAddressId): void
-    {
-        $this->defaultBillingAddressId = $defaultBillingAddressId;
-    }
-
     public function getDefaultBillingAddressUuid(): ?string
     {
         return $this->defaultBillingAddressUuid;
@@ -581,16 +494,6 @@ class CustomerBasicStruct extends Struct
     public function setDefaultBillingAddressUuid(?string $defaultBillingAddressUuid): void
     {
         $this->defaultBillingAddressUuid = $defaultBillingAddressUuid;
-    }
-
-    public function getDefaultShippingAddressId(): ?int
-    {
-        return $this->defaultShippingAddressId;
-    }
-
-    public function setDefaultShippingAddressId(?int $defaultShippingAddressId): void
-    {
-        $this->defaultShippingAddressId = $defaultShippingAddressId;
     }
 
     public function getDefaultShippingAddressUuid(): ?string
@@ -603,46 +506,6 @@ class CustomerBasicStruct extends Struct
         $this->defaultShippingAddressUuid = $defaultShippingAddressUuid;
     }
 
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
-    public function setTitle(?string $title): void
-    {
-        $this->title = $title;
-    }
-
-    public function getSalutation(): ?string
-    {
-        return $this->salutation;
-    }
-
-    public function setSalutation(?string $salutation): void
-    {
-        $this->salutation = $salutation;
-    }
-
-    public function getFirstName(): ?string
-    {
-        return $this->firstName;
-    }
-
-    public function setFirstName(?string $firstName): void
-    {
-        $this->firstName = $firstName;
-    }
-
-    public function getLastName(): ?string
-    {
-        return $this->lastName;
-    }
-
-    public function setLastName(?string $lastName): void
-    {
-        $this->lastName = $lastName;
-    }
-
     public function getBirthday(): ?\DateTime
     {
         return $this->birthday;
@@ -653,14 +516,32 @@ class CustomerBasicStruct extends Struct
         $this->birthday = $birthday;
     }
 
-    public function getNumber(): ?string
+    public function getActiveBillingAddress(): CustomerAddressBasicStruct
     {
-        return $this->number;
+        if (!$this->activeBillingAddress) {
+            return $this->defaultBillingAddress;
+        }
+
+        return $this->activeBillingAddress;
     }
 
-    public function setNumber(?string $number): void
+    public function setActiveBillingAddress(CustomerAddressBasicStruct $activeBillingAddress): void
     {
-        $this->number = $number;
+        $this->activeBillingAddress = $activeBillingAddress;
+    }
+
+    public function getActiveShippingAddress(): CustomerAddressBasicStruct
+    {
+        if (!$this->activeShippingAddress) {
+            return $this->defaultShippingAddress;
+        }
+
+        return $this->activeShippingAddress;
+    }
+
+    public function setActiveShippingAddress(CustomerAddressBasicStruct $activeShippingAddress): void
+    {
+        $this->activeShippingAddress = $activeShippingAddress;
     }
 
     public function getCustomerGroup(): CustomerGroupBasicStruct
@@ -711,41 +592,5 @@ class CustomerBasicStruct extends Struct
     public function setDefaultPaymentMethod(PaymentMethodBasicStruct $defaultPaymentMethod): void
     {
         $this->defaultPaymentMethod = $defaultPaymentMethod;
-    }
-
-    public function getActiveBillingAddress(): CustomerAddressBasicStruct
-    {
-        if (!$this->activeBillingAddress) {
-            return $this->defaultBillingAddress;
-        }
-
-        return $this->activeBillingAddress;
-    }
-
-    public function setActiveBillingAddress(CustomerAddressBasicStruct $activeBillingAddress): void
-    {
-        $this->activeBillingAddress = $activeBillingAddress;
-    }
-
-    public function getActiveShippingAddress(): CustomerAddressBasicStruct
-    {
-        if (!$this->activeShippingAddress) {
-            return $this->defaultShippingAddress;
-        }
-
-        return $this->activeShippingAddress;
-    }
-
-    public function setActiveShippingAddress(CustomerAddressBasicStruct $activeShippingAddress): void
-    {
-        $this->activeShippingAddress = $activeShippingAddress;
-    }
-
-    public function jsonSerialize(): array
-    {
-        $data = parent::jsonSerialize();
-        $data['activeShippingAddress'] = $this->getActiveShippingAddress();
-        $data['activeBillingAddress'] = $this->getActiveBillingAddress();
-        return $data;
     }
 }

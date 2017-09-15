@@ -24,50 +24,72 @@
 
 namespace Shopware\ProductDetail\Loader;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Struct\SortArrayByKeysTrait;
+use Shopware\ProductDetail\Factory\ProductDetailDetailFactory;
 use Shopware\ProductDetail\Struct\ProductDetailDetailCollection;
 use Shopware\ProductDetail\Struct\ProductDetailDetailStruct;
 use Shopware\ProductPrice\Searcher\ProductPriceSearcher;
-use Shopware\ProductPrice\Struct\ProductPriceSearchResult;
-use Shopware\Search\Condition\ProductDetailUuidCondition;
+use Shopware\ProductPrice\Searcher\ProductPriceSearchResult;
 use Shopware\Search\Criteria;
+use Shopware\Search\Query\TermsQuery;
 
 class ProductDetailDetailLoader
 {
+    use SortArrayByKeysTrait;
+
     /**
-     * @var ProductDetailBasicLoader
+     * @var ProductDetailDetailFactory
      */
-    protected $basicLoader;
+    private $factory;
+
     /**
      * @var ProductPriceSearcher
      */
     private $productPriceSearcher;
 
     public function __construct(
-        ProductDetailBasicLoader $basicLoader,
-        ProductPriceSearcher $productPriceSearcher
+        ProductDetailDetailFactory $factory,
+ProductPriceSearcher $productPriceSearcher
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->factory = $factory;
         $this->productPriceSearcher = $productPriceSearcher;
     }
 
     public function load(array $uuids, TranslationContext $context): ProductDetailDetailCollection
     {
-        $collection = $this->basicLoader->load($uuids, $context);
-
-        $details = new ProductDetailDetailCollection();
+        $productDetails = $this->read($uuids, $context);
 
         $criteria = new Criteria();
-        $criteria->addCondition(new ProductDetailUuidCondition($collection->getUuids()));
-        /** @var ProductPriceSearchResult $productPrices */
-        $productPrices = $this->productPriceSearcher->search($criteria, $context);
+        $criteria->addFilter(new TermsQuery('product_price.product_detail_uuid', $uuids));
+        /** @var ProductPriceSearchResult $prices */
+        $prices = $this->productPriceSearcher->search($criteria, $context);
 
-        foreach ($collection as $productDetailBasic) {
-            $productDetail = ProductDetailDetailStruct::createFrom($productDetailBasic);
-            $productDetail->setPrices($productPrices->filterByProductDetailUuid($productDetail->getUuid()));
-            $details->add($productDetail);
+        /** @var ProductDetailDetailStruct $productDetail */
+        foreach ($productDetails as $productDetail) {
+            $productDetail->setPrices($prices->filterByProductDetailUuid($productDetail->getUuid()));
         }
 
-        return $details;
+        return $productDetails;
+    }
+
+    private function read(array $uuids, TranslationContext $context): ProductDetailDetailCollection
+    {
+        $query = $this->factory->createQuery($context);
+
+        $query->andWhere('product_detail.uuid IN (:ids)');
+        $query->setParameter(':ids', $uuids, Connection::PARAM_STR_ARRAY);
+
+        $rows = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
+        $structs = [];
+        foreach ($rows as $row) {
+            $struct = $this->factory->hydrate($row, new ProductDetailDetailStruct(), $query->getSelection(), $context);
+            $structs[$struct->getUuid()] = $struct;
+        }
+
+        return new ProductDetailDetailCollection(
+            $this->sortIndexedArrayByKeys($uuids, $structs)
+        );
     }
 }

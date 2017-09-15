@@ -104,6 +104,11 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         return new static(array_slice($this->elements, $offset, $length, true));
     }
 
+    public function getElements(): array
+    {
+        return $this->elements;
+    }
+
     /**
      * Allows to use php-`foreach` to iterate over all elements inside the collection.
      * Allows to use php-`count` function to count elements inside the collection

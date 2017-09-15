@@ -466,11 +466,24 @@ INSERT INTO blog_translation (language_uuid, blog_uuid, title, short_description
             shop s ON s.fallback_locale_uuid IS NULL
     );
 
+<<<<<<< Updated upstream
 INSERT INTO blog_tag_translation (language_uuid, blog_uuid, name)
+=======
+CREATE TABLE `blog_tag_translation` (
+  `blog_tag_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `name` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_unicode_ci'
+)
+COLLATE='utf8mb4_unicode_ci'
+ENGINE=InnoDB
+;
+
+INSERT INTO blog_tag_translation (language_uuid, blog_tag_uuid, name)
+>>>>>>> Stashed changes
     (
         SELECT
             s.uuid                                    AS language_uuid,
-            b.uuid                                    AS blog_uuid,
+            b.uuid                                    AS blog_tag_uuid,
             b.name                                    AS name
         FROM
             blog_tag b
@@ -500,7 +513,7 @@ INSERT INTO currency_translation (language_uuid, currency_uuid, currency, name)
         SELECT
             s.uuid                                    AS language_uuid,
             c.uuid                                    AS category_uuid,
-            c.currency                                AS currency,
+            c.short_name                              AS currency,
             c.name                                    AS name
         FROM
             currency c
@@ -513,7 +526,7 @@ INSERT INTO customer_group_translation (language_uuid, customer_group_uuid, desc
         SELECT
             s.uuid                                    AS language_uuid,
             c.uuid                                    AS customer_group_uuid,
-            c.description                             AS description
+            c.name                                    AS description
         FROM
             customer_group c
         JOIN
@@ -651,7 +664,7 @@ INSERT INTO payment_method_translation (language_uuid, payment_method_uuid, desc
         SELECT
             s.uuid                                    AS language_uuid,
             p.uuid                                    AS payment_method_uuid,
-            p.description                             AS description,
+            p.name                                    AS description,
             p.additional_description                  AS additional_description
         FROM
             payment_method p
@@ -664,7 +677,7 @@ INSERT INTO price_group_translation (language_uuid, price_group_uuid, descriptio
         SELECT
             s.uuid                                    AS language_uuid,
             p.uuid                                    AS price_group_uuid,
-            p.description                             AS description
+            p.name                             AS description
         FROM
             price_group p
         JOIN
@@ -683,6 +696,7 @@ INSERT INTO product_attachment_translation (language_uuid, product_attachment_uu
             shop s ON s.fallback_locale_uuid IS NULL
     );
 
+<<<<<<< Updated upstream
 INSERT INTO product_configurator_group_translation (language_uuid, product_configurator_group_uuid, name, description)
     (
         SELECT
@@ -707,6 +721,17 @@ INSERT INTO product_configurator_option_translation (language_uuid, product_conf
         JOIN
             shop s ON s.fallback_locale_uuid IS NULL
     );
+=======
+CREATE TABLE `product_detail_translation` (
+  `product_detail_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `additional_text` VARCHAR(255) NOT NULL DEFAULT '' COLLATE 'utf8mb4_unicode_ci',
+  `pack_unit` VARCHAR(255) NULL DEFAULT NULL DEFAULT '' COLLATE 'utf8mb4_unicode_ci'
+)
+COLLATE='utf8mb4_unicode_ci'
+ENGINE=InnoDB
+;
+>>>>>>> Stashed changes
 
 INSERT INTO product_detail_translation (language_uuid, product_detail_uuid,  additional_text, pack_unit)
     (
@@ -721,23 +746,56 @@ INSERT INTO product_detail_translation (language_uuid, product_detail_uuid,  add
             shop s ON s.fallback_id IS NULL
     );
 
+<<<<<<< Updated upstream
 INSERT INTO product_link_translation (language_uuid, product_link_uuid, description)
+=======
+CREATE TABLE `product_link_translation` (
+  `product_link_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `description` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `link` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL
+)
+COLLATE='utf8mb4_unicode_ci'
+ENGINE=InnoDB
+;
+
+INSERT INTO product_link_translation (language_uuid, product_link_uuid, description, link)
+>>>>>>> Stashed changes
     (
         SELECT
             s.uuid                                    AS language_uuid,
             p.uuid                                    AS product_link_uuid,
-            p.description                             AS description
+            p.description                             AS description,
+            p.link                                    as link
         FROM
             product_link p
         JOIN
             shop s ON s.fallback_locale_uuid IS NULL
     );
 
+<<<<<<< Updated upstream
 INSERT INTO product_manufacturer_translation (language_uuid, product_manufacturer_uuid, description, meta_title, meta_description, meta_keywords)
+=======
+CREATE TABLE `product_manufacturer_translation` (
+  `product_manufacturer_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
+  `description` LONGTEXT NULL COLLATE 'utf8mb4_unicode_ci',
+  `meta_title` VARCHAR(255) NULL COLLATE 'utf8mb4_unicode_ci',
+  `meta_description` VARCHAR(255) NULL COLLATE 'utf8mb4_unicode_ci',
+  `meta_keywords` VARCHAR(255) NULL COLLATE 'utf8mb4_unicode_ci'
+)
+COLLATE='utf8mb4_unicode_ci'
+ENGINE=InnoDB
+;
+
+INSERT INTO product_manufacturer_translation (language_uuid, product_manufacturer_uuid, name, description, meta_title, meta_description, meta_keywords)
+>>>>>>> Stashed changes
     (
         SELECT
             s.uuid                                    AS language_uuid,
             p.uuid                                    AS product_link_uuid,
+            p.name                                    AS name,
             p.description                             AS description,
             p.meta_title                              AS meta_title,
             p.meta_description                        AS meta_description,
@@ -826,6 +884,7 @@ INSERT INTO shop_form_field_translation (language_uuid, shop_form_field_uuid, na
             shop s ON s.fallback_locale_uuid IS NULL
     );
 
+<<<<<<< Updated upstream
 INSERT INTO statistic_search_translation (language_uuid, statistic_search_uuid, term)
     (
         SELECT
@@ -837,6 +896,16 @@ INSERT INTO statistic_search_translation (language_uuid, statistic_search_uuid, 
         JOIN
             shop s ON s.fallback_locale_uuid IS NULL
     );
+=======
+CREATE TABLE `tax_area_rule_translation` (
+  `tax_area_rule_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `name` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_unicode_ci'
+)
+COLLATE='utf8mb4_unicode_ci'
+ENGINE=InnoDB
+;
+>>>>>>> Stashed changes
 
 INSERT INTO tax_area_rule_translation (language_uuid, tax_area_rule_uuid, name)
     (
@@ -855,14 +924,15 @@ INSERT INTO unit_translation (language_uuid, unit_uuid, unit, description)
         SELECT
             s.uuid                                    AS language_uuid,
             u.uuid                                    AS unit_uuid,
-            u.unit                                    AS unit,
-            u.description                             AS description
+            u.short_code                              AS unit,
+            u.name                                    AS description
         FROM
             unit u
         JOIN
             shop s ON s.fallback_locale_uuid IS NULL
     );
 
+<<<<<<< Updated upstream
 
 
 
@@ -874,3 +944,45 @@ ALTER TABLE `product_translation`
     ADD FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
 ;
+=======
+ALTER TABLE `album_translation`
+  CHANGE `name` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `language_uuid`;
+
+ALTER TABLE `area_country_state_translation`
+  CHANGE `name` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `language_uuid`;
+
+ALTER TABLE `area_country_translation`
+  CHANGE `name` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `language_uuid`;
+
+ALTER TABLE `area_translation`
+  CHANGE `name` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `language_uuid`;
+
+ALTER TABLE `currency_translation`
+  CHANGE `currency` `short_name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `language_uuid`;
+
+ALTER TABLE `customer_group_translation`
+  CHANGE `description` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `language_uuid`;
+
+ALTER TABLE `filter_value_translation`
+  CHANGE `value` `value` longtext COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `language_uuid`;
+
+ALTER TABLE `media_translation`
+  CHANGE `description` `description` text COLLATE 'utf8mb4_unicode_ci' NULL AFTER `name`;
+
+ALTER TABLE `payment_method_translation`
+  CHANGE `description` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `language_uuid`;
+
+ALTER TABLE `price_group_translation`
+  CHANGE `description` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `language_uuid`;
+
+ALTER TABLE `product_detail_translation`
+  CHANGE `additional_text` `additional_text` varchar(255) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `language_uuid`;
+
+ALTER TABLE `shipping_method_translation`
+  CHANGE `description` `description` mediumtext COLLATE 'utf8mb4_unicode_ci' NULL AFTER `name`,
+  CHANGE `comment` `comment` varchar(255) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `description`;
+
+ALTER TABLE `unit_translation`
+  CHANGE `unit` `short_code` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `language_uuid`,
+  CHANGE `description` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `short_code`;
+>>>>>>> Stashed changes

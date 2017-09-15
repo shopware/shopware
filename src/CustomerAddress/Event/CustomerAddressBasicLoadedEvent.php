@@ -68,11 +68,9 @@ class CustomerAddressBasicLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection(
-            [
-                new AreaCountryBasicLoadedEvent($this->customerAddresss->getAreaCountries(), $this->context),
-                new AreaCountryStateBasicLoadedEvent($this->customerAddresss->getAreaCountryStates(), $this->context),
-            ]
-        );
+        return new NestedEventCollection([
+            new AreaCountryBasicLoadedEvent($this->customerAddresss->getCountries(), $this->context),
+            new AreaCountryStateBasicLoadedEvent($this->customerAddresss->getStates(), $this->context),
+        ]);
     }
 }

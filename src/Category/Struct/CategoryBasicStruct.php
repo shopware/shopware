@@ -45,12 +45,7 @@ class CategoryBasicStruct extends Struct
     protected $path;
 
     /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var int|null
+     * @var int
      */
     protected $position;
 
@@ -58,41 +53,6 @@ class CategoryBasicStruct extends Struct
      * @var int
      */
     protected $level;
-
-    /**
-     * @var \DateTime
-     */
-    protected $added;
-
-    /**
-     * @var \DateTime
-     */
-    protected $changedAt;
-
-    /**
-     * @var string|null
-     */
-    protected $metaKeywords;
-
-    /**
-     * @var string|null
-     */
-    protected $metaTitle;
-
-    /**
-     * @var string|null
-     */
-    protected $metaDescription;
-
-    /**
-     * @var string|null
-     */
-    protected $cmsHeadline;
-
-    /**
-     * @var string|null
-     */
-    protected $cmsDescription;
 
     /**
      * @var string|null
@@ -125,12 +85,7 @@ class CategoryBasicStruct extends Struct
     protected $hideTop;
 
     /**
-     * @var int|null
-     */
-    protected $mediaId;
-
-    /**
-     * @var string
+     * @var string|null
      */
     protected $mediaUuid;
 
@@ -138,11 +93,6 @@ class CategoryBasicStruct extends Struct
      * @var string|null
      */
     protected $productBoxLayout;
-
-    /**
-     * @var int|null
-     */
-    protected $productStreamId;
 
     /**
      * @var string|null
@@ -155,14 +105,54 @@ class CategoryBasicStruct extends Struct
     protected $hideSortings;
 
     /**
-     * @var array
+     * @var string|null
      */
-    protected $sortingIds;
+    protected $sortingUuids;
 
     /**
-     * @var array
+     * @var string|null
      */
-    protected $facetIds;
+    protected $facetUuids;
+
+    /**
+     * @var \DateTime
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTime
+     */
+    protected $updatedAt;
+
+    /**
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * @var string|null
+     */
+    protected $metaKeywords;
+
+    /**
+     * @var string|null
+     */
+    protected $metaTitle;
+
+    /**
+     * @var string|null
+     */
+    protected $metaDescription;
+
+    /**
+     * @var string|null
+     */
+    protected $cmsHeadline;
+
+    /**
+     * @var string|null
+     */
+    protected $cmsDescription;
 
     /**
      * @var SeoUrlBasicStruct|null
@@ -204,22 +194,12 @@ class CategoryBasicStruct extends Struct
         $this->path = $path;
     }
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
-    public function getPosition(): ?int
+    public function getPosition(): int
     {
         return $this->position;
     }
 
-    public function setPosition(?int $position): void
+    public function setPosition(int $position): void
     {
         $this->position = $position;
     }
@@ -232,76 +212,6 @@ class CategoryBasicStruct extends Struct
     public function setLevel(int $level): void
     {
         $this->level = $level;
-    }
-
-    public function getAdded(): \DateTime
-    {
-        return $this->added;
-    }
-
-    public function setAdded(\DateTime $added): void
-    {
-        $this->added = $added;
-    }
-
-    public function getChangedAt(): \DateTime
-    {
-        return $this->changedAt;
-    }
-
-    public function setChangedAt(\DateTime $changedAt): void
-    {
-        $this->changedAt = $changedAt;
-    }
-
-    public function getMetaKeywords(): ?string
-    {
-        return $this->metaKeywords;
-    }
-
-    public function setMetaKeywords(?string $metaKeywords): void
-    {
-        $this->metaKeywords = $metaKeywords;
-    }
-
-    public function getMetaTitle(): ?string
-    {
-        return $this->metaTitle;
-    }
-
-    public function setMetaTitle(?string $metaTitle): void
-    {
-        $this->metaTitle = $metaTitle;
-    }
-
-    public function getMetaDescription(): ?string
-    {
-        return $this->metaDescription;
-    }
-
-    public function setMetaDescription(?string $metaDescription): void
-    {
-        $this->metaDescription = $metaDescription;
-    }
-
-    public function getCmsHeadline(): ?string
-    {
-        return $this->cmsHeadline;
-    }
-
-    public function setCmsHeadline(?string $cmsHeadline): void
-    {
-        $this->cmsHeadline = $cmsHeadline;
-    }
-
-    public function getCmsDescription(): ?string
-    {
-        return $this->cmsDescription;
-    }
-
-    public function setCmsDescription(?string $cmsDescription): void
-    {
-        $this->cmsDescription = $cmsDescription;
     }
 
     public function getTemplate(): ?string
@@ -364,22 +274,12 @@ class CategoryBasicStruct extends Struct
         $this->hideTop = $hideTop;
     }
 
-    public function getMediaId(): ?int
-    {
-        return $this->mediaId;
-    }
-
-    public function setMediaId(?int $mediaId): void
-    {
-        $this->mediaId = $mediaId;
-    }
-
-    public function getMediaUuid(): string
+    public function getMediaUuid(): ?string
     {
         return $this->mediaUuid;
     }
 
-    public function setMediaUuid(string $mediaUuid): void
+    public function setMediaUuid(?string $mediaUuid): void
     {
         $this->mediaUuid = $mediaUuid;
     }
@@ -392,16 +292,6 @@ class CategoryBasicStruct extends Struct
     public function setProductBoxLayout(?string $productBoxLayout): void
     {
         $this->productBoxLayout = $productBoxLayout;
-    }
-
-    public function getProductStreamId(): ?int
-    {
-        return $this->productStreamId;
-    }
-
-    public function setProductStreamId(?int $productStreamId): void
-    {
-        $this->productStreamId = $productStreamId;
     }
 
     public function getProductStreamUuid(): ?string
@@ -424,34 +314,104 @@ class CategoryBasicStruct extends Struct
         $this->hideSortings = $hideSortings;
     }
 
-    public function getSortingIds(): array
+    public function getSortingUuids(): ?string
     {
-        return $this->sortingIds;
+        return $this->sortingUuids;
     }
 
-    public function setSortingIds(array $sortingIds): void
+    public function setSortingUuids(?string $sortingUuids): void
     {
-        $this->sortingIds = $sortingIds;
+        $this->sortingUuids = $sortingUuids;
     }
 
-    public function getFacetIds(): array
+    public function getFacetUuids(): ?string
     {
-        return $this->facetIds;
+        return $this->facetUuids;
     }
 
-    public function setFacetIds(array $facetIds): void
+    public function setFacetUuids(?string $facetUuids): void
     {
-        $this->facetIds = $facetIds;
+        $this->facetUuids = $facetUuids;
     }
 
-    public function getCanonicalUrl(): ?SeoUrlBasicStruct
+    public function getCreatedAt(): \DateTime
     {
-        return $this->canonicalUrl;
+        return $this->createdAt;
     }
 
-    public function setCanonicalUrl(?SeoUrlBasicStruct $canonicalUrl): void
+    public function setCreatedAt(\DateTime $createdAt): void
     {
-        $this->canonicalUrl = $canonicalUrl;
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): \DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function getMetaKeywords(): ?string
+    {
+        return $this->metaKeywords;
+    }
+
+    public function setMetaKeywords(?string $metaKeywords): void
+    {
+        $this->metaKeywords = $metaKeywords;
+    }
+
+    public function getMetaTitle(): ?string
+    {
+        return $this->metaTitle;
+    }
+
+    public function setMetaTitle(?string $metaTitle): void
+    {
+        $this->metaTitle = $metaTitle;
+    }
+
+    public function getMetaDescription(): ?string
+    {
+        return $this->metaDescription;
+    }
+
+    public function setMetaDescription(?string $metaDescription): void
+    {
+        $this->metaDescription = $metaDescription;
+    }
+
+    public function getCmsHeadline(): ?string
+    {
+        return $this->cmsHeadline;
+    }
+
+    public function setCmsHeadline(?string $cmsHeadline): void
+    {
+        $this->cmsHeadline = $cmsHeadline;
+    }
+
+    public function getCmsDescription(): ?string
+    {
+        return $this->cmsDescription;
+    }
+
+    public function setCmsDescription(?string $cmsDescription): void
+    {
+        $this->cmsDescription = $cmsDescription;
     }
 
     public function setChildren(array $children)
@@ -462,5 +422,15 @@ class CategoryBasicStruct extends Struct
     public function getChildren(): array
     {
         return $this->children;
+    }
+
+    public function getCanonicalUrl(): ?SeoUrlBasicStruct
+    {
+        return $this->canonicalUrl;
+    }
+
+    public function setCanonicalUrl(?SeoUrlBasicStruct $canonicalUrl): void
+    {
+        $this->canonicalUrl = $canonicalUrl;
     }
 }

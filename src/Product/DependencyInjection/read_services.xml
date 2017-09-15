@@ -1,0 +1,61 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\Product\Factory\ProductBasicFactory" id="shopware.product.basic_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection" />
+            <argument id="shopware.product_manufacturer.basic_factory" type="service"/>
+            <argument id="shopware.product_detail.basic_factory" type="service"/>
+            <argument id="shopware.tax.basic_factory" type="service"/>
+            <argument id="shopware.seo_url.basic_factory" type="service"/>
+            <argument id="shopware.price_group.basic_factory" type="service"/>
+            <argument id="shopware.customer_group.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\Product\Factory\ProductDetailFactory" id="shopware.product.detail_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection" />
+            <argument id="shopware.product_detail.detail_factory" type="service"/>
+            <argument id="shopware.category.basic_factory" type="service"/>
+            <argument id="shopware.product_vote.basic_factory" type="service"/>
+            <argument id="shopware.product_manufacturer.basic_factory" type="service"/>
+            <argument id="shopware.tax.basic_factory" type="service"/>
+            <argument id="shopware.seo_url.basic_factory" type="service"/>
+            <argument id="shopware.price_group.basic_factory" type="service"/>
+            <argument id="shopware.customer_group.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\Product\Loader\ProductBasicLoader" id="shopware.product.basic_loader">
+            <argument id="shopware.product.basic_factory" type="service"/>
+            <argument id="shopware.customer_group.basic_loader" type="service"/>
+        </service>
+
+        <service class="Shopware\Product\Loader\ProductDetailLoader" id="shopware.product.detail_loader">
+            <argument id="shopware.product.detail_factory" type="service"/>
+            <argument id="shopware.customer_group.basic_loader" type="service"/>
+            <argument id="shopware.product_detail.searcher" type="service"/>
+            <argument id="shopware.product_detail.detail_loader" type="service"/>
+            <argument id="shopware.category.basic_loader" type="service"/>
+            <argument id="shopware.product_vote.searcher" type="service"/>
+        </service>
+
+        <service class="Shopware\Product\Searcher\ProductSearcher" id="shopware.product.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.search.sql_parser" type="service"/>
+            <argument id="shopware.product.detail_factory" type="service"/>
+            <argument id="shopware.product.basic_loader" type="service"/>
+        </service>
+
+        <service class="Shopware\Product\Repository\ProductRepository" id="shopware.product.repository">
+            <argument id="shopware.product.detail_loader" type="service"/>
+            <argument id="shopware.product.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.product.searcher" type="service"/>
+        </service>
+
+    </services>
+</container>

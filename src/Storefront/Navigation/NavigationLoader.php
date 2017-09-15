@@ -24,14 +24,13 @@
 
 namespace Shopware\Storefront\Navigation;
 
-use Shopware\Category\CategoryRepository;
+use Shopware\Category\Repository\CategoryRepository;
+use Shopware\Category\Searcher\CategorySearchResult;
 use Shopware\Category\Struct\Category;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Search\Condition\ActiveCondition;
-use Shopware\Search\Condition\CustomerGroupCondition;
-use Shopware\Search\Condition\ParentCondition;
-use Shopware\Search\Condition\ParentUuidCondition;
 use Shopware\Search\Criteria;
+use Shopware\Search\Query\TermQuery;
+use Shopware\Search\Query\TermsQuery;
 
 class NavigationLoader
 {
@@ -52,10 +51,13 @@ class NavigationLoader
 
         $systemCategory = $context->getShop()->getCategory();
 
-        $criteria = new Criteria();
-        $criteria->addCondition(new ParentUuidCondition(array_merge($activeCategory->getPath(), [$activeCategory->getUuid()])));
-        $criteria->addCondition(new ActiveCondition(true));
+        $uuids = array_merge($activeCategory->getPath(), [$activeCategory->getUuid()]);
 
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermsQuery('parent_uuid', $uuids));
+        $criteria->addFilter(new TermQuery('active', 1));
+
+        /** @var CategorySearchResult $categories */
         $categories = $this->repository->search($criteria, $context->getTranslationContext());
 
         $tree = $categories->sortByPosition()->getTree($systemCategory->getUuid());

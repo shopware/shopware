@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\Area\Factory\AreaBasicFactory" id="shopware.area.basic_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection" />
+        </service>
+
+        <service class="Shopware\Area\Factory\AreaDetailFactory" id="shopware.area.detail_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection" />
+            <argument id="shopware.area_country.detail_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\Area\Loader\AreaBasicLoader" id="shopware.area.basic_loader">
+            <argument id="shopware.area.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\Area\Loader\AreaDetailLoader" id="shopware.area.detail_loader">
+            <argument id="shopware.area.detail_factory" type="service"/>
+            <argument id="shopware.area_country.searcher" type="service"/>
+            <argument id="shopware.area_country.detail_loader" type="service"/>
+        </service>
+
+        <service class="Shopware\Area\Searcher\AreaSearcher" id="shopware.area.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.search.sql_parser" type="service"/>
+            <argument id="shopware.area.detail_factory" type="service"/>
+            <argument id="shopware.area.basic_loader" type="service"/>
+        </service>
+
+        <service class="Shopware\Area\Repository\AreaRepository" id="shopware.area.repository">
+            <argument id="shopware.area.detail_loader" type="service"/>
+            <argument id="shopware.area.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.area.searcher" type="service"/>
+        </service>
+
+    </services>
+</container>

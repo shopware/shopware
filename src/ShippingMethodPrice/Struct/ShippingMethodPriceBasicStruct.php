@@ -29,49 +29,29 @@ use Shopware\Framework\Struct\Struct;
 class ShippingMethodPriceBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
-
-    /**
-     * @var float
-     */
-    protected $from;
-
-    /**
-     * @var float
-     */
-    protected $value;
-
-    /**
-     * @var float
-     */
-    protected $factor;
-
-    /**
-     * @var int
-     */
-    protected $shippingMethodId;
 
     /**
      * @var string
      */
     protected $shippingMethodUuid;
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
+    /**
+     * @var float
+     */
+    protected $quantityFrom;
 
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
+    /**
+     * @var float
+     */
+    protected $price;
+
+    /**
+     * @var float
+     */
+    protected $factor;
 
     public function getUuid(): string
     {
@@ -83,24 +63,34 @@ class ShippingMethodPriceBasicStruct extends Struct
         $this->uuid = $uuid;
     }
 
-    public function getFrom(): float
+    public function getShippingMethodUuid(): string
     {
-        return $this->from;
+        return $this->shippingMethodUuid;
     }
 
-    public function setFrom(float $from): void
+    public function setShippingMethodUuid(string $shippingMethodUuid): void
     {
-        $this->from = $from;
+        $this->shippingMethodUuid = $shippingMethodUuid;
     }
 
-    public function getValue(): float
+    public function getQuantityFrom(): float
     {
-        return $this->value;
+        return $this->quantityFrom;
     }
 
-    public function setValue(float $value): void
+    public function setQuantityFrom(float $quantityFrom): void
     {
-        $this->value = $value;
+        $this->quantityFrom = $quantityFrom;
+    }
+
+    public function getPrice(): float
+    {
+        return $this->price;
+    }
+
+    public function setPrice(float $price): void
+    {
+        $this->price = $price;
     }
 
     public function getFactor(): float
@@ -111,25 +101,5 @@ class ShippingMethodPriceBasicStruct extends Struct
     public function setFactor(float $factor): void
     {
         $this->factor = $factor;
-    }
-
-    public function getShippingMethodId(): int
-    {
-        return $this->shippingMethodId;
-    }
-
-    public function setShippingMethodId(int $shippingMethodId): void
-    {
-        $this->shippingMethodId = $shippingMethodId;
-    }
-
-    public function getShippingMethodUuid(): string
-    {
-        return $this->shippingMethodUuid;
-    }
-
-    public function setShippingMethodUuid(string $shippingMethodUuid): void
-    {
-        $this->shippingMethodUuid = $shippingMethodUuid;
     }
 }

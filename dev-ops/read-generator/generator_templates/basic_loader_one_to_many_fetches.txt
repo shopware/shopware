@@ -1,5 +1,0 @@
-
-        $criteria = new Criteria();
-        $criteria->addCondition(new #classUc#UuidCondition($collection->getUuids()));
-        /** @var #associationClassUc#SearchResult $#plural# */
-        $#plural# = $this->#associationClassLc#Searcher->search($criteria, $context);

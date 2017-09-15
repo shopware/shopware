@@ -25,38 +25,36 @@
 namespace Shopware\Context\Service;
 
 use Doctrine\DBAL\Connection;
-use Shopware\AreaCountry\AreaCountryRepository;
-use Shopware\AreaCountryState\AreaCountryStateRepository;
+use Shopware\AreaCountry\Repository\AreaCountryRepository;
+use Shopware\AreaCountryState\Repository\AreaCountryStateRepository;
 use Shopware\Cart\Delivery\ShippingLocation;
 use Shopware\Context\Struct\CheckoutScope;
 use Shopware\Context\Struct\CustomerScope;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\ShopScope;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Currency\CurrencyRepository;
+use Shopware\Currency\Repository\CurrencyRepository;
 use Shopware\Currency\Struct\Currency;
 use Shopware\Currency\Struct\CurrencyBasicStruct;
-use Shopware\Customer\CustomerRepository;
+use Shopware\Customer\Repository\CustomerRepository;
 use Shopware\Customer\Struct\Customer;
 use Shopware\Customer\Struct\CustomerBasicStruct;
-use Shopware\CustomerAddress\CustomerAddressRepository;
-use Shopware\CustomerGroup\CustomerGroupRepository;
-use Shopware\PaymentMethod\PaymentMethodRepository;
+use Shopware\CustomerAddress\Repository\CustomerAddressRepository;
+use Shopware\CustomerGroup\Repository\CustomerGroupRepository;
+use Shopware\PaymentMethod\Repository\PaymentMethodRepository;
 use Shopware\PaymentMethod\Struct\PaymentMethod;
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
-use Shopware\PriceGroup\PriceGroupRepository;
-use Shopware\PriceGroupDiscount\PriceGroupDiscountRepository;
-use Shopware\Search\Condition\GroupKeyCondition;
+use Shopware\PriceGroupDiscount\Repository\PriceGroupDiscountRepository;
 use Shopware\Search\Criteria;
-use Shopware\ShippingMethod\ShippingMethodRepository;
+use Shopware\ShippingMethod\Repository\ShippingMethodRepository;
 use Shopware\ShippingMethod\Struct\ShippingMethod;
 use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
-use Shopware\Shop\ShopRepository;
+use Shopware\Shop\Repository\ShopRepository;
 use Shopware\Shop\Struct\Shop;
 use Shopware\Shop\Struct\ShopBasicStruct;
 use Shopware\Shop\Struct\ShopDetailStruct;
 use Shopware\Storefront\Context\StorefrontContextService;
-use Shopware\Tax\TaxRepository;
+use Shopware\Tax\Repository\TaxRepository;
 
 class ContextFactory implements ContextFactoryInterface
 {
@@ -227,7 +225,7 @@ class ContextFactory implements ContextFactoryInterface
         return $context;
     }
 
-    private function getCurrency(ShopDetailStruct $shop, ?string $currencyUuid, TranslationContext $context): CurrencyBasicStruct
+    private function getCurrency(ShopBasicStruct $shop, ?string $currencyUuid, TranslationContext $context): CurrencyBasicStruct
     {
         if ($currencyUuid === null) {
             return $shop->getCurrency();
@@ -242,7 +240,7 @@ class ContextFactory implements ContextFactoryInterface
         return $currency->get($currencyUuid);
     }
 
-    private function getPaymentMethod(?CustomerBasicStruct $customer, ShopDetailStruct $shop, TranslationContext $context, CheckoutScope $checkoutScope): PaymentMethodBasicStruct
+    private function getPaymentMethod(?CustomerBasicStruct $customer, ShopBasicStruct $shop, TranslationContext $context, CheckoutScope $checkoutScope): PaymentMethodBasicStruct
     {
         //payment switched in checkout?
         if ($checkoutScope->getPaymentMethodUuid()) {
@@ -264,7 +262,7 @@ class ContextFactory implements ContextFactoryInterface
         return $shop->getPaymentMethod();
     }
 
-    private function getShippingMethod(ShopDetailStruct $shop, TranslationContext $context, CheckoutScope $checkoutScope): ShippingMethodBasicStruct
+    private function getShippingMethod(ShopBasicStruct $shop, TranslationContext $context, CheckoutScope $checkoutScope): ShippingMethodBasicStruct
     {
         if ($checkoutScope->getShippingMethodUuid()) {
             return $this->shippingMethodRepository->read([$checkoutScope->getShippingMethodUuid()], $context)
@@ -318,7 +316,7 @@ class ContextFactory implements ContextFactoryInterface
     }
 
     private function loadShippingLocation(
-        ShopDetailStruct $shop,
+        ShopBasicStruct $shop,
         TranslationContext $translationContext,
         CheckoutScope $checkoutScope
     ): ShippingLocation {
@@ -342,6 +340,6 @@ class ContextFactory implements ContextFactoryInterface
             return ShippingLocation::createFromCountry($country);
         }
 
-        return ShippingLocation::createFromCountry($shop->getAreaCountry());
+        return ShippingLocation::createFromCountry($shop->getCountry());
     }
 }

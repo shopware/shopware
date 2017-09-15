@@ -70,29 +70,23 @@ class AreaCountryBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(
-            function (AreaCountryBasicStruct $areaCountry) {
-                return $areaCountry->getUuid();
-            }
-        );
+        return $this->fmap(function (AreaCountryBasicStruct $areaCountry) {
+            return $areaCountry->getUuid();
+        });
     }
 
     public function getAreaUuids(): array
     {
-        return $this->fmap(
-            function (AreaCountryBasicStruct $areaCountry) {
-                return $areaCountry->getAreaUuid();
-            }
-        );
+        return $this->fmap(function (AreaCountryBasicStruct $areaCountry) {
+            return $areaCountry->getAreaUuid();
+        });
     }
 
     public function filterByAreaUuid(string $uuid): AreaCountryBasicCollection
     {
-        return $this->filter(
-            function (AreaCountryBasicStruct $areaCountry) use ($uuid) {
-                return $areaCountry->getAreaUuid() === $uuid;
-            }
-        );
+        return $this->filter(function (AreaCountryBasicStruct $areaCountry) use ($uuid) {
+            return $areaCountry->getAreaUuid() === $uuid;
+        });
     }
 
     protected function getKey(AreaCountryBasicStruct $element): string

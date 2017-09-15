@@ -22,23 +22,25 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\ProductManufacturer\Struct;
+namespace Shopware\ProductManufacturer\Searcher;
 
+use Shopware\ProductManufacturer\Struct\ProductManufacturerBasicCollection;
 use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
 
 class ProductManufacturerSearchResult extends ProductManufacturerBasicCollection implements SearchResultInterface
 {
-    use SearchResultTrait;
-
     /**
      * @var int
      */
     protected $total;
 
-    public function __construct(array $elements, int $total)
+    public function getTotal(): int
     {
-        parent::__construct($elements);
+        return $this->total;
+    }
+
+    public function setTotal(int $total): void
+    {
         $this->total = $total;
     }
 }

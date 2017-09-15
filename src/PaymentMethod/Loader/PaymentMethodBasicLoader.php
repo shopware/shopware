@@ -24,31 +24,51 @@
 
 namespace Shopware\PaymentMethod\Loader;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\PaymentMethod\Reader\PaymentMethodBasicReader;
+use Shopware\Framework\Struct\SortArrayByKeysTrait;
+use Shopware\PaymentMethod\Factory\PaymentMethodBasicFactory;
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicCollection;
+use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
 
 class PaymentMethodBasicLoader
 {
+    use SortArrayByKeysTrait;
+
     /**
-     * @var PaymentMethodBasicReader
+     * @var PaymentMethodBasicFactory
      */
-    protected $reader;
+    private $factory;
 
     public function __construct(
-        PaymentMethodBasicReader $reader
+        PaymentMethodBasicFactory $factory
     ) {
-        $this->reader = $reader;
+        $this->factory = $factory;
     }
 
     public function load(array $uuids, TranslationContext $context): PaymentMethodBasicCollection
     {
-        if (empty($uuids)) {
-            return new PaymentMethodBasicCollection();
+        $paymentMethods = $this->read($uuids, $context);
+
+        return $paymentMethods;
+    }
+
+    private function read(array $uuids, TranslationContext $context): PaymentMethodBasicCollection
+    {
+        $query = $this->factory->createQuery($context);
+
+        $query->andWhere('payment_method.uuid IN (:ids)');
+        $query->setParameter(':ids', $uuids, Connection::PARAM_STR_ARRAY);
+
+        $rows = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
+        $structs = [];
+        foreach ($rows as $row) {
+            $struct = $this->factory->hydrate($row, new PaymentMethodBasicStruct(), $query->getSelection(), $context);
+            $structs[$struct->getUuid()] = $struct;
         }
 
-        $collection = $this->reader->read($uuids, $context);
-
-        return $collection;
+        return new PaymentMethodBasicCollection(
+            $this->sortIndexedArrayByKeys($uuids, $structs)
+        );
     }
 }

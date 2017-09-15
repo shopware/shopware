@@ -24,31 +24,51 @@
 
 namespace Shopware\Album\Loader;
 
-use Shopware\Album\Reader\AlbumBasicReader;
+use Doctrine\DBAL\Connection;
+use Shopware\Album\Factory\AlbumBasicFactory;
 use Shopware\Album\Struct\AlbumBasicCollection;
+use Shopware\Album\Struct\AlbumBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Struct\SortArrayByKeysTrait;
 
 class AlbumBasicLoader
 {
+    use SortArrayByKeysTrait;
+
     /**
-     * @var AlbumBasicReader
+     * @var AlbumBasicFactory
      */
-    protected $reader;
+    private $factory;
 
     public function __construct(
-        AlbumBasicReader $reader
+        AlbumBasicFactory $factory
     ) {
-        $this->reader = $reader;
+        $this->factory = $factory;
     }
 
     public function load(array $uuids, TranslationContext $context): AlbumBasicCollection
     {
-        if (empty($uuids)) {
-            return new AlbumBasicCollection();
+        $albums = $this->read($uuids, $context);
+
+        return $albums;
+    }
+
+    private function read(array $uuids, TranslationContext $context): AlbumBasicCollection
+    {
+        $query = $this->factory->createQuery($context);
+
+        $query->andWhere('album.uuid IN (:ids)');
+        $query->setParameter(':ids', $uuids, Connection::PARAM_STR_ARRAY);
+
+        $rows = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
+        $structs = [];
+        foreach ($rows as $row) {
+            $struct = $this->factory->hydrate($row, new AlbumBasicStruct(), $query->getSelection(), $context);
+            $structs[$struct->getUuid()] = $struct;
         }
 
-        $collection = $this->reader->read($uuids, $context);
-
-        return $collection;
+        return new AlbumBasicCollection(
+            $this->sortIndexedArrayByKeys($uuids, $structs)
+        );
     }
 }

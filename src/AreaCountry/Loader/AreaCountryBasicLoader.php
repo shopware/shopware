@@ -24,31 +24,51 @@
 
 namespace Shopware\AreaCountry\Loader;
 
-use Shopware\AreaCountry\Reader\AreaCountryBasicReader;
+use Doctrine\DBAL\Connection;
+use Shopware\AreaCountry\Factory\AreaCountryBasicFactory;
 use Shopware\AreaCountry\Struct\AreaCountryBasicCollection;
+use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Struct\SortArrayByKeysTrait;
 
 class AreaCountryBasicLoader
 {
+    use SortArrayByKeysTrait;
+
     /**
-     * @var AreaCountryBasicReader
+     * @var AreaCountryBasicFactory
      */
-    protected $reader;
+    private $factory;
 
     public function __construct(
-        AreaCountryBasicReader $reader
+        AreaCountryBasicFactory $factory
     ) {
-        $this->reader = $reader;
+        $this->factory = $factory;
     }
 
     public function load(array $uuids, TranslationContext $context): AreaCountryBasicCollection
     {
-        if (empty($uuids)) {
-            return new AreaCountryBasicCollection();
+        $areaCountries = $this->read($uuids, $context);
+
+        return $areaCountries;
+    }
+
+    private function read(array $uuids, TranslationContext $context): AreaCountryBasicCollection
+    {
+        $query = $this->factory->createQuery($context);
+
+        $query->andWhere('area_country.uuid IN (:ids)');
+        $query->setParameter(':ids', $uuids, Connection::PARAM_STR_ARRAY);
+
+        $rows = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
+        $structs = [];
+        foreach ($rows as $row) {
+            $struct = $this->factory->hydrate($row, new AreaCountryBasicStruct(), $query->getSelection(), $context);
+            $structs[$struct->getUuid()] = $struct;
         }
 
-        $collection = $this->reader->read($uuids, $context);
-
-        return $collection;
+        return new AreaCountryBasicCollection(
+            $this->sortIndexedArrayByKeys($uuids, $structs)
+        );
     }
 }

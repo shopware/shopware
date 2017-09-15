@@ -70,11 +70,9 @@ class HolidayBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(
-            function (HolidayBasicStruct $holiday) {
-                return $holiday->getUuid();
-            }
-        );
+        return $this->fmap(function (HolidayBasicStruct $holiday) {
+            return $holiday->getUuid();
+        });
     }
 
     protected function getKey(HolidayBasicStruct $element): string

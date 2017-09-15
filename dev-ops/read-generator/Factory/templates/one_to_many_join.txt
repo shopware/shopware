@@ -1,0 +1,12 @@
+        if ($#pluralLc# = $selection->filter('#pluralLc#')) {
+            $query->leftJoin(
+                $selection->getRootEscaped(),
+                '#associationTable#',
+                $#pluralLc#->getRootEscaped(),
+                sprintf('%s.uuid = %s.#foreignKey#', $selection->getRootEscaped(), $#pluralLc#->getRootEscaped())
+            );
+
+            $this->#associationClassLc#Factory->joinDependencies($#pluralLc#, $query, $context);
+
+            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+        }

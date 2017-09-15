@@ -24,7 +24,9 @@
 
 namespace Shopware\Product\Struct;
 
+use Shopware\CustomerGroup\Struct\CustomerGroupBasicCollection;
 use Shopware\Framework\Struct\Struct;
+use Shopware\PriceGroup\Struct\PriceGroupBasicStruct;
 use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
 use Shopware\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
 use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
@@ -36,6 +38,76 @@ class ProductBasicStruct extends Struct
      * @var string
      */
     protected $uuid;
+
+    /**
+     * @var string
+     */
+    protected $taxUuid;
+
+    /**
+     * @var string
+     */
+    protected $manufacturerUuid;
+
+    /**
+     * @var bool
+     */
+    protected $active;
+
+    /**
+     * @var int
+     */
+    protected $pseudoSales;
+
+    /**
+     * @var bool
+     */
+    protected $markAsTopseller;
+
+    /**
+     * @var string|null
+     */
+    protected $priceGroupUuid;
+
+    /**
+     * @var string|null
+     */
+    protected $filterGroupUuid;
+
+    /**
+     * @var bool
+     */
+    protected $isCloseout;
+
+    /**
+     * @var bool
+     */
+    protected $allowNotification;
+
+    /**
+     * @var string|null
+     */
+    protected $template;
+
+    /**
+     * @var int|null
+     */
+    protected $configuratorSetId;
+
+    /**
+     * @var \DateTime
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $updatedAt;
+
+    /**
+     * @var string
+     */
+    protected $mainDetailUuid;
 
     /**
      * @var string
@@ -63,111 +135,64 @@ class ProductBasicStruct extends Struct
     protected $metaTitle;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected $manufacturerUuid;
+    protected $attr1;
 
     /**
      * @var string|null
      */
-    protected $shippingTime;
-
-    /**
-     * @var \DateTime|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var bool
-     */
-    protected $active;
-
-    /**
-     * @var string
-     */
-    protected $taxUuid;
+    protected $attr2;
 
     /**
      * @var string|null
      */
-    protected $mainDetailUuid;
-
-    /**
-     * @var int
-     */
-    protected $pseudoSales;
-
-    /**
-     * @var bool
-     */
-    protected $topseller;
-
-    /**
-     * @var \DateTime
-     */
-    protected $updatedAt;
-
-    /**
-     * @var int|null
-     */
-    protected $priceGroupId;
+    protected $attr3;
 
     /**
      * @var string|null
      */
-    protected $filterGroupUuid;
+    protected $attr4;
 
     /**
-     * @var bool
+     * @var string|null
      */
-    protected $lastStock;
-
-    /**
-     * @var bool
-     */
-    protected $notification;
-
-    /**
-     * @var string
-     */
-    protected $template;
-
-    /**
-     * @var int
-     */
-    protected $mode;
-
-    /**
-     * @var \DateTime|null
-     */
-    protected $availableFrom;
-
-    /**
-     * @var \DateTime|null
-     */
-    protected $availableTo;
-
-    /**
-     * @var int|null
-     */
-    protected $configuratorSetId;
+    protected $attr5;
 
     /**
      * @var ProductManufacturerBasicStruct
      */
     protected $manufacturer;
+
     /**
      * @var ProductDetailBasicStruct
      */
     protected $mainDetail;
+
     /**
      * @var TaxBasicStruct
      */
     protected $tax;
+
     /**
      * @var SeoUrlBasicStruct|null
      */
     protected $canonicalUrl;
+
+    /**
+     * @var PriceGroupBasicStruct|null
+     */
+    protected $priceGroup;
+
+    /**
+     * @var string[]
+     */
+    protected $blockedCustomerGroupsUuids = [];
+
+    /**
+     * @var CustomerGroupBasicCollection
+     */
+    protected $blockedCustomerGroupss;
 
     public function getUuid(): string
     {
@@ -177,6 +202,16 @@ class ProductBasicStruct extends Struct
     public function setUuid(string $uuid): void
     {
         $this->uuid = $uuid;
+    }
+
+    public function getTaxUuid(): string
+    {
+        return $this->taxUuid;
+    }
+
+    public function setTaxUuid(string $taxUuid): void
+    {
+        $this->taxUuid = $taxUuid;
     }
 
     public function getManufacturerUuid(): string
@@ -189,26 +224,6 @@ class ProductBasicStruct extends Struct
         $this->manufacturerUuid = $manufacturerUuid;
     }
 
-    public function getShippingTime(): ?string
-    {
-        return $this->shippingTime;
-    }
-
-    public function setShippingTime(?string $shippingTime): void
-    {
-        $this->shippingTime = $shippingTime;
-    }
-
-    public function getCreatedAt(): ?\DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(?\DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
     public function getActive(): bool
     {
         return $this->active;
@@ -219,6 +234,115 @@ class ProductBasicStruct extends Struct
         $this->active = $active;
     }
 
+    public function getPseudoSales(): int
+    {
+        return $this->pseudoSales;
+    }
+
+    public function setPseudoSales(int $pseudoSales): void
+    {
+        $this->pseudoSales = $pseudoSales;
+    }
+
+    public function getMarkAsTopseller(): bool
+    {
+        return $this->markAsTopseller;
+    }
+
+    public function setMarkAsTopseller(bool $markAsTopseller): void
+    {
+        $this->markAsTopseller = $markAsTopseller;
+    }
+
+    public function getPriceGroupUuid(): ?string
+    {
+        return $this->priceGroupUuid;
+    }
+
+    public function setPriceGroupUuid(?string $priceGroupUuid): void
+    {
+        $this->priceGroupUuid = $priceGroupUuid;
+    }
+
+    public function getFilterGroupUuid(): ?string
+    {
+        return $this->filterGroupUuid;
+    }
+
+    public function setFilterGroupUuid(?string $filterGroupUuid): void
+    {
+        $this->filterGroupUuid = $filterGroupUuid;
+    }
+
+    public function getIsCloseout(): bool
+    {
+        return $this->isCloseout;
+    }
+
+    public function setIsCloseout(bool $isCloseout): void
+    {
+        $this->isCloseout = $isCloseout;
+    }
+
+    public function getAllowNotification(): bool
+    {
+        return $this->allowNotification;
+    }
+
+    public function setAllowNotification(bool $allowNotification): void
+    {
+        $this->allowNotification = $allowNotification;
+    }
+
+    public function getTemplate(): ?string
+    {
+        return $this->template;
+    }
+
+    public function setTemplate(?string $template): void
+    {
+        $this->template = $template;
+    }
+
+    public function getConfiguratorSetId(): ?int
+    {
+        return $this->configuratorSetId;
+    }
+
+    public function setConfiguratorSetId(?int $configuratorSetId): void
+    {
+        $this->configuratorSetId = $configuratorSetId;
+    }
+
+    public function getCreatedAt(): \DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTime $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
+    }
+
+    public function getMainDetailUuid(): string
+    {
+        return $this->mainDetailUuid;
+    }
+
+    public function setMainDetailUuid(string $mainDetailUuid): void
+    {
+        $this->mainDetailUuid = $mainDetailUuid;
+    }
 
     public function getName(): string
     {
@@ -270,144 +394,54 @@ class ProductBasicStruct extends Struct
         $this->metaTitle = $metaTitle;
     }
 
-    public function getTaxUuid(): string
+    public function getAttr1(): ?string
     {
-        return $this->taxUuid;
+        return $this->attr1;
     }
 
-    public function setTaxUuid(string $taxUuid): void
+    public function setAttr1(?string $attr1): void
     {
-        $this->taxUuid = $taxUuid;
+        $this->attr1 = $attr1;
     }
 
-    public function getMainDetailUuid(): ?string
+    public function getAttr2(): ?string
     {
-        return $this->mainDetailUuid;
+        return $this->attr2;
     }
 
-    public function setMainDetailUuid(?string $mainDetailUuid): void
+    public function setAttr2(?string $attr2): void
     {
-        $this->mainDetailUuid = $mainDetailUuid;
+        $this->attr2 = $attr2;
     }
 
-    public function getPseudoSales(): int
+    public function getAttr3(): ?string
     {
-        return $this->pseudoSales;
+        return $this->attr3;
     }
 
-    public function setPseudoSales(int $pseudoSales): void
+    public function setAttr3(?string $attr3): void
     {
-        $this->pseudoSales = $pseudoSales;
+        $this->attr3 = $attr3;
     }
 
-    public function getTopseller(): bool
+    public function getAttr4(): ?string
     {
-        return $this->topseller;
+        return $this->attr4;
     }
 
-    public function setTopseller(bool $topseller): void
+    public function setAttr4(?string $attr4): void
     {
-        $this->topseller = $topseller;
+        $this->attr4 = $attr4;
     }
 
-    public function getUpdatedAt(): \DateTime
+    public function getAttr5(): ?string
     {
-        return $this->updatedAt;
+        return $this->attr5;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): void
+    public function setAttr5(?string $attr5): void
     {
-        $this->updatedAt = $updatedAt;
-    }
-
-    public function getPriceGroupId(): ?int
-    {
-        return $this->priceGroupId;
-    }
-
-    public function setPriceGroupId(?int $priceGroupId): void
-    {
-        $this->priceGroupId = $priceGroupId;
-    }
-
-    public function getFilterGroupUuid(): ?string
-    {
-        return $this->filterGroupUuid;
-    }
-
-    public function setFilterGroupUuid(?string $filterGroupUuid): void
-    {
-        $this->filterGroupUuid = $filterGroupUuid;
-    }
-
-    public function getLastStock(): bool
-    {
-        return $this->lastStock;
-    }
-
-    public function setLastStock(bool $lastStock): void
-    {
-        $this->lastStock = $lastStock;
-    }
-
-    public function getNotification(): bool
-    {
-        return $this->notification;
-    }
-
-    public function setNotification(bool $notification): void
-    {
-        $this->notification = $notification;
-    }
-
-    public function getTemplate(): string
-    {
-        return $this->template;
-    }
-
-    public function setTemplate(string $template): void
-    {
-        $this->template = $template;
-    }
-
-    public function getMode(): int
-    {
-        return $this->mode;
-    }
-
-    public function setMode(int $mode): void
-    {
-        $this->mode = $mode;
-    }
-
-    public function getAvailableFrom(): ?\DateTime
-    {
-        return $this->availableFrom;
-    }
-
-    public function setAvailableFrom(?\DateTime $availableFrom): void
-    {
-        $this->availableFrom = $availableFrom;
-    }
-
-    public function getAvailableTo(): ?\DateTime
-    {
-        return $this->availableTo;
-    }
-
-    public function setAvailableTo(?\DateTime $availableTo): void
-    {
-        $this->availableTo = $availableTo;
-    }
-
-    public function getConfiguratorSetId(): ?int
-    {
-        return $this->configuratorSetId;
-    }
-
-    public function setConfiguratorSetId(?int $configuratorSetId): void
-    {
-        $this->configuratorSetId = $configuratorSetId;
+        $this->attr5 = $attr5;
     }
 
     public function getManufacturer(): ProductManufacturerBasicStruct
@@ -448,5 +482,35 @@ class ProductBasicStruct extends Struct
     public function setCanonicalUrl(?SeoUrlBasicStruct $canonicalUrl): void
     {
         $this->canonicalUrl = $canonicalUrl;
+    }
+
+    public function getPriceGroup(): ?PriceGroupBasicStruct
+    {
+        return $this->priceGroup;
+    }
+
+    public function setPriceGroup(?PriceGroupBasicStruct $priceGroup): void
+    {
+        $this->priceGroup = $priceGroup;
+    }
+
+    public function getBlockedCustomerGroupsUuids(): array
+    {
+        return $this->blockedCustomerGroupsUuids;
+    }
+
+    public function setBlockedCustomerGroupsUuids(array $blockedCustomerGroupsUuids): void
+    {
+        $this->blockedCustomerGroupsUuids = $blockedCustomerGroupsUuids;
+    }
+
+    public function getBlockedCustomerGroupss(): CustomerGroupBasicCollection
+    {
+        return $this->blockedCustomerGroupss;
+    }
+
+    public function setBlockedCustomerGroupss(CustomerGroupBasicCollection $blockedCustomerGroupss): void
+    {
+        $this->blockedCustomerGroupss = $blockedCustomerGroupss;
     }
 }

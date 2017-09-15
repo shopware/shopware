@@ -24,15 +24,11 @@
 
 namespace Shopware\Media\Struct;
 
+use Shopware\Album\Struct\AlbumBasicStruct;
 use Shopware\Framework\Struct\Struct;
 
 class MediaBasicStruct extends Struct
 {
-    /**
-     * @var int
-     */
-    protected $id;
-
     /**
      * @var string
      */
@@ -42,16 +38,6 @@ class MediaBasicStruct extends Struct
      * @var string
      */
     protected $albumUuid;
-
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var string
-     */
-    protected $description;
 
     /**
      * @var string
@@ -74,39 +60,34 @@ class MediaBasicStruct extends Struct
     protected $metaData;
 
     /**
-     * @var \DateTime
-     */
-    protected $createdAt;
-
-    /**
      * @var string|null
      */
     protected $userUuid;
 
     /**
-     * @var int
+     * @var \DateTime
      */
-    protected $albumId;
-
-    /**
-     * @var int
-     */
-    protected $userId;
+    protected $createdAt;
 
     /**
      * @var \DateTime|null
      */
     protected $updatedAt;
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
+    /**
+     * @var string
+     */
+    protected $name;
 
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
+    /**
+     * @var string|null
+     */
+    protected $description;
+
+    /**
+     * @var AlbumBasicStruct|null
+     */
+    protected $album;
 
     public function getUuid(): string
     {
@@ -126,26 +107,6 @@ class MediaBasicStruct extends Struct
     public function setAlbumUuid(string $albumUuid): void
     {
         $this->albumUuid = $albumUuid;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
-    public function getDescription(): string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(string $description): void
-    {
-        $this->description = $description;
     }
 
     public function getFileName(): string
@@ -188,16 +149,6 @@ class MediaBasicStruct extends Struct
         $this->metaData = $metaData;
     }
 
-    public function getCreatedAt(): \DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
     public function getUserUuid(): ?string
     {
         return $this->userUuid;
@@ -208,24 +159,14 @@ class MediaBasicStruct extends Struct
         $this->userUuid = $userUuid;
     }
 
-    public function getAlbumId(): int
+    public function getCreatedAt(): \DateTime
     {
-        return $this->albumId;
+        return $this->createdAt;
     }
 
-    public function setAlbumId(int $albumId): void
+    public function setCreatedAt(\DateTime $createdAt): void
     {
-        $this->albumId = $albumId;
-    }
-
-    public function getUserId(): int
-    {
-        return $this->userId;
-    }
-
-    public function setUserId(int $userId): void
-    {
-        $this->userId = $userId;
+        $this->createdAt = $createdAt;
     }
 
     public function getUpdatedAt(): ?\DateTime
@@ -236,5 +177,35 @@ class MediaBasicStruct extends Struct
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
+    }
+
+    public function getAlbum(): ?AlbumBasicStruct
+    {
+        return $this->album;
+    }
+
+    public function setAlbum(?AlbumBasicStruct $album): void
+    {
+        $this->album = $album;
     }
 }

@@ -27,12 +27,9 @@ namespace Shopware\Storefront\Controller\Widgets;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Search\Condition\ActiveCondition;
-use Shopware\Search\Condition\ParentCondition;
-use Shopware\Search\Condition\ParentUuidCondition;
-use Shopware\Search\Condition\ShopCondition;
-use Shopware\Search\Condition\ShopUuidCondition;
 use Shopware\Search\Criteria;
+use Shopware\Search\Query\TermQuery;
+use Shopware\Search\Query\TermsQuery;
 use Shopware\Storefront\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -61,17 +58,29 @@ class IndexController extends Controller
     {
         $criteria = new Criteria();
 
-        $criteria->addCondition(new ParentUuidCondition([$context->getShop()->getParentUuid(), $context->getShop()->getUuid()]));
-        $criteria->addCondition(new ActiveCondition(true));
+        $uuids = [$context->getShop()->getParentUuid(), $context->getShop()->getUuid()];
+        $criteria->addFilter(new TermsQuery('shop.parent_uuid', $uuids));
+        $criteria->addFilter(new TermQuery('shop.active', 1));
 
         $repo = $this->get('shopware.shop.repository');
         $shops = $repo->search($criteria, $context->getTranslationContext());
 
-        return $shops->sortByPosition();
+        $shops->add($context->getShop());
+        $shops = $shops->sortByPosition();
+
+        return $shops;
     }
 
     private function loadCurrencies(ShopContext $context)
     {
-        return $context->getShop()->getCurrencies()->sortByPosition();
+        $repo = $this->container->get('shopware.currency.repository');
+        $criteria = new Criteria();
+
+        $uuids = [$context->getShop()->getParentUuid(), $context->getShop()->getUuid()];
+        $criteria->addFilter(new TermsQuery('currency.shops.uuid', $uuids));
+
+        $currencies = $repo->search($criteria, $context->getTranslationContext());
+
+        return $currencies;
     }
 }

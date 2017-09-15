@@ -24,50 +24,72 @@
 
 namespace Shopware\CustomerGroup\Loader;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\CustomerGroup\Factory\CustomerGroupDetailFactory;
 use Shopware\CustomerGroup\Struct\CustomerGroupDetailCollection;
 use Shopware\CustomerGroup\Struct\CustomerGroupDetailStruct;
 use Shopware\CustomerGroupDiscount\Searcher\CustomerGroupDiscountSearcher;
-use Shopware\CustomerGroupDiscount\Struct\CustomerGroupDiscountSearchResult;
-use Shopware\Search\Condition\CustomerGroupUuidCondition;
+use Shopware\CustomerGroupDiscount\Searcher\CustomerGroupDiscountSearchResult;
+use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\Search\Criteria;
+use Shopware\Search\Query\TermsQuery;
 
 class CustomerGroupDetailLoader
 {
+    use SortArrayByKeysTrait;
+
     /**
-     * @var CustomerGroupBasicLoader
+     * @var CustomerGroupDetailFactory
      */
-    protected $basicLoader;
+    private $factory;
+
     /**
      * @var CustomerGroupDiscountSearcher
      */
     private $customerGroupDiscountSearcher;
 
     public function __construct(
-        CustomerGroupBasicLoader $basicLoader,
-        CustomerGroupDiscountSearcher $customerGroupDiscountSearcher
+        CustomerGroupDetailFactory $factory,
+CustomerGroupDiscountSearcher $customerGroupDiscountSearcher
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->factory = $factory;
         $this->customerGroupDiscountSearcher = $customerGroupDiscountSearcher;
     }
 
     public function load(array $uuids, TranslationContext $context): CustomerGroupDetailCollection
     {
-        $collection = $this->basicLoader->load($uuids, $context);
-
-        $details = new CustomerGroupDetailCollection();
+        $customerGroups = $this->read($uuids, $context);
 
         $criteria = new Criteria();
-        $criteria->addCondition(new CustomerGroupUuidCondition($collection->getUuids()));
-        /** @var CustomerGroupDiscountSearchResult $customerGroupDiscounts */
-        $customerGroupDiscounts = $this->customerGroupDiscountSearcher->search($criteria, $context);
+        $criteria->addFilter(new TermsQuery('customer_group_discount.customer_group_uuid', $uuids));
+        /** @var CustomerGroupDiscountSearchResult $discounts */
+        $discounts = $this->customerGroupDiscountSearcher->search($criteria, $context);
 
-        foreach ($collection as $customerGroupBasic) {
-            $customerGroup = CustomerGroupDetailStruct::createFrom($customerGroupBasic);
-            $customerGroup->setCustomerGroupDiscounts($customerGroupDiscounts->filterByCustomerGroupUuid($customerGroup->getUuid()));
-            $details->add($customerGroup);
+        /** @var CustomerGroupDetailStruct $customerGroup */
+        foreach ($customerGroups as $customerGroup) {
+            $customerGroup->setDiscounts($discounts->filterByCustomerGroupUuid($customerGroup->getUuid()));
         }
 
-        return $details;
+        return $customerGroups;
+    }
+
+    private function read(array $uuids, TranslationContext $context): CustomerGroupDetailCollection
+    {
+        $query = $this->factory->createQuery($context);
+
+        $query->andWhere('customer_group.uuid IN (:ids)');
+        $query->setParameter(':ids', $uuids, Connection::PARAM_STR_ARRAY);
+
+        $rows = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
+        $structs = [];
+        foreach ($rows as $row) {
+            $struct = $this->factory->hydrate($row, new CustomerGroupDetailStruct(), $query->getSelection(), $context);
+            $structs[$struct->getUuid()] = $struct;
+        }
+
+        return new CustomerGroupDetailCollection(
+            $this->sortIndexedArrayByKeys($uuids, $structs)
+        );
     }
 }

@@ -24,6 +24,7 @@
 
 namespace Shopware\Media\Struct;
 
+use Shopware\Album\Struct\AlbumBasicCollection;
 use Shopware\Framework\Struct\Collection;
 
 class MediaBasicCollection extends Collection
@@ -70,46 +71,45 @@ class MediaBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(
-            function (MediaBasicStruct $media) {
-                return $media->getUuid();
-            }
-        );
+        return $this->fmap(function (MediaBasicStruct $media) {
+            return $media->getUuid();
+        });
     }
 
     public function getAlbumUuids(): array
     {
-        return $this->fmap(
-            function (MediaBasicStruct $media) {
-                return $media->getAlbumUuid();
-            }
-        );
+        return $this->fmap(function (MediaBasicStruct $media) {
+            return $media->getAlbumUuid();
+        });
     }
 
     public function filterByAlbumUuid(string $uuid): MediaBasicCollection
     {
-        return $this->filter(
-            function (MediaBasicStruct $media) use ($uuid) {
-                return $media->getAlbumUuid() === $uuid;
-            }
-        );
+        return $this->filter(function (MediaBasicStruct $media) use ($uuid) {
+            return $media->getAlbumUuid() === $uuid;
+        });
     }
 
     public function getUserUuids(): array
     {
-        return $this->fmap(
-            function (MediaBasicStruct $media) {
-                return $media->getUserUuid();
-            }
-        );
+        return $this->fmap(function (MediaBasicStruct $media) {
+            return $media->getUserUuid();
+        });
     }
 
     public function filterByUserUuid(string $uuid): MediaBasicCollection
     {
-        return $this->filter(
-            function (MediaBasicStruct $media) use ($uuid) {
-                return $media->getUserUuid() === $uuid;
-            }
+        return $this->filter(function (MediaBasicStruct $media) use ($uuid) {
+            return $media->getUserUuid() === $uuid;
+        });
+    }
+
+    public function getAlbums(): AlbumBasicCollection
+    {
+        return new AlbumBasicCollection(
+            $this->fmap(function (MediaBasicStruct $media) {
+                return $media->getAlbum();
+            })
         );
     }
 

@@ -31,19 +31,9 @@ use Shopware\Framework\Struct\Struct;
 class CustomerAddressBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
-
-    /**
-     * @var int
-     */
-    protected $customerId;
 
     /**
      * @var string
@@ -96,19 +86,9 @@ class CustomerAddressBasicStruct extends Struct
     protected $city;
 
     /**
-     * @var int
-     */
-    protected $areaCountryId;
-
-    /**
      * @var string
      */
     protected $areaCountryUuid;
-
-    /**
-     * @var int|null
-     */
-    protected $areaCountryStateId;
 
     /**
      * @var string|null
@@ -138,21 +118,12 @@ class CustomerAddressBasicStruct extends Struct
     /**
      * @var AreaCountryBasicStruct
      */
-    protected $areaCountry;
+    protected $country;
+
     /**
-     * @var AreaCountryStateBasicStruct
+     * @var AreaCountryStateBasicStruct|null
      */
-    protected $areaCountryState;
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
+    protected $state;
 
     public function getUuid(): string
     {
@@ -162,16 +133,6 @@ class CustomerAddressBasicStruct extends Struct
     public function setUuid(string $uuid): void
     {
         $this->uuid = $uuid;
-    }
-
-    public function getCustomerId(): int
-    {
-        return $this->customerId;
-    }
-
-    public function setCustomerId(int $customerId): void
-    {
-        $this->customerId = $customerId;
     }
 
     public function getCustomerUuid(): string
@@ -274,16 +235,6 @@ class CustomerAddressBasicStruct extends Struct
         $this->city = $city;
     }
 
-    public function getAreaCountryId(): int
-    {
-        return $this->areaCountryId;
-    }
-
-    public function setAreaCountryId(int $areaCountryId): void
-    {
-        $this->areaCountryId = $areaCountryId;
-    }
-
     public function getAreaCountryUuid(): string
     {
         return $this->areaCountryUuid;
@@ -292,16 +243,6 @@ class CustomerAddressBasicStruct extends Struct
     public function setAreaCountryUuid(string $areaCountryUuid): void
     {
         $this->areaCountryUuid = $areaCountryUuid;
-    }
-
-    public function getAreaCountryStateId(): ?int
-    {
-        return $this->areaCountryStateId;
-    }
-
-    public function setAreaCountryStateId(?int $areaCountryStateId): void
-    {
-        $this->areaCountryStateId = $areaCountryStateId;
     }
 
     public function getAreaCountryStateUuid(): ?string
@@ -354,23 +295,23 @@ class CustomerAddressBasicStruct extends Struct
         $this->additionalAddressLine2 = $additionalAddressLine2;
     }
 
-    public function getAreaCountry(): AreaCountryBasicStruct
+    public function getCountry(): AreaCountryBasicStruct
     {
-        return $this->areaCountry;
+        return $this->country;
     }
 
-    public function setAreaCountry(AreaCountryBasicStruct $areaCountry): void
+    public function setCountry(AreaCountryBasicStruct $country): void
     {
-        $this->areaCountry = $areaCountry;
+        $this->country = $country;
     }
 
-    public function getAreaCountryState(): AreaCountryStateBasicStruct
+    public function getState(): ?AreaCountryStateBasicStruct
     {
-        return $this->areaCountryState;
+        return $this->state;
     }
 
-    public function setAreaCountryState(AreaCountryStateBasicStruct $areaCountryState): void
+    public function setState(?AreaCountryStateBasicStruct $state): void
     {
-        $this->areaCountryState = $areaCountryState;
+        $this->state = $state;
     }
 }

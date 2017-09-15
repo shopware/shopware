@@ -29,14 +29,9 @@ use Shopware\Framework\Struct\Struct;
 class AreaCountryBasicStruct extends Struct
 {
     /**
-     * @var int
+     * @var string
      */
-    protected $id;
-
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected $uuid;
 
     /**
      * @var string|null
@@ -44,47 +39,37 @@ class AreaCountryBasicStruct extends Struct
     protected $iso;
 
     /**
-     * @var int|null
+     * @var string
      */
-    protected $areaId;
+    protected $areaUuid;
 
     /**
-     * @var string|null
-     */
-    protected $en;
-
-    /**
-     * @var int|null
+     * @var int
      */
     protected $position;
 
     /**
-     * @var string|null
-     */
-    protected $notice;
-
-    /**
-     * @var bool|null
+     * @var bool
      */
     protected $shippingFree;
 
     /**
-     * @var bool|null
+     * @var bool
      */
     protected $taxFree;
 
     /**
-     * @var bool|null
+     * @var bool
      */
     protected $taxfreeForVatId;
 
     /**
-     * @var bool|null
+     * @var bool
      */
     protected $taxfreeVatidChecked;
 
     /**
-     * @var bool|null
+     * @var bool
      */
     protected $active;
 
@@ -104,33 +89,18 @@ class AreaCountryBasicStruct extends Struct
     protected $forceStateInRegistration;
 
     /**
-     * @var string|null
-     */
-    protected $uuid;
-
-    /**
      * @var string
      */
-    protected $areaUuid;
+    protected $name;
 
-    public function getId(): int
+    public function getUuid(): string
     {
-        return $this->id;
+        return $this->uuid;
     }
 
-    public function setId(int $id): void
+    public function setUuid(string $uuid): void
     {
-        $this->id = $id;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(?string $name): void
-    {
-        $this->name = $name;
+        $this->uuid = $uuid;
     }
 
     public function getIso(): ?string
@@ -143,92 +113,72 @@ class AreaCountryBasicStruct extends Struct
         $this->iso = $iso;
     }
 
-    public function getAreaId(): ?int
+    public function getAreaUuid(): string
     {
-        return $this->areaId;
+        return $this->areaUuid;
     }
 
-    public function setAreaId(?int $areaId): void
+    public function setAreaUuid(string $areaUuid): void
     {
-        $this->areaId = $areaId;
+        $this->areaUuid = $areaUuid;
     }
 
-    public function getEn(): ?string
-    {
-        return $this->en;
-    }
-
-    public function setEn(?string $en): void
-    {
-        $this->en = $en;
-    }
-
-    public function getPosition(): ?int
+    public function getPosition(): int
     {
         return $this->position;
     }
 
-    public function setPosition(?int $position): void
+    public function setPosition(int $position): void
     {
         $this->position = $position;
     }
 
-    public function getNotice(): ?string
-    {
-        return $this->notice;
-    }
-
-    public function setNotice(?string $notice): void
-    {
-        $this->notice = $notice;
-    }
-
-    public function getShippingFree(): ?bool
+    public function getShippingFree(): bool
     {
         return $this->shippingFree;
     }
 
-    public function setShippingFree(?bool $shippingFree): void
+    public function setShippingFree(bool $shippingFree): void
     {
         $this->shippingFree = $shippingFree;
     }
 
-    public function getTaxFree(): ?bool
+    public function getTaxFree(): bool
     {
         return $this->taxFree;
     }
 
-    public function setTaxFree(?bool $taxFree): void
+    public function setTaxFree(bool $taxFree): void
     {
         $this->taxFree = $taxFree;
     }
 
-    public function getTaxfreeForVatId(): ?bool
+    public function getTaxfreeForVatId(): bool
     {
         return $this->taxfreeForVatId;
     }
 
-    public function setTaxfreeForVatId(?bool $taxfreeForVatId): void
+    public function setTaxfreeForVatId(bool $taxfreeForVatId): void
     {
         $this->taxfreeForVatId = $taxfreeForVatId;
     }
 
-    public function getTaxfreeVatidChecked(): ?bool
+    public function getTaxfreeVatidChecked(): bool
     {
         return $this->taxfreeVatidChecked;
     }
 
-    public function setTaxfreeVatidChecked(?bool $taxfreeVatidChecked): void
+    public function setTaxfreeVatidChecked(bool $taxfreeVatidChecked): void
     {
         $this->taxfreeVatidChecked = $taxfreeVatidChecked;
     }
 
-    public function getActive(): ?bool
+    public function getActive(): bool
     {
         return $this->active;
     }
 
-    public function setActive(?bool $active): void
+    public function setActive(bool $active): void
     {
         $this->active = $active;
     }
@@ -263,23 +213,13 @@ class AreaCountryBasicStruct extends Struct
         $this->forceStateInRegistration = $forceStateInRegistration;
     }
 
-    public function getUuid(): ?string
+    public function getName(): string
     {
-        return $this->uuid;
+        return $this->name;
     }
 
-    public function setUuid(?string $uuid): void
+    public function setName(string $name): void
     {
-        $this->uuid = $uuid;
-    }
-
-    public function getAreaUuid(): string
-    {
-        return $this->areaUuid;
-    }
-
-    public function setAreaUuid(string $areaUuid): void
-    {
-        $this->areaUuid = $areaUuid;
+        $this->name = $name;
     }
 }

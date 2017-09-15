@@ -70,11 +70,9 @@ class AreaBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(
-            function (AreaBasicStruct $area) {
-                return $area->getUuid();
-            }
-        );
+        return $this->fmap(function (AreaBasicStruct $area) {
+            return $area->getUuid();
+        });
     }
 
     protected function getKey(AreaBasicStruct $element): string

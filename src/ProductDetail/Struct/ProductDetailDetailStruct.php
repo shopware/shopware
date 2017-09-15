@@ -31,7 +31,8 @@ class ProductDetailDetailStruct extends ProductDetailBasicStruct
     /**
      * @var string[]
      */
-    protected $priceUuids;
+    protected $priceUuids = [];
+
     /**
      * @var ProductPriceBasicCollection
      */

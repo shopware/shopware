@@ -1,0 +1,118 @@
+<?php
+/**
+ * Shopware 5
+ * Copyright (c) shopware AG
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Shopware" is a registered trademark of shopware AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+namespace Shopware\Album\Factory;
+
+use Shopware\Album\Extension\AlbumExtension;
+use Shopware\Album\Struct\AlbumBasicStruct;
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\Factory;
+use Shopware\Search\QueryBuilder;
+use Shopware\Search\QuerySelection;
+
+class AlbumBasicFactory extends Factory
+{
+    const ROOT_NAME = 'album';
+
+    const FIELDS = [
+       'uuid' => 'uuid',
+       'parent_uuid' => 'parent_uuid',
+       'position' => 'position',
+       'create_thumbnails' => 'create_thumbnails',
+       'thumbnail_size' => 'thumbnail_size',
+       'icon' => 'icon',
+       'thumbnail_high_dpi' => 'thumbnail_high_dpi',
+       'thumbnail_quality' => 'thumbnail_quality',
+       'thumbnail_high_dpi_quality' => 'thumbnail_high_dpi_quality',
+       'name' => 'translation.name',
+    ];
+
+    /**
+     * @var AlbumExtension[]
+     */
+    protected $extensions = [];
+
+    public function hydrate(
+        array $data,
+        AlbumBasicStruct $album,
+        QuerySelection $selection,
+        TranslationContext $context
+    ): AlbumBasicStruct {
+        $album->setUuid((string) $data[$selection->getField('uuid')]);
+        $album->setParentUuid(isset($data[$selection->getField('parent_uuid')]) ? (string) $data[$selection->getField('parent_uuid')] : null);
+        $album->setPosition((int) $data[$selection->getField('position')]);
+        $album->setCreateThumbnails((bool) $data[$selection->getField('create_thumbnails')]);
+        $album->setThumbnailSize(isset($data[$selection->getField('thumbnail_size')]) ? (string) $data[$selection->getField('thumbnail_size')] : null);
+        $album->setIcon(isset($data[$selection->getField('icon')]) ? (string) $data[$selection->getField('icon')] : null);
+        $album->setThumbnailHighDpi((bool) $data[$selection->getField('thumbnail_high_dpi')]);
+        $album->setThumbnailQuality(isset($data[$selection->getField('thumbnail_quality')]) ? (int) $data[$selection->getField('thumbnail_quality')] : null);
+        $album->setThumbnailHighDpiQuality(isset($data[$selection->getField('thumbnail_high_dpi_quality')]) ? (int) $data[$selection->getField('thumbnail_high_dpi_quality')] : null);
+        $album->setName((string) $data[$selection->getField('name')]);
+
+        foreach ($this->extensions as $extension) {
+            $extension->hydrate($album, $data, $selection, $context);
+        }
+
+        return $album;
+    }
+
+    public function getFields(): array
+    {
+        $fields = array_merge(self::FIELDS, parent::getFields());
+
+        return $fields;
+    }
+
+    public function joinDependencies(QuerySelection $selection, QueryBuilder $query, TranslationContext $context): void
+    {
+        if ($translation = $selection->filter('translation')) {
+            $query->leftJoin(
+                $selection->getRootEscaped(),
+                'album_translation',
+                $translation->getRootEscaped(),
+                sprintf(
+                    '%s.album_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
+                    $translation->getRootEscaped(),
+                    $selection->getRootEscaped(),
+                    $translation->getRootEscaped()
+                )
+            );
+            $query->setParameter('languageUuid', $context->getShopUuid());
+        }
+
+        $this->joinExtensionDependencies($selection, $query, $context);
+    }
+
+    public function getAllFields(): array
+    {
+        $fields = array_merge(self::FIELDS, $this->getExtensionFields());
+
+        return $fields;
+    }
+
+    protected function getRootName(): string
+    {
+        return self::ROOT_NAME;
+    }
+}

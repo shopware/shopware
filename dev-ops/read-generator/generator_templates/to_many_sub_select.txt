@@ -1,7 +1,0 @@
-        $query->addSelect('
-            (
-                SELECT GROUP_CONCAT(mapping.#reference_table#_uuid SEPARATOR \'|\') FROM
-                #mapping_table# mapping
-                WHERE #classLc#.uuid = mapping.#reference_table#_uuid
-            ) as __#table#_#reference_table#_uuids
-        ');

@@ -29,19 +29,9 @@ use Shopware\Framework\Struct\Struct;
 class TaxAreaRuleBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
-
-    /**
-     * @var int|null
-     */
-    protected $areaId;
 
     /**
      * @var string|null
@@ -49,19 +39,9 @@ class TaxAreaRuleBasicStruct extends Struct
     protected $areaUuid;
 
     /**
-     * @var int|null
-     */
-    protected $areaCountryId;
-
-    /**
      * @var string|null
      */
     protected $areaCountryUuid;
-
-    /**
-     * @var int|null
-     */
-    protected $areaCountryStateId;
 
     /**
      * @var string|null
@@ -69,19 +49,9 @@ class TaxAreaRuleBasicStruct extends Struct
     protected $areaCountryStateUuid;
 
     /**
-     * @var int
-     */
-    protected $taxId;
-
-    /**
      * @var string
      */
     protected $taxUuid;
-
-    /**
-     * @var int
-     */
-    protected $customerGroupId;
 
     /**
      * @var string
@@ -94,24 +64,14 @@ class TaxAreaRuleBasicStruct extends Struct
     protected $taxRate;
 
     /**
-     * @var string
-     */
-    protected $name;
-
-    /**
      * @var bool
      */
     protected $active;
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
+    /**
+     * @var string
+     */
+    protected $name;
 
     public function getUuid(): string
     {
@@ -121,16 +81,6 @@ class TaxAreaRuleBasicStruct extends Struct
     public function setUuid(string $uuid): void
     {
         $this->uuid = $uuid;
-    }
-
-    public function getAreaId(): ?int
-    {
-        return $this->areaId;
-    }
-
-    public function setAreaId(?int $areaId): void
-    {
-        $this->areaId = $areaId;
     }
 
     public function getAreaUuid(): ?string
@@ -143,16 +93,6 @@ class TaxAreaRuleBasicStruct extends Struct
         $this->areaUuid = $areaUuid;
     }
 
-    public function getAreaCountryId(): ?int
-    {
-        return $this->areaCountryId;
-    }
-
-    public function setAreaCountryId(?int $areaCountryId): void
-    {
-        $this->areaCountryId = $areaCountryId;
-    }
-
     public function getAreaCountryUuid(): ?string
     {
         return $this->areaCountryUuid;
@@ -161,16 +101,6 @@ class TaxAreaRuleBasicStruct extends Struct
     public function setAreaCountryUuid(?string $areaCountryUuid): void
     {
         $this->areaCountryUuid = $areaCountryUuid;
-    }
-
-    public function getAreaCountryStateId(): ?int
-    {
-        return $this->areaCountryStateId;
-    }
-
-    public function setAreaCountryStateId(?int $areaCountryStateId): void
-    {
-        $this->areaCountryStateId = $areaCountryStateId;
     }
 
     public function getAreaCountryStateUuid(): ?string
@@ -183,16 +113,6 @@ class TaxAreaRuleBasicStruct extends Struct
         $this->areaCountryStateUuid = $areaCountryStateUuid;
     }
 
-    public function getTaxId(): int
-    {
-        return $this->taxId;
-    }
-
-    public function setTaxId(int $taxId): void
-    {
-        $this->taxId = $taxId;
-    }
-
     public function getTaxUuid(): string
     {
         return $this->taxUuid;
@@ -201,16 +121,6 @@ class TaxAreaRuleBasicStruct extends Struct
     public function setTaxUuid(string $taxUuid): void
     {
         $this->taxUuid = $taxUuid;
-    }
-
-    public function getCustomerGroupId(): int
-    {
-        return $this->customerGroupId;
-    }
-
-    public function setCustomerGroupId(int $customerGroupId): void
-    {
-        $this->customerGroupId = $customerGroupId;
     }
 
     public function getCustomerGroupUuid(): string
@@ -233,16 +143,6 @@ class TaxAreaRuleBasicStruct extends Struct
         $this->taxRate = $taxRate;
     }
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
     public function getActive(): bool
     {
         return $this->active;
@@ -251,5 +151,15 @@ class TaxAreaRuleBasicStruct extends Struct
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
     }
 }

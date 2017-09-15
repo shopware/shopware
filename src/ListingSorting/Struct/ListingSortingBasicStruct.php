@@ -29,19 +29,9 @@ use Shopware\Framework\Struct\Struct;
 class ListingSortingBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
-
-    /**
-     * @var string
-     */
-    protected $label;
 
     /**
      * @var bool
@@ -63,15 +53,10 @@ class ListingSortingBasicStruct extends Struct
      */
     protected $payload;
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
+    /**
+     * @var string
+     */
+    protected $label;
 
     public function getUuid(): string
     {
@@ -81,16 +66,6 @@ class ListingSortingBasicStruct extends Struct
     public function setUuid(string $uuid): void
     {
         $this->uuid = $uuid;
-    }
-
-    public function getLabel(): string
-    {
-        return $this->label;
-    }
-
-    public function setLabel(string $label): void
-    {
-        $this->label = $label;
     }
 
     public function getActive(): bool
@@ -131,5 +106,15 @@ class ListingSortingBasicStruct extends Struct
     public function setPayload(string $payload): void
     {
         $this->payload = $payload;
+    }
+
+    public function getLabel(): string
+    {
+        return $this->label;
+    }
+
+    public function setLabel(string $label): void
+    {
+        $this->label = $label;
     }
 }

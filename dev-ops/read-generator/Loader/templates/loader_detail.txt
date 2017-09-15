@@ -1,0 +1,57 @@
+<?php
+
+namespace Shopware\#classUc#\Loader;
+
+use Doctrine\DBAL\Connection;
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Struct\SortArrayByKeysTrait;
+use Shopware\#classUc#\Factory\#classUc#DetailFactory;
+use Shopware\#classUc#\Struct\#structClass#Collection;
+use Shopware\#classUc#\Struct\#structClass#Struct;
+use Shopware\Search\Criteria;
+use Shopware\Search\Query\TermsQuery;
+#uses#
+
+class #structClass#Loader
+{
+    use SortArrayByKeysTrait;
+
+    /**
+     * @var #classUc#DetailFactory
+     */
+    private $factory;
+#properties#
+    public function __construct(
+        #classUc#DetailFactory $factory#constructor#
+    )
+    {
+        $this->factory = $factory;
+#init#
+    }
+
+    public function load(array $uuids, TranslationContext $context): #structClass#Collection
+    {
+        $#plural# = $this->read($uuids, $context);
+        #iteration#
+        return $#plural#;
+    }
+
+    private function read(array $uuids, TranslationContext $context): #structClass#Collection
+    {
+        $query = $this->factory->createQuery($context);
+
+        $query->andWhere('#table#.uuid IN (:ids)');
+        $query->setParameter(':ids', $uuids, Connection::PARAM_STR_ARRAY);
+
+        $rows = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
+        $structs = [];
+        foreach ($rows as $row) {
+            $struct = $this->factory->hydrate($row, new #structClass#Struct(), $query->getSelection(), $context);
+            $structs[$struct->getUuid()] = $struct;
+        }
+
+        return new #structClass#Collection(
+            $this->sortIndexedArrayByKeys($uuids, $structs)
+        );
+    }
+}

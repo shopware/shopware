@@ -70,101 +70,79 @@ class TaxAreaRuleBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(
-            function (TaxAreaRuleBasicStruct $taxAreaRule) {
-                return $taxAreaRule->getUuid();
-            }
-        );
+        return $this->fmap(function (TaxAreaRuleBasicStruct $taxAreaRule) {
+            return $taxAreaRule->getUuid();
+        });
     }
 
     public function getAreaUuids(): array
     {
-        return $this->fmap(
-            function (TaxAreaRuleBasicStruct $taxAreaRule) {
-                return $taxAreaRule->getAreaUuid();
-            }
-        );
+        return $this->fmap(function (TaxAreaRuleBasicStruct $taxAreaRule) {
+            return $taxAreaRule->getAreaUuid();
+        });
     }
 
     public function filterByAreaUuid(string $uuid): TaxAreaRuleBasicCollection
     {
-        return $this->filter(
-            function (TaxAreaRuleBasicStruct $taxAreaRule) use ($uuid) {
-                return $taxAreaRule->getAreaUuid() === $uuid;
-            }
-        );
+        return $this->filter(function (TaxAreaRuleBasicStruct $taxAreaRule) use ($uuid) {
+            return $taxAreaRule->getAreaUuid() === $uuid;
+        });
     }
 
     public function getAreaCountryUuids(): array
     {
-        return $this->fmap(
-            function (TaxAreaRuleBasicStruct $taxAreaRule) {
-                return $taxAreaRule->getAreaCountryUuid();
-            }
-        );
+        return $this->fmap(function (TaxAreaRuleBasicStruct $taxAreaRule) {
+            return $taxAreaRule->getAreaCountryUuid();
+        });
     }
 
     public function filterByAreaCountryUuid(string $uuid): TaxAreaRuleBasicCollection
     {
-        return $this->filter(
-            function (TaxAreaRuleBasicStruct $taxAreaRule) use ($uuid) {
-                return $taxAreaRule->getAreaCountryUuid() === $uuid;
-            }
-        );
+        return $this->filter(function (TaxAreaRuleBasicStruct $taxAreaRule) use ($uuid) {
+            return $taxAreaRule->getAreaCountryUuid() === $uuid;
+        });
     }
 
     public function getAreaCountryStateUuids(): array
     {
-        return $this->fmap(
-            function (TaxAreaRuleBasicStruct $taxAreaRule) {
-                return $taxAreaRule->getAreaCountryStateUuid();
-            }
-        );
+        return $this->fmap(function (TaxAreaRuleBasicStruct $taxAreaRule) {
+            return $taxAreaRule->getAreaCountryStateUuid();
+        });
     }
 
     public function filterByAreaCountryStateUuid(string $uuid): TaxAreaRuleBasicCollection
     {
-        return $this->filter(
-            function (TaxAreaRuleBasicStruct $taxAreaRule) use ($uuid) {
-                return $taxAreaRule->getAreaCountryStateUuid() === $uuid;
-            }
-        );
+        return $this->filter(function (TaxAreaRuleBasicStruct $taxAreaRule) use ($uuid) {
+            return $taxAreaRule->getAreaCountryStateUuid() === $uuid;
+        });
     }
 
     public function getTaxUuids(): array
     {
-        return $this->fmap(
-            function (TaxAreaRuleBasicStruct $taxAreaRule) {
-                return $taxAreaRule->getTaxUuid();
-            }
-        );
+        return $this->fmap(function (TaxAreaRuleBasicStruct $taxAreaRule) {
+            return $taxAreaRule->getTaxUuid();
+        });
     }
 
     public function filterByTaxUuid(string $uuid): TaxAreaRuleBasicCollection
     {
-        return $this->filter(
-            function (TaxAreaRuleBasicStruct $taxAreaRule) use ($uuid) {
-                return $taxAreaRule->getTaxUuid() === $uuid;
-            }
-        );
+        return $this->filter(function (TaxAreaRuleBasicStruct $taxAreaRule) use ($uuid) {
+            return $taxAreaRule->getTaxUuid() === $uuid;
+        });
     }
 
     public function getCustomerGroupUuids(): array
     {
-        return $this->fmap(
-            function (TaxAreaRuleBasicStruct $taxAreaRule) {
-                return $taxAreaRule->getCustomerGroupUuid();
-            }
-        );
+        return $this->fmap(function (TaxAreaRuleBasicStruct $taxAreaRule) {
+            return $taxAreaRule->getCustomerGroupUuid();
+        });
     }
 
     public function filterByCustomerGroupUuid(string $uuid): TaxAreaRuleBasicCollection
     {
-        return $this->filter(
-            function (TaxAreaRuleBasicStruct $taxAreaRule) use ($uuid) {
-                return $taxAreaRule->getCustomerGroupUuid() === $uuid;
-            }
-        );
+        return $this->filter(function (TaxAreaRuleBasicStruct $taxAreaRule) use ($uuid) {
+            return $taxAreaRule->getCustomerGroupUuid() === $uuid;
+        });
     }
 
     protected function getKey(TaxAreaRuleBasicStruct $element): string

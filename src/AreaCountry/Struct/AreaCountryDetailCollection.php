@@ -33,11 +33,11 @@ class AreaCountryDetailCollection extends AreaCountryBasicCollection
      */
     protected $elements = [];
 
-    public function getAreaCountryStateUuids(): array
+    public function getStateUuids(): array
     {
         $uuids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getAreaCountryStateUuids() as $uuid) {
+            foreach ($element->getStateUuids() as $uuid) {
                 $uuids[] = $uuid;
             }
         }
@@ -45,11 +45,11 @@ class AreaCountryDetailCollection extends AreaCountryBasicCollection
         return $uuids;
     }
 
-    public function getAreaCountryStates(): AreaCountryStateBasicCollection
+    public function getStates(): AreaCountryStateBasicCollection
     {
         $collection = new AreaCountryStateBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getAreaCountryStates()->getIterator()->getArrayCopy());
+            $collection->fill($element->getStates()->getIterator()->getArrayCopy());
         }
 
         return $collection;

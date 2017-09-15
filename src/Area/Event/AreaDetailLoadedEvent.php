@@ -67,11 +67,9 @@ class AreaDetailLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection(
-            [
-                new AreaBasicLoadedEvent($this->areas, $this->context),
-                new AreaCountryBasicLoadedEvent($this->areas->getAreaCountries(), $this->context),
-            ]
-        );
+        return new NestedEventCollection([
+            new AreaBasicLoadedEvent($this->areas, $this->context),
+            new AreaCountryBasicLoadedEvent($this->areas->getCountries(), $this->context),
+        ]);
     }
 }

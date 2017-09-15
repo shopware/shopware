@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\Media\Factory\MediaBasicFactory" id="shopware.media.basic_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection" />
+            <argument id="shopware.album.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\Media\Loader\MediaBasicLoader" id="shopware.media.basic_loader">
+            <argument id="shopware.media.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\Media\Searcher\MediaSearcher" id="shopware.media.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.search.sql_parser" type="service"/>
+            <argument id="shopware.media.basic_factory" type="service"/>
+            <argument id="shopware.media.basic_loader" type="service"/>
+        </service>
+
+        <service class="Shopware\Media\Repository\MediaRepository" id="shopware.media.repository">
+            <argument id="shopware.media.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.media.searcher" type="service"/>
+        </service>
+
+    </services>
+</container>

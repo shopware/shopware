@@ -66,7 +66,7 @@ class TranslationContext extends Struct
         return new self(
             $shop->getUuid(),
             $shop->getIsDefault(),
-            $shop->getMainId()
+            $shop->getParentUuid()
         );
     }
 

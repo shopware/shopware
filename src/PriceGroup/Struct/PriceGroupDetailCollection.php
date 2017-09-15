@@ -33,11 +33,11 @@ class PriceGroupDetailCollection extends PriceGroupBasicCollection
      */
     protected $elements = [];
 
-    public function getPriceGroupDiscountUuids(): array
+    public function getDiscountUuids(): array
     {
         $uuids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getPriceGroupDiscountUuids() as $uuid) {
+            foreach ($element->getDiscountUuids() as $uuid) {
                 $uuids[] = $uuid;
             }
         }
@@ -45,11 +45,11 @@ class PriceGroupDetailCollection extends PriceGroupBasicCollection
         return $uuids;
     }
 
-    public function getPriceGroupDiscounts(): PriceGroupDiscountBasicCollection
+    public function getDiscounts(): PriceGroupDiscountBasicCollection
     {
         $collection = new PriceGroupDiscountBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getPriceGroupDiscounts()->getIterator()->getArrayCopy());
+            $collection->fill($element->getDiscounts()->getIterator()->getArrayCopy());
         }
 
         return $collection;

@@ -70,11 +70,9 @@ class LocaleBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(
-            function (LocaleBasicStruct $locale) {
-                return $locale->getUuid();
-            }
-        );
+        return $this->fmap(function (LocaleBasicStruct $locale) {
+            return $locale->getUuid();
+        });
     }
 
     protected function getKey(LocaleBasicStruct $element): string

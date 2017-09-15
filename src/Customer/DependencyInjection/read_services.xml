@@ -1,0 +1,49 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\Customer\Factory\CustomerBasicFactory" id="shopware.customer.basic_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection" />
+            <argument id="shopware.customer_group.basic_factory" type="service"/>
+            <argument id="shopware.customer_address.basic_factory" type="service"/>
+            <argument id="shopware.payment_method.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\Customer\Factory\CustomerDetailFactory" id="shopware.customer.detail_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection" />
+            <argument id="shopware.customer_address.basic_factory" type="service"/>
+            <argument id="shopware.shop.basic_factory" type="service"/>
+            <argument id="shopware.customer_group.basic_factory" type="service"/>
+            <argument id="shopware.payment_method.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\Customer\Loader\CustomerBasicLoader" id="shopware.customer.basic_loader">
+            <argument id="shopware.customer.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\Customer\Loader\CustomerDetailLoader" id="shopware.customer.detail_loader">
+            <argument id="shopware.customer.detail_factory" type="service"/>
+            <argument id="shopware.customer_address.searcher" type="service"/>
+        </service>
+
+        <service class="Shopware\Customer\Searcher\CustomerSearcher" id="shopware.customer.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.search.sql_parser" type="service"/>
+            <argument id="shopware.customer.detail_factory" type="service"/>
+            <argument id="shopware.customer.basic_loader" type="service"/>
+        </service>
+
+        <service class="Shopware\Customer\Repository\CustomerRepository" id="shopware.customer.repository">
+            <argument id="shopware.customer.detail_loader" type="service"/>
+            <argument id="shopware.customer.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.customer.searcher" type="service"/>
+        </service>
+
+    </services>
+</container>

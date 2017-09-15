@@ -24,52 +24,66 @@
 
 namespace Shopware\Shop\Loader;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Currency\Loader\CurrencyBasicLoader;
-use Shopware\Locale\Loader\LocaleBasicLoader;
-use Shopware\Shop\Reader\ShopDetailReader;
+use Shopware\Framework\Struct\SortArrayByKeysTrait;
+use Shopware\Shop\Factory\ShopDetailFactory;
 use Shopware\Shop\Struct\ShopDetailCollection;
 use Shopware\Shop\Struct\ShopDetailStruct;
 
 class ShopDetailLoader
 {
+    use SortArrayByKeysTrait;
+
     /**
-     * @var ShopDetailReader
+     * @var ShopDetailFactory
      */
-    protected $reader;
-    /**
-     * @var LocaleBasicLoader
-     */
-    private $localeBasicLoader;
+    private $factory;
+
     /**
      * @var CurrencyBasicLoader
      */
     private $currencyBasicLoader;
 
     public function __construct(
-        ShopDetailReader $reader,
-        LocaleBasicLoader $localeBasicLoader,
-        CurrencyBasicLoader $currencyBasicLoader
+        ShopDetailFactory $factory,
+CurrencyBasicLoader $currencyBasicLoader
     ) {
-        $this->reader = $reader;
-        $this->localeBasicLoader = $localeBasicLoader;
+        $this->factory = $factory;
         $this->currencyBasicLoader = $currencyBasicLoader;
     }
 
     public function load(array $uuids, TranslationContext $context): ShopDetailCollection
     {
-        $collection = $this->reader->read($uuids, $context);
-        $locales = $this->localeBasicLoader->load($collection->getFallbackLocaleUuids(), $context);
-        $currencies = $this->currencyBasicLoader->load($collection->getCurrencyUuids(), $context);
+        $shops = $this->read($uuids, $context);
+
+        $availableCurrencies = $this->currencyBasicLoader->load($shops->getAvailableCurrencyUuids(), $context);
 
         /** @var ShopDetailStruct $shop */
-        foreach ($collection as $shop) {
-            if ($shop->getFallbackLocaleUuid()) {
-                $shop->setFallbackLocale($locales->get($shop->getFallbackLocaleUuid()));
-            }
-            $shop->setCurrencies($currencies->getList($shop->getCurrencyUuids()));
+        foreach ($shops as $shop) {
+            $shop->setAvailableCurrencies($availableCurrencies->getList($shop->getAvailableCurrencyUuids()));
         }
 
-        return $collection;
+        return $shops;
+    }
+
+    private function read(array $uuids, TranslationContext $context): ShopDetailCollection
+    {
+        $query = $this->factory->createQuery($context);
+
+        $query->andWhere('shop.uuid IN (:ids)');
+        $query->setParameter(':ids', $uuids, Connection::PARAM_STR_ARRAY);
+
+        $rows = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
+        $structs = [];
+        foreach ($rows as $row) {
+            $struct = $this->factory->hydrate($row, new ShopDetailStruct(), $query->getSelection(), $context);
+            $structs[$struct->getUuid()] = $struct;
+        }
+
+        return new ShopDetailCollection(
+            $this->sortIndexedArrayByKeys($uuids, $structs)
+        );
     }
 }

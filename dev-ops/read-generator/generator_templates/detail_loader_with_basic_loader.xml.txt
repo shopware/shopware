@@ -1,4 +1,0 @@
-<service class="Shopware\#classUc#\Loader\#classUc#DetailLoader" id="shopware.#table#.loader.detail_loader">
-    <argument type="service" id="shopware.#table#.loader.basic_loader" />
-    #arguments#
-</service>

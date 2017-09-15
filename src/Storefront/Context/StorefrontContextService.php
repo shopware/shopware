@@ -42,8 +42,6 @@ class StorefrontContextService implements StorefrontContextServiceInterface
 {
     const FALLBACK_CUSTOMER_GROUP = '3294e6f6-372b-415f-ac73-71cbc191548f';
 
-    const CACHE_LIFETIME = 3600;
-
     /**
      * @var ContextFactoryInterface
      */
@@ -78,7 +76,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
 
     public function getShopContext(): ShopContext
     {
-        return $this->load(false);
+        return $this->load(true);
     }
 
     public function refresh(): void

@@ -39,24 +39,9 @@ class ShippingMethodBasicStruct extends Struct
     protected $uuid;
 
     /**
-     * @var string
-     */
-    protected $name;
-
-    /**
      * @var int
      */
     protected $type;
-
-    /**
-     * @var string
-     */
-    protected $description;
-
-    /**
-     * @var string
-     */
-    protected $comment;
 
     /**
      * @var bool
@@ -74,7 +59,7 @@ class ShippingMethodBasicStruct extends Struct
     protected $calculation;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $surchargeCalculation;
 
@@ -89,19 +74,9 @@ class ShippingMethodBasicStruct extends Struct
     protected $shippingFree;
 
     /**
-     * @var int|null
-     */
-    protected $shopId;
-
-    /**
      * @var string|null
      */
     protected $shopUuid;
-
-    /**
-     * @var int|null
-     */
-    protected $customerGroupId;
 
     /**
      * @var string|null
@@ -124,12 +99,12 @@ class ShippingMethodBasicStruct extends Struct
     protected $bindTimeTo;
 
     /**
-     * @var int|null
+     * @var bool|null
      */
     protected $bindInstock;
 
     /**
-     * @var int
+     * @var bool
      */
     protected $bindLaststock;
 
@@ -178,6 +153,21 @@ class ShippingMethodBasicStruct extends Struct
      */
     protected $calculationSql;
 
+    /**
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * @var string|null
+     */
+    protected $description;
+
+    /**
+     * @var string|null
+     */
+    protected $comment;
+
     public function getId(): int
     {
         return $this->id;
@@ -198,16 +188,6 @@ class ShippingMethodBasicStruct extends Struct
         $this->uuid = $uuid;
     }
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
     public function getType(): int
     {
         return $this->type;
@@ -216,26 +196,6 @@ class ShippingMethodBasicStruct extends Struct
     public function setType(int $type): void
     {
         $this->type = $type;
-    }
-
-    public function getDescription(): string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(string $description): void
-    {
-        $this->description = $description;
-    }
-
-    public function getComment(): string
-    {
-        return $this->comment;
-    }
-
-    public function setComment(string $comment): void
-    {
-        $this->comment = $comment;
     }
 
     public function getActive(): bool
@@ -268,12 +228,12 @@ class ShippingMethodBasicStruct extends Struct
         $this->calculation = $calculation;
     }
 
-    public function getSurchargeCalculation(): int
+    public function getSurchargeCalculation(): ?int
     {
         return $this->surchargeCalculation;
     }
 
-    public function setSurchargeCalculation(int $surchargeCalculation): void
+    public function setSurchargeCalculation(?int $surchargeCalculation): void
     {
         $this->surchargeCalculation = $surchargeCalculation;
     }
@@ -298,16 +258,6 @@ class ShippingMethodBasicStruct extends Struct
         $this->shippingFree = $shippingFree;
     }
 
-    public function getShopId(): ?int
-    {
-        return $this->shopId;
-    }
-
-    public function setShopId(?int $shopId): void
-    {
-        $this->shopId = $shopId;
-    }
-
     public function getShopUuid(): ?string
     {
         return $this->shopUuid;
@@ -316,16 +266,6 @@ class ShippingMethodBasicStruct extends Struct
     public function setShopUuid(?string $shopUuid): void
     {
         $this->shopUuid = $shopUuid;
-    }
-
-    public function getCustomerGroupId(): ?int
-    {
-        return $this->customerGroupId;
-    }
-
-    public function setCustomerGroupId(?int $customerGroupId): void
-    {
-        $this->customerGroupId = $customerGroupId;
     }
 
     public function getCustomerGroupUuid(): ?string
@@ -368,22 +308,22 @@ class ShippingMethodBasicStruct extends Struct
         $this->bindTimeTo = $bindTimeTo;
     }
 
-    public function getBindInstock(): ?int
+    public function getBindInstock(): ?bool
     {
         return $this->bindInstock;
     }
 
-    public function setBindInstock(?int $bindInstock): void
+    public function setBindInstock(?bool $bindInstock): void
     {
         $this->bindInstock = $bindInstock;
     }
 
-    public function getBindLaststock(): int
+    public function getBindLaststock(): bool
     {
         return $this->bindLaststock;
     }
 
-    public function setBindLaststock(int $bindLaststock): void
+    public function setBindLaststock(bool $bindLaststock): void
     {
         $this->bindLaststock = $bindLaststock;
     }
@@ -476,5 +416,35 @@ class ShippingMethodBasicStruct extends Struct
     public function setCalculationSql(?string $calculationSql): void
     {
         $this->calculationSql = $calculationSql;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
+    }
+
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    public function setComment(?string $comment): void
+    {
+        $this->comment = $comment;
     }
 }

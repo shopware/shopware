@@ -74,14 +74,14 @@ class ShopTemplateBasicStruct extends Struct
     protected $styleSupport;
 
     /**
-     * @var bool
-     */
-    protected $emotion;
-
-    /**
      * @var int
      */
     protected $version;
+
+    /**
+     * @var bool
+     */
+    protected $emotion;
 
     /**
      * @var int|null
@@ -193,16 +193,6 @@ class ShopTemplateBasicStruct extends Struct
         $this->styleSupport = $styleSupport;
     }
 
-    public function getEmotion(): bool
-    {
-        return $this->emotion;
-    }
-
-    public function setEmotion(bool $emotion): void
-    {
-        $this->emotion = $emotion;
-    }
-
     public function getVersion(): int
     {
         return $this->version;
@@ -211,6 +201,16 @@ class ShopTemplateBasicStruct extends Struct
     public function setVersion(int $version): void
     {
         $this->version = $version;
+    }
+
+    public function getEmotion(): bool
+    {
+        return $this->emotion;
+    }
+
+    public function setEmotion(bool $emotion): void
+    {
+        $this->emotion = $emotion;
     }
 
     public function getPluginId(): ?int

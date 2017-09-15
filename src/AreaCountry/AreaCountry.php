@@ -24,6 +24,7 @@
 
 namespace Shopware\AreaCountry;
 
+use Shopware\AreaCountry\DependencyInjection\ExtensionCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -38,8 +39,9 @@ class AreaCountry extends Bundle
     {
         parent::build($container);
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/DependencyInjection/'));
-        $loader->load('services.xml');
-        $loader->load('write-resources.xml');
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+        $loader->load('read_services.xml');
+
+        $container->addCompilerPass(new ExtensionCompilerPass());
     }
 }

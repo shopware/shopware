@@ -1,0 +1,80 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\#classUc#\Repository;
+
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\#classUc#\Event\#classUc#BasicLoadedEvent;
+use Shopware\#classUc#\Loader\#classUc#BasicLoader;
+use Shopware\#classUc#\Searcher\#classUc#Searcher;
+use Shopware\#classUc#\Searcher\#classUc#SearchResult;
+use Shopware\#classUc#\Struct\#classUc#BasicCollection;
+use Shopware\#classUc#\Writer\#classUc#Resource;
+use Shopware\Search\AggregationResult;
+use Shopware\Search\Criteria;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Shopware\Search\UuidSearchResult;
+
+class #classUc#Repository
+{
+    /**
+     * @var #classUc#BasicLoader
+     */
+    private $basicLoader;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @var #classUc#Searcher
+     */
+    private $searcher;
+
+    public function __construct(
+        #classUc#BasicLoader $basicLoader,
+        EventDispatcherInterface $eventDispatcher,
+        #classUc#Searcher $searcher
+    ) {
+        $this->basicLoader = $basicLoader;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->searcher = $searcher;
+    }
+
+    public function read(array $uuids, TranslationContext $context): #classUc#BasicCollection
+    {
+        $collection = $this->basicLoader->load($uuids, $context);
+
+        $this->eventDispatcher->dispatch(
+            #classUc#BasicLoadedEvent::NAME,
+            new #classUc#BasicLoadedEvent($collection, $context)
+        );
+
+        return $collection;
+    }
+
+    public function search(Criteria $criteria, TranslationContext $context): #classUc#SearchResult
+    {
+        /** @var #classUc#SearchResult $result */
+        $result = $this->searcher->search($criteria, $context);
+
+        $this->eventDispatcher->dispatch(
+            #classUc#BasicLoadedEvent::NAME,
+            new #classUc#BasicLoadedEvent($result, $context)
+        );
+
+        return $result;
+    }
+
+    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    {
+        return $this->searcher->searchUuids($criteria, $context);
+    }
+
+    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    {
+        $result = $this->searcher->aggregate($criteria, $context);
+
+        return $result;
+    }
+}

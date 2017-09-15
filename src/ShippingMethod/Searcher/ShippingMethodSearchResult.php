@@ -22,23 +22,25 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\ShippingMethod\Struct;
+namespace Shopware\ShippingMethod\Searcher;
 
 use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
+use Shopware\ShippingMethod\Struct\ShippingMethodBasicCollection;
 
 class ShippingMethodSearchResult extends ShippingMethodBasicCollection implements SearchResultInterface
 {
-    use SearchResultTrait;
-
     /**
      * @var int
      */
     protected $total;
 
-    public function __construct(array $elements, int $total)
+    public function getTotal(): int
     {
-        parent::__construct($elements);
+        return $this->total;
+    }
+
+    public function setTotal(int $total): void
+    {
         $this->total = $total;
     }
 }

@@ -22,23 +22,25 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Album\Struct;
+namespace Shopware\Album\Searcher;
 
+use Shopware\Album\Struct\AlbumBasicCollection;
 use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
 
 class AlbumSearchResult extends AlbumBasicCollection implements SearchResultInterface
 {
-    use SearchResultTrait;
-
     /**
      * @var int
      */
     protected $total;
 
-    public function __construct(array $elements, int $total)
+    public function getTotal(): int
     {
-        parent::__construct($elements);
+        return $this->total;
+    }
+
+    public function setTotal(int $total): void
+    {
         $this->total = $total;
     }
 }

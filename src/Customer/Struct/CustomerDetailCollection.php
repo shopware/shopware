@@ -34,11 +34,11 @@ class CustomerDetailCollection extends CustomerBasicCollection
      */
     protected $elements = [];
 
-    public function getCustomerAddressUuids(): array
+    public function getAddressUuids(): array
     {
         $uuids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getCustomerAddressUuids() as $uuid) {
+            foreach ($element->getAddressUuids() as $uuid) {
                 $uuids[] = $uuid;
             }
         }
@@ -46,11 +46,11 @@ class CustomerDetailCollection extends CustomerBasicCollection
         return $uuids;
     }
 
-    public function getCustomerAddresss(): CustomerAddressBasicCollection
+    public function getAddresss(): CustomerAddressBasicCollection
     {
         $collection = new CustomerAddressBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getCustomerAddresss()->getIterator()->getArrayCopy());
+            $collection->fill($element->getAddresss()->getIterator()->getArrayCopy());
         }
 
         return $collection;
@@ -59,11 +59,9 @@ class CustomerDetailCollection extends CustomerBasicCollection
     public function getShops(): ShopBasicCollection
     {
         return new ShopBasicCollection(
-            $this->fmap(
-                function (CustomerDetailStruct $customer) {
-                    return $customer->getShop();
-                }
-            )
+            $this->fmap(function (CustomerDetailStruct $customer) {
+                return $customer->getShop();
+            })
         );
     }
 }

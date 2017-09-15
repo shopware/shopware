@@ -24,6 +24,7 @@
 
 namespace Shopware\CustomerGroup;
 
+use Shopware\CustomerGroup\DependencyInjection\ExtensionCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -39,7 +40,9 @@ class CustomerGroup extends Bundle
         parent::build($container);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
-        $loader->load('services.xml');
+        $loader->load('read_services.xml');
         $loader->load('write-resources.xml');
+
+        $container->addCompilerPass(new ExtensionCompilerPass());
     }
 }

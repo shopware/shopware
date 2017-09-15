@@ -70,11 +70,23 @@ class ProductManufacturerBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(
-            function (ProductManufacturerBasicStruct $productManufacturer) {
-                return $productManufacturer->getUuid();
-            }
-        );
+        return $this->fmap(function (ProductManufacturerBasicStruct $productManufacturer) {
+            return $productManufacturer->getUuid();
+        });
+    }
+
+    public function getMediaUuids(): array
+    {
+        return $this->fmap(function (ProductManufacturerBasicStruct $productManufacturer) {
+            return $productManufacturer->getMediaUuid();
+        });
+    }
+
+    public function filterByMediaUuid(string $uuid): ProductManufacturerBasicCollection
+    {
+        return $this->filter(function (ProductManufacturerBasicStruct $productManufacturer) use ($uuid) {
+            return $productManufacturer->getMediaUuid() === $uuid;
+        });
     }
 
     protected function getKey(ProductManufacturerBasicStruct $element): string

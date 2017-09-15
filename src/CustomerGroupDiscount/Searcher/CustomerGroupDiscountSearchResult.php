@@ -22,23 +22,25 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\CustomerGroupDiscount\Struct;
+namespace Shopware\CustomerGroupDiscount\Searcher;
 
+use Shopware\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicCollection;
 use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
 
 class CustomerGroupDiscountSearchResult extends CustomerGroupDiscountBasicCollection implements SearchResultInterface
 {
-    use SearchResultTrait;
-
     /**
      * @var int
      */
     protected $total;
 
-    public function __construct(array $elements, int $total)
+    public function getTotal(): int
     {
-        parent::__construct($elements);
+        return $this->total;
+    }
+
+    public function setTotal(int $total): void
+    {
         $this->total = $total;
     }
 }

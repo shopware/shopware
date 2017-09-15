@@ -67,11 +67,9 @@ class PriceGroupDetailLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection(
-            [
-                new PriceGroupBasicLoadedEvent($this->priceGroups, $this->context),
-                new PriceGroupDiscountBasicLoadedEvent($this->priceGroups->getPriceGroupDiscounts(), $this->context),
-            ]
-        );
+        return new NestedEventCollection([
+            new PriceGroupBasicLoadedEvent($this->priceGroups, $this->context),
+            new PriceGroupDiscountBasicLoadedEvent($this->priceGroups->getDiscounts(), $this->context),
+        ]);
     }
 }

@@ -29,11 +29,6 @@ use Shopware\Framework\Struct\Struct;
 class ProductPriceBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
@@ -41,32 +36,17 @@ class ProductPriceBasicStruct extends Struct
     /**
      * @var string
      */
-    protected $pricegroup;
+    protected $customerGroupUuid;
 
     /**
      * @var int
      */
-    protected $from;
+    protected $quantityStart;
 
     /**
      * @var int|null
      */
-    protected $to;
-
-    /**
-     * @var int
-     */
-    protected $productId;
-
-    /**
-     * @var string
-     */
-    protected $productUuid;
-
-    /**
-     * @var int
-     */
-    protected $productDetailId;
+    protected $quantityEnd;
 
     /**
      * @var string
@@ -81,27 +61,17 @@ class ProductPriceBasicStruct extends Struct
     /**
      * @var float|null
      */
-    protected $pseudoprice;
+    protected $pseudoPrice;
 
     /**
      * @var float|null
      */
-    protected $baseprice;
+    protected $basePrice;
 
     /**
      * @var float|null
      */
-    protected $percent;
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
+    protected $percentage;
 
     public function getUuid(): string
     {
@@ -113,64 +83,34 @@ class ProductPriceBasicStruct extends Struct
         $this->uuid = $uuid;
     }
 
-    public function getPricegroup(): string
+    public function getCustomerGroupUuid(): string
     {
-        return $this->pricegroup;
+        return $this->customerGroupUuid;
     }
 
-    public function setPricegroup(string $pricegroup): void
+    public function setCustomerGroupUuid(string $customerGroupUuid): void
     {
-        $this->pricegroup = $pricegroup;
+        $this->customerGroupUuid = $customerGroupUuid;
     }
 
-    public function getFrom(): int
+    public function getQuantityStart(): int
     {
-        return $this->from;
+        return $this->quantityStart;
     }
 
-    public function setFrom(int $from): void
+    public function setQuantityStart(int $quantityStart): void
     {
-        $this->from = $from;
+        $this->quantityStart = $quantityStart;
     }
 
-    public function getTo(): ?int
+    public function getQuantityEnd(): ?int
     {
-        return $this->to;
+        return $this->quantityEnd;
     }
 
-    public function setTo(?int $to): void
+    public function setQuantityEnd(?int $quantityEnd): void
     {
-        $this->to = $to;
-    }
-
-    public function getProductId(): int
-    {
-        return $this->productId;
-    }
-
-    public function setProductId(int $productId): void
-    {
-        $this->productId = $productId;
-    }
-
-    public function getProductUuid(): string
-    {
-        return $this->productUuid;
-    }
-
-    public function setProductUuid(string $productUuid): void
-    {
-        $this->productUuid = $productUuid;
-    }
-
-    public function getProductDetailId(): int
-    {
-        return $this->productDetailId;
-    }
-
-    public function setProductDetailId(int $productDetailId): void
-    {
-        $this->productDetailId = $productDetailId;
+        $this->quantityEnd = $quantityEnd;
     }
 
     public function getProductDetailUuid(): string
@@ -193,33 +133,33 @@ class ProductPriceBasicStruct extends Struct
         $this->price = $price;
     }
 
-    public function getPseudoprice(): ?float
+    public function getPseudoPrice(): ?float
     {
-        return $this->pseudoprice;
+        return $this->pseudoPrice;
     }
 
-    public function setPseudoprice(?float $pseudoprice): void
+    public function setPseudoPrice(?float $pseudoPrice): void
     {
-        $this->pseudoprice = $pseudoprice;
+        $this->pseudoPrice = $pseudoPrice;
     }
 
-    public function getBaseprice(): ?float
+    public function getBasePrice(): ?float
     {
-        return $this->baseprice;
+        return $this->basePrice;
     }
 
-    public function setBaseprice(?float $baseprice): void
+    public function setBasePrice(?float $basePrice): void
     {
-        $this->baseprice = $baseprice;
+        $this->basePrice = $basePrice;
     }
 
-    public function getPercent(): ?float
+    public function getPercentage(): ?float
     {
-        return $this->percent;
+        return $this->percentage;
     }
 
-    public function setPercent(?float $percent): void
+    public function setPercentage(?float $percentage): void
     {
-        $this->percent = $percent;
+        $this->percentage = $percentage;
     }
 }

@@ -1,1 +1,0 @@
-            new #accociationClassUc#BasicLoadedEvent($this->#pluralLc#->get#associationPluralUc#(), $this->context)

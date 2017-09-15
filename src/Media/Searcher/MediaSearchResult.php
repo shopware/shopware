@@ -22,23 +22,25 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Media\Struct;
+namespace Shopware\Media\Searcher;
 
+use Shopware\Media\Struct\MediaBasicCollection;
 use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
 
 class MediaSearchResult extends MediaBasicCollection implements SearchResultInterface
 {
-    use SearchResultTrait;
-
     /**
      * @var int
      */
     protected $total;
 
-    public function __construct(array $elements, int $total)
+    public function getTotal(): int
     {
-        parent::__construct($elements);
+        return $this->total;
+    }
+
+    public function setTotal(int $total): void
+    {
         $this->total = $total;
     }
 }

@@ -1,0 +1,4 @@
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermsQuery('#associationTable#.#table#_uuid', $uuids));
+        /** @var #associationClassUc#SearchResult $#associationPlural# */
+        $#associationPlural# = $this->#classLc#Searcher->search($criteria, $context);

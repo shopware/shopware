@@ -1,0 +1,82 @@
+<?php
+
+namespace Shopware\#classUc#\Factory;
+
+use Doctrine\DBAL\Connection;
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\#classUc#\Struct\#classUc#BasicStruct;
+use Shopware\Search\QuerySelection;
+use Shopware\#classUc#\Extension\#classUc#Extension;
+use Shopware\Search\QueryBuilder;
+use Shopware\Framework\Factory\Factory;
+#uses#
+
+class #classUc#BasicFactory extends Factory
+{
+    const ROOT_NAME = '#rootName#';
+
+    const FIELDS = [
+#fields#
+    ];
+
+    /**
+     * @var #classUc#Extension[]
+     */
+    protected $extensions = [];
+
+#dependencyFactories#
+
+    public function __construct(
+        Connection $connection,
+        array $extensions
+#dependencyFactoriesConstructor#
+    ) {
+        parent::__construct($connection, $extensions);
+#dependencyFactoriesInit#
+    }
+
+    protected function getRootName(): string
+    {
+        return self::ROOT_NAME;
+    }
+
+    public function hydrate(
+        array $data,
+        #classUc#BasicStruct $#classLc#,
+        QuerySelection $selection,
+        TranslationContext $context
+    ): #classUc#BasicStruct
+    {
+
+#hydration#
+
+        foreach ($this->extensions as $extension) {
+            $extension->hydrate($#classLc#, $data, $selection, $context);
+        }
+
+        return $#classLc#;
+    }
+
+    public function getFields(): array
+    {
+        $fields = array_merge(self::FIELDS, parent::getFields());
+
+#basicDepency#
+
+        return $fields;
+    }
+
+    public function joinDependencies(QuerySelection $selection, QueryBuilder $query, TranslationContext $context): void
+    {
+#joinDepdencies#
+
+        $this->joinExtensionDependencies($selection, $query, $context);
+    }
+
+    public function getAllFields(): array
+    {
+        $fields = array_merge(self::FIELDS, $this->getExtensionFields());
+        #allFields#
+        return $fields;
+    }
+}

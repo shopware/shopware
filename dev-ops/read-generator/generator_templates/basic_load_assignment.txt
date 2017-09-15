@@ -1,3 +1,0 @@
-        if ($#classLc#->get#foreignKeyColumnUc#Uuid()) {
-            $#classLc#->set#propertyNameUc#($#plural#->get($#classLc#->get#foreignKeyColumnUc#Uuid()));
-        }

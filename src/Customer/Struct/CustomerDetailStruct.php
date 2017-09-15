@@ -32,11 +32,13 @@ class CustomerDetailStruct extends CustomerBasicStruct
     /**
      * @var string[]
      */
-    protected $customerAddressUuids;
+    protected $addressUuids = [];
+
     /**
      * @var CustomerAddressBasicCollection
      */
-    protected $customerAddresss;
+    protected $addresss;
+
     /**
      * @var ShopBasicStruct
      */
@@ -44,27 +46,27 @@ class CustomerDetailStruct extends CustomerBasicStruct
 
     public function __construct()
     {
-        $this->customerAddresss = new CustomerAddressBasicCollection();
+        $this->addresss = new CustomerAddressBasicCollection();
     }
 
-    public function getCustomerAddressUuids(): array
+    public function getAddressUuids(): array
     {
-        return $this->customerAddressUuids;
+        return $this->addressUuids;
     }
 
-    public function setCustomerAddressUuids(array $customerAddressUuids): void
+    public function setAddressUuids(array $addressUuids): void
     {
-        $this->customerAddressUuids = $customerAddressUuids;
+        $this->addressUuids = $addressUuids;
     }
 
-    public function getCustomerAddresss(): CustomerAddressBasicCollection
+    public function getAddresss(): CustomerAddressBasicCollection
     {
-        return $this->customerAddresss;
+        return $this->addresss;
     }
 
-    public function setCustomerAddresss(CustomerAddressBasicCollection $customerAddresss): void
+    public function setAddresss(CustomerAddressBasicCollection $addresss): void
     {
-        $this->customerAddresss = $customerAddresss;
+        $this->addresss = $addresss;
     }
 
     public function getShop(): ShopBasicStruct

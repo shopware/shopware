@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\Unit\Factory\UnitBasicFactory" id="shopware.unit.basic_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection" />
+        </service>
+
+        <service class="Shopware\Unit\Loader\UnitBasicLoader" id="shopware.unit.basic_loader">
+            <argument id="shopware.unit.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\Unit\Searcher\UnitSearcher" id="shopware.unit.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.search.sql_parser" type="service"/>
+            <argument id="shopware.unit.basic_factory" type="service"/>
+            <argument id="shopware.unit.basic_loader" type="service"/>
+        </service>
+
+        <service class="Shopware\Unit\Repository\UnitRepository" id="shopware.unit.repository">
+            <argument id="shopware.unit.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.unit.searcher" type="service"/>
+        </service>
+
+    </services>
+</container>

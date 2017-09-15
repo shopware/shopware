@@ -70,23 +70,22 @@ class CurrencyBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(
-            function (CurrencyBasicStruct $currency) {
-                return $currency->getUuid();
-            }
-        );
+        return $this->fmap(function (CurrencyBasicStruct $currency) {
+            return $currency->getUuid();
+        });
+    }
+
+    public function sortByPosition(): CurrencyBasicCollection
+    {
+        $this->sort(function (CurrencyBasicStruct $a, CurrencyBasicStruct $b) {
+            return $a->getPosition() <=> $b->getPosition();
+        });
+
+        return $this;
     }
 
     protected function getKey(CurrencyBasicStruct $element): string
     {
         return $element->getUuid();
-    }
-
-    public function sortByPosition(): CurrencyBasicCollection
-    {
-        $this->sort(function(CurrencyBasicStruct $a, CurrencyBasicStruct $b) {
-            return $a->getPosition() <=> $b->getPosition();
-        });
-        return $this;
     }
 }

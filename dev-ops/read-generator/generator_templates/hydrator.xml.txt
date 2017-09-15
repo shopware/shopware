@@ -1,3 +1,0 @@
-<service class="Shopware\#classUc#\Reader\#classUc#BasicHydrator" id="shopware.#table#.reader.basic_hydrator">
-#arguments#
-</service>

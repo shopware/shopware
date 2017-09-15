@@ -35,91 +35,60 @@ class ShippingMethodDetailStruct extends ShippingMethodBasicStruct
     /**
      * @var string[]
      */
-    protected $shippingMethodPriceUuids;
-    /**
-     * @var ShippingMethodPriceBasicCollection
-     */
-    protected $shippingMethodPrices;
-    /**
-     * @var string[]
-     */
-    protected $areaCountryUuids;
-    /**
-     * @var AreaCountryBasicCollection
-     */
-    protected $areaCountries;
-    /**
-     * @var string[]
-     */
-    protected $categoryUuids;
+    protected $categoryUuids = [];
+
     /**
      * @var CategoryBasicCollection
      */
     protected $categories;
+
     /**
      * @var string[]
      */
-    protected $holidayUuids;
+    protected $countryUuids = [];
+
+    /**
+     * @var AreaCountryBasicCollection
+     */
+    protected $countries;
+
+    /**
+     * @var string[]
+     */
+    protected $holidayUuids = [];
+
     /**
      * @var HolidayBasicCollection
      */
     protected $holidaies;
+
     /**
      * @var string[]
      */
-    protected $paymentMethodUuids;
+    protected $paymentMethodUuids = [];
+
     /**
      * @var PaymentMethodBasicCollection
      */
     protected $paymentMethods;
 
+    /**
+     * @var string[]
+     */
+    protected $priceUuids = [];
+
+    /**
+     * @var ShippingMethodPriceBasicCollection
+     */
+    protected $prices;
+
     public function __construct()
     {
-        $this->shippingMethodPrices = new ShippingMethodPriceBasicCollection();
-        $this->areaCountries = new AreaCountryBasicCollection();
         $this->categories = new CategoryBasicCollection();
+        $this->countries = new AreaCountryBasicCollection();
         $this->holidaies = new HolidayBasicCollection();
         $this->paymentMethods = new PaymentMethodBasicCollection();
-    }
-
-    public function getShippingMethodPriceUuids(): array
-    {
-        return $this->shippingMethodPriceUuids;
-    }
-
-    public function setShippingMethodPriceUuids(array $shippingMethodPriceUuids): void
-    {
-        $this->shippingMethodPriceUuids = $shippingMethodPriceUuids;
-    }
-
-    public function getShippingMethodPrices(): ShippingMethodPriceBasicCollection
-    {
-        return $this->shippingMethodPrices;
-    }
-
-    public function setShippingMethodPrices(ShippingMethodPriceBasicCollection $shippingMethodPrices): void
-    {
-        $this->shippingMethodPrices = $shippingMethodPrices;
-    }
-
-    public function getAreaCountryUuids(): array
-    {
-        return $this->areaCountryUuids;
-    }
-
-    public function setAreaCountryUuids(array $areaCountryUuids): void
-    {
-        $this->areaCountryUuids = $areaCountryUuids;
-    }
-
-    public function getAreaCountries(): AreaCountryBasicCollection
-    {
-        return $this->areaCountries;
-    }
-
-    public function setAreaCountries(AreaCountryBasicCollection $areaCountries): void
-    {
-        $this->areaCountries = $areaCountries;
+        $this->prices = new ShippingMethodPriceBasicCollection();
     }
 
     public function getCategoryUuids(): array
@@ -140,6 +109,26 @@ class ShippingMethodDetailStruct extends ShippingMethodBasicStruct
     public function setCategories(CategoryBasicCollection $categories): void
     {
         $this->categories = $categories;
+    }
+
+    public function getCountryUuids(): array
+    {
+        return $this->countryUuids;
+    }
+
+    public function setCountryUuids(array $countryUuids): void
+    {
+        $this->countryUuids = $countryUuids;
+    }
+
+    public function getCountries(): AreaCountryBasicCollection
+    {
+        return $this->countries;
+    }
+
+    public function setCountries(AreaCountryBasicCollection $countries): void
+    {
+        $this->countries = $countries;
     }
 
     public function getHolidayUuids(): array
@@ -180,5 +169,25 @@ class ShippingMethodDetailStruct extends ShippingMethodBasicStruct
     public function setPaymentMethods(PaymentMethodBasicCollection $paymentMethods): void
     {
         $this->paymentMethods = $paymentMethods;
+    }
+
+    public function getPriceUuids(): array
+    {
+        return $this->priceUuids;
+    }
+
+    public function setPriceUuids(array $priceUuids): void
+    {
+        $this->priceUuids = $priceUuids;
+    }
+
+    public function getPrices(): ShippingMethodPriceBasicCollection
+    {
+        return $this->prices;
+    }
+
+    public function setPrices(ShippingMethodPriceBasicCollection $prices): void
+    {
+        $this->prices = $prices;
     }
 }

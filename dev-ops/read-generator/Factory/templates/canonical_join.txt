@@ -1,0 +1,10 @@
+        if ($canonical = $selection->filter('canonicalUrl')) {
+            $query->leftJoin(
+                $selection->getRootEscaped(),
+                'seo_url',
+                $canonical->getRootEscaped(),
+                sprintf('%1$s.uuid = %2$s.foreign_key AND %2$s.name = :#classLc#SeoName AND %2$s.is_canonical = 1 AND %2$s.shop_uuid = :shopUuid', $selection->getRootEscaped(), $canonical->getRootEscaped())
+            );
+            $query->setParameter('#classLc#SeoName', '#seoUrlName#');
+            $query->setParameter('shopUuid', $context->getShopUuid());
+        }

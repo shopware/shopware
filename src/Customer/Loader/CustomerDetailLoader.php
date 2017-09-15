@@ -24,71 +24,72 @@
 
 namespace Shopware\Customer\Loader;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Customer\Reader\CustomerDetailReader;
+use Shopware\Customer\Factory\CustomerDetailFactory;
 use Shopware\Customer\Struct\CustomerDetailCollection;
 use Shopware\Customer\Struct\CustomerDetailStruct;
-use Shopware\CustomerAddress\Loader\CustomerAddressBasicLoader;
 use Shopware\CustomerAddress\Searcher\CustomerAddressSearcher;
-use Shopware\CustomerAddress\Struct\CustomerAddressSearchResult;
-use Shopware\PaymentMethod\Loader\PaymentMethodBasicLoader;
-use Shopware\Search\Condition\CustomerUuidCondition;
+use Shopware\CustomerAddress\Searcher\CustomerAddressSearchResult;
+use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\Search\Criteria;
+use Shopware\Search\Query\TermsQuery;
 
 class CustomerDetailLoader
 {
+    use SortArrayByKeysTrait;
+
     /**
-     * @var CustomerDetailReader
+     * @var CustomerDetailFactory
      */
-    protected $reader;
+    private $factory;
+
     /**
      * @var CustomerAddressSearcher
      */
     private $customerAddressSearcher;
-    /**
-     * @var CustomerAddressBasicLoader
-     */
-    private $customerAddressBasicLoader;
-    /**
-     * @var PaymentMethodBasicLoader
-     */
-    private $paymentMethodBasicLoader;
 
     public function __construct(
-        CustomerDetailReader $reader,
-        CustomerAddressSearcher $customerAddressSearcher,
-        CustomerAddressBasicLoader $customerAddressBasicLoader,
-        PaymentMethodBasicLoader $paymentMethodBasicLoader
+        CustomerDetailFactory $factory,
+CustomerAddressSearcher $customerAddressSearcher
     ) {
-        $this->reader = $reader;
+        $this->factory = $factory;
         $this->customerAddressSearcher = $customerAddressSearcher;
-        $this->customerAddressBasicLoader = $customerAddressBasicLoader;
-        $this->paymentMethodBasicLoader = $paymentMethodBasicLoader;
     }
 
     public function load(array $uuids, TranslationContext $context): CustomerDetailCollection
     {
-        $collection = $this->reader->read($uuids, $context);
+        $customers = $this->read($uuids, $context);
 
         $criteria = new Criteria();
-        $criteria->addCondition(new CustomerUuidCondition($collection->getUuids()));
-        /** @var CustomerAddressSearchResult $customerAddresss */
-        $customerAddresss = $this->customerAddressSearcher->search($criteria, $context);
-
-        $customerAddresss = $this->customerAddressBasicLoader->load($collection->getDefaultShippingAddressUuids(), $context);
-        $customerAddresss = $this->customerAddressBasicLoader->load($collection->getDefaultBillingAddressUuids(), $context);
-        $paymentMethods = $this->paymentMethodBasicLoader->load($collection->getLastPaymentMethodUuids(), $context);
-        $paymentMethods = $this->paymentMethodBasicLoader->load($collection->getDefaultPaymentMethodUuids(), $context);
+        $criteria->addFilter(new TermsQuery('customer_address.customer_uuid', $uuids));
+        /** @var CustomerAddressSearchResult $addresss */
+        $addresss = $this->customerAddressSearcher->search($criteria, $context);
 
         /** @var CustomerDetailStruct $customer */
-        foreach ($collection as $customer) {
-            $customer->setCustomerAddresss($customerAddresss->filterByCustomerUuid($customer->getUuid()));
-            $customer->setDefaultShippingAddress($customerAddresss->get($customer->getDefaultShippingAddressUuid()));
-            $customer->setDefaultBillingAddress($customerAddresss->get($customer->getDefaultBillingAddressUuid()));
-            $customer->setLastPaymentMethod($paymentMethods->get($customer->getLastPaymentMethodUuid()));
-            $customer->setDefaultPaymentMethod($paymentMethods->get($customer->getDefaultPaymentMethodUuid()));
+        foreach ($customers as $customer) {
+            $customer->setAddresss($addresss->filterByCustomerUuid($customer->getUuid()));
         }
 
-        return $collection;
+        return $customers;
+    }
+
+    private function read(array $uuids, TranslationContext $context): CustomerDetailCollection
+    {
+        $query = $this->factory->createQuery($context);
+
+        $query->andWhere('customer.uuid IN (:ids)');
+        $query->setParameter(':ids', $uuids, Connection::PARAM_STR_ARRAY);
+
+        $rows = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
+        $structs = [];
+        foreach ($rows as $row) {
+            $struct = $this->factory->hydrate($row, new CustomerDetailStruct(), $query->getSelection(), $context);
+            $structs[$struct->getUuid()] = $struct;
+        }
+
+        return new CustomerDetailCollection(
+            $this->sortIndexedArrayByKeys($uuids, $structs)
+        );
     }
 }

@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\CustomerAddress\Factory\CustomerAddressBasicFactory" id="shopware.customer_address.basic_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection" />
+            <argument id="shopware.area_country.basic_factory" type="service"/>
+            <argument id="shopware.area_country_state.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\CustomerAddress\Loader\CustomerAddressBasicLoader" id="shopware.customer_address.basic_loader">
+            <argument id="shopware.customer_address.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\CustomerAddress\Searcher\CustomerAddressSearcher" id="shopware.customer_address.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.search.sql_parser" type="service"/>
+            <argument id="shopware.customer_address.basic_factory" type="service"/>
+            <argument id="shopware.customer_address.basic_loader" type="service"/>
+        </service>
+
+        <service class="Shopware\CustomerAddress\Repository\CustomerAddressRepository" id="shopware.customer_address.repository">
+            <argument id="shopware.customer_address.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.customer_address.searcher" type="service"/>
+        </service>
+
+    </services>
+</container>

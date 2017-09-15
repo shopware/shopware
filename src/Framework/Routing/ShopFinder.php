@@ -26,58 +26,37 @@ namespace Shopware\Framework\Routing;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Shopware\Context\Struct\ShopContext;
-use Shopware\Context\Struct\TranslationContext;
 use Shopware\Shop\ShopRepository;
-use Shopware\Shop\Struct\ShopBasicStruct;
-use Shopware\Storefront\Session\ShopSubscriber;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
 
 class ShopFinder
 {
     /**
-     * @var ShopRepository
-     */
-    private $shopRepository;
-
-    /**
      * @var Connection
      */
     private $connection;
 
-    public function __construct(ShopRepository $shopRepository, Connection $connection)
+    public function __construct(Connection $connection)
     {
-        $this->shopRepository = $shopRepository;
         $this->connection = $connection;
     }
 
-    public function findShopByRequest(RequestContext $requestContext, Request $request): ShopBasicStruct
+    public function findShopByRequest(RequestContext $requestContext, Request $request): ?array
     {
-        //shop switcher used?
-        if ($requestContext->getMethod() === 'POST' && $request->get('__shop')) {
-            $shop = $this->loadShop((string) $request->get('__shop'));
-
+        $shop = $this->getShopByPost($requestContext, $request);
+        if ($shop !== null) {
             return $shop;
         }
 
-        //use shop cookie before detect shop by url
-        if ($request->cookies->get('shop')) {
-            return $this->loadShop((string) $request->cookies->get('shop'));
-        }
-
-        if ($request->attributes->has('_shop')) {
-            return $request->attributes->get('_shop');
-        }
-
-        if ($request->attributes->has(ShopSubscriber::SHOP_CONTEXT_PROPERTY)) {
-            /** @var ShopContext $context */
-            $context = $request->attributes->get(ShopSubscriber::SHOP_CONTEXT_PROPERTY);
-            return $context->getShop();
+        $shop = $this->getShopByCookie($request);
+        if ($shop !== null) {
+            return $shop;
         }
 
         $query = $this->createQuery();
         $query->andWhere('shop.active = 1');
+
         //first use default shop than main shops
         $query->addOrderBy('shop.is_default', 'DESC');
         $query->addOrderBy('shop.main_id', 'ASC');
@@ -104,7 +83,7 @@ class ShopFinder
 
         // direct hit
         if (array_key_exists($url, $paths)) {
-            return $this->loadShop($paths[$url]['uuid']);
+            return $paths[$url];
         }
 
         // reduce shops to which base url is the beginning of the request
@@ -123,54 +102,57 @@ class ShopFinder
             $lastBaseUrl = $baseUrl;
         }
 
-        return $this->loadShop($bestMatch['uuid']);
+        return $bestMatch;
     }
 
-    /**
-     * @return QueryBuilder
-     */
+    private function getShopByCookie(Request $request): ?array
+    {
+        //use shop cookie before detect shop by url
+        if (!$request->cookies->has('shop')) {
+            return null;
+        }
+
+        $query = $this->createQuery();
+        $query->andWhere('shop.uuid = :uuid');
+        $query->setParameter('uuid', $request->cookies->get('shop'));
+        $shop = $query->execute()->fetch(\PDO::FETCH_ASSOC);
+
+        if ($shop) {
+            return $shop;
+        }
+        $request->cookies->set('shop', null);
+
+        return null;
+    }
+
     protected function createQuery(): QueryBuilder
     {
         $query = $this->connection->createQueryBuilder();
         $query->select([
-            'shop.id',
             'shop.uuid',
-            'shop.main_id',
-
+            'shop.parent_uuid',
             'shop.base_url',
             'shop.hosts',
-            'shop.category_id',
-            'shop.locale_id',
-            'shop.currency_id',
-            'shop.customer_group_id',
-            'shop.fallback_id',
+            'shop.category_uuid',
+            'shop.locale_uuid',
+            'shop.currency_uuid',
+            'shop.customer_group_uuid',
+            'shop.fallback_locale_uuid',
             'shop.customer_scope',
             'shop.is_default',
             'shop.active',
-            "COALESCE(shop.host, main.host, 'localhost') as host",
-            "COALESCE(shop.base_path, main.base_path, '') as base_path",
-            'COALESCE(shop.secure, main.secure) as secure',
-            'COALESCE(shop.shop_template_id, main.shop_template_id) as shop_template_id',
-            'COALESCE(shop.document_template_id, main.document_template_id) as document_template_id',
-            'COALESCE(shop.payment_method_id, main.payment_method_id) as payment_method_id',
-            'COALESCE(shop.shipping_method_id, main.shipping_method_id) as shipping_method_id',
-            'COALESCE(shop.area_country_id, main.area_country_id) as area_country_id',
-            'COALESCE(shop.tax_calculation_type, main.tax_calculation_type) as tax_calculation_type',
-            'locale.locale',
+            'shop.host',
+            'shop.base_path',
+            'shop.is_secure',
+            'locale.code as locale_code'
         ]);
         $query->from('shop', 'shop');
-        $query->leftJoin('shop', 'shop', 'main', 'main.id = shop.main_id');
-        $query->innerJoin('shop', 'locale', 'locale', 'locale.uuid=shop.locale_uuid');
+        $query->innerJoin('shop', 'locale', 'locale', 'locale.uuid = shop.locale_uuid');
 
         return $query;
     }
 
-    /**
-     * @param $shop
-     *
-     * @return mixed
-     */
-    protected function fixUrls($shop)
+    private function fixUrls(array $shop): array
     {
         $shop['base_url'] = rtrim($shop['base_url'], '/') . '/';
         $shop['base_path'] = rtrim($shop['base_path'], '/') . '/';
@@ -178,9 +160,25 @@ class ShopFinder
         return $shop;
     }
 
-    private function loadShop(string $uuid): ShopBasicStruct
+    private function getShopByPost(RequestContext $context, Request $request): ?array
     {
-        return $this->shopRepository->read([$uuid], new TranslationContext('', true, null))
-            ->get($uuid);
+        if ($context->getMethod() !== 'POST') {
+            return null;
+        }
+
+        if (!$request->get('__shop')) {
+            return null;
+        }
+
+        $query = $this->createQuery();
+        $query->andWhere('shop.uuid = :uuid');
+        $query->setParameter('uuid',  $request->get('__shop'));
+        $shop = $query->execute()->fetch(\PDO::FETCH_ASSOC);
+
+        if ($shop) {
+            return $shop;
+        }
+
+        return null;
     }
 }

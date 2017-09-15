@@ -41,12 +41,12 @@ class UnitBasicStruct extends Struct
     /**
      * @var string
      */
-    protected $unit;
+    protected $shortCode;
 
     /**
      * @var string
      */
-    protected $description;
+    protected $name;
 
     public function getId(): int
     {
@@ -68,23 +68,23 @@ class UnitBasicStruct extends Struct
         $this->uuid = $uuid;
     }
 
-    public function getUnit(): string
+    public function getShortCode(): string
     {
-        return $this->unit;
+        return $this->shortCode;
     }
 
-    public function setUnit(string $unit): void
+    public function setShortCode(string $shortCode): void
     {
-        $this->unit = $unit;
+        $this->shortCode = $shortCode;
     }
 
-    public function getDescription(): string
+    public function getName(): string
     {
-        return $this->description;
+        return $this->name;
     }
 
-    public function setDescription(string $description): void
+    public function setName(string $name): void
     {
-        $this->description = $description;
+        $this->name = $name;
     }
 }

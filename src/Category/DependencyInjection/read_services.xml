@@ -1,0 +1,49 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\Category\Factory\CategoryBasicFactory" id="shopware.category.basic_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection" />
+            <argument id="shopware.seo_url.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\Category\Factory\CategoryDetailFactory" id="shopware.category.detail_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection" />
+            <argument id="shopware.product_stream.basic_factory" type="service"/>
+            <argument id="shopware.media.basic_factory" type="service"/>
+            <argument id="shopware.product.basic_factory" type="service"/>
+            <argument id="shopware.customer_group.basic_factory" type="service"/>
+            <argument id="shopware.seo_url.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\Category\Loader\CategoryBasicLoader" id="shopware.category.basic_loader">
+            <argument id="shopware.category.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\Category\Loader\CategoryDetailLoader" id="shopware.category.detail_loader">
+            <argument id="shopware.category.detail_factory" type="service"/>
+            <argument id="shopware.product.basic_loader" type="service"/>
+            <argument id="shopware.customer_group.basic_loader" type="service"/>
+        </service>
+
+        <service class="Shopware\Category\Searcher\CategorySearcher" id="shopware.category.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.search.sql_parser" type="service"/>
+            <argument id="shopware.category.detail_factory" type="service"/>
+            <argument id="shopware.category.basic_loader" type="service"/>
+        </service>
+
+        <service class="Shopware\Category\Repository\CategoryRepository" id="shopware.category.repository">
+            <argument id="shopware.category.detail_loader" type="service"/>
+            <argument id="shopware.category.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.category.searcher" type="service"/>
+        </service>
+
+    </services>
+</container>

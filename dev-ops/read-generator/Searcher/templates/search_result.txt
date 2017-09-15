@@ -1,0 +1,24 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\#classUc#\Searcher;
+
+use Shopware\#classUc#\Struct\#classUc#BasicCollection;
+use Shopware\Search\SearchResultInterface;
+
+class #classUc#SearchResult extends #classUc#BasicCollection implements SearchResultInterface
+{
+    /**
+     * @var int
+     */
+    protected $total;
+
+    public function getTotal(): int
+    {
+        return $this->total;
+    }
+
+    public function setTotal(int $total): void
+    {
+        $this->total = $total;
+    }
+}

@@ -29,11 +29,6 @@ use Shopware\Framework\Struct\Struct;
 class LocaleBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
@@ -41,7 +36,7 @@ class LocaleBasicStruct extends Struct
     /**
      * @var string
      */
-    protected $locale;
+    protected $code;
 
     /**
      * @var string
@@ -53,16 +48,6 @@ class LocaleBasicStruct extends Struct
      */
     protected $territory;
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
-
     public function getUuid(): string
     {
         return $this->uuid;
@@ -73,14 +58,14 @@ class LocaleBasicStruct extends Struct
         $this->uuid = $uuid;
     }
 
-    public function getLocale(): string
+    public function getCode(): string
     {
-        return $this->locale;
+        return $this->code;
     }
 
-    public function setLocale(string $locale): void
+    public function setCode(string $code): void
     {
-        $this->locale = $locale;
+        $this->code = $code;
     }
 
     public function getLanguage(): string

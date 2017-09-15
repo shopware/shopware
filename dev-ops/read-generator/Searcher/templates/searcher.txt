@@ -1,0 +1,50 @@
+<?php
+
+namespace Shopware\#classUc#\Searcher;
+
+use Doctrine\DBAL\Connection;
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Search\Criteria;
+use Shopware\Search\QueryBuilder;
+use Shopware\Search\Searcher;
+use Shopware\Search\SearchResultInterface;
+use Shopware\Search\SqlParser\SqlParser;
+use Shopware\Search\UuidSearchResult;
+use Shopware\#classUc#\Loader\#classUc#BasicLoader;
+use Shopware\#classUc#\Factory\#classUc##factoryType#Factory;
+
+class #classUc#Searcher extends Searcher
+{
+    /**
+     * @var #classUc##factoryType#Factory
+     */
+    private $factory;
+
+    /**
+     * @var #classUc#BasicLoader
+     */
+    private $loader;
+
+    public function __construct(Connection $connection, SqlParser $parser, #classUc##factoryType#Factory $factory, #classUc#BasicLoader $loader)
+    {
+        parent::__construct($connection, $parser);
+        $this->factory = $factory;
+        $this->loader = $loader;
+    }
+
+    protected function createQuery(Criteria $criteria, TranslationContext $context): QueryBuilder
+    {
+        return $this->factory->createSearchQuery($criteria, $context);
+    }
+
+    protected function load(UuidSearchResult $uuidResult, TranslationContext $context): SearchResultInterface
+    {
+        $collection = $this->loader->load($uuidResult->getUuids(), $context);
+
+        $result = new #classUc#SearchResult($collection->getElements());
+
+        $result->setTotal($uuidResult->getTotal());
+
+        return $result;
+    }
+}

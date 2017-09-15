@@ -29,34 +29,19 @@ use Shopware\Framework\Struct\Struct;
 class AreaBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
 
     /**
-     * @var string|null
-     */
-    protected $name;
-
-    /**
-     * @var bool|null
+     * @var bool
      */
     protected $active;
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
+    /**
+     * @var string
+     */
+    protected $name;
 
     public function getUuid(): string
     {
@@ -68,23 +53,23 @@ class AreaBasicStruct extends Struct
         $this->uuid = $uuid;
     }
 
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(?string $name): void
-    {
-        $this->name = $name;
-    }
-
-    public function getActive(): ?bool
+    public function getActive(): bool
     {
         return $this->active;
     }
 
-    public function setActive(?bool $active): void
+    public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
     }
 }

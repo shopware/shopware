@@ -31,34 +31,35 @@ class CustomerGroupDetailStruct extends CustomerGroupBasicStruct
     /**
      * @var string[]
      */
-    protected $customerGroupDiscountUuids;
+    protected $discountUuids = [];
+
     /**
      * @var CustomerGroupDiscountBasicCollection
      */
-    protected $customerGroupDiscounts;
+    protected $discounts;
 
     public function __construct()
     {
-        $this->customerGroupDiscounts = new CustomerGroupDiscountBasicCollection();
+        $this->discounts = new CustomerGroupDiscountBasicCollection();
     }
 
-    public function getCustomerGroupDiscountUuids(): array
+    public function getDiscountUuids(): array
     {
-        return $this->customerGroupDiscountUuids;
+        return $this->discountUuids;
     }
 
-    public function setCustomerGroupDiscountUuids(array $customerGroupDiscountUuids): void
+    public function setDiscountUuids(array $discountUuids): void
     {
-        $this->customerGroupDiscountUuids = $customerGroupDiscountUuids;
+        $this->discountUuids = $discountUuids;
     }
 
-    public function getCustomerGroupDiscounts(): CustomerGroupDiscountBasicCollection
+    public function getDiscounts(): CustomerGroupDiscountBasicCollection
     {
-        return $this->customerGroupDiscounts;
+        return $this->discounts;
     }
 
-    public function setCustomerGroupDiscounts(CustomerGroupDiscountBasicCollection $customerGroupDiscounts): void
+    public function setDiscounts(CustomerGroupDiscountBasicCollection $discounts): void
     {
-        $this->customerGroupDiscounts = $customerGroupDiscounts;
+        $this->discounts = $discounts;
     }
 }

@@ -1,2 +1,0 @@
-        $query->leftJoin('#classLc#', '#associationTable#', '#associationClassLc#', '#associationClassLc#.uuid = #classLc#.#associationTable#_uuid');
-        #associationClassUc#BasicQuery::addRequirements($query, $context);

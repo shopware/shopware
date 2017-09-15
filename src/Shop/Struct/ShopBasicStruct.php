@@ -31,19 +31,9 @@ use Shopware\Locale\Struct\LocaleBasicStruct;
 class ShopBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
-
-    /**
-     * @var int|null
-     */
-    protected $mainId;
 
     /**
      * @var string
@@ -61,7 +51,7 @@ class ShopBasicStruct extends Struct
     protected $position;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $host;
 
@@ -70,56 +60,20 @@ class ShopBasicStruct extends Struct
      */
     protected $basePath;
 
-
     /**
      * @var string
      */
     protected $baseUrl;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $hosts;
 
     /**
      * @var bool
      */
-    protected $secure;
-
-    /**
-     * @var int|null
-     */
-    protected $templateId;
-
-    /**
-     * @var int|null
-     */
-    protected $documentTemplateId;
-
-    /**
-     * @var int|null
-     */
-    protected $categoryId;
-
-    /**
-     * @var int|null
-     */
-    protected $localeId;
-
-    /**
-     * @var int|null
-     */
-    protected $currencyId;
-
-    /**
-     * @var int|null
-     */
-    protected $customerGroupId;
-
-    /**
-     * @var int|null
-     */
-    protected $fallbackId;
+    protected $isSecure;
 
     /**
      * @var bool
@@ -137,21 +91,6 @@ class ShopBasicStruct extends Struct
     protected $active;
 
     /**
-     * @var int
-     */
-    protected $paymentMethodId;
-
-    /**
-     * @var int
-     */
-    protected $shippingMethodId;
-
-    /**
-     * @var int
-     */
-    protected $areaCountryId;
-
-    /**
      * @var string
      */
     protected $taxCalculationType;
@@ -162,12 +101,12 @@ class ShopBasicStruct extends Struct
     protected $parentUuid;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $templateUuid;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $documentTemplateUuid;
 
@@ -197,17 +136,17 @@ class ShopBasicStruct extends Struct
     protected $fallbackLocaleUuid;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $paymentMethodUuid;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $shippingMethodUuid;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $areaCountryUuid;
 
@@ -221,16 +160,6 @@ class ShopBasicStruct extends Struct
      */
     protected $locale;
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
-
     public function getUuid(): string
     {
         return $this->uuid;
@@ -239,16 +168,6 @@ class ShopBasicStruct extends Struct
     public function setUuid(string $uuid): void
     {
         $this->uuid = $uuid;
-    }
-
-    public function getMainId(): ?int
-    {
-        return $this->mainId;
-    }
-
-    public function setMainId(?int $mainId): void
-    {
-        $this->mainId = $mainId;
     }
 
     public function getName(): string
@@ -281,12 +200,12 @@ class ShopBasicStruct extends Struct
         $this->position = $position;
     }
 
-    public function getHost(): ?string
+    public function getHost(): string
     {
         return $this->host;
     }
 
-    public function setHost(?string $host): void
+    public function setHost(string $host): void
     {
         $this->host = $host;
     }
@@ -296,10 +215,9 @@ class ShopBasicStruct extends Struct
         return $this->basePath;
     }
 
-    public function setBasePath(string $basePath): void
+    public function setBasePath(?string $basePath): void
     {
-        $basePath = rtrim($basePath, '/').'/';
-        $this->basePath = $basePath;
+        $this->basePath = rtrim((string) $basePath, '/') . '/';
     }
 
     public function getBaseUrl(): string
@@ -307,100 +225,29 @@ class ShopBasicStruct extends Struct
         return $this->baseUrl;
     }
 
-    public function setBaseUrl(string $baseUrl): void
+    public function setBaseUrl(?string $baseUrl): void
     {
-        $baseUrl = rtrim($baseUrl, '/').'/';
-        $this->baseUrl = $baseUrl;
+        $this->baseUrl = rtrim((string) $baseUrl, '/') . '/';
     }
 
-    public function getHosts(): string
+    public function getHosts(): ?string
     {
         return $this->hosts;
     }
 
-    public function setHosts(string $hosts): void
+    public function setHosts(?string $hosts): void
     {
         $this->hosts = $hosts;
     }
 
-    public function getSecure(): bool
+    public function getIsSecure(): bool
     {
-        return $this->secure;
+        return $this->isSecure;
     }
 
-    public function setSecure(bool $secure): void
+    public function setIsSecure(bool $isSecure): void
     {
-        $this->secure = $secure;
-    }
-
-    public function getTemplateId(): ?int
-    {
-        return $this->templateId;
-    }
-
-    public function setTemplateId(?int $templateId): void
-    {
-        $this->templateId = $templateId;
-    }
-
-    public function getDocumentTemplateId(): ?int
-    {
-        return $this->documentTemplateId;
-    }
-
-    public function setDocumentTemplateId(?int $documentTemplateId): void
-    {
-        $this->documentTemplateId = $documentTemplateId;
-    }
-
-    public function getCategoryId(): ?int
-    {
-        return $this->categoryId;
-    }
-
-    public function setCategoryId(?int $categoryId): void
-    {
-        $this->categoryId = $categoryId;
-    }
-
-    public function getLocaleId(): ?int
-    {
-        return $this->localeId;
-    }
-
-    public function setLocaleId(?int $localeId): void
-    {
-        $this->localeId = $localeId;
-    }
-
-    public function getCurrencyId(): ?int
-    {
-        return $this->currencyId;
-    }
-
-    public function setCurrencyId(?int $currencyId): void
-    {
-        $this->currencyId = $currencyId;
-    }
-
-    public function getCustomerGroupId(): ?int
-    {
-        return $this->customerGroupId;
-    }
-
-    public function setCustomerGroupId(?int $customerGroupId): void
-    {
-        $this->customerGroupId = $customerGroupId;
-    }
-
-    public function getFallbackId(): ?int
-    {
-        return $this->fallbackId;
-    }
-
-    public function setFallbackId(?int $fallbackId): void
-    {
-        $this->fallbackId = $fallbackId;
+        $this->isSecure = $isSecure;
     }
 
     public function getCustomerScope(): bool
@@ -433,36 +280,6 @@ class ShopBasicStruct extends Struct
         $this->active = $active;
     }
 
-    public function getPaymentMethodId(): int
-    {
-        return $this->paymentMethodId;
-    }
-
-    public function setPaymentMethodId(int $paymentMethodId): void
-    {
-        $this->paymentMethodId = $paymentMethodId;
-    }
-
-    public function getShippingMethodId(): int
-    {
-        return $this->shippingMethodId;
-    }
-
-    public function setShippingMethodId(int $shippingMethodId): void
-    {
-        $this->shippingMethodId = $shippingMethodId;
-    }
-
-    public function getAreaCountryId(): int
-    {
-        return $this->areaCountryId;
-    }
-
-    public function setAreaCountryId(int $areaCountryId): void
-    {
-        $this->areaCountryId = $areaCountryId;
-    }
-
     public function getTaxCalculationType(): string
     {
         return $this->taxCalculationType;
@@ -483,22 +300,22 @@ class ShopBasicStruct extends Struct
         $this->parentUuid = $parentUuid;
     }
 
-    public function getTemplateUuid(): ?string
+    public function getTemplateUuid(): string
     {
         return $this->templateUuid;
     }
 
-    public function setTemplateUuid(?string $templateUuid): void
+    public function setTemplateUuid(string $templateUuid): void
     {
         $this->templateUuid = $templateUuid;
     }
 
-    public function getDocumentTemplateUuid(): ?string
+    public function getDocumentTemplateUuid(): string
     {
         return $this->documentTemplateUuid;
     }
 
-    public function setDocumentTemplateUuid(?string $documentTemplateUuid): void
+    public function setDocumentTemplateUuid(string $documentTemplateUuid): void
     {
         $this->documentTemplateUuid = $documentTemplateUuid;
     }
@@ -553,32 +370,32 @@ class ShopBasicStruct extends Struct
         $this->fallbackLocaleUuid = $fallbackLocaleUuid;
     }
 
-    public function getPaymentMethodUuid(): string
+    public function getPaymentMethodUuid(): ?string
     {
         return $this->paymentMethodUuid;
     }
 
-    public function setPaymentMethodUuid(string $paymentMethodUuid): void
+    public function setPaymentMethodUuid(?string $paymentMethodUuid): void
     {
         $this->paymentMethodUuid = $paymentMethodUuid;
     }
 
-    public function getShippingMethodUuid(): string
+    public function getShippingMethodUuid(): ?string
     {
         return $this->shippingMethodUuid;
     }
 
-    public function setShippingMethodUuid(string $shippingMethodUuid): void
+    public function setShippingMethodUuid(?string $shippingMethodUuid): void
     {
         $this->shippingMethodUuid = $shippingMethodUuid;
     }
 
-    public function getAreaCountryUuid(): string
+    public function getAreaCountryUuid(): ?string
     {
         return $this->areaCountryUuid;
     }
 
-    public function setAreaCountryUuid(string $areaCountryUuid): void
+    public function setAreaCountryUuid(?string $areaCountryUuid): void
     {
         $this->areaCountryUuid = $areaCountryUuid;
     }

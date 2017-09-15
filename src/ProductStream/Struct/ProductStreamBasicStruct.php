@@ -30,11 +30,6 @@ use Shopware\ListingSorting\Struct\ListingSortingBasicStruct;
 class ProductStreamBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
@@ -60,11 +55,6 @@ class ProductStreamBasicStruct extends Struct
     protected $description;
 
     /**
-     * @var int|null
-     */
-    protected $listingSortingId;
-
-    /**
      * @var string|null
      */
     protected $listingSortingUuid;
@@ -72,17 +62,7 @@ class ProductStreamBasicStruct extends Struct
     /**
      * @var ListingSortingBasicStruct
      */
-    protected $listingSorting;
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
+    protected $sorting;
 
     public function getUuid(): string
     {
@@ -134,16 +114,6 @@ class ProductStreamBasicStruct extends Struct
         $this->description = $description;
     }
 
-    public function getListingSortingId(): ?int
-    {
-        return $this->listingSortingId;
-    }
-
-    public function setListingSortingId(?int $listingSortingId): void
-    {
-        $this->listingSortingId = $listingSortingId;
-    }
-
     public function getListingSortingUuid(): ?string
     {
         return $this->listingSortingUuid;
@@ -154,13 +124,13 @@ class ProductStreamBasicStruct extends Struct
         $this->listingSortingUuid = $listingSortingUuid;
     }
 
-    public function getListingSorting(): ListingSortingBasicStruct
+    public function getSorting(): ListingSortingBasicStruct
     {
-        return $this->listingSorting;
+        return $this->sorting;
     }
 
-    public function setListingSorting(ListingSortingBasicStruct $listingSorting): void
+    public function setSorting(ListingSortingBasicStruct $sorting): void
     {
-        $this->listingSorting = $listingSorting;
+        $this->sorting = $sorting;
     }
 }

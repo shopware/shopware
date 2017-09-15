@@ -1,0 +1,29 @@
+
+    public function sortByPosition(): CategoryBasicCollection
+    {
+        $this->sort(function(CategoryBasicStruct $a, CategoryBasicStruct $b) {
+            return $a->getPosition() <=> $b->getPosition();
+        });
+        return $this;
+    }
+
+    /**
+     * @param string|null $parentUuid
+     *
+     * @return CategoryBasicStruct[]
+     */
+    public function getTree(?string $parentUuid): array
+    {
+        $result = [];
+        foreach ($this->elements as $category) {
+            if ($category->getParentUuid() !== $parentUuid) {
+                continue;
+            }
+            $category->setChildren(
+                $this->getTree($category->getUuid())
+            );
+            $result[] = $category;
+        }
+
+        return $result;
+    }

@@ -29,11 +29,6 @@ use Shopware\Framework\Struct\Struct;
 class PaymentMethodBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
@@ -41,25 +36,20 @@ class PaymentMethodBasicStruct extends Struct
     /**
      * @var string
      */
-    protected $name;
+    protected $technicalName;
 
     /**
-     * @var string
-     */
-    protected $description;
-
-    /**
-     * @var string
+     * @var string|null
      */
     protected $template;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $class;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $table;
 
@@ -69,22 +59,17 @@ class PaymentMethodBasicStruct extends Struct
     protected $hide;
 
     /**
-     * @var string
-     */
-    protected $additionalDescription;
-
-    /**
-     * @var float
+     * @var float|null
      */
     protected $debitPercent;
 
     /**
-     * @var float
+     * @var float|null
      */
     protected $surcharge;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $surchargeString;
 
@@ -104,7 +89,7 @@ class PaymentMethodBasicStruct extends Struct
     protected $allowEsd;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $usedIframe;
 
@@ -117,11 +102,6 @@ class PaymentMethodBasicStruct extends Struct
      * @var string|null
      */
     protected $action;
-
-    /**
-     * @var int|null
-     */
-    protected $pluginId;
 
     /**
      * @var string|null
@@ -143,15 +123,15 @@ class PaymentMethodBasicStruct extends Struct
      */
     protected $riskRules;
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
+    /**
+     * @var string
+     */
+    protected $name;
 
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
+    /**
+     * @var string
+     */
+    protected $additionalDescription;
 
     public function getUuid(): string
     {
@@ -163,52 +143,42 @@ class PaymentMethodBasicStruct extends Struct
         $this->uuid = $uuid;
     }
 
-    public function getName(): string
+    public function getTechnicalName(): string
     {
-        return $this->name;
+        return $this->technicalName;
     }
 
-    public function setName(string $name): void
+    public function setTechnicalName(string $technicalName): void
     {
-        $this->name = $name;
+        $this->technicalName = $technicalName;
     }
 
-    public function getDescription(): string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(string $description): void
-    {
-        $this->description = $description;
-    }
-
-    public function getTemplate(): string
+    public function getTemplate(): ?string
     {
         return $this->template;
     }
 
-    public function setTemplate(string $template): void
+    public function setTemplate(?string $template): void
     {
         $this->template = $template;
     }
 
-    public function getClass(): string
+    public function getClass(): ?string
     {
         return $this->class;
     }
 
-    public function setClass(string $class): void
+    public function setClass(?string $class): void
     {
         $this->class = $class;
     }
 
-    public function getTable(): string
+    public function getTable(): ?string
     {
         return $this->table;
     }
 
-    public function setTable(string $table): void
+    public function setTable(?string $table): void
     {
         $this->table = $table;
     }
@@ -223,42 +193,32 @@ class PaymentMethodBasicStruct extends Struct
         $this->hide = $hide;
     }
 
-    public function getAdditionalDescription(): string
-    {
-        return $this->additionalDescription;
-    }
-
-    public function setAdditionalDescription(string $additionalDescription): void
-    {
-        $this->additionalDescription = $additionalDescription;
-    }
-
-    public function getDebitPercent(): float
+    public function getDebitPercent(): ?float
     {
         return $this->debitPercent;
     }
 
-    public function setDebitPercent(float $debitPercent): void
+    public function setDebitPercent(?float $debitPercent): void
     {
         $this->debitPercent = $debitPercent;
     }
 
-    public function getSurcharge(): float
+    public function getSurcharge(): ?float
     {
         return $this->surcharge;
     }
 
-    public function setSurcharge(float $surcharge): void
+    public function setSurcharge(?float $surcharge): void
     {
         $this->surcharge = $surcharge;
     }
 
-    public function getSurchargeString(): string
+    public function getSurchargeString(): ?string
     {
         return $this->surchargeString;
     }
 
-    public function setSurchargeString(string $surchargeString): void
+    public function setSurchargeString(?string $surchargeString): void
     {
         $this->surchargeString = $surchargeString;
     }
@@ -293,12 +253,12 @@ class PaymentMethodBasicStruct extends Struct
         $this->allowEsd = $allowEsd;
     }
 
-    public function getUsedIframe(): string
+    public function getUsedIframe(): ?string
     {
         return $this->usedIframe;
     }
 
-    public function setUsedIframe(string $usedIframe): void
+    public function setUsedIframe(?string $usedIframe): void
     {
         $this->usedIframe = $usedIframe;
     }
@@ -321,16 +281,6 @@ class PaymentMethodBasicStruct extends Struct
     public function setAction(?string $action): void
     {
         $this->action = $action;
-    }
-
-    public function getPluginId(): ?int
-    {
-        return $this->pluginId;
-    }
-
-    public function setPluginId(?int $pluginId): void
-    {
-        $this->pluginId = $pluginId;
     }
 
     public function getPluginUuid(): ?string
@@ -371,5 +321,25 @@ class PaymentMethodBasicStruct extends Struct
     public function setRiskRules(?string $riskRules): void
     {
         $this->riskRules = $riskRules;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function getAdditionalDescription(): string
+    {
+        return $this->additionalDescription;
+    }
+
+    public function setAdditionalDescription(string $additionalDescription): void
+    {
+        $this->additionalDescription = $additionalDescription;
     }
 }

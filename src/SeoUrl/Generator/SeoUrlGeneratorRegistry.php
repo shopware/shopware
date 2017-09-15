@@ -26,17 +26,14 @@ namespace Shopware\SeoUrl\Generator;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Search\Condition\ForeignKeyCondition;
-use Shopware\Search\Condition\NameCondition;
-use Shopware\Search\Condition\ShopCondition;
-use Shopware\Search\Condition\ShopUuidCondition;
 use Shopware\Search\Criteria;
-use Shopware\SeoUrl\SeoUrlRepository;
-use Shopware\SeoUrl\Struct\SeoUrl;
+use Shopware\Search\Query\TermQuery;
+use Shopware\Search\Query\TermsQuery;
+use Shopware\SeoUrl\Repository\SeoUrlRepository;
 use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
 use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
-use Shopware\SeoUrl\Struct\SeoUrlCollection;
-use Shopware\Shop\ShopRepository;
+use Shopware\SeoUrl\Writer\SeoUrlWriter;
+use Shopware\Shop\Repository\ShopRepository;
 use Shopware\Shop\Struct\ShopBasicStruct;
 
 class SeoUrlGeneratorRegistry
@@ -54,6 +51,11 @@ class SeoUrlGeneratorRegistry
     private $repository;
 
     /**
+     * @var SeoUrlWriter
+     */
+    private $writer;
+
+    /**
      * @var Connection
      */
     private $connection;
@@ -63,12 +65,19 @@ class SeoUrlGeneratorRegistry
      */
     private $shopRepository;
 
-    public function __construct(array $generators, SeoUrlRepository $repository, Connection $connection, ShopRepository $shopRepository)
+    public function __construct(
+        array $generators,
+        SeoUrlRepository $repository,
+        Connection $connection,
+        ShopRepository $shopRepository,
+        SeoUrlWriter $writer
+    )
     {
         $this->generators = $generators;
         $this->repository = $repository;
         $this->connection = $connection;
         $this->shopRepository = $shopRepository;
+        $this->writer = $writer;
     }
 
     public function generate(string $shopUuid, TranslationContext $context, bool $force): void
@@ -85,7 +94,7 @@ class SeoUrlGeneratorRegistry
                             $urls = $this->filterNoneExistingRoutes($shop, $context, $generator->getName(), $urls);
                         }
 
-                        $this->repository->create($urls->getIterator()->getArrayCopy());
+                        $this->writer->create($urls->getIterator()->getArrayCopy());
 
                         $offset += self::LIMIT;
                     }
@@ -98,9 +107,9 @@ class SeoUrlGeneratorRegistry
     {
         $criteria = new Criteria();
 
-        $criteria->addCondition(new NameCondition([$name]));
-        $criteria->addCondition(new ForeignKeyCondition($urls->getForeignKeys()));
-        $criteria->addCondition(new ShopUuidCondition([$shop->getUuid()]));
+        $criteria->addFilter(new TermQuery('seo_url.name', $name));
+        $criteria->addFilter(new TermsQuery('seo_url.foreign_key', $urls->getForeignKeys()));
+        $criteria->addFilter(new TermQuery('seo_url.shop_uuid', $shop->getUuid()));
 
         $existing = $this->repository->search($criteria, $context);
 

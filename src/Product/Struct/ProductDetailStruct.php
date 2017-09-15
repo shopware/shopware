@@ -26,30 +26,45 @@ namespace Shopware\Product\Struct;
 
 use Shopware\Category\Struct\CategoryBasicCollection;
 use Shopware\ProductDetail\Struct\ProductDetailBasicCollection;
+use Shopware\ProductVote\Struct\ProductVoteBasicCollection;
 
 class ProductDetailStruct extends ProductBasicStruct
 {
     /**
      * @var string[]
      */
-    protected $detailUuids;
+    protected $detailUuids = [];
+
     /**
      * @var ProductDetailBasicCollection
      */
     protected $details;
+
     /**
      * @var string[]
      */
-    protected $categoryUuids;
+    protected $categoryUuids = [];
+
     /**
      * @var CategoryBasicCollection
      */
     protected $categories;
 
+    /**
+     * @var string[]
+     */
+    protected $voteUuids = [];
+
+    /**
+     * @var ProductVoteBasicCollection
+     */
+    protected $votes;
+
     public function __construct()
     {
         $this->details = new ProductDetailBasicCollection();
         $this->categories = new CategoryBasicCollection();
+        $this->votes = new ProductVoteBasicCollection();
     }
 
     public function getDetailUuids(): array
@@ -90,5 +105,25 @@ class ProductDetailStruct extends ProductBasicStruct
     public function setCategories(CategoryBasicCollection $categories): void
     {
         $this->categories = $categories;
+    }
+
+    public function getVoteUuids(): array
+    {
+        return $this->voteUuids;
+    }
+
+    public function setVoteUuids(array $voteUuids): void
+    {
+        $this->voteUuids = $voteUuids;
+    }
+
+    public function getVotes(): ProductVoteBasicCollection
+    {
+        return $this->votes;
+    }
+
+    public function setVotes(ProductVoteBasicCollection $votes): void
+    {
+        $this->votes = $votes;
     }
 }

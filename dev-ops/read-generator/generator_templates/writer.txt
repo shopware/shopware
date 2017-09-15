@@ -1,8 +1,0 @@
-<?php
-
-namespace Shopware\#classUc#\Writer;
-
-class #classUc#Writer
-{
-    public function write(): void { }
-}

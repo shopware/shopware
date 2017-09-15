@@ -1,1 +1,0 @@
-use Shopware\#classUc#\Event\#classUc#BasicLoadedEvent;

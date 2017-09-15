@@ -29,11 +29,6 @@ use Shopware\Framework\Struct\Struct;
 class PriceGroupBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
@@ -41,17 +36,7 @@ class PriceGroupBasicStruct extends Struct
     /**
      * @var string
      */
-    protected $description;
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
+    protected $name;
 
     public function getUuid(): string
     {
@@ -63,13 +48,13 @@ class PriceGroupBasicStruct extends Struct
         $this->uuid = $uuid;
     }
 
-    public function getDescription(): string
+    public function getName(): string
     {
-        return $this->description;
+        return $this->name;
     }
 
-    public function setDescription(string $description): void
+    public function setName(string $name): void
     {
-        $this->description = $description;
+        $this->name = $name;
     }
 }

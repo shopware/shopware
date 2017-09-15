@@ -24,31 +24,51 @@
 
 namespace Shopware\Holiday\Loader;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Holiday\Reader\HolidayBasicReader;
+use Shopware\Framework\Struct\SortArrayByKeysTrait;
+use Shopware\Holiday\Factory\HolidayBasicFactory;
 use Shopware\Holiday\Struct\HolidayBasicCollection;
+use Shopware\Holiday\Struct\HolidayBasicStruct;
 
 class HolidayBasicLoader
 {
+    use SortArrayByKeysTrait;
+
     /**
-     * @var HolidayBasicReader
+     * @var HolidayBasicFactory
      */
-    protected $reader;
+    private $factory;
 
     public function __construct(
-        HolidayBasicReader $reader
+        HolidayBasicFactory $factory
     ) {
-        $this->reader = $reader;
+        $this->factory = $factory;
     }
 
     public function load(array $uuids, TranslationContext $context): HolidayBasicCollection
     {
-        if (empty($uuids)) {
-            return new HolidayBasicCollection();
+        $holidaies = $this->read($uuids, $context);
+
+        return $holidaies;
+    }
+
+    private function read(array $uuids, TranslationContext $context): HolidayBasicCollection
+    {
+        $query = $this->factory->createQuery($context);
+
+        $query->andWhere('holiday.uuid IN (:ids)');
+        $query->setParameter(':ids', $uuids, Connection::PARAM_STR_ARRAY);
+
+        $rows = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
+        $structs = [];
+        foreach ($rows as $row) {
+            $struct = $this->factory->hydrate($row, new HolidayBasicStruct(), $query->getSelection(), $context);
+            $structs[$struct->getUuid()] = $struct;
         }
 
-        $collection = $this->reader->read($uuids, $context);
-
-        return $collection;
+        return new HolidayBasicCollection(
+            $this->sortIndexedArrayByKeys($uuids, $structs)
+        );
     }
 }

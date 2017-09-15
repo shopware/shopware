@@ -1,0 +1,1 @@
+        $fields['#propertyLc#'] = $this->#classLc#Factory->getFields();

@@ -29,29 +29,14 @@ use Shopware\Framework\Struct\Struct;
 class CurrencyBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
 
     /**
-     * @var string
-     */
-    protected $currency;
-
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
      * @var bool
      */
-    protected $standard;
+    protected $isDefault;
 
     /**
      * @var float
@@ -61,7 +46,7 @@ class CurrencyBasicStruct extends Struct
     /**
      * @var string
      */
-    protected $templateChar;
+    protected $symbol;
 
     /**
      * @var int
@@ -73,15 +58,15 @@ class CurrencyBasicStruct extends Struct
      */
     protected $position;
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
+    /**
+     * @var string
+     */
+    protected $shortName;
 
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
+    /**
+     * @var string
+     */
+    protected $name;
 
     public function getUuid(): string
     {
@@ -93,34 +78,14 @@ class CurrencyBasicStruct extends Struct
         $this->uuid = $uuid;
     }
 
-    public function getCurrency(): string
+    public function getIsDefault(): bool
     {
-        return $this->currency;
+        return $this->isDefault;
     }
 
-    public function setCurrency(string $currency): void
+    public function setIsDefault(bool $isDefault): void
     {
-        $this->currency = $currency;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
-    public function getStandard(): bool
-    {
-        return $this->standard;
-    }
-
-    public function setStandard(bool $standard): void
-    {
-        $this->standard = $standard;
+        $this->isDefault = $isDefault;
     }
 
     public function getFactor(): float
@@ -133,14 +98,14 @@ class CurrencyBasicStruct extends Struct
         $this->factor = $factor;
     }
 
-    public function getTemplateChar(): string
+    public function getSymbol(): string
     {
-        return $this->templateChar;
+        return $this->symbol;
     }
 
-    public function setTemplateChar(string $templateChar): void
+    public function setSymbol(string $symbol): void
     {
-        $this->templateChar = $templateChar;
+        $this->symbol = $symbol;
     }
 
     public function getSymbolPosition(): int
@@ -161,5 +126,25 @@ class CurrencyBasicStruct extends Struct
     public function setPosition(int $position): void
     {
         $this->position = $position;
+    }
+
+    public function getShortName(): string
+    {
+        return $this->shortName;
+    }
+
+    public function setShortName(string $shortName): void
+    {
+        $this->shortName = $shortName;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
     }
 }

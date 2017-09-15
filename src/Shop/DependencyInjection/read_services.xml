@@ -1,0 +1,52 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\Shop\Factory\ShopBasicFactory" id="shopware.shop.basic_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection" />
+            <argument id="shopware.currency.basic_factory" type="service"/>
+            <argument id="shopware.locale.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\Shop\Factory\ShopDetailFactory" id="shopware.shop.detail_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection" />
+            <argument id="shopware.locale.basic_factory" type="service"/>
+            <argument id="shopware.category.basic_factory" type="service"/>
+            <argument id="shopware.customer_group.basic_factory" type="service"/>
+            <argument id="shopware.payment_method.basic_factory" type="service"/>
+            <argument id="shopware.shipping_method.basic_factory" type="service"/>
+            <argument id="shopware.area_country.basic_factory" type="service"/>
+            <argument id="shopware.shop_template.basic_factory" type="service"/>
+            <argument id="shopware.currency.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\Shop\Loader\ShopBasicLoader" id="shopware.shop.basic_loader">
+            <argument id="shopware.shop.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\Shop\Loader\ShopDetailLoader" id="shopware.shop.detail_loader">
+            <argument id="shopware.shop.detail_factory" type="service"/>
+            <argument id="shopware.currency.basic_loader" type="service"/>
+        </service>
+
+        <service class="Shopware\Shop\Searcher\ShopSearcher" id="shopware.shop.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.search.sql_parser" type="service"/>
+            <argument id="shopware.shop.detail_factory" type="service"/>
+            <argument id="shopware.shop.basic_loader" type="service"/>
+        </service>
+
+        <service class="Shopware\Shop\Repository\ShopRepository" id="shopware.shop.repository">
+            <argument id="shopware.shop.detail_loader" type="service"/>
+            <argument id="shopware.shop.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.shop.searcher" type="service"/>
+        </service>
+
+    </services>
+</container>

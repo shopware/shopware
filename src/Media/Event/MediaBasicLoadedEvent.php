@@ -24,6 +24,7 @@
 
 namespace Shopware\Media\Event;
 
+use Shopware\Album\Event\AlbumBasicLoadedEvent;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -66,9 +67,8 @@ class MediaBasicLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection(
-            [
-            ]
-        );
+        return new NestedEventCollection([
+            new AlbumBasicLoadedEvent($this->medias->getAlbums(), $this->context),
+        ]);
     }
 }

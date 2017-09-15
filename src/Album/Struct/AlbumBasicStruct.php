@@ -34,24 +34,9 @@ class AlbumBasicStruct extends Struct
     protected $uuid;
 
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
      * @var string|null
      */
     protected $parentUuid;
-
-    /**
-     * @var int|null
-     */
-    protected $parentId;
 
     /**
      * @var int
@@ -59,17 +44,17 @@ class AlbumBasicStruct extends Struct
     protected $position;
 
     /**
-     * @var int
+     * @var bool
      */
     protected $createThumbnails;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $thumbnailSize;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $icon;
 
@@ -88,6 +73,11 @@ class AlbumBasicStruct extends Struct
      */
     protected $thumbnailHighDpiQuality;
 
+    /**
+     * @var string
+     */
+    protected $name;
+
     public function getUuid(): string
     {
         return $this->uuid;
@@ -96,26 +86,6 @@ class AlbumBasicStruct extends Struct
     public function setUuid(string $uuid): void
     {
         $this->uuid = $uuid;
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
     }
 
     public function getParentUuid(): ?string
@@ -128,16 +98,6 @@ class AlbumBasicStruct extends Struct
         $this->parentUuid = $parentUuid;
     }
 
-    public function getParentId(): ?int
-    {
-        return $this->parentId;
-    }
-
-    public function setParentId(?int $parentId): void
-    {
-        $this->parentId = $parentId;
-    }
-
     public function getPosition(): int
     {
         return $this->position;
@@ -148,32 +108,32 @@ class AlbumBasicStruct extends Struct
         $this->position = $position;
     }
 
-    public function getCreateThumbnails(): int
+    public function getCreateThumbnails(): bool
     {
         return $this->createThumbnails;
     }
 
-    public function setCreateThumbnails(int $createThumbnails): void
+    public function setCreateThumbnails(bool $createThumbnails): void
     {
         $this->createThumbnails = $createThumbnails;
     }
 
-    public function getThumbnailSize(): string
+    public function getThumbnailSize(): ?string
     {
         return $this->thumbnailSize;
     }
 
-    public function setThumbnailSize(string $thumbnailSize): void
+    public function setThumbnailSize(?string $thumbnailSize): void
     {
         $this->thumbnailSize = $thumbnailSize;
     }
 
-    public function getIcon(): string
+    public function getIcon(): ?string
     {
         return $this->icon;
     }
 
-    public function setIcon(string $icon): void
+    public function setIcon(?string $icon): void
     {
         $this->icon = $icon;
     }
@@ -206,5 +166,15 @@ class AlbumBasicStruct extends Struct
     public function setThumbnailHighDpiQuality(?int $thumbnailHighDpiQuality): void
     {
         $this->thumbnailHighDpiQuality = $thumbnailHighDpiQuality;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
     }
 }

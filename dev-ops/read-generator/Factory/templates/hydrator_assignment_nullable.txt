@@ -1,0 +1,1 @@
+        $#classLc#->set#propertyUc#(isset($data[$selection->getField('#column#')]) ? #casted#: null);

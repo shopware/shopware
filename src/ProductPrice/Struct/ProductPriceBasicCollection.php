@@ -70,47 +70,37 @@ class ProductPriceBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(
-            function (ProductPriceBasicStruct $productPrice) {
-                return $productPrice->getUuid();
-            }
-        );
+        return $this->fmap(function (ProductPriceBasicStruct $productPrice) {
+            return $productPrice->getUuid();
+        });
     }
 
-    public function getProductUuids(): array
+    public function getCustomerGroupUuids(): array
     {
-        return $this->fmap(
-            function (ProductPriceBasicStruct $productPrice) {
-                return $productPrice->getProductUuid();
-            }
-        );
+        return $this->fmap(function (ProductPriceBasicStruct $productPrice) {
+            return $productPrice->getCustomerGroupUuid();
+        });
     }
 
-    public function filterByProductUuid(string $uuid): ProductPriceBasicCollection
+    public function filterByCustomerGroupUuid(string $uuid): ProductPriceBasicCollection
     {
-        return $this->filter(
-            function (ProductPriceBasicStruct $productPrice) use ($uuid) {
-                return $productPrice->getProductUuid() === $uuid;
-            }
-        );
+        return $this->filter(function (ProductPriceBasicStruct $productPrice) use ($uuid) {
+            return $productPrice->getCustomerGroupUuid() === $uuid;
+        });
     }
 
     public function getProductDetailUuids(): array
     {
-        return $this->fmap(
-            function (ProductPriceBasicStruct $productPrice) {
-                return $productPrice->getProductDetailUuid();
-            }
-        );
+        return $this->fmap(function (ProductPriceBasicStruct $productPrice) {
+            return $productPrice->getProductDetailUuid();
+        });
     }
 
     public function filterByProductDetailUuid(string $uuid): ProductPriceBasicCollection
     {
-        return $this->filter(
-            function (ProductPriceBasicStruct $productPrice) use ($uuid) {
-                return $productPrice->getProductDetailUuid() === $uuid;
-            }
-        );
+        return $this->filter(function (ProductPriceBasicStruct $productPrice) use ($uuid) {
+            return $productPrice->getProductDetailUuid() === $uuid;
+        });
     }
 
     protected function getKey(ProductPriceBasicStruct $element): string

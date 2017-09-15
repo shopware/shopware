@@ -40,6 +40,8 @@
             <argument type="service" id="shopware.framework.routing.url_resolver" />
             <argument type="service" id="shopware.framework.routing.shop_finder" />
             <argument type="service" id="routing.loader" />
+            <argument type="service" id="request_stack" />
+            <argument id="shopware.cache" type="service"/>
         </service>
 
         <service class="Shopware\Framework\Struct\FieldHelper" id="shopware.framework.struct.field_helper">
@@ -68,7 +70,6 @@
         <service synthetic="true" id="shopware.config.config" class="Shopware\Framework\Config\Config" />
 
         <service class="Shopware\Framework\Routing\ShopFinder" id="shopware.framework.routing.shop_finder">
-            <argument id="shopware.shop.repository" type="service"/>
             <argument id="dbal_connection" type="service"/>
         </service>
 

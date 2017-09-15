@@ -1,7 +1,0 @@
-<service class="Shopware\#classUc#\Searcher\#classUc#Searcher" id="shopware.#table#.searcher">
-  <argument id="dbal_connection" type="service"/>
-  <argument type="collection">
-        #search_handlers#
-  </argument>
-  <argument id="shopware.#table#.loader.basic_loader" type="service"/>
-</service>

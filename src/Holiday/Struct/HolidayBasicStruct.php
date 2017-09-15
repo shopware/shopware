@@ -29,19 +29,9 @@ use Shopware\Framework\Struct\Struct;
 class HolidayBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
-
-    /**
-     * @var string
-     */
-    protected $name;
 
     /**
      * @var string
@@ -51,17 +41,12 @@ class HolidayBasicStruct extends Struct
     /**
      * @var \DateTime
      */
-    protected $date;
+    protected $eventDate;
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
+    /**
+     * @var string
+     */
+    protected $name;
 
     public function getUuid(): string
     {
@@ -71,16 +56,6 @@ class HolidayBasicStruct extends Struct
     public function setUuid(string $uuid): void
     {
         $this->uuid = $uuid;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
     }
 
     public function getCalculation(): string
@@ -93,13 +68,23 @@ class HolidayBasicStruct extends Struct
         $this->calculation = $calculation;
     }
 
-    public function getDate(): \DateTime
+    public function getEventDate(): \DateTime
     {
-        return $this->date;
+        return $this->eventDate;
     }
 
-    public function setDate(\DateTime $date): void
+    public function setEventDate(\DateTime $eventDate): void
     {
-        $this->date = $date;
+        $this->eventDate = $eventDate;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
     }
 }

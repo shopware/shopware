@@ -24,31 +24,51 @@
 
 namespace Shopware\Unit\Loader;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Unit\Reader\UnitBasicReader;
+use Shopware\Framework\Struct\SortArrayByKeysTrait;
+use Shopware\Unit\Factory\UnitBasicFactory;
 use Shopware\Unit\Struct\UnitBasicCollection;
+use Shopware\Unit\Struct\UnitBasicStruct;
 
 class UnitBasicLoader
 {
+    use SortArrayByKeysTrait;
+
     /**
-     * @var UnitBasicReader
+     * @var UnitBasicFactory
      */
-    protected $reader;
+    private $factory;
 
     public function __construct(
-        UnitBasicReader $reader
+        UnitBasicFactory $factory
     ) {
-        $this->reader = $reader;
+        $this->factory = $factory;
     }
 
     public function load(array $uuids, TranslationContext $context): UnitBasicCollection
     {
-        if (empty($uuids)) {
-            return new UnitBasicCollection();
+        $units = $this->read($uuids, $context);
+
+        return $units;
+    }
+
+    private function read(array $uuids, TranslationContext $context): UnitBasicCollection
+    {
+        $query = $this->factory->createQuery($context);
+
+        $query->andWhere('unit.uuid IN (:ids)');
+        $query->setParameter(':ids', $uuids, Connection::PARAM_STR_ARRAY);
+
+        $rows = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
+        $structs = [];
+        foreach ($rows as $row) {
+            $struct = $this->factory->hydrate($row, new UnitBasicStruct(), $query->getSelection(), $context);
+            $structs[$struct->getUuid()] = $struct;
         }
 
-        $collection = $this->reader->read($uuids, $context);
-
-        return $collection;
+        return new UnitBasicCollection(
+            $this->sortIndexedArrayByKeys($uuids, $structs)
+        );
     }
 }

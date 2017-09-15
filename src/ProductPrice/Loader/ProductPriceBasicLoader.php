@@ -24,31 +24,51 @@
 
 namespace Shopware\ProductPrice\Loader;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\ProductPrice\Reader\ProductPriceBasicReader;
+use Shopware\Framework\Struct\SortArrayByKeysTrait;
+use Shopware\ProductPrice\Factory\ProductPriceBasicFactory;
 use Shopware\ProductPrice\Struct\ProductPriceBasicCollection;
+use Shopware\ProductPrice\Struct\ProductPriceBasicStruct;
 
 class ProductPriceBasicLoader
 {
+    use SortArrayByKeysTrait;
+
     /**
-     * @var ProductPriceBasicReader
+     * @var ProductPriceBasicFactory
      */
-    protected $reader;
+    private $factory;
 
     public function __construct(
-        ProductPriceBasicReader $reader
+        ProductPriceBasicFactory $factory
     ) {
-        $this->reader = $reader;
+        $this->factory = $factory;
     }
 
     public function load(array $uuids, TranslationContext $context): ProductPriceBasicCollection
     {
-        if (empty($uuids)) {
-            return new ProductPriceBasicCollection();
+        $productPrices = $this->read($uuids, $context);
+
+        return $productPrices;
+    }
+
+    private function read(array $uuids, TranslationContext $context): ProductPriceBasicCollection
+    {
+        $query = $this->factory->createQuery($context);
+
+        $query->andWhere('product_price.uuid IN (:ids)');
+        $query->setParameter(':ids', $uuids, Connection::PARAM_STR_ARRAY);
+
+        $rows = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
+        $structs = [];
+        foreach ($rows as $row) {
+            $struct = $this->factory->hydrate($row, new ProductPriceBasicStruct(), $query->getSelection(), $context);
+            $structs[$struct->getUuid()] = $struct;
         }
 
-        $collection = $this->reader->read($uuids, $context);
-
-        return $collection;
+        return new ProductPriceBasicCollection(
+            $this->sortIndexedArrayByKeys($uuids, $structs)
+        );
     }
 }

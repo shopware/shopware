@@ -5,57 +5,19 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\SeoUrl\Reader\SeoUrlBasicHydrator" id="shopware.seo_url.reader.basic_hydrator">
-        </service>
-
-        <service class="Shopware\SeoUrl\Reader\SeoUrlBasicReader" id="shopware.seo_url.reader.basic_reader">
-            <argument id="dbal_connection" type="service"/>
-            <argument id="shopware.seo_url.reader.basic_hydrator" type="service"/>
-        </service>
-
-        <service class="Shopware\SeoUrl\Loader\SeoUrlBasicLoader" id="shopware.seo_url.loader.basic_loader">
-            <argument type="service" id="shopware.seo_url.reader.basic_reader"/>
-        </service>
-
-        <service class="Shopware\SeoUrl\Searcher\SeoUrlSearcher" id="shopware.seo_url.searcher">
-            <argument id="dbal_connection" type="service"/>
-            <argument type="collection">
-                <argument id="shopware.seo_url.searcher.handler.shop_uuid_handler" type="service"/>
-                <argument id="shopware.seo_url.searcher.handler.name_handler" type="service"/>
-                <argument id="shopware.seo_url.searcher.handler.foreign_key_handler" type="service"/>
-                <argument id="shopware.seo_url.searcher.handler.path_info_handler" type="service"/>
-                <argument id="shopware.seo_url.searcher.handler.seo_path_info_handler" type="service"/>
-                <argument id="shopware.seo_url.searcher.handler.is_canonical_handler" type="service"/>
-            </argument>
-            <argument id="shopware.seo_url.reader.basic_hydrator" type="service"/>
-        </service>
-
-        <service class="Shopware\SeoUrl\Writer\SeoUrlWriter" id="shopware.seo_url.writer.writer">
-            <argument type="service" id="dbal_connection" />
-        </service>
-
-        <service class="Shopware\SeoUrl\SeoUrlRepository" id="shopware.seo_url.repository">
-            <argument id="shopware.seo_url.loader.basic_loader" type="service"/>
-            <argument id="event_dispatcher" type="service"/>
-            <argument id="shopware.seo_url.searcher" type="service"/>
-            <argument id="shopware.seo_url.writer.writer" type="service"/>
-        </service>
-
-        <service class="Shopware\SeoUrl\Searcher\Handler\ShopUuidHandler" id="shopware.seo_url.searcher.handler.shop_uuid_handler"/>
-        <service class="Shopware\SeoUrl\Searcher\Handler\NameHandler" id="shopware.seo_url.searcher.handler.name_handler"/>
-        <service class="Shopware\SeoUrl\Searcher\Handler\ForeignKeyHandler" id="shopware.seo_url.searcher.handler.foreign_key_handler"/>
-        <service class="Shopware\SeoUrl\Searcher\Handler\PathInfoHandler" id="shopware.seo_url.searcher.handler.path_info_handler"/>
-        <service class="Shopware\SeoUrl\Searcher\Handler\SeoPathInfoHandler" id="shopware.seo_url.searcher.handler.seo_path_info_handler"/>
-        <service class="Shopware\SeoUrl\Searcher\Handler\IsCanonicalHandler" id="shopware.seo_url.searcher.handler.is_canonical_handler"/>
-
         <service class="Shopware\SeoUrl\Generator\SeoUrlGeneratorRegistry" id="shopware.seo_url.generator.seo_url_generator_registry">
             <argument type="collection">
                 <argument id="shopware.storefront.listing_page.listing_page_url_generator" type="service" />
-                <argument id="shopware.storefront.detail_page.detail_page_url_generator" type="service" />
+                <!--<argument id="shopware.storefront.detail_page.detail_page_url_generator" type="service" />-->
             </argument>
             <argument id="shopware.seo_url.repository" type="service"/>
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.shop.repository" type="service"/>
+            <argument id="shopware.seo_url.writer" type="service"/>
+        </service>
+
+        <service class="Shopware\SeoUrl\Writer\SeoUrlWriter" id="shopware.seo_url.writer">
+            <argument id="dbal_connection" type="service"/>
         </service>
 
     </services>

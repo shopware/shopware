@@ -1,116 +1,156 @@
 <?php
-/**
- * Shopware 5
- * Copyright (c) shopware AG
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Shopware" is a registered trademark of shopware AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
 
 namespace Shopware\Search;
 
-/**
- * The criteria object is used for the search gateway.
- *
- * The sorting, facet and condition classes are defined global and has
- * to be compatible with all gateway engines.
- *
- * Each of this sorting, facet and condition classes are handled by their
- * own handler classes which implemented for each gateway engine.
- *
- * @category  Shopware
- *
- * @copyright Copyright (c) shopware AG (http://www.shopware.de)
- */
-class Criteria implements \JsonSerializable
+use Shopware\Search\Aggregation\Aggregation;
+use Shopware\Search\Query\NestedQuery;
+use Shopware\Search\Query\Query;
+use Shopware\Search\Sorting\FieldSorting;
+
+class Criteria
 {
     /**
-     * Offset for the limitation
-     *
-     * @var int
+     * @var FieldSorting[]
      */
-    private $offset;
+    protected $sortings = [];
 
     /**
-     * Count of result
-     *
-     * @var int
+     * @var Query[]
      */
-    private $limit;
+    protected $filters = [];
 
     /**
-     * @var ConditionInterface[]
+     * @var Query[]
      */
-    private $baseConditions = [];
+    protected $postFilters = [];
 
     /**
-     * @var ConditionInterface[]
+     * @var Aggregation[]
      */
-    private $conditions = [];
+    protected $aggregations = [];
 
     /**
-     * @var FacetInterface[]
+     * @var int|null
      */
-    private $facets = [];
+    protected $offset;
 
     /**
-     * @var SortingInterface[]
+     * @var int|null
      */
-    private $sortings = [];
+    protected $limit;
 
     /**
      * @var bool
      */
-    private $generatePartialFacets = false;
+    protected $fetchCount = false;
 
     /**
-     * @var bool
+     * @return FieldSorting[]
      */
-    private $fetchCount = false;
-
-    /**
-     * @param int $offset
-     *
-     * @return $this
-     */
-    public function offset($offset): Criteria
+    public function getSortings(): array
     {
-        $this->offset = $offset;
-
-        return $this;
+        return $this->sortings;
     }
 
     /**
-     * @param int $limit
-     *
-     * @return $this
+     * @return Aggregation[]
      */
-    public function limit($limit): Criteria
+    public function getAggregations(): array
     {
-        if ($limit === null) {
-            $this->limit = null;
+        return $this->aggregations;
+    }
 
-            return $this;
-        }
+    public function getFilters(): NestedQuery
+    {
+        return new NestedQuery($this->filters);
+    }
 
-        $this->limit = $limit;
+    public function getPostFilters(): NestedQuery
+    {
+        return new NestedQuery($this->postFilters);
+    }
 
+    public function getAllFilters(): NestedQuery
+    {
+        return new NestedQuery(array_merge($this->filters, $this->postFilters));
+    }
+
+    public function addFilter(Query $query): Criteria
+    {
+        $this->filters[] = $query;
         return $this;
+    }
+
+    public function addSorting(FieldSorting $sorting): Criteria
+    {
+        $this->sortings[] = $sorting;
+        return $this;
+    }
+
+    public function addAggregation(Aggregation $aggregation): Criteria
+    {
+        $this->aggregations[] = $aggregation;
+        return $this;
+    }
+
+    public function addPostFilter(Query $query): Criteria
+    {
+        $this->postFilters[] = $query;
+        return $this;
+    }
+
+    public function getSortingFields(): array
+    {
+        $fields = [];
+        foreach ($this->sortings as $sorting) {
+            foreach ($sorting->getFields() as $field) {
+                $fields[] = $field;
+            }
+        }
+        return $fields;
+    }
+
+    public function getAggregationFields(): array
+    {
+        $fields = [];
+        foreach ($this->aggregations as $aggregation) {
+            foreach ($aggregation->getFields() as $field) {
+                $fields[] = $field;
+            }
+        }
+        return $fields;
+    }
+
+    public function getPostFilterFields(): array
+    {
+        $fields = [];
+        foreach ($this->postFilters as $filter) {
+            foreach ($filter->getFields() as $field) {
+                $fields[] = $field;
+            }
+        }
+        return $fields;
+    }
+
+    public function getFilterFields(): array
+    {
+        $fields = [];
+        foreach ($this->filters as $filter) {
+            foreach ($filter->getFields() as $field) {
+                $fields[] = $field;
+            }
+        }
+        return $fields;
+    }
+
+    public function getFields(): array
+    {
+        return array_merge(
+            $this->getFilterFields(),
+            $this->getPostFilterFields(),
+            $this->getSortingFields(),
+            $this->getAggregationFields()
+        );
     }
 
     public function getOffset(): ?int
@@ -123,242 +163,14 @@ class Criteria implements \JsonSerializable
         return $this->limit;
     }
 
-    public function hasCondition(string $name): bool
+    public function setOffset(?int $offset): void
     {
-        if (array_key_exists($name, $this->baseConditions)) {
-            return true;
-        }
-
-        return array_key_exists($name, $this->conditions);
+        $this->offset = $offset;
     }
 
-    public function hasBaseCondition(string $name): bool
+    public function setLimit(?int $limit): void
     {
-        return array_key_exists($name, $this->baseConditions);
-    }
-
-    public function hasUserCondition(string $name): bool
-    {
-        return array_key_exists($name, $this->conditions);
-    }
-
-    public function hasSorting(string $name): bool
-    {
-        return array_key_exists($name, $this->sortings);
-    }
-
-    public function hasFacet(string $name): bool
-    {
-        return array_key_exists($name, $this->facets);
-    }
-
-    public function addFacet(FacetInterface $facet): Criteria
-    {
-        $this->facets[$facet->getName()] = $facet;
-
-        return $this;
-    }
-
-    public function addCondition(ConditionInterface $condition): Criteria
-    {
-        $this->conditions[$condition->getName()] = $condition;
-
-        return $this;
-    }
-
-    public function addBaseCondition(ConditionInterface $condition): Criteria
-    {
-        $this->baseConditions[$condition->getName()] = $condition;
-
-        return $this;
-    }
-
-    public function addSorting(SortingInterface $sorting)
-    {
-        $this->sortings[$sorting->getName()] = $sorting;
-
-        return $this;
-    }
-
-    public function getCondition(string $name): ?ConditionInterface
-    {
-        if (array_key_exists($name, $this->baseConditions)) {
-            return $this->baseConditions[$name];
-        }
-
-        if (array_key_exists($name, $this->conditions)) {
-            return $this->conditions[$name];
-        }
-
-        return null;
-    }
-
-    public function getBaseCondition(string $name): ConditionInterface
-    {
-        return $this->baseConditions[$name];
-    }
-
-    public function getUserCondition(string $name): ConditionInterface
-    {
-        return $this->conditions[$name];
-    }
-
-    public function getFacet(string $name): ?FacetInterface
-    {
-        return $this->facets[$name];
-    }
-
-    /**
-     * @param string $name
-     *
-     * @return null|SortingInterface
-     */
-    public function getSorting(string $name): ?SortingInterface
-    {
-        return $this->sortings[$name];
-    }
-
-    /**
-     * Returns all conditions, including the base conditions.
-     *
-     * Do not rely on the array key or the order of the returned conditions.
-     *
-     * @return \Shopware\Search\ConditionInterface[]
-     */
-    public function getConditions(): array
-    {
-        return array_merge(
-            array_values($this->baseConditions),
-            array_values($this->conditions)
-        );
-    }
-
-    /**
-     * @return FacetInterface[]
-     */
-    public function getFacets(): array
-    {
-        return $this->facets;
-    }
-
-    /**
-     * @return SortingInterface[]
-     */
-    public function getSortings(): array
-    {
-        return $this->sortings;
-    }
-
-    public function resetSorting(): Criteria
-    {
-        $this->sortings = [];
-
-        return $this;
-    }
-
-    public function resetBaseConditions(): Criteria
-    {
-        $this->baseConditions = [];
-
-        return $this;
-    }
-
-    public function resetConditions(): Criteria
-    {
-        $this->conditions = [];
-
-        return $this;
-    }
-
-    public function resetFacets(): Criteria
-    {
-        $this->facets = [];
-
-        return $this;
-    }
-
-    public function removeCondition($name): void
-    {
-        if (array_key_exists($name, $this->conditions)) {
-            unset($this->conditions[$name]);
-        }
-    }
-
-    public function removeBaseCondition($name): void
-    {
-        if (array_key_exists($name, $this->baseConditions)) {
-            unset($this->baseConditions[$name]);
-        }
-    }
-
-    public function removeFacet($name): void
-    {
-        if (array_key_exists($name, $this->facets)) {
-            unset($this->facets[$name]);
-        }
-    }
-
-    public function removeSorting($name): void
-    {
-        if (array_key_exists($name, $this->sortings)) {
-            unset($this->sortings[$name]);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function jsonSerialize()
-    {
-        $data = get_object_vars($this);
-
-        $data['baseConditions'] = [];
-        foreach ($this->baseConditions as $object) {
-            $data['baseConditions'][get_class($object)] = $object;
-        }
-
-        $data['conditions'] = [];
-        foreach ($this->conditions as $object) {
-            $data['conditions'][get_class($object)] = $object;
-        }
-
-        $data['sortings'] = [];
-        foreach ($this->sortings as $object) {
-            $data['sortings'][get_class($object)] = $object;
-        }
-
-        $data['facets'] = [];
-        foreach ($this->facets as $object) {
-            $data['facets'][get_class($object)] = $object;
-        }
-
-        return $data;
-    }
-
-    /**
-     * @return ConditionInterface[]
-     */
-    public function getBaseConditions(): array
-    {
-        return $this->baseConditions;
-    }
-
-    public function generatePartialFacets(): bool
-    {
-        return $this->generatePartialFacets;
-    }
-
-    public function setGeneratePartialFacets($generatePartialFacets): void
-    {
-        $this->generatePartialFacets = $generatePartialFacets;
-    }
-
-    /**
-     * @return ConditionInterface[]
-     */
-    public function getUserConditions(): array
-    {
-        return $this->conditions;
+        $this->limit = $limit;
     }
 
     public function fetchCount(): bool
@@ -366,10 +178,8 @@ class Criteria implements \JsonSerializable
         return $this->fetchCount;
     }
 
-    public function setFetchCount(bool $fetchCount)
+    public function setFetchCount(bool $fetchCount): void
     {
         $this->fetchCount = $fetchCount;
-
-        return $this;
     }
 }

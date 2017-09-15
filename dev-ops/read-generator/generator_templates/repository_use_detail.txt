@@ -1,3 +1,0 @@
-use Shopware\#classUc#\Struct\#classUc#DetailCollection;
-use Shopware\#classUc#\Event\#classUc#DetailLoadedEvent;
-use Shopware\#classUc#\Loader\#classUc#DetailLoader;

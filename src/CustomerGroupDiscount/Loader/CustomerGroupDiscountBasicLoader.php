@@ -24,31 +24,51 @@
 
 namespace Shopware\CustomerGroupDiscount\Loader;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\CustomerGroupDiscount\Reader\CustomerGroupDiscountBasicReader;
+use Shopware\CustomerGroupDiscount\Factory\CustomerGroupDiscountBasicFactory;
 use Shopware\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicCollection;
+use Shopware\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicStruct;
+use Shopware\Framework\Struct\SortArrayByKeysTrait;
 
 class CustomerGroupDiscountBasicLoader
 {
+    use SortArrayByKeysTrait;
+
     /**
-     * @var CustomerGroupDiscountBasicReader
+     * @var CustomerGroupDiscountBasicFactory
      */
-    protected $reader;
+    private $factory;
 
     public function __construct(
-        CustomerGroupDiscountBasicReader $reader
+        CustomerGroupDiscountBasicFactory $factory
     ) {
-        $this->reader = $reader;
+        $this->factory = $factory;
     }
 
     public function load(array $uuids, TranslationContext $context): CustomerGroupDiscountBasicCollection
     {
-        if (empty($uuids)) {
-            return new CustomerGroupDiscountBasicCollection();
+        $customerGroupDiscounts = $this->read($uuids, $context);
+
+        return $customerGroupDiscounts;
+    }
+
+    private function read(array $uuids, TranslationContext $context): CustomerGroupDiscountBasicCollection
+    {
+        $query = $this->factory->createQuery($context);
+
+        $query->andWhere('customer_group_discount.uuid IN (:ids)');
+        $query->setParameter(':ids', $uuids, Connection::PARAM_STR_ARRAY);
+
+        $rows = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
+        $structs = [];
+        foreach ($rows as $row) {
+            $struct = $this->factory->hydrate($row, new CustomerGroupDiscountBasicStruct(), $query->getSelection(), $context);
+            $structs[$struct->getUuid()] = $struct;
         }
 
-        $collection = $this->reader->read($uuids, $context);
-
-        return $collection;
+        return new CustomerGroupDiscountBasicCollection(
+            $this->sortIndexedArrayByKeys($uuids, $structs)
+        );
     }
 }

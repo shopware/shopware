@@ -31,34 +31,35 @@ class AreaDetailStruct extends AreaBasicStruct
     /**
      * @var string[]
      */
-    protected $areaCountryUuids;
+    protected $countryUuids = [];
+
     /**
      * @var AreaCountryBasicCollection
      */
-    protected $areaCountries;
+    protected $countries;
 
     public function __construct()
     {
-        $this->areaCountries = new AreaCountryBasicCollection();
+        $this->countries = new AreaCountryBasicCollection();
     }
 
-    public function getAreaCountryUuids(): array
+    public function getCountryUuids(): array
     {
-        return $this->areaCountryUuids;
+        return $this->countryUuids;
     }
 
-    public function setAreaCountryUuids(array $areaCountryUuids): void
+    public function setCountryUuids(array $countryUuids): void
     {
-        $this->areaCountryUuids = $areaCountryUuids;
+        $this->countryUuids = $countryUuids;
     }
 
-    public function getAreaCountries(): AreaCountryBasicCollection
+    public function getCountries(): AreaCountryBasicCollection
     {
-        return $this->areaCountries;
+        return $this->countries;
     }
 
-    public function setAreaCountries(AreaCountryBasicCollection $areaCountries): void
+    public function setCountries(AreaCountryBasicCollection $countries): void
     {
-        $this->areaCountries = $areaCountries;
+        $this->countries = $countries;
     }
 }

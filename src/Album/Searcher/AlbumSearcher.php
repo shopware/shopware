@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -25,42 +25,48 @@
 namespace Shopware\Album\Searcher;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
-use Shopware\Album\Reader\AlbumBasicHydrator;
-use Shopware\Album\Reader\Query\AlbumBasicQuery;
-use Shopware\Album\Struct\AlbumSearchResult;
+use Shopware\Album\Factory\AlbumDetailFactory;
+use Shopware\Album\Loader\AlbumBasicLoader;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Search\Criteria;
-use Shopware\Search\Search;
+use Shopware\Search\QueryBuilder;
+use Shopware\Search\Searcher;
 use Shopware\Search\SearchResultInterface;
+use Shopware\Search\SqlParser\SqlParser;
+use Shopware\Search\UuidSearchResult;
 
-class AlbumSearcher extends Search
+class AlbumSearcher extends Searcher
 {
     /**
-     * @var AlbumBasicHydrator
+     * @var AlbumDetailFactory
      */
-    private $hydrator;
+    private $factory;
 
-    public function __construct(Connection $connection, array $handlers, AlbumBasicHydrator $hydrator)
+    /**
+     * @var AlbumBasicLoader
+     */
+    private $loader;
+
+    public function __construct(Connection $connection, SqlParser $parser, AlbumDetailFactory $factory, AlbumBasicLoader $loader)
     {
-        parent::__construct($connection, $handlers);
-        $this->hydrator = $hydrator;
+        parent::__construct($connection, $parser);
+        $this->factory = $factory;
+        $this->loader = $loader;
     }
 
     protected function createQuery(Criteria $criteria, TranslationContext $context): QueryBuilder
     {
-        return new AlbumBasicQuery($this->connection, $context);
+        return $this->factory->createSearchQuery($criteria, $context);
     }
 
-    protected function createResult(array $rows, int $total, TranslationContext $context): SearchResultInterface
+    protected function load(UuidSearchResult $uuidResult, TranslationContext $context): SearchResultInterface
     {
-        $structs = array_map(
-            function (array $row) {
-                return $this->hydrator->hydrate($row);
-            },
-            $rows
-        );
+        $collection = $this->loader->load($uuidResult->getUuids(), $context);
 
-        return new AlbumSearchResult($structs, $total);
+        $result = new AlbumSearchResult($collection->getElements());
+
+        $result->setTotal($uuidResult->getTotal());
+
+        return $result;
     }
 }

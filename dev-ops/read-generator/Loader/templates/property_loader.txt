@@ -1,0 +1,4 @@
+    /**
+     * @var #associationClassUc#BasicLoader
+     */
+    private $#associationClassLc#BasicLoader;

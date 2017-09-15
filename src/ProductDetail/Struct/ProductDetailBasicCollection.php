@@ -71,57 +71,45 @@ class ProductDetailBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(
-            function (ProductDetailBasicStruct $productDetail) {
-                return $productDetail->getUuid();
-            }
-        );
+        return $this->fmap(function (ProductDetailBasicStruct $productDetail) {
+            return $productDetail->getUuid();
+        });
     }
 
     public function getProductUuids(): array
     {
-        return $this->fmap(
-            function (ProductDetailBasicStruct $productDetail) {
-                return $productDetail->getProductUuid();
-            }
-        );
+        return $this->fmap(function (ProductDetailBasicStruct $productDetail) {
+            return $productDetail->getProductUuid();
+        });
     }
 
     public function filterByProductUuid(string $uuid): ProductDetailBasicCollection
     {
-        return $this->filter(
-            function (ProductDetailBasicStruct $productDetail) use ($uuid) {
-                return $productDetail->getProductUuid() === $uuid;
-            }
-        );
+        return $this->filter(function (ProductDetailBasicStruct $productDetail) use ($uuid) {
+            return $productDetail->getProductUuid() === $uuid;
+        });
     }
 
     public function getUnitUuids(): array
     {
-        return $this->fmap(
-            function (ProductDetailBasicStruct $productDetail) {
-                return $productDetail->getUnitUuid();
-            }
-        );
+        return $this->fmap(function (ProductDetailBasicStruct $productDetail) {
+            return $productDetail->getUnitUuid();
+        });
     }
 
     public function filterByUnitUuid(string $uuid): ProductDetailBasicCollection
     {
-        return $this->filter(
-            function (ProductDetailBasicStruct $productDetail) use ($uuid) {
-                return $productDetail->getUnitUuid() === $uuid;
-            }
-        );
+        return $this->filter(function (ProductDetailBasicStruct $productDetail) use ($uuid) {
+            return $productDetail->getUnitUuid() === $uuid;
+        });
     }
 
     public function getUnits(): UnitBasicCollection
     {
         return new UnitBasicCollection(
-            $this->fmap(
-                function (ProductDetailBasicStruct $productDetail) {
-                    return $productDetail->getUnit();
-                }
-            )
+            $this->fmap(function (ProductDetailBasicStruct $productDetail) {
+                return $productDetail->getUnit();
+            })
         );
     }
 

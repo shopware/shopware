@@ -25,22 +25,22 @@
 namespace Shopware\SeoUrl\Searcher;
 
 use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
 use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
 
 class SeoUrlSearchResult extends SeoUrlBasicCollection implements SearchResultInterface
 {
-    use SearchResultTrait;
-
     /**
      * @var int
      */
     protected $total;
 
-    public function __construct(array $elements, int $total)
+    public function getTotal(): int
     {
-        parent::__construct($elements);
-        $this->total = $total;
+        return $this->total;
     }
 
+    public function setTotal(int $total): void
+    {
+        $this->total = $total;
+    }
 }

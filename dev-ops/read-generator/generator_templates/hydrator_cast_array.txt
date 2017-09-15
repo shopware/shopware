@@ -1,1 +1,0 @@
-array_filter(explode('|', (string) $data['__#classLc#_#column#']))

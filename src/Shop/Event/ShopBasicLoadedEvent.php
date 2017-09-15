@@ -68,11 +68,9 @@ class ShopBasicLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection(
-            [
-                new CurrencyBasicLoadedEvent($this->shops->getCurrencies(), $this->context),
-                new LocaleBasicLoadedEvent($this->shops->getLocales(), $this->context),
-            ]
-        );
+        return new NestedEventCollection([
+            new CurrencyBasicLoadedEvent($this->shops->getCurrencies(), $this->context),
+            new LocaleBasicLoadedEvent($this->shops->getLocales(), $this->context),
+        ]);
     }
 }

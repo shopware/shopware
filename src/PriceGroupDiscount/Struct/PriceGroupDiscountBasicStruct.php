@@ -29,29 +29,14 @@ use Shopware\Framework\Struct\Struct;
 class PriceGroupDiscountBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
 
     /**
-     * @var int
-     */
-    protected $priceGroupId;
-
-    /**
      * @var string
      */
     protected $priceGroupUuid;
-
-    /**
-     * @var int
-     */
-    protected $customerGroupId;
 
     /**
      * @var string
@@ -61,22 +46,12 @@ class PriceGroupDiscountBasicStruct extends Struct
     /**
      * @var float
      */
-    protected $discount;
+    protected $percentageDiscount;
 
     /**
      * @var float
      */
-    protected $discountStart;
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
+    protected $productCount;
 
     public function getUuid(): string
     {
@@ -86,16 +61,6 @@ class PriceGroupDiscountBasicStruct extends Struct
     public function setUuid(string $uuid): void
     {
         $this->uuid = $uuid;
-    }
-
-    public function getPriceGroupId(): int
-    {
-        return $this->priceGroupId;
-    }
-
-    public function setPriceGroupId(int $priceGroupId): void
-    {
-        $this->priceGroupId = $priceGroupId;
     }
 
     public function getPriceGroupUuid(): string
@@ -108,16 +73,6 @@ class PriceGroupDiscountBasicStruct extends Struct
         $this->priceGroupUuid = $priceGroupUuid;
     }
 
-    public function getCustomerGroupId(): int
-    {
-        return $this->customerGroupId;
-    }
-
-    public function setCustomerGroupId(int $customerGroupId): void
-    {
-        $this->customerGroupId = $customerGroupId;
-    }
-
     public function getCustomerGroupUuid(): string
     {
         return $this->customerGroupUuid;
@@ -128,23 +83,23 @@ class PriceGroupDiscountBasicStruct extends Struct
         $this->customerGroupUuid = $customerGroupUuid;
     }
 
-    public function getDiscount(): float
+    public function getPercentageDiscount(): float
     {
-        return $this->discount;
+        return $this->percentageDiscount;
     }
 
-    public function setDiscount(float $discount): void
+    public function setPercentageDiscount(float $percentageDiscount): void
     {
-        $this->discount = $discount;
+        $this->percentageDiscount = $percentageDiscount;
     }
 
-    public function getDiscountStart(): float
+    public function getProductCount(): float
     {
-        return $this->discountStart;
+        return $this->productCount;
     }
 
-    public function setDiscountStart(float $discountStart): void
+    public function setProductCount(float $productCount): void
     {
-        $this->discountStart = $discountStart;
+        $this->productCount = $productCount;
     }
 }

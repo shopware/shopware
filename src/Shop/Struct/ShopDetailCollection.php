@@ -40,88 +40,74 @@ class ShopDetailCollection extends ShopBasicCollection
      */
     protected $elements = [];
 
-    public function getCategories(): CategoryBasicCollection
-    {
-        return new CategoryBasicCollection(
-            $this->fmap(
-                function (ShopDetailStruct $shop) {
-                    return $shop->getCategory();
-                }
-            )
-        );
-    }
-
     public function getFallbackLocales(): LocaleBasicCollection
     {
         return new LocaleBasicCollection(
-            $this->fmap(
-                function (ShopDetailStruct $shop) {
-                    return $shop->getFallbackLocale();
-                }
-            )
+            $this->fmap(function (ShopDetailStruct $shop) {
+                return $shop->getFallbackLocale();
+            })
         );
     }
 
-    public function getShippingMethods(): ShippingMethodBasicCollection
+    public function getCategories(): CategoryBasicCollection
     {
-        return new ShippingMethodBasicCollection(
-            $this->fmap(
-                function (ShopDetailStruct $shop) {
-                    return $shop->getShippingMethod();
-                }
-            )
-        );
-    }
-
-    public function getShopTemplates(): ShopTemplateBasicCollection
-    {
-        return new ShopTemplateBasicCollection(
-            $this->fmap(
-                function (ShopDetailStruct $shop) {
-                    return $shop->getShopTemplate();
-                }
-            )
-        );
-    }
-
-    public function getAreaCountries(): AreaCountryBasicCollection
-    {
-        return new AreaCountryBasicCollection(
-            $this->fmap(
-                function (ShopDetailStruct $shop) {
-                    return $shop->getAreaCountry();
-                }
-            )
-        );
-    }
-
-    public function getPaymentMethods(): PaymentMethodBasicCollection
-    {
-        return new PaymentMethodBasicCollection(
-            $this->fmap(
-                function (ShopDetailStruct $shop) {
-                    return $shop->getPaymentMethod();
-                }
-            )
+        return new CategoryBasicCollection(
+            $this->fmap(function (ShopDetailStruct $shop) {
+                return $shop->getCategory();
+            })
         );
     }
 
     public function getCustomerGroups(): CustomerGroupBasicCollection
     {
         return new CustomerGroupBasicCollection(
-            $this->fmap(
-                function (ShopDetailStruct $shop) {
-                    return $shop->getCustomerGroup();
-                }
-            )
+            $this->fmap(function (ShopDetailStruct $shop) {
+                return $shop->getCustomerGroup();
+            })
         );
     }
 
-    public function getCurrencyUuids(): array
+    public function getPaymentMethods(): PaymentMethodBasicCollection
+    {
+        return new PaymentMethodBasicCollection(
+            $this->fmap(function (ShopDetailStruct $shop) {
+                return $shop->getPaymentMethod();
+            })
+        );
+    }
+
+    public function getShippingMethods(): ShippingMethodBasicCollection
+    {
+        return new ShippingMethodBasicCollection(
+            $this->fmap(function (ShopDetailStruct $shop) {
+                return $shop->getShippingMethod();
+            })
+        );
+    }
+
+    public function getCountries(): AreaCountryBasicCollection
+    {
+        return new AreaCountryBasicCollection(
+            $this->fmap(function (ShopDetailStruct $shop) {
+                return $shop->getCountry();
+            })
+        );
+    }
+
+    public function getTemplates(): ShopTemplateBasicCollection
+    {
+        return new ShopTemplateBasicCollection(
+            $this->fmap(function (ShopDetailStruct $shop) {
+                return $shop->getTemplate();
+            })
+        );
+    }
+
+    public function getAvailableCurrencyUuids(): array
     {
         $uuids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getCurrencyUuids() as $uuid) {
+            foreach ($element->getAvailableCurrencyUuids() as $uuid) {
                 $uuids[] = $uuid;
             }
         }
@@ -129,11 +115,11 @@ class ShopDetailCollection extends ShopBasicCollection
         return $uuids;
     }
 
-    public function getCurrencies(): CurrencyBasicCollection
+    public function getAvailableCurrencies(): CurrencyBasicCollection
     {
         $collection = new CurrencyBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getCurrencies()->getIterator()->getArrayCopy());
+            $collection->fill($element->getAvailableCurrencies()->getIterator()->getArrayCopy());
         }
 
         return $collection;

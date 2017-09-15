@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -25,42 +25,48 @@
 namespace Shopware\TaxAreaRule\Searcher;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Search\Criteria;
-use Shopware\Search\Search;
+use Shopware\Search\QueryBuilder;
+use Shopware\Search\Searcher;
 use Shopware\Search\SearchResultInterface;
-use Shopware\TaxAreaRule\Reader\Query\TaxAreaRuleBasicQuery;
-use Shopware\TaxAreaRule\Reader\TaxAreaRuleBasicHydrator;
-use Shopware\TaxAreaRule\Struct\TaxAreaRuleSearchResult;
+use Shopware\Search\SqlParser\SqlParser;
+use Shopware\Search\UuidSearchResult;
+use Shopware\TaxAreaRule\Factory\TaxAreaRuleBasicFactory;
+use Shopware\TaxAreaRule\Loader\TaxAreaRuleBasicLoader;
 
-class TaxAreaRuleSearcher extends Search
+class TaxAreaRuleSearcher extends Searcher
 {
     /**
-     * @var TaxAreaRuleBasicHydrator
+     * @var TaxAreaRuleBasicFactory
      */
-    private $hydrator;
+    private $factory;
 
-    public function __construct(Connection $connection, array $handlers, TaxAreaRuleBasicHydrator $hydrator)
+    /**
+     * @var TaxAreaRuleBasicLoader
+     */
+    private $loader;
+
+    public function __construct(Connection $connection, SqlParser $parser, TaxAreaRuleBasicFactory $factory, TaxAreaRuleBasicLoader $loader)
     {
-        parent::__construct($connection, $handlers);
-        $this->hydrator = $hydrator;
+        parent::__construct($connection, $parser);
+        $this->factory = $factory;
+        $this->loader = $loader;
     }
 
     protected function createQuery(Criteria $criteria, TranslationContext $context): QueryBuilder
     {
-        return new TaxAreaRuleBasicQuery($this->connection, $context);
+        return $this->factory->createSearchQuery($criteria, $context);
     }
 
-    protected function createResult(array $rows, int $total, TranslationContext $context): SearchResultInterface
+    protected function load(UuidSearchResult $uuidResult, TranslationContext $context): SearchResultInterface
     {
-        $structs = array_map(
-            function (array $row) {
-                return $this->hydrator->hydrate($row);
-            },
-            $rows
-        );
+        $collection = $this->loader->load($uuidResult->getUuids(), $context);
 
-        return new TaxAreaRuleSearchResult($structs, $total);
+        $result = new TaxAreaRuleSearchResult($collection->getElements());
+
+        $result->setTotal($uuidResult->getTotal());
+
+        return $result;
     }
 }

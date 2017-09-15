@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -25,43 +25,48 @@
 namespace Shopware\Customer\Searcher;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Customer\Factory\CustomerDetailFactory;
 use Shopware\Customer\Loader\CustomerBasicLoader;
-use Shopware\Customer\Struct\CustomerSearchResult;
 use Shopware\Search\Criteria;
-use Shopware\Search\Search;
+use Shopware\Search\QueryBuilder;
+use Shopware\Search\Searcher;
 use Shopware\Search\SearchResultInterface;
+use Shopware\Search\SqlParser\SqlParser;
+use Shopware\Search\UuidSearchResult;
 
-class CustomerSearcher extends Search
+class CustomerSearcher extends Searcher
 {
+    /**
+     * @var CustomerDetailFactory
+     */
+    private $factory;
+
     /**
      * @var CustomerBasicLoader
      */
-    private $basicLoader;
+    private $loader;
 
-    public function __construct(Connection $connection, array $handlers, CustomerBasicLoader $basicLoader)
+    public function __construct(Connection $connection, SqlParser $parser, CustomerDetailFactory $factory, CustomerBasicLoader $loader)
     {
-        parent::__construct($connection, $handlers);
-        $this->basicLoader = $basicLoader;
+        parent::__construct($connection, $parser);
+        $this->factory = $factory;
+        $this->loader = $loader;
     }
 
     protected function createQuery(Criteria $criteria, TranslationContext $context): QueryBuilder
     {
-        $query = $this->connection->createQueryBuilder();
-        $query->select(['customer.uuid']);
-        $query->from('customer', 'customer');
-
-        return $query;
+        return $this->factory->createSearchQuery($criteria, $context);
     }
 
-    protected function createResult(array $rows, int $total, TranslationContext $context): SearchResultInterface
+    protected function load(UuidSearchResult $uuidResult, TranslationContext $context): SearchResultInterface
     {
-        $structs = $this->basicLoader->load(
-            array_column($rows, 'uuid'),
-            $context
-        );
+        $collection = $this->loader->load($uuidResult->getUuids(), $context);
 
-        return new CustomerSearchResult($structs->getIterator()->getArrayCopy(), $total);
+        $result = new CustomerSearchResult($collection->getElements());
+
+        $result->setTotal($uuidResult->getTotal());
+
+        return $result;
     }
 }

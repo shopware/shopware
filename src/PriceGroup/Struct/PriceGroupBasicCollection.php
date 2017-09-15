@@ -70,11 +70,9 @@ class PriceGroupBasicCollection extends Collection
 
     public function getUuids(): array
     {
-        return $this->fmap(
-            function (PriceGroupBasicStruct $priceGroup) {
-                return $priceGroup->getUuid();
-            }
-        );
+        return $this->fmap(function (PriceGroupBasicStruct $priceGroup) {
+            return $priceGroup->getUuid();
+        });
     }
 
     protected function getKey(PriceGroupBasicStruct $element): string

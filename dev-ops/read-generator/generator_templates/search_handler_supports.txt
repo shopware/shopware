@@ -1,1 +1,0 @@
-$criteriaPart instanceof #searchNameUc##suffix#

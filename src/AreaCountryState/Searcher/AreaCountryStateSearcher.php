@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -25,42 +25,48 @@
 namespace Shopware\AreaCountryState\Searcher;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
-use Shopware\AreaCountryState\Reader\AreaCountryStateBasicHydrator;
-use Shopware\AreaCountryState\Reader\Query\AreaCountryStateBasicQuery;
-use Shopware\AreaCountryState\Struct\AreaCountryStateSearchResult;
+use Shopware\AreaCountryState\Factory\AreaCountryStateBasicFactory;
+use Shopware\AreaCountryState\Loader\AreaCountryStateBasicLoader;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Search\Criteria;
-use Shopware\Search\Search;
+use Shopware\Search\QueryBuilder;
+use Shopware\Search\Searcher;
 use Shopware\Search\SearchResultInterface;
+use Shopware\Search\SqlParser\SqlParser;
+use Shopware\Search\UuidSearchResult;
 
-class AreaCountryStateSearcher extends Search
+class AreaCountryStateSearcher extends Searcher
 {
     /**
-     * @var AreaCountryStateBasicHydrator
+     * @var AreaCountryStateBasicFactory
      */
-    private $hydrator;
+    private $factory;
 
-    public function __construct(Connection $connection, array $handlers, AreaCountryStateBasicHydrator $hydrator)
+    /**
+     * @var AreaCountryStateBasicLoader
+     */
+    private $loader;
+
+    public function __construct(Connection $connection, SqlParser $parser, AreaCountryStateBasicFactory $factory, AreaCountryStateBasicLoader $loader)
     {
-        parent::__construct($connection, $handlers);
-        $this->hydrator = $hydrator;
+        parent::__construct($connection, $parser);
+        $this->factory = $factory;
+        $this->loader = $loader;
     }
 
     protected function createQuery(Criteria $criteria, TranslationContext $context): QueryBuilder
     {
-        return new AreaCountryStateBasicQuery($this->connection, $context);
+        return $this->factory->createSearchQuery($criteria, $context);
     }
 
-    protected function createResult(array $rows, int $total, TranslationContext $context): SearchResultInterface
+    protected function load(UuidSearchResult $uuidResult, TranslationContext $context): SearchResultInterface
     {
-        $structs = array_map(
-            function (array $row) {
-                return $this->hydrator->hydrate($row);
-            },
-            $rows
-        );
+        $collection = $this->loader->load($uuidResult->getUuids(), $context);
 
-        return new AreaCountryStateSearchResult($structs, $total);
+        $result = new AreaCountryStateSearchResult($collection->getElements());
+
+        $result->setTotal($uuidResult->getTotal());
+
+        return $result;
     }
 }

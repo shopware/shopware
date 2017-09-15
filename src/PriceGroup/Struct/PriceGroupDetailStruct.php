@@ -31,34 +31,35 @@ class PriceGroupDetailStruct extends PriceGroupBasicStruct
     /**
      * @var string[]
      */
-    protected $priceGroupDiscountUuids;
+    protected $discountUuids = [];
+
     /**
      * @var PriceGroupDiscountBasicCollection
      */
-    protected $priceGroupDiscounts;
+    protected $discounts;
 
     public function __construct()
     {
-        $this->priceGroupDiscounts = new PriceGroupDiscountBasicCollection();
+        $this->discounts = new PriceGroupDiscountBasicCollection();
     }
 
-    public function getPriceGroupDiscountUuids(): array
+    public function getDiscountUuids(): array
     {
-        return $this->priceGroupDiscountUuids;
+        return $this->discountUuids;
     }
 
-    public function setPriceGroupDiscountUuids(array $priceGroupDiscountUuids): void
+    public function setDiscountUuids(array $discountUuids): void
     {
-        $this->priceGroupDiscountUuids = $priceGroupDiscountUuids;
+        $this->discountUuids = $discountUuids;
     }
 
-    public function getPriceGroupDiscounts(): PriceGroupDiscountBasicCollection
+    public function getDiscounts(): PriceGroupDiscountBasicCollection
     {
-        return $this->priceGroupDiscounts;
+        return $this->discounts;
     }
 
-    public function setPriceGroupDiscounts(PriceGroupDiscountBasicCollection $priceGroupDiscounts): void
+    public function setDiscounts(PriceGroupDiscountBasicCollection $discounts): void
     {
-        $this->priceGroupDiscounts = $priceGroupDiscounts;
+        $this->discounts = $discounts;
     }
 }

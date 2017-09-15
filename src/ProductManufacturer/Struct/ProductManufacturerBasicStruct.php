@@ -29,11 +29,6 @@ use Shopware\Framework\Struct\Struct;
 class ProductManufacturerBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
@@ -41,17 +36,22 @@ class ProductManufacturerBasicStruct extends Struct
     /**
      * @var string
      */
-    protected $name;
-
-    /**
-     * @var string
-     */
-    protected $img;
-
-    /**
-     * @var string
-     */
     protected $link;
+
+    /**
+     * @var string|null
+     */
+    protected $mediaUuid;
+
+    /**
+     * @var \DateTime
+     */
+    protected $updatedAt;
+
+    /**
+     * @var string
+     */
+    protected $name;
 
     /**
      * @var string|null
@@ -73,21 +73,6 @@ class ProductManufacturerBasicStruct extends Struct
      */
     protected $metaKeywords;
 
-    /**
-     * @var \DateTime
-     */
-    protected $updatedAt;
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
-
     public function getUuid(): string
     {
         return $this->uuid;
@@ -98,26 +83,6 @@ class ProductManufacturerBasicStruct extends Struct
         $this->uuid = $uuid;
     }
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
-    public function getImg(): string
-    {
-        return $this->img;
-    }
-
-    public function setImg(string $img): void
-    {
-        $this->img = $img;
-    }
-
     public function getLink(): string
     {
         return $this->link;
@@ -126,6 +91,36 @@ class ProductManufacturerBasicStruct extends Struct
     public function setLink(string $link): void
     {
         $this->link = $link;
+    }
+
+    public function getMediaUuid(): ?string
+    {
+        return $this->mediaUuid;
+    }
+
+    public function setMediaUuid(?string $mediaUuid): void
+    {
+        $this->mediaUuid = $mediaUuid;
+    }
+
+    public function getUpdatedAt(): \DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
     }
 
     public function getDescription(): ?string
@@ -166,15 +161,5 @@ class ProductManufacturerBasicStruct extends Struct
     public function setMetaKeywords(?string $metaKeywords): void
     {
         $this->metaKeywords = $metaKeywords;
-    }
-
-    public function getUpdatedAt(): \DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 }

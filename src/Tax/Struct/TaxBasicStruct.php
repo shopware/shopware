@@ -46,7 +46,7 @@ class TaxBasicStruct extends Struct
     /**
      * @var string
      */
-    protected $description;
+    protected $name;
 
     public function getId(): int
     {
@@ -78,13 +78,13 @@ class TaxBasicStruct extends Struct
         $this->rate = $rate;
     }
 
-    public function getDescription(): string
+    public function getName(): string
     {
-        return $this->description;
+        return $this->name;
     }
 
-    public function setDescription(string $description): void
+    public function setName(string $name): void
     {
-        $this->description = $description;
+        $this->name = $name;
     }
 }

@@ -30,11 +30,6 @@ use Shopware\Unit\Struct\UnitBasicStruct;
 class ProductDetailBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
@@ -55,11 +50,6 @@ class ProductDetailBasicStruct extends Struct
     protected $isMain;
 
     /**
-     * @var string|null
-     */
-    protected $additionalText;
-
-    /**
      * @var int
      */
     protected $sales;
@@ -70,14 +60,14 @@ class ProductDetailBasicStruct extends Struct
     protected $active;
 
     /**
-     * @var int|null
+     * @var int
      */
     protected $stock;
 
     /**
      * @var int|null
      */
-    protected $stockmin;
+    protected $minStock;
 
     /**
      * @var float|null
@@ -110,11 +100,6 @@ class ProductDetailBasicStruct extends Struct
     protected $ean;
 
     /**
-     * @var int|null
-     */
-    protected $unitId;
-
-    /**
      * @var string|null
      */
     protected $unitUuid;
@@ -145,24 +130,14 @@ class ProductDetailBasicStruct extends Struct
     protected $referenceUnit;
 
     /**
-     * @var string|null
-     */
-    protected $packUnit;
-
-    /**
      * @var \DateTime|null
      */
     protected $releaseDate;
 
     /**
-     * @var int
+     * @var bool
      */
     protected $shippingFree;
-
-    /**
-     * @var string|null
-     */
-    protected $shippingTime;
 
     /**
      * @var float
@@ -170,19 +145,19 @@ class ProductDetailBasicStruct extends Struct
     protected $purchasePrice;
 
     /**
-     * @var UnitBasicStruct
+     * @var string|null
+     */
+    protected $additionalText;
+
+    /**
+     * @var string|null
+     */
+    protected $packUnit;
+
+    /**
+     * @var UnitBasicStruct|null
      */
     protected $unit;
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
 
     public function getUuid(): string
     {
@@ -224,16 +199,6 @@ class ProductDetailBasicStruct extends Struct
         $this->isMain = $isMain;
     }
 
-    public function getAdditionalText(): ?string
-    {
-        return $this->additionalText;
-    }
-
-    public function setAdditionalText(?string $additionalText): void
-    {
-        $this->additionalText = $additionalText;
-    }
-
     public function getSales(): int
     {
         return $this->sales;
@@ -254,24 +219,24 @@ class ProductDetailBasicStruct extends Struct
         $this->active = $active;
     }
 
-    public function getStock(): ?int
+    public function getStock(): int
     {
         return $this->stock;
     }
 
-    public function setStock(?int $stock): void
+    public function setStock(int $stock): void
     {
         $this->stock = $stock;
     }
 
-    public function getStockmin(): ?int
+    public function getMinStock(): ?int
     {
-        return $this->stockmin;
+        return $this->minStock;
     }
 
-    public function setStockmin(?int $stockmin): void
+    public function setMinStock(?int $minStock): void
     {
-        $this->stockmin = $stockmin;
+        $this->minStock = $minStock;
     }
 
     public function getWeight(): ?float
@@ -334,16 +299,6 @@ class ProductDetailBasicStruct extends Struct
         $this->ean = $ean;
     }
 
-    public function getUnitId(): ?int
-    {
-        return $this->unitId;
-    }
-
-    public function setUnitId(?int $unitId): void
-    {
-        $this->unitId = $unitId;
-    }
-
     public function getUnitUuid(): ?string
     {
         return $this->unitUuid;
@@ -404,16 +359,6 @@ class ProductDetailBasicStruct extends Struct
         $this->referenceUnit = $referenceUnit;
     }
 
-    public function getPackUnit(): ?string
-    {
-        return $this->packUnit;
-    }
-
-    public function setPackUnit(?string $packUnit): void
-    {
-        $this->packUnit = $packUnit;
-    }
-
     public function getReleaseDate(): ?\DateTime
     {
         return $this->releaseDate;
@@ -424,24 +369,14 @@ class ProductDetailBasicStruct extends Struct
         $this->releaseDate = $releaseDate;
     }
 
-    public function getShippingFree(): int
+    public function getShippingFree(): bool
     {
         return $this->shippingFree;
     }
 
-    public function setShippingFree(int $shippingFree): void
+    public function setShippingFree(bool $shippingFree): void
     {
         $this->shippingFree = $shippingFree;
-    }
-
-    public function getShippingTime(): ?string
-    {
-        return $this->shippingTime;
-    }
-
-    public function setShippingTime(?string $shippingTime): void
-    {
-        $this->shippingTime = $shippingTime;
     }
 
     public function getPurchasePrice(): float
@@ -454,12 +389,32 @@ class ProductDetailBasicStruct extends Struct
         $this->purchasePrice = $purchasePrice;
     }
 
-    public function getUnit(): UnitBasicStruct
+    public function getAdditionalText(): ?string
+    {
+        return $this->additionalText;
+    }
+
+    public function setAdditionalText(?string $additionalText): void
+    {
+        $this->additionalText = $additionalText;
+    }
+
+    public function getPackUnit(): ?string
+    {
+        return $this->packUnit;
+    }
+
+    public function setPackUnit(?string $packUnit): void
+    {
+        $this->packUnit = $packUnit;
+    }
+
+    public function getUnit(): ?UnitBasicStruct
     {
         return $this->unit;
     }
 
-    public function setUnit(UnitBasicStruct $unit): void
+    public function setUnit(?UnitBasicStruct $unit): void
     {
         $this->unit = $unit;
     }

@@ -25,7 +25,7 @@
 namespace Shopware\Storefront\Twig;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Category\CategoryRepository;
+use Shopware\Category\Repository\CategoryRepository;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Config\ConfigServiceInterface;
 use Shopware\Serializer\SerializerRegistry;

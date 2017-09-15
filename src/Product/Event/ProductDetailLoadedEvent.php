@@ -30,6 +30,7 @@ use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 use Shopware\Product\Struct\ProductDetailCollection;
 use Shopware\ProductDetail\Event\ProductDetailBasicLoadedEvent;
+use Shopware\ProductVote\Event\ProductVoteBasicLoadedEvent;
 
 class ProductDetailLoadedEvent extends NestedEvent
 {
@@ -68,12 +69,11 @@ class ProductDetailLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection(
-            [
-                new ProductBasicLoadedEvent($this->products, $this->context),
-                new ProductDetailBasicLoadedEvent($this->products->getDetails(), $this->context),
-                new CategoryBasicLoadedEvent($this->products->getCategories(), $this->context),
-            ]
-        );
+        return new NestedEventCollection([
+            new ProductBasicLoadedEvent($this->products, $this->context),
+            new ProductDetailBasicLoadedEvent($this->products->getDetails(), $this->context),
+            new CategoryBasicLoadedEvent($this->products->getCategories(), $this->context),
+            new ProductVoteBasicLoadedEvent($this->products->getVotes(), $this->context),
+        ]);
     }
 }

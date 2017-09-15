@@ -36,34 +36,14 @@ use Shopware\ShopTemplate\Struct\ShopTemplateBasicStruct;
 class ShopDetailStruct extends ShopBasicStruct
 {
     /**
-     * @var CategoryBasicStruct
-     */
-    protected $category;
-
-    /**
      * @var LocaleBasicStruct|null
      */
     protected $fallbackLocale;
 
     /**
-     * @var ShippingMethodBasicStruct
+     * @var CategoryBasicStruct
      */
-    protected $shippingMethod;
-
-    /**
-     * @var ShopTemplateBasicStruct
-     */
-    protected $shopTemplate;
-
-    /**
-     * @var AreaCountryBasicStruct
-     */
-    protected $areaCountry;
-
-    /**
-     * @var PaymentMethodBasicStruct
-     */
-    protected $paymentMethod;
+    protected $category;
 
     /**
      * @var CustomerGroupBasicStruct
@@ -71,28 +51,38 @@ class ShopDetailStruct extends ShopBasicStruct
     protected $customerGroup;
 
     /**
+     * @var PaymentMethodBasicStruct
+     */
+    protected $paymentMethod;
+
+    /**
+     * @var ShippingMethodBasicStruct
+     */
+    protected $shippingMethod;
+
+    /**
+     * @var AreaCountryBasicStruct
+     */
+    protected $country;
+
+    /**
+     * @var ShopTemplateBasicStruct
+     */
+    protected $template;
+
+    /**
      * @var string[]
      */
-    protected $currencyUuids;
+    protected $availableCurrencyUuids = [];
 
     /**
      * @var CurrencyBasicCollection
      */
-    protected $currencies;
+    protected $availableCurrencies;
 
     public function __construct()
     {
-        $this->currencies = new CurrencyBasicCollection();
-    }
-
-    public function getCategory(): CategoryBasicStruct
-    {
-        return $this->category;
-    }
-
-    public function setCategory(CategoryBasicStruct $category): void
-    {
-        $this->category = $category;
+        $this->availableCurrencies = new CurrencyBasicCollection();
     }
 
     public function getFallbackLocale(): ?LocaleBasicStruct
@@ -105,44 +95,14 @@ class ShopDetailStruct extends ShopBasicStruct
         $this->fallbackLocale = $fallbackLocale;
     }
 
-    public function getShippingMethod(): ShippingMethodBasicStruct
+    public function getCategory(): CategoryBasicStruct
     {
-        return $this->shippingMethod;
+        return $this->category;
     }
 
-    public function setShippingMethod(ShippingMethodBasicStruct $shippingMethod): void
+    public function setCategory(CategoryBasicStruct $category): void
     {
-        $this->shippingMethod = $shippingMethod;
-    }
-
-    public function getShopTemplate(): ShopTemplateBasicStruct
-    {
-        return $this->shopTemplate;
-    }
-
-    public function setShopTemplate(ShopTemplateBasicStruct $shopTemplate): void
-    {
-        $this->shopTemplate = $shopTemplate;
-    }
-
-    public function getAreaCountry(): AreaCountryBasicStruct
-    {
-        return $this->areaCountry;
-    }
-
-    public function setAreaCountry(AreaCountryBasicStruct $areaCountry): void
-    {
-        $this->areaCountry = $areaCountry;
-    }
-
-    public function getPaymentMethod(): PaymentMethodBasicStruct
-    {
-        return $this->paymentMethod;
-    }
-
-    public function setPaymentMethod(PaymentMethodBasicStruct $paymentMethod): void
-    {
-        $this->paymentMethod = $paymentMethod;
+        $this->category = $category;
     }
 
     public function getCustomerGroup(): CustomerGroupBasicStruct
@@ -155,23 +115,63 @@ class ShopDetailStruct extends ShopBasicStruct
         $this->customerGroup = $customerGroup;
     }
 
-    public function getCurrencyUuids(): array
+    public function getPaymentMethod(): PaymentMethodBasicStruct
     {
-        return $this->currencyUuids;
+        return $this->paymentMethod;
     }
 
-    public function setCurrencyUuids(array $currencyUuids): void
+    public function setPaymentMethod(PaymentMethodBasicStruct $paymentMethod): void
     {
-        $this->currencyUuids = $currencyUuids;
+        $this->paymentMethod = $paymentMethod;
     }
 
-    public function getCurrencies(): CurrencyBasicCollection
+    public function getShippingMethod(): ShippingMethodBasicStruct
     {
-        return $this->currencies;
+        return $this->shippingMethod;
     }
 
-    public function setCurrencies(CurrencyBasicCollection $currencies): void
+    public function setShippingMethod(ShippingMethodBasicStruct $shippingMethod): void
     {
-        $this->currencies = $currencies;
+        $this->shippingMethod = $shippingMethod;
+    }
+
+    public function getCountry(): AreaCountryBasicStruct
+    {
+        return $this->country;
+    }
+
+    public function setCountry(AreaCountryBasicStruct $country): void
+    {
+        $this->country = $country;
+    }
+
+    public function getTemplate(): ShopTemplateBasicStruct
+    {
+        return $this->template;
+    }
+
+    public function setTemplate(ShopTemplateBasicStruct $template): void
+    {
+        $this->template = $template;
+    }
+
+    public function getAvailableCurrencyUuids(): array
+    {
+        return $this->availableCurrencyUuids;
+    }
+
+    public function setAvailableCurrencyUuids(array $availableCurrencyUuids): void
+    {
+        $this->availableCurrencyUuids = $availableCurrencyUuids;
+    }
+
+    public function getAvailableCurrencies(): CurrencyBasicCollection
+    {
+        return $this->availableCurrencies;
+    }
+
+    public function setAvailableCurrencies(CurrencyBasicCollection $availableCurrencies): void
+    {
+        $this->availableCurrencies = $availableCurrencies;
     }
 }

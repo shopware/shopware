@@ -67,10 +67,8 @@ class ProductDetailBasicLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection(
-            [
-                new UnitBasicLoadedEvent($this->productDetails->getUnits(), $this->context),
-            ]
-        );
+        return new NestedEventCollection([
+            new UnitBasicLoadedEvent($this->productDetails->getUnits(), $this->context),
+        ]);
     }
 }

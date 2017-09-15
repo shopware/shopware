@@ -1,0 +1,4 @@
+    /**
+     * @var #associationClassUc#Searcher
+     */
+    private $#associationClassLc#Searcher;

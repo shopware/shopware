@@ -29,64 +29,44 @@ use Shopware\Framework\Struct\Struct;
 class CustomerGroupBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
 
     /**
-     * @var string
+     * @var bool
      */
-    protected $groupKey;
-
-    /**
-     * @var string
-     */
-    protected $description;
+    protected $displayGross;
 
     /**
      * @var bool
      */
-    protected $displayGrossPrices;
+    protected $inputGross;
 
     /**
      * @var bool
      */
-    protected $inputGrossPrices;
+    protected $hasGlobalDiscount;
 
     /**
-     * @var int
+     * @var float|null
      */
-    protected $mode;
+    protected $percentageGlobalDiscount;
 
     /**
-     * @var float
-     */
-    protected $discount;
-
-    /**
-     * @var float
+     * @var float|null
      */
     protected $minimumOrderAmount;
 
     /**
-     * @var float
+     * @var float|null
      */
     protected $minimumOrderAmountSurcharge;
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
+    /**
+     * @var string
+     */
+    protected $name;
 
     public function getUuid(): string
     {
@@ -98,83 +78,73 @@ class CustomerGroupBasicStruct extends Struct
         $this->uuid = $uuid;
     }
 
-    public function getGroupKey(): string
+    public function getDisplayGross(): bool
     {
-        return $this->groupKey;
+        return $this->displayGross;
     }
 
-    public function setGroupKey(string $groupKey): void
+    public function setDisplayGross(bool $displayGross): void
     {
-        $this->groupKey = $groupKey;
+        $this->displayGross = $displayGross;
     }
 
-    public function getDescription(): string
+    public function getInputGross(): bool
     {
-        return $this->description;
+        return $this->inputGross;
     }
 
-    public function setDescription(string $description): void
+    public function setInputGross(bool $inputGross): void
     {
-        $this->description = $description;
+        $this->inputGross = $inputGross;
     }
 
-    public function getDisplayGrossPrices(): bool
+    public function getHasGlobalDiscount(): bool
     {
-        return $this->displayGrossPrices;
+        return $this->hasGlobalDiscount;
     }
 
-    public function setDisplayGrossPrices(bool $displayGrossPrices): void
+    public function setHasGlobalDiscount(bool $hasGlobalDiscount): void
     {
-        $this->displayGrossPrices = $displayGrossPrices;
+        $this->hasGlobalDiscount = $hasGlobalDiscount;
     }
 
-    public function getInputGrossPrices(): bool
+    public function getPercentageGlobalDiscount(): ?float
     {
-        return $this->inputGrossPrices;
+        return $this->percentageGlobalDiscount;
     }
 
-    public function setInputGrossPrices(bool $inputGrossPrices): void
+    public function setPercentageGlobalDiscount(?float $percentageGlobalDiscount): void
     {
-        $this->inputGrossPrices = $inputGrossPrices;
+        $this->percentageGlobalDiscount = $percentageGlobalDiscount;
     }
 
-    public function getMode(): int
-    {
-        return $this->mode;
-    }
-
-    public function setMode(int $mode): void
-    {
-        $this->mode = $mode;
-    }
-
-    public function getDiscount(): float
-    {
-        return $this->discount;
-    }
-
-    public function setDiscount(float $discount): void
-    {
-        $this->discount = $discount;
-    }
-
-    public function getMinimumOrderAmount(): float
+    public function getMinimumOrderAmount(): ?float
     {
         return $this->minimumOrderAmount;
     }
 
-    public function setMinimumOrderAmount(float $minimumOrderAmount): void
+    public function setMinimumOrderAmount(?float $minimumOrderAmount): void
     {
         $this->minimumOrderAmount = $minimumOrderAmount;
     }
 
-    public function getMinimumOrderAmountSurcharge(): float
+    public function getMinimumOrderAmountSurcharge(): ?float
     {
         return $this->minimumOrderAmountSurcharge;
     }
 
-    public function setMinimumOrderAmountSurcharge(float $minimumOrderAmountSurcharge): void
+    public function setMinimumOrderAmountSurcharge(?float $minimumOrderAmountSurcharge): void
     {
         $this->minimumOrderAmountSurcharge = $minimumOrderAmountSurcharge;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
     }
 }

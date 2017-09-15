@@ -37,50 +37,6 @@ class ShippingMethodDetailCollection extends ShippingMethodBasicCollection
      */
     protected $elements = [];
 
-    public function getShippingMethodPriceUuids(): array
-    {
-        $uuids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getShippingMethodPriceUuids() as $uuid) {
-                $uuids[] = $uuid;
-            }
-        }
-
-        return $uuids;
-    }
-
-    public function getShippingMethodPrices(): ShippingMethodPriceBasicCollection
-    {
-        $collection = new ShippingMethodPriceBasicCollection();
-        foreach ($this->elements as $element) {
-            $collection->fill($element->getShippingMethodPrices()->getIterator()->getArrayCopy());
-        }
-
-        return $collection;
-    }
-
-    public function getAreaCountryUuids(): array
-    {
-        $uuids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getAreaCountryUuids() as $uuid) {
-                $uuids[] = $uuid;
-            }
-        }
-
-        return $uuids;
-    }
-
-    public function getAreaCountries(): AreaCountryBasicCollection
-    {
-        $collection = new AreaCountryBasicCollection();
-        foreach ($this->elements as $element) {
-            $collection->fill($element->getAreaCountries()->getIterator()->getArrayCopy());
-        }
-
-        return $collection;
-    }
-
     public function getCategoryUuids(): array
     {
         $uuids = [];
@@ -98,6 +54,28 @@ class ShippingMethodDetailCollection extends ShippingMethodBasicCollection
         $collection = new CategoryBasicCollection();
         foreach ($this->elements as $element) {
             $collection->fill($element->getCategories()->getIterator()->getArrayCopy());
+        }
+
+        return $collection;
+    }
+
+    public function getCountryUuids(): array
+    {
+        $uuids = [];
+        foreach ($this->elements as $element) {
+            foreach ($element->getCountryUuids() as $uuid) {
+                $uuids[] = $uuid;
+            }
+        }
+
+        return $uuids;
+    }
+
+    public function getCountries(): AreaCountryBasicCollection
+    {
+        $collection = new AreaCountryBasicCollection();
+        foreach ($this->elements as $element) {
+            $collection->fill($element->getCountries()->getIterator()->getArrayCopy());
         }
 
         return $collection;
@@ -142,6 +120,28 @@ class ShippingMethodDetailCollection extends ShippingMethodBasicCollection
         $collection = new PaymentMethodBasicCollection();
         foreach ($this->elements as $element) {
             $collection->fill($element->getPaymentMethods()->getIterator()->getArrayCopy());
+        }
+
+        return $collection;
+    }
+
+    public function getPriceUuids(): array
+    {
+        $uuids = [];
+        foreach ($this->elements as $element) {
+            foreach ($element->getPriceUuids() as $uuid) {
+                $uuids[] = $uuid;
+            }
+        }
+
+        return $uuids;
+    }
+
+    public function getPrices(): ShippingMethodPriceBasicCollection
+    {
+        $collection = new ShippingMethodPriceBasicCollection();
+        foreach ($this->elements as $element) {
+            $collection->fill($element->getPrices()->getIterator()->getArrayCopy());
         }
 
         return $collection;

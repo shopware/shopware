@@ -1,0 +1,9 @@
+        if ($#associationClassLc# = $selection->filter('#propertyLc#')) {
+            $query->leftJoin(
+                $selection->getRootEscaped(),
+                '#associationTable#',
+                $#associationClassLc#->getRootEscaped(),
+                sprintf('%s.uuid = %s.#foreignKey#', $#associationClassLc#->getRootEscaped(), $selection->getRootEscaped())
+            );
+            $this->#associationClassLc#Factory->joinDependencies($#associationClassLc#, $query, $context);
+        }

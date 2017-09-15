@@ -24,6 +24,7 @@
 
 namespace Shopware\Category;
 
+use Shopware\Category\DependencyInjection\ExtensionCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -38,8 +39,11 @@ class Category extends Bundle
     {
         parent::build($container);
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/DependencyInjection/'));
-        $loader->load('services.xml');
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+        $loader->load('read_services.xml');
         $loader->load('write-resources.xml');
+        $loader->load('services.xml');
+
+        $container->addCompilerPass(new ExtensionCompilerPass());
     }
 }

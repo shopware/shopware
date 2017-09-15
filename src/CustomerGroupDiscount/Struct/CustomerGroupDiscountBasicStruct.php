@@ -29,19 +29,9 @@ use Shopware\Framework\Struct\Struct;
 class CustomerGroupDiscountBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
-
-    /**
-     * @var int
-     */
-    protected $customerGroupId;
 
     /**
      * @var string
@@ -51,22 +41,12 @@ class CustomerGroupDiscountBasicStruct extends Struct
     /**
      * @var float
      */
-    protected $discount;
+    protected $percentageDiscount;
 
     /**
      * @var float
      */
-    protected $discountStart;
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
+    protected $minimumCartAmount;
 
     public function getUuid(): string
     {
@@ -76,16 +56,6 @@ class CustomerGroupDiscountBasicStruct extends Struct
     public function setUuid(string $uuid): void
     {
         $this->uuid = $uuid;
-    }
-
-    public function getCustomerGroupId(): int
-    {
-        return $this->customerGroupId;
-    }
-
-    public function setCustomerGroupId(int $customerGroupId): void
-    {
-        $this->customerGroupId = $customerGroupId;
     }
 
     public function getCustomerGroupUuid(): string
@@ -98,23 +68,23 @@ class CustomerGroupDiscountBasicStruct extends Struct
         $this->customerGroupUuid = $customerGroupUuid;
     }
 
-    public function getDiscount(): float
+    public function getPercentageDiscount(): float
     {
-        return $this->discount;
+        return $this->percentageDiscount;
     }
 
-    public function setDiscount(float $discount): void
+    public function setPercentageDiscount(float $percentageDiscount): void
     {
-        $this->discount = $discount;
+        $this->percentageDiscount = $percentageDiscount;
     }
 
-    public function getDiscountStart(): float
+    public function getMinimumCartAmount(): float
     {
-        return $this->discountStart;
+        return $this->minimumCartAmount;
     }
 
-    public function setDiscountStart(float $discountStart): void
+    public function setMinimumCartAmount(float $minimumCartAmount): void
     {
-        $this->discountStart = $discountStart;
+        $this->minimumCartAmount = $minimumCartAmount;
     }
 }

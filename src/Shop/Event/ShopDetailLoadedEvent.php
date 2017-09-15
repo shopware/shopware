@@ -74,18 +74,16 @@ class ShopDetailLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection(
-            [
-                new ShopBasicLoadedEvent($this->shops, $this->context),
-                new CategoryBasicLoadedEvent($this->shops->getCategories(), $this->context),
-                new LocaleBasicLoadedEvent($this->shops->getFallbackLocales(), $this->context),
-                new ShippingMethodBasicLoadedEvent($this->shops->getShippingMethods(), $this->context),
-                new ShopTemplateBasicLoadedEvent($this->shops->getShopTemplates(), $this->context),
-                new AreaCountryBasicLoadedEvent($this->shops->getAreaCountries(), $this->context),
-                new PaymentMethodBasicLoadedEvent($this->shops->getPaymentMethods(), $this->context),
-                new CustomerGroupBasicLoadedEvent($this->shops->getCustomerGroups(), $this->context),
-                new CurrencyBasicLoadedEvent($this->shops->getCurrencies(), $this->context),
-            ]
-        );
+        return new NestedEventCollection([
+            new ShopBasicLoadedEvent($this->shops, $this->context),
+            new LocaleBasicLoadedEvent($this->shops->getFallbackLocales(), $this->context),
+            new CategoryBasicLoadedEvent($this->shops->getCategories(), $this->context),
+            new CustomerGroupBasicLoadedEvent($this->shops->getCustomerGroups(), $this->context),
+            new PaymentMethodBasicLoadedEvent($this->shops->getPaymentMethods(), $this->context),
+            new ShippingMethodBasicLoadedEvent($this->shops->getShippingMethods(), $this->context),
+            new AreaCountryBasicLoadedEvent($this->shops->getCountries(), $this->context),
+            new ShopTemplateBasicLoadedEvent($this->shops->getTemplates(), $this->context),
+            new CurrencyBasicLoadedEvent($this->shops->getAvailableCurrencies(), $this->context),
+        ]);
     }
 }

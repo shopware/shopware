@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -25,42 +25,48 @@
 namespace Shopware\ProductManufacturer\Searcher;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\ProductManufacturer\Reader\ProductManufacturerBasicHydrator;
-use Shopware\ProductManufacturer\Reader\Query\ProductManufacturerBasicQuery;
-use Shopware\ProductManufacturer\Struct\ProductManufacturerSearchResult;
+use Shopware\ProductManufacturer\Factory\ProductManufacturerBasicFactory;
+use Shopware\ProductManufacturer\Loader\ProductManufacturerBasicLoader;
 use Shopware\Search\Criteria;
-use Shopware\Search\Search;
+use Shopware\Search\QueryBuilder;
+use Shopware\Search\Searcher;
 use Shopware\Search\SearchResultInterface;
+use Shopware\Search\SqlParser\SqlParser;
+use Shopware\Search\UuidSearchResult;
 
-class ProductManufacturerSearcher extends Search
+class ProductManufacturerSearcher extends Searcher
 {
     /**
-     * @var ProductManufacturerBasicHydrator
+     * @var ProductManufacturerBasicFactory
      */
-    private $hydrator;
+    private $factory;
 
-    public function __construct(Connection $connection, array $handlers, ProductManufacturerBasicHydrator $hydrator)
+    /**
+     * @var ProductManufacturerBasicLoader
+     */
+    private $loader;
+
+    public function __construct(Connection $connection, SqlParser $parser, ProductManufacturerBasicFactory $factory, ProductManufacturerBasicLoader $loader)
     {
-        parent::__construct($connection, $handlers);
-        $this->hydrator = $hydrator;
+        parent::__construct($connection, $parser);
+        $this->factory = $factory;
+        $this->loader = $loader;
     }
 
     protected function createQuery(Criteria $criteria, TranslationContext $context): QueryBuilder
     {
-        return new ProductManufacturerBasicQuery($this->connection, $context);
+        return $this->factory->createSearchQuery($criteria, $context);
     }
 
-    protected function createResult(array $rows, int $total, TranslationContext $context): SearchResultInterface
+    protected function load(UuidSearchResult $uuidResult, TranslationContext $context): SearchResultInterface
     {
-        $structs = array_map(
-            function (array $row) {
-                return $this->hydrator->hydrate($row);
-            },
-            $rows
-        );
+        $collection = $this->loader->load($uuidResult->getUuids(), $context);
 
-        return new ProductManufacturerSearchResult($structs, $total);
+        $result = new ProductManufacturerSearchResult($collection->getElements());
+
+        $result->setTotal($uuidResult->getTotal());
+
+        return $result;
     }
 }

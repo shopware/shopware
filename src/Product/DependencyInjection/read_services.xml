@@ -51,10 +51,12 @@
         </service>
 
         <service class="Shopware\Product\Repository\ProductRepository" id="shopware.product.repository">
-            <argument id="shopware.product.detail_loader" type="service"/>
             <argument id="shopware.product.basic_loader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.product.searcher" type="service"/>
+            <argument id="shopware.product.detail_loader" type="service"/>
+            <argument id="shopware.framework.write.writer" type="service"/>
+            <argument id="shopware.framework.write.field_aware.default_extender" type="service"/>
         </service>
 
     </services>

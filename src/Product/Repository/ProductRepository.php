@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -25,17 +25,25 @@
 namespace Shopware\Product\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Write\FieldAware\DefaultExtender;
+use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Framework\Write\FieldException\WriteStackException;
+use Shopware\Framework\Write\WriteContext;
+use Shopware\Framework\Write\Writer;
 use Shopware\Product\Event\ProductBasicLoadedEvent;
 use Shopware\Product\Event\ProductDetailLoadedEvent;
+use Shopware\Product\Event\ProductWrittenEvent;
+use Shopware\Product\Event\ProductWriteExtenderEvent;
 use Shopware\Product\Loader\ProductBasicLoader;
 use Shopware\Product\Loader\ProductDetailLoader;
 use Shopware\Product\Searcher\ProductSearcher;
 use Shopware\Product\Searcher\ProductSearchResult;
 use Shopware\Product\Struct\ProductBasicCollection;
 use Shopware\Product\Struct\ProductDetailCollection;
+use Shopware\Product\Writer\ProductResource;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
+use Shopware\Shop\Writer\ShopResource;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductRepository
@@ -60,16 +68,30 @@ class ProductRepository
      */
     private $searcher;
 
+    /**
+     * @var Writer
+     */
+    private $writer;
+
+    /**
+     * @var DefaultExtender
+     */
+    private $extender;
+
     public function __construct(
-        ProductDetailLoader $detailLoader,
         ProductBasicLoader $basicLoader,
         EventDispatcherInterface $eventDispatcher,
-        ProductSearcher $searcher
+        ProductSearcher $searcher,
+        ProductDetailLoader $detailLoader,
+        Writer $writer,
+        DefaultExtender $extender
     ) {
-        $this->detailLoader = $detailLoader;
         $this->basicLoader = $basicLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
+        $this->writer = $writer;
+        $this->detailLoader = $detailLoader;
+        $this->extender = $extender;
     }
 
     public function readDetail(array $uuids, TranslationContext $context): ProductDetailCollection
@@ -119,5 +141,109 @@ class ProductRepository
         $result = $this->searcher->aggregate($criteria, $context);
 
         return $result;
+    }
+
+    public function update(array $data, TranslationContext $context): ProductWrittenEvent
+    {
+        $writeContext = $this->createWriteContext($context->getShopUuid());
+        $extender = $this->getExtender();
+
+        $this->validateWriteInput($data);
+
+        $updated = $errors = [];
+
+        foreach ($data as $product) {
+            try {
+                $updated[] = $this->writer->update(ProductResource::class, $product, $writeContext, $extender);
+            } catch (WriteStackException $exception) {
+                $errors[] = $exception->toArray();
+            }
+        }
+
+        $event = new ProductWrittenEvent(array_column($updated, 'uuid'), $errors);
+
+        return $this->eventDispatcher->dispatch(ProductWrittenEvent::NAME, $event);
+    }
+
+    public function upsert(array $data, TranslationContext $context): ProductWrittenEvent
+    {
+        $writeContext = $this->createWriteContext($context->getShopUuid());
+        $extender = $this->getExtender();
+
+        $this->validateWriteInput($data);
+
+        $created = $errors = [];
+
+        foreach ($data as $product) {
+            try {
+                $created[] = $this->writer->upsert(ProductResource::class, $product, $writeContext, $extender);
+            } catch (WriteStackException $exception) {
+                $errors[] = $exception->toArray();
+            }
+        }
+
+        $event = new ProductWrittenEvent(array_column($created, 'uuid'), $errors);
+
+        return $this->eventDispatcher->dispatch(ProductWrittenEvent::NAME, $event);
+    }
+
+    public function create(array $data, TranslationContext $context): ProductWrittenEvent
+    {
+        $writeContext = $this->createWriteContext($context->getShopUuid());
+        $extender = $this->getExtender();
+
+        $this->validateWriteInput($data);
+
+        $created = $errors = [];
+
+        foreach ($data as $product) {
+            try {
+                $created[] = $this->writer->insert(ProductResource::class, $product, $writeContext, $extender);
+            } catch (WriteStackException $exception) {
+                $errors[] = $exception->toArray();
+            }
+        }
+
+        $event = new ProductWrittenEvent(array_column($created, 'uuid'), $errors);
+
+        return $this->eventDispatcher->dispatch(ProductWrittenEvent::NAME, $event);
+    }
+
+    private function createWriteContext(string $shopUuid): WriteContext
+    {
+        $writeContext = new WriteContext();
+        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+
+        return $writeContext;
+    }
+
+    private function getExtender(): FieldExtenderCollection
+    {
+        $extenderCollection = new FieldExtenderCollection();
+        $extenderCollection->addExtender($this->extender);
+
+        $event = $this->eventDispatcher->dispatch(
+            ProductWriteExtenderEvent::NAME,
+            new ProductWriteExtenderEvent($extenderCollection)
+        );
+
+        return $event->getExtenderCollection();
+    }
+
+    private function validateWriteInput(array $data): void
+    {
+        $malformedRows = [];
+
+        foreach ($data as $index => $row) {
+            if (!is_array($row)) {
+                $malformedRows[] = $index;
+            }
+        }
+
+        if (0 === count($malformedRows)) {
+            return;
+        }
+
+        throw new \InvalidArgumentException('Expected input to be array.');
     }
 }

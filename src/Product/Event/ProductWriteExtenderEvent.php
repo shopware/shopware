@@ -7,7 +7,7 @@ use Symfony\Component\EventDispatcher\Event;
 
 class ProductWriteExtenderEvent extends Event
 {
-    const EVENT_NAME = 'product.write.extender';
+    const NAME = 'product.write.extender';
 
     /**
      * @var FieldExtenderCollection

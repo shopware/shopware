@@ -1,6 +1,6 @@
-import template from 'src/module/core.product/src/core-product-detail/core-product-detail.html.twig';
 import utils from 'src/core/service/util.service';
-import 'src/module/core.product/src/core-product-detail/core-product-detail.less';
+import template from './core-product-detail.html.twig';
+import './core-product-detail.less';
 
 export default Shopware.ComponentFactory.register('core-product-detail', {
     inject: ['productService'],
@@ -30,7 +30,7 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
 
             this.isWorking = true;
             this.productService.readByUuid(uuid).then((response) => {
-                this.notModifiedProduct = JSON.parse(JSON.stringify(response.data));
+                this.notModifiedProduct = { ...response.data };
                 this.product = response.data;
                 this.isWorking = false;
             });

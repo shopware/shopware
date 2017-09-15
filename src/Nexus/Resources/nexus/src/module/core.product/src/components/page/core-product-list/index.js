@@ -1,7 +1,7 @@
 import PaginationMixin from 'src/app/component/mixin/pagination.mixin';
 import utils from 'src/core/service/util.service';
-import 'src/module/core.product/src/core-product-list/core-product-list.less';
-import template from 'src/module/core.product/src/core-product-list/core-product-list.twig';
+import './core-product-list.less';
+import template from './core-product-list.twig';
 
 export default Shopware.ComponentFactory.register('core-product-list', {
     inject: ['productService'],

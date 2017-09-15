@@ -1,5 +1,20 @@
 {% block list %}
     <sw-workspace>
+
+        <header class="toolbar--middle-section" slot="header">
+            <h1 class="workspace--headline">
+                Produktübersicht
+            </h1>
+
+            <div class="toolbar--primary-actions">
+                <router-link :to="{ name: 'core.product.create' }">
+                    <sw-button :isPrimary="true" :isDisabled="true">
+                        Neues Produkt anlegen
+                    </sw-button>
+                </router-link>
+            </div>
+        </header>
+
         <div class="core-product--list">
             <sw-grid>
                 {% block grid_header %}

@@ -1,6 +1,8 @@
-import productList from 'module/core.product/src/core-product-list';
-import productSidebar from 'module/core.product/src/sidebar';
-import productDetail from 'module/core.product/src/core-product-detail';
+import productList from 'module/core.product/src/components/page/core-product-list';
+import productDetail from 'module/core.product/src/components/page/core-product-detail';
+import productCreate from 'module/core.product/src/components/page/core-product-create';
+import productSidebar from 'module/core.product/src/components/organism/core-product-sidebar';
+import 'module/core.product/src/components';
 
 export default {
     id: 'core.product',
@@ -18,6 +20,14 @@ export default {
                 sidebar: productSidebar
             },
             path: 'product'
+        },
+
+        create: {
+            component: productCreate,
+            path: 'product/create',
+            meta: {
+                parentPath: 'core.product.index'
+            }
         },
 
         detail: {

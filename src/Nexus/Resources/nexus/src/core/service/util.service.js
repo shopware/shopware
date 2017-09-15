@@ -1,11 +1,13 @@
 import { updatedDiff } from 'deep-object-diff';
+import uuidv4 from 'uuid/v4';
 
 export default {
     merge,
     formDataToObject,
     warn,
     currency,
-    compareObjects: updatedDiff
+    compareObjects: updatedDiff,
+    createUuid: uuidv4
 };
 
 // Todo: This has an issue when you want to copy into a new object

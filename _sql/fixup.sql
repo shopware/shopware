@@ -380,27 +380,6 @@ ALTER TABLE s_articles_top_seller_ro
     ADD product_uuid VARCHAR(42) NOT NULL AFTER product_id
 ;
 
-
-ALTER TABLE s_articles_translations
-    RENAME TO product_translation,
-    DROP PRIMARY KEY,
-    CHANGE `id` `id` int(11) NULL,
-    CHANGE articleID product_id INT(11) NOT NULL,
-    CHANGE languageID language_id INT(11) NOT NULL,
-    CHANGE attr1 attr1 VARCHAR(255) NULL,
-    CHANGE attr2 attr2 VARCHAR(255) NULL,
-    CHANGE attr3 attr3 VARCHAR(255) NULL,
-    CHANGE attr4 attr4 VARCHAR(255) NULL,
-    CHANGE attr5 attr5 VARCHAR(255) NULL,
-    CHANGE keywords keywords VARCHAR(255) NULL,
-    CHANGE description description MEDIUMTEXT NULL,
-    CHANGE description_long description_long MEDIUMTEXT NULL ,
-    ADD uuid VARCHAR(42) NOT NULL AFTER id,
-    ADD product_uuid VARCHAR(42) NOT NULL AFTER product_id,
-    ADD language_uuid VARCHAR(42) NOT NULL AFTER language_id,
-    ADD meta_title VARCHAR(255) NULL AFTER description_long;
-;
-
 ALTER TABLE s_articles_vote
     RENAME TO product_vote,
     CHANGE articleID product_id INT(11) NOT NULL,
@@ -744,7 +723,9 @@ ALTER TABLE `product_stream_assignment`
     COMMENT='Contains the manually assigned products of a stream';
 
 ALTER TABLE `s_schema_version`
-    RENAME TO `schema_version`;
+    RENAME TO `schema_version`,
+    CHANGE `error_msg` `error_msg` LONGTEXT COLLATE 'utf8mb4_unicode_ci' NULL DEFAULT NULL
+;
 
 ALTER TABLE `s_search_custom_facet`
     ADD `uuid` varchar(42) NOT NULL AFTER `id`,
@@ -1898,34 +1879,6 @@ UPDATE shop SET customer_group_uuid = '3294e6f6-372b-415f-ac73-71cbc191548f' WHE
 UPDATE product_vote SET uuid = CONCAT('SWAG-PRODUCT-VOTE-UUID-', id) WHERE id IS NOT NULL;
 UPDATE product_vote SET product_uuid = CONCAT('SWAG-PRODUCT-UUID-', product_id) WHERE product_id IS NOT NULL;
 UPDATE product_vote SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
-UPDATE product_translation SET uuid = CONCAT('SWAG-PRODUCT-TRANSLATION-', id), product_uuid = CONCAT('SWAG-PRODUCT-UUID-', product_id), language_uuid = CONCAT('SWAG-SHOP-UUID-', language_id);
-
-INSERT INTO product_translation (uuid, language_uuid, language_id, product_uuid, product_id, name, keywords, description, description_long, meta_title, description_clear)
-  (
-    SELECT
-      CONCAT('SWAG-PRODUCT-TRANSLATION-', p.id)   AS uuid,
-      CONCAT('SWAG-SHOP-UUID-', s.id)                 AS language_uuid,
-      s.id                                            AS language_id,
-      p.uuid                                          AS product_uuid,
-      p.id                                            AS product_id,
-      p.name                                          AS name,
-      IFNULL(p.keywords, '')                          AS keywords,
-      IFNULL(p.description, '')                       AS description,
-      IFNULL(p.description_long, '')                  AS description_long,
-      IFNULL(p.meta_title, '')                        AS meta_title,
-      ''                                              AS description_clear
-    FROM
-      product p
-      JOIN
-      shop s ON s.fallback_id IS NULL
-  );
-
-
-
-
-
-
-
 
 
 
@@ -2174,13 +2127,6 @@ ALTER TABLE `product_vote`
     ADD INDEX `product_uuid` (`product_uuid`),
     ADD INDEX `shop_uuid` (`shop_uuid`);
 
-ALTER TABLE `product_translation`
-    ADD PRIMARY KEY `product_uuid_language_uuid` (`product_uuid`, `language_uuid`);
-
-
-
-
-
 
 
 
@@ -2198,12 +2144,6 @@ ALTER TABLE `product_translation`
 
 
 -- add foreign keys
-ALTER TABLE `product_translation`
-    ADD FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
-    ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
-;
-
-
 ALTER TABLE media_attribute
     ADD CONSTRAINT `fk_media_attribute.media_uuid`
 FOREIGN KEY (media_uuid) REFERENCES media (uuid) ON DELETE CASCADE ON UPDATE CASCADE

@@ -629,14 +629,6 @@ ALTER TABLE product_top_seller_ro
     DROP `product_id`
 ;
 
-ALTER TABLE product_translation
-    DROP `id`,
-    DROP `uuid`,
-    DROP `product_id`,
-    DROP `language_id`,
-    DROP `description_clear`
-;
-
 ALTER TABLE product_vote
     DROP `id`,
     DROP `product_id`,

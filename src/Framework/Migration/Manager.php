@@ -117,12 +117,12 @@ class Manager
     public function createSchemaTable()
     {
         $sql = '
-            CREATE TABLE IF NOT EXISTS `s_schema_version` (
+            CREATE TABLE IF NOT EXISTS `schema_version` (
             `version` int(11) NOT NULL,
             `start_date` datetime NOT NULL,
             `complete_date` datetime DEFAULT NULL,
             `name` VARCHAR( 255 ) NOT NULL,
-            `error_msg` varchar(255) DEFAULT NULL,
+            `error_msg` LONGTEXT DEFAULT NULL,
             PRIMARY KEY (`version`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ';
@@ -136,7 +136,7 @@ class Manager
      */
     public function getCurrentVersion()
     {
-        $sql = 'SELECT version FROM s_schema_version WHERE complete_date IS NOT NULL ORDER BY version DESC';
+        $sql = 'SELECT version FROM schema_version WHERE complete_date IS NOT NULL ORDER BY version DESC';
         $currentVersion = (int) $this->connection->query($sql)->fetchColumn();
 
         return $currentVersion;
@@ -233,7 +233,7 @@ class Manager
      */
     public function apply(AbstractMigration $migration, $modus = AbstractMigration::MODUS_INSTALL)
     {
-        $sql = 'REPLACE s_schema_version (version, start_date, name) VALUES (:version, :date, :name)';
+        $sql = 'REPLACE schema_version (version, start_date, name) VALUES (:version, :date, :name)';
         $stmt = $this->connection->prepare($sql);
         $stmt->execute([
             ':version' => $migration->getVersion(),
@@ -249,7 +249,7 @@ class Manager
                 $this->connection->exec($sql);
             }
         } catch (\Exception $e) {
-            $updateVersionSql = 'UPDATE s_schema_version SET error_msg = :msg WHERE version = :version';
+            $updateVersionSql = 'UPDATE schema_version SET error_msg = :msg WHERE version = :version';
             $stmt = $this->connection->prepare($updateVersionSql);
             $stmt->execute([
                 ':version' => $migration->getVersion(),
@@ -261,7 +261,7 @@ class Manager
             ));
         }
 
-        $sql = 'UPDATE s_schema_version SET complete_date = :date WHERE version = :version';
+        $sql = 'UPDATE schema_version SET complete_date = :date WHERE version = :version';
         $stmt = $this->connection->prepare($sql);
         $stmt->execute([
             ':version' => $migration->getVersion(),

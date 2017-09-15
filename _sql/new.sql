@@ -251,9 +251,9 @@ CREATE table `product_translation` (
   `product_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
   `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
   `name` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `keywords` MEDIUMTEXT NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `description` MEDIUMTEXT NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `description_long` MEDIUMTEXT NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `keywords` MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+  `description` MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+  `description_long` MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
   `meta_title` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci'
 )
 COLLATE='utf8mb4_unicode_ci'
@@ -874,17 +874,15 @@ INSERT INTO product_media_translation (language_uuid, product_media_uuid, descri
 INSERT INTO product_translation (product_uuid, language_uuid, name, keywords, description, description_long, meta_title)
   (
     SELECT
-      CONCAT('SWAG-PRODUCT-UUID-', a.articleID)         AS product_uuid,
-      CONCAT('SWAG-SHOP-UUID-', a.languageID)           AS language_uuid,
-      a.name                                            AS name,
-      a.keywords                                        AS keywords,
-      a.description                                     AS description,
-      a.description_long                                AS description_long,
+      p.uuid                                            AS product_uuid,
+      CONCAT('SWAG-SHOP-UUID-1')                        AS language_uuid,
+      p.name                                            AS name,
+      p.keywords                                        AS keywords,
+      p.description                                     AS description,
+      p.description_long                                AS description_long,
       p.meta_title                                      AS meta_title
     FROM
-      s_articles_translations a
-    JOIN
-      product p ON p.id = a.articleID
+      product p
   )
 ;
 

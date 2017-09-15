@@ -146,9 +146,9 @@ class ProductBasicFactory extends Factory
         $product->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
         $product->setMainDetailUuid((string) $data[$selection->getField('main_detail_uuid')]);
         $product->setName((string) $data[$selection->getField('name')]);
-        $product->setKeywords((string) $data[$selection->getField('keywords')]);
-        $product->setDescription((string) $data[$selection->getField('description')]);
-        $product->setDescriptionLong((string) $data[$selection->getField('description_long')]);
+        $product->setKeywords(isset($data[$selection->getField('keywords')]) ? (string) $data[$selection->getField('keywords')] : null);
+        $product->setDescription(isset($data[$selection->getField('description')]) ? (string) $data[$selection->getField('description')] : null);
+        $product->setDescriptionLong(isset($data[$selection->getField('description_long')]) ? (string) $data[$selection->getField('description_long')] : null);
         $product->setMetaTitle(isset($data[$selection->getField('meta_title')]) ? (string) $data[$selection->getField('meta_title')] : null);
         $productManufacturer = $selection->filter('manufacturer');
         if ($productManufacturer && !empty($data[$productManufacturer->getField('uuid')])) {

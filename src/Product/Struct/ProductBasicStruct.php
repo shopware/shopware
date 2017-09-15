@@ -115,17 +115,17 @@ class ProductBasicStruct extends Struct
     protected $name;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $keywords;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $description;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $descriptionLong;
 
@@ -329,32 +329,32 @@ class ProductBasicStruct extends Struct
         $this->name = $name;
     }
 
-    public function getKeywords(): string
+    public function getKeywords(): ?string
     {
         return $this->keywords;
     }
 
-    public function setKeywords(string $keywords): void
+    public function setKeywords(?string $keywords): void
     {
         $this->keywords = $keywords;
     }
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription(string $description): void
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
     }
 
-    public function getDescriptionLong(): string
+    public function getDescriptionLong(): ?string
     {
         return $this->descriptionLong;
     }
 
-    public function setDescriptionLong(string $descriptionLong): void
+    public function setDescriptionLong(?string $descriptionLong): void
     {
         $this->descriptionLong = $descriptionLong;
     }

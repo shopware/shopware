@@ -20,8 +20,8 @@
                     {% block frontend_index_navigation_categories_top_entry %}
                         {% if not category.hideTop %}
 
-                            {% if category.seoUrl %}
-                                {% set url = category.seoUrl.url %}
+                            {% if category.canonicalUrl %}
+                                {% set url = category.canonicalUrl.url %}
                             {% else %}
                                 {% set url = url('listing_page', { 'uuid': category.uuid }) %}
                             {% endif %}

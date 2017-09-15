@@ -24,12 +24,14 @@
 
 namespace Shopware\SeoUrl\Factory;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Shopware\SeoUrl\Extension\SeoUrlExtension;
 use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class SeoUrlBasicFactory extends Factory
 {
@@ -52,6 +54,17 @@ class SeoUrlBasicFactory extends Factory
      */
     protected $extensions = [];
 
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
+    public function __construct(Connection $connection, array $extensions, ContainerInterface $container)
+    {
+        parent::__construct($connection, $extensions);
+        $this->container = $container;
+    }
+
     public function hydrate(
         array $data,
         SeoUrlBasicStruct $seoUrl,
@@ -67,6 +80,11 @@ class SeoUrlBasicFactory extends Factory
         $seoUrl->setSeoPathInfo((string) $data[$selection->getField('seo_path_info')]);
         $seoUrl->setIsCanonical((bool) $data[$selection->getField('is_canonical')]);
         $seoUrl->setCreatedAt(new \DateTime($data[$selection->getField('created_at')]));
+
+        $routerContext = $this->container->get('router')->getContext();
+        $url = implode('/', array_filter([$routerContext->getBaseUrl(), $seoUrl->getSeoPathInfo()]));
+        $url = sprintf('%s://%s/%s', $routerContext->getScheme(), $routerContext->getHost(), $url);
+        $seoUrl->setUrl($url);
 
         foreach ($this->extensions as $extension) {
             $extension->hydrate($seoUrl, $data, $selection, $context);

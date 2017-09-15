@@ -45,10 +45,11 @@ class UrlResolver implements UrlResolverInterface
 
     public function getPathInfo(string $shopUuid, string $url, TranslationContext $context): ?SeoUrlBasicStruct
     {
+        $url = ltrim($url, '/');
+
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('shop_uuid', $shopUuid));
         $criteria->addFilter(new TermQuery('seo_url.seo_hash', sha1($url)));
-
         $urls = $this->seoUrlRepository->search($criteria, $context);
 
         return $urls->getBySeoPathInfo($url);

@@ -1,0 +1,9 @@
+    public function getSeoHash(): string
+    {
+        return sha1($this->seoPathInfo);
+    }
+
+    public function setSeoHash(string $seoHash): void
+    {
+        $this->seoHash = $seoHash;
+    }

@@ -70,6 +70,11 @@ class Generate
             'seo_url' => [
                 'collection_functions' => [
                     file_get_contents(__DIR__ . '/special_case/seo_url/collection_functions.txt')
+                ],
+                'columns' => [
+                    'seo_hash' => [
+                        'functions' => file_get_contents(__DIR__ . '/special_case/seo_url/seo_hash.txt')
+                    ],
                 ]
             ],
             'tax' => [],

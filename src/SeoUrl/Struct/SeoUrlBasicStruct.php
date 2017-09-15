@@ -73,6 +73,11 @@ class SeoUrlBasicStruct extends Struct
      */
     protected $createdAt;
 
+    /**
+     * @var string|null
+     */
+    protected $url;
+
     public function getUuid(): string
     {
         return $this->uuid;
@@ -85,7 +90,7 @@ class SeoUrlBasicStruct extends Struct
 
     public function getSeoHash(): string
     {
-        return $this->seoHash;
+        return sha1($this->seoPathInfo);
     }
 
     public function setSeoHash(string $seoHash): void
@@ -161,5 +166,15 @@ class SeoUrlBasicStruct extends Struct
     public function setCreatedAt(\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(?string $url): void
+    {
+        $this->url = $url;
     }
 }

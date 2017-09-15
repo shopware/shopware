@@ -159,13 +159,14 @@ class Router implements RouterInterface, RequestMatcherInterface
             return $generator->generate($name, $parameters, $referenceType);
         }
 
-        /** @var ShopDetailStruct $shop */
-        if (!$shop = $context->getParameter('shop')) {
+        $master = $this->requestStack->getMasterRequest();
+
+        if (!$shop = $master->attributes->get('router_shop')) {
             return $generator->generate($name, $parameters, $referenceType);
         }
 
         //rewrite base url for url generator
-        $stripBaseUrl = $this->rewriteBaseUrl($shop->getBaseUrl(), $shop->getBasePath());
+        $stripBaseUrl = $this->rewriteBaseUrl($shop['base_url'], $shop['base_path']);
 
         $route = $this->getRouteCollection()->get($name);
         if ($route->getOption('seo') !== true) {
@@ -177,11 +178,13 @@ class Router implements RouterInterface, RequestMatcherInterface
         $pathinfo = str_replace($stripBaseUrl, '', $pathinfo);
         $pathinfo = '/' . trim($pathinfo, '/');
 
-        $seoUrl = $this->urlResolver->getUrl(
-            $shop->getUuid(),
-            $pathinfo,
-            TranslationContext::createFromShop($shop)
+        $translationContext = new TranslationContext(
+            (string) $shop['uuid'],
+            (bool) $shop['is_default'],
+            (string) $shop['fallback_locale_uuid']
         );
+
+        $seoUrl = $this->urlResolver->getUrl($shop['uuid'], $pathinfo, $translationContext);
 
         //generate new url with shop base path/url
         $url = $generator->generate($name, $parameters, $referenceType);
@@ -216,16 +219,16 @@ class Router implements RouterInterface, RequestMatcherInterface
             $shop = $this->shopFinder->findShopByRequest($this->context, $request);
         }
 
-        $pathinfo = $this->context->getPathInfo();
+        $pathInfo = $this->context->getPathInfo();
 
         if (!$shop) {
-            return $this->match($pathinfo);
+            return $this->match($pathInfo);
         }
 
         //save detected shop to context for further processes
         $currencyUuid = $this->getCurrencyUuid($request, $shop['currency_uuid']);
 
-        $master->attributes->set('router_shop', $shop);
+        $request->attributes->set('router_shop', $shop);
         $request->attributes->set('_shop_uuid', $shop['uuid']);
         $request->attributes->set('_currency_uuid', $currencyUuid);
         $request->attributes->set('_locale_uuid', $shop['locale_uuid']);
@@ -234,9 +237,9 @@ class Router implements RouterInterface, RequestMatcherInterface
         $stripBaseUrl = $this->rewriteBaseUrl($shop['base_url'], $shop['base_path']);
 
         // strip base url from path info
-        $pathinfo = $request->getBaseUrl() . $request->getPathInfo();
-        $pathinfo = preg_replace('#^' . $stripBaseUrl . '#i', '', $pathinfo);
-        $pathinfo = '/' . trim($pathinfo, '/');
+        $pathInfo = $request->getBaseUrl() . $request->getPathInfo();
+        $pathInfo = preg_replace('#^' . $stripBaseUrl . '#i', '', $pathInfo);
+        $pathInfo = '/' . trim($pathInfo, '/');
 
         $translationContext = new TranslationContext(
             (string) $shop['uuid'],
@@ -244,20 +247,24 @@ class Router implements RouterInterface, RequestMatcherInterface
             (string) $shop['fallback_locale_uuid']
         );
 
-        //resolve seo urls to use symfony url matcher for route detection
-        $seoUrl = $this->urlResolver->getPathInfo($shop['uuid'], $pathinfo, $translationContext);
-
-        if (!$seoUrl) {
-            return $this->match($pathinfo);
+        if (strpos($pathInfo, '/widgets/') !== false) {
+            return $this->match($pathInfo);
         }
 
-        $pathinfo = $seoUrl->getPathInfo();
+        //resolve seo urls to use symfony url matcher for route detection
+        $seoUrl = $this->urlResolver->getPathInfo($shop['uuid'], $pathInfo, $translationContext);
+
+        if (!$seoUrl) {
+            return $this->match($pathInfo);
+        }
+
+        $pathInfo = $seoUrl->getPathInfo();
         if (!$seoUrl->getIsCanonical()) {
             $redirectUrl = $this->urlResolver->getUrl($shop['uuid'], $seoUrl->getPathInfo(), $translationContext);
             $request->attributes->set(self::SEO_REDIRECT_URL, $redirectUrl->getSeoPathInfo());
         }
 
-        return $this->match($pathinfo);
+        return $this->match($pathInfo);
     }
 
     public function assemble(string $url): string

@@ -50,7 +50,7 @@ class IndexController extends Controller
             'shop' => $context->getShop(),
             'currency' => $context->getCurrency(),
             'shops' => $this->loadShops($context),
-            'currencies' => $this->loadCurrencies($context),
+            'currencies' => $context->getShop()->getAvailableCurrencies(),
         ]);
     }
 
@@ -69,18 +69,5 @@ class IndexController extends Controller
         $shops = $shops->sortByPosition();
 
         return $shops;
-    }
-
-    private function loadCurrencies(ShopContext $context)
-    {
-        $repo = $this->container->get('shopware.currency.repository');
-        $criteria = new Criteria();
-
-        $uuids = [$context->getShop()->getParentUuid(), $context->getShop()->getUuid()];
-        $criteria->addFilter(new TermsQuery('currency.shops.uuid', $uuids));
-
-        $currencies = $repo->search($criteria, $context->getTranslationContext());
-
-        return $currencies;
     }
 }

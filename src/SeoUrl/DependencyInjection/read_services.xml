@@ -8,6 +8,7 @@
         <service class="Shopware\SeoUrl\Factory\SeoUrlBasicFactory" id="shopware.seo_url.basic_factory">
             <argument id="dbal_connection" type="service"/>
             <argument type="collection" />
+            <argument type="service" id="service_container" />
         </service>
 
         <service class="Shopware\SeoUrl\Loader\SeoUrlBasicLoader" id="shopware.seo_url.basic_loader">

@@ -1,0 +1,4 @@
+parameters:
+    excludes_analyse:
+        - src/**/DependencyInjection/*
+        - src/Storefront/Theme/Theme.php

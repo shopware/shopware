@@ -35,7 +35,7 @@ abstract class FrontendController extends Controller
 
         $navigationId = $this->get('request_stack')->getCurrentRequest()->attributes->get('active_category_uuid');
 
-        $navigation = $this->get('shopware.storefront.navigation.navigation_loader')
+        $navigation = $this->get('shopware.storefront.navigation.navigation_service')
             ->load($navigationId, $context);
 
         $parameters['navigation'] = $navigation;

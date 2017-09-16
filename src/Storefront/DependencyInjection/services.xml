@@ -103,7 +103,7 @@
             <argument id="shopware.storefront.context.storefront_context_service" type="service"/>
         </service>
 
-        <service class="Shopware\Storefront\Navigation\NavigationLoader" id="shopware.storefront.navigation.navigation_loader">
+        <service class="Shopware\Storefront\Navigation\NavigationService" id="shopware.storefront.navigation.navigation_service">
             <argument id="shopware.category.repository" type="service"/>
         </service>
 

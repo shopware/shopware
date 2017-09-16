@@ -25,19 +25,20 @@ class ApiContext
     /**
      * @var string
      */
-    private $resultFormat = ResultFormat::BASIC;
+    private $resultFormat;
 
     /**
      * @var array
      */
     private $parameters;
 
-    public function __construct(array $payload = [], ShopContext $shopContext, array $parameters = [], string $outputFormat, string $resultFormat)
+    public function __construct(array $payload, ShopContext $shopContext, array $parameters = [], string $outputFormat, string $resultFormat = ResultFormat::BASIC)
     {
         $this->outputFormat = $outputFormat;
         $this->payload = $payload;
         $this->shopContext = $shopContext;
         $this->parameters = $parameters;
+        $this->resultFormat = $resultFormat;
     }
 
     public function getPayload(): array

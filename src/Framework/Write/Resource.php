@@ -24,24 +24,24 @@
 
 namespace Shopware\Framework\Write;
 
-use Shopware\Framework\Write\Field\DateField;
-use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\DataStack\DataStack;
 use Shopware\Framework\Write\DataStack\ExceptionNoStackItemFound;
 use Shopware\Framework\Write\DataStack\KeyValuePair;
+use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\Field;
-use Shopware\Framework\Write\FieldAware\WriteQueryQueueAware;
 use Shopware\Framework\Write\FieldAware\ExceptionStackAware;
 use Shopware\Framework\Write\FieldAware\FieldExtender;
 use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Framework\Write\FieldAware\PathAware;
 use Shopware\Framework\Write\FieldAware\ResourceAware;
 use Shopware\Framework\Write\FieldAware\WriteContextAware;
-use Shopware\Framework\Write\FieldException\WriteFieldException;
+use Shopware\Framework\Write\FieldAware\WriteQueryQueueAware;
 use Shopware\Framework\Write\FieldException\FieldExceptionStack;
-use Shopware\Framework\Write\Query\WriteQueryQueue;
+use Shopware\Framework\Write\FieldException\WriteFieldException;
+use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\Query\InsertQuery;
 use Shopware\Framework\Write\Query\UpdateQuery;
+use Shopware\Framework\Write\Query\WriteQueryQueue;
 
 abstract class Resource
 {
@@ -131,7 +131,7 @@ abstract class Resource
             try {
                 $kvPair = $stack->pop($key);
             } catch (ExceptionNoStackItemFound $e) {
-                if (!$field->is(Required::class) || $type === self::FOR_UPDATE) {
+                if (!$field->is(Required::class) || self::FOR_UPDATE === $type) {
                     continue;
                 }
 
@@ -156,7 +156,7 @@ abstract class Resource
 
     /**
      * @param FieldExceptionStack     $exceptionStack
-     * @param WriteQueryQueue           $queryQueue
+     * @param WriteQueryQueue         $queryQueue
      * @param WriteContext            $writeContext
      * @param FieldExtenderCollection $extenderCollection
      * @param string                  $path
@@ -165,7 +165,7 @@ abstract class Resource
     {
         $extenderCollection->addExtender(new class($this, $writeContext, $queryQueue, $exceptionStack, $path) extends FieldExtender {
             /**
-             * @var Resource
+             * @var resource
              */
             private $resource;
             /**
@@ -247,7 +247,8 @@ abstract class Resource
 
     /**
      * @param SqlGateway $sqlGateway
-     * @param array $pkData
+     * @param array      $pkData
+     *
      * @return string
      */
     private function determineType(SqlGateway $sqlGateway, array $pkData): string
@@ -257,18 +258,19 @@ abstract class Resource
         if (!$sqlGateway->exists($this->tableName, $pkData)) {
             $type = self::FOR_INSERT;
         }
+
         return $type;
     }
 
     /**
      * @param WriteQueryQueue $queryQueue
-     * @param string $type
-     * @param array $pkData
-     * @param array $data
+     * @param string          $type
+     * @param array           $pkData
+     * @param array           $data
      */
     private function updateQueryStack(WriteQueryQueue $queryQueue, string $type, array $pkData, array $data): void
     {
-        if ($type === self::FOR_UPDATE) {
+        if (self::FOR_UPDATE === $type) {
             $queryQueue->add(get_class($this), new UpdateQuery($this->tableName, $pkData, $data));
         } else {
             $queryQueue->add(get_class($this), new InsertQuery($this->tableName, array_merge($pkData, $data)));

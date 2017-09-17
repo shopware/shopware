@@ -4,7 +4,10 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-                <service id="shopware.areacountry.area-country.resource" class="Shopware\AreaCountry\Writer\AreaCountryResource">
+                <service id="shopware.areacountry.area-country.resource" class="Shopware\AreaCountry\Writer\Resource\AreaCountryResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.areacountry.area-country-translation.resource" class="Shopware\AreaCountry\Writer\Resource\AreaCountryTranslationResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
     </services>

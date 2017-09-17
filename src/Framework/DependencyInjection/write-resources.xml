@@ -7,6 +7,9 @@
                 <service id="shopware.write.resource.attribute-configuration.resource" class="Shopware\Framework\Write\Resource\AttributeConfigurationResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
+        <service id="shopware.write.resource.attribute-configuration-translation.resource" class="Shopware\Framework\Write\Resource\AttributeConfigurationTranslationResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
         <service id="shopware.write.resource.blog.resource" class="Shopware\Framework\Write\Resource\BlogResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
@@ -20,6 +23,12 @@
             <tag name="shopware.framework.write.resource"/> 
         </service>
         <service id="shopware.write.resource.blog-tag.resource" class="Shopware\Framework\Write\Resource\BlogTagResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.write.resource.blog-tag-translation.resource" class="Shopware\Framework\Write\Resource\BlogTagTranslationResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.write.resource.blog-translation.resource" class="Shopware\Framework\Write\Resource\BlogTranslationResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
         <service id="shopware.write.resource.config-form.resource" class="Shopware\Framework\Write\Resource\ConfigFormResource">
@@ -43,16 +52,28 @@
         <service id="shopware.write.resource.filter-option.resource" class="Shopware\Framework\Write\Resource\FilterOptionResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
+        <service id="shopware.write.resource.filter-option-translation.resource" class="Shopware\Framework\Write\Resource\FilterOptionTranslationResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
         <service id="shopware.write.resource.filter-product.resource" class="Shopware\Framework\Write\Resource\FilterProductResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
         <service id="shopware.write.resource.filter-relation.resource" class="Shopware\Framework\Write\Resource\FilterRelationResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
+        <service id="shopware.write.resource.filter-translation.resource" class="Shopware\Framework\Write\Resource\FilterTranslationResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
         <service id="shopware.write.resource.filter-value.resource" class="Shopware\Framework\Write\Resource\FilterValueResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
+        <service id="shopware.write.resource.filter-value-translation.resource" class="Shopware\Framework\Write\Resource\FilterValueTranslationResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
         <service id="shopware.write.resource.listing-facet.resource" class="Shopware\Framework\Write\Resource\ListingFacetResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.write.resource.listing-facet-translation.resource" class="Shopware\Framework\Write\Resource\ListingFacetTranslationResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
         <service id="shopware.write.resource.log.resource" class="Shopware\Framework\Write\Resource\LogResource">
@@ -64,7 +85,13 @@
         <service id="shopware.write.resource.mail-attachment.resource" class="Shopware\Framework\Write\Resource\MailAttachmentResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
+        <service id="shopware.write.resource.mail-translation.resource" class="Shopware\Framework\Write\Resource\MailTranslationResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
         <service id="shopware.write.resource.order-state.resource" class="Shopware\Framework\Write\Resource\OrderStateResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.write.resource.order-state-translation.resource" class="Shopware\Framework\Write\Resource\OrderStateTranslationResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
         <service id="shopware.write.resource.plugin.resource" class="Shopware\Framework\Write\Resource\PluginResource">
@@ -74,6 +101,9 @@
             <tag name="shopware.framework.write.resource"/> 
         </service>
         <service id="shopware.write.resource.premium-product.resource" class="Shopware\Framework\Write\Resource\PremiumProductResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.write.resource.articles-translations.resource" class="Shopware\Framework\Write\Resource\ArticlesTranslationsResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
         <service id="shopware.write.resource.billing-template.resource" class="Shopware\Framework\Write\Resource\BillingTemplateResource">

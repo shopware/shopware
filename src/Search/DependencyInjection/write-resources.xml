@@ -4,16 +4,16 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-                <service id="shopware.search.search-fields.resource" class="Shopware\Search\Writer\SearchFieldsResource">
+                <service id="shopware.search.search-fields.resource" class="Shopware\Search\Writer\Resource\SearchFieldsResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.search.search-index.resource" class="Shopware\Search\Writer\SearchIndexResource">
+        <service id="shopware.search.search-index.resource" class="Shopware\Search\Writer\Resource\SearchIndexResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.search.search-keywords.resource" class="Shopware\Search\Writer\SearchKeywordsResource">
+        <service id="shopware.search.search-keywords.resource" class="Shopware\Search\Writer\Resource\SearchKeywordsResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.search.search-tables.resource" class="Shopware\Search\Writer\SearchTablesResource">
+        <service id="shopware.search.search-tables.resource" class="Shopware\Search\Writer\Resource\SearchTablesResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
     </services>

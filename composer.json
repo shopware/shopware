@@ -61,7 +61,8 @@
     "sensio/generator-bundle": "^3.1",
     "symfony/phpunit-bridge": "^3.3",
     "fzaninotto/faker": "^1.7",
-    "phpunit/phpunit": "^6.3"
+    "friendsofphp/php-cs-fixer": "^2.6",
+    "phpunit/phpunit": "^6.2"
   },
   "scripts": {
     "symfony-scripts": [

@@ -105,6 +105,10 @@ abstract class Resource
         return [];
     }
 
+    public static function createWrittenEvent(array $updates)
+    {
+    }
+
     /**
      * @param array               $fields
      * @param array               $rawData

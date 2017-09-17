@@ -125,13 +125,10 @@ class WriteQueryQueue
     public function execute(Connection $connection)
     {
         $connection->transactional(function () use ($connection) {
-            //            print_r($this->queries);
-            //            print_r($this->order);
-            //            die;
-
             foreach ($this->order as $identifier) {
                 $queries = $this->queries[$identifier];
 
+                /** @var WriteQuery $query */
                 foreach ($queries as $query) {
                     if (!$query->isExecutable()) {
                         continue;
@@ -143,5 +140,10 @@ class WriteQueryQueue
 
             $this->queries = [];
         });
+    }
+
+    public function getQueries(): array
+    {
+        return $this->queries;
     }
 }

@@ -27,6 +27,8 @@ namespace Shopware\Framework\Write;
 use Doctrine\DBAL\Connection;
 use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Framework\Write\FieldException\FieldExceptionStack;
+use Shopware\Framework\Write\Query\InsertQuery;
+use Shopware\Framework\Write\Query\UpdateQuery;
 use Shopware\Framework\Write\Query\WriteQueryQueue;
 
 class Writer
@@ -67,12 +69,14 @@ class Writer
             ...$resource->getWriteOrder()
         );
 
-        $pkData = $resource->extract($rawData, $exceptionStack, $queryQueue, $this->sqlGateway, $writeContext, $extender);
+        $resource->extract($rawData, $exceptionStack, $queryQueue, $this->sqlGateway, $writeContext, $extender);
 
         $exceptionStack->tryToThrow();
+        $writeIdentifiers = $this->getWriteIdentifiers($queryQueue);
+
         $queryQueue->execute($this->connection);
 
-        return $pkData;
+        return $writeIdentifiers;
     }
 
     public function insert(string $resourceClass, array $rawData, WriteContext $writeContext, FieldExtenderCollection $extender)
@@ -87,12 +91,14 @@ class Writer
             ...$resource->getWriteOrder()
         );
 
-        $pkData = $resource->extract($rawData, $exceptionStack, $queryQueue, $this->sqlGateway, $writeContext, $extender);
+        $resource->extract($rawData, $exceptionStack, $queryQueue, $this->sqlGateway, $writeContext, $extender);
 
         $exceptionStack->tryToThrow();
+        $writeIdentifiers = $this->getWriteIdentifiers($queryQueue);
+
         $queryQueue->execute($this->connection);
 
-        return $pkData;
+        return $writeIdentifiers;
     }
 
     public function update(string $resourceClass, array $rawData, WriteContext $writeContext, FieldExtenderCollection $extender)
@@ -107,11 +113,48 @@ class Writer
             ...$resource->getWriteOrder()
         );
 
-        $pkData = $resource->extract($rawData, $exceptionStack, $queryQueue, $this->sqlGateway, $writeContext, $extender);
+        $resource->extract($rawData, $exceptionStack, $queryQueue, $this->sqlGateway, $writeContext, $extender);
 
         $exceptionStack->tryToThrow();
+        $writeIdentifiers = $this->getWriteIdentifiers($queryQueue);
+
         $queryQueue->execute($this->connection);
 
-        return $pkData;
+        return $writeIdentifiers;
+    }
+
+    private function getWriteIdentifiers(WriteQueryQueue $queue): array
+    {
+        $changedIdentifiers = [];
+
+        /**
+         * @var string $resource
+         * @var UpdateQuery[]|InsertQuery[] $query
+         */
+        foreach ($queue->getQueries() as $resource => $queries) {
+            $changedIdentifiers[$resource] = [];
+
+            if (empty($queries)) {
+                continue;
+            }
+
+            foreach ($queries as $query) {
+                $data = [];
+
+                if ($query instanceof InsertQuery) {
+                    $data = $query->getPayload();
+                } elseif ($query instanceof UpdateQuery) {
+                    $data = $query->getPrimaryKeyData();
+                }
+
+                if (false === array_key_exists('uuid', $data)) {
+                    continue;
+                }
+
+                $changedIdentifiers[$resource][] = $data['uuid'];
+            }
+        }
+
+        return $changedIdentifiers;
     }
 }

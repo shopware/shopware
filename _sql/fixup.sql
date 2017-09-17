@@ -3056,7 +3056,6 @@ ALTER TABLE `category_avoid_customer_group`
 ALTER TABLE `product`
     ADD FOREIGN KEY (`product_manufacturer_uuid`) REFERENCES `product_manufacturer` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD FOREIGN KEY (`tax_uuid`) REFERENCES `tax` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
-    ADD FOREIGN KEY (`main_detail_uuid`) REFERENCES `product_detail` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD FOREIGN KEY (`filter_group_uuid`) REFERENCES `filter` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `category_attribute`

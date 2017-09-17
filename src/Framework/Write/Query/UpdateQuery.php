@@ -57,4 +57,14 @@ class UpdateQuery extends WriteQuery
     {
         return $connection->update($this->tableName, $this->payload, $this->pkData);
     }
+
+    public function getPayload(): array
+    {
+        return $this->payload;
+    }
+
+    public function getPrimaryKeyData(): array
+    {
+        return $this->pkData;
+    }
 }

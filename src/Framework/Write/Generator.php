@@ -76,7 +76,6 @@ EOD;
         'attr18',
         'attr19',
         'attr20',
-        'main_detail_uuid',
     ];
 
     public function __construct(Container $container)
@@ -86,10 +85,12 @@ EOD;
 
     public function generateAll()
     {
-        exec('rm -R ' . __DIR__ . '/../../**/Gateway/Resource');
-        exec('rm -R ' . __DIR__ . '/../../**/Writer/ResourceDefinition');
-        exec('rm -R ' . __DIR__ . '/../../**/Writer/Resource');
-        exec('rm -R ' . __DIR__ . '/Resource/*.php');
+        @exec('rm -R ' . __DIR__ . '/../../**/Gateway/Resource');
+        @exec('rm -R ' . __DIR__ . '/../../**/Writer/ResourceDefinition');
+        @exec('rm -R ' . __DIR__ . '/../../**/Writer/Resource');
+        @exec('rm -R ' . __DIR__ . '/../../**/Writer/*Resource.php');
+        @exec('rm -R ' . __DIR__ . '/../../**/Event/*WrittenEvent.php');
+        @exec('rm -R ' . __DIR__ . '/Resource/*.php');
 
         $connection = $this->container->get('dbal_connection');
         $schemaManager = $connection->getSchemaManager();
@@ -112,10 +113,16 @@ EOD;
         /** @var ResourceTemplate $resource */
         foreach ($resources as $resource) {
             @mkdir($resource->getPath(), 0777, true);
+            @mkdir($resource->getEventPath(), 0777, true);
 
             file_put_contents(
                 $resource->getPath() . '/' . $resource->getClassName() . '.php',
                 $resource->renderClass()
+            );
+
+            file_put_contents(
+                $resource->getEventPath() . '/' . $resource->getName() . 'WrittenEvent.php',
+                $resource->renderEventClass()
             );
 
             $services[$resource->getDiPath()][] = $resource->renderServiceDefinition();
@@ -513,8 +520,26 @@ class %s extends Resource
         return [
             %s
         ];
+    }
+    
+    public static function createWrittenEvent(array $updates, array $errors = []): \%s\Event\%sWrittenEvent
+    {
+        $event = new \%s\Event\%sWrittenEvent($updates[self::class] ?? [], $errors);
+
+        unset($updates[self::class]);
+
+        %s
+        return $event;
     }%s
 }
+
+EOD;
+
+    private $eventBodyTemplate = <<<'EOD'
+        if (!empty($updates[%s])) {
+            $event->addEvent(%s::createWrittenEvent($updates));
+        }
+
 
 EOD;
 
@@ -543,6 +568,75 @@ EOD;
         <service id="shopware.%s.%s.resource" class="%s">
             <tag name="shopware.framework.write.resource"/> 
         </service>
+EOD;
+
+    private $eventClassTemplate = <<<'EOD'
+<?php declare(strict_types=1);
+
+namespace %s\Event;
+
+use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\Event\NestedEventCollection;
+
+class %sWrittenEvent extends NestedEvent
+{
+    const NAME = '%s.written';
+
+    /**
+     * @var string[]
+     */
+    private $%sUuids;
+
+    /**
+     * @var NestedEventCollection
+     */
+    private $events;
+
+    /**
+     * @var array
+     */
+    private $errors;
+
+    public function __construct(array $%sUuids, array $errors = [])
+    {
+        $this->%sUuids = $%sUuids;
+        $this->events = new NestedEventCollection();
+        $this->errors = $errors;
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function get%sUuids(): array
+    {
+        return $this->%sUuids;
+    }
+
+    public function getErrors(): array
+    {
+        return $this->errors;
+    }
+
+    public function hasErrors(): bool
+    {
+        return count($this->errors) > 0;
+    }
+
+    public function addEvent(NestedEvent $event): void
+    {
+        $this->events->add($event);
+    }
+    
+    public function getEvents(): NestedEventCollection
+    {
+        return $this->events;
+    }
+}
 EOD;
 
     /**
@@ -590,16 +684,26 @@ EOD;
         return $this->table;
     }
 
-    public function getPath(): string
+    public function getBundlePath(): string
     {
         $srcDir = __DIR__ . '/../../';
         try {
             $bundleName = $this->getBundleName();
         } catch (\InvalidArgumentException $e) {
-            return $srcDir . 'Framework/Write/Resource';
+            return $srcDir . 'Framework';
         }
 
-        return $srcDir . $bundleName . '/Writer';
+        return $srcDir . $bundleName;
+    }
+
+    public function getPath(): string
+    {
+        return $this->getBundlePath() . '/Writer/Resource';
+    }
+
+    public function getEventPath(): string
+    {
+        return $this->getBundlePath() . '/Event';
     }
 
     public function getDiPath(): string
@@ -633,10 +737,21 @@ EOD;
             return 'Shopware\\Framework\\Write\\Resource';
         }
 
-        return 'Shopware\\' . $bundleName . '\\Writer';
+        return 'Shopware\\' . $bundleName . '\\Writer\\Resource';
     }
 
-    public function getClassName(): string
+    public function getBundleNamespace(): string
+    {
+        try {
+            $bundleName = $this->getBundleName();
+        } catch (\InvalidArgumentException $e) {
+            return 'Shopware\\Framework';
+        }
+
+        return 'Shopware\\' . $bundleName;
+    }
+
+    public function getName(): string
     {
         $tableName = $this->table;
 
@@ -644,7 +759,12 @@ EOD;
             $tableName = substr($tableName, 2);
         }
 
-        return ucfirst($this->toCammelCase($tableName)) . 'Resource';
+        return ucfirst($this->toCammelCase($tableName));
+    }
+
+    public function getClassName(): string
+    {
+        return $this->getName() . 'Resource';
     }
 
     public function getResourceName(string $inRelationToTable = null): string
@@ -673,6 +793,33 @@ EOD;
         return $this->toMinusCase($tableName);
     }
 
+    public function getEventName(): string
+    {
+        $tableName = $this->table;
+
+        if (strpos($tableName, 's_') === 0) {
+            $tableName = substr($tableName, 2);
+        }
+
+        return strtolower($tableName);
+    }
+
+    public function renderEventClass(): string
+    {
+        return sprintf(
+            $this->eventClassTemplate,
+            $this->getBundleNamespace(),
+            $this->getName(),
+            $this->getEventName(),
+            lcfirst($this->getName()),
+            lcfirst($this->getName()),
+            lcfirst($this->getName()),
+            lcfirst($this->getName()),
+            $this->getName(),
+            lcfirst($this->getName())
+        );
+    }
+
     public function renderClass(): string
     {
         $renderedOrder = [];
@@ -697,8 +844,28 @@ EOD;
             $this->table,
             implode("\n        ", $clearedFields),
             implode(",\n            ", $renderedOrder),
+            $this->getBundleNamespace(),
+            $this->getName(),
+            $this->getBundleNamespace(),
+            $this->getName(),
+            $this->getEventBody($this->order),
             $this->hasDates() ? $this->defaultDateMethod : ''
         );
+    }
+
+    public function getEventBody($writeOrder): string
+    {
+        $calls = [];
+
+        foreach ($writeOrder as $resourceClass) {
+            $calls[] = sprintf(
+                $this->eventBodyTemplate,
+                $resourceClass . '::class',
+                $resourceClass
+            );
+        }
+
+        return implode('', $calls);
     }
 
     public function renderServiceDefinition(): string

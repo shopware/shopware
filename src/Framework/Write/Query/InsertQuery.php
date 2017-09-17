@@ -52,4 +52,9 @@ class InsertQuery extends WriteQuery
     {
         return $connection->insert($this->tableName, $this->payload);
     }
+
+    public function getPayload(): array
+    {
+        return $this->payload;
+    }
 }

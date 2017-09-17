@@ -55,8 +55,13 @@
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.product.searcher" type="service"/>
             <argument id="shopware.product.detail_loader" type="service"/>
-            <argument id="shopware.framework.write.writer" type="service"/>
-            <argument id="shopware.framework.write.field_aware.default_extender" type="service"/>
+            <argument id="shopware.product.writer" type="service"/>
+        </service>
+
+        <service class="Shopware\Product\Writer\ProductWriter" id="shopware.product.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
         </service>
 
     </services>

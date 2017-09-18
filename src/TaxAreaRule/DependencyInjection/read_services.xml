@@ -10,6 +10,18 @@
             <argument type="collection" />
         </service>
 
+
+        <service class="Shopware\TaxAreaRule\Controller\TaxAreaRuleController" id="shopware.tax_area_rule.api_controller">
+            <argument id="shopware.tax_area_rule.repository" type="service"/>
+        </service>
+        
+
+        <service class="Shopware\TaxAreaRule\Writer\TaxAreaRuleWriter" id="shopware.tax_area_rule.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
         <service class="Shopware\TaxAreaRule\Loader\TaxAreaRuleBasicLoader" id="shopware.tax_area_rule.basic_loader">
             <argument id="shopware.tax_area_rule.basic_factory" type="service"/>
         </service>
@@ -25,6 +37,7 @@
             <argument id="shopware.tax_area_rule.basic_loader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.tax_area_rule.searcher" type="service"/>
+            <argument id="shopware.tax_area_rule.writer" type="service"/>
         </service>
 
     </services>

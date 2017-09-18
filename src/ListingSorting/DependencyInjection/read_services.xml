@@ -10,6 +10,18 @@
             <argument type="collection" />
         </service>
 
+
+        <service class="Shopware\ListingSorting\Controller\ListingSortingController" id="shopware.listing_sorting.api_controller">
+            <argument id="shopware.listing_sorting.repository" type="service"/>
+        </service>
+        
+
+        <service class="Shopware\ListingSorting\Writer\ListingSortingWriter" id="shopware.listing_sorting.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
         <service class="Shopware\ListingSorting\Loader\ListingSortingBasicLoader" id="shopware.listing_sorting.basic_loader">
             <argument id="shopware.listing_sorting.basic_factory" type="service"/>
         </service>
@@ -25,6 +37,7 @@
             <argument id="shopware.listing_sorting.basic_loader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.listing_sorting.searcher" type="service"/>
+            <argument id="shopware.listing_sorting.writer" type="service"/>
         </service>
 
     </services>

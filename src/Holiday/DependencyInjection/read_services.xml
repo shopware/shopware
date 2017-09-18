@@ -10,6 +10,18 @@
             <argument type="collection" />
         </service>
 
+
+        <service class="Shopware\Holiday\Controller\HolidayController" id="shopware.holiday.api_controller">
+            <argument id="shopware.holiday.repository" type="service"/>
+        </service>
+        
+
+        <service class="Shopware\Holiday\Writer\HolidayWriter" id="shopware.holiday.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
         <service class="Shopware\Holiday\Loader\HolidayBasicLoader" id="shopware.holiday.basic_loader">
             <argument id="shopware.holiday.basic_factory" type="service"/>
         </service>
@@ -25,6 +37,7 @@
             <argument id="shopware.holiday.basic_loader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.holiday.searcher" type="service"/>
+            <argument id="shopware.holiday.writer" type="service"/>
         </service>
 
     </services>

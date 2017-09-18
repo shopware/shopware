@@ -10,6 +10,18 @@
             <argument type="collection" />
         </service>
 
+
+        <service class="Shopware\Locale\Controller\LocaleController" id="shopware.locale.api_controller">
+            <argument id="shopware.locale.repository" type="service"/>
+        </service>
+        
+
+        <service class="Shopware\Locale\Writer\LocaleWriter" id="shopware.locale.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
         <service class="Shopware\Locale\Loader\LocaleBasicLoader" id="shopware.locale.basic_loader">
             <argument id="shopware.locale.basic_factory" type="service"/>
         </service>
@@ -25,6 +37,7 @@
             <argument id="shopware.locale.basic_loader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.locale.searcher" type="service"/>
+            <argument id="shopware.locale.writer" type="service"/>
         </service>
 
     </services>

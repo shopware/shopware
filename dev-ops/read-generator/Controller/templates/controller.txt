@@ -1,0 +1,211 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\#classUc#\Controller;
+
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Shopware\Api\ApiContext;
+use Shopware\Api\ApiController;
+use Shopware\Api\ResultFormat;
+use Shopware\#classUc#\Repository\#classUc#Repository;
+use Shopware\Search\Criteria;
+use Shopware\Search\Parser\QueryStringParser;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+/**
+ * @Route(service="shopware.#table#.api_controller", path="/api")
+ */
+class #classUc#Controller extends ApiController
+{
+    /**
+     * @var #classUc#Repository
+     */
+    private $#classLc#Repository;
+
+    public function __construct(#classUc#Repository $#classLc#Repository)
+    {
+        $this->#classLc#Repository = $#classLc#Repository;
+    }
+
+    public function getXmlRootKey(): string
+    {
+        return '#plural#';
+    }
+
+    public function getXmlChildKey(): string
+    {
+        return '#classLc#';
+    }
+
+    /**
+     * @Route("/#classLc#.{responseFormat}", name="api.#classLc#.list", methods={"GET"})
+     */
+    public function listAction(Request $request, ApiContext $context): Response
+    {
+        $criteria = new Criteria();
+
+        if ($request->query->has('offset')) {
+            $criteria->setOffset((int) $request->query->get('offset'));
+        }
+
+        if ($request->query->has('limit')) {
+            $criteria->setLimit((int) $request->query->get('limit'));
+        }
+
+        if ($request->query->has('query')) {
+            $parser = new QueryStringParser();
+            $criteria->addFilter(
+                $parser->fromUrl($request->query->get('query'))
+            );
+        }
+
+        $criteria->setFetchCount(true);
+
+        $searchResult = $this->#classLc#Repository->searchUuids(
+            $criteria,
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        switch ($context->getResultFormat()) {
+            case ResultFormat::BASIC:
+                $#plural# = $this->#classLc#Repository->read(
+                    $searchResult->getUuids(),
+                    $context->getShopContext()->getTranslationContext()
+                );
+                break;
+            default:
+                throw new \RuntimeException('Result format not supported.');
+        }
+
+        $response = [
+            'data' => $#plural#,
+            'total' => $searchResult->getTotal()
+        ];
+
+        return $this->createResponse($response, $context);
+    }
+
+    /**
+     * @Route("/#classLc#/{#classLc#Uuid}.{responseFormat}", name="api.#classLc#.detail", methods={"GET"})
+     */
+    public function detailAction(Request $request, ApiContext $context): Response
+    {
+        $uuid = $request->get('#classLc#Uuid');
+        $#plural# = $this->#classLc#Repository->read(
+            [$uuid],
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        return $this->createResponse($#plural#->get($uuid), $context);
+    }
+
+    /**
+     * @Route("/#classLc#.{responseFormat}", name="api.#classLc#.create", methods={"POST"})
+     */
+    public function createAction(ApiContext $context): Response
+    {
+        $createEvent = $this->#classLc#Repository->create(
+            $context->getPayload(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $#plural# = $this->#classLc#Repository->read(
+            $createEvent->get#classUc#Uuids(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $response = [
+            'data' => $#plural#,
+            'errors' => $createEvent->getErrors()
+        ];
+
+        return $this->createResponse($response, $context);
+    }
+
+    /**
+     * @Route("/#classLc#.{responseFormat}", name="api.#classLc#.upsert", methods={"PUT"})
+     */
+    public function upsertAction(ApiContext $context): Response
+    {
+        $createEvent = $this->#classLc#Repository->upsert(
+            $context->getPayload(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $#plural# = $this->#classLc#Repository->read(
+            $createEvent->get#classUc#Uuids(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $response = [
+            'data' => $#plural#,
+            'errors' => $createEvent->getErrors()
+        ];
+
+        return $this->createResponse($response, $context);
+    }
+
+    /**
+     * @Route("/#classLc#.{responseFormat}", name="api.#classLc#.update", methods={"PATCH"})
+     */
+    public function updateAction(ApiContext $context): Response
+    {
+        $createEvent = $this->#classLc#Repository->update(
+            $context->getPayload(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $#plural# = $this->#classLc#Repository->read(
+            $createEvent->get#classUc#Uuids(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $response = [
+            'data' => $#plural#,
+            'errors' => $createEvent->getErrors()
+        ];
+
+        return $this->createResponse($response, $context);
+    }
+
+    /**
+     * @Route("/#classLc#/{#classLc#Uuid}.{responseFormat}", name="api.#classLc#.single_update", methods={"PATCH"})
+     */
+    public function singleUpdateAction(Request $request, ApiContext $context): Response
+    {
+        $payload = $context->getPayload();
+        $payload['uuid'] = $request->get('#classLc#Uuid');
+
+        $updateEvent = $this->#classLc#Repository->update(
+            [$payload],
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        if ($updateEvent->hasErrors()) {
+            $errors = $updateEvent->getErrors();
+            $error = array_shift($errors);
+
+            return $this->createResponse(['errors' => $error], $context, 400);
+        }
+
+        $#plural# = $this->#classLc#Repository->read(
+            [$payload['uuid']],
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        return $this->createResponse(
+            ['data' => $#plural#->get($payload['uuid'])],
+            $context
+        );
+    }
+
+    /**
+     * @Route("/#classLc#.{responseFormat}", name="api.#classLc#.delete", methods={"DELETE"})
+     */
+    public function deleteAction(ApiContext $context): Response
+    {
+        $result = [];
+
+        return $this->createResponse($result, $context);
+    }
+}

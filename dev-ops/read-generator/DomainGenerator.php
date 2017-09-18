@@ -12,6 +12,8 @@ require_once __DIR__ . '/Loader/Generator.php';
 require_once __DIR__ . '/Searcher/Generator.php';
 require_once __DIR__ . '/Repository/Generator.php';
 require_once __DIR__ . '/Extension/Generator.php';
+require_once __DIR__ . '/Controller/Generator.php';
+require_once __DIR__ . '/Writer/Generator.php';
 
 class DomainGenerator
 {
@@ -67,6 +69,12 @@ class DomainGenerator
         $generator->generate($table, $config);
         $generator->generateCompilerPass($table);
 
+        $generator = new \ReadGenerator\Controller\Generator($this->directory);
+        $services[] = $generator->generate($table, $config);
+
+        $generator = new \ReadGenerator\Writer\Generator($this->directory);
+        $services[] = $generator->generate($table, $config);
+
 //        $generator = new \ReadGenerator\Bundle\Generator($this->directory);
 //        $generator->generate($table);
 
@@ -107,6 +115,7 @@ class DomainGenerator
             $this->directory.'/'.ucfirst($class).'/Searcher',
             $this->directory.'/'.ucfirst($class).'/Factory',
             $this->directory.'/'.ucfirst($class).'/Struct',
+            $this->directory.'/'.ucfirst($class).'/Controller',
             $this->directory.'/'.ucfirst($class).'/Writer'
         ];
 

@@ -13,10 +13,20 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @Route(service="shopware.product.controller.product_controller", path="/api")
+ * @Route(service="shopware.product.api_controller", path="/api")
  */
 class ProductController extends ApiController
 {
+    /**
+     * @var ProductRepository
+     */
+    private $productRepository;
+
+    public function __construct(ProductRepository $productRepository)
+    {
+        $this->productRepository = $productRepository;
+    }
+
     public function getXmlRootKey(): string
     {
         return 'products';
@@ -28,17 +38,12 @@ class ProductController extends ApiController
     }
 
     /**
-     * @var ProductRepository
-     */
-    private $productRepository;
-
-    public function __construct(ProductRepository $productRepository)
-    {
-        $this->productRepository = $productRepository;
-    }
-
-    /**
      * @Route("/product.{responseFormat}", name="api.product.list", methods={"GET"})
+     *
+     * @param Request    $request
+     * @param ApiContext $context
+     *
+     * @return Response
      */
     public function listAction(Request $request, ApiContext $context): Response
     {
@@ -61,22 +66,25 @@ class ProductController extends ApiController
 
         $criteria->setFetchCount(true);
 
-        $searchResult = $this->productRepository->searchUuids($criteria, $context->getShopContext()->getTranslationContext());
+        $searchResult = $this->productRepository->searchUuids(
+            $criteria,
+            $context->getShopContext()->getTranslationContext()
+        );
 
         switch ($context->getResultFormat()) {
             case ResultFormat::BASIC:
-                $products = $this->productRepository->read($searchResult->getUuids(), $context->getShopContext()->getTranslationContext());
+                $products = $this->productRepository->read(
+                    $searchResult->getUuids(),
+                    $context->getShopContext()->getTranslationContext()
+                );
                 break;
-//            case ResultFormat::BASIC_NEXUS:
-//                $products = $this->productBackendRepository->readBasic($searchResult->getUuids(), $context->getShopContext());
-//                break;
             default:
-                throw new \Exception('Result format not supported.');
+                throw new \RuntimeException('Result format not supported.');
         }
 
         $response = [
             'data' => $products,
-            'total' => $searchResult->getTotal()
+            'total' => $searchResult->getTotal(),
         ];
 
         return $this->createResponse($response, $context);
@@ -84,27 +92,45 @@ class ProductController extends ApiController
 
     /**
      * @Route("/product/{productUuid}.{responseFormat}", name="api.product.detail", methods={"GET"})
+     *
+     * @param Request    $request
+     * @param ApiContext $context
+     *
+     * @return Response
      */
-    public function detailAction(Request $request, ApiContext $context)
+    public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('productUuid');
+        $products = $this->productRepository->read(
+            [$uuid],
+            $context->getShopContext()->getTranslationContext()
+        );
 
-        $products = $this->productRepository->read([$uuid], $context->getShopContext()->getTranslationContext());
-        $product = $products->get($uuid);
-
-        return $this->createResponse($product, $context);
+        return $this->createResponse($products->get($uuid), $context);
     }
 
     /**
      * @Route("/product.{responseFormat}", name="api.product.create", methods={"POST"})
+     *
+     * @param ApiContext $context
+     *
+     * @return Response
      */
     public function createAction(ApiContext $context): Response
     {
-        $createEvent = $this->productRepository->create($context->getPayload(), $context->getShopContext()->getTranslationContext());
+        $createEvent = $this->productRepository->create(
+            $context->getPayload(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $products = $this->productRepository->read(
+            $createEvent->getProductUuids(),
+            $context->getShopContext()->getTranslationContext()
+        );
 
         $response = [
-            'data' => $this->productRepository->read($createEvent->getProductUuids(), $context->getShopContext()->getTranslationContext()),
-            'errors' => $createEvent->getErrors()
+            'data' => $products,
+            'errors' => $createEvent->getErrors(),
         ];
 
         return $this->createResponse($response, $context);
@@ -112,14 +138,26 @@ class ProductController extends ApiController
 
     /**
      * @Route("/product.{responseFormat}", name="api.product.upsert", methods={"PUT"})
+     *
+     * @param ApiContext $context
+     *
+     * @return Response
      */
     public function upsertAction(ApiContext $context): Response
     {
-        $createEvent = $this->productRepository->upsert($context->getPayload(), $context->getShopContext()->getTranslationContext());
+        $createEvent = $this->productRepository->upsert(
+            $context->getPayload(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $products = $this->productRepository->read(
+            $createEvent->getProductUuids(),
+            $context->getShopContext()->getTranslationContext()
+        );
 
         $response = [
-            'data' => $this->productRepository->read($createEvent->getProductUuids(), $context->getShopContext()->getTranslationContext()),
-            'errors' => $createEvent->getErrors()
+            'data' => $products,
+            'errors' => $createEvent->getErrors(),
         ];
 
         return $this->createResponse($response, $context);
@@ -127,14 +165,26 @@ class ProductController extends ApiController
 
     /**
      * @Route("/product.{responseFormat}", name="api.product.update", methods={"PATCH"})
+     *
+     * @param ApiContext $context
+     *
+     * @return Response
      */
     public function updateAction(ApiContext $context): Response
     {
-        $createEvent = $this->productRepository->update($context->getPayload(), $context->getShopContext()->getTranslationContext());
+        $createEvent = $this->productRepository->update(
+            $context->getPayload(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $products = $this->productRepository->read(
+            $createEvent->getProductUuids(),
+            $context->getShopContext()->getTranslationContext()
+        );
 
         $response = [
-            'data' => $this->productRepository->read($createEvent->getProductUuids(), $context->getShopContext()->getTranslationContext()),
-            'errors' => $createEvent->getErrors()
+            'data' => $products,
+            'errors' => $createEvent->getErrors(),
         ];
 
         return $this->createResponse($response, $context);
@@ -142,13 +192,21 @@ class ProductController extends ApiController
 
     /**
      * @Route("/product/{productUuid}.{responseFormat}", name="api.product.single_update", methods={"PATCH"})
+     *
+     * @param Request    $request
+     * @param ApiContext $context
+     *
+     * @return Response
      */
     public function singleUpdateAction(Request $request, ApiContext $context): Response
     {
         $payload = $context->getPayload();
         $payload['uuid'] = $request->get('productUuid');
 
-        $updateEvent = $this->productRepository->update([$payload], $context->getShopContext()->getTranslationContext());
+        $updateEvent = $this->productRepository->update(
+            [$payload],
+            $context->getShopContext()->getTranslationContext()
+        );
 
         if ($updateEvent->hasErrors()) {
             $errors = $updateEvent->getErrors();
@@ -157,22 +215,27 @@ class ProductController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
+        $products = $this->productRepository->read(
+            [$payload['uuid']],
+            $context->getShopContext()->getTranslationContext()
+        );
+
         return $this->createResponse(
-            ['data' => $this->productRepository->read([$payload['uuid']], $context->getShopContext()->getTranslationContext())->get($payload['uuid'])],
+            ['data' => $products->get($payload['uuid'])],
             $context
         );
     }
 
     /**
      * @Route("/product.{responseFormat}", name="api.product.delete", methods={"DELETE"})
+     *
+     * @param ApiContext $context
+     *
+     * @return Response
      */
     public function deleteAction(ApiContext $context): Response
     {
         $result = [];
-        foreach ($context->getPayload() as $product) {
-            // delete product
-//            $result[] = $this->productRepository->delete($product);
-        }
 
         return $this->createResponse($result, $context);
     }

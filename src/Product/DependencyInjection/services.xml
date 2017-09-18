@@ -6,22 +6,11 @@
 
     <services>
         <!-- Helpers -->
-        <service class="Shopware\Product\Controller\ProductController" id="shopware.product.controller.product_controller">
-            <argument id="shopware.product.repository" type="service"/>
-            <argument id="shopware.category.gateway.category_denormalization" type="service"/>
-            <argument id="shopware.framework.write.resource_registry" type="service"/>
-        </service>
-
-
         <service class="Shopware\Category\Gateway\CategoryDenormalization" id="shopware.category.gateway.category_denormalization">
             <argument id="dbal_connection" type="service"/>
         </service>
 
         <defaults autowire="true" />
-
-        <service class="Shopware\Api\ApiContextValueResolver" id="shopware.api.api_context_value_resolver">
-            <tag name="controller.argument_value_resolver"/>
-        </service>
 
         <service class="Shopware\Product\Repository\StorefrontProductRepository" id="shopware.product.storefront_repository">
             <argument id="shopware.product.repository" type="service"/>

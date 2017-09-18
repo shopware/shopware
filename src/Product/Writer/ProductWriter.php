@@ -39,24 +39,6 @@ class ProductWriter
         $this->writer = $writer;
     }
 
-    private function createWriteContext(string $shopUuid): WriteContext
-    {
-        $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
-
-        return $writeContext;
-    }
-
-    private function getExtender(): FieldExtenderCollection
-    {
-        $extenderCollection = new FieldExtenderCollection();
-        $extenderCollection->addExtender($this->extender);
-
-        $event = $this->eventDispatcher->dispatch(ProductWriteExtenderEvent::NAME, new ProductWriteExtenderEvent($extenderCollection));
-
-        return $event->getExtenderCollection();
-    }
-
     public function update(array $data, TranslationContext $context): ProductWrittenEvent
     {
         $writeContext = $this->createWriteContext($context->getShopUuid());
@@ -68,7 +50,12 @@ class ProductWriter
 
         foreach ($data as $product) {
             try {
-                $updated[] = $this->writer->update(ProductResource::class, $product, $writeContext, $extender);
+                $updated[] = $this->writer->update(
+                    ProductResource::class,
+                    $product,
+                    $writeContext,
+                    $extender
+                );
             } catch (WriteStackException $exception) {
                 $errors[] = $exception->toArray();
             }
@@ -77,7 +64,7 @@ class ProductWriter
         $affected = count($updated);
         if ($affected === 1) {
             $updated = array_shift($updated);
-        } elseif($affected > 1) {
+        } elseif ($affected > 1) {
             $updated = array_merge_recursive(...$updated);
         }
 
@@ -95,7 +82,12 @@ class ProductWriter
 
         foreach ($data as $product) {
             try {
-                $created[] = $this->writer->upsert(ProductResource::class, $product, $writeContext, $extender);
+                $created[] = $this->writer->upsert(
+                    ProductResource::class,
+                    $product,
+                    $writeContext,
+                    $extender
+                );
             } catch (WriteStackException $exception) {
                 $errors[] = $exception->toArray();
             }
@@ -104,7 +96,7 @@ class ProductWriter
         $affected = count($created);
         if ($affected === 1) {
             $created = array_shift($created);
-        } elseif($affected > 1) {
+        } elseif ($affected > 1) {
             $created = array_merge_recursive(...$created);
         }
 
@@ -122,7 +114,12 @@ class ProductWriter
 
         foreach ($data as $product) {
             try {
-                $created[] = $this->writer->insert(ProductResource::class, $product, $writeContext, $extender);
+                $created[] = $this->writer->insert(
+                    ProductResource::class,
+                    $product,
+                    $writeContext,
+                    $extender
+                );
             } catch (WriteStackException $exception) {
                 $errors[] = $exception->toArray();
             }
@@ -131,11 +128,32 @@ class ProductWriter
         $affected = count($created);
         if ($affected === 1) {
             $created = array_shift($created);
-        } elseif($affected > 1) {
+        } elseif ($affected > 1) {
             $created = array_merge_recursive(...$created);
         }
 
         return ProductResource::createWrittenEvent($created, $errors);
+    }
+
+    private function createWriteContext(string $shopUuid): WriteContext
+    {
+        $writeContext = new WriteContext();
+        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+
+        return $writeContext;
+    }
+
+    private function getExtender(): FieldExtenderCollection
+    {
+        $extenderCollection = new FieldExtenderCollection();
+        $extenderCollection->addExtender($this->extender);
+
+        $event = $this->eventDispatcher->dispatch(
+            ProductWriteExtenderEvent::NAME,
+            new ProductWriteExtenderEvent($extenderCollection)
+        );
+
+        return $event->getExtenderCollection();
     }
 
     private function validateWriteInput(array $data): void

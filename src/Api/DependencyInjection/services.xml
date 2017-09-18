@@ -15,5 +15,9 @@
             <argument type="service" id="logger" />
         </service>
 
+        <service class="Shopware\Api\ApiContextValueResolver" id="shopware.api.api_context_value_resolver">
+            <tag name="controller.argument_value_resolver"/>
+        </service>
+
     </services>
 </container>

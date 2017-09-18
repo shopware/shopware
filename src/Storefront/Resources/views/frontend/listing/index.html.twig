@@ -15,6 +15,23 @@
 
 {# Main content #}
 {% block frontend_index_content %}
+    {# Define all necessary template variables for the listing #}
+    {% set emotionViewports = {0: 'xl', 1: 'l', 2: 'm', 3: 's', 4: 'xs'} %}
+
+    {# Count of available product pages #}
+    {% set pages = 1 %}
+
+    {% if listing.criteria %}
+        {% set pages = (numberOfProducts / listing.criteria.getLimit())|round %}
+    {% endif %}
+
+    {# Layout for the product boxes #}
+    {% set productBoxLayout = 'basic' %}
+
+    {% if navigation.activeCategory.productBoxLayout != null and navigation.activeCategory.productBoxLayout != 'extend' %}
+        {% set productBoxLayout = navigation.activeCategory.productBoxLayout %}
+    {% endif %}
+
     <div class="content listing--content">
 
         {# Banner #}
@@ -33,29 +50,10 @@
 
         {# Topseller #}
         {#{% block frontend_listing_index_topseller %}#}
-        {#{% if hasEmotion == false and {% config name=topSellerActive %} %}#}
-        {#{action module=widgets controller=listing action=top_seller sCategory=$sCategoryContent.id}#}
-        {#{% endif %}#}
+            {#{% if hasEmotion == false and {% config name=topSellerActive %} %}#}
+                {#{action module=widgets controller=listing action=top_seller sCategory=$sCategoryContent.id}#}
+            {#{% endif %}#}
         {#{% endblock %}#}
-
-        {# Define all necessary template variables for the listing #}
-        {% block frontend_listing_index_layout_variables %}
-            {% set emotionViewports = {0: 'xl', 1: 'l', 2: 'm', 3: 's', 4: 'xs'} %}
-
-            {# Count of available product pages #}
-            {% set pages = 1 %}
-
-            {% if listing.criteria %}
-                {% set pages = (numberOfProducts / listing.criteria.getLimit())|round %}
-            {% endif %}
-
-            {# Layout for the product boxes #}
-            {% set productBoxLayout = 'basic' %}
-
-            {% if navigation.activeCategory.productBoxLayout != null and navigation.activeCategory.productBoxLayout != 'extend' %}
-                {% set productBoxLayout = navigation.activeCategory.productBoxLayout %}
-            {% endif %}
-        {% endblock %}
 
         {# Listing #}
         {% block frontend_listing_index_listing %}

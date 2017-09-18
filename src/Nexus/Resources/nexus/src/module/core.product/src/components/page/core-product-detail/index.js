@@ -3,7 +3,7 @@ import template from './core-product-detail.html.twig';
 import './core-product-detail.less';
 
 export default Shopware.ComponentFactory.register('core-product-detail', {
-    inject: ['productService'],
+    inject: ['productService', 'productManufacturerService'],
 
     data() {
         return {
@@ -17,6 +17,9 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
     },
 
     created() {
+        this.productManufacturerService.readAll().then((response) => {
+            console.log(response);
+        });
         this.getData();
     },
 

@@ -10,6 +10,18 @@
             <argument type="collection" />
         </service>
 
+
+        <service class="Shopware\PriceGroupDiscount\Controller\PriceGroupDiscountController" id="shopware.price_group_discount.api_controller">
+            <argument id="shopware.price_group_discount.repository" type="service"/>
+        </service>
+        
+
+        <service class="Shopware\PriceGroupDiscount\Writer\PriceGroupDiscountWriter" id="shopware.price_group_discount.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
         <service class="Shopware\PriceGroupDiscount\Loader\PriceGroupDiscountBasicLoader" id="shopware.price_group_discount.basic_loader">
             <argument id="shopware.price_group_discount.basic_factory" type="service"/>
         </service>
@@ -25,6 +37,7 @@
             <argument id="shopware.price_group_discount.basic_loader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.price_group_discount.searcher" type="service"/>
+            <argument id="shopware.price_group_discount.writer" type="service"/>
         </service>
 
     </services>

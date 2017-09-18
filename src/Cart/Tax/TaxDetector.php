@@ -31,11 +31,11 @@ class TaxDetector
 {
     public function useGross(ShopContext $context): bool
     {
-        return $context->getCurrentCustomerGroup()->displayGrossPrices();
+        return $context->getCurrentCustomerGroup()->getDisplayGross();
     }
 
     public function isNetDelivery(ShopContext $context): bool
     {
-        return $context->getShippingLocation()->getCountry()->isTaxFree();
+        return $context->getShippingLocation()->getCountry()->getTaxFree();
     }
 }

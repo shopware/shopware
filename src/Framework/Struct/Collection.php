@@ -143,4 +143,9 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     {
         return new static(array_merge($this->elements, $collection->getIterator()->getArrayCopy()));
     }
+
+    public function first()
+    {
+        return array_values($this->elements)[0];
+    }
 }

@@ -38,7 +38,7 @@
 
 {# Listing wrapper #}
 {% block frontend_listing_listing_wrapper %}
-    {% if showListing %}
+    {% if listing.showListing %}
 
         {% set listingCssClass = "listing--wrapper" %}
 
@@ -81,7 +81,7 @@
 
                             {# Actual listing #}
                             {% block frontend_listing_list_inline %}
-                                {% for product in products %}
+                                {% for product in listing.products %}
                                     {% sw_include "@Shopware/frontend/listing/box_product.html.twig" %}
                                 {% endfor %}
                             {% endblock %}

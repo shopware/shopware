@@ -110,7 +110,8 @@
         </service>
 
         <service class="Shopware\Storefront\Page\Listing\ListingPageLoader" id="shopware.storefront.page.listing.listing_page_loader">
-            <argument id="shopware.category.repository" type="service" />
+            <argument id="shopware.category.repository" type="service"/>
+            <argument id="shopware.product.storefront_repository" type="service"/>
         </service>
 
     </services>

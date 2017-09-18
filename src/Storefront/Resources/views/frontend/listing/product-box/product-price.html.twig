@@ -1,0 +1,34 @@
+{#{namespace name="frontend/listing/box_article"}#}
+
+{#<div class="product--price">#}
+
+    {% block frontend_listing_box_article_price_default %}
+        <span class="price--default is--nowrap{% if product.listingPrice.pseudoPrice %} is--discount{% endif %}">
+            {% if product.listingPrice.hasDifferentPrices %}
+                {% trans from 'frontend/listing/box_article' %}ListingBoxArticleStartsAt{% endtrans %}
+            {% endif %}
+            {{ product.listingPrice.price }}
+            {% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
+        </span>
+     {% endblock %}
+
+    {#{% block frontend_listing_box_article_price_discount %}#}
+        {#{% if $sArticle.has_pseudoprice}#}
+            {#<span class="price--pseudo">#}
+
+                {#{% block frontend_listing_box_article_price_discount_before'}#}
+                    {#{s name="priceDiscountLabel" namespace="frontend/detail/data"}{/s}#}
+                 {#{% endblock %}#}
+
+                {#<span class="price--discount is--nowrap">#}
+                    {#{$sArticle.pseudoprice|currency}#}
+                    {#{s name="Star"}{/s}#}
+                {#</span>#}
+
+                {#{% block frontend_listing_box_article_price_discount_after'}#}
+                    {#{s name="priceDiscountInfo" namespace="frontend/detail/data"}{/s}#}
+                 {#{% endblock %}#}
+            {#</span>#}
+        {#{% endif %}>#}
+     {#{% endblock %}#}
+{#</div>#}

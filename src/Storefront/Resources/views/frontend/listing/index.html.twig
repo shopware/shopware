@@ -46,15 +46,15 @@
             {# Count of available product pages #}
             {% set pages = 1 %}
 
-            {% if criteria %}
-                {% set pages = (numberOfProducts / criteria.getLimit())|round %}
+            {% if listing.criteria %}
+                {% set pages = (numberOfProducts / listing.criteria.getLimit())|round %}
             {% endif %}
 
             {# Layout for the product boxes #}
             {% set productBoxLayout = 'basic' %}
 
-            {% if category.productBoxLayout != null and category.productBoxLayout != 'extend' %}
-                {% set productBoxLayout = category.productBoxLayout %}
+            {% if navigation.activeCategory.productBoxLayout != null and navigation.activeCategory.productBoxLayout != 'extend' %}
+                {% set productBoxLayout = navigation.activeCateogry.productBoxLayout %}
             {% endif %}
         {% endblock %}
 

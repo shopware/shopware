@@ -3,8 +3,8 @@
 {% block frontend_listing_box_article %}
     <div class="product--box box--{{ productBoxLayout }}"
          data-page-index="{{ pageIndex }}"
-         data-ordernumber="{{ product.ordernumber }}"
-         {% if shopware.config.disableArticleNavigation == false %}data-category-id="{{ sCategoryCurrent }}"{% endif %}>
+         data-ordernumber="{{ product.mainDetail.uuid }}"
+         {% if shopware.config.disableArticleNavigation == false %}data-category-uuid="{{ navigation.activeCategory.uuid }}"{% endif %}>
 
         {% block frontend_listing_box_article_content %}
             <div class="box--content is--rounded">
@@ -33,7 +33,13 @@
 
                         {# Product name #}
                         {% block frontend_listing_box_article_name %}
-                            <a href="{{ product.linkDetails }}"
+                            {% if product.canonicalUrl %}
+                                {% set url = product.canonicalUrl.url %}
+                            {% else %}
+                                {% set url = url('detail_page', { 'uuid': product.uuid }) %}
+                            {% endif %}
+
+                            <a href="{{ url }}"
                                class="product--title"
                                title="{{ product.name|escape }}">
                                 {{ product.name|slice(0, 50)|escape }}
@@ -50,15 +56,16 @@
                         {% block frontend_listing_box_article_price_info %}
                             <div class="product--price-info">
 
+
                                 {# Product price - Unit price #}
                                 {% block frontend_listing_box_article_unit %}
                                     {#{% sw_include "@Shopware/frontend/listing/product-box/product-price-unit.html.twig" %}#}
                                 {% endblock %}
 
                                 {# Product price - Default and discount price #}
-                                {% block frontend_listing_box_article_price %}
-                                    {#{% sw_include "@Shopware/frontend/listing/product-box/product-price.html.twig" %}#}
-                                {% endblock %}
+                                {#{% block frontend_listing_box_article_price %}#}
+                                    {% sw_include "@Shopware/frontend/listing/product-box/product-price.html.twig" %}
+                                {#{% endblock %}#}
                             </div>
                         {% endblock %}
 

@@ -136,6 +136,7 @@ class Router implements RouterInterface, RequestMatcherInterface
 
         if ($routes = $cacheItem->get()) {
             $this->routes = $routes;
+            return $this->routes;
         }
 
         if (null === $this->routes) {

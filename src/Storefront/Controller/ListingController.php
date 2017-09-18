@@ -25,7 +25,6 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Search\Criteria;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -38,25 +37,10 @@ class ListingController extends FrontendController
     {
         $listingPageLoader = $this->get('shopware.storefront.page.listing.listing_page_loader');
 
-        $listingPageStruct = $listingPageLoader->load($uuid, $context->getTranslationContext());
+        $listingPage = $listingPageLoader->load($uuid, $request, $context);
 
-        $products = [
-            [
-                'name' => 'Product A'
-            ],
-            [
-                'name' => 'Product B'
-            ]
-        ];
-
-        return $this->render(
-            'frontend/listing/index.html.twig',
-            [
-                'category' => $listingPageStruct->getCategory(),
-                'showListing' => true,
-                'products' => $products,
-                'criteria' => new Criteria()
-            ]
-        );
+        return $this->render('frontend/listing/index.html.twig', [
+            'listing' => $listingPage
+        ]);
     }
 }

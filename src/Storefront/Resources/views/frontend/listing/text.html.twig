@@ -2,32 +2,32 @@
 
 {# Categorie headline #}
 {% block frontend_listing_text %}
-    {% if category.cmsHeadline or category.cmsDescription %}
+    {% if navigation.activeCategory.cmsHeadline or category.cmsDescription %}
         <div class="hero-unit category--teaser panel has--border is--rounded">
 
             {# Headline #}
             {% block frontend_listing_text_headline %}
-                {% if category.cmsHeadline %}
-                    <h1 class="hero--headline panel--title">{{ category.cmsHeadline }}</h1>
+                {% if navigation.activeCategory.cmsHeadline %}
+                    <h1 class="hero--headline panel--title">{{ navigation.activeCategory.cmsHeadline }}</h1>
                 {% endif %}
             {% endblock %}
 
             {# Category text #}
             {% block frontend_listing_text_content %}
                 <div class="hero--text panel--body is--wide">
-                    {% if category.cmsDescription %}
+                    {% if navigation.activeCategory.cmsDescription %}
 
                         {# Long description #}
                         {% block frontend_listing_text_content_long %}
                             <div class="teaser--text-long">
-                                {{ category.cmsDescription }}
+                                {{ navigation.activeCategory.cmsDescription }}
                             </div>
                         {% endblock %}
 
                         {# Short description #}
                         {% block frontend_listing_text_content_short %}
                             <div class="teaser--text-short is--hidden">
-                                {{ category.cmsDescription|striptags[:200] }}
+                                {{ navigation.activeCategory.cmsDescription|striptags[:200] }}
                                 <a href="#" title="{s namespace='frontend/listing/listing' name='ListingActionsOpenOffCanvas'}{/s}|escape}" class="text--offcanvas-link">
                                     {#{s namespace="frontend/listing/listing" name="ListingActionsOpenOffCanvas"}{/s} &raquo;#}
                                 </a>
@@ -47,8 +47,8 @@
                                 {# Off Canvas Content #}
                                 {% block frontend_listing_text_content_offcanvas_content %}
                                     <div class="offcanvas--content">
-                                        <div class="content--title">{{ category.cmsHeadline }}</div>
-                                        {{ category.cmsDescription }}
+                                        <div class="content--title">{{ navigation.activeCategory.cmsHeadline }}</div>
+                                        {{ navigation.activeCategory.cmsDescription }}
                                     </div>
                                 {% endblock %}
                             </div>

@@ -10,11 +10,6 @@ use Shopware\Search\Criteria;
 class ListingPageStruct extends Struct
 {
     /**
-     * @var CategoryBasicStruct
-     */
-    protected $category;
-
-    /**
      * @var ProductBasicCollection
      */
     protected $products;
@@ -28,16 +23,6 @@ class ListingPageStruct extends Struct
      * @var bool
      */
     protected $showListing = true;
-
-    public function getCategory(): CategoryBasicStruct
-    {
-        return $this->category;
-    }
-
-    public function setCategory(CategoryBasicStruct $category): void
-    {
-        $this->category = $category;
-    }
 
     public function getProducts(): ProductBasicCollection
     {

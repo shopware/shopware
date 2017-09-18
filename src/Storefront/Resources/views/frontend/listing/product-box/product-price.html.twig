@@ -7,7 +7,8 @@
             {% if product.listingPrice.hasDifferentPrices %}
                 {% trans from 'frontend/listing/box_article' %}ListingBoxArticleStartsAt{% endtrans %}
             {% endif %}
-            {{ product.listingPrice.price }}
+            {{ product.listingPrice.price|localizedcurrency(context.currency.shortName) }}
+
             {% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
         </span>
      {% endblock %}

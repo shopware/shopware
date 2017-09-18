@@ -24,12 +24,8 @@
 
 namespace Shopware\Storefront\Twig;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Category\Repository\CategoryRepository;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Config\ConfigServiceInterface;
-use Shopware\Serializer\SerializerRegistry;
-use Shopware\Storefront\Component\SitePageMenu;
 use Shopware\Storefront\Theme\ThemeConfigReader;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -52,48 +48,20 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
     private $configService;
 
     /**
-     * @var SitePageMenu
-     */
-    private $sitePageMenu;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @var ThemeConfigReader
      */
     private $themeConfigReader;
-
-    /**
-     * @var CategoryRepository
-     */
-    private $categoryRepository;
-
-    /**
-     * @var SerializerRegistry
-     */
-    private $serializer;
 
     public function __construct(
         TranslatorInterface $translator,
         RequestStack $requestStack,
         ConfigServiceInterface $configService,
-        SitePageMenu $sitePageMenu,
-        Connection $connection,
-        ThemeConfigReader $themeConfigReader,
-        CategoryRepository $categoryRepository,
-        SerializerRegistry $serializer
+        ThemeConfigReader $themeConfigReader
     ) {
         $this->translator = $translator;
         $this->requestStack = $requestStack;
         $this->configService = $configService;
-        $this->sitePageMenu = $sitePageMenu;
-        $this->connection = $connection;
         $this->themeConfigReader = $themeConfigReader;
-        $this->categoryRepository = $categoryRepository;
-        $this->serializer = $serializer;
     }
 
     public function getFunctions(): array

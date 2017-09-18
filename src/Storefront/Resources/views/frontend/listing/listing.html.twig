@@ -74,7 +74,7 @@
                                 data-infinite-scrolling="true"
                                 data-loadPreviousSnippet="{% trans from 'frontend/listing/listing' %}ListingActionsLoadPrevious{% endtrans %}"
                                 data-loadMoreSnippet="{% trans from 'frontend/listing/listing' %}ListingActionsLoadMore{% endtrans %}"
-                                data-categoryId="{{ category.id }}"
+                                data-categoryId="{{ navigation.activeCategory.id }}"
                                 data-pages="{{ pages }}"
                                 data-threshold="{{ theme.infiniteThreshold }}"
                             {% endif %}>

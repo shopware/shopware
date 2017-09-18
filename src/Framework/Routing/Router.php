@@ -260,7 +260,6 @@ class Router implements RouterInterface, RequestMatcherInterface
             return $this->match($pathInfo);
         }
 
-//        error_log(print_r("match: " . $pathInfo, true) . "\n", 3, '/var/log/test.log');
         //resolve seo urls to use symfony url matcher for route detection
         $seoUrl = $this->urlResolver->getPathInfo($shop['uuid'], $pathInfo, $translationContext);
 

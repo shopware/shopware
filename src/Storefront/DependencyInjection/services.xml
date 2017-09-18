@@ -16,11 +16,7 @@
             <argument type="service" id="translator" />
             <argument type="service" id="request_stack" />
             <argument type="service" id="shopware.config.config_service" />
-            <argument type="service" id="shopware.storefront.component.site_page_menu" />
-            <argument type="service" id="dbal_connection" />
             <argument type="service" id="shopware.storefront.component.theme.config_reader" />
-            <argument type="service" id="shopware.category.repository" />
-            <argument type="service" id="shopware.serializer.serializer_registry" />
         </service>
 
         <service id="shopware.storefront.component.site_page_menu" class="Shopware\Storefront\Component\SitePageMenu">
@@ -110,7 +106,6 @@
         </service>
 
         <service class="Shopware\Storefront\Page\Listing\ListingPageLoader" id="shopware.storefront.page.listing.listing_page_loader">
-            <argument id="shopware.category.repository" type="service"/>
             <argument id="shopware.product.storefront_repository" type="service"/>
         </service>
 

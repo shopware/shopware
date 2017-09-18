@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Page\Listing;
 
-use Shopware\Category\Repository\CategoryRepository;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Product\Repository\StorefrontProductRepository;
 use Shopware\Search\Criteria;
@@ -12,21 +11,13 @@ use Symfony\Component\HttpFoundation\Request;
 class ListingPageLoader
 {
     /**
-     * @var CategoryRepository
-     */
-    private $categoryRepository;
-
-    /**
      * @var StorefrontProductRepository
      */
     private $productRepository;
 
     public function __construct(
-        CategoryRepository $categoryRepository,
         StorefrontProductRepository $productRepository
-    )
-    {
-        $this->categoryRepository = $categoryRepository;
+    ) {
         $this->productRepository = $productRepository;
     }
 
@@ -40,13 +31,7 @@ class ListingPageLoader
 
         $products = $this->productRepository->search($criteria, $context);
 
-        $category = $this->categoryRepository->readDetail(
-            [$categoryUuid],
-            $context->getTranslationContext()
-        )->get($categoryUuid);
-
         $listingPageStruct = new ListingPageStruct();
-        $listingPageStruct->setCategory($category);
         $listingPageStruct->setProducts($products);
         $listingPageStruct->setCriteria($criteria);
         $listingPageStruct->setShowListing(true);

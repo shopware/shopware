@@ -69,6 +69,10 @@ ProductVoteSearcher $productVoteSearcher
 
     public function load(array $uuids, TranslationContext $context): ProductDetailCollection
     {
+        if (empty($uuids)) {
+            return new ProductDetailCollection();
+        }
+
         $products = $this->read($uuids, $context);
 
         $blockedCustomerGroupss = $this->customerGroupBasicLoader->load($products->getBlockedCustomerGroupsUuids(), $context);

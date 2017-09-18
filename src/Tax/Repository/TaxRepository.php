@@ -51,6 +51,10 @@ class TaxRepository
 
     public function read(array $uuids, TranslationContext $context): TaxBasicCollection
     {
+        if (empty($uuids)) {
+            return new TaxBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

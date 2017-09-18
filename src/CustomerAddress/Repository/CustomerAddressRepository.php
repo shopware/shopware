@@ -51,6 +51,10 @@ class CustomerAddressRepository
 
     public function read(array $uuids, TranslationContext $context): CustomerAddressBasicCollection
     {
+        if (empty($uuids)) {
+            return new CustomerAddressBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

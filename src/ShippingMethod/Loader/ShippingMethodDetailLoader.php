@@ -69,6 +69,10 @@ ShippingMethodPriceSearcher $shippingMethodPriceSearcher
 
     public function load(array $uuids, TranslationContext $context): ShippingMethodDetailCollection
     {
+        if (empty($uuids)) {
+            return new ShippingMethodDetailCollection();
+        }
+
         $shippingMethods = $this->read($uuids, $context);
 
         $categories = $this->categoryBasicLoader->load($shippingMethods->getCategoryUuids(), $context);

@@ -26,6 +26,10 @@ class UnitBasicLoader
 
     public function load(array $uuids, TranslationContext $context): UnitBasicCollection
     {
+        if (empty($uuids)) {
+            return new UnitBasicCollection();
+        }
+
         $units = $this->read($uuids, $context);
 
         return $units;

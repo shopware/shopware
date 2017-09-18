@@ -51,6 +51,10 @@ class ProductVoteRepository
 
     public function read(array $uuids, TranslationContext $context): ProductVoteBasicCollection
     {
+        if (empty($uuids)) {
+            return new ProductVoteBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

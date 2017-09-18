@@ -51,6 +51,10 @@ class ShippingMethodPriceRepository
 
     public function read(array $uuids, TranslationContext $context): ShippingMethodPriceBasicCollection
     {
+        if (empty($uuids)) {
+            return new ShippingMethodPriceBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

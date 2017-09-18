@@ -51,6 +51,10 @@ class AreaCountryStateRepository
 
     public function read(array $uuids, TranslationContext $context): AreaCountryStateBasicCollection
     {
+        if (empty($uuids)) {
+            return new AreaCountryStateBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

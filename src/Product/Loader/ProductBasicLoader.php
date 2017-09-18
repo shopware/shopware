@@ -34,6 +34,10 @@ CustomerGroupBasicLoader $customerGroupBasicLoader
 
     public function load(array $uuids, TranslationContext $context): ProductBasicCollection
     {
+        if (empty($uuids)) {
+            return new ProductBasicCollection();
+        }
+
         $products = $this->read($uuids, $context);
 
         $blockedCustomerGroupss = $this->customerGroupBasicLoader->load($products->getBlockedCustomerGroupsUuids(), $context);

@@ -4,3 +4,5 @@
 bin/console translation:import --with-plugins
 
 bin/console category:rebuild:tree
+
+bin/console seo:url:generate

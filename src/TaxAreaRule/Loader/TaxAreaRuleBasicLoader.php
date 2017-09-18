@@ -26,6 +26,10 @@ class TaxAreaRuleBasicLoader
 
     public function load(array $uuids, TranslationContext $context): TaxAreaRuleBasicCollection
     {
+        if (empty($uuids)) {
+            return new TaxAreaRuleBasicCollection();
+        }
+
         $taxAreaRules = $this->read($uuids, $context);
 
         return $taxAreaRules;

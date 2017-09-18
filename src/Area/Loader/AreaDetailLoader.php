@@ -44,6 +44,10 @@ AreaCountryDetailLoader $areaCountryDetailLoader
 
     public function load(array $uuids, TranslationContext $context): AreaDetailCollection
     {
+        if (empty($uuids)) {
+            return new AreaDetailCollection();
+        }
+
         $areas = $this->read($uuids, $context);
 
         $criteria = new Criteria();

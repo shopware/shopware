@@ -26,6 +26,10 @@ class CustomerAddressBasicLoader
 
     public function load(array $uuids, TranslationContext $context): CustomerAddressBasicCollection
     {
+        if (empty($uuids)) {
+            return new CustomerAddressBasicCollection();
+        }
+
         $customerAddresss = $this->read($uuids, $context);
 
         return $customerAddresss;

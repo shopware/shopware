@@ -61,6 +61,9 @@ class CurrencyRepository
 
     public function readDetail(array $uuids, TranslationContext $context): CurrencyDetailCollection
     {
+        if (empty($uuids)) {
+            return new CurrencyDetailCollection();
+        }
         $collection = $this->detailLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -73,6 +76,10 @@ class CurrencyRepository
 
     public function read(array $uuids, TranslationContext $context): CurrencyBasicCollection
     {
+        if (empty($uuids)) {
+            return new CurrencyBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

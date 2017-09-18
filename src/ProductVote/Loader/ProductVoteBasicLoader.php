@@ -26,6 +26,10 @@ class ProductVoteBasicLoader
 
     public function load(array $uuids, TranslationContext $context): ProductVoteBasicCollection
     {
+        if (empty($uuids)) {
+            return new ProductVoteBasicCollection();
+        }
+
         $productVotes = $this->read($uuids, $context);
 
         return $productVotes;

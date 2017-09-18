@@ -42,6 +42,10 @@ AreaCountryBasicLoader $areaCountryBasicLoader
 
     public function load(array $uuids, TranslationContext $context): PaymentMethodDetailCollection
     {
+        if (empty($uuids)) {
+            return new PaymentMethodDetailCollection();
+        }
+
         $paymentMethods = $this->read($uuids, $context);
 
         $shops = $this->shopBasicLoader->load($paymentMethods->getShopUuids(), $context);

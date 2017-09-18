@@ -37,6 +37,10 @@ CustomerGroupDiscountSearcher $customerGroupDiscountSearcher
 
     public function load(array $uuids, TranslationContext $context): CustomerGroupDetailCollection
     {
+        if (empty($uuids)) {
+            return new CustomerGroupDetailCollection();
+        }
+
         $customerGroups = $this->read($uuids, $context);
 
         $criteria = new Criteria();

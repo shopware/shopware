@@ -51,6 +51,10 @@ class ProductStreamRepository
 
     public function read(array $uuids, TranslationContext $context): ProductStreamBasicCollection
     {
+        if (empty($uuids)) {
+            return new ProductStreamBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

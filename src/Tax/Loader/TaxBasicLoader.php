@@ -26,6 +26,10 @@ class TaxBasicLoader
 
     public function load(array $uuids, TranslationContext $context): TaxBasicCollection
     {
+        if (empty($uuids)) {
+            return new TaxBasicCollection();
+        }
+
         $taxs = $this->read($uuids, $context);
 
         return $taxs;

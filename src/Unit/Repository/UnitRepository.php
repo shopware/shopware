@@ -51,6 +51,10 @@ class UnitRepository
 
     public function read(array $uuids, TranslationContext $context): UnitBasicCollection
     {
+        if (empty($uuids)) {
+            return new UnitBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

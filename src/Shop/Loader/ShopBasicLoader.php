@@ -26,6 +26,10 @@ class ShopBasicLoader
 
     public function load(array $uuids, TranslationContext $context): ShopBasicCollection
     {
+        if (empty($uuids)) {
+            return new ShopBasicCollection();
+        }
+
         $shops = $this->read($uuids, $context);
 
         return $shops;

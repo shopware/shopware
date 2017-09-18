@@ -61,6 +61,9 @@ class PriceGroupRepository
 
     public function readDetail(array $uuids, TranslationContext $context): PriceGroupDetailCollection
     {
+        if (empty($uuids)) {
+            return new PriceGroupDetailCollection();
+        }
         $collection = $this->detailLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -73,6 +76,10 @@ class PriceGroupRepository
 
     public function read(array $uuids, TranslationContext $context): PriceGroupBasicCollection
     {
+        if (empty($uuids)) {
+            return new PriceGroupBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

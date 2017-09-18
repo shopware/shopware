@@ -26,6 +26,10 @@ class MediaBasicLoader
 
     public function load(array $uuids, TranslationContext $context): MediaBasicCollection
     {
+        if (empty($uuids)) {
+            return new MediaBasicCollection();
+        }
+
         $medias = $this->read($uuids, $context);
 
         return $medias;

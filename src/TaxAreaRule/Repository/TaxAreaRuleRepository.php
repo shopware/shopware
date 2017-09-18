@@ -51,6 +51,10 @@ class TaxAreaRuleRepository
 
     public function read(array $uuids, TranslationContext $context): TaxAreaRuleBasicCollection
     {
+        if (empty($uuids)) {
+            return new TaxAreaRuleBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

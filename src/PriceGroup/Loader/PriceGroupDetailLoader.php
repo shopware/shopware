@@ -37,6 +37,10 @@ PriceGroupDiscountSearcher $priceGroupDiscountSearcher
 
     public function load(array $uuids, TranslationContext $context): PriceGroupDetailCollection
     {
+        if (empty($uuids)) {
+            return new PriceGroupDetailCollection();
+        }
+
         $priceGroups = $this->read($uuids, $context);
 
         $criteria = new Criteria();

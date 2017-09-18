@@ -37,6 +37,10 @@ AreaCountryStateSearcher $areaCountryStateSearcher
 
     public function load(array $uuids, TranslationContext $context): AreaCountryDetailCollection
     {
+        if (empty($uuids)) {
+            return new AreaCountryDetailCollection();
+        }
+
         $areaCountries = $this->read($uuids, $context);
 
         $criteria = new Criteria();

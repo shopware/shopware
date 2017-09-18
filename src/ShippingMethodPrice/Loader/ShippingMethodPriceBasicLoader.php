@@ -26,6 +26,10 @@ class ShippingMethodPriceBasicLoader
 
     public function load(array $uuids, TranslationContext $context): ShippingMethodPriceBasicCollection
     {
+        if (empty($uuids)) {
+            return new ShippingMethodPriceBasicCollection();
+        }
+
         $shippingMethodPrices = $this->read($uuids, $context);
 
         return $shippingMethodPrices;

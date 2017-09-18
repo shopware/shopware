@@ -62,6 +62,9 @@ class #classUc#Repository
 
     public function readDetail(array $uuids, TranslationContext $context): #classUc#DetailCollection
     {
+        if (empty($uuids)) {
+            return new #classUc#DetailCollection();
+        }
         $collection = $this->detailLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -74,6 +77,10 @@ class #classUc#Repository
 
     public function read(array $uuids, TranslationContext $context): #classUc#BasicCollection
     {
+        if (empty($uuids)) {
+            return new #classUc#BasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

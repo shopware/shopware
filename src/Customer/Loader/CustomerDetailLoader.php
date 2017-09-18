@@ -37,6 +37,10 @@ CustomerAddressSearcher $customerAddressSearcher
 
     public function load(array $uuids, TranslationContext $context): CustomerDetailCollection
     {
+        if (empty($uuids)) {
+            return new CustomerDetailCollection();
+        }
+
         $customers = $this->read($uuids, $context);
 
         $criteria = new Criteria();

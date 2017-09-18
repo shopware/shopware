@@ -52,6 +52,10 @@ class #classUc#Repository
 
     public function read(array $uuids, TranslationContext $context): #classUc#BasicCollection
     {
+        if (empty($uuids)) {
+            return new #classUc#BasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

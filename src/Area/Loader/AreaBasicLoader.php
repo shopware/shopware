@@ -26,6 +26,10 @@ class AreaBasicLoader
 
     public function load(array $uuids, TranslationContext $context): AreaBasicCollection
     {
+        if (empty($uuids)) {
+            return new AreaBasicCollection();
+        }
+
         $areas = $this->read($uuids, $context);
 
         return $areas;

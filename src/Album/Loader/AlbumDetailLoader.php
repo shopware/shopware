@@ -37,6 +37,10 @@ MediaSearcher $mediaSearcher
 
     public function load(array $uuids, TranslationContext $context): AlbumDetailCollection
     {
+        if (empty($uuids)) {
+            return new AlbumDetailCollection();
+        }
+
         $albums = $this->read($uuids, $context);
 
         $criteria = new Criteria();

@@ -26,6 +26,10 @@ class PaymentMethodBasicLoader
 
     public function load(array $uuids, TranslationContext $context): PaymentMethodBasicCollection
     {
+        if (empty($uuids)) {
+            return new PaymentMethodBasicCollection();
+        }
+
         $paymentMethods = $this->read($uuids, $context);
 
         return $paymentMethods;

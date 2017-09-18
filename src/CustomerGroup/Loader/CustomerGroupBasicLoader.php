@@ -26,6 +26,10 @@ class CustomerGroupBasicLoader
 
     public function load(array $uuids, TranslationContext $context): CustomerGroupBasicCollection
     {
+        if (empty($uuids)) {
+            return new CustomerGroupBasicCollection();
+        }
+
         $customerGroups = $this->read($uuids, $context);
 
         return $customerGroups;

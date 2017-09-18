@@ -34,6 +34,10 @@ ShopBasicLoader $shopBasicLoader
 
     public function load(array $uuids, TranslationContext $context): CurrencyDetailCollection
     {
+        if (empty($uuids)) {
+            return new CurrencyDetailCollection();
+        }
+
         $currencies = $this->read($uuids, $context);
 
         $shops = $this->shopBasicLoader->load($currencies->getShopUuids(), $context);

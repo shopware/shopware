@@ -61,6 +61,9 @@ class ShopRepository
 
     public function readDetail(array $uuids, TranslationContext $context): ShopDetailCollection
     {
+        if (empty($uuids)) {
+            return new ShopDetailCollection();
+        }
         $collection = $this->detailLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -73,6 +76,10 @@ class ShopRepository
 
     public function read(array $uuids, TranslationContext $context): ShopBasicCollection
     {
+        if (empty($uuids)) {
+            return new ShopBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

@@ -61,6 +61,9 @@ class ShippingMethodRepository
 
     public function readDetail(array $uuids, TranslationContext $context): ShippingMethodDetailCollection
     {
+        if (empty($uuids)) {
+            return new ShippingMethodDetailCollection();
+        }
         $collection = $this->detailLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -73,6 +76,10 @@ class ShippingMethodRepository
 
     public function read(array $uuids, TranslationContext $context): ShippingMethodBasicCollection
     {
+        if (empty($uuids)) {
+            return new ShippingMethodBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

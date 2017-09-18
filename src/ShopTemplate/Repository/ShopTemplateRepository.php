@@ -51,6 +51,10 @@ class ShopTemplateRepository
 
     public function read(array $uuids, TranslationContext $context): ShopTemplateBasicCollection
     {
+        if (empty($uuids)) {
+            return new ShopTemplateBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

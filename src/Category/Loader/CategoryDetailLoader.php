@@ -42,6 +42,10 @@ CustomerGroupBasicLoader $customerGroupBasicLoader
 
     public function load(array $uuids, TranslationContext $context): CategoryDetailCollection
     {
+        if (empty($uuids)) {
+            return new CategoryDetailCollection();
+        }
+
         $categories = $this->read($uuids, $context);
 
         $products = $this->productBasicLoader->load($categories->getProductUuids(), $context);

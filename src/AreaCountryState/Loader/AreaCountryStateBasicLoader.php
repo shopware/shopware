@@ -26,6 +26,10 @@ class AreaCountryStateBasicLoader
 
     public function load(array $uuids, TranslationContext $context): AreaCountryStateBasicCollection
     {
+        if (empty($uuids)) {
+            return new AreaCountryStateBasicCollection();
+        }
+
         $areaCountryStates = $this->read($uuids, $context);
 
         return $areaCountryStates;

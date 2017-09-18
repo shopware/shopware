@@ -31,6 +31,10 @@ class #structClass#Loader
 
     public function load(array $uuids, TranslationContext $context): #structClass#Collection
     {
+        if (empty($uuids)) {
+            return new #structClass#Collection();
+        }
+
         $#plural# = $this->read($uuids, $context);
 #iteration#
         return $#plural#;

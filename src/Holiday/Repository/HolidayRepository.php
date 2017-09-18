@@ -51,6 +51,10 @@ class HolidayRepository
 
     public function read(array $uuids, TranslationContext $context): HolidayBasicCollection
     {
+        if (empty($uuids)) {
+            return new HolidayBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

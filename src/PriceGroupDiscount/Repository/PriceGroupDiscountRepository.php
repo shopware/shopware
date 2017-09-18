@@ -51,6 +51,10 @@ class PriceGroupDiscountRepository
 
     public function read(array $uuids, TranslationContext $context): PriceGroupDiscountBasicCollection
     {
+        if (empty($uuids)) {
+            return new PriceGroupDiscountBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

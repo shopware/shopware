@@ -37,6 +37,10 @@ ProductPriceSearcher $productPriceSearcher
 
     public function load(array $uuids, TranslationContext $context): ProductDetailDetailCollection
     {
+        if (empty($uuids)) {
+            return new ProductDetailDetailCollection();
+        }
+
         $productDetails = $this->read($uuids, $context);
 
         $criteria = new Criteria();

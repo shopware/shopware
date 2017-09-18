@@ -51,6 +51,10 @@ class MediaRepository
 
     public function read(array $uuids, TranslationContext $context): MediaBasicCollection
     {
+        if (empty($uuids)) {
+            return new MediaBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

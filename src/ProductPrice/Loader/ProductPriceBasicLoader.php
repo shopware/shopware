@@ -26,6 +26,10 @@ class ProductPriceBasicLoader
 
     public function load(array $uuids, TranslationContext $context): ProductPriceBasicCollection
     {
+        if (empty($uuids)) {
+            return new ProductPriceBasicCollection();
+        }
+
         $productPrices = $this->read($uuids, $context);
 
         return $productPrices;

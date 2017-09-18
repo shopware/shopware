@@ -61,6 +61,9 @@ class AreaRepository
 
     public function readDetail(array $uuids, TranslationContext $context): AreaDetailCollection
     {
+        if (empty($uuids)) {
+            return new AreaDetailCollection();
+        }
         $collection = $this->detailLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -73,6 +76,10 @@ class AreaRepository
 
     public function read(array $uuids, TranslationContext $context): AreaBasicCollection
     {
+        if (empty($uuids)) {
+            return new AreaBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

@@ -26,6 +26,10 @@ class ListingSortingBasicLoader
 
     public function load(array $uuids, TranslationContext $context): ListingSortingBasicCollection
     {
+        if (empty($uuids)) {
+            return new ListingSortingBasicCollection();
+        }
+
         $listingSortings = $this->read($uuids, $context);
 
         return $listingSortings;

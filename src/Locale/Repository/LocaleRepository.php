@@ -51,6 +51,10 @@ class LocaleRepository
 
     public function read(array $uuids, TranslationContext $context): LocaleBasicCollection
     {
+        if (empty($uuids)) {
+            return new LocaleBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

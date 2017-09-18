@@ -61,6 +61,9 @@ class AlbumRepository
 
     public function readDetail(array $uuids, TranslationContext $context): AlbumDetailCollection
     {
+        if (empty($uuids)) {
+            return new AlbumDetailCollection();
+        }
         $collection = $this->detailLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -73,6 +76,10 @@ class AlbumRepository
 
     public function read(array $uuids, TranslationContext $context): AlbumBasicCollection
     {
+        if (empty($uuids)) {
+            return new AlbumBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

@@ -51,6 +51,10 @@ class ListingSortingRepository
 
     public function read(array $uuids, TranslationContext $context): ListingSortingBasicCollection
     {
+        if (empty($uuids)) {
+            return new ListingSortingBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

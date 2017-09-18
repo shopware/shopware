@@ -61,6 +61,9 @@ class CategoryRepository
 
     public function readDetail(array $uuids, TranslationContext $context): CategoryDetailCollection
     {
+        if (empty($uuids)) {
+            return new CategoryDetailCollection();
+        }
         $collection = $this->detailLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -73,6 +76,10 @@ class CategoryRepository
 
     public function read(array $uuids, TranslationContext $context): CategoryBasicCollection
     {
+        if (empty($uuids)) {
+            return new CategoryBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

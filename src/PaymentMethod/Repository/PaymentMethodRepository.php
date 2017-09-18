@@ -61,6 +61,9 @@ class PaymentMethodRepository
 
     public function readDetail(array $uuids, TranslationContext $context): PaymentMethodDetailCollection
     {
+        if (empty($uuids)) {
+            return new PaymentMethodDetailCollection();
+        }
         $collection = $this->detailLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -73,6 +76,10 @@ class PaymentMethodRepository
 
     public function read(array $uuids, TranslationContext $context): PaymentMethodBasicCollection
     {
+        if (empty($uuids)) {
+            return new PaymentMethodBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

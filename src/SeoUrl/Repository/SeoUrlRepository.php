@@ -51,6 +51,10 @@ class SeoUrlRepository
 
     public function read(array $uuids, TranslationContext $context): SeoUrlBasicCollection
     {
+        if (empty($uuids)) {
+            return new SeoUrlBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

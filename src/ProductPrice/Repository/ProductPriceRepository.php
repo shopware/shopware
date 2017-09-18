@@ -51,6 +51,10 @@ class ProductPriceRepository
 
     public function read(array $uuids, TranslationContext $context): ProductPriceBasicCollection
     {
+        if (empty($uuids)) {
+            return new ProductPriceBasicCollection();
+        }
+
         $collection = $this->basicLoader->load($uuids, $context);
 
         $this->eventDispatcher->dispatch(

@@ -22,6 +22,18 @@
             <argument id="shopware.payment_method.basic_factory" type="service"/>
         </service>
 
+
+        <service class="Shopware\Customer\Controller\CustomerController" id="shopware.customer.api_controller">
+            <argument id="shopware.customer.repository" type="service"/>
+        </service>
+        
+
+        <service class="Shopware\Customer\Writer\CustomerWriter" id="shopware.customer.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
         <service class="Shopware\Customer\Loader\CustomerBasicLoader" id="shopware.customer.basic_loader">
             <argument id="shopware.customer.basic_factory" type="service"/>
         </service>
@@ -43,6 +55,7 @@
             <argument id="shopware.customer.basic_loader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.customer.searcher" type="service"/>
+            <argument id="shopware.customer.writer" type="service"/>
         </service>
 
     </services>

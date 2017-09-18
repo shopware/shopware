@@ -12,6 +12,18 @@
             <argument id="shopware.area_country_state.basic_factory" type="service"/>
         </service>
 
+
+        <service class="Shopware\CustomerAddress\Controller\CustomerAddressController" id="shopware.customer_address.api_controller">
+            <argument id="shopware.customer_address.repository" type="service"/>
+        </service>
+        
+
+        <service class="Shopware\CustomerAddress\Writer\CustomerAddressWriter" id="shopware.customer_address.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
         <service class="Shopware\CustomerAddress\Loader\CustomerAddressBasicLoader" id="shopware.customer_address.basic_loader">
             <argument id="shopware.customer_address.basic_factory" type="service"/>
         </service>
@@ -27,6 +39,7 @@
             <argument id="shopware.customer_address.basic_loader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.customer_address.searcher" type="service"/>
+            <argument id="shopware.customer_address.writer" type="service"/>
         </service>
 
     </services>

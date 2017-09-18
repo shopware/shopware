@@ -25,6 +25,18 @@
             <argument id="shopware.currency.basic_factory" type="service"/>
         </service>
 
+
+        <service class="Shopware\Shop\Controller\ShopController" id="shopware.shop.api_controller">
+            <argument id="shopware.shop.repository" type="service"/>
+        </service>
+        
+
+        <service class="Shopware\Shop\Writer\ShopWriter" id="shopware.shop.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
         <service class="Shopware\Shop\Loader\ShopBasicLoader" id="shopware.shop.basic_loader">
             <argument id="shopware.shop.basic_factory" type="service"/>
         </service>
@@ -46,6 +58,7 @@
             <argument id="shopware.shop.basic_loader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.shop.searcher" type="service"/>
+            <argument id="shopware.shop.writer" type="service"/>
         </service>
 
     </services>

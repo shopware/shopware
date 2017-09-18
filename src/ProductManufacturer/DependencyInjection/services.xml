@@ -5,47 +5,8 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\ProductManufacturer\Reader\ProductManufacturerBasicHydrator"
-                 id="shopware.product_manufacturer.reader.basic_hydrator">
-
-        </service>
-
-        <service class="Shopware\ProductManufacturer\Reader\ProductManufacturerBasicReader"
-                 id="shopware.product_manufacturer.reader.basic_reader">
-            <argument id="dbal_connection" type="service"/>
-            <argument id="shopware.product_manufacturer.reader.basic_hydrator" type="service"/>
-        </service>
-
-        <service class="Shopware\ProductManufacturer\Loader\ProductManufacturerBasicLoader"
-                 id="shopware.product_manufacturer.loader.basic_loader">
-            <argument type="service" id="shopware.product_manufacturer.reader.basic_reader"/>
-
-        </service>
-
-        <service class="Shopware\ProductManufacturer\Searcher\ProductManufacturerSearcher"
-                 id="shopware.product_manufacturer.searcher">
-            <argument id="dbal_connection" type="service"/>
-            <argument type="collection">
-
-            </argument>
-            <argument id="shopware.product_manufacturer.reader.basic_hydrator" type="service"/>
-        </service>
-
-        <service class="Shopware\ProductManufacturer\Writer\ProductManufacturerWriter"
-                 id="shopware.product_manufacturer.writer.writer"/>
-
-        <service class="Shopware\ProductManufacturer\ProductManufacturerRepository"
-                 id="shopware.product_manufacturer.repository">
-            <argument id="shopware.product_manufacturer.loader.basic_loader" type="service"/>
-            <argument id="event_dispatcher" type="service"/>
-            <argument id="shopware.product_manufacturer.searcher" type="service"/>
-            <argument id="shopware.product_manufacturer.writer.writer" type="service"/>
-
-        </service>
-
         <service class="Shopware\ProductManufacturer\Controller\ProductManufacturerController" id="shopware.product_manufacturer.controller.product_manufacturer_controller">
             <argument id="shopware.product_manufacturer.repository" type="service"/>
         </service>
-
     </services>
 </container>

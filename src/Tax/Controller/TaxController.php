@@ -6,8 +6,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\ApiContext;
 use Shopware\Api\ApiController;
 use Shopware\Api\ResultFormat;
-use Shopware\Tax\TaxRepository;
 use Shopware\Search\Criteria;
+use Shopware\Tax\Repository\TaxRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -44,11 +44,11 @@ class TaxController extends ApiController
         $criteria = new Criteria();
 
         if ($request->query->has('offset')) {
-            $criteria->offset($request->query->get('offset'));
+            $criteria->setOffset($request->query->get('offset'));
         }
 
         if ($request->query->has('limit')) {
-            $criteria->limit($request->query->get('limit'));
+            $criteria->setLimit($request->query->get('limit'));
         }
 
         $criteria->setFetchCount(true);
@@ -58,9 +58,6 @@ class TaxController extends ApiController
         switch ($context->getResultFormat()) {
             case ResultFormat::BASIC:
                 $taxes = $this->taxRepository->read($searchResult->getUuids(), $context->getShopContext()->getTranslationContext());
-                break;
-            case ResultFormat::BASIC_NEXUS:
-                $taxes = $this->taxBackendRepository->readBasic($searchResult->getUuids(), $context->getShopContext());
                 break;
             default:
                 throw new \Exception("Result format not supported.");

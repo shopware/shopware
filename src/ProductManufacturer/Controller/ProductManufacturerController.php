@@ -6,7 +6,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\ApiContext;
 use Shopware\Api\ApiController;
 use Shopware\Api\ResultFormat;
-use Shopware\ProductManufacturer\ProductManufacturerRepository;
+use Shopware\ProductManufacturer\Repository\ProductManufacturerRepository;
 use Shopware\Search\Criteria;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,11 +44,11 @@ class ProductManufacturerController extends ApiController
         $criteria = new Criteria();
 
         if ($request->query->has('offset')) {
-            $criteria->offset($request->query->get('offset'));
+            $criteria->setOffset($request->query->get('offset'));
         }
 
         if ($request->query->has('limit')) {
-            $criteria->limit($request->query->get('limit'));
+            $criteria->setLimit($request->query->get('limit'));
         }
 
         $criteria->setFetchCount(true);
@@ -58,9 +58,6 @@ class ProductManufacturerController extends ApiController
         switch ($context->getResultFormat()) {
             case ResultFormat::BASIC:
                 $manufacturers = $this->productManufacturerRepository->read($searchResult->getUuids(), $context->getShopContext()->getTranslationContext());
-                break;
-            case ResultFormat::BASIC_NEXUS:
-                $manufacturers = $this->taxBackendRepository->readBasic($searchResult->getUuids(), $context->getShopContext());
                 break;
             default:
                 throw new \Exception("Result format not supported.");

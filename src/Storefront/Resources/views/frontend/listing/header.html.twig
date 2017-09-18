@@ -1,30 +1,40 @@
 {% sw_extends '@Shopware/frontend/index/header.html.twig' %}
 
 {# Keywords #}
-{% block frontend_index_header_meta_keywords %}{% if category.metaKeywords %}{{ category.metaKeywords|escape }}{% endif %}{% endblock %}
+{% block frontend_index_header_meta_keywords %}
+    {% if navigation.activeCategory.metaKeywords %}
+        {{ navigation.activeCategory.metaKeywords|escape('html') }}
+    {% endif %}
+{% endblock %}
 
 {% block frontend_index_header_meta_tags_opengraph %}
 
-    {% set description = "{% trans from 'frontend/listing/header' %}IndexMetaDescriptionStandard{% endtrans %}" %}
-    {% if category.cmsDescription %}
-        {% set description = "{{ category.cmsDescription|trim|striptags|slice(0,240)|escape('html') }}" %}
-    {% elseif category.metaDescription %}
-        {% set description = "{{ category.metaDescription|trim|striptags|escape('html') }}" %}
+    {% set description %}
+        {% trans from 'frontend/listing/header' %}IndexMetaDescriptionStandard{% endtrans %}
+    {% endset %}
+    {% if navigation.activeCategory.cmsDescription %}
+        {% set description %}
+            {{ navigation.activeCategory.cmsDescription|trim|striptags|slice(0,240)|escape('html') }}
+        {% endset %}
+    {% elseif navigation.activeCategory.metaDescription %}
+        {% set description %}
+            {{ navigation.activeCategory.metaDescription|trim|striptags|escape('html') }}
+        {% endset %}
     {% endif %}
 
     <meta property="og:type" content="product" />
     <meta property="og:site_name" content="{{ shopware.config.shopName|escape('html') }}" />
-    <meta property="og:title" content="{{ category.name|escape('html') }}" />
+    <meta property="og:title" content="{{ navigation.activeCategory.name|escape('html') }}" />
     <meta property="og:description" content="{{ description|escape('html') }}" />
 
     <meta name="twitter:card" content="product" />
     <meta name="twitter:site" content="{{ shopware.config.shopName|escape('html') }}" />
-    <meta name="twitter:title" content="{{ category.name|escape('html') }}" />
+    <meta name="twitter:title" content="{{ navigation.activeCategory.name|escape('html') }}" />
     <meta name="twitter:description" content="{{ description|escape('html') }}" />
 
     {# Images #}
-    {% if category.media.source %}
-        {% set metaImage = "{{ category.media.source }}" %}
+    {% if navigation.activeCategory.media.source %}
+        {% set metaImage = "{{ navigation.activeCategory.media.source }}" %}
     {% else %}
         {% set break = false %}
         {% for product in products if not break %}
@@ -40,7 +50,7 @@
 {% endblock %}
 
 {# Description #}
-{% block frontend_index_header_meta_description %}{% if category.metaDescription %}{{ category.metaDescription|striptags|escape }}{% else %}{% trans %}IndexMetaDescriptionStandard{% endtrans %}{% endif %}{% endblock %}
+{% block frontend_index_header_meta_description %}{% if navigation.activeCategory.metaDescription %}{{ navigation.activeCategory.metaDescription|striptags|escape }}{% else %}{% trans %}IndexMetaDescriptionStandard{% endtrans %}{% endif %}{% endblock %}
 
 {# Canonical link #}
 {% block frontend_index_header_canonical %}
@@ -71,10 +81,10 @@
 {# Title #}
 {% block frontend_index_header_title %}
     {#{strip}#}
-    {% if category.metaTitle %}
-        {{ category.metaTitle|escape('html') }} | {{ shopware.config.shopName|escape('html') }}
-    {% elseif category.name %}
-        {{ category.name|escape('html') }} | {{ shopware.config.shopName|escape('html') }}
+    {% if navigation.activeCategory.metaTitle %}
+        {{ navigation.activeCategory.metaTitle|escape('html') }} | {{ shopware.config.shopName|escape('html') }}
+    {% elseif navigation.activeCategory.name %}
+        {{ navigation.activeCategory.name|escape('html') }} | {{ shopware.config.shopName|escape('html') }}
     {% else %}
         {{ parent() }}
     {% endif %}

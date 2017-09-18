@@ -1,6 +1,6 @@
 {#{namespace name="frontend/listing/box_article"}#}
-
-{#<div class="product--price">#}
+{{ dump() }}
+<div class="product--price">
 
     {% block frontend_listing_box_article_price_default %}
         <span class="price--default is--nowrap{% if product.listingPrice.pseudoPrice %} is--discount{% endif %}">
@@ -31,4 +31,4 @@
             {#</span>#}
         {#{% endif %}>#}
      {#{% endblock %}#}
-{#</div>#}
+</div>

@@ -20,7 +20,7 @@
                         {% endblock %}
 
                         <span class="price--discount is--nowrap">
-                            {{ sArticle.pseudoprice|localizedcurrency('EUR') }}
+                            {{ sArticle.pseudoprice|localizedcurrency(context.currency.shortName) }}
                             {#{s name="Star"}{/s}#}
                         </span>
 
@@ -33,11 +33,13 @@
 
             {# Default price #}
             {% block frontend_listing_box_article_price_default %}
-            <span class="price--default is--nowrap{% if product.has_pseudoprice %} is--discount{% endif %}">
-                        {#{if $sArticle.priceStartingFrom && !$sArticle.liveshoppingData}{s name='ListingBoxArticleStartsAt'}{/s} {/if}#}
-                        {#{$sArticle.price|currency}#}
-                        {#{s name="Star"}{/s}#}
-                    </span>
+                <span class="price--default is--nowrap{% if product.listingPrice.pseudoPrice %} is--discount{% endif %}">
+                  {% if product.listingPrice.hasDifferentPrices %}
+                      {% trans from 'frontend/listing/box_article' %}ListingBoxArticleStartsAt{% endtrans %}
+                  {% endif %}
+                    {{ product.listingPrice.price|localizedcurrency(context.currency.shortName) }}
+                    {% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
+                </span>
             {% endblock %}
         </div>
     </div>

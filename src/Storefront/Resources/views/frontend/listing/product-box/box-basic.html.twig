@@ -47,7 +47,7 @@
                         {% endblock %}
 
                         {# Product description #}
-                        {%  block frontend_listing_box_article_description %}
+                        {% block frontend_listing_box_article_description %}
                             <div class="product--description">
                                 {{ product.description_long|striptags|slice(0, 240) }}
                             </div>
@@ -56,16 +56,15 @@
                         {% block frontend_listing_box_article_price_info %}
                             <div class="product--price-info">
 
-
                                 {# Product price - Unit price #}
                                 {% block frontend_listing_box_article_unit %}
                                     {#{% sw_include "@Shopware/frontend/listing/product-box/product-price-unit.html.twig" %}#}
                                 {% endblock %}
 
                                 {# Product price - Default and discount price #}
-                                {#{% block frontend_listing_box_article_price %}#}
+                                {% block frontend_listing_box_article_price %}
                                     {% sw_include "@Shopware/frontend/listing/product-box/product-price.html.twig" %}
-                                {#{% endblock %}#}
+                                {% endblock %}
                             </div>
                         {% endblock %}
 

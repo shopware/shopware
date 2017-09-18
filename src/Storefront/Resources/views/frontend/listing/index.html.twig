@@ -54,7 +54,7 @@
             {% set productBoxLayout = 'basic' %}
 
             {% if navigation.activeCategory.productBoxLayout != null and navigation.activeCategory.productBoxLayout != 'extend' %}
-                {% set productBoxLayout = navigation.activeCateogry.productBoxLayout %}
+                {% set productBoxLayout = navigation.activeCategory.productBoxLayout %}
             {% endif %}
         {% endblock %}
 

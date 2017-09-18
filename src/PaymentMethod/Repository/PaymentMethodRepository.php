@@ -1,38 +1,18 @@
 <?php declare(strict_types=1);
-/**
- * Shopware 5
- * Copyright (c) shopware AG
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Shopware" is a registered trademark of shopware AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
 
 namespace Shopware\PaymentMethod\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\PaymentMethod\Event\PaymentMethodBasicLoadedEvent;
 use Shopware\PaymentMethod\Event\PaymentMethodDetailLoadedEvent;
+use Shopware\PaymentMethod\Event\PaymentMethodWrittenEvent;
 use Shopware\PaymentMethod\Loader\PaymentMethodBasicLoader;
 use Shopware\PaymentMethod\Loader\PaymentMethodDetailLoader;
 use Shopware\PaymentMethod\Searcher\PaymentMethodSearcher;
 use Shopware\PaymentMethod\Searcher\PaymentMethodSearchResult;
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicCollection;
 use Shopware\PaymentMethod\Struct\PaymentMethodDetailCollection;
+use Shopware\PaymentMethod\Writer\PaymentMethodWriter;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
@@ -60,16 +40,23 @@ class PaymentMethodRepository
      */
     private $searcher;
 
+    /**
+     * @var PaymentMethodWriter
+     */
+    private $writer;
+
     public function __construct(
         PaymentMethodDetailLoader $detailLoader,
         PaymentMethodBasicLoader $basicLoader,
         EventDispatcherInterface $eventDispatcher,
-        PaymentMethodSearcher $searcher
+        PaymentMethodSearcher $searcher,
+        PaymentMethodWriter $writer
     ) {
         $this->detailLoader = $detailLoader;
         $this->basicLoader = $basicLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
+        $this->writer = $writer;
     }
 
     public function readDetail(array $uuids, TranslationContext $context): PaymentMethodDetailCollection
@@ -119,5 +106,32 @@ class PaymentMethodRepository
         $result = $this->searcher->aggregate($criteria, $context);
 
         return $result;
+    }
+
+    public function update(array $data, TranslationContext $context): PaymentMethodWrittenEvent
+    {
+        $event = $this->writer->update($data, $context);
+
+        $this->eventDispatcher->dispatch($event::NAME, $event);
+
+        return $event;
+    }
+
+    public function upsert(array $data, TranslationContext $context): PaymentMethodWrittenEvent
+    {
+        $event = $this->writer->upsert($data, $context);
+
+        $this->eventDispatcher->dispatch($event::NAME, $event);
+
+        return $event;
+    }
+
+    public function create(array $data, TranslationContext $context): PaymentMethodWrittenEvent
+    {
+        $event = $this->writer->create($data, $context);
+
+        $this->eventDispatcher->dispatch($event::NAME, $event);
+
+        return $event;
     }
 }

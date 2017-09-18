@@ -17,6 +17,18 @@
             <argument id="shopware.area_country.basic_factory" type="service"/>
         </service>
 
+
+        <service class="Shopware\PaymentMethod\Controller\PaymentMethodController" id="shopware.payment_method.api_controller">
+            <argument id="shopware.payment_method.repository" type="service"/>
+        </service>
+        
+
+        <service class="Shopware\PaymentMethod\Writer\PaymentMethodWriter" id="shopware.payment_method.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
         <service class="Shopware\PaymentMethod\Loader\PaymentMethodBasicLoader" id="shopware.payment_method.basic_loader">
             <argument id="shopware.payment_method.basic_factory" type="service"/>
         </service>
@@ -39,6 +51,7 @@
             <argument id="shopware.payment_method.basic_loader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.payment_method.searcher" type="service"/>
+            <argument id="shopware.payment_method.writer" type="service"/>
         </service>
 
     </services>

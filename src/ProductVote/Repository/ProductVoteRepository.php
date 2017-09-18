@@ -1,35 +1,15 @@
 <?php declare(strict_types=1);
-/**
- * Shopware 5
- * Copyright (c) shopware AG
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Shopware" is a registered trademark of shopware AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
 
 namespace Shopware\ProductVote\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\ProductVote\Event\ProductVoteBasicLoadedEvent;
+use Shopware\ProductVote\Event\ProductVoteWrittenEvent;
 use Shopware\ProductVote\Loader\ProductVoteBasicLoader;
 use Shopware\ProductVote\Searcher\ProductVoteSearcher;
 use Shopware\ProductVote\Searcher\ProductVoteSearchResult;
 use Shopware\ProductVote\Struct\ProductVoteBasicCollection;
+use Shopware\ProductVote\Writer\ProductVoteWriter;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
@@ -52,14 +32,21 @@ class ProductVoteRepository
      */
     private $searcher;
 
+    /**
+     * @var ProductVoteWriter
+     */
+    private $writer;
+
     public function __construct(
         ProductVoteBasicLoader $basicLoader,
         EventDispatcherInterface $eventDispatcher,
-        ProductVoteSearcher $searcher
+        ProductVoteSearcher $searcher,
+        ProductVoteWriter $writer
     ) {
         $this->basicLoader = $basicLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
+        $this->writer = $writer;
     }
 
     public function read(array $uuids, TranslationContext $context): ProductVoteBasicCollection
@@ -97,5 +84,32 @@ class ProductVoteRepository
         $result = $this->searcher->aggregate($criteria, $context);
 
         return $result;
+    }
+
+    public function update(array $data, TranslationContext $context): ProductVoteWrittenEvent
+    {
+        $event = $this->writer->update($data, $context);
+
+        $this->eventDispatcher->dispatch($event::NAME, $event);
+
+        return $event;
+    }
+
+    public function upsert(array $data, TranslationContext $context): ProductVoteWrittenEvent
+    {
+        $event = $this->writer->upsert($data, $context);
+
+        $this->eventDispatcher->dispatch($event::NAME, $event);
+
+        return $event;
+    }
+
+    public function create(array $data, TranslationContext $context): ProductVoteWrittenEvent
+    {
+        $event = $this->writer->create($data, $context);
+
+        $this->eventDispatcher->dispatch($event::NAME, $event);
+
+        return $event;
     }
 }

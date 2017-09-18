@@ -1,6 +1,6 @@
 <?php
 
-namespace Shopware\ProductDetail\Writer;
+namespace Shopware\ProductVote\Writer;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEventDispatcher;
@@ -9,13 +9,13 @@ use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Framework\Write\FieldException\WriteStackException;
 use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
-use Shopware\ProductDetail\Event\ProductDetailWriteExtenderEvent;
-use Shopware\ProductDetail\Event\ProductDetailWrittenEvent;
-use Shopware\ProductDetail\Writer\Resource\ProductDetailResource;
+use Shopware\ProductVote\Event\ProductVoteWriteExtenderEvent;
+use Shopware\ProductVote\Event\ProductVoteWrittenEvent;
+use Shopware\ProductVote\Writer\Resource\ProductVoteResource;
 use Shopware\Shop\Writer\Resource\ShopResource;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ProductDetailWriter
+class ProductVoteWriter
 {
     /**
      * @var DefaultExtender
@@ -39,7 +39,7 @@ class ProductDetailWriter
         $this->writer = $writer;
     }
 
-    public function update(array $data, TranslationContext $context): ProductDetailWrittenEvent
+    public function update(array $data, TranslationContext $context): ProductVoteWrittenEvent
     {
         $writeContext = $this->createWriteContext($context->getShopUuid());
         $extender = $this->getExtender();
@@ -48,11 +48,11 @@ class ProductDetailWriter
 
         $updated = $errors = [];
 
-        foreach ($data as $productDetail) {
+        foreach ($data as $productVote) {
             try {
                 $updated[] = $this->writer->update(
-                    ProductDetailResource::class,
-                    $productDetail,
+                    ProductVoteResource::class,
+                    $productVote,
                     $writeContext,
                     $extender
                 );
@@ -68,10 +68,10 @@ class ProductDetailWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return ProductDetailResource::createWrittenEvent($updated, $errors);
+        return ProductVoteResource::createWrittenEvent($updated, $errors);
     }
 
-    public function upsert(array $data, TranslationContext $context): ProductDetailWrittenEvent
+    public function upsert(array $data, TranslationContext $context): ProductVoteWrittenEvent
     {
         $writeContext = $this->createWriteContext($context->getShopUuid());
         $extender = $this->getExtender();
@@ -80,11 +80,11 @@ class ProductDetailWriter
 
         $created = $errors = [];
 
-        foreach ($data as $productDetail) {
+        foreach ($data as $productVote) {
             try {
                 $created[] = $this->writer->upsert(
-                    ProductDetailResource::class,
-                    $productDetail,
+                    ProductVoteResource::class,
+                    $productVote,
                     $writeContext,
                     $extender
                 );
@@ -100,10 +100,10 @@ class ProductDetailWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ProductDetailResource::createWrittenEvent($created, $errors);
+        return ProductVoteResource::createWrittenEvent($created, $errors);
     }
 
-    public function create(array $data, TranslationContext $context): ProductDetailWrittenEvent
+    public function create(array $data, TranslationContext $context): ProductVoteWrittenEvent
     {
         $writeContext = $this->createWriteContext($context->getShopUuid());
         $extender = $this->getExtender();
@@ -112,11 +112,11 @@ class ProductDetailWriter
 
         $created = $errors = [];
 
-        foreach ($data as $productDetail) {
+        foreach ($data as $productVote) {
             try {
                 $created[] = $this->writer->insert(
-                    ProductDetailResource::class,
-                    $productDetail,
+                    ProductVoteResource::class,
+                    $productVote,
                     $writeContext,
                     $extender
                 );
@@ -132,7 +132,7 @@ class ProductDetailWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ProductDetailResource::createWrittenEvent($created, $errors);
+        return ProductVoteResource::createWrittenEvent($created, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
@@ -149,8 +149,8 @@ class ProductDetailWriter
         $extenderCollection->addExtender($this->extender);
 
         $event = $this->eventDispatcher->dispatch(
-            ProductDetailWriteExtenderEvent::NAME,
-            new ProductDetailWriteExtenderEvent($extenderCollection)
+            ProductVoteWriteExtenderEvent::NAME,
+            new ProductVoteWriteExtenderEvent($extenderCollection)
         );
 
         return $event->getExtenderCollection();

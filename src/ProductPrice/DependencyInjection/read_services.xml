@@ -10,6 +10,18 @@
             <argument type="collection" />
         </service>
 
+
+        <service class="Shopware\ProductPrice\Controller\ProductPriceController" id="shopware.product_price.api_controller">
+            <argument id="shopware.product_price.repository" type="service"/>
+        </service>
+        
+
+        <service class="Shopware\ProductPrice\Writer\ProductPriceWriter" id="shopware.product_price.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
         <service class="Shopware\ProductPrice\Loader\ProductPriceBasicLoader" id="shopware.product_price.basic_loader">
             <argument id="shopware.product_price.basic_factory" type="service"/>
         </service>
@@ -25,6 +37,7 @@
             <argument id="shopware.product_price.basic_loader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.product_price.searcher" type="service"/>
+            <argument id="shopware.product_price.writer" type="service"/>
         </service>
 
     </services>

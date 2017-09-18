@@ -11,6 +11,18 @@
             <argument id="shopware.listing_sorting.basic_factory" type="service"/>
         </service>
 
+
+        <service class="Shopware\ProductStream\Controller\ProductStreamController" id="shopware.product_stream.api_controller">
+            <argument id="shopware.product_stream.repository" type="service"/>
+        </service>
+        
+
+        <service class="Shopware\ProductStream\Writer\ProductStreamWriter" id="shopware.product_stream.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
         <service class="Shopware\ProductStream\Loader\ProductStreamBasicLoader" id="shopware.product_stream.basic_loader">
             <argument id="shopware.product_stream.basic_factory" type="service"/>
         </service>
@@ -26,6 +38,7 @@
             <argument id="shopware.product_stream.basic_loader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.product_stream.searcher" type="service"/>
+            <argument id="shopware.product_stream.writer" type="service"/>
         </service>
 
     </services>

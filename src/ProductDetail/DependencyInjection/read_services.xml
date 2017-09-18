@@ -18,6 +18,18 @@
             <argument id="shopware.unit.basic_factory" type="service"/>
         </service>
 
+
+        <service class="Shopware\ProductDetail\Controller\ProductDetailController" id="shopware.product_detail.api_controller">
+            <argument id="shopware.product_detail.repository" type="service"/>
+        </service>
+        
+
+        <service class="Shopware\ProductDetail\Writer\ProductDetailWriter" id="shopware.product_detail.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
         <service class="Shopware\ProductDetail\Loader\ProductDetailBasicLoader" id="shopware.product_detail.basic_loader">
             <argument id="shopware.product_detail.basic_factory" type="service"/>
         </service>
@@ -39,6 +51,7 @@
             <argument id="shopware.product_detail.basic_loader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.product_detail.searcher" type="service"/>
+            <argument id="shopware.product_detail.writer" type="service"/>
         </service>
 
     </services>

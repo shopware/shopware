@@ -1,0 +1,37 @@
+{% block frontend_detail_actions_compare %}
+    {% if shopware.config.compareShow %}
+        <form action="{url controller='compare' action='add_article' articleID=$sArticle.articleID}" method="post" class="action--form">
+            <button type="submit" data-product-compare-add="true" title="{"{s name='DetailActionLinkCompare'}{/s}"|escape}" class="action--link action--compare">
+                <i class="icon--compare"></i> {% trans from 'frontend/detail/actions' %}DetailActionLinkCompare{% endtrans %}
+            </button>
+        </form>
+    {% endif %}
+{% endblock %}
+
+{% block frontend_detail_actions_notepad %}
+    <form action="{url controller='note' action='add' ordernumber=$sArticle.ordernumber}" method="post" class="action--form">
+        <button type="submit"
+           class="action--link link--notepad"
+           title="{"{s name='DetailLinkNotepad'}{/s}"|escape}"
+           data-ajaxUrl="{url controller='note' action='ajaxAdd' ordernumber=$sArticle.ordernumber}"
+           data-text="{s name="DetailNotepadMarked"}{/s}">
+            <i class="icon--heart"></i> <span class="action--text">{% trans from 'frontend/detail/actions' %}DetailLinkNotepadShort{% endtrans %}</span>
+        </button>
+    </form>
+{% endblock %}
+
+{% block frontend_detail_actions_review %}
+    {% if shopware.config.VoteDisable == false %}
+        <a href="#content--product-reviews" data-show-tab="true" class="action--link link--publish-comment" rel="nofollow" title="{"{s name='DetailLinkReview'}{/s}"|escape}">
+            <i class="icon--star"></i> {% trans from 'frontend/detail/actions' %}DetailLinkReviewShort{% endtrans %}
+        </a>
+    {% endif %}
+{% endblock %}
+
+{% block frontend_detail_actions_voucher %}
+    {% if shopware.config.showTellAFriend %}
+        <a href="{{ product.linkTellAFriend }}" rel="nofollow" title="{"{s name='DetailLinkVoucher'}{/s}"|escape}" class="action--link link--tell-a-friend">
+            <i class="icon--comment"></i> {% trans from 'frontend/detail/actions' %}DetailLinkVoucherShort{% endtrans %}
+        </a>
+    {% endif %}
+{% endblock %}

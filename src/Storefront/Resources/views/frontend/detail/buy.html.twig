@@ -1,0 +1,102 @@
+{% block frontend_detail_buy %}
+    {#{% set url = url('cart_add_product', {'target': 'checkout_cart' }) %}#}
+    <form name="sAddToBasket" method="post" action="{{ url }}" class="buybox--form" data-add-article="true" data-eventName="submit"{% if theme.offcanvasCart %}{% set url = url('homepage', {'target': 'ajaxCart' }) %} data-showModal="false" data-addArticleUrl="{{ url }}"{% endif %}>
+        {% block frontend_detail_buy_configurator_inputs %}
+            {% if product.sConfigurator and product.sConfiguratorSettings.type == 3 %}
+                {% for group in product.sConfigurator %}
+                    <input type="hidden" name="group[{{ group.group_uuid }}]" value="{{ group.selected_value }}"/>
+                {% endfor %}
+            {% endif %}
+        {% endblock %}
+
+        <input type="hidden" name="sActionIdentifier" value="{{ sUniqueRand }}"/>
+        <input type="hidden" name="sAddAccessories" id="sAddAccessories" value=""/>
+
+        <input type="hidden" name="identifier" value="{{ product.mainDetailUuid }}"/>
+
+        {# Article accessories #}
+        {% block frontend_detail_buy_accessories_outer %}
+            {% if product.sAccessories %}
+                {% block frontend_detail_buy_accessories %}
+                    <div class="buybox--accessory">
+                        {% for sAccessory in product.sAccessories %}
+
+                            {# Group name #}
+                            <h2 class="accessory--title">{{ sAccessory.groupname}}</h2>
+                            <div class="accessory--group">
+
+                                {# Group description #}
+                                <p class="group--description">
+                                    {{ sAccessory.groupdescription }}
+                                </p>
+
+                                {% for sAccessoryChild in sAccessory.childs %}
+                                    <input type="checkbox" class="sValueChanger chkbox" name="sValueChange"
+                                           id="CHECK{$sAccessoryChild.ordernumber}" value="{$sAccessoryChild.ordernumber}"/>
+                                    {#<label for="CHECK{$sAccessoryChild.ordernumber}">{$sAccessoryChild.optionname|truncate:35}#}
+                                        {#({s name="DetailBuyLabelSurcharge"}{/s}#}
+                                        {#: {$sAccessoryChild.price} {$sConfig.sCURRENCYHTML})#}
+                                    {#</label>#}
+                                    <div id="DIV{$sAccessoryChild.ordernumber}" class="accessory--overlay">
+                                        {#{include file="frontend/detail/accessory.tpl" sArticle=$sAccessoryChild.sArticle}#}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endblock %}
+            {% endif %}
+        {% endblock %}
+
+        {#{$sCountConfigurator=$sArticle.sConfigurator|@count}#}
+
+        {% block frontend_detail_buy_button_container_outer %}
+            {% if product.active is defined == false or product.active %}
+                {% if product.isAvailable %}
+                    {% block frontend_detail_buy_button_container %}
+                        <div class="buybox--button-container block-group{% if NotifyHideBasket and product.notification and product.instock <= 0 %} is--hidden{% endif %}">
+
+                            {# Quantity selection #}
+                            {% block frontend_detail_buy_quantity %}
+                                <div class="buybox--quantity block">
+                                    {% set maxPurchase = product.mainDetail.maxPurchase ?? shopware.config.maxpurchase %}
+                                    {% set maxQuantity = maxPurchase %}
+                                    {% if product.isCloseout() and product.mainDetail.stock < maxPurchase %}
+                                        {% set maxQuantity = product.mainDetail.stock %}
+                                    {% endif %}
+
+                                    {% set purchaseSteps = product.mainDetail.purchaseSteps ?? 1 %}
+
+                                    {% block frontend_detail_buy_quantity_select %}
+                                        <div class="select-field">
+                                            <select id="sQuantity" name="quantity" class="quantity--select">
+                                                {% for i in range(product.mainDetail.minPurchase, maxQuantity) %}
+                                                    {% if i == product.mainDetail.minPurchase or i % purchaseSteps == 0 %}
+                                                        <option value="{{ i }}">{{ i }}{% if product.mainDetail.packUnit %} {{ product.mainDetail.packUnit }}{% endif %}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+
+                            {# "Buy now" button #}
+                            {% block frontend_detail_buy_button %}
+                                {% if product.sConfigurator and activeConfiguratorSelection == false %}
+                                    <button class="buybox--button block btn is--disabled is--icon-right is--large" disabled="disabled" aria-disabled="true" name="{% trans from 'frontend/detail/buy' %}DetailBuyActionAdd{% endtrans %}"{% if buy_box_display %} style="{{ buy_box_display }}"{% endif %}>
+                                        {% trans from 'frontend/detail/buy' %}DetailBuyActionAdd{% endtrans %} <i class="icon--arrow-right"></i>
+                                    </button>
+                                {% else %}
+                                    <button class="buybox--button block btn is--primary is--icon-right is--center is--large" name="{% trans from 'frontend/detail/buy' %}DetailBuyActionAdd{% endtrans %}"{% if buy_box_display %} style="{{ buy_box_display }}"{% endif %}>
+                                        {% trans from 'frontend/detail/buy' %}DetailBuyActionAdd{% endtrans %} <i class="icon--arrow-right"></i>
+                                    </button>
+                                {% endif %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                {% endif %}
+            {% endif %}
+        {% endblock %}
+    </form>
+{% endblock %}

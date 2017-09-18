@@ -10,7 +10,7 @@
 {% block frontend_index_header_meta_tags_opengraph %}
 
     {% set description %}
-        {% trans from 'frontend/listing/header' %}IndexMetaDescriptionStandard{% endtrans %}
+        {% trans from 'frontend/index/header' %}IndexMetaDescriptionStandard{% endtrans %}
     {% endset %}
     {% if navigation.activeCategory.cmsDescription %}
         {% set description %}
@@ -50,7 +50,7 @@
 {% endblock %}
 
 {# Description #}
-{% block frontend_index_header_meta_description %}{% if navigation.activeCategory.metaDescription %}{{ navigation.activeCategory.metaDescription|striptags|escape }}{% else %}{% trans %}IndexMetaDescriptionStandard{% endtrans %}{% endif %}{% endblock %}
+{% block frontend_index_header_meta_description %}{% if navigation.activeCategory.metaDescription %}{{ navigation.activeCategory.metaDescription|striptags|escape }}{% else %}{% trans from 'frontend/index/header' %}IndexMetaDescriptionStandard{% endtrans %}{% endif %}{% endblock %}
 
 {# Canonical link #}
 {% block frontend_index_header_canonical %}

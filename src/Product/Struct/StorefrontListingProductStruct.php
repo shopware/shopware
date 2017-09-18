@@ -5,7 +5,7 @@ namespace Shopware\Product\Struct;
 use Shopware\ProductPrice\Struct\ProductListingPrice;
 use Shopware\ProductPrice\Struct\ProductPriceBasicCollection;
 
-class StoreFrontListingProductStruct extends ProductBasicStruct
+class StorefrontListingProductStruct extends ProductBasicStruct
 {
     /**
      * @var ProductPriceBasicCollection

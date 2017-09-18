@@ -2,7 +2,7 @@
 
 namespace Shopware\ProductPrice\Struct;
 
-class ProductListingPrice extends ProductPriceBasicStruct
+class ProductDetailPrice extends ProductPriceBasicStruct
 {
     /**
      * @var bool

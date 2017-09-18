@@ -18,20 +18,20 @@
     {# Meta opengraph tags #}
     {% block frontend_index_header_meta_tags_opengraph %}
         <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="{{ shopware.config.shopname|escape('html') }}" />
-        <meta property="og:title" content="{{ shopware.config.shopname|escape('html') }}" />
+        <meta property="og:site_name" content="{{ shopware.config.shopName|escape('html') }}" />
+        <meta property="og:title" content="{{ shopware.config.shopName|escape('html') }}" />
         <meta property="og:description" content="{% trans %}IndexMetaDescriptionStandard{% endtrans %}" />
         <meta property="og:image" content="{link file=$theme.desktopLogo fullPath}" />
 
         <meta name="twitter:card" content="website" />
-        <meta name="twitter:site" content="{{ shopware.config.shopname|escape('html') }}" />
-        <meta name="twitter:title" content="{{ shopware.config.shopname|escape('html') }}" />
+        <meta name="twitter:site" content="{{ shopware.config.shopName|escape('html') }}" />
+        <meta name="twitter:title" content="{{ shopware.config.shopName|escape('html') }}" />
         <meta name="twitter:description" content="{% trans %}IndexMetaDescriptionStandard{% endtrans %}" />
         <meta name="twitter:image" content="{link file=$theme.desktopLogo fullPath}" />
     {% endblock %}
 
     {% block frontend_index_header_meta_tags_schema_webpage %}
-        <meta itemprop="copyrightHolder" content="{{ shopware.config.shopname|escape('html') }}" />
+        <meta itemprop="copyrightHolder" content="{{ shopware.config.shopName|escape('html') }}" />
         <meta itemprop="copyrightYear" content="{% trans %}IndexMetaCopyrightYear{% endtrans %}" />
         <meta itemprop="isFamilyFriendly" content="{{ shopware.config.metaisfamilyfriendly ? 'True' : 'False' }}" />
         <meta itemprop="image" content="{link file=$theme.desktopLogo}" />
@@ -75,7 +75,7 @@
 
 {# Page title #}
 <title itemprop="name">{% block frontend_index_header_title %}{% spaceless %}
-    {% if sBreadcrumb %}{% for breadcrum in sBreadcrum|reverse %}{{ breadcrumb.name }} | {% endfor %}{% endif %}{{ shopware.config.shopname|escape('html') }}
+    {% if sBreadcrumb %}{% for breadcrum in sBreadcrum|reverse %}{{ breadcrumb.name }} | {% endfor %}{% endif %}{{ shopware.config.shopName|escape('html') }}
 {% endspaceless %}{% endblock %}</title>
 
 {# Stylesheets #}

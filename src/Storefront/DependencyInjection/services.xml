@@ -110,5 +110,9 @@
             <argument id="shopware.product.storefront_repository" type="service"/>
         </service>
 
+        <service class="Shopware\Storefront\Page\Detail\DetailPageLoader" id="shopware.storefront.page.detail.detail_page_loader">
+            <argument id="shopware.product.storefront_repository" type="service"/>
+        </service>
+
     </services>
 </container>

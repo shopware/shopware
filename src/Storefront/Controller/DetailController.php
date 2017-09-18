@@ -25,6 +25,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Product\Struct\ProductDetailStruct;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -35,6 +36,13 @@ class DetailController extends FrontendController
      */
     public function indexAction(string $uuid, ShopContext $context, Request $request)
     {
-        return $this->render('frontend/detail/index.html.twig', []);
+        $loader = $this->get('shopware.storefront.page.detail.detail_page_loader');
+
+        /** @var ProductDetailStruct $productDetail */
+        $productDetail = $loader->load($uuid, $context);
+
+        return $this->render('frontend/detail/index.html.twig', [
+            'product' => $productDetail
+        ]);
     }
 }

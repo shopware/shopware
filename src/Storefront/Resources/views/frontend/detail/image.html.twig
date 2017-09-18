@@ -1,0 +1,103 @@
+{% block frontend_detail_image %}
+
+     {# Product image - Thumbnails #}
+    {% block frontend_detail_image_thumbs %}
+        {#{include file="frontend/detail/images.tpl %}#}
+    {% endblock %}
+
+     {# Product image - Gallery #}
+    {% block frontend_detail_image_box %}
+        {% spaceless %}
+        <div class="image-slider--container{% if not product.image %} no--image{% endif %}{% if sArticle.images|length == 0 %} no--thumbnails{% endif %}">
+            <div class="image-slider--slide">
+
+                {% block frontend_detail_image_default_image_slider_item %}
+                    <div class="image--box image-slider--item">
+
+                        {% block frontend_detail_image_default_image_element %}
+
+                            {% set alt = product.name|escape %}
+
+                            {% if product.image.description %}
+                                {% set alt = product.image.description|escape %}
+                            {% endif %}
+
+                            <span class="image--element"
+                                  {% if product.image %}
+                                  data-img-large="{{ product.image.thumbnails[2].source }}"
+                                  data-img-small="{{ product.image.thumbnails[0].source }}"
+                                  data-img-original="{{ product.image.source }}"
+                                  {% endif %}
+                                  data-alt="{{ alt }}">
+
+                                {% block frontend_detail_image_default_image_media %}
+                                    <span class="image--media">
+                                        {% if product.image.thumbnails is defined %}
+                                            {% block frontend_detail_image_default_picture_element %}
+                                                <img srcset="{{ product.image.thumbnails[1].sourceSet }}" alt="{{ alt }}" itemprop="image" />
+                                            {% endblock %}
+                                        {% else %}
+                                            {% block frontend_detail_image_fallback %}
+                                                <img src="{{ asset('bundles/storefront/src/img/no-picture.jpg') }}" alt="{{ alt }}" itemprop="image" />
+                                            {% endblock %}
+                                        {% endif %}
+                                    </span>
+                                {% endblock %}
+                            </span>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% for image in product.images %}
+                    {% block frontend_detail_images_image_slider_item %}
+                        <div class="image--box image-slider--item">
+
+                            {% block frontend_detail_images_image_element %}
+
+                                {% set alt = product.name|escape %}
+
+                                {% if image.description %}
+                                    {% set alt = image.description|escape %}
+                                {% endif %}
+
+                                <span class="image--element"
+                                      data-img-large="{{ image.thumbnails[2].source }}"
+                                      data-img-small="{{ image.thumbnails[0].source }}"
+                                      data-img-original="{{ image.source }}"
+                                      data-alt="{{ alt }}">
+
+                                    {% block frontend_detail_images_image_media %}
+                                        <span class="image--media">
+                                            {% if image.thumbnails is defined %}
+                                                {% block frontend_detail_images_picture_element %}
+                                                    <img srcset="{{ image.thumbnails[1].sourceSet }}" alt="{{ alt }}" itemprop="image" />
+                                                {% endblock %}
+                                            {% else %}
+                                                {% block frontend_detail_images_fallback %}
+                                                    <img src="{{ asset('bundles/storefront/src/img/no-picture.jpg') }}" alt="{{ alt }}" itemprop="image" />
+                                                {% endblock %}
+                                            {% endif %}
+                                        </span>
+                                    {% endblock %}
+                                </span>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endspaceless %}
+    {% endblock %}
+
+     {# Product image - Dot navigation #}
+    {% block frontend_detail_image_box_dots %}
+        {% if product.images %}
+            <div class="image--dots image-slider--dots panel--dot-nav">
+                <a href="#" class="dot--link">&nbsp;</a>
+                {% for image in product.images %}
+                    <a href="#" class="dot--link">&nbsp;</a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endblock %}
+{% endblock %}

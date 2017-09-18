@@ -44,11 +44,11 @@ class ProductManufacturerController extends ApiController
         $criteria = new Criteria();
 
         if ($request->query->has('offset')) {
-            $criteria->setOffset($request->query->get('offset'));
+            $criteria->setOffset((int) $request->query->get('offset'));
         }
 
         if ($request->query->has('limit')) {
-            $criteria->setLimit($request->query->get('limit'));
+            $criteria->setLimit((int) $request->query->get('limit'));
         }
 
         $criteria->setFetchCount(true);

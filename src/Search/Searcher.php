@@ -26,7 +26,7 @@ namespace Shopware\Search;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Search\SqlParser\SqlParser;
+use Shopware\Search\Parser\SqlParser;
 
 abstract class Searcher
 {

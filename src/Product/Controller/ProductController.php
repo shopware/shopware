@@ -8,6 +8,7 @@ use Shopware\Api\ApiController;
 use Shopware\Api\ResultFormat;
 use Shopware\Product\Repository\ProductRepository;
 use Shopware\Search\Criteria;
+use Shopware\Search\Parser\QueryStringParser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -51,6 +52,13 @@ class ProductController extends ApiController
             $criteria->setLimit((int) $request->query->get('limit'));
         }
 
+        if ($request->query->has('query')) {
+            $parser = new QueryStringParser();
+            $criteria->addFilter(
+                $parser->fromUrl($request->query->get('query'))
+            );
+        }
+
         $criteria->setFetchCount(true);
 
         $searchResult = $this->productRepository->searchUuids($criteria, $context->getShopContext()->getTranslationContext());
@@ -63,7 +71,7 @@ class ProductController extends ApiController
 //                $products = $this->productBackendRepository->readBasic($searchResult->getUuids(), $context->getShopContext());
 //                break;
             default:
-                throw new \Exception("Result format not supported.");
+                throw new \Exception('Result format not supported.');
         }
 
         $response = [
@@ -160,7 +168,6 @@ class ProductController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-
         $result = [];
         foreach ($context->getPayload() as $product) {
             // delete product

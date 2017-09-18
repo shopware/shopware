@@ -30,7 +30,7 @@ use Shopware\Search\Criteria;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\Searcher;
 use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SqlParser\SqlParser;
+use Shopware\Search\Parser\SqlParser;
 use Shopware\Search\UuidSearchResult;
 use Shopware\ShopTemplate\Factory\ShopTemplateBasicFactory;
 use Shopware\ShopTemplate\Loader\ShopTemplateBasicLoader;

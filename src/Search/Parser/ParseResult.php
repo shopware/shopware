@@ -1,6 +1,6 @@
 <?php
 
-namespace Shopware\Search\SqlParser;
+namespace Shopware\Search\Parser;
 
 class ParseResult
 {

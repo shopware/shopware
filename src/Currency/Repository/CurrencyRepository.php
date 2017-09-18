@@ -1,38 +1,18 @@
 <?php declare(strict_types=1);
-/**
- * Shopware 5
- * Copyright (c) shopware AG
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Shopware" is a registered trademark of shopware AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
 
 namespace Shopware\Currency\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Currency\Event\CurrencyBasicLoadedEvent;
 use Shopware\Currency\Event\CurrencyDetailLoadedEvent;
+use Shopware\Currency\Event\CurrencyWrittenEvent;
 use Shopware\Currency\Loader\CurrencyBasicLoader;
 use Shopware\Currency\Loader\CurrencyDetailLoader;
 use Shopware\Currency\Searcher\CurrencySearcher;
 use Shopware\Currency\Searcher\CurrencySearchResult;
 use Shopware\Currency\Struct\CurrencyBasicCollection;
 use Shopware\Currency\Struct\CurrencyDetailCollection;
+use Shopware\Currency\Writer\CurrencyWriter;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
@@ -60,16 +40,23 @@ class CurrencyRepository
      */
     private $searcher;
 
+    /**
+     * @var CurrencyWriter
+     */
+    private $writer;
+
     public function __construct(
         CurrencyDetailLoader $detailLoader,
         CurrencyBasicLoader $basicLoader,
         EventDispatcherInterface $eventDispatcher,
-        CurrencySearcher $searcher
+        CurrencySearcher $searcher,
+        CurrencyWriter $writer
     ) {
         $this->detailLoader = $detailLoader;
         $this->basicLoader = $basicLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
+        $this->writer = $writer;
     }
 
     public function readDetail(array $uuids, TranslationContext $context): CurrencyDetailCollection
@@ -119,5 +106,32 @@ class CurrencyRepository
         $result = $this->searcher->aggregate($criteria, $context);
 
         return $result;
+    }
+
+    public function update(array $data, TranslationContext $context): CurrencyWrittenEvent
+    {
+        $event = $this->writer->update($data, $context);
+
+        $this->eventDispatcher->dispatch($event::NAME, $event);
+
+        return $event;
+    }
+
+    public function upsert(array $data, TranslationContext $context): CurrencyWrittenEvent
+    {
+        $event = $this->writer->upsert($data, $context);
+
+        $this->eventDispatcher->dispatch($event::NAME, $event);
+
+        return $event;
+    }
+
+    public function create(array $data, TranslationContext $context): CurrencyWrittenEvent
+    {
+        $event = $this->writer->create($data, $context);
+
+        $this->eventDispatcher->dispatch($event::NAME, $event);
+
+        return $event;
     }
 }

@@ -59,15 +59,8 @@ class SeoUrlResource extends Resource
 
     public function getDefaults(string $type): array
     {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
         if (self::FOR_INSERT === $type) {
             return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
                 self::CREATED_AT_FIELD => new \DateTime(),
             ];
         }

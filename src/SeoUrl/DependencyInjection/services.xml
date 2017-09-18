@@ -15,10 +15,5 @@
             <argument id="shopware.shop.repository" type="service"/>
             <argument id="shopware.seo_url.writer" type="service"/>
         </service>
-
-        <service class="Shopware\SeoUrl\Writer\SeoUrlWriter" id="shopware.seo_url.writer">
-            <argument id="dbal_connection" type="service"/>
-        </service>
-
     </services>
 </container>

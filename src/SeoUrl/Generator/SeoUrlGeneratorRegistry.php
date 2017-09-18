@@ -85,6 +85,7 @@ class SeoUrlGeneratorRegistry
         $shop = $this->shopRepository->read([$shopUuid], $context)->get($shopUuid);
 
         foreach ($this->generators as $generator) {
+
             $this->connection->transactional(
                 function () use ($shop, $generator, $context, $force) {
                     $offset = 0;
@@ -94,7 +95,7 @@ class SeoUrlGeneratorRegistry
                             $urls = $this->filterNoneExistingRoutes($shop, $context, $generator->getName(), $urls);
                         }
 
-                        $this->writer->create($urls->getIterator()->getArrayCopy());
+                        $this->writer->create($this->convert($urls), $context);
 
                         $offset += self::LIMIT;
                     }
@@ -124,5 +125,18 @@ class SeoUrlGeneratorRegistry
         }
 
         return $newUrls;
+    }
+
+    private function convert(SeoUrlBasicCollection $urls): array
+    {
+        $data = [];
+        /** @var SeoUrlBasicStruct $url */
+        foreach ($urls as $url) {
+            $row = json_decode(json_encode($url), true);
+            $row['createdAt'] = $url->getCreatedAt()->format('Y-m-d H:i:s');
+            $row['seoHash'] = $url->getSeoHash();
+            $data[] = $row;
+        }
+        return $data;
     }
 }

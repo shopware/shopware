@@ -1,77 +1,175 @@
 <?php
-/**
- * Shopware 5
- * Copyright (c) shopware AG
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Shopware" is a registered trademark of shopware AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
 
 namespace Shopware\SeoUrl\Writer;
 
-use Doctrine\DBAL\Connection;
-use Shopware\SeoUrl\Struct\SeoUrl;
-use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\NestedEventDispatcher;
+use Shopware\Framework\Write\FieldAware\DefaultExtender;
+use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Framework\Write\FieldException\WriteStackException;
+use Shopware\Framework\Write\WriteContext;
+use Shopware\Framework\Write\Writer;
+use Shopware\SeoUrl\Event\SeoUrlWriteExtenderEvent;
+use Shopware\SeoUrl\Event\SeoUrlWrittenEvent;
+use Shopware\SeoUrl\Writer\Resource\SeoUrlResource;
+use Shopware\Shop\Writer\Resource\ShopResource;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SeoUrlWriter
 {
     /**
-     * @var Connection
+     * @var DefaultExtender
      */
-    private $connection;
-
-    public function __construct(Connection $connection)
-    {
-        $this->connection = $connection;
-    }
+    private $extender;
 
     /**
-     * @param SeoUrlBasicStruct[] $urls
+     * @var NestedEventDispatcher
      */
-    public function create(array $urls): void
+    private $eventDispatcher;
+
+    /**
+     * @var Writer
+     */
+    private $writer;
+
+    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
     {
-        foreach ($urls as $url) {
-            try {
-                $this->connection->insert(
-                    'seo_url',
-                    [
-                        'uuid' => $url->getUuid(),
-                        'name' => $url->getName(),
-                        'seo_hash' => $url->getSeoHash(),
-                        'foreign_key' => $url->getForeignKey(),
-                        'shop_uuid' => $url->getShopUuid(),
-                        'path_info' => $url->getPathInfo(),
-                        'seo_path_info' => $url->getSeoPathInfo(),
-                        'is_canonical' => $url->getIsCanonical(),
-                        'created_at' => $url->getCreatedAt()->format('Y-m-d H:i:s'),
-                    ]
-                );
-            } catch (\Exception $e) {
-            }
-        }
+        $this->extender = $extender;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->writer = $writer;
     }
 
-    public function delete(array $ids): void
+    public function update(array $data, TranslationContext $context): SeoUrlWrittenEvent
     {
-        $this->connection->executeUpdate(
-            'DELETE FROM seo_url WHERE id IN (:ids)',
-            [':ids' => $ids],
-            [':ids' => Connection::PARAM_INT_ARRAY]
+        $writeContext = $this->createWriteContext($context->getShopUuid());
+        $extender = $this->getExtender();
+
+        $this->validateWriteInput($data);
+
+        $updated = $errors = [];
+
+        foreach ($data as $seoUrl) {
+            try {
+                $updated[] = $this->writer->update(
+                    SeoUrlResource::class,
+                    $seoUrl,
+                    $writeContext,
+                    $extender
+                );
+            } catch (WriteStackException $exception) {
+                $errors[] = $exception->toArray();
+            }
+        }
+
+        $affected = count($updated);
+        if ($affected === 1) {
+            $updated = array_shift($updated);
+        } elseif ($affected > 1) {
+            $updated = array_merge_recursive(...$updated);
+        }
+
+        return SeoUrlResource::createWrittenEvent($updated, $errors);
+    }
+
+    public function upsert(array $data, TranslationContext $context): SeoUrlWrittenEvent
+    {
+        $writeContext = $this->createWriteContext($context->getShopUuid());
+        $extender = $this->getExtender();
+
+        $this->validateWriteInput($data);
+
+        $created = $errors = [];
+
+        foreach ($data as $seoUrl) {
+            try {
+                $created[] = $this->writer->upsert(
+                    SeoUrlResource::class,
+                    $seoUrl,
+                    $writeContext,
+                    $extender
+                );
+            } catch (WriteStackException $exception) {
+                $errors[] = $exception->toArray();
+            }
+        }
+
+        $affected = count($created);
+        if ($affected === 1) {
+            $created = array_shift($created);
+        } elseif ($affected > 1) {
+            $created = array_merge_recursive(...$created);
+        }
+
+        return SeoUrlResource::createWrittenEvent($created, $errors);
+    }
+
+    public function create(array $data, TranslationContext $context): SeoUrlWrittenEvent
+    {
+        $writeContext = $this->createWriteContext($context->getShopUuid());
+        $extender = $this->getExtender();
+
+        $this->validateWriteInput($data);
+
+        $created = $errors = [];
+
+        foreach ($data as $seoUrl) {
+            try {
+                $created[] = $this->writer->insert(
+                    SeoUrlResource::class,
+                    $seoUrl,
+                    $writeContext,
+                    $extender
+                );
+            } catch (WriteStackException $exception) {
+                $errors[] = $exception->toArray();
+            }
+        }
+
+        $affected = count($created);
+        if ($affected === 1) {
+            $created = array_shift($created);
+        } elseif ($affected > 1) {
+            $created = array_merge_recursive(...$created);
+        }
+
+        return SeoUrlResource::createWrittenEvent($created, $errors);
+    }
+
+    private function createWriteContext(string $shopUuid): WriteContext
+    {
+        $writeContext = new WriteContext();
+        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+
+        return $writeContext;
+    }
+
+    private function getExtender(): FieldExtenderCollection
+    {
+        $extenderCollection = new FieldExtenderCollection();
+        $extenderCollection->addExtender($this->extender);
+
+        $event = $this->eventDispatcher->dispatch(
+            SeoUrlWriteExtenderEvent::NAME,
+            new SeoUrlWriteExtenderEvent($extenderCollection)
         );
+
+        return $event->getExtenderCollection();
+    }
+
+    private function validateWriteInput(array $data): void
+    {
+        $malformedRows = [];
+
+        foreach ($data as $index => $row) {
+            if (!is_array($row)) {
+                $malformedRows[] = $index;
+            }
+        }
+
+        if (0 === count($malformedRows)) {
+            return;
+        }
+
+        throw new \InvalidArgumentException('Expected input to be array.');
     }
 }

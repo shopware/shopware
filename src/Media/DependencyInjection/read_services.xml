@@ -11,6 +11,18 @@
             <argument id="shopware.album.basic_factory" type="service"/>
         </service>
 
+
+        <service class="Shopware\Media\Controller\MediaController" id="shopware.media.api_controller">
+            <argument id="shopware.media.repository" type="service"/>
+        </service>
+        
+
+        <service class="Shopware\Media\Writer\MediaWriter" id="shopware.media.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
         <service class="Shopware\Media\Loader\MediaBasicLoader" id="shopware.media.basic_loader">
             <argument id="shopware.media.basic_factory" type="service"/>
         </service>
@@ -26,6 +38,7 @@
             <argument id="shopware.media.basic_loader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.media.searcher" type="service"/>
+            <argument id="shopware.media.writer" type="service"/>
         </service>
 
     </services>

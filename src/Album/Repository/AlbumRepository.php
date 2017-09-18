@@ -1,37 +1,17 @@
 <?php declare(strict_types=1);
-/**
- * Shopware 5
- * Copyright (c) shopware AG
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Shopware" is a registered trademark of shopware AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
 
 namespace Shopware\Album\Repository;
 
 use Shopware\Album\Event\AlbumBasicLoadedEvent;
 use Shopware\Album\Event\AlbumDetailLoadedEvent;
+use Shopware\Album\Event\AlbumWrittenEvent;
 use Shopware\Album\Loader\AlbumBasicLoader;
 use Shopware\Album\Loader\AlbumDetailLoader;
 use Shopware\Album\Searcher\AlbumSearcher;
 use Shopware\Album\Searcher\AlbumSearchResult;
 use Shopware\Album\Struct\AlbumBasicCollection;
 use Shopware\Album\Struct\AlbumDetailCollection;
+use Shopware\Album\Writer\AlbumWriter;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
@@ -60,16 +40,23 @@ class AlbumRepository
      */
     private $searcher;
 
+    /**
+     * @var AlbumWriter
+     */
+    private $writer;
+
     public function __construct(
         AlbumDetailLoader $detailLoader,
         AlbumBasicLoader $basicLoader,
         EventDispatcherInterface $eventDispatcher,
-        AlbumSearcher $searcher
+        AlbumSearcher $searcher,
+        AlbumWriter $writer
     ) {
         $this->detailLoader = $detailLoader;
         $this->basicLoader = $basicLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
+        $this->writer = $writer;
     }
 
     public function readDetail(array $uuids, TranslationContext $context): AlbumDetailCollection
@@ -119,5 +106,32 @@ class AlbumRepository
         $result = $this->searcher->aggregate($criteria, $context);
 
         return $result;
+    }
+
+    public function update(array $data, TranslationContext $context): AlbumWrittenEvent
+    {
+        $event = $this->writer->update($data, $context);
+
+        $this->eventDispatcher->dispatch($event::NAME, $event);
+
+        return $event;
+    }
+
+    public function upsert(array $data, TranslationContext $context): AlbumWrittenEvent
+    {
+        $event = $this->writer->upsert($data, $context);
+
+        $this->eventDispatcher->dispatch($event::NAME, $event);
+
+        return $event;
+    }
+
+    public function create(array $data, TranslationContext $context): AlbumWrittenEvent
+    {
+        $event = $this->writer->create($data, $context);
+
+        $this->eventDispatcher->dispatch($event::NAME, $event);
+
+        return $event;
     }
 }

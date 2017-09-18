@@ -6,7 +6,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\ApiContext;
 use Shopware\Api\ApiController;
 use Shopware\Api\ResultFormat;
-use Shopware\Category\Event\CategoryWrittenEvent;
 use Shopware\Category\Repository\CategoryRepository;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\QueryStringParser;
@@ -14,10 +13,20 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @Route(service="shopware.category.controller.category_controller", path="/api")
+ * @Route(service="shopware.category.api_controller", path="/api")
  */
 class CategoryController extends ApiController
 {
+    /**
+     * @var CategoryRepository
+     */
+    private $categoryRepository;
+
+    public function __construct(CategoryRepository $categoryRepository)
+    {
+        $this->categoryRepository = $categoryRepository;
+    }
+
     public function getXmlRootKey(): string
     {
         return 'categories';
@@ -29,17 +38,12 @@ class CategoryController extends ApiController
     }
 
     /**
-     * @var CategoryRepository
-     */
-    private $categoryRepository;
-
-    public function __construct(CategoryRepository $categoryRepository)
-    {
-        $this->categoryRepository = $categoryRepository;
-    }
-
-    /**
      * @Route("/category.{responseFormat}", name="api.category.list", methods={"GET"})
+     *
+     * @param Request    $request
+     * @param ApiContext $context
+     *
+     * @return Response
      */
     public function listAction(Request $request, ApiContext $context): Response
     {
@@ -62,19 +66,25 @@ class CategoryController extends ApiController
 
         $criteria->setFetchCount(true);
 
-        $searchResult = $this->categoryRepository->searchUuids($criteria, $context->getShopContext()->getTranslationContext());
+        $searchResult = $this->categoryRepository->searchUuids(
+            $criteria,
+            $context->getShopContext()->getTranslationContext()
+        );
 
         switch ($context->getResultFormat()) {
             case ResultFormat::BASIC:
-                $categories = $this->categoryRepository->read($searchResult->getUuids(), $context->getShopContext()->getTranslationContext());
+                $categories = $this->categoryRepository->read(
+                    $searchResult->getUuids(),
+                    $context->getShopContext()->getTranslationContext()
+                );
                 break;
             default:
-                throw new \Exception('Result format not supported.');
+                throw new \RuntimeException('Result format not supported.');
         }
 
         $response = [
             'data' => $categories,
-            'total' => $searchResult->getTotal()
+            'total' => $searchResult->getTotal(),
         ];
 
         return $this->createResponse($response, $context);
@@ -82,28 +92,45 @@ class CategoryController extends ApiController
 
     /**
      * @Route("/category/{categoryUuid}.{responseFormat}", name="api.category.detail", methods={"GET"})
+     *
+     * @param Request    $request
+     * @param ApiContext $context
+     *
+     * @return Response
      */
-    public function detailAction(Request $request, ApiContext $context)
+    public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('categoryUuid');
+        $categories = $this->categoryRepository->read(
+            [$uuid],
+            $context->getShopContext()->getTranslationContext()
+        );
 
-        $categories = $this->categoryRepository->read([$uuid], $context->getShopContext()->getTranslationContext());
-        $category = $categories->get($uuid);
-
-        return $this->createResponse($category, $context);
+        return $this->createResponse($categories->get($uuid), $context);
     }
 
     /**
      * @Route("/category.{responseFormat}", name="api.category.create", methods={"POST"})
+     *
+     * @param ApiContext $context
+     *
+     * @return Response
      */
     public function createAction(ApiContext $context): Response
     {
-        /** @var CategoryWrittenEvent $createEvent */
-        $createEvent = $this->categoryRepository->create($context->getPayload(), $context->getShopContext()->getTranslationContext());
+        $createEvent = $this->categoryRepository->create(
+            $context->getPayload(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $categories = $this->categoryRepository->read(
+            $createEvent->getCategoryUuids(),
+            $context->getShopContext()->getTranslationContext()
+        );
 
         $response = [
-            'data' => $this->categoryRepository->read($createEvent->getCategoryUuids(), $context->getShopContext()->getTranslationContext()),
-            'errors' => $createEvent->getErrors()
+            'data' => $categories,
+            'errors' => $createEvent->getErrors(),
         ];
 
         return $this->createResponse($response, $context);
@@ -111,15 +138,26 @@ class CategoryController extends ApiController
 
     /**
      * @Route("/category.{responseFormat}", name="api.category.upsert", methods={"PUT"})
+     *
+     * @param ApiContext $context
+     *
+     * @return Response
      */
     public function upsertAction(ApiContext $context): Response
     {
-        /** @var CategoryWrittenEvent $createEvent */
-        $createEvent = $this->categoryRepository->upsert($context->getPayload(), $context->getShopContext()->getTranslationContext());
+        $createEvent = $this->categoryRepository->upsert(
+            $context->getPayload(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $categories = $this->categoryRepository->read(
+            $createEvent->getCategoryUuids(),
+            $context->getShopContext()->getTranslationContext()
+        );
 
         $response = [
-            'data' => $this->categoryRepository->read($createEvent->getCategoryUuids(), $context->getShopContext()->getTranslationContext()),
-            'errors' => $createEvent->getErrors()
+            'data' => $categories,
+            'errors' => $createEvent->getErrors(),
         ];
 
         return $this->createResponse($response, $context);
@@ -127,15 +165,26 @@ class CategoryController extends ApiController
 
     /**
      * @Route("/category.{responseFormat}", name="api.category.update", methods={"PATCH"})
+     *
+     * @param ApiContext $context
+     *
+     * @return Response
      */
     public function updateAction(ApiContext $context): Response
     {
-        /** @var CategoryWrittenEvent $createEvent */
-        $createEvent = $this->categoryRepository->update($context->getPayload(), $context->getShopContext()->getTranslationContext());
+        $createEvent = $this->categoryRepository->update(
+            $context->getPayload(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $categories = $this->categoryRepository->read(
+            $createEvent->getCategoryUuids(),
+            $context->getShopContext()->getTranslationContext()
+        );
 
         $response = [
-            'data' => $this->categoryRepository->read($createEvent->getCategoryUuids(), $context->getShopContext()->getTranslationContext()),
-            'errors' => $createEvent->getErrors()
+            'data' => $categories,
+            'errors' => $createEvent->getErrors(),
         ];
 
         return $this->createResponse($response, $context);
@@ -143,13 +192,21 @@ class CategoryController extends ApiController
 
     /**
      * @Route("/category/{categoryUuid}.{responseFormat}", name="api.category.single_update", methods={"PATCH"})
+     *
+     * @param Request    $request
+     * @param ApiContext $context
+     *
+     * @return Response
      */
     public function singleUpdateAction(Request $request, ApiContext $context): Response
     {
         $payload = $context->getPayload();
         $payload['uuid'] = $request->get('categoryUuid');
 
-        $updateEvent = $this->categoryRepository->update([$payload], $context->getShopContext()->getTranslationContext());
+        $updateEvent = $this->categoryRepository->update(
+            [$payload],
+            $context->getShopContext()->getTranslationContext()
+        );
 
         if ($updateEvent->hasErrors()) {
             $errors = $updateEvent->getErrors();
@@ -158,20 +215,27 @@ class CategoryController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
+        $categories = $this->categoryRepository->read(
+            [$payload['uuid']],
+            $context->getShopContext()->getTranslationContext()
+        );
+
         return $this->createResponse(
-            ['data' => $this->categoryRepository->read([$payload['uuid']], $context->getShopContext()->getTranslationContext())->get($payload['uuid'])],
+            ['data' => $categories->get($payload['uuid'])],
             $context
         );
     }
 
     /**
      * @Route("/category.{responseFormat}", name="api.category.delete", methods={"DELETE"})
+     *
+     * @param ApiContext $context
+     *
+     * @return Response
      */
     public function deleteAction(ApiContext $context): Response
     {
         $result = [];
-        foreach ($context->getPayload() as $category) {
-        }
 
         return $this->createResponse($result, $context);
     }

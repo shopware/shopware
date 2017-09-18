@@ -21,6 +21,18 @@
             <argument id="shopware.seo_url.basic_factory" type="service"/>
         </service>
 
+
+        <service class="Shopware\Category\Controller\CategoryController" id="shopware.category.api_controller">
+            <argument id="shopware.category.repository" type="service"/>
+        </service>
+        
+
+        <service class="Shopware\Category\Writer\CategoryWriter" id="shopware.category.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
         <service class="Shopware\Category\Loader\CategoryBasicLoader" id="shopware.category.basic_loader">
             <argument id="shopware.category.basic_factory" type="service"/>
         </service>

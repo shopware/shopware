@@ -16,6 +16,18 @@
             <argument id="shopware.area_country.detail_factory" type="service"/>
         </service>
 
+
+        <service class="Shopware\Area\Controller\AreaController" id="shopware.area.api_controller">
+            <argument id="shopware.area.repository" type="service"/>
+        </service>
+        
+
+        <service class="Shopware\Area\Writer\AreaWriter" id="shopware.area.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
         <service class="Shopware\Area\Loader\AreaBasicLoader" id="shopware.area.basic_loader">
             <argument id="shopware.area.basic_factory" type="service"/>
         </service>
@@ -38,6 +50,7 @@
             <argument id="shopware.area.basic_loader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.area.searcher" type="service"/>
+            <argument id="shopware.area.writer" type="service"/>
         </service>
 
     </services>

@@ -14,6 +14,11 @@ class QuerySelection
      */
     protected $root;
 
+    /**
+     * @var QuerySelection[]
+     */
+    private $filtered = [];
+
     public function __construct(array $fields, string $root)
     {
         $this->fields = $fields;
@@ -44,13 +49,17 @@ class QuerySelection
 
     public function filter(string $prefix): ?QuerySelection
     {
+        if (array_key_exists($prefix, $this->filtered)) {
+            return $this->filtered[$prefix];
+        }
+
         $fields = $this->filterFields($prefix);
 
         if (empty($fields)) {
-            return null;
+            return $this->filtered[$prefix] = null;
         }
 
-        return new self(
+        return $this->filtered[$prefix] = new self(
             $fields,
             $this->implodeRoot($prefix)
         );

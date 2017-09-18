@@ -86,6 +86,7 @@
         </service>
 
         <service class="Shopware\Storefront\Context\ShopContextValueResolver" id="shopware.storefront.context.shop_context_value_resolver">
+            <argument type="service" id="shopware.storefront.context.storefront_context_service" />
             <tag name="controller.argument_value_resolver"/>
         </service>
 

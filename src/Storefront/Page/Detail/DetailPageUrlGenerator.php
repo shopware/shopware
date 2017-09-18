@@ -28,21 +28,13 @@ use Cocur\Slugify\SlugifyInterface;
 use Ramsey\Uuid\Uuid;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Routing\Router;
-use Shopware\Product\ProductRepository;
+use Shopware\Product\Repository\ProductRepository;
 use Shopware\Product\Struct\ProductBasicStruct;
-use Shopware\Product\Struct\ProductIdentity;
-use Shopware\Search\Condition\ActiveCondition;
-use Shopware\Search\Condition\CanonicalCondition;
-use Shopware\Search\Condition\CategoryUuidCondition;
-use Shopware\Search\Condition\ForeignKeyCondition;
-use Shopware\Search\Condition\IsCanonicalCondition;
-use Shopware\Search\Condition\MainVariantCondition;
-use Shopware\Search\Condition\NameCondition;
-use Shopware\Search\Condition\ShopCondition;
-use Shopware\Search\Condition\ShopUuidCondition;
 use Shopware\Search\Criteria;
+use Shopware\Search\Query\TermQuery;
+use Shopware\Search\Query\TermsQuery;
 use Shopware\SeoUrl\Generator\SeoUrlGeneratorInterface;
-use Shopware\SeoUrl\SeoUrlRepository;
+use Shopware\SeoUrl\Repository\SeoUrlRepository;
 use Shopware\SeoUrl\Struct\SeoUrl;
 use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
 use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
@@ -88,19 +80,17 @@ class DetailPageUrlGenerator implements SeoUrlGeneratorInterface
     public function fetch(ShopBasicStruct $shop, TranslationContext $context, int $offset, int $limit): SeoUrlBasicCollection
     {
         $criteria = new Criteria();
-        $criteria->offset($offset);
-        $criteria->limit($limit);
-
-        $criteria->addCondition(new CategoryUuidCondition([$shop->getUuid()]));
-        $criteria->addCondition(new ActiveCondition(true));
-
+        $criteria->setOffset($offset);
+        $criteria->setLimit($limit);
+        $criteria->addFilter(new TermQuery('product.categories.uuid', $shop->getCategoryUuid()));
+        $criteria->addFilter(new TermQuery('product.active', 1));
         $products = $this->repository->search($criteria, $context);
 
         $criteria = new Criteria();
-        $criteria->addCondition(new IsCanonicalCondition(true));
-        $criteria->addCondition(new ForeignKeyCondition($products->getUuids()));
-        $criteria->addCondition(new NameCondition([self::ROUTE_NAME]));
-        $criteria->addCondition(new ShopUuidCondition([$shop->getUuid()]));
+        $criteria->addFilter(new TermQuery('seo_url.is_canonical', 1));
+        $criteria->addFilter(new TermsQuery('seo_url.foreign_key', $products->getUuids()));
+        $criteria->addFilter(new TermQuery('seo_url.name', self::ROUTE_NAME));
+        $criteria->addFilter(new TermQuery('seo_url.shop_uuid', $shop->getUuid()));
         $existingCanonicals = $this->seoUrlRepository->search($criteria, $context);
 
         $routes = new SeoUrlBasicCollection();

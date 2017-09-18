@@ -36,13 +36,11 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
-use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class ShopSubscriber implements EventSubscriberInterface
 {
-    const SHOP_CONTEXT_PROPERTY = '_shop_context';
+    const SHOP_CONTEXT_PROPERTY = 'shop_context';
 
     /**
      * @var StorefrontContextServiceInterface

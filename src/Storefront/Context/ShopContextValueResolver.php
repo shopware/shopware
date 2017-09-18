@@ -31,6 +31,16 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
 class ShopContextValueResolver implements ArgumentValueResolverInterface
 {
+    /**
+     * @var StorefrontContextServiceInterface
+     */
+    private $contextService;
+
+    public function __construct(StorefrontContextServiceInterface $contextService)
+    {
+        $this->contextService = $contextService;
+    }
+
     public function supports(Request $request, ArgumentMetadata $argument)
     {
         return ShopContext::class === $argument->getType();
@@ -38,6 +48,6 @@ class ShopContextValueResolver implements ArgumentValueResolverInterface
 
     public function resolve(Request $request, ArgumentMetadata $argument)
     {
-        yield $request->attributes->get('_shop_context');
+        yield $this->contextService->getShopContext();
     }
 }

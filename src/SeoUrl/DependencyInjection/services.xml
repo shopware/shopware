@@ -8,7 +8,7 @@
         <service class="Shopware\SeoUrl\Generator\SeoUrlGeneratorRegistry" id="shopware.seo_url.generator.seo_url_generator_registry">
             <argument type="collection">
                 <argument id="shopware.storefront.listing_page.listing_page_url_generator" type="service" />
-                <!--<argument id="shopware.storefront.detail_page.detail_page_url_generator" type="service" />-->
+                <argument id="shopware.storefront.detail_page.detail_page_url_generator" type="service" />
             </argument>
             <argument id="shopware.seo_url.repository" type="service"/>
             <argument id="dbal_connection" type="service"/>

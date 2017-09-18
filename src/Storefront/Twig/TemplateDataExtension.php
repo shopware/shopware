@@ -26,6 +26,7 @@ namespace Shopware\Storefront\Twig;
 
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Config\ConfigServiceInterface;
+use Shopware\Storefront\Session\ShopSubscriber;
 use Shopware\Storefront\Theme\ThemeConfigReader;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -82,7 +83,7 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
         }
 
         /** @var ShopContext $context */
-        $context = $request->attributes->get('_shop_context');
+        $context = $request->attributes->get(ShopSubscriber::SHOP_CONTEXT_PROPERTY);
         if (!$context) {
             return [];
         }

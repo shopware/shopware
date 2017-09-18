@@ -35,6 +35,6 @@ class DetailController extends FrontendController
      */
     public function indexAction(string $uuid, ShopContext $context, Request $request)
     {
-        return $this->render('frontend/home/index.html.twig', []);
+        return $this->render('frontend/detail/index.html.twig', []);
     }
 }

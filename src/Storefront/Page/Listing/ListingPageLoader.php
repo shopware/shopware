@@ -44,7 +44,7 @@ class ListingPageLoader
      * @param Request $request
      * @return Criteria
      */
-    public function createCriteria(string $categoryUuid, Request $request): Criteria
+    private function createCriteria(string $categoryUuid, Request $request): Criteria
     {
         $limit = 20;
         if ($request->get('limit')) {

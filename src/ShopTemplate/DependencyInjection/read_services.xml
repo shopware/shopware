@@ -10,6 +10,18 @@
             <argument type="collection" />
         </service>
 
+
+        <service class="Shopware\ShopTemplate\Controller\ShopTemplateController" id="shopware.shop_template.api_controller">
+            <argument id="shopware.shop_template.repository" type="service"/>
+        </service>
+        
+
+        <service class="Shopware\ShopTemplate\Writer\ShopTemplateWriter" id="shopware.shop_template.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
         <service class="Shopware\ShopTemplate\Loader\ShopTemplateBasicLoader" id="shopware.shop_template.basic_loader">
             <argument id="shopware.shop_template.basic_factory" type="service"/>
         </service>
@@ -25,6 +37,7 @@
             <argument id="shopware.shop_template.basic_loader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.shop_template.searcher" type="service"/>
+            <argument id="shopware.shop_template.writer" type="service"/>
         </service>
 
     </services>

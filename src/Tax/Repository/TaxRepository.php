@@ -1,26 +1,4 @@
 <?php declare(strict_types=1);
-/**
- * Shopware 5
- * Copyright (c) shopware AG
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Shopware" is a registered trademark of shopware AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
 
 namespace Shopware\Tax\Repository;
 
@@ -29,10 +7,12 @@ use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Shopware\Tax\Event\TaxBasicLoadedEvent;
+use Shopware\Tax\Event\TaxWrittenEvent;
 use Shopware\Tax\Loader\TaxBasicLoader;
 use Shopware\Tax\Searcher\TaxSearcher;
 use Shopware\Tax\Searcher\TaxSearchResult;
 use Shopware\Tax\Struct\TaxBasicCollection;
+use Shopware\Tax\Writer\TaxWriter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class TaxRepository
@@ -52,14 +32,21 @@ class TaxRepository
      */
     private $searcher;
 
+    /**
+     * @var TaxWriter
+     */
+    private $writer;
+
     public function __construct(
         TaxBasicLoader $basicLoader,
         EventDispatcherInterface $eventDispatcher,
-        TaxSearcher $searcher
+        TaxSearcher $searcher,
+        TaxWriter $writer
     ) {
         $this->basicLoader = $basicLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
+        $this->writer = $writer;
     }
 
     public function read(array $uuids, TranslationContext $context): TaxBasicCollection
@@ -97,5 +84,32 @@ class TaxRepository
         $result = $this->searcher->aggregate($criteria, $context);
 
         return $result;
+    }
+
+    public function update(array $data, TranslationContext $context): TaxWrittenEvent
+    {
+        $event = $this->writer->update($data, $context);
+
+        $this->eventDispatcher->dispatch($event::NAME, $event);
+
+        return $event;
+    }
+
+    public function upsert(array $data, TranslationContext $context): TaxWrittenEvent
+    {
+        $event = $this->writer->upsert($data, $context);
+
+        $this->eventDispatcher->dispatch($event::NAME, $event);
+
+        return $event;
+    }
+
+    public function create(array $data, TranslationContext $context): TaxWrittenEvent
+    {
+        $event = $this->writer->create($data, $context);
+
+        $this->eventDispatcher->dispatch($event::NAME, $event);
+
+        return $event;
     }
 }

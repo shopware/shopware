@@ -10,6 +10,16 @@
             <argument type="collection" />
         </service>
 
+        <service class="Shopware\Tax\Controller\TaxController" id="shopware.tax.api_controller">
+            <argument id="shopware.tax.repository" type="service"/>
+        </service>
+
+        <service class="Shopware\Tax\Writer\TaxWriter" id="shopware.tax.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
         <service class="Shopware\Tax\Loader\TaxBasicLoader" id="shopware.tax.basic_loader">
             <argument id="shopware.tax.basic_factory" type="service"/>
         </service>
@@ -25,6 +35,7 @@
             <argument id="shopware.tax.basic_loader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.tax.searcher" type="service"/>
+            <argument id="shopware.tax.writer" type="service"/>
         </service>
 
     </services>

@@ -70,14 +70,14 @@
                         <div class="listing"
                              data-ajax-wishlist="true"
                              data-compare-ajax="true"
-                            {% if theme.infiniteScrolling %}
-                                data-infinite-scrolling="true"
-                                data-loadPreviousSnippet="{% trans from 'frontend/listing/listing' %}ListingActionsLoadPrevious{% endtrans %}"
-                                data-loadMoreSnippet="{% trans from 'frontend/listing/listing' %}ListingActionsLoadMore{% endtrans %}"
-                                data-categoryId="{{ navigation.activeCategory.id }}"
-                                data-pages="{{ pages }}"
-                                data-threshold="{{ theme.infiniteThreshold }}"
-                            {% endif %}>
+                                {% if theme.infiniteScrolling %}
+                            data-infinite-scrolling="true"
+                            data-loadPreviousSnippet="{% trans from 'frontend/listing/listing' %}ListingActionsLoadPrevious{% endtrans %}"
+                            data-loadMoreSnippet="{% trans from 'frontend/listing/listing' %}ListingActionsLoadMore{% endtrans %}"
+                            data-categoryId="{{ navigation.activeCategory.id }}"
+                            data-pages="{{ pages }}"
+                            data-threshold="{{ theme.infiniteThreshold }}"
+                                {% endif %}>
 
                             {# Actual listing #}
                             {% block frontend_listing_list_inline %}

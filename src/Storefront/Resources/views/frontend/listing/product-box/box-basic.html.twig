@@ -26,7 +26,7 @@
                         {% block frontend_listing_box_article_rating %}
                             <div class="product--rating-container">
                                 {#{if product.sVoteAverage.average %}#}
-                                    {#{% sw_include '@Shopware/frontend/_includes/rating.tpl' points=$sArticle.sVoteAverage.average type="aggregated" label=false microData=false %}#}
+                                {#{% sw_include '@Shopware/frontend/_includes/rating.tpl' points=$sArticle.sVoteAverage.average type="aggregated" label=false microData=false %}#}
                                 {#{% endif %}#}
                             </div>
                         {% endblock %}

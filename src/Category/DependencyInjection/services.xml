@@ -8,5 +8,15 @@
         <service class="Shopware\Category\Command\RebuildTreeCommand" id="shopware.category.command.rebuild_category_tree_command">
             <tag name="console.command"/>
         </service>
+
+        <service class="Shopware\Category\Controller\CategoryController" id="shopware.category.controller.category_controller">
+            <argument type="service" id="shopware.category.repository" />
+        </service>
+
+        <service class="Shopware\Category\Writer\CategoryWriter" id="shopware.category.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
     </services>
 </container>

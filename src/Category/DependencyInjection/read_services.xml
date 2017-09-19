@@ -43,6 +43,7 @@
             <argument id="shopware.category.basic_loader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.category.searcher" type="service"/>
+            <argument id="shopware.category.writer" type="service"/>
         </service>
 
     </services>

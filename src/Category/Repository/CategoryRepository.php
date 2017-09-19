@@ -26,12 +26,14 @@ namespace Shopware\Category\Repository;
 
 use Shopware\Category\Event\CategoryBasicLoadedEvent;
 use Shopware\Category\Event\CategoryDetailLoadedEvent;
+use Shopware\Category\Event\CategoryWrittenEvent;
 use Shopware\Category\Loader\CategoryBasicLoader;
 use Shopware\Category\Loader\CategoryDetailLoader;
 use Shopware\Category\Searcher\CategorySearcher;
 use Shopware\Category\Searcher\CategorySearchResult;
 use Shopware\Category\Struct\CategoryBasicCollection;
 use Shopware\Category\Struct\CategoryDetailCollection;
+use Shopware\Category\Writer\CategoryWriter;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
@@ -60,16 +62,23 @@ class CategoryRepository
      */
     private $searcher;
 
+    /**
+     * @var CategoryWriter
+     */
+    private $writer;
+
     public function __construct(
         CategoryDetailLoader $detailLoader,
         CategoryBasicLoader $basicLoader,
         EventDispatcherInterface $eventDispatcher,
-        CategorySearcher $searcher
+        CategorySearcher $searcher,
+        CategoryWriter $writer
     ) {
         $this->detailLoader = $detailLoader;
         $this->basicLoader = $basicLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
+        $this->writer = $writer;
     }
 
     public function readDetail(array $uuids, TranslationContext $context): CategoryDetailCollection
@@ -119,5 +128,33 @@ class CategoryRepository
         $result = $this->searcher->aggregate($criteria, $context);
 
         return $result;
+    }
+
+
+    public function update(array $data, TranslationContext $context): CategoryWrittenEvent
+    {
+        $event = $this->writer->update($data, $context);
+
+        $this->eventDispatcher->dispatch($event::NAME, $event);
+
+        return $event;
+    }
+
+    public function upsert(array $data, TranslationContext $context): CategoryWrittenEvent
+    {
+        $event = $this->writer->upsert($data, $context);
+
+        $this->eventDispatcher->dispatch($event::NAME, $event);
+
+        return $event;
+    }
+
+    public function create(array $data, TranslationContext $context): CategoryWrittenEvent
+    {
+        $event = $this->writer->create($data, $context);
+
+        $this->eventDispatcher->dispatch($event::NAME, $event);
+
+        return $event;
     }
 }

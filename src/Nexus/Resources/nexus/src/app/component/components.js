@@ -11,6 +11,7 @@ import 'src/app/component/atom/form/sw-form-row/sw-form-row';
 import 'src/app/component/atom/utils/sw-loader/sw-loader';
 import 'src/app/component/atom/sw-card';
 import 'src/app/component/atom/sw-button';
+import 'src/app/component/atom/form/sw-multi-select';
 
 // Molecules
 

@@ -1,0 +1,29 @@
+<div class="sw-multi-select">
+    <input type="hidden" :value="stringifyValues">
+    <ul class="sw-multi-select--list">
+
+        <!-- Loop through the selected values -->
+        <li class="list--value" v-for="entry in displayValues" :key="entry.uuid">
+            <span class="value--display">{{ entry.name }}</span>
+            <a href="#" class="value--dismiss" @click.prevent="onDismissEntry(entry.uuid)">&#x2715;</a>
+        </li>
+
+        <li class="list--input">
+            <input class="input--element" type="text" :placeholder="placeholder" v-model="searchTerm">
+        </li>
+    </ul>
+
+    <transition name="fade">
+        <div class="sw-drop-down" v-if="isExpanded">
+            <ul class="sw-drop-down--list">
+                <li v-for="entry in filteredEntries"
+                    class="list--entry"
+                    :data-uuid="entry.uuid"
+                    @click="onSelectEntry(entry.uuid, entry.name)"
+                >
+                    {{ entry.name }}
+                </li>
+            </ul>
+        </div>
+    </transition>
+</div>

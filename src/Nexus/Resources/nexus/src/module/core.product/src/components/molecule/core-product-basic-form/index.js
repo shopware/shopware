@@ -11,6 +11,10 @@ export default Shopware.ComponentFactory.register('core-product-basic-form', {
             type: Boolean,
             required: true,
             default: false
+        },
+        serviceProvider: {
+            type: Object,
+            required: true
         }
     },
 

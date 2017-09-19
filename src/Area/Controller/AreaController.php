@@ -39,10 +39,8 @@ class AreaController extends ApiController
 
     /**
      * @Route("/area.{responseFormat}", name="api.area.list", methods={"GET"})
-     *
-     * @param Request    $request
+     * @param Request $request
      * @param ApiContext $context
-     *
      * @return Response
      */
     public function listAction(Request $request, ApiContext $context): Response
@@ -91,10 +89,8 @@ class AreaController extends ApiController
 
     /**
      * @Route("/area/{areaUuid}.{responseFormat}", name="api.area.detail", methods={"GET"})
-     *
-     * @param Request    $request
+     * @param Request $request
      * @param ApiContext $context
-     *
      * @return Response
      */
     public function detailAction(Request $request, ApiContext $context): Response
@@ -110,9 +106,7 @@ class AreaController extends ApiController
 
     /**
      * @Route("/area.{responseFormat}", name="api.area.create", methods={"POST"})
-     *
      * @param ApiContext $context
-     *
      * @return Response
      */
     public function createAction(ApiContext $context): Response
@@ -137,9 +131,7 @@ class AreaController extends ApiController
 
     /**
      * @Route("/area.{responseFormat}", name="api.area.upsert", methods={"PUT"})
-     *
      * @param ApiContext $context
-     *
      * @return Response
      */
     public function upsertAction(ApiContext $context): Response
@@ -164,9 +156,7 @@ class AreaController extends ApiController
 
     /**
      * @Route("/area.{responseFormat}", name="api.area.update", methods={"PATCH"})
-     *
      * @param ApiContext $context
-     *
      * @return Response
      */
     public function updateAction(ApiContext $context): Response
@@ -191,10 +181,8 @@ class AreaController extends ApiController
 
     /**
      * @Route("/area/{areaUuid}.{responseFormat}", name="api.area.single_update", methods={"PATCH"})
-     *
-     * @param Request    $request
+     * @param Request $request
      * @param ApiContext $context
-     *
      * @return Response
      */
     public function singleUpdateAction(Request $request, ApiContext $context): Response
@@ -227,9 +215,7 @@ class AreaController extends ApiController
 
     /**
      * @Route("/area.{responseFormat}", name="api.area.delete", methods={"DELETE"})
-     *
      * @param ApiContext $context
-     *
      * @return Response
      */
     public function deleteAction(ApiContext $context): Response

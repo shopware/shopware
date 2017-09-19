@@ -39,10 +39,8 @@ class PaymentMethodController extends ApiController
 
     /**
      * @Route("/paymentMethod.{responseFormat}", name="api.paymentMethod.list", methods={"GET"})
-     *
-     * @param Request    $request
+     * @param Request $request
      * @param ApiContext $context
-     *
      * @return Response
      */
     public function listAction(Request $request, ApiContext $context): Response
@@ -58,7 +56,6 @@ class PaymentMethodController extends ApiController
         }
 
         if ($request->query->has('query')) {
-            $parser = new QueryStringParser();
             $criteria->addFilter(
                 QueryStringParser::fromUrl($request->query->get('query'))
             );
@@ -92,10 +89,8 @@ class PaymentMethodController extends ApiController
 
     /**
      * @Route("/paymentMethod/{paymentMethodUuid}.{responseFormat}", name="api.paymentMethod.detail", methods={"GET"})
-     *
-     * @param Request    $request
+     * @param Request $request
      * @param ApiContext $context
-     *
      * @return Response
      */
     public function detailAction(Request $request, ApiContext $context): Response
@@ -111,9 +106,7 @@ class PaymentMethodController extends ApiController
 
     /**
      * @Route("/paymentMethod.{responseFormat}", name="api.paymentMethod.create", methods={"POST"})
-     *
      * @param ApiContext $context
-     *
      * @return Response
      */
     public function createAction(ApiContext $context): Response
@@ -138,9 +131,7 @@ class PaymentMethodController extends ApiController
 
     /**
      * @Route("/paymentMethod.{responseFormat}", name="api.paymentMethod.upsert", methods={"PUT"})
-     *
      * @param ApiContext $context
-     *
      * @return Response
      */
     public function upsertAction(ApiContext $context): Response
@@ -165,9 +156,7 @@ class PaymentMethodController extends ApiController
 
     /**
      * @Route("/paymentMethod.{responseFormat}", name="api.paymentMethod.update", methods={"PATCH"})
-     *
      * @param ApiContext $context
-     *
      * @return Response
      */
     public function updateAction(ApiContext $context): Response
@@ -192,10 +181,8 @@ class PaymentMethodController extends ApiController
 
     /**
      * @Route("/paymentMethod/{paymentMethodUuid}.{responseFormat}", name="api.paymentMethod.single_update", methods={"PATCH"})
-     *
-     * @param Request    $request
+     * @param Request $request
      * @param ApiContext $context
-     *
      * @return Response
      */
     public function singleUpdateAction(Request $request, ApiContext $context): Response
@@ -228,9 +215,7 @@ class PaymentMethodController extends ApiController
 
     /**
      * @Route("/paymentMethod.{responseFormat}", name="api.paymentMethod.delete", methods={"DELETE"})
-     *
      * @param ApiContext $context
-     *
      * @return Response
      */
     public function deleteAction(ApiContext $context): Response

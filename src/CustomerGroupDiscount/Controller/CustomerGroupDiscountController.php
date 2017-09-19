@@ -1,44 +1,44 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Media\Controller;
+namespace Shopware\CustomerGroupDiscount\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\ApiContext;
 use Shopware\Api\ApiController;
 use Shopware\Api\ResultFormat;
-use Shopware\Media\Repository\MediaRepository;
+use Shopware\CustomerGroupDiscount\Repository\CustomerGroupDiscountRepository;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\QueryStringParser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @Route(service="shopware.media.api_controller", path="/api")
+ * @Route(service="shopware.customer_group_discount.api_controller", path="/api")
  */
-class MediaController extends ApiController
+class CustomerGroupDiscountController extends ApiController
 {
     /**
-     * @var MediaRepository
+     * @var CustomerGroupDiscountRepository
      */
-    private $mediaRepository;
+    private $customerGroupDiscountRepository;
 
-    public function __construct(MediaRepository $mediaRepository)
+    public function __construct(CustomerGroupDiscountRepository $customerGroupDiscountRepository)
     {
-        $this->mediaRepository = $mediaRepository;
+        $this->customerGroupDiscountRepository = $customerGroupDiscountRepository;
     }
 
     public function getXmlRootKey(): string
     {
-        return 'medias';
+        return 'customerGroupDiscounts';
     }
 
     public function getXmlChildKey(): string
     {
-        return 'media';
+        return 'customerGroupDiscount';
     }
 
     /**
-     * @Route("/media.{responseFormat}", name="api.media.list", methods={"GET"})
+     * @Route("/customerGroupDiscount.{responseFormat}", name="api.customerGroupDiscount.list", methods={"GET"})
      * @param Request $request
      * @param ApiContext $context
      * @return Response
@@ -63,14 +63,14 @@ class MediaController extends ApiController
 
         $criteria->setFetchCount(true);
 
-        $searchResult = $this->mediaRepository->searchUuids(
+        $searchResult = $this->customerGroupDiscountRepository->searchUuids(
             $criteria,
             $context->getShopContext()->getTranslationContext()
         );
 
         switch ($context->getResultFormat()) {
             case ResultFormat::BASIC:
-                $medias = $this->mediaRepository->read(
+                $customerGroupDiscounts = $this->customerGroupDiscountRepository->read(
                     $searchResult->getUuids(),
                     $context->getShopContext()->getTranslationContext()
                 );
@@ -80,7 +80,7 @@ class MediaController extends ApiController
         }
 
         $response = [
-            'data' => $medias,
+            'data' => $customerGroupDiscounts,
             'total' => $searchResult->getTotal(),
         ];
 
@@ -88,41 +88,41 @@ class MediaController extends ApiController
     }
 
     /**
-     * @Route("/media/{mediaUuid}.{responseFormat}", name="api.media.detail", methods={"GET"})
+     * @Route("/customerGroupDiscount/{customerGroupDiscountUuid}.{responseFormat}", name="api.customerGroupDiscount.detail", methods={"GET"})
      * @param Request $request
      * @param ApiContext $context
      * @return Response
      */
     public function detailAction(Request $request, ApiContext $context): Response
     {
-        $uuid = $request->get('mediaUuid');
-        $medias = $this->mediaRepository->read(
+        $uuid = $request->get('customerGroupDiscountUuid');
+        $customerGroupDiscounts = $this->customerGroupDiscountRepository->read(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($medias->get($uuid), $context);
+        return $this->createResponse($customerGroupDiscounts->get($uuid), $context);
     }
 
     /**
-     * @Route("/media.{responseFormat}", name="api.media.create", methods={"POST"})
+     * @Route("/customerGroupDiscount.{responseFormat}", name="api.customerGroupDiscount.create", methods={"POST"})
      * @param ApiContext $context
      * @return Response
      */
     public function createAction(ApiContext $context): Response
     {
-        $createEvent = $this->mediaRepository->create(
+        $createEvent = $this->customerGroupDiscountRepository->create(
             $context->getPayload(),
             $context->getShopContext()->getTranslationContext()
         );
 
-        $medias = $this->mediaRepository->read(
-            $createEvent->getMediaUuids(),
+        $customerGroupDiscounts = $this->customerGroupDiscountRepository->read(
+            $createEvent->getCustomerGroupDiscountUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $medias,
+            'data' => $customerGroupDiscounts,
             'errors' => $createEvent->getErrors(),
         ];
 
@@ -130,24 +130,24 @@ class MediaController extends ApiController
     }
 
     /**
-     * @Route("/media.{responseFormat}", name="api.media.upsert", methods={"PUT"})
+     * @Route("/customerGroupDiscount.{responseFormat}", name="api.customerGroupDiscount.upsert", methods={"PUT"})
      * @param ApiContext $context
      * @return Response
      */
     public function upsertAction(ApiContext $context): Response
     {
-        $createEvent = $this->mediaRepository->upsert(
+        $createEvent = $this->customerGroupDiscountRepository->upsert(
             $context->getPayload(),
             $context->getShopContext()->getTranslationContext()
         );
 
-        $medias = $this->mediaRepository->read(
-            $createEvent->getMediaUuids(),
+        $customerGroupDiscounts = $this->customerGroupDiscountRepository->read(
+            $createEvent->getCustomerGroupDiscountUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $medias,
+            'data' => $customerGroupDiscounts,
             'errors' => $createEvent->getErrors(),
         ];
 
@@ -155,24 +155,24 @@ class MediaController extends ApiController
     }
 
     /**
-     * @Route("/media.{responseFormat}", name="api.media.update", methods={"PATCH"})
+     * @Route("/customerGroupDiscount.{responseFormat}", name="api.customerGroupDiscount.update", methods={"PATCH"})
      * @param ApiContext $context
      * @return Response
      */
     public function updateAction(ApiContext $context): Response
     {
-        $createEvent = $this->mediaRepository->update(
+        $createEvent = $this->customerGroupDiscountRepository->update(
             $context->getPayload(),
             $context->getShopContext()->getTranslationContext()
         );
 
-        $medias = $this->mediaRepository->read(
-            $createEvent->getMediaUuids(),
+        $customerGroupDiscounts = $this->customerGroupDiscountRepository->read(
+            $createEvent->getCustomerGroupDiscountUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $medias,
+            'data' => $customerGroupDiscounts,
             'errors' => $createEvent->getErrors(),
         ];
 
@@ -180,7 +180,7 @@ class MediaController extends ApiController
     }
 
     /**
-     * @Route("/media/{mediaUuid}.{responseFormat}", name="api.media.single_update", methods={"PATCH"})
+     * @Route("/customerGroupDiscount/{customerGroupDiscountUuid}.{responseFormat}", name="api.customerGroupDiscount.single_update", methods={"PATCH"})
      * @param Request $request
      * @param ApiContext $context
      * @return Response
@@ -188,9 +188,9 @@ class MediaController extends ApiController
     public function singleUpdateAction(Request $request, ApiContext $context): Response
     {
         $payload = $context->getPayload();
-        $payload['uuid'] = $request->get('mediaUuid');
+        $payload['uuid'] = $request->get('customerGroupDiscountUuid');
 
-        $updateEvent = $this->mediaRepository->update(
+        $updateEvent = $this->customerGroupDiscountRepository->update(
             [$payload],
             $context->getShopContext()->getTranslationContext()
         );
@@ -202,19 +202,19 @@ class MediaController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $medias = $this->mediaRepository->read(
+        $customerGroupDiscounts = $this->customerGroupDiscountRepository->read(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );
 
         return $this->createResponse(
-            ['data' => $medias->get($payload['uuid'])],
+            ['data' => $customerGroupDiscounts->get($payload['uuid'])],
             $context
         );
     }
 
     /**
-     * @Route("/media.{responseFormat}", name="api.media.delete", methods={"DELETE"})
+     * @Route("/customerGroupDiscount.{responseFormat}", name="api.customerGroupDiscount.delete", methods={"DELETE"})
      * @param ApiContext $context
      * @return Response
      */

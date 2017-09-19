@@ -6,12 +6,12 @@ use Shopware\AreaCountryState\Event\AreaCountryStateBasicLoadedEvent;
 use Shopware\AreaCountryState\Event\AreaCountryStateWrittenEvent;
 use Shopware\AreaCountryState\Struct\AreaCountryStateBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\DetailFactoryExtensionInterface;
+use Shopware\Framework\Factory\FactoryExtensionInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class AreaCountryStateExtension implements DetailFactoryExtensionInterface, EventSubscriberInterface
+abstract class AreaCountryStateExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

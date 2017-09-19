@@ -7,12 +7,12 @@ use Shopware\Currency\Event\CurrencyBasicLoadedEvent;
 use Shopware\Currency\Event\CurrencyDetailLoadedEvent;
 use Shopware\Currency\Event\CurrencyWrittenEvent;
 use Shopware\Currency\Struct\CurrencyBasicStruct;
-use Shopware\Framework\Factory\DetailFactoryExtensionInterface;
+use Shopware\Framework\Factory\FactoryExtensionInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class CurrencyExtension implements DetailFactoryExtensionInterface, EventSubscriberInterface
+abstract class CurrencyExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

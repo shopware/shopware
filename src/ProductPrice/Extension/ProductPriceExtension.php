@@ -3,7 +3,7 @@
 namespace Shopware\ProductPrice\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\DetailFactoryExtensionInterface;
+use Shopware\Framework\Factory\FactoryExtensionInterface;
 use Shopware\ProductPrice\Event\ProductPriceBasicLoadedEvent;
 use Shopware\ProductPrice\Event\ProductPriceWrittenEvent;
 use Shopware\ProductPrice\Struct\ProductPriceBasicStruct;
@@ -11,7 +11,7 @@ use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class ProductPriceExtension implements DetailFactoryExtensionInterface, EventSubscriberInterface
+abstract class ProductPriceExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

@@ -3,7 +3,7 @@
 namespace Shopware\Holiday\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\DetailFactoryExtensionInterface;
+use Shopware\Framework\Factory\FactoryExtensionInterface;
 use Shopware\Holiday\Event\HolidayBasicLoadedEvent;
 use Shopware\Holiday\Event\HolidayWrittenEvent;
 use Shopware\Holiday\Struct\HolidayBasicStruct;
@@ -11,7 +11,7 @@ use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class HolidayExtension implements DetailFactoryExtensionInterface, EventSubscriberInterface
+abstract class HolidayExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

@@ -3,7 +3,7 @@
 namespace Shopware\SeoUrl\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\DetailFactoryExtensionInterface;
+use Shopware\Framework\Factory\FactoryExtensionInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Shopware\SeoUrl\Event\SeoUrlBasicLoadedEvent;
@@ -11,7 +11,7 @@ use Shopware\SeoUrl\Event\SeoUrlWrittenEvent;
 use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class SeoUrlExtension implements DetailFactoryExtensionInterface, EventSubscriberInterface
+abstract class SeoUrlExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

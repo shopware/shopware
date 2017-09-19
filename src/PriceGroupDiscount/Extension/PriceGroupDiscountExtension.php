@@ -3,7 +3,7 @@
 namespace Shopware\PriceGroupDiscount\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\DetailFactoryExtensionInterface;
+use Shopware\Framework\Factory\FactoryExtensionInterface;
 use Shopware\PriceGroupDiscount\Event\PriceGroupDiscountBasicLoadedEvent;
 use Shopware\PriceGroupDiscount\Event\PriceGroupDiscountWrittenEvent;
 use Shopware\PriceGroupDiscount\Struct\PriceGroupDiscountBasicStruct;
@@ -11,7 +11,7 @@ use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class PriceGroupDiscountExtension implements DetailFactoryExtensionInterface, EventSubscriberInterface
+abstract class PriceGroupDiscountExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

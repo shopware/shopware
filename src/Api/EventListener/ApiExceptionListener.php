@@ -30,10 +30,10 @@ class ApiExceptionListener extends ExceptionListener
 
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
-        if ($event->getException() instanceof HttpException === false || false === $event->getRequest()->attributes->get(Router::IS_API_REQUEST_ATTRIBUTE)) {
-            parent::onKernelException($event);
+        if ($event->getException() instanceof HttpException === false
+            || false === $event->getRequest()->attributes->get(Router::IS_API_REQUEST_ATTRIBUTE)) {
 
-            return;
+            return $event;
         }
 
         /** @var HttpException $exception */
@@ -44,10 +44,10 @@ class ApiExceptionListener extends ExceptionListener
         $envelope = new ResponseEnvelope();
         $envelope->setParameters($event->getRequest()->request->all());
         $envelope->setException($exception);
-
         $response = JsonResponse::create($envelope, $exception->getStatusCode());
-
         $event->setResponse($response);
+
+        return $event;
     }
 
 }

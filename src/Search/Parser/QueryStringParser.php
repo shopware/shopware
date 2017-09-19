@@ -12,35 +12,39 @@ use Shopware\Search\Query\TermsQuery;
 
 class QueryStringParser
 {
-    public function toUrl(Query $query): string
+    public static function toUrl(Query $query): string
     {
         return json_encode(
-            $this->toArray($query)
+            self::toArray($query)
         );
     }
 
-    public function fromUrl(string $url): Query
+    public static function fromUrl(string $url): Query
     {
-        return $this->fromArray(
+        return self::fromArray(
             json_decode($url, true)
         );
     }
 
-    private function fromArray(array $query): Query
+    private static function fromArray(array $query): Query
     {
         switch ($query['type']) {
             case 'term':
                 return new TermQuery($query['field'], $query['value']);
             case 'nested':
                 return new NestedQuery(
-                    array_map([$this, 'fromArray'], $query['queries']),
+                    array_map(function(array $query) {
+                        return self::fromArray($query);
+                    }, $query['queries']),
                     $query['operator']
                 );
             case 'match':
                 return new MatchQuery($query['field'], $query['value']);
             case 'not':
                 return new NotQuery(
-                    array_map([$this, 'fromArray'], $query['queries']),
+                    array_map(function(array $query) {
+                        return self::fromArray($query);
+                    }, $query['queries']),
                     $query['operator']
                 );
             case 'range':
@@ -55,7 +59,7 @@ class QueryStringParser
         }
     }
 
-    private function toArray(Query $query): array
+    private static function toArray(Query $query): array
     {
         switch (true) {
             case $query instanceof TermQuery:
@@ -68,7 +72,7 @@ class QueryStringParser
                 return [
                     'type' => 'nested',
                     'queries' => array_map(function(Query $nested) {
-                        return $this->toArray($nested);
+                        return self::toArray($nested);
                     }, $query->getQueries()),
                     'operator' => $query->getOperator()
                 ];
@@ -82,7 +86,7 @@ class QueryStringParser
                 return [
                     'type' => 'not',
                     'queries' => array_map(function(Query $nested) {
-                        return $this->toArray($nested);
+                        return self::toArray($nested);
                     }, $query->getQueries()),
                     'operator' => $query->getOperator()
                 ];

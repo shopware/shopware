@@ -58,9 +58,8 @@ class AreaCountryController extends ApiController
         }
 
         if ($request->query->has('query')) {
-            $parser = new QueryStringParser();
             $criteria->addFilter(
-                $parser->fromUrl($request->query->get('query'))
+                QueryStringParser::fromUrl($request->query->get('query'))
             );
         }
 

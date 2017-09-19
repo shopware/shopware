@@ -160,6 +160,10 @@ class ProductBasicFactory extends Factory
             $product->setBlockedCustomerGroupsUuids(array_filter($uuids));
         }
 
+        echo "<pre>";
+        \Doctrine\Common\Util\Debug::dump($this->registry, 4);
+        die();
+        
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($product, $data, $selection, $context);
         }

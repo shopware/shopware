@@ -2,6 +2,7 @@
 
 namespace Shopware\Nexus;
 
+use Shopware\Nexus\DependencyInjection\ExtensionCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -17,5 +18,7 @@ class Nexus extends Bundle
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('api_extensions.xml');
+
+        $container->addCompilerPass(new ExtensionCompilerPass());
     }
 }

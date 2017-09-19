@@ -5,12 +5,20 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-
-        <service class="Shopware\Nexus\Extension\ProductExtension" id="shopware.nexus.extension.product_extension">
-            <argument id="dbal_connection" type="service"/>
-
-            <tag name="shopware.extension" bundle="product" />
+        <service class="Shopware\Nexus\Extension\NexusExtensionRegistry" id="shopware.nexus.extension.registry">
+            <argument type="collection"/>
+            <argument id="shopware.extension.registry" type="service"/>
         </service>
 
+        <service class="Shopware\Nexus\Extension\ExtensionRegistrySubscriber" id="shopware.nexus.extension.extension_registry_subscriber">
+            <argument id="service_container" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+
+        <service class="Shopware\Nexus\Extension\ProductExtension" id="shopware.nexus.product_extension">
+            <argument id="dbal_connection" type="service"/>
+            <tag name="shopware.nexus.extension" bundle="product" />
+        </service>
     </services>
 </container>

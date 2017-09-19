@@ -42,7 +42,12 @@ use Symfony\Component\Routing\RouterInterface;
 class Router implements RouterInterface, RequestMatcherInterface
 {
     const SEO_REDIRECT_URL = 'seo_redirect_url';
-    const IS_API_REQUEST_ATTRIBUTE = '_api';
+    const IS_API_REQUEST_ATTRIBUTE = 'is_api';
+    const REQUEST_TYPE_ATTRIBUTE = '_request_type';
+    const REQUEST_TYPE_STOREFRONT = 'storefront';
+    const REQUEST_TYPE_API = 'api';
+    const REQUEST_TYPE_NEXUS = 'nexus';
+
 
     /**
      * @var RequestContext
@@ -224,14 +229,17 @@ class Router implements RouterInterface, RequestMatcherInterface
 
         $pathInfo = $this->context->getPathInfo();
 
+        // save decision which type of request is called (storefront, api, nexus)
+        $type = $this->getRequestType($request);
+        $request->attributes->set(self::REQUEST_TYPE_ATTRIBUTE, $type);
+        $request->attributes->set(
+            self::IS_API_REQUEST_ATTRIBUTE,
+            in_array($type, [self::REQUEST_TYPE_NEXUS, self::REQUEST_TYPE_API], true)
+        );
+
         if (!$shop) {
             return $this->match($pathInfo);
         }
-
-        // save decision if it's an api request
-        $isApiRequest = $this->isApiRequest($request);
-        $this->context->setParameter(self::IS_API_REQUEST_ATTRIBUTE, $isApiRequest);
-        $request->attributes->set(self::IS_API_REQUEST_ATTRIBUTE, $isApiRequest);
 
         //save detected shop to context for further processes
         $currencyUuid = $this->getCurrencyUuid($request, $shop['currency_uuid']);
@@ -341,8 +349,16 @@ class Router implements RouterInterface, RequestMatcherInterface
         return $stripBaseUrl;
     }
 
-    private function isApiRequest(Request $request): bool
+    private function getRequestType(Request $request): string
     {
-        return stripos($request->getPathInfo(), '/api/') === 0;
+        $isApi = stripos($request->getPathInfo(), '/api/') === 0;
+
+        if ($isApi && $request->query->has('nexus')) {
+            return self::REQUEST_TYPE_NEXUS;
+        }
+        if ($isApi) {
+            return self::REQUEST_TYPE_API;
+        }
+        return self::REQUEST_TYPE_STOREFRONT;
     }
 }

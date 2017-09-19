@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\Factory;
 
-class ExtensionRegistry
+class ExtensionRegistry implements ExtensionRegistryInterface
 {
     /**
      * @var array[]

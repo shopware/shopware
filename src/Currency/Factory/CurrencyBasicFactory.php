@@ -3,7 +3,6 @@
 namespace Shopware\Currency\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Currency\Extension\CurrencyExtension;
 use Shopware\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
@@ -12,6 +11,7 @@ use Shopware\Search\QuerySelection;
 class CurrencyBasicFactory extends Factory
 {
     const ROOT_NAME = 'currency';
+    const EXTENSION_NAMESPACE = 'currency';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -23,11 +23,6 @@ class CurrencyBasicFactory extends Factory
        'short_name' => 'translation.short_name',
        'name' => 'translation.name',
     ];
-
-    /**
-     * @var CurrencyExtension[]
-     */
-    protected $extensions = [];
 
     public function hydrate(
         array $data,
@@ -44,7 +39,7 @@ class CurrencyBasicFactory extends Factory
         $currency->setShortName((string) $data[$selection->getField('short_name')]);
         $currency->setName((string) $data[$selection->getField('name')]);
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($currency, $data, $selection, $context);
         }
 
@@ -88,5 +83,10 @@ class CurrencyBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

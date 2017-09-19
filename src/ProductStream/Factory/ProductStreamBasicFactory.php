@@ -4,10 +4,10 @@ namespace Shopware\ProductStream\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistry;
 use Shopware\Framework\Factory\Factory;
 use Shopware\ListingSorting\Factory\ListingSortingBasicFactory;
 use Shopware\ListingSorting\Struct\ListingSortingBasicStruct;
-use Shopware\ProductStream\Extension\ProductStreamExtension;
 use Shopware\ProductStream\Struct\ProductStreamBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -15,6 +15,7 @@ use Shopware\Search\QuerySelection;
 class ProductStreamBasicFactory extends Factory
 {
     const ROOT_NAME = 'product_stream';
+    const EXTENSION_NAMESPACE = 'productStream';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -26,21 +27,16 @@ class ProductStreamBasicFactory extends Factory
     ];
 
     /**
-     * @var ProductStreamExtension[]
-     */
-    protected $extensions = [];
-
-    /**
      * @var ListingSortingBasicFactory
      */
     protected $listingSortingFactory;
 
     public function __construct(
         Connection $connection,
-        array $extensions,
+        ExtensionRegistry $registry,
         ListingSortingBasicFactory $listingSortingFactory
     ) {
-        parent::__construct($connection, $extensions);
+        parent::__construct($connection, $registry);
         $this->listingSortingFactory = $listingSortingFactory;
     }
 
@@ -63,7 +59,7 @@ class ProductStreamBasicFactory extends Factory
             );
         }
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($productStream, $data, $selection, $context);
         }
 
@@ -120,5 +116,10 @@ class ProductStreamBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

@@ -5,7 +5,6 @@ namespace Shopware\CustomerGroup\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\ApiContext;
 use Shopware\Api\ApiController;
-use Shopware\Api\ResultFormat;
 use Shopware\CustomerGroup\Repository\CustomerGroupRepository;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\QueryStringParser;
@@ -39,8 +38,10 @@ class CustomerGroupController extends ApiController
 
     /**
      * @Route("/customerGroup.{responseFormat}", name="api.customerGroup.list", methods={"GET"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function listAction(Request $request, ApiContext $context): Response
@@ -63,25 +64,14 @@ class CustomerGroupController extends ApiController
 
         $criteria->setFetchCount(true);
 
-        $searchResult = $this->customerGroupRepository->searchUuids(
+        $customerGroups = $this->customerGroupRepository->search(
             $criteria,
             $context->getShopContext()->getTranslationContext()
         );
 
-        switch ($context->getResultFormat()) {
-            case ResultFormat::BASIC:
-                $customerGroups = $this->customerGroupRepository->read(
-                    $searchResult->getUuids(),
-                    $context->getShopContext()->getTranslationContext()
-                );
-                break;
-            default:
-                throw new \RuntimeException('Result format not supported.');
-        }
-
         $response = [
-            'data' => $customerGroups,
-            'total' => $searchResult->getTotal(),
+            'data' => $customerGroups->getElements(),
+            'total' => $customerGroups->getTotal(),
         ];
 
         return $this->createResponse($response, $context);
@@ -89,8 +79,10 @@ class CustomerGroupController extends ApiController
 
     /**
      * @Route("/customerGroup/{customerGroupUuid}.{responseFormat}", name="api.customerGroup.detail", methods={"GET"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function detailAction(Request $request, ApiContext $context): Response
@@ -106,7 +98,9 @@ class CustomerGroupController extends ApiController
 
     /**
      * @Route("/customerGroup.{responseFormat}", name="api.customerGroup.create", methods={"POST"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function createAction(ApiContext $context): Response
@@ -131,7 +125,9 @@ class CustomerGroupController extends ApiController
 
     /**
      * @Route("/customerGroup.{responseFormat}", name="api.customerGroup.upsert", methods={"PUT"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function upsertAction(ApiContext $context): Response
@@ -156,7 +152,9 @@ class CustomerGroupController extends ApiController
 
     /**
      * @Route("/customerGroup.{responseFormat}", name="api.customerGroup.update", methods={"PATCH"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function updateAction(ApiContext $context): Response
@@ -181,8 +179,10 @@ class CustomerGroupController extends ApiController
 
     /**
      * @Route("/customerGroup/{customerGroupUuid}.{responseFormat}", name="api.customerGroup.single_update", methods={"PATCH"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function singleUpdateAction(Request $request, ApiContext $context): Response
@@ -215,7 +215,9 @@ class CustomerGroupController extends ApiController
 
     /**
      * @Route("/customerGroup.{responseFormat}", name="api.customerGroup.delete", methods={"DELETE"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function deleteAction(ApiContext $context): Response

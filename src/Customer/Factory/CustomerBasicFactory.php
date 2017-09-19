@@ -4,12 +4,12 @@ namespace Shopware\Customer\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Customer\Extension\CustomerExtension;
 use Shopware\Customer\Struct\CustomerBasicStruct;
 use Shopware\CustomerAddress\Factory\CustomerAddressBasicFactory;
 use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\CustomerGroup\Factory\CustomerGroupBasicFactory;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
+use Shopware\Framework\Factory\ExtensionRegistry;
 use Shopware\Framework\Factory\Factory;
 use Shopware\PaymentMethod\Factory\PaymentMethodBasicFactory;
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
@@ -19,6 +19,7 @@ use Shopware\Search\QuerySelection;
 class CustomerBasicFactory extends Factory
 {
     const ROOT_NAME = 'customer';
+    const EXTENSION_NAMESPACE = 'customer';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -54,11 +55,6 @@ class CustomerBasicFactory extends Factory
     ];
 
     /**
-     * @var CustomerExtension[]
-     */
-    protected $extensions = [];
-
-    /**
      * @var CustomerGroupBasicFactory
      */
     protected $customerGroupFactory;
@@ -75,12 +71,12 @@ class CustomerBasicFactory extends Factory
 
     public function __construct(
         Connection $connection,
-        array $extensions,
+        ExtensionRegistry $registry,
         CustomerGroupBasicFactory $customerGroupFactory,
         CustomerAddressBasicFactory $customerAddressFactory,
         PaymentMethodBasicFactory $paymentMethodFactory
     ) {
-        parent::__construct($connection, $extensions);
+        parent::__construct($connection, $registry);
         $this->customerGroupFactory = $customerGroupFactory;
         $this->customerAddressFactory = $customerAddressFactory;
         $this->paymentMethodFactory = $paymentMethodFactory;
@@ -153,7 +149,7 @@ class CustomerBasicFactory extends Factory
             );
         }
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($customer, $data, $selection, $context);
         }
 
@@ -258,5 +254,10 @@ class CustomerBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

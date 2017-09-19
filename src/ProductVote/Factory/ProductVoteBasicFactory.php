@@ -4,7 +4,6 @@ namespace Shopware\ProductVote\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
-use Shopware\ProductVote\Extension\ProductVoteExtension;
 use Shopware\ProductVote\Struct\ProductVoteBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -12,6 +11,7 @@ use Shopware\Search\QuerySelection;
 class ProductVoteBasicFactory extends Factory
 {
     const ROOT_NAME = 'product_vote';
+    const EXTENSION_NAMESPACE = 'productVote';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -27,11 +27,6 @@ class ProductVoteBasicFactory extends Factory
        'shop_uuid' => 'shop_uuid',
        'created_at' => 'created_at',
     ];
-
-    /**
-     * @var ProductVoteExtension[]
-     */
-    protected $extensions = [];
 
     public function hydrate(
         array $data,
@@ -52,7 +47,7 @@ class ProductVoteBasicFactory extends Factory
         $productVote->setShopUuid(isset($data[$selection->getField('shop_uuid')]) ? (string) $data[$selection->getField('shop_uuid')] : null);
         $productVote->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($productVote, $data, $selection, $context);
         }
 
@@ -96,5 +91,10 @@ class ProductVoteBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

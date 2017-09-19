@@ -3,7 +3,7 @@
 namespace Shopware\ShippingMethod\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\FactoryExtensionInterface;
+use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Shopware\ShippingMethod\Event\ShippingMethodBasicLoadedEvent;
@@ -12,7 +12,7 @@ use Shopware\ShippingMethod\Event\ShippingMethodWrittenEvent;
 use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class ShippingMethodExtension implements FactoryExtensionInterface, EventSubscriberInterface
+abstract class ShippingMethodExtension implements ExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

@@ -4,7 +4,6 @@ namespace Shopware\ListingSorting\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
-use Shopware\ListingSorting\Extension\ListingSortingExtension;
 use Shopware\ListingSorting\Struct\ListingSortingBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -12,6 +11,7 @@ use Shopware\Search\QuerySelection;
 class ListingSortingBasicFactory extends Factory
 {
     const ROOT_NAME = 'listing_sorting';
+    const EXTENSION_NAMESPACE = 'listingSorting';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -21,11 +21,6 @@ class ListingSortingBasicFactory extends Factory
        'payload' => 'payload',
        'label' => 'translation.label',
     ];
-
-    /**
-     * @var ListingSortingExtension[]
-     */
-    protected $extensions = [];
 
     public function hydrate(
         array $data,
@@ -40,7 +35,7 @@ class ListingSortingBasicFactory extends Factory
         $listingSorting->setPayload((string) $data[$selection->getField('payload')]);
         $listingSorting->setLabel((string) $data[$selection->getField('label')]);
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($listingSorting, $data, $selection, $context);
         }
 
@@ -84,5 +79,10 @@ class ListingSortingBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

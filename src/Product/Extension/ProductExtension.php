@@ -3,7 +3,7 @@
 namespace Shopware\Product\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\FactoryExtensionInterface;
+use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\Product\Event\ProductBasicLoadedEvent;
 use Shopware\Product\Event\ProductDetailLoadedEvent;
 use Shopware\Product\Event\ProductWrittenEvent;
@@ -12,7 +12,7 @@ use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class ProductExtension implements FactoryExtensionInterface, EventSubscriberInterface
+abstract class ProductExtension implements ExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

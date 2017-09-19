@@ -3,7 +3,7 @@
 namespace Shopware\ListingSorting\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\FactoryExtensionInterface;
+use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\ListingSorting\Event\ListingSortingBasicLoadedEvent;
 use Shopware\ListingSorting\Event\ListingSortingWrittenEvent;
 use Shopware\ListingSorting\Struct\ListingSortingBasicStruct;
@@ -11,7 +11,7 @@ use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class ListingSortingExtension implements FactoryExtensionInterface, EventSubscriberInterface
+abstract class ListingSortingExtension implements ExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

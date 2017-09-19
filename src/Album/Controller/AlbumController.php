@@ -6,7 +6,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Album\Repository\AlbumRepository;
 use Shopware\Api\ApiContext;
 use Shopware\Api\ApiController;
-use Shopware\Api\ResultFormat;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\QueryStringParser;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,8 +38,10 @@ class AlbumController extends ApiController
 
     /**
      * @Route("/album.{responseFormat}", name="api.album.list", methods={"GET"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function listAction(Request $request, ApiContext $context): Response
@@ -63,25 +64,14 @@ class AlbumController extends ApiController
 
         $criteria->setFetchCount(true);
 
-        $searchResult = $this->albumRepository->searchUuids(
+        $albums = $this->albumRepository->search(
             $criteria,
             $context->getShopContext()->getTranslationContext()
         );
 
-        switch ($context->getResultFormat()) {
-            case ResultFormat::BASIC:
-                $albums = $this->albumRepository->read(
-                    $searchResult->getUuids(),
-                    $context->getShopContext()->getTranslationContext()
-                );
-                break;
-            default:
-                throw new \RuntimeException('Result format not supported.');
-        }
-
         $response = [
-            'data' => $albums,
-            'total' => $searchResult->getTotal(),
+            'data' => $albums->getElements(),
+            'total' => $albums->getTotal(),
         ];
 
         return $this->createResponse($response, $context);
@@ -89,8 +79,10 @@ class AlbumController extends ApiController
 
     /**
      * @Route("/album/{albumUuid}.{responseFormat}", name="api.album.detail", methods={"GET"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function detailAction(Request $request, ApiContext $context): Response
@@ -106,7 +98,9 @@ class AlbumController extends ApiController
 
     /**
      * @Route("/album.{responseFormat}", name="api.album.create", methods={"POST"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function createAction(ApiContext $context): Response
@@ -131,7 +125,9 @@ class AlbumController extends ApiController
 
     /**
      * @Route("/album.{responseFormat}", name="api.album.upsert", methods={"PUT"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function upsertAction(ApiContext $context): Response
@@ -156,7 +152,9 @@ class AlbumController extends ApiController
 
     /**
      * @Route("/album.{responseFormat}", name="api.album.update", methods={"PATCH"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function updateAction(ApiContext $context): Response
@@ -181,8 +179,10 @@ class AlbumController extends ApiController
 
     /**
      * @Route("/album/{albumUuid}.{responseFormat}", name="api.album.single_update", methods={"PATCH"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function singleUpdateAction(Request $request, ApiContext $context): Response
@@ -215,7 +215,9 @@ class AlbumController extends ApiController
 
     /**
      * @Route("/album.{responseFormat}", name="api.album.delete", methods={"DELETE"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function deleteAction(ApiContext $context): Response

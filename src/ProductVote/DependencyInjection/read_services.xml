@@ -7,7 +7,7 @@
     <services>
         <service class="Shopware\ProductVote\Factory\ProductVoteBasicFactory" id="shopware.product_vote.basic_factory">
             <argument id="dbal_connection" type="service"/>
-            <argument type="collection" />
+            <argument type="service" id="shopware.extension.registry" />
         </service>
 
 

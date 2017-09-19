@@ -3,9 +3,9 @@
 namespace Shopware\Category\Factory;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Category\Extension\CategoryExtension;
 use Shopware\Category\Struct\CategoryBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistry;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -15,6 +15,7 @@ use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
 class CategoryBasicFactory extends Factory
 {
     const ROOT_NAME = 'category';
+    const EXTENSION_NAMESPACE = 'category';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -45,21 +46,16 @@ class CategoryBasicFactory extends Factory
     ];
 
     /**
-     * @var CategoryExtension[]
-     */
-    protected $extensions = [];
-
-    /**
      * @var SeoUrlBasicFactory
      */
     protected $seoUrlFactory;
 
     public function __construct(
         Connection $connection,
-        array $extensions,
+        ExtensionRegistry $registry,
         SeoUrlBasicFactory $seoUrlFactory
     ) {
-        parent::__construct($connection, $extensions);
+        parent::__construct($connection, $registry);
         $this->seoUrlFactory = $seoUrlFactory;
     }
 
@@ -101,7 +97,7 @@ class CategoryBasicFactory extends Factory
             );
         }
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($category, $data, $selection, $context);
         }
 
@@ -159,5 +155,10 @@ class CategoryBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

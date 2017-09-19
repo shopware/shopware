@@ -4,6 +4,7 @@ namespace Shopware\ProductDetail\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistry;
 use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
 use Shopware\ProductDetail\Struct\ProductDetailDetailStruct;
 use Shopware\ProductPrice\Factory\ProductPriceBasicFactory;
@@ -20,11 +21,11 @@ class ProductDetailDetailFactory extends ProductDetailBasicFactory
 
     public function __construct(
         Connection $connection,
-        array $extensions,
+        ExtensionRegistry $registry,
         ProductPriceBasicFactory $productPriceFactory,
         UnitBasicFactory $unitFactory
     ) {
-        parent::__construct($connection, $extensions, $unitFactory);
+        parent::__construct($connection, $registry, $unitFactory);
         $this->productPriceFactory = $productPriceFactory;
     }
 
@@ -77,7 +78,7 @@ class ProductDetailDetailFactory extends ProductDetailBasicFactory
     {
         $fields = parent::getExtensionFields();
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extensionFields = $extension->getDetailFields();
             foreach ($extensionFields as $key => $field) {
                 $fields[$key] = $field;

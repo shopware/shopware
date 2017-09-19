@@ -8,8 +8,8 @@ use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\AreaCountryState\Factory\AreaCountryStateBasicFactory;
 use Shopware\AreaCountryState\Struct\AreaCountryStateBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\CustomerAddress\Extension\CustomerAddressExtension;
 use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Framework\Factory\ExtensionRegistry;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -17,6 +17,7 @@ use Shopware\Search\QuerySelection;
 class CustomerAddressBasicFactory extends Factory
 {
     const ROOT_NAME = 'customer_address';
+    const EXTENSION_NAMESPACE = 'customerAddress';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -39,11 +40,6 @@ class CustomerAddressBasicFactory extends Factory
     ];
 
     /**
-     * @var CustomerAddressExtension[]
-     */
-    protected $extensions = [];
-
-    /**
      * @var AreaCountryBasicFactory
      */
     protected $areaCountryFactory;
@@ -55,11 +51,11 @@ class CustomerAddressBasicFactory extends Factory
 
     public function __construct(
         Connection $connection,
-        array $extensions,
+        ExtensionRegistry $registry,
         AreaCountryBasicFactory $areaCountryFactory,
         AreaCountryStateBasicFactory $areaCountryStateFactory
     ) {
-        parent::__construct($connection, $extensions);
+        parent::__construct($connection, $registry);
         $this->areaCountryFactory = $areaCountryFactory;
         $this->areaCountryStateFactory = $areaCountryStateFactory;
     }
@@ -100,7 +96,7 @@ class CustomerAddressBasicFactory extends Factory
             );
         }
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($customerAddress, $data, $selection, $context);
         }
 
@@ -169,5 +165,10 @@ class CustomerAddressBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

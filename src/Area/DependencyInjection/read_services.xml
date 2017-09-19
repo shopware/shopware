@@ -7,12 +7,12 @@
     <services>
         <service class="Shopware\Area\Factory\AreaBasicFactory" id="shopware.area.basic_factory">
             <argument id="dbal_connection" type="service"/>
-            <argument type="collection" />
+            <argument type="service" id="shopware.extension.registry" />
         </service>
 
         <service class="Shopware\Area\Factory\AreaDetailFactory" id="shopware.area.detail_factory">
             <argument id="dbal_connection" type="service"/>
-            <argument type="collection" />
+            <argument type="service" id="shopware.extension.registry" />
             <argument id="shopware.area_country.detail_factory" type="service"/>
         </service>
 

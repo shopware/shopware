@@ -7,12 +7,14 @@
     <services>
         <service class="Shopware\Tax\Factory\TaxBasicFactory" id="shopware.tax.basic_factory">
             <argument id="dbal_connection" type="service"/>
-            <argument type="collection" />
+            <argument type="service" id="shopware.extension.registry" />
         </service>
+
 
         <service class="Shopware\Tax\Controller\TaxController" id="shopware.tax.api_controller">
             <argument id="shopware.tax.repository" type="service"/>
         </service>
+        
 
         <service class="Shopware\Tax\Writer\TaxWriter" id="shopware.tax.writer">
             <argument type="service" id="shopware.framework.write.field_aware.default_extender" />

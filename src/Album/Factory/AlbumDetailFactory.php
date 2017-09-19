@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Album\Struct\AlbumBasicStruct;
 use Shopware\Album\Struct\AlbumDetailStruct;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistry;
 use Shopware\Media\Factory\MediaBasicFactory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -19,10 +20,10 @@ class AlbumDetailFactory extends AlbumBasicFactory
 
     public function __construct(
         Connection $connection,
-        array $extensions,
+        ExtensionRegistry $registry,
         MediaBasicFactory $mediaFactory
     ) {
-        parent::__construct($connection, $extensions);
+        parent::__construct($connection, $registry);
         $this->mediaFactory = $mediaFactory;
     }
 
@@ -75,7 +76,7 @@ class AlbumDetailFactory extends AlbumBasicFactory
     {
         $fields = parent::getExtensionFields();
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extensionFields = $extension->getDetailFields();
             foreach ($extensionFields as $key => $field) {
                 $fields[$key] = $field;

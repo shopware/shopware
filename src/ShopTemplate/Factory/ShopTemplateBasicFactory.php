@@ -6,12 +6,12 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
-use Shopware\ShopTemplate\Extension\ShopTemplateExtension;
 use Shopware\ShopTemplate\Struct\ShopTemplateBasicStruct;
 
 class ShopTemplateBasicFactory extends Factory
 {
     const ROOT_NAME = 'shop_template';
+    const EXTENSION_NAMESPACE = 'shopTemplate';
 
     const FIELDS = [
        'id' => 'id',
@@ -30,11 +30,6 @@ class ShopTemplateBasicFactory extends Factory
        'parent_id' => 'parent_id',
        'parent_uuid' => 'parent_uuid',
     ];
-
-    /**
-     * @var ShopTemplateExtension[]
-     */
-    protected $extensions = [];
 
     public function hydrate(
         array $data,
@@ -58,7 +53,7 @@ class ShopTemplateBasicFactory extends Factory
         $shopTemplate->setParentId(isset($data[$selection->getField('parent_id')]) ? (int) $data[$selection->getField('parent_id')] : null);
         $shopTemplate->setParentUuid(isset($data[$selection->getField('parent_uuid')]) ? (string) $data[$selection->getField('parent_uuid')] : null);
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($shopTemplate, $data, $selection, $context);
         }
 
@@ -102,5 +97,10 @@ class ShopTemplateBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

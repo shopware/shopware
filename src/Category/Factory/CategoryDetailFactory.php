@@ -7,6 +7,7 @@ use Shopware\Category\Struct\CategoryBasicStruct;
 use Shopware\Category\Struct\CategoryDetailStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Factory\CustomerGroupBasicFactory;
+use Shopware\Framework\Factory\ExtensionRegistry;
 use Shopware\Media\Factory\MediaBasicFactory;
 use Shopware\Media\Struct\MediaBasicStruct;
 use Shopware\Product\Factory\ProductBasicFactory;
@@ -40,14 +41,14 @@ class CategoryDetailFactory extends CategoryBasicFactory
 
     public function __construct(
         Connection $connection,
-        array $extensions,
+        ExtensionRegistry $registry,
         ProductStreamBasicFactory $productStreamFactory,
         MediaBasicFactory $mediaFactory,
         ProductBasicFactory $productFactory,
         CustomerGroupBasicFactory $customerGroupFactory,
         SeoUrlBasicFactory $seoUrlFactory
     ) {
-        parent::__construct($connection, $extensions, $seoUrlFactory);
+        parent::__construct($connection, $registry, $seoUrlFactory);
         $this->productStreamFactory = $productStreamFactory;
         $this->mediaFactory = $mediaFactory;
         $this->productFactory = $productFactory;
@@ -201,7 +202,7 @@ class CategoryDetailFactory extends CategoryBasicFactory
     {
         $fields = parent::getExtensionFields();
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extensionFields = $extension->getDetailFields();
             foreach ($extensionFields as $key => $field) {
                 $fields[$key] = $field;

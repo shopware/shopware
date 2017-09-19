@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\AreaCountry\Factory\AreaCountryBasicFactory;
 use Shopware\Category\Factory\CategoryBasicFactory;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistry;
 use Shopware\Holiday\Factory\HolidayBasicFactory;
 use Shopware\PaymentMethod\Factory\PaymentMethodBasicFactory;
 use Shopware\Search\QueryBuilder;
@@ -43,14 +44,14 @@ class ShippingMethodDetailFactory extends ShippingMethodBasicFactory
 
     public function __construct(
         Connection $connection,
-        array $extensions,
+        ExtensionRegistry $registry,
         CategoryBasicFactory $categoryFactory,
         AreaCountryBasicFactory $areaCountryFactory,
         HolidayBasicFactory $holidayFactory,
         PaymentMethodBasicFactory $paymentMethodFactory,
         ShippingMethodPriceBasicFactory $shippingMethodPriceFactory
     ) {
-        parent::__construct($connection, $extensions);
+        parent::__construct($connection, $registry);
         $this->categoryFactory = $categoryFactory;
         $this->areaCountryFactory = $areaCountryFactory;
         $this->holidayFactory = $holidayFactory;
@@ -259,7 +260,7 @@ class ShippingMethodDetailFactory extends ShippingMethodBasicFactory
     {
         $fields = parent::getExtensionFields();
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extensionFields = $extension->getDetailFields();
             foreach ($extensionFields as $key => $field) {
                 $fields[$key] = $field;

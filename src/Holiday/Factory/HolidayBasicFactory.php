@@ -4,7 +4,6 @@ namespace Shopware\Holiday\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
-use Shopware\Holiday\Extension\HolidayExtension;
 use Shopware\Holiday\Struct\HolidayBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -12,6 +11,7 @@ use Shopware\Search\QuerySelection;
 class HolidayBasicFactory extends Factory
 {
     const ROOT_NAME = 'holiday';
+    const EXTENSION_NAMESPACE = 'holiday';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -19,11 +19,6 @@ class HolidayBasicFactory extends Factory
        'event_date' => 'event_date',
        'name' => 'translation.name',
     ];
-
-    /**
-     * @var HolidayExtension[]
-     */
-    protected $extensions = [];
 
     public function hydrate(
         array $data,
@@ -36,7 +31,7 @@ class HolidayBasicFactory extends Factory
         $holiday->setEventDate(new \DateTime($data[$selection->getField('event_date')]));
         $holiday->setName((string) $data[$selection->getField('name')]);
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($holiday, $data, $selection, $context);
         }
 
@@ -80,5 +75,10 @@ class HolidayBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

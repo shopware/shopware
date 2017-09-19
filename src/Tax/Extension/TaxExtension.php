@@ -3,7 +3,7 @@
 namespace Shopware\Tax\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\FactoryExtensionInterface;
+use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Shopware\Tax\Event\TaxBasicLoadedEvent;
@@ -11,7 +11,7 @@ use Shopware\Tax\Event\TaxWrittenEvent;
 use Shopware\Tax\Struct\TaxBasicStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class TaxExtension implements FactoryExtensionInterface, EventSubscriberInterface
+abstract class TaxExtension implements ExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Album\Factory;
 
-use Shopware\Album\Extension\AlbumExtension;
 use Shopware\Album\Struct\AlbumBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
@@ -12,6 +11,7 @@ use Shopware\Search\QuerySelection;
 class AlbumBasicFactory extends Factory
 {
     const ROOT_NAME = 'album';
+    const EXTENSION_NAMESPACE = 'album';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -25,11 +25,6 @@ class AlbumBasicFactory extends Factory
        'thumbnail_high_dpi_quality' => 'thumbnail_high_dpi_quality',
        'name' => 'translation.name',
     ];
-
-    /**
-     * @var AlbumExtension[]
-     */
-    protected $extensions = [];
 
     public function hydrate(
         array $data,
@@ -48,7 +43,7 @@ class AlbumBasicFactory extends Factory
         $album->setThumbnailHighDpiQuality(isset($data[$selection->getField('thumbnail_high_dpi_quality')]) ? (int) $data[$selection->getField('thumbnail_high_dpi_quality')] : null);
         $album->setName((string) $data[$selection->getField('name')]);
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($album, $data, $selection, $context);
         }
 
@@ -92,5 +87,10 @@ class AlbumBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

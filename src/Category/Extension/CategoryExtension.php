@@ -7,12 +7,12 @@ use Shopware\Category\Event\CategoryDetailLoadedEvent;
 use Shopware\Category\Event\CategoryWrittenEvent;
 use Shopware\Category\Struct\CategoryBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\FactoryExtensionInterface;
+use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class CategoryExtension implements FactoryExtensionInterface, EventSubscriberInterface
+abstract class CategoryExtension implements ExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

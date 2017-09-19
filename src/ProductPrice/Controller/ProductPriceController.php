@@ -5,7 +5,6 @@ namespace Shopware\ProductPrice\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\ApiContext;
 use Shopware\Api\ApiController;
-use Shopware\Api\ResultFormat;
 use Shopware\ProductPrice\Repository\ProductPriceRepository;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\QueryStringParser;
@@ -39,8 +38,10 @@ class ProductPriceController extends ApiController
 
     /**
      * @Route("/productPrice.{responseFormat}", name="api.productPrice.list", methods={"GET"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function listAction(Request $request, ApiContext $context): Response
@@ -63,25 +64,14 @@ class ProductPriceController extends ApiController
 
         $criteria->setFetchCount(true);
 
-        $searchResult = $this->productPriceRepository->searchUuids(
+        $productPrices = $this->productPriceRepository->search(
             $criteria,
             $context->getShopContext()->getTranslationContext()
         );
 
-        switch ($context->getResultFormat()) {
-            case ResultFormat::BASIC:
-                $productPrices = $this->productPriceRepository->read(
-                    $searchResult->getUuids(),
-                    $context->getShopContext()->getTranslationContext()
-                );
-                break;
-            default:
-                throw new \RuntimeException('Result format not supported.');
-        }
-
         $response = [
-            'data' => $productPrices,
-            'total' => $searchResult->getTotal(),
+            'data' => $productPrices->getElements(),
+            'total' => $productPrices->getTotal(),
         ];
 
         return $this->createResponse($response, $context);
@@ -89,8 +79,10 @@ class ProductPriceController extends ApiController
 
     /**
      * @Route("/productPrice/{productPriceUuid}.{responseFormat}", name="api.productPrice.detail", methods={"GET"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function detailAction(Request $request, ApiContext $context): Response
@@ -106,7 +98,9 @@ class ProductPriceController extends ApiController
 
     /**
      * @Route("/productPrice.{responseFormat}", name="api.productPrice.create", methods={"POST"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function createAction(ApiContext $context): Response
@@ -131,7 +125,9 @@ class ProductPriceController extends ApiController
 
     /**
      * @Route("/productPrice.{responseFormat}", name="api.productPrice.upsert", methods={"PUT"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function upsertAction(ApiContext $context): Response
@@ -156,7 +152,9 @@ class ProductPriceController extends ApiController
 
     /**
      * @Route("/productPrice.{responseFormat}", name="api.productPrice.update", methods={"PATCH"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function updateAction(ApiContext $context): Response
@@ -181,8 +179,10 @@ class ProductPriceController extends ApiController
 
     /**
      * @Route("/productPrice/{productPriceUuid}.{responseFormat}", name="api.productPrice.single_update", methods={"PATCH"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function singleUpdateAction(Request $request, ApiContext $context): Response
@@ -215,7 +215,9 @@ class ProductPriceController extends ApiController
 
     /**
      * @Route("/productPrice.{responseFormat}", name="api.productPrice.delete", methods={"DELETE"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function deleteAction(ApiContext $context): Response

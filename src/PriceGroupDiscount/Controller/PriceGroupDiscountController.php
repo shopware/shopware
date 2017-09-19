@@ -5,7 +5,6 @@ namespace Shopware\PriceGroupDiscount\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\ApiContext;
 use Shopware\Api\ApiController;
-use Shopware\Api\ResultFormat;
 use Shopware\PriceGroupDiscount\Repository\PriceGroupDiscountRepository;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\QueryStringParser;
@@ -39,8 +38,10 @@ class PriceGroupDiscountController extends ApiController
 
     /**
      * @Route("/priceGroupDiscount.{responseFormat}", name="api.priceGroupDiscount.list", methods={"GET"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function listAction(Request $request, ApiContext $context): Response
@@ -63,25 +64,14 @@ class PriceGroupDiscountController extends ApiController
 
         $criteria->setFetchCount(true);
 
-        $searchResult = $this->priceGroupDiscountRepository->searchUuids(
+        $priceGroupDiscounts = $this->priceGroupDiscountRepository->search(
             $criteria,
             $context->getShopContext()->getTranslationContext()
         );
 
-        switch ($context->getResultFormat()) {
-            case ResultFormat::BASIC:
-                $priceGroupDiscounts = $this->priceGroupDiscountRepository->read(
-                    $searchResult->getUuids(),
-                    $context->getShopContext()->getTranslationContext()
-                );
-                break;
-            default:
-                throw new \RuntimeException('Result format not supported.');
-        }
-
         $response = [
-            'data' => $priceGroupDiscounts,
-            'total' => $searchResult->getTotal(),
+            'data' => $priceGroupDiscounts->getElements(),
+            'total' => $priceGroupDiscounts->getTotal(),
         ];
 
         return $this->createResponse($response, $context);
@@ -89,8 +79,10 @@ class PriceGroupDiscountController extends ApiController
 
     /**
      * @Route("/priceGroupDiscount/{priceGroupDiscountUuid}.{responseFormat}", name="api.priceGroupDiscount.detail", methods={"GET"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function detailAction(Request $request, ApiContext $context): Response
@@ -106,7 +98,9 @@ class PriceGroupDiscountController extends ApiController
 
     /**
      * @Route("/priceGroupDiscount.{responseFormat}", name="api.priceGroupDiscount.create", methods={"POST"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function createAction(ApiContext $context): Response
@@ -131,7 +125,9 @@ class PriceGroupDiscountController extends ApiController
 
     /**
      * @Route("/priceGroupDiscount.{responseFormat}", name="api.priceGroupDiscount.upsert", methods={"PUT"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function upsertAction(ApiContext $context): Response
@@ -156,7 +152,9 @@ class PriceGroupDiscountController extends ApiController
 
     /**
      * @Route("/priceGroupDiscount.{responseFormat}", name="api.priceGroupDiscount.update", methods={"PATCH"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function updateAction(ApiContext $context): Response
@@ -181,8 +179,10 @@ class PriceGroupDiscountController extends ApiController
 
     /**
      * @Route("/priceGroupDiscount/{priceGroupDiscountUuid}.{responseFormat}", name="api.priceGroupDiscount.single_update", methods={"PATCH"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function singleUpdateAction(Request $request, ApiContext $context): Response
@@ -215,7 +215,9 @@ class PriceGroupDiscountController extends ApiController
 
     /**
      * @Route("/priceGroupDiscount.{responseFormat}", name="api.priceGroupDiscount.delete", methods={"DELETE"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function deleteAction(ApiContext $context): Response

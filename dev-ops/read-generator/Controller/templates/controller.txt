@@ -5,7 +5,6 @@ namespace Shopware\#classUc#\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\ApiContext;
 use Shopware\Api\ApiController;
-use Shopware\Api\ResultFormat;
 use Shopware\#classUc#\Repository\#classUc#Repository;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\QueryStringParser;
@@ -53,33 +52,21 @@ class #classUc#Controller extends ApiController
         }
 
         if ($request->query->has('query')) {
-            $parser = new QueryStringParser();
             $criteria->addFilter(
-                $parser->fromUrl($request->query->get('query'))
+                QueryStringParser::fromUrl($request->query->get('query'))
             );
         }
 
         $criteria->setFetchCount(true);
 
-        $searchResult = $this->#classLc#Repository->searchUuids(
+        $#plural# = $this->#classLc#Repository->search(
             $criteria,
             $context->getShopContext()->getTranslationContext()
         );
 
-        switch ($context->getResultFormat()) {
-            case ResultFormat::BASIC:
-                $#plural# = $this->#classLc#Repository->read(
-                    $searchResult->getUuids(),
-                    $context->getShopContext()->getTranslationContext()
-                );
-                break;
-            default:
-                throw new \RuntimeException('Result format not supported.');
-        }
-
         $response = [
-            'data' => $#plural#,
-            'total' => $searchResult->getTotal()
+            'data' => $#plural#->getElements(),
+            'total' => $#plural#->getTotal()
         ];
 
         return $this->createResponse($response, $context);

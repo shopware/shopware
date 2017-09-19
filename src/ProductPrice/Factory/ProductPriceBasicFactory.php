@@ -4,7 +4,6 @@ namespace Shopware\ProductPrice\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
-use Shopware\ProductPrice\Extension\ProductPriceExtension;
 use Shopware\ProductPrice\Struct\ProductPriceBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -12,6 +11,7 @@ use Shopware\Search\QuerySelection;
 class ProductPriceBasicFactory extends Factory
 {
     const ROOT_NAME = 'product_price';
+    const EXTENSION_NAMESPACE = 'productPrice';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -24,11 +24,6 @@ class ProductPriceBasicFactory extends Factory
        'base_price' => 'base_price',
        'percentage' => 'percentage',
     ];
-
-    /**
-     * @var ProductPriceExtension[]
-     */
-    protected $extensions = [];
 
     public function hydrate(
         array $data,
@@ -46,7 +41,7 @@ class ProductPriceBasicFactory extends Factory
         $productPrice->setBasePrice(isset($data[$selection->getField('base_price')]) ? (float) $data[$selection->getField('base_price')] : null);
         $productPrice->setPercentage(isset($data[$selection->getField('percentage')]) ? (float) $data[$selection->getField('percentage')] : null);
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($productPrice, $data, $selection, $context);
         }
 
@@ -90,5 +85,10 @@ class ProductPriceBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

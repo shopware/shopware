@@ -2,7 +2,6 @@
 
 namespace Shopware\Area\Factory;
 
-use Shopware\Area\Extension\AreaExtension;
 use Shopware\Area\Struct\AreaBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
@@ -12,17 +11,13 @@ use Shopware\Search\QuerySelection;
 class AreaBasicFactory extends Factory
 {
     const ROOT_NAME = 'area';
+    const EXTENSION_NAMESPACE = 'area';
 
     const FIELDS = [
        'uuid' => 'uuid',
        'active' => 'active',
        'name' => 'translation.name',
     ];
-
-    /**
-     * @var AreaExtension[]
-     */
-    protected $extensions = [];
 
     public function hydrate(
         array $data,
@@ -34,7 +29,7 @@ class AreaBasicFactory extends Factory
         $area->setActive((bool) $data[$selection->getField('active')]);
         $area->setName((string) $data[$selection->getField('name')]);
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($area, $data, $selection, $context);
         }
 
@@ -78,5 +73,10 @@ class AreaBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

@@ -6,12 +6,12 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
-use Shopware\Tax\Extension\TaxExtension;
 use Shopware\Tax\Struct\TaxBasicStruct;
 
 class TaxBasicFactory extends Factory
 {
     const ROOT_NAME = 'tax';
+    const EXTENSION_NAMESPACE = 'tax';
 
     const FIELDS = [
        'id' => 'id',
@@ -19,11 +19,6 @@ class TaxBasicFactory extends Factory
        'tax_rate' => 'tax_rate',
        'name' => 'name',
     ];
-
-    /**
-     * @var TaxExtension[]
-     */
-    protected $extensions = [];
 
     public function hydrate(
         array $data,
@@ -36,7 +31,7 @@ class TaxBasicFactory extends Factory
         $tax->setRate((float) $data[$selection->getField('tax_rate')]);
         $tax->setName((string) $data[$selection->getField('name')]);
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($tax, $data, $selection, $context);
         }
 
@@ -80,5 +75,10 @@ class TaxBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

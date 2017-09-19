@@ -10,7 +10,14 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
             isWorking: false,
             product: {
                 manufacturer: {},
-                mainDetail: {}
+                attribute: {},
+                mainDetail: {},
+                extensions: {
+                    nexus: {
+                        voteAverage: 10.5,
+                        listingPrice: 1.50
+                    }
+                }
             },
             notModifiedProduct: {}
         };

@@ -6,7 +6,7 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 
-interface FactoryExtensionInterface
+interface ExtensionInterface
 {
     public function joinDependencies(
         QuerySelection $selection,

@@ -7,3 +7,4 @@
     {
         $this->seoHash = $seoHash;
     }
+

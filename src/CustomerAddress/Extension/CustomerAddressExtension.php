@@ -6,12 +6,12 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerAddress\Event\CustomerAddressBasicLoadedEvent;
 use Shopware\CustomerAddress\Event\CustomerAddressWrittenEvent;
 use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Framework\Factory\FactoryExtensionInterface;
+use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class CustomerAddressExtension implements FactoryExtensionInterface, EventSubscriberInterface
+abstract class CustomerAddressExtension implements ExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

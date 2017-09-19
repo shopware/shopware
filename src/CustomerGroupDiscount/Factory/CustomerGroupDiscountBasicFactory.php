@@ -1,31 +1,8 @@
 <?php
-/**
- * Shopware 5
- * Copyright (c) shopware AG
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Shopware" is a registered trademark of shopware AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
 
 namespace Shopware\CustomerGroupDiscount\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\CustomerGroupDiscount\Extension\CustomerGroupDiscountExtension;
 use Shopware\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicStruct;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
@@ -34,6 +11,7 @@ use Shopware\Search\QuerySelection;
 class CustomerGroupDiscountBasicFactory extends Factory
 {
     const ROOT_NAME = 'customer_group_discount';
+    const EXTENSION_NAMESPACE = 'customerGroupDiscount';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -41,11 +19,6 @@ class CustomerGroupDiscountBasicFactory extends Factory
        'percentage_discount' => 'percentage_discount',
        'minimum_cart_amount' => 'minimum_cart_amount',
     ];
-
-    /**
-     * @var CustomerGroupDiscountExtension[]
-     */
-    protected $extensions = [];
 
     public function hydrate(
         array $data,
@@ -58,7 +31,7 @@ class CustomerGroupDiscountBasicFactory extends Factory
         $customerGroupDiscount->setPercentageDiscount((float) $data[$selection->getField('percentage_discount')]);
         $customerGroupDiscount->setMinimumCartAmount((float) $data[$selection->getField('minimum_cart_amount')]);
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($customerGroupDiscount, $data, $selection, $context);
         }
 
@@ -102,5 +75,10 @@ class CustomerGroupDiscountBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

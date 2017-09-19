@@ -5,7 +5,6 @@ namespace Shopware\SeoUrl\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\ApiContext;
 use Shopware\Api\ApiController;
-use Shopware\Api\ResultFormat;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\QueryStringParser;
 use Shopware\SeoUrl\Repository\SeoUrlRepository;
@@ -39,8 +38,10 @@ class SeoUrlController extends ApiController
 
     /**
      * @Route("/seoUrl.{responseFormat}", name="api.seoUrl.list", methods={"GET"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function listAction(Request $request, ApiContext $context): Response
@@ -63,25 +64,14 @@ class SeoUrlController extends ApiController
 
         $criteria->setFetchCount(true);
 
-        $searchResult = $this->seoUrlRepository->searchUuids(
+        $seoUrls = $this->seoUrlRepository->search(
             $criteria,
             $context->getShopContext()->getTranslationContext()
         );
 
-        switch ($context->getResultFormat()) {
-            case ResultFormat::BASIC:
-                $seoUrls = $this->seoUrlRepository->read(
-                    $searchResult->getUuids(),
-                    $context->getShopContext()->getTranslationContext()
-                );
-                break;
-            default:
-                throw new \RuntimeException('Result format not supported.');
-        }
-
         $response = [
-            'data' => $seoUrls,
-            'total' => $searchResult->getTotal(),
+            'data' => $seoUrls->getElements(),
+            'total' => $seoUrls->getTotal(),
         ];
 
         return $this->createResponse($response, $context);
@@ -89,8 +79,10 @@ class SeoUrlController extends ApiController
 
     /**
      * @Route("/seoUrl/{seoUrlUuid}.{responseFormat}", name="api.seoUrl.detail", methods={"GET"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function detailAction(Request $request, ApiContext $context): Response
@@ -106,7 +98,9 @@ class SeoUrlController extends ApiController
 
     /**
      * @Route("/seoUrl.{responseFormat}", name="api.seoUrl.create", methods={"POST"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function createAction(ApiContext $context): Response
@@ -131,7 +125,9 @@ class SeoUrlController extends ApiController
 
     /**
      * @Route("/seoUrl.{responseFormat}", name="api.seoUrl.upsert", methods={"PUT"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function upsertAction(ApiContext $context): Response
@@ -156,7 +152,9 @@ class SeoUrlController extends ApiController
 
     /**
      * @Route("/seoUrl.{responseFormat}", name="api.seoUrl.update", methods={"PATCH"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function updateAction(ApiContext $context): Response
@@ -181,8 +179,10 @@ class SeoUrlController extends ApiController
 
     /**
      * @Route("/seoUrl/{seoUrlUuid}.{responseFormat}", name="api.seoUrl.single_update", methods={"PATCH"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function singleUpdateAction(Request $request, ApiContext $context): Response
@@ -215,7 +215,9 @@ class SeoUrlController extends ApiController
 
     /**
      * @Route("/seoUrl.{responseFormat}", name="api.seoUrl.delete", methods={"DELETE"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function deleteAction(ApiContext $context): Response

@@ -7,7 +7,7 @@
     <services>
         <service class="Shopware\Product\Factory\ProductBasicFactory" id="shopware.product.basic_factory">
             <argument id="dbal_connection" type="service"/>
-            <argument type="collection" />
+            <argument type="service" id="shopware.extension.registry" />
             <argument id="shopware.product_manufacturer.basic_factory" type="service"/>
             <argument id="shopware.product_detail.basic_factory" type="service"/>
             <argument id="shopware.tax.basic_factory" type="service"/>
@@ -18,7 +18,7 @@
 
         <service class="Shopware\Product\Factory\ProductDetailFactory" id="shopware.product.detail_factory">
             <argument id="dbal_connection" type="service"/>
-            <argument type="collection" />
+            <argument type="service" id="shopware.extension.registry" />
             <argument id="shopware.product_detail.detail_factory" type="service"/>
             <argument id="shopware.category.basic_factory" type="service"/>
             <argument id="shopware.product_vote.basic_factory" type="service"/>

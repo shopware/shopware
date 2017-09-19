@@ -5,6 +5,7 @@ namespace Shopware\PaymentMethod\Factory;
 use Doctrine\DBAL\Connection;
 use Shopware\AreaCountry\Factory\AreaCountryBasicFactory;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistry;
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
 use Shopware\PaymentMethod\Struct\PaymentMethodDetailStruct;
 use Shopware\Search\QueryBuilder;
@@ -25,11 +26,11 @@ class PaymentMethodDetailFactory extends PaymentMethodBasicFactory
 
     public function __construct(
         Connection $connection,
-        array $extensions,
+        ExtensionRegistry $registry,
         ShopBasicFactory $shopFactory,
         AreaCountryBasicFactory $areaCountryFactory
     ) {
-        parent::__construct($connection, $extensions);
+        parent::__construct($connection, $registry);
         $this->shopFactory = $shopFactory;
         $this->areaCountryFactory = $areaCountryFactory;
     }
@@ -145,7 +146,7 @@ class PaymentMethodDetailFactory extends PaymentMethodBasicFactory
     {
         $fields = parent::getExtensionFields();
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extensionFields = $extension->getDetailFields();
             foreach ($extensionFields as $key => $field) {
                 $fields[$key] = $field;

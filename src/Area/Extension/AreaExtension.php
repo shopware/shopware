@@ -7,12 +7,12 @@ use Shopware\Area\Event\AreaDetailLoadedEvent;
 use Shopware\Area\Event\AreaWrittenEvent;
 use Shopware\Area\Struct\AreaBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\FactoryExtensionInterface;
+use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class AreaExtension implements FactoryExtensionInterface, EventSubscriberInterface
+abstract class AreaExtension implements ExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

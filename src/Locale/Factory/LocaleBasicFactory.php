@@ -4,7 +4,6 @@ namespace Shopware\Locale\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
-use Shopware\Locale\Extension\LocaleExtension;
 use Shopware\Locale\Struct\LocaleBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -12,6 +11,7 @@ use Shopware\Search\QuerySelection;
 class LocaleBasicFactory extends Factory
 {
     const ROOT_NAME = 'locale';
+    const EXTENSION_NAMESPACE = 'locale';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -19,11 +19,6 @@ class LocaleBasicFactory extends Factory
        'language' => 'translation.language',
        'territory' => 'translation.territory',
     ];
-
-    /**
-     * @var LocaleExtension[]
-     */
-    protected $extensions = [];
 
     public function hydrate(
         array $data,
@@ -36,7 +31,7 @@ class LocaleBasicFactory extends Factory
         $locale->setLanguage((string) $data[$selection->getField('language')]);
         $locale->setTerritory((string) $data[$selection->getField('territory')]);
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($locale, $data, $selection, $context);
         }
 
@@ -80,5 +75,10 @@ class LocaleBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

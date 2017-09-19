@@ -4,7 +4,6 @@ namespace Shopware\PriceGroup\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
-use Shopware\PriceGroup\Extension\PriceGroupExtension;
 use Shopware\PriceGroup\Struct\PriceGroupBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -12,16 +11,12 @@ use Shopware\Search\QuerySelection;
 class PriceGroupBasicFactory extends Factory
 {
     const ROOT_NAME = 'price_group';
+    const EXTENSION_NAMESPACE = 'priceGroup';
 
     const FIELDS = [
        'uuid' => 'uuid',
        'name' => 'translation.name',
     ];
-
-    /**
-     * @var PriceGroupExtension[]
-     */
-    protected $extensions = [];
 
     public function hydrate(
         array $data,
@@ -32,7 +27,7 @@ class PriceGroupBasicFactory extends Factory
         $priceGroup->setUuid((string) $data[$selection->getField('uuid')]);
         $priceGroup->setName((string) $data[$selection->getField('name')]);
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($priceGroup, $data, $selection, $context);
         }
 
@@ -76,5 +71,10 @@ class PriceGroupBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

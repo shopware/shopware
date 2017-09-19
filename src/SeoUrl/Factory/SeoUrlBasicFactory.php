@@ -1,41 +1,20 @@
 <?php
-/**
- * Shopware 5
- * Copyright (c) shopware AG
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Shopware" is a registered trademark of shopware AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
 
 namespace Shopware\SeoUrl\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistry;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
-use Shopware\SeoUrl\Extension\SeoUrlExtension;
 use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class SeoUrlBasicFactory extends Factory
 {
     const ROOT_NAME = 'seo_url';
+    const EXTENSION_NAMESPACE = 'seoUrl';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -59,9 +38,9 @@ class SeoUrlBasicFactory extends Factory
      */
     private $container;
 
-    public function __construct(Connection $connection, array $extensions, ContainerInterface $container)
+    public function __construct(Connection $connection, ExtensionRegistry $registry, ContainerInterface $container)
     {
-        parent::__construct($connection, $extensions);
+        parent::__construct($connection, $registry);
         $this->container = $container;
     }
 
@@ -86,7 +65,7 @@ class SeoUrlBasicFactory extends Factory
         $url = sprintf('%s://%s/%s', $routerContext->getScheme(), $routerContext->getHost(), $url);
         $seoUrl->setUrl($url);
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($seoUrl, $data, $selection, $context);
         }
 
@@ -130,5 +109,10 @@ class SeoUrlBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

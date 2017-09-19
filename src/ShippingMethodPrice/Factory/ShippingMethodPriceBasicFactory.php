@@ -6,12 +6,12 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
-use Shopware\ShippingMethodPrice\Extension\ShippingMethodPriceExtension;
 use Shopware\ShippingMethodPrice\Struct\ShippingMethodPriceBasicStruct;
 
 class ShippingMethodPriceBasicFactory extends Factory
 {
     const ROOT_NAME = 'shipping_method_price';
+    const EXTENSION_NAMESPACE = 'shippingMethodPrice';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -20,11 +20,6 @@ class ShippingMethodPriceBasicFactory extends Factory
        'price' => 'price',
        'factor' => 'factor',
     ];
-
-    /**
-     * @var ShippingMethodPriceExtension[]
-     */
-    protected $extensions = [];
 
     public function hydrate(
         array $data,
@@ -38,7 +33,7 @@ class ShippingMethodPriceBasicFactory extends Factory
         $shippingMethodPrice->setPrice((float) $data[$selection->getField('price')]);
         $shippingMethodPrice->setFactor((float) $data[$selection->getField('factor')]);
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($shippingMethodPrice, $data, $selection, $context);
         }
 
@@ -82,5 +77,10 @@ class ShippingMethodPriceBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

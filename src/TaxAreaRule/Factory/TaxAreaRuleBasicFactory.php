@@ -6,12 +6,12 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
-use Shopware\TaxAreaRule\Extension\TaxAreaRuleExtension;
 use Shopware\TaxAreaRule\Struct\TaxAreaRuleBasicStruct;
 
 class TaxAreaRuleBasicFactory extends Factory
 {
     const ROOT_NAME = 'tax_area_rule';
+    const EXTENSION_NAMESPACE = 'taxAreaRule';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -24,11 +24,6 @@ class TaxAreaRuleBasicFactory extends Factory
        'active' => 'active',
        'name' => 'translation.name',
     ];
-
-    /**
-     * @var TaxAreaRuleExtension[]
-     */
-    protected $extensions = [];
 
     public function hydrate(
         array $data,
@@ -46,7 +41,7 @@ class TaxAreaRuleBasicFactory extends Factory
         $taxAreaRule->setActive((bool) $data[$selection->getField('active')]);
         $taxAreaRule->setName((string) $data[$selection->getField('name')]);
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($taxAreaRule, $data, $selection, $context);
         }
 
@@ -90,5 +85,10 @@ class TaxAreaRuleBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

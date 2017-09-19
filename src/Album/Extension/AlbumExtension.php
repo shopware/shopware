@@ -7,12 +7,12 @@ use Shopware\Album\Event\AlbumDetailLoadedEvent;
 use Shopware\Album\Event\AlbumWrittenEvent;
 use Shopware\Album\Struct\AlbumBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\FactoryExtensionInterface;
+use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class AlbumExtension implements FactoryExtensionInterface, EventSubscriberInterface
+abstract class AlbumExtension implements ExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

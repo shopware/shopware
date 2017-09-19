@@ -41,63 +41,87 @@ class DomainGenerator
         $this->directory = $directory;
     }
 
-    public function generate(string $table, array $config): void
+    public function generate(string $table, array $config, \ReadGenerator\Context $context): void
     {
         $config = array_replace_recursive(self::DEFAULT_CONFIG, $config);
+        $services = [];
 
         $this->createDirectories($table, $config);
 
-        $generator = new \ReadGenerator\Struct\Generator($this->directory, $this->connection);
-        $generator->generate($table, $config);
-        if (Util::getAssociationsForDetailStruct($table, $config)) {
-            $generator->generateDetail($table, $config);
+        if ($context->createStruct) {
+            $generator = new \ReadGenerator\Struct\Generator($this->directory, $this->connection);
+            $generator->generate($table, $config);
+            if (Util::getAssociationsForDetailStruct($table, $config)) {
+                $generator->generateDetail($table, $config);
+            }
         }
 
-        $generator = new \ReadGenerator\Collection\Generator($this->directory, $this->connection);
-        $generator->generate($table, $config);
-        if (Util::getAssociationsForDetailStruct($table, $config)) {
-            $generator->generateDetail($table, $config);
+        if ($context->createCollection) {
+            $generator = new \ReadGenerator\Collection\Generator($this->directory, $this->connection);
+            $generator->generate($table, $config);
+            if (Util::getAssociationsForDetailStruct($table, $config)) {
+                $generator->generateDetail($table, $config);
+            }
         }
 
-        $generator = new \ReadGenerator\Factory\Generator($this->directory, $this->connection);
-        $services[] = $generator->generate($table, $config);
-        if (Util::getAssociationsForDetailStruct($table, $config)) {
-            $services[] = $generator->generateDetail($table, $config);
+        if ($context->createFactory) {
+            $generator = new \ReadGenerator\Factory\Generator($this->directory, $this->connection);
+            $services[] = $generator->generate($table, $config);
+            if (Util::getAssociationsForDetailStruct($table, $config)) {
+                $services[] = $generator->generateDetail($table, $config);
+            }
         }
 
-        $generator = new \ReadGenerator\Extension\Generator($this->directory);
-        $generator->generate($table, $config);
-        $generator->generateCompilerPass($table);
-
-        $generator = new \ReadGenerator\Controller\Generator($this->directory);
-        $services[] = $generator->generate($table, $config);
-
-        $generator = new \ReadGenerator\Writer\Generator($this->directory);
-        $services[] = $generator->generate($table, $config);
-
-//        $generator = new \ReadGenerator\Bundle\Generator($this->directory);
-//        $generator->generate($table);
-
-        $generator = new \ReadGenerator\Event\Generator($this->directory);
-        $generator->generate($table, $config);
-        if (Util::getAssociationsForDetailStruct($table, $config)) {
-            $generator->generateDetail($table, $config);
+        if ($context->createExtension) {
+            $generator = new \ReadGenerator\Extension\Generator($this->directory);
+            $generator->generate($table, $config);
         }
 
-        $generator = new \ReadGenerator\Loader\Generator($this->directory);
-        $services[] = $generator->generate($table, $config);
-        if (Util::getAssociationsForDetailStruct($table, $config)) {
-            $services[] = $generator->generateDetail($table, $config);
+        if ($context->createController) {
+            $generator = new \ReadGenerator\Controller\Generator($this->directory);
+            $services[] = $generator->generate($table, $config);
         }
 
-        $generator = new \ReadGenerator\Searcher\Generator($this->directory);
-        $services[] = $generator->generate($table, $config);
-        $generator->generateSearchResult($table);
+        if ($context->createWriter) {
+            $generator = new \ReadGenerator\Writer\Generator($this->directory);
+            $services[] = $generator->generate($table, $config);
+        }
 
-        $generator = new \ReadGenerator\Repository\Generator($this->directory);
-        $services[] = $generator->generate($table, $config);
+        if ($context->createBundle) {
+            $generator = new \ReadGenerator\Bundle\Generator($this->directory);
+            $generator->generate($table);
+        }
 
-        $this->createSevicesXml($table, $services);
+        if ($context->createEvent) {
+            $generator = new \ReadGenerator\Event\Generator($this->directory);
+            $generator->generate($table, $config);
+            if (Util::getAssociationsForDetailStruct($table, $config)) {
+                $generator->generateDetail($table, $config);
+            }
+        }
+
+        if ($context->createLoader) {
+            $generator = new \ReadGenerator\Loader\Generator($this->directory);
+            $services[] = $generator->generate($table, $config);
+            if (Util::getAssociationsForDetailStruct($table, $config)) {
+                $services[] = $generator->generateDetail($table, $config);
+            }
+        }
+
+        if ($context->createSearcher) {
+            $generator = new \ReadGenerator\Searcher\Generator($this->directory);
+            $services[] = $generator->generate($table, $config);
+            $generator->generateSearchResult($table);
+        }
+
+        if ($context->createRepository) {
+            $generator = new \ReadGenerator\Repository\Generator($this->directory);
+            $services[] = $generator->generate($table, $config);
+        }
+
+        if ($context->createServiceXml) {
+            $this->createSevicesXml($table, $services);
+        }
     }
 
     private function createDirectories($table, $config)
@@ -126,7 +150,7 @@ class DomainGenerator
         }
     }
 
-    private function createSevicesXml($table, array $services)
+    private function createSevicesXml($table, array $services): void
     {
         $class = Util::snakeCaseToCamelCase($table);
 

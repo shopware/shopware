@@ -5,10 +5,10 @@ namespace Shopware\Product\Factory;
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Factory\CustomerGroupBasicFactory;
+use Shopware\Framework\Factory\ExtensionRegistry;
 use Shopware\Framework\Factory\Factory;
 use Shopware\PriceGroup\Factory\PriceGroupBasicFactory;
 use Shopware\PriceGroup\Struct\PriceGroupBasicStruct;
-use Shopware\Product\Extension\ProductExtension;
 use Shopware\Product\Struct\ProductBasicStruct;
 use Shopware\ProductDetail\Factory\ProductDetailBasicFactory;
 use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
@@ -24,6 +24,7 @@ use Shopware\Tax\Struct\TaxBasicStruct;
 class ProductBasicFactory extends Factory
 {
     const ROOT_NAME = 'product';
+    const EXTENSION_NAMESPACE = 'product';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -47,11 +48,6 @@ class ProductBasicFactory extends Factory
        'description_long' => 'translation.description_long',
        'meta_title' => 'translation.meta_title',
     ];
-
-    /**
-     * @var ProductExtension[]
-     */
-    protected $extensions = [];
 
     /**
      * @var ProductManufacturerBasicFactory
@@ -85,7 +81,7 @@ class ProductBasicFactory extends Factory
 
     public function __construct(
         Connection $connection,
-        array $extensions,
+        ExtensionRegistry $registry,
         ProductManufacturerBasicFactory $productManufacturerFactory,
         ProductDetailBasicFactory $productDetailFactory,
         TaxBasicFactory $taxFactory,
@@ -93,7 +89,7 @@ class ProductBasicFactory extends Factory
         PriceGroupBasicFactory $priceGroupFactory,
         CustomerGroupBasicFactory $customerGroupFactory
     ) {
-        parent::__construct($connection, $extensions);
+        parent::__construct($connection, $registry);
         $this->productManufacturerFactory = $productManufacturerFactory;
         $this->productDetailFactory = $productDetailFactory;
         $this->taxFactory = $taxFactory;
@@ -164,7 +160,7 @@ class ProductBasicFactory extends Factory
             $product->setBlockedCustomerGroupsUuids(array_filter($uuids));
         }
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($product, $data, $selection, $context);
         }
 
@@ -303,5 +299,10 @@ class ProductBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

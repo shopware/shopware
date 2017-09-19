@@ -5,7 +5,6 @@ namespace Shopware\Media\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\ApiContext;
 use Shopware\Api\ApiController;
-use Shopware\Api\ResultFormat;
 use Shopware\Media\Repository\MediaRepository;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\QueryStringParser;
@@ -39,8 +38,10 @@ class MediaController extends ApiController
 
     /**
      * @Route("/media.{responseFormat}", name="api.media.list", methods={"GET"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function listAction(Request $request, ApiContext $context): Response
@@ -63,25 +64,14 @@ class MediaController extends ApiController
 
         $criteria->setFetchCount(true);
 
-        $searchResult = $this->mediaRepository->searchUuids(
+        $medias = $this->mediaRepository->search(
             $criteria,
             $context->getShopContext()->getTranslationContext()
         );
 
-        switch ($context->getResultFormat()) {
-            case ResultFormat::BASIC:
-                $medias = $this->mediaRepository->read(
-                    $searchResult->getUuids(),
-                    $context->getShopContext()->getTranslationContext()
-                );
-                break;
-            default:
-                throw new \RuntimeException('Result format not supported.');
-        }
-
         $response = [
-            'data' => $medias,
-            'total' => $searchResult->getTotal(),
+            'data' => $medias->getElements(),
+            'total' => $medias->getTotal(),
         ];
 
         return $this->createResponse($response, $context);
@@ -89,8 +79,10 @@ class MediaController extends ApiController
 
     /**
      * @Route("/media/{mediaUuid}.{responseFormat}", name="api.media.detail", methods={"GET"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function detailAction(Request $request, ApiContext $context): Response
@@ -106,7 +98,9 @@ class MediaController extends ApiController
 
     /**
      * @Route("/media.{responseFormat}", name="api.media.create", methods={"POST"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function createAction(ApiContext $context): Response
@@ -131,7 +125,9 @@ class MediaController extends ApiController
 
     /**
      * @Route("/media.{responseFormat}", name="api.media.upsert", methods={"PUT"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function upsertAction(ApiContext $context): Response
@@ -156,7 +152,9 @@ class MediaController extends ApiController
 
     /**
      * @Route("/media.{responseFormat}", name="api.media.update", methods={"PATCH"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function updateAction(ApiContext $context): Response
@@ -181,8 +179,10 @@ class MediaController extends ApiController
 
     /**
      * @Route("/media/{mediaUuid}.{responseFormat}", name="api.media.single_update", methods={"PATCH"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function singleUpdateAction(Request $request, ApiContext $context): Response
@@ -215,7 +215,9 @@ class MediaController extends ApiController
 
     /**
      * @Route("/media.{responseFormat}", name="api.media.delete", methods={"DELETE"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function deleteAction(ApiContext $context): Response

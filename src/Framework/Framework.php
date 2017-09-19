@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace Shopware\Framework;
 
 use Shopware\Framework\DependencyInjection\ApiRegistryCollector;
+use Shopware\Framework\DependencyInjection\ExtensionCompilerPass;
 use Shopware\Framework\DependencyInjection\FrameworkExtension;
 use Shopware\Framework\Doctrine\BridgeDatabaseCompilerPass;
 use Symfony\Component\Config\FileLocator;
@@ -64,5 +65,6 @@ class Framework extends Bundle
 
         $container->addCompilerPass(new BridgeDatabaseCompilerPass());
         $container->addCompilerPass(new ApiRegistryCollector());
+        $container->addCompilerPass(new ExtensionCompilerPass());
     }
 }

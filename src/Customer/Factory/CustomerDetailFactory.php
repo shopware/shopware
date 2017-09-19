@@ -8,6 +8,7 @@ use Shopware\Customer\Struct\CustomerBasicStruct;
 use Shopware\Customer\Struct\CustomerDetailStruct;
 use Shopware\CustomerAddress\Factory\CustomerAddressBasicFactory;
 use Shopware\CustomerGroup\Factory\CustomerGroupBasicFactory;
+use Shopware\Framework\Factory\ExtensionRegistry;
 use Shopware\PaymentMethod\Factory\PaymentMethodBasicFactory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -28,13 +29,13 @@ class CustomerDetailFactory extends CustomerBasicFactory
 
     public function __construct(
         Connection $connection,
-        array $extensions,
+        ExtensionRegistry $registry,
         CustomerAddressBasicFactory $customerAddressFactory,
         ShopBasicFactory $shopFactory,
         CustomerGroupBasicFactory $customerGroupFactory,
         PaymentMethodBasicFactory $paymentMethodFactory
     ) {
-        parent::__construct($connection, $extensions, $customerGroupFactory, $customerAddressFactory, $paymentMethodFactory);
+        parent::__construct($connection, $registry, $customerGroupFactory, $customerAddressFactory, $paymentMethodFactory);
         $this->customerAddressFactory = $customerAddressFactory;
         $this->shopFactory = $shopFactory;
     }
@@ -106,7 +107,7 @@ class CustomerDetailFactory extends CustomerBasicFactory
     {
         $fields = parent::getExtensionFields();
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extensionFields = $extension->getDetailFields();
             foreach ($extensionFields as $key => $field) {
                 $fields[$key] = $field;

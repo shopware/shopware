@@ -3,7 +3,6 @@
 namespace Shopware\CustomerGroup\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\CustomerGroup\Extension\CustomerGroupExtension;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
@@ -12,6 +11,7 @@ use Shopware\Search\QuerySelection;
 class CustomerGroupBasicFactory extends Factory
 {
     const ROOT_NAME = 'customer_group';
+    const EXTENSION_NAMESPACE = 'customerGroup';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -23,11 +23,6 @@ class CustomerGroupBasicFactory extends Factory
        'minimum_order_amount_surcharge' => 'minimum_order_amount_surcharge',
        'name' => 'translation.name',
     ];
-
-    /**
-     * @var CustomerGroupExtension[]
-     */
-    protected $extensions = [];
 
     public function hydrate(
         array $data,
@@ -44,7 +39,7 @@ class CustomerGroupBasicFactory extends Factory
         $customerGroup->setMinimumOrderAmountSurcharge(isset($data[$selection->getField('minimum_order_amount_surcharge')]) ? (float) $data[$selection->getField('minimum_order_amount_surcharge')] : null);
         $customerGroup->setName((string) $data[$selection->getField('name')]);
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($customerGroup, $data, $selection, $context);
         }
 
@@ -88,5 +83,10 @@ class CustomerGroupBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

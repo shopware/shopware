@@ -5,7 +5,6 @@ namespace Shopware\AreaCountryState\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\ApiContext;
 use Shopware\Api\ApiController;
-use Shopware\Api\ResultFormat;
 use Shopware\AreaCountryState\Repository\AreaCountryStateRepository;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\QueryStringParser;
@@ -39,8 +38,10 @@ class AreaCountryStateController extends ApiController
 
     /**
      * @Route("/areaCountryState.{responseFormat}", name="api.areaCountryState.list", methods={"GET"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function listAction(Request $request, ApiContext $context): Response
@@ -63,25 +64,14 @@ class AreaCountryStateController extends ApiController
 
         $criteria->setFetchCount(true);
 
-        $searchResult = $this->areaCountryStateRepository->searchUuids(
+        $areaCountryStates = $this->areaCountryStateRepository->search(
             $criteria,
             $context->getShopContext()->getTranslationContext()
         );
 
-        switch ($context->getResultFormat()) {
-            case ResultFormat::BASIC:
-                $areaCountryStates = $this->areaCountryStateRepository->read(
-                    $searchResult->getUuids(),
-                    $context->getShopContext()->getTranslationContext()
-                );
-                break;
-            default:
-                throw new \RuntimeException('Result format not supported.');
-        }
-
         $response = [
-            'data' => $areaCountryStates,
-            'total' => $searchResult->getTotal(),
+            'data' => $areaCountryStates->getElements(),
+            'total' => $areaCountryStates->getTotal(),
         ];
 
         return $this->createResponse($response, $context);
@@ -89,8 +79,10 @@ class AreaCountryStateController extends ApiController
 
     /**
      * @Route("/areaCountryState/{areaCountryStateUuid}.{responseFormat}", name="api.areaCountryState.detail", methods={"GET"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function detailAction(Request $request, ApiContext $context): Response
@@ -106,7 +98,9 @@ class AreaCountryStateController extends ApiController
 
     /**
      * @Route("/areaCountryState.{responseFormat}", name="api.areaCountryState.create", methods={"POST"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function createAction(ApiContext $context): Response
@@ -131,7 +125,9 @@ class AreaCountryStateController extends ApiController
 
     /**
      * @Route("/areaCountryState.{responseFormat}", name="api.areaCountryState.upsert", methods={"PUT"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function upsertAction(ApiContext $context): Response
@@ -156,7 +152,9 @@ class AreaCountryStateController extends ApiController
 
     /**
      * @Route("/areaCountryState.{responseFormat}", name="api.areaCountryState.update", methods={"PATCH"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function updateAction(ApiContext $context): Response
@@ -181,8 +179,10 @@ class AreaCountryStateController extends ApiController
 
     /**
      * @Route("/areaCountryState/{areaCountryStateUuid}.{responseFormat}", name="api.areaCountryState.single_update", methods={"PATCH"})
-     * @param Request $request
+     *
+     * @param Request    $request
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function singleUpdateAction(Request $request, ApiContext $context): Response
@@ -215,7 +215,9 @@ class AreaCountryStateController extends ApiController
 
     /**
      * @Route("/areaCountryState.{responseFormat}", name="api.areaCountryState.delete", methods={"DELETE"})
+     *
      * @param ApiContext $context
+     *
      * @return Response
      */
     public function deleteAction(ApiContext $context): Response

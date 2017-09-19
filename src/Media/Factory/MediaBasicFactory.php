@@ -6,8 +6,8 @@ use Doctrine\DBAL\Connection;
 use Shopware\Album\Factory\AlbumBasicFactory;
 use Shopware\Album\Struct\AlbumBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistry;
 use Shopware\Framework\Factory\Factory;
-use Shopware\Media\Extension\MediaExtension;
 use Shopware\Media\Struct\MediaBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -15,6 +15,7 @@ use Shopware\Search\QuerySelection;
 class MediaBasicFactory extends Factory
 {
     const ROOT_NAME = 'media';
+    const EXTENSION_NAMESPACE = 'media';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -31,21 +32,16 @@ class MediaBasicFactory extends Factory
     ];
 
     /**
-     * @var MediaExtension[]
-     */
-    protected $extensions = [];
-
-    /**
      * @var AlbumBasicFactory
      */
     protected $albumFactory;
 
     public function __construct(
         Connection $connection,
-        array $extensions,
+        ExtensionRegistry $registry,
         AlbumBasicFactory $albumFactory
     ) {
-        parent::__construct($connection, $extensions);
+        parent::__construct($connection, $registry);
         $this->albumFactory = $albumFactory;
     }
 
@@ -73,7 +69,7 @@ class MediaBasicFactory extends Factory
             );
         }
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($media, $data, $selection, $context);
         }
 
@@ -130,5 +126,10 @@ class MediaBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

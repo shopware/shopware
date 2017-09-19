@@ -6,12 +6,12 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroupDiscount\Event\CustomerGroupDiscountBasicLoadedEvent;
 use Shopware\CustomerGroupDiscount\Event\CustomerGroupDiscountWrittenEvent;
 use Shopware\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicStruct;
-use Shopware\Framework\Factory\FactoryExtensionInterface;
+use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class CustomerGroupDiscountExtension implements FactoryExtensionInterface, EventSubscriberInterface
+abstract class CustomerGroupDiscountExtension implements ExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

@@ -7,12 +7,12 @@
     <services>
         <service class="Shopware\PaymentMethod\Factory\PaymentMethodBasicFactory" id="shopware.payment_method.basic_factory">
             <argument id="dbal_connection" type="service"/>
-            <argument type="collection" />
+            <argument type="service" id="shopware.extension.registry" />
         </service>
 
         <service class="Shopware\PaymentMethod\Factory\PaymentMethodDetailFactory" id="shopware.payment_method.detail_factory">
             <argument id="dbal_connection" type="service"/>
-            <argument type="collection" />
+            <argument type="service" id="shopware.extension.registry" />
             <argument id="shopware.shop.basic_factory" type="service"/>
             <argument id="shopware.area_country.basic_factory" type="service"/>
         </service>

@@ -7,7 +7,7 @@
     <services>
         <service class="Shopware\ProductStream\Factory\ProductStreamBasicFactory" id="shopware.product_stream.basic_factory">
             <argument id="dbal_connection" type="service"/>
-            <argument type="collection" />
+            <argument type="service" id="shopware.extension.registry" />
             <argument id="shopware.listing_sorting.basic_factory" type="service"/>
         </service>
 

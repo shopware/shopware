@@ -16,17 +16,19 @@ abstract class Factory
     protected $connection;
 
     /**
-     * @var FactoryExtensionInterface[]
+     * @var ExtensionRegistry
      */
-    protected $extensions = [];
+    protected $registry;
 
-    public function __construct(Connection $connection, array $extensions)
+    public function __construct(Connection $connection, ExtensionRegistry $registry)
     {
         $this->connection = $connection;
-        $this->extensions = $extensions;
+        $this->registry = $registry;
     }
 
     abstract protected function getRootName(): string;
+
+    abstract protected function getExtensionNamespace(): string;
 
     public function getFields(): array
     {
@@ -77,15 +79,23 @@ abstract class Factory
 
     protected function joinExtensionDependencies(QuerySelection $selection, QueryBuilder $query, TranslationContext $context): void
     {
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->joinDependencies($selection, $query, $context);
         }
+    }
+
+    /**
+     * @return ExtensionInterface[]
+     */
+    protected function getExtensions(): array
+    {
+        return $this->registry->getExtensions($this->getExtensionNamespace());
     }
 
     protected function getExtensionFields(): array
     {
         $fields = [];
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extensionFields = $extension->getBasicFields();
             foreach ($extensionFields as $key => $field) {
                 $fields[$key] = $field;

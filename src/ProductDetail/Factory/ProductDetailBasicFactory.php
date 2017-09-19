@@ -4,8 +4,8 @@ namespace Shopware\ProductDetail\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistry;
 use Shopware\Framework\Factory\Factory;
-use Shopware\ProductDetail\Extension\ProductDetailExtension;
 use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -15,6 +15,7 @@ use Shopware\Unit\Struct\UnitBasicStruct;
 class ProductDetailBasicFactory extends Factory
 {
     const ROOT_NAME = 'product_detail';
+    const EXTENSION_NAMESPACE = 'productDetail';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -45,21 +46,16 @@ class ProductDetailBasicFactory extends Factory
     ];
 
     /**
-     * @var ProductDetailExtension[]
-     */
-    protected $extensions = [];
-
-    /**
      * @var UnitBasicFactory
      */
     protected $unitFactory;
 
     public function __construct(
         Connection $connection,
-        array $extensions,
+        ExtensionRegistry $registry,
         UnitBasicFactory $unitFactory
     ) {
-        parent::__construct($connection, $extensions);
+        parent::__construct($connection, $registry);
         $this->unitFactory = $unitFactory;
     }
 
@@ -101,7 +97,7 @@ class ProductDetailBasicFactory extends Factory
             );
         }
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($productDetail, $data, $selection, $context);
         }
 
@@ -158,5 +154,10 @@ class ProductDetailBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

@@ -11,6 +11,7 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Currency\Factory\CurrencyBasicFactory;
 use Shopware\CustomerGroup\Factory\CustomerGroupBasicFactory;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
+use Shopware\Framework\Factory\ExtensionRegistry;
 use Shopware\Locale\Factory\LocaleBasicFactory;
 use Shopware\Locale\Struct\LocaleBasicStruct;
 use Shopware\PaymentMethod\Factory\PaymentMethodBasicFactory;
@@ -68,7 +69,7 @@ class ShopDetailFactory extends ShopBasicFactory
 
     public function __construct(
         Connection $connection,
-        array $extensions,
+        ExtensionRegistry $registry,
         LocaleBasicFactory $localeFactory,
         CategoryBasicFactory $categoryFactory,
         CustomerGroupBasicFactory $customerGroupFactory,
@@ -78,7 +79,7 @@ class ShopDetailFactory extends ShopBasicFactory
         ShopTemplateBasicFactory $shopTemplateFactory,
         CurrencyBasicFactory $currencyFactory
     ) {
-        parent::__construct($connection, $extensions, $currencyFactory, $localeFactory);
+        parent::__construct($connection, $registry, $currencyFactory, $localeFactory);
         $this->localeFactory = $localeFactory;
         $this->categoryFactory = $categoryFactory;
         $this->customerGroupFactory = $customerGroupFactory;
@@ -288,7 +289,7 @@ class ShopDetailFactory extends ShopBasicFactory
     {
         $fields = parent::getExtensionFields();
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extensionFields = $extension->getDetailFields();
             foreach ($extensionFields as $key => $field) {
                 $fields[$key] = $field;

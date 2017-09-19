@@ -7,12 +7,12 @@ use Shopware\Customer\Event\CustomerBasicLoadedEvent;
 use Shopware\Customer\Event\CustomerDetailLoadedEvent;
 use Shopware\Customer\Event\CustomerWrittenEvent;
 use Shopware\Customer\Struct\CustomerBasicStruct;
-use Shopware\Framework\Factory\FactoryExtensionInterface;
+use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class CustomerExtension implements FactoryExtensionInterface, EventSubscriberInterface
+abstract class CustomerExtension implements ExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

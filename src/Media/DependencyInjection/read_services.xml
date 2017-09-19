@@ -7,7 +7,7 @@
     <services>
         <service class="Shopware\Media\Factory\MediaBasicFactory" id="shopware.media.basic_factory">
             <argument id="dbal_connection" type="service"/>
-            <argument type="collection" />
+            <argument type="service" id="shopware.extension.registry" />
             <argument id="shopware.album.basic_factory" type="service"/>
         </service>
 

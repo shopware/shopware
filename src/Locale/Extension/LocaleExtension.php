@@ -3,7 +3,7 @@
 namespace Shopware\Locale\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\FactoryExtensionInterface;
+use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\Locale\Event\LocaleBasicLoadedEvent;
 use Shopware\Locale\Event\LocaleWrittenEvent;
 use Shopware\Locale\Struct\LocaleBasicStruct;
@@ -11,7 +11,7 @@ use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class LocaleExtension implements FactoryExtensionInterface, EventSubscriberInterface
+abstract class LocaleExtension implements ExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

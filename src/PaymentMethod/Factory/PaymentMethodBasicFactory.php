@@ -4,7 +4,6 @@ namespace Shopware\PaymentMethod\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
-use Shopware\PaymentMethod\Extension\PaymentMethodExtension;
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -12,6 +11,7 @@ use Shopware\Search\QuerySelection;
 class PaymentMethodBasicFactory extends Factory
 {
     const ROOT_NAME = 'payment_method';
+    const EXTENSION_NAMESPACE = 'paymentMethod';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -36,11 +36,6 @@ class PaymentMethodBasicFactory extends Factory
        'name' => 'translation.name',
        'additional_description' => 'translation.additional_description',
     ];
-
-    /**
-     * @var PaymentMethodExtension[]
-     */
-    protected $extensions = [];
 
     public function hydrate(
         array $data,
@@ -70,7 +65,7 @@ class PaymentMethodBasicFactory extends Factory
         $paymentMethod->setName((string) $data[$selection->getField('name')]);
         $paymentMethod->setAdditionalDescription((string) $data[$selection->getField('additional_description')]);
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($paymentMethod, $data, $selection, $context);
         }
 
@@ -114,5 +109,10 @@ class PaymentMethodBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

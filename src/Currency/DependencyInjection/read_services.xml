@@ -7,12 +7,12 @@
     <services>
         <service class="Shopware\Currency\Factory\CurrencyBasicFactory" id="shopware.currency.basic_factory">
             <argument id="dbal_connection" type="service"/>
-            <argument type="collection" />
+            <argument type="service" id="shopware.extension.registry" />
         </service>
 
         <service class="Shopware\Currency\Factory\CurrencyDetailFactory" id="shopware.currency.detail_factory">
             <argument id="dbal_connection" type="service"/>
-            <argument type="collection" />
+            <argument type="service" id="shopware.extension.registry" />
             <argument id="shopware.shop.basic_factory" type="service"/>
         </service>
 

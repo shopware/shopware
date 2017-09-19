@@ -7,12 +7,12 @@
     <services>
         <service class="Shopware\PriceGroup\Factory\PriceGroupBasicFactory" id="shopware.price_group.basic_factory">
             <argument id="dbal_connection" type="service"/>
-            <argument type="collection" />
+            <argument type="service" id="shopware.extension.registry" />
         </service>
 
         <service class="Shopware\PriceGroup\Factory\PriceGroupDetailFactory" id="shopware.price_group.detail_factory">
             <argument id="dbal_connection" type="service"/>
-            <argument type="collection" />
+            <argument type="service" id="shopware.extension.registry" />
             <argument id="shopware.price_group_discount.basic_factory" type="service"/>
         </service>
 

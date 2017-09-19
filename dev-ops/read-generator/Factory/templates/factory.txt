@@ -9,35 +9,37 @@ use Shopware\Search\QuerySelection;
 use Shopware\#classUc#\Extension\#classUc#Extension;
 use Shopware\Search\QueryBuilder;
 use Shopware\Framework\Factory\Factory;
+use Shopware\Framework\Factory\ExtensionRegistry;
 #uses#
 
 class #classUc#BasicFactory extends Factory
 {
     const ROOT_NAME = '#rootName#';
+    const EXTENSION_NAMESPACE = '#classLc#';
 
     const FIELDS = [
 #fields#
     ];
 
-    /**
-     * @var #classUc#Extension[]
-     */
-    protected $extensions = [];
-
 #dependencyFactories#
 
     public function __construct(
         Connection $connection,
-        array $extensions
+        ExtensionRegistry $registry
 #dependencyFactoriesConstructor#
     ) {
-        parent::__construct($connection, $extensions);
+        parent::__construct($connection, $registry);
 #dependencyFactoriesInit#
     }
 
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 
     public function hydrate(
@@ -50,7 +52,7 @@ class #classUc#BasicFactory extends Factory
 
 #hydration#
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($#classLc#, $data, $selection, $context);
         }
 

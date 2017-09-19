@@ -7,7 +7,7 @@
     <services>
         <service class="Shopware\ShippingMethodPrice\Factory\ShippingMethodPriceBasicFactory" id="shopware.shipping_method_price.basic_factory">
             <argument id="dbal_connection" type="service"/>
-            <argument type="collection" />
+            <argument type="service" id="shopware.extension.registry" />
         </service>
 
 

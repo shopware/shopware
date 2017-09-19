@@ -2,7 +2,6 @@
 
 namespace Shopware\AreaCountry\Factory;
 
-use Shopware\AreaCountry\Extension\AreaCountryExtension;
 use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
@@ -12,6 +11,7 @@ use Shopware\Search\QuerySelection;
 class AreaCountryBasicFactory extends Factory
 {
     const ROOT_NAME = 'area_country';
+    const EXTENSION_NAMESPACE = 'areaCountry';
 
     const FIELDS = [
        'uuid' => 'uuid',
@@ -28,11 +28,6 @@ class AreaCountryBasicFactory extends Factory
        'force_state_in_registration' => 'force_state_in_registration',
        'name' => 'translation.name',
     ];
-
-    /**
-     * @var AreaCountryExtension[]
-     */
-    protected $extensions = [];
 
     public function hydrate(
         array $data,
@@ -54,7 +49,7 @@ class AreaCountryBasicFactory extends Factory
         $areaCountry->setForceStateInRegistration((bool) $data[$selection->getField('force_state_in_registration')]);
         $areaCountry->setName((string) $data[$selection->getField('name')]);
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($areaCountry, $data, $selection, $context);
         }
 
@@ -98,5 +93,10 @@ class AreaCountryBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

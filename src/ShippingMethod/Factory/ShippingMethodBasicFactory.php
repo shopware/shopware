@@ -6,12 +6,12 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
-use Shopware\ShippingMethod\Extension\ShippingMethodExtension;
 use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
 
 class ShippingMethodBasicFactory extends Factory
 {
     const ROOT_NAME = 'shipping_method';
+    const EXTENSION_NAMESPACE = 'shippingMethod';
 
     const FIELDS = [
        'id' => 'id',
@@ -43,11 +43,6 @@ class ShippingMethodBasicFactory extends Factory
        'description' => 'translation.description',
        'comment' => 'translation.comment',
     ];
-
-    /**
-     * @var ShippingMethodExtension[]
-     */
-    protected $extensions = [];
 
     public function hydrate(
         array $data,
@@ -84,7 +79,7 @@ class ShippingMethodBasicFactory extends Factory
         $shippingMethod->setDescription(isset($data[$selection->getField('description')]) ? (string) $data[$selection->getField('description')] : null);
         $shippingMethod->setComment(isset($data[$selection->getField('comment')]) ? (string) $data[$selection->getField('comment')] : null);
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($shippingMethod, $data, $selection, $context);
         }
 
@@ -128,5 +123,10 @@ class ShippingMethodBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

@@ -26,6 +26,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 (new \Symfony\Component\Dotenv\Dotenv())->load(__DIR__.'/../../.env');
 require_once __DIR__ . '/../../src/Framework/Doctrine/DatabaseConnector.php';
 require_once __DIR__ . '/DomainGenerator.php';
+require_once __DIR__ . '/Context.php';
 
 class Generate
 {
@@ -232,10 +233,11 @@ class Generate
             'listing_sorting' => []
         ];
 
-        foreach ($tables as $table => $assocs) {
-            $generator->generate($table, $assocs);
-        }
+        $context = new \ReadGenerator\Context();
 
+        foreach ($tables as $table => $assocs) {
+            $generator->generate($table, $assocs, $context);
+        }
     }
 
     /**

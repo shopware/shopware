@@ -6,12 +6,12 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
-use Shopware\Unit\Extension\UnitExtension;
 use Shopware\Unit\Struct\UnitBasicStruct;
 
 class UnitBasicFactory extends Factory
 {
     const ROOT_NAME = 'unit';
+    const EXTENSION_NAMESPACE = 'unit';
 
     const FIELDS = [
        'id' => 'id',
@@ -19,11 +19,6 @@ class UnitBasicFactory extends Factory
        'short_code' => 'translation.short_code',
        'name' => 'translation.name',
     ];
-
-    /**
-     * @var UnitExtension[]
-     */
-    protected $extensions = [];
 
     public function hydrate(
         array $data,
@@ -36,7 +31,7 @@ class UnitBasicFactory extends Factory
         $unit->setShortCode((string) $data[$selection->getField('short_code')]);
         $unit->setName((string) $data[$selection->getField('name')]);
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($unit, $data, $selection, $context);
         }
 
@@ -80,5 +75,10 @@ class UnitBasicFactory extends Factory
     protected function getRootName(): string
     {
         return self::ROOT_NAME;
+    }
+
+    protected function getExtensionNamespace(): string
+    {
+        return self::EXTENSION_NAMESPACE;
     }
 }

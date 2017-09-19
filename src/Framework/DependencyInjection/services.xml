@@ -93,5 +93,9 @@
             <argument type="service" id="shopware.framework.event.nested_event_dispatcher.inner" />
         </service>
 
+        <service class="Shopware\Framework\Factory\ExtensionRegistry" id="shopware.extension.registry">
+            <argument type="collection" />
+        </service>
+
     </services>
 </container>

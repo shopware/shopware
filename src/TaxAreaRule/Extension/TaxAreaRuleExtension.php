@@ -3,7 +3,7 @@
 namespace Shopware\TaxAreaRule\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\FactoryExtensionInterface;
+use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Shopware\TaxAreaRule\Event\TaxAreaRuleBasicLoadedEvent;
@@ -11,7 +11,7 @@ use Shopware\TaxAreaRule\Event\TaxAreaRuleWrittenEvent;
 use Shopware\TaxAreaRule\Struct\TaxAreaRuleBasicStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class TaxAreaRuleExtension implements FactoryExtensionInterface, EventSubscriberInterface
+abstract class TaxAreaRuleExtension implements ExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

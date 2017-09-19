@@ -7,6 +7,7 @@ use Shopware\Area\Struct\AreaBasicStruct;
 use Shopware\Area\Struct\AreaDetailStruct;
 use Shopware\AreaCountry\Factory\AreaCountryDetailFactory;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistry;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 
@@ -19,10 +20,10 @@ class AreaDetailFactory extends AreaBasicFactory
 
     public function __construct(
         Connection $connection,
-        array $extensions,
+        ExtensionRegistry $registry,
         AreaCountryDetailFactory $areaCountryFactory
     ) {
-        parent::__construct($connection, $extensions);
+        parent::__construct($connection, $registry);
         $this->areaCountryFactory = $areaCountryFactory;
     }
 
@@ -75,7 +76,7 @@ class AreaDetailFactory extends AreaBasicFactory
     {
         $fields = parent::getExtensionFields();
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extensionFields = $extension->getDetailFields();
             foreach ($extensionFields as $key => $field) {
                 $fields[$key] = $field;

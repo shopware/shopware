@@ -4,6 +4,7 @@ namespace Shopware\PriceGroup\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistry;
 use Shopware\PriceGroup\Struct\PriceGroupBasicStruct;
 use Shopware\PriceGroup\Struct\PriceGroupDetailStruct;
 use Shopware\PriceGroupDiscount\Factory\PriceGroupDiscountBasicFactory;
@@ -19,10 +20,10 @@ class PriceGroupDetailFactory extends PriceGroupBasicFactory
 
     public function __construct(
         Connection $connection,
-        array $extensions,
+        ExtensionRegistry $registry,
         PriceGroupDiscountBasicFactory $priceGroupDiscountFactory
     ) {
-        parent::__construct($connection, $extensions);
+        parent::__construct($connection, $registry);
         $this->priceGroupDiscountFactory = $priceGroupDiscountFactory;
     }
 
@@ -75,7 +76,7 @@ class PriceGroupDetailFactory extends PriceGroupBasicFactory
     {
         $fields = parent::getExtensionFields();
 
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extensionFields = $extension->getDetailFields();
             foreach ($extensionFields as $key => $field) {
                 $fields[$key] = $field;

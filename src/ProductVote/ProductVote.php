@@ -24,7 +24,6 @@
 
 namespace Shopware\ProductVote;
 
-use Shopware\ProductVote\DependencyInjection\ExtensionCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -41,7 +40,5 @@ class ProductVote extends Bundle
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('read_services.xml');
-
-        $container->addCompilerPass(new ExtensionCompilerPass());
     }
 }

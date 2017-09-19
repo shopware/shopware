@@ -24,7 +24,6 @@
 
 namespace Shopware\SeoUrl;
 
-use Shopware\SeoUrl\DependencyInjection\ExtensionCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -43,7 +42,5 @@ class SeoUrl extends Bundle
         $loader->load('read_services.xml');
         $loader->load('services.xml');
         $loader->load('write-resources.xml');
-
-        $container->addCompilerPass(new ExtensionCompilerPass());
     }
 }

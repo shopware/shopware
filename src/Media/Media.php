@@ -26,7 +26,6 @@ namespace Shopware\Media;
 
 use Shopware\Media\DependencyInjection\Compiler\MediaOptimizerCompilerPass;
 use Shopware\Media\DependencyInjection\Compiler\MediaStrategyCompilerPass;
-use Shopware\Media\DependencyInjection\ExtensionCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -45,7 +44,6 @@ class Media extends Bundle
         $loader->load('read_services.xml');
         $loader->load('write-resources.xml');
 
-        $container->addCompilerPass(new ExtensionCompilerPass());
         $container->addCompilerPass(new MediaOptimizerCompilerPass());
         $container->addCompilerPass(new MediaStrategyCompilerPass());
     }

@@ -24,7 +24,6 @@
 
 namespace Shopware\ProductManufacturer;
 
-use Shopware\ProductManufacturer\DependencyInjection\ExtensionCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -43,7 +42,5 @@ class ProductManufacturer extends Bundle
         $loader->load('read_services.xml');
         $loader->load('write-resources.xml');
         $loader->load('services.xml');
-
-        $container->addCompilerPass(new ExtensionCompilerPass());
     }
 }

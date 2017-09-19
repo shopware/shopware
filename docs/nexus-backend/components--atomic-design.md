@@ -39,7 +39,7 @@ Before you create your own component first you should think about in which type 
 ```
 - atom
 -- component-name
---- component-name.js
+--- index.js
 --- component-name.html.twig
 --- component-name.less
 ```
@@ -49,11 +49,11 @@ For creating a component you will register it at the main component factory of t
 
 When you register your component you have to define a unique name for it. This name defines a custom HTML tag which can be used in other layouts to use this component. The name should be as short and precise as possible and should only use a `-` for delimiters. All Shopware core components will use the `sw-` name prefix as a kind of namespace.
 
-As the JavaScript file is the main file for your component you will also import the template and its styling here. The complete file for a component could look something like this:
+Every component needs an `index.js` file as the main file. In this file you will also import the template and styling of the component. The complete file for a component could look something like this:
 
 ```
-import 'src/app/component/atom/my-component/my-component.less';
-import template from 'src/app/component/atom/my-component/my-component.html.twig'; 
+import './my-component.less';
+import template from './my-component.html.twig'; 
 
 export default Shopware.ComponentFactory.register('my-component', {
 

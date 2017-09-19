@@ -1,4 +1,4 @@
-.sw-form-field {
+.sw-field {
     width: 100%;
     margin-bottom: 22px;
 
@@ -13,7 +13,8 @@
         color: rgba(20,36,50,0.8);
     }
 
-    input, textarea {
+    input,
+    textarea {
         display: block;
         width: 100%;
         padding: 8px 16px;
@@ -32,9 +33,63 @@
         &:focus + .sw-form-field--suffix {
             border-color: darken(#E9EFF4, 10%);
         }
-
         &::placeholder {
             color: #d2d4d8;
+        }
+    }
+
+    textarea {
+        font-family: 'Source Sans Pro', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+        line-height: 22px;
+        font-size: 13px;
+        color: #323C47;
+    }
+
+    .sw-field-select {
+        display: block;
+        width: 100%;
+        position: relative;
+
+        &:after {
+            display: block;
+            width: 16px;
+            height: 16px;
+            position: absolute;
+            top: 14px;
+            right: 12px;
+            content: '\54';
+            font-family: 'sw-icons';
+            font-size: 14px;
+            text-align: center;
+            color: #808FA3;
+        }
+
+        select {
+            display: block;
+            width: 100%;
+            height: 100%;
+            padding: 8px 16px;
+            font-size: 14px;
+            line-height: 27px;
+            color: #142432;
+            border-radius: 4px;
+            border: 1px solid #E9EFF4;
+            background: #fff;
+            transition: border-color 0.3s ease-out;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+
+            &:focus {
+                border-color: darken(#E9EFF4, 10%);
+                outline: none;
+            }
+            &:focus + .sw-form-field--suffix {
+                border-color: darken(#E9EFF4, 10%);
+            }
+            &::placeholder {
+                color: #d2d4d8;
+            }
         }
     }
 

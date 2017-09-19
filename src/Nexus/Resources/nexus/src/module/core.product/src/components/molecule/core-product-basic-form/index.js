@@ -7,6 +7,11 @@ export default Shopware.ComponentFactory.register('core-product-basic-form', {
             required: true,
             default: {}
         },
+        manufacturers: {
+            type: Array,
+            required: true,
+            default: []
+        },
         isWorking: {
             type: Boolean,
             required: true,

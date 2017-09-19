@@ -1,8 +1,7 @@
+import './sw-field.less';
+import template from './sw-field.html.twig';
 
-import 'src/app/component/atom/form/sw-form-field/sw-form-field.less';
-import template from 'src/app/component/atom/form/sw-form-field/sw-form-field.html.twig';
-
-export default Shopware.ComponentFactory.register('sw-form-field', {
+export default Shopware.ComponentFactory.register('sw-field', {
     props: {
         id: {
             type: String,
@@ -32,6 +31,13 @@ export default Shopware.ComponentFactory.register('sw-form-field', {
         label: {
             type: String,
             default: ''
+        },
+        options: {
+            type: Array,
+            default: () => {
+                return [];
+            },
+            required: false
         },
         isCurrency: {
             type: Boolean,

@@ -19,6 +19,7 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
                     }
                 }
             },
+            manufacturers: [],
             notModifiedProduct: {}
         };
     },
@@ -39,6 +40,11 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
 
     methods: {
         getData() {
+            this.getProductData();
+            this.getManufacturerData();
+        },
+
+        getProductData() {
             const uuid = this.$route.params.uuid;
 
             this.isWorking = true;
@@ -49,12 +55,21 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
             });
         },
 
+        getManufacturerData() {
+            this.productManufacturerService.readAll().then((response) => {
+                console.log(response.data);
+                this.manufacturers = response.data;
+            });
+        },
+
         onSaveForm() {
             const uuid = this.$route.params.uuid;
             const changeSet = utils.compareObjects(this.notModifiedProduct, this.product);
 
             this.isWorking = true;
-            this.productService.updateByUuid(uuid, changeSet).then(() => {
+            this.productService.updateByUuid(uuid, changeSet).then((response) => {
+                this.notModifiedProduct = { ...response.data };
+                this.product = response.data;
                 this.isWorking = false;
             });
         }

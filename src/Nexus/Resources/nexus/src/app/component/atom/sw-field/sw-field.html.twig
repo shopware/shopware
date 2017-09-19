@@ -1,0 +1,29 @@
+<div :class="['sw-field', suffix.length ? 'has--suffix': '']">
+
+    <!-- Label -->
+    <label v-if="label" :for="id">{{ label }}</label>
+
+    <!-- Textarea -->
+    <textarea v-if="type === 'textarea'" v-html="value" :name="name" :id="id" :placeholder="placeholder" @input="$emit('input', $event.target.value)"></textarea>
+
+    <!-- Combobox -->
+    <div class="sw-field-select" v-else-if="type === 'select' || type === 'combo'">
+        <select name="name" :id="id" @input="$emit('input', $event.target.value)" :value="value">
+            <template v-if="options.length">
+                <option v-for="option in options" :value="option.value">{{ option.label }}</option>
+            </template>
+            <slot></slot>
+        </select>
+    </div>
+
+    <!-- Checkbox -->
+    <input v-else-if="type === 'checkbox'" type="checkbox" :name="name" :id="id" :value="value" @input="$emit('input', $event.target.value)">
+
+    <!-- Default Input -->
+    <input v-else :type="type" :name="name" :id="id" :placeholder="placeholder" :value="value" @input="$emit('input', $event.target.value)" />
+
+    <!-- Suffix Text -->
+    <span v-if="suffix" class="sw-form-field--suffix">
+        {{ suffix }}
+    </span>
+</div>

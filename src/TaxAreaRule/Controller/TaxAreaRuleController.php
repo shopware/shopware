@@ -70,7 +70,7 @@ class TaxAreaRuleController extends ApiController
         );
 
         $response = [
-            'data' => $taxAreaRules->getElements(),
+            'data' => $taxAreaRules,
             'total' => $taxAreaRules->getTotal(),
         ];
 

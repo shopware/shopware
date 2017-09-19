@@ -70,7 +70,7 @@ class LocaleController extends ApiController
         );
 
         $response = [
-            'data' => $locales->getElements(),
+            'data' => $locales,
             'total' => $locales->getTotal(),
         ];
 

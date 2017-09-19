@@ -70,7 +70,7 @@ class MediaController extends ApiController
         );
 
         $response = [
-            'data' => $medias->getElements(),
+            'data' => $medias,
             'total' => $medias->getTotal(),
         ];
 

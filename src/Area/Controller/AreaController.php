@@ -70,7 +70,7 @@ class AreaController extends ApiController
         );
 
         $response = [
-            'data' => $areas->getElements(),
+            'data' => $areas,
             'total' => $areas->getTotal(),
         ];
 

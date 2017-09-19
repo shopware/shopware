@@ -70,7 +70,7 @@ class CustomerAddressController extends ApiController
         );
 
         $response = [
-            'data' => $customerAddresss->getElements(),
+            'data' => $customerAddresss,
             'total' => $customerAddresss->getTotal(),
         ];
 

@@ -65,7 +65,7 @@ class #classUc#Controller extends ApiController
         );
 
         $response = [
-            'data' => $#plural#->getElements(),
+            'data' => $#plural#,
             'total' => $#plural#->getTotal()
         ];
 

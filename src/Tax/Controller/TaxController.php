@@ -70,7 +70,7 @@ class TaxController extends ApiController
         );
 
         $response = [
-            'data' => $taxs->getElements(),
+            'data' => $taxs,
             'total' => $taxs->getTotal(),
         ];
 

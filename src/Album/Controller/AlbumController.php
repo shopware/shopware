@@ -70,7 +70,7 @@ class AlbumController extends ApiController
         );
 
         $response = [
-            'data' => $albums->getElements(),
+            'data' => $albums,
             'total' => $albums->getTotal(),
         ];
 

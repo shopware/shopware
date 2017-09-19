@@ -70,7 +70,7 @@ class ShippingMethodController extends ApiController
         );
 
         $response = [
-            'data' => $shippingMethods->getElements(),
+            'data' => $shippingMethods,
             'total' => $shippingMethods->getTotal(),
         ];
 

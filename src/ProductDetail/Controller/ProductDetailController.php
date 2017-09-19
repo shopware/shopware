@@ -70,7 +70,7 @@ class ProductDetailController extends ApiController
         );
 
         $response = [
-            'data' => $productDetails->getElements(),
+            'data' => $productDetails,
             'total' => $productDetails->getTotal(),
         ];
 

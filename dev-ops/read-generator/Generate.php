@@ -234,11 +234,11 @@ class Generate
         ];
 
         $context = new \ReadGenerator\Context();
+        $context->createFactory = false;
         $context->createStruct = false;
         $context->createCollection = false;
-        $context->createFactory = true;
         $context->createExtension = false;
-        $context->createController = false;
+        $context->createController = true;
         $context->createWriter = false;
         $context->createBundle = false;
         $context->createEvent = false;

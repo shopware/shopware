@@ -70,7 +70,7 @@ class HolidayController extends ApiController
         );
 
         $response = [
-            'data' => $holidaies->getElements(),
+            'data' => $holidaies,
             'total' => $holidaies->getTotal(),
         ];
 

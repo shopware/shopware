@@ -70,7 +70,7 @@ class UnitController extends ApiController
         );
 
         $response = [
-            'data' => $units->getElements(),
+            'data' => $units,
             'total' => $units->getTotal(),
         ];
 

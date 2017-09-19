@@ -70,7 +70,7 @@ class SeoUrlController extends ApiController
         );
 
         $response = [
-            'data' => $seoUrls->getElements(),
+            'data' => $seoUrls,
             'total' => $seoUrls->getTotal(),
         ];
 

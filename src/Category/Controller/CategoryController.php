@@ -70,7 +70,7 @@ class CategoryController extends ApiController
         );
 
         $response = [
-            'data' => $categories->getElements(),
+            'data' => $categories,
             'total' => $categories->getTotal(),
         ];
 

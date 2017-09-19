@@ -70,7 +70,7 @@ class CustomerGroupDiscountController extends ApiController
         );
 
         $response = [
-            'data' => $customerGroupDiscounts->getElements(),
+            'data' => $customerGroupDiscounts,
             'total' => $customerGroupDiscounts->getTotal(),
         ];
 

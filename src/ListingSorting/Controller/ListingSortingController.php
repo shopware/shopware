@@ -70,7 +70,7 @@ class ListingSortingController extends ApiController
         );
 
         $response = [
-            'data' => $listingSortings->getElements(),
+            'data' => $listingSortings,
             'total' => $listingSortings->getTotal(),
         ];
 

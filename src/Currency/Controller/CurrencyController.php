@@ -70,7 +70,7 @@ class CurrencyController extends ApiController
         );
 
         $response = [
-            'data' => $currencies->getElements(),
+            'data' => $currencies,
             'total' => $currencies->getTotal(),
         ];
 

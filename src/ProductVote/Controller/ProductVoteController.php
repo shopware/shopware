@@ -70,7 +70,7 @@ class ProductVoteController extends ApiController
         );
 
         $response = [
-            'data' => $productVotes->getElements(),
+            'data' => $productVotes,
             'total' => $productVotes->getTotal(),
         ];
 

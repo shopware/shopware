@@ -70,7 +70,7 @@ class PaymentMethodController extends ApiController
         );
 
         $response = [
-            'data' => $paymentMethods->getElements(),
+            'data' => $paymentMethods,
             'total' => $paymentMethods->getTotal(),
         ];
 

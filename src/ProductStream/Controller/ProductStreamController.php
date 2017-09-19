@@ -70,7 +70,7 @@ class ProductStreamController extends ApiController
         );
 
         $response = [
-            'data' => $productStreams->getElements(),
+            'data' => $productStreams,
             'total' => $productStreams->getTotal(),
         ];
 

@@ -70,7 +70,7 @@ class CustomerController extends ApiController
         );
 
         $response = [
-            'data' => $customers->getElements(),
+            'data' => $customers,
             'total' => $customers->getTotal(),
         ];
 

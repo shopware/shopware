@@ -70,7 +70,7 @@ class PriceGroupController extends ApiController
         );
 
         $response = [
-            'data' => $priceGroups->getElements(),
+            'data' => $priceGroups,
             'total' => $priceGroups->getTotal(),
         ];
 

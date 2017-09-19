@@ -4,7 +4,7 @@ namespace Shopware\ProductStream\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistry;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\ListingSorting\Factory\ListingSortingBasicFactory;
 use Shopware\ListingSorting\Struct\ListingSortingBasicStruct;
@@ -33,7 +33,7 @@ class ProductStreamBasicFactory extends Factory
 
     public function __construct(
         Connection $connection,
-        ExtensionRegistry $registry,
+        ExtensionRegistryInterface $registry,
         ListingSortingBasicFactory $listingSortingFactory
     ) {
         parent::__construct($connection, $registry);

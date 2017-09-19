@@ -4,7 +4,7 @@ namespace Shopware\ProductDetail\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistry;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
 use Shopware\Search\QueryBuilder;
@@ -52,7 +52,7 @@ class ProductDetailBasicFactory extends Factory
 
     public function __construct(
         Connection $connection,
-        ExtensionRegistry $registry,
+        ExtensionRegistryInterface $registry,
         UnitBasicFactory $unitFactory
     ) {
         parent::__construct($connection, $registry);

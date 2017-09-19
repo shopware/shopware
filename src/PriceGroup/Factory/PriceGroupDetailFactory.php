@@ -4,7 +4,7 @@ namespace Shopware\PriceGroup\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistry;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\PriceGroup\Struct\PriceGroupBasicStruct;
 use Shopware\PriceGroup\Struct\PriceGroupDetailStruct;
 use Shopware\PriceGroupDiscount\Factory\PriceGroupDiscountBasicFactory;
@@ -20,7 +20,7 @@ class PriceGroupDetailFactory extends PriceGroupBasicFactory
 
     public function __construct(
         Connection $connection,
-        ExtensionRegistry $registry,
+        ExtensionRegistryInterface $registry,
         PriceGroupDiscountBasicFactory $priceGroupDiscountFactory
     ) {
         parent::__construct($connection, $registry);

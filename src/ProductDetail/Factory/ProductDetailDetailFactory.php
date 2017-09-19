@@ -4,7 +4,7 @@ namespace Shopware\ProductDetail\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistry;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
 use Shopware\ProductDetail\Struct\ProductDetailDetailStruct;
 use Shopware\ProductPrice\Factory\ProductPriceBasicFactory;
@@ -21,7 +21,7 @@ class ProductDetailDetailFactory extends ProductDetailBasicFactory
 
     public function __construct(
         Connection $connection,
-        ExtensionRegistry $registry,
+        ExtensionRegistryInterface $registry,
         ProductPriceBasicFactory $productPriceFactory,
         UnitBasicFactory $unitFactory
     ) {

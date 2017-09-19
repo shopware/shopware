@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Album\Factory\AlbumBasicFactory;
 use Shopware\Album\Struct\AlbumBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistry;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Media\Struct\MediaBasicStruct;
 use Shopware\Search\QueryBuilder;
@@ -38,7 +38,7 @@ class MediaBasicFactory extends Factory
 
     public function __construct(
         Connection $connection,
-        ExtensionRegistry $registry,
+        ExtensionRegistryInterface $registry,
         AlbumBasicFactory $albumFactory
     ) {
         parent::__construct($connection, $registry);

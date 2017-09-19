@@ -8,7 +8,7 @@ use Shopware\#classUc#\Struct\#classUc#BasicStruct;
 use Shopware\#classUc#\Struct\#classUc#DetailStruct;
 use Shopware\Search\QuerySelection;
 use Shopware\Search\QueryBuilder;
-use Shopware\Framework\Factory\ExtensionRegistry;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 #uses#
 
 class #classUc#DetailFactory extends #classUc#BasicFactory
@@ -17,7 +17,7 @@ class #classUc#DetailFactory extends #classUc#BasicFactory
 
     public function __construct(
         Connection $connection,
-        ExtensionRegistry $registry#dependencyFactoriesConstructor#
+        ExtensionRegistryInterface $registry#dependencyFactoriesConstructor#
     ) {
         parent::__construct($connection, $registry#parentFactoryDependencyCall#);
 #dependencyFactoriesInit#

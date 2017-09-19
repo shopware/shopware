@@ -14,11 +14,5 @@
             <argument id="service_container" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
-
-
-        <service class="Shopware\Nexus\Extension\ProductExtension" id="shopware.nexus.product_extension">
-            <argument id="dbal_connection" type="service"/>
-            <tag name="shopware.nexus.extension" bundle="product" />
-        </service>
     </services>
 </container>

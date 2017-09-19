@@ -7,7 +7,7 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
 use Shopware\CustomerGroup\Struct\CustomerGroupDetailStruct;
 use Shopware\CustomerGroupDiscount\Factory\CustomerGroupDiscountBasicFactory;
-use Shopware\Framework\Factory\ExtensionRegistry;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 
@@ -20,7 +20,7 @@ class CustomerGroupDetailFactory extends CustomerGroupBasicFactory
 
     public function __construct(
         Connection $connection,
-        ExtensionRegistry $registry,
+        ExtensionRegistryInterface $registry,
         CustomerGroupDiscountBasicFactory $customerGroupDiscountFactory
     ) {
         parent::__construct($connection, $registry);

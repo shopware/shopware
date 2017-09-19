@@ -11,7 +11,7 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Currency\Factory\CurrencyBasicFactory;
 use Shopware\CustomerGroup\Factory\CustomerGroupBasicFactory;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
-use Shopware\Framework\Factory\ExtensionRegistry;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Locale\Factory\LocaleBasicFactory;
 use Shopware\Locale\Struct\LocaleBasicStruct;
 use Shopware\PaymentMethod\Factory\PaymentMethodBasicFactory;
@@ -69,7 +69,7 @@ class ShopDetailFactory extends ShopBasicFactory
 
     public function __construct(
         Connection $connection,
-        ExtensionRegistry $registry,
+        ExtensionRegistryInterface $registry,
         LocaleBasicFactory $localeFactory,
         CategoryBasicFactory $categoryFactory,
         CustomerGroupBasicFactory $customerGroupFactory,

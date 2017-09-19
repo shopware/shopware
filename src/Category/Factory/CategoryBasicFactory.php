@@ -5,7 +5,7 @@ namespace Shopware\Category\Factory;
 use Doctrine\DBAL\Connection;
 use Shopware\Category\Struct\CategoryBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistry;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -52,7 +52,7 @@ class CategoryBasicFactory extends Factory
 
     public function __construct(
         Connection $connection,
-        ExtensionRegistry $registry,
+        ExtensionRegistryInterface $registry,
         SeoUrlBasicFactory $seoUrlFactory
     ) {
         parent::__construct($connection, $registry);

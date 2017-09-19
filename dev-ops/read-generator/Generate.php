@@ -234,7 +234,19 @@ class Generate
         ];
 
         $context = new \ReadGenerator\Context();
-
+        $context->createStruct = false;
+        $context->createCollection = false;
+        $context->createFactory = true;
+        $context->createExtension = false;
+        $context->createController = false;
+        $context->createWriter = false;
+        $context->createBundle = false;
+        $context->createEvent = false;
+        $context->createLoader = false;
+        $context->createSearcher = false;
+        $context->createRepository = false;
+        $context->createServiceXml = false;
+        
         foreach ($tables as $table => $assocs) {
             $generator->generate($table, $assocs, $context);
         }

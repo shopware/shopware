@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Category\Factory\CategoryBasicFactory;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Factory\CustomerGroupBasicFactory;
-use Shopware\Framework\Factory\ExtensionRegistry;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\PriceGroup\Factory\PriceGroupBasicFactory;
 use Shopware\Product\Struct\ProductBasicStruct;
 use Shopware\Product\Struct\ProductDetailStruct;
@@ -37,7 +37,7 @@ class ProductDetailFactory extends ProductBasicFactory
 
     public function __construct(
         Connection $connection,
-        ExtensionRegistry $registry,
+        ExtensionRegistryInterface $registry,
         ProductDetailDetailFactory $productDetailFactory,
         CategoryBasicFactory $categoryFactory,
         ProductVoteBasicFactory $productVoteFactory,

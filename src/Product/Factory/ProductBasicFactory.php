@@ -5,7 +5,7 @@ namespace Shopware\Product\Factory;
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Factory\CustomerGroupBasicFactory;
-use Shopware\Framework\Factory\ExtensionRegistry;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\PriceGroup\Factory\PriceGroupBasicFactory;
 use Shopware\PriceGroup\Struct\PriceGroupBasicStruct;
@@ -81,7 +81,7 @@ class ProductBasicFactory extends Factory
 
     public function __construct(
         Connection $connection,
-        ExtensionRegistry $registry,
+        ExtensionRegistryInterface $registry,
         ProductManufacturerBasicFactory $productManufacturerFactory,
         ProductDetailBasicFactory $productDetailFactory,
         TaxBasicFactory $taxFactory,
@@ -160,10 +160,6 @@ class ProductBasicFactory extends Factory
             $product->setBlockedCustomerGroupsUuids(array_filter($uuids));
         }
 
-        echo "<pre>";
-        \Doctrine\Common\Util\Debug::dump($this->registry, 4);
-        die();
-        
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($product, $data, $selection, $context);
         }

@@ -4,7 +4,7 @@ namespace Shopware\SeoUrl\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistry;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -38,7 +38,7 @@ class SeoUrlBasicFactory extends Factory
      */
     private $container;
 
-    public function __construct(Connection $connection, ExtensionRegistry $registry, ContainerInterface $container)
+    public function __construct(Connection $connection, ExtensionRegistryInterface $registry, ContainerInterface $container)
     {
         parent::__construct($connection, $registry);
         $this->container = $container;

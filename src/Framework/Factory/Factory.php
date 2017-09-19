@@ -16,11 +16,11 @@ abstract class Factory
     protected $connection;
 
     /**
-     * @var ExtensionRegistry
+     * @var ExtensionRegistryInterface
      */
     protected $registry;
 
-    public function __construct(Connection $connection, ExtensionRegistry $registry)
+    public function __construct(Connection $connection, ExtensionRegistryInterface $registry)
     {
         $this->connection = $connection;
         $this->registry = $registry;

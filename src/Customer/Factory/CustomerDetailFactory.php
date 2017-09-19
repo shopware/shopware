@@ -8,7 +8,7 @@ use Shopware\Customer\Struct\CustomerBasicStruct;
 use Shopware\Customer\Struct\CustomerDetailStruct;
 use Shopware\CustomerAddress\Factory\CustomerAddressBasicFactory;
 use Shopware\CustomerGroup\Factory\CustomerGroupBasicFactory;
-use Shopware\Framework\Factory\ExtensionRegistry;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\PaymentMethod\Factory\PaymentMethodBasicFactory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -29,7 +29,7 @@ class CustomerDetailFactory extends CustomerBasicFactory
 
     public function __construct(
         Connection $connection,
-        ExtensionRegistry $registry,
+        ExtensionRegistryInterface $registry,
         CustomerAddressBasicFactory $customerAddressFactory,
         ShopBasicFactory $shopFactory,
         CustomerGroupBasicFactory $customerGroupFactory,

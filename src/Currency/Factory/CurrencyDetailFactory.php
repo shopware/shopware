@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Currency\Struct\CurrencyDetailStruct;
-use Shopware\Framework\Factory\ExtensionRegistry;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Shopware\Shop\Factory\ShopBasicFactory;
@@ -20,7 +20,7 @@ class CurrencyDetailFactory extends CurrencyBasicFactory
 
     public function __construct(
         Connection $connection,
-        ExtensionRegistry $registry,
+        ExtensionRegistryInterface $registry,
         ShopBasicFactory $shopFactory
     ) {
         parent::__construct($connection, $registry);

@@ -1,11 +1,14 @@
 {% block frontend_listing_product_box_button_detail %}
 
-    {% block frontend_listing_product_box_button_detail_url %}
-        {% set url = {{ product.linkDetails }} %}
-    {% endblock %}
+    {# @var product \Shopware\Product\Struct\StoreFrontListingProductStruct#}
+    {% if product.canonicalUrl %}
+        {% set url = product.canonicalUrl.url %}
+    {% else %}
+        {% set url = url('detail_page', { 'uuid': product.uuid }) %}
+    {% endif %}
 
     {% block frontend_listing_product_box_button_detail_title %}
-        {% set title = {{ product.name|escape }} %}
+        {% set title = product.name|escape %}
     {% endblock %}
 
     {% block frontend_listing_product_box_button_detail_label %}

@@ -81,6 +81,7 @@
 
                             {# Actual listing #}
                             {% block frontend_listing_list_inline %}
+                                {# @var product \Shopware\Product\Struct\StoreFrontListingProductStruct#}
                                 {% for product in listing.products %}
                                     {% sw_include "@Shopware/frontend/listing/box_product.html.twig" %}
                                 {% endfor %}

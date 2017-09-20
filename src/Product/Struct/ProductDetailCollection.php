@@ -17,7 +17,7 @@ class ProductDetailCollection extends ProductBasicCollection
     {
         $uuids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getDetailUuids() as $uuid) {
+            foreach ($element->getDetails()->getUuids() as $uuid) {
                 $uuids[] = $uuid;
             }
         }
@@ -61,7 +61,7 @@ class ProductDetailCollection extends ProductBasicCollection
     {
         $uuids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getVoteUuids() as $uuid) {
+            foreach ($element->getVotes()->getUuids() as $uuid) {
                 $uuids[] = $uuid;
             }
         }

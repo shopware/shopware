@@ -28,7 +28,7 @@ class HolidayController extends ApiController
 
     public function getXmlRootKey(): string
     {
-        return 'holidaies';
+        return 'holidays';
     }
 
     public function getXmlChildKey(): string
@@ -64,14 +64,14 @@ class HolidayController extends ApiController
 
         $criteria->setFetchCount(true);
 
-        $holidaies = $this->holidayRepository->search(
+        $holidays = $this->holidayRepository->search(
             $criteria,
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $holidaies,
-            'total' => $holidaies->getTotal(),
+            'data' => $holidays,
+            'total' => $holidays->getTotal(),
         ];
 
         return $this->createResponse($response, $context);
@@ -88,12 +88,12 @@ class HolidayController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('holidayUuid');
-        $holidaies = $this->holidayRepository->read(
+        $holidays = $this->holidayRepository->read(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($holidaies->get($uuid), $context);
+        return $this->createResponse($holidays->get($uuid), $context);
     }
 
     /**
@@ -110,13 +110,13 @@ class HolidayController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $holidaies = $this->holidayRepository->read(
+        $holidays = $this->holidayRepository->read(
             $createEvent->getHolidayUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $holidaies,
+            'data' => $holidays,
             'errors' => $createEvent->getErrors(),
         ];
 
@@ -137,13 +137,13 @@ class HolidayController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $holidaies = $this->holidayRepository->read(
+        $holidays = $this->holidayRepository->read(
             $createEvent->getHolidayUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $holidaies,
+            'data' => $holidays,
             'errors' => $createEvent->getErrors(),
         ];
 
@@ -164,13 +164,13 @@ class HolidayController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $holidaies = $this->holidayRepository->read(
+        $holidays = $this->holidayRepository->read(
             $createEvent->getHolidayUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $holidaies,
+            'data' => $holidays,
             'errors' => $createEvent->getErrors(),
         ];
 
@@ -202,13 +202,13 @@ class HolidayController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $holidaies = $this->holidayRepository->read(
+        $holidays = $this->holidayRepository->read(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );
 
         return $this->createResponse(
-            ['data' => $holidaies->get($payload['uuid'])],
+            ['data' => $holidays->get($payload['uuid'])],
             $context
         );
     }

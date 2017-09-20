@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\OrderLineItem\Factory\OrderLineItemBasicFactory" id="shopware.order_line_item.basic_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="service" id="shopware.extension.registry" />
+        </service>
+
+
+        <service class="Shopware\OrderLineItem\Controller\OrderLineItemController" id="shopware.order_line_item.api_controller">
+            <argument id="shopware.order_line_item.repository" type="service"/>
+        </service>
+        
+
+        <service class="Shopware\OrderLineItem\Writer\OrderLineItemWriter" id="shopware.order_line_item.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
+        <service class="Shopware\OrderLineItem\Loader\OrderLineItemBasicLoader" id="shopware.order_line_item.basic_loader">
+            <argument id="shopware.order_line_item.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\OrderLineItem\Searcher\OrderLineItemSearcher" id="shopware.order_line_item.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.search.sql_parser" type="service"/>
+            <argument id="shopware.order_line_item.basic_factory" type="service"/>
+            <argument id="shopware.order_line_item.basic_loader" type="service"/>
+        </service>
+
+        <service class="Shopware\OrderLineItem\Repository\OrderLineItemRepository" id="shopware.order_line_item.repository">
+            <argument id="shopware.order_line_item.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.order_line_item.searcher" type="service"/>
+            <argument id="shopware.order_line_item.writer" type="service"/>
+        </service>
+
+    </services>
+</container>

@@ -9,11 +9,6 @@ use Shopware\ProductVote\Struct\ProductVoteBasicCollection;
 class ProductDetailStruct extends ProductBasicStruct
 {
     /**
-     * @var string[]
-     */
-    protected $detailUuids = [];
-
-    /**
      * @var ProductDetailBasicCollection
      */
     protected $details;
@@ -29,11 +24,6 @@ class ProductDetailStruct extends ProductBasicStruct
     protected $categories;
 
     /**
-     * @var string[]
-     */
-    protected $voteUuids = [];
-
-    /**
      * @var ProductVoteBasicCollection
      */
     protected $votes;
@@ -43,16 +33,6 @@ class ProductDetailStruct extends ProductBasicStruct
         $this->details = new ProductDetailBasicCollection();
         $this->categories = new CategoryBasicCollection();
         $this->votes = new ProductVoteBasicCollection();
-    }
-
-    public function getDetailUuids(): array
-    {
-        return $this->detailUuids;
-    }
-
-    public function setDetailUuids(array $detailUuids): void
-    {
-        $this->detailUuids = $detailUuids;
     }
 
     public function getDetails(): ProductDetailBasicCollection
@@ -83,16 +63,6 @@ class ProductDetailStruct extends ProductBasicStruct
     public function setCategories(CategoryBasicCollection $categories): void
     {
         $this->categories = $categories;
-    }
-
-    public function getVoteUuids(): array
-    {
-        return $this->voteUuids;
-    }
-
-    public function setVoteUuids(array $voteUuids): void
-    {
-        $this->voteUuids = $voteUuids;
     }
 
     public function getVotes(): ProductVoteBasicCollection

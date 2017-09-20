@@ -30,9 +30,9 @@ class AlbumBasicLoader
             return new AlbumBasicCollection();
         }
 
-        $albums = $this->read($uuids, $context);
+        $albumCollection = $this->read($uuids, $context);
 
-        return $albums;
+        return $albumCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): AlbumBasicCollection

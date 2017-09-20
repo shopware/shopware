@@ -30,9 +30,9 @@ class MediaBasicLoader
             return new MediaBasicCollection();
         }
 
-        $medias = $this->read($uuids, $context);
+        $mediaCollection = $this->read($uuids, $context);
 
-        return $medias;
+        return $mediaCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): MediaBasicCollection

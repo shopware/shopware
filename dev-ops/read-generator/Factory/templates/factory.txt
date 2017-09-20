@@ -52,6 +52,7 @@ class #classUc#BasicFactory extends Factory
 
 #hydration#
 
+        /**@var $extension #classUc#Extension*/
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($#classLc#, $data, $selection, $context);
         }

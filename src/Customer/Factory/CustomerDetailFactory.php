@@ -70,15 +70,15 @@ class CustomerDetailFactory extends CustomerBasicFactory
     {
         parent::joinDependencies($selection, $query, $context);
 
-        if ($addresss = $selection->filter('addresss')) {
+        if ($addresses = $selection->filter('addresses')) {
             $query->leftJoin(
                 $selection->getRootEscaped(),
                 'customer_address',
-                $addresss->getRootEscaped(),
-                sprintf('%s.uuid = %s.customer_uuid', $selection->getRootEscaped(), $addresss->getRootEscaped())
+                $addresses->getRootEscaped(),
+                sprintf('%s.uuid = %s.customer_uuid', $selection->getRootEscaped(), $addresses->getRootEscaped())
             );
 
-            $this->customerAddressFactory->joinDependencies($addresss, $query, $context);
+            $this->customerAddressFactory->joinDependencies($addresses, $query, $context);
 
             $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
         }
@@ -97,7 +97,7 @@ class CustomerDetailFactory extends CustomerBasicFactory
     public function getAllFields(): array
     {
         $fields = parent::getAllFields();
-        $fields['addresss'] = $this->customerAddressFactory->getAllFields();
+        $fields['addresses'] = $this->customerAddressFactory->getAllFields();
         $fields['shop'] = $this->shopFactory->getAllFields();
 
         return $fields;

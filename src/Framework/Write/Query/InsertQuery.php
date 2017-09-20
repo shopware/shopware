@@ -25,6 +25,7 @@
 namespace Shopware\Framework\Write\Query;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Search\QuerySelection;
 
 class InsertQuery extends WriteQuery
 {
@@ -50,7 +51,7 @@ class InsertQuery extends WriteQuery
 
     public function execute(Connection $connection): int
     {
-        return $connection->insert($this->tableName, $this->payload);
+        return $connection->insert(QuerySelection::escape($this->tableName), $this->payload);
     }
 
     public function getPayload(): array

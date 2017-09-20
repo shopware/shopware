@@ -8,6 +8,7 @@ use Shopware\Album\Struct\AlbumBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
+use Shopware\Media\Extension\MediaExtension;
 use Shopware\Media\Struct\MediaBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -69,6 +70,7 @@ class MediaBasicFactory extends Factory
             );
         }
 
+        /** @var $extension MediaExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($media, $data, $selection, $context);
         }

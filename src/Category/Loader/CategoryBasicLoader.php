@@ -30,9 +30,9 @@ class CategoryBasicLoader
             return new CategoryBasicCollection();
         }
 
-        $categories = $this->read($uuids, $context);
+        $categoriesCollection = $this->read($uuids, $context);
 
-        return $categories;
+        return $categoriesCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): CategoryBasicCollection

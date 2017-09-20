@@ -29,7 +29,7 @@ class ProductDetailDetailLoader
 
     public function __construct(
         ProductDetailDetailFactory $factory,
-ProductPriceSearcher $productPriceSearcher
+        ProductPriceSearcher $productPriceSearcher
     ) {
         $this->factory = $factory;
         $this->productPriceSearcher = $productPriceSearcher;
@@ -41,7 +41,7 @@ ProductPriceSearcher $productPriceSearcher
             return new ProductDetailDetailCollection();
         }
 
-        $productDetails = $this->read($uuids, $context);
+        $productDetailsCollection = $this->read($uuids, $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('product_price.product_detail_uuid', $uuids));
@@ -49,11 +49,11 @@ ProductPriceSearcher $productPriceSearcher
         $prices = $this->productPriceSearcher->search($criteria, $context);
 
         /** @var ProductDetailDetailStruct $productDetail */
-        foreach ($productDetails as $productDetail) {
+        foreach ($productDetailsCollection as $productDetail) {
             $productDetail->setPrices($prices->filterByProductDetailUuid($productDetail->getUuid()));
         }
 
-        return $productDetails;
+        return $productDetailsCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): ProductDetailDetailCollection

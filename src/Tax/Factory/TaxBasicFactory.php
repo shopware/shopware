@@ -6,6 +6,7 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
+use Shopware\Tax\Extension\TaxExtension;
 use Shopware\Tax\Struct\TaxBasicStruct;
 
 class TaxBasicFactory extends Factory
@@ -31,6 +32,7 @@ class TaxBasicFactory extends Factory
         $tax->setRate((float) $data[$selection->getField('tax_rate')]);
         $tax->setName((string) $data[$selection->getField('name')]);
 
+        /** @var $extension TaxExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($tax, $data, $selection, $context);
         }

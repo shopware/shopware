@@ -8,6 +8,7 @@ use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
+use Shopware\SeoUrl\Extension\SeoUrlExtension;
 use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -17,15 +18,15 @@ class SeoUrlBasicFactory extends Factory
     const EXTENSION_NAMESPACE = 'seoUrl';
 
     const FIELDS = [
-       'uuid' => 'uuid',
-       'seo_hash' => 'seo_hash',
-       'shop_uuid' => 'shop_uuid',
-       'name' => 'name',
-       'foreign_key' => 'foreign_key',
-       'path_info' => 'path_info',
-       'seo_path_info' => 'seo_path_info',
-       'is_canonical' => 'is_canonical',
-       'created_at' => 'created_at',
+        'uuid' => 'uuid',
+        'seo_hash' => 'seo_hash',
+        'shop_uuid' => 'shop_uuid',
+        'name' => 'name',
+        'foreign_key' => 'foreign_key',
+        'path_info' => 'path_info',
+        'seo_path_info' => 'seo_path_info',
+        'is_canonical' => 'is_canonical',
+        'created_at' => 'created_at',
     ];
 
     /**

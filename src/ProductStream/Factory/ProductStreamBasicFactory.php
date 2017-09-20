@@ -8,6 +8,7 @@ use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\ListingSorting\Factory\ListingSortingBasicFactory;
 use Shopware\ListingSorting\Struct\ListingSortingBasicStruct;
+use Shopware\ProductStream\Extension\ProductStreamExtension;
 use Shopware\ProductStream\Struct\ProductStreamBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -59,6 +60,7 @@ class ProductStreamBasicFactory extends Factory
             );
         }
 
+        /** @var $extension ProductStreamExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($productStream, $data, $selection, $context);
         }

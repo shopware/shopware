@@ -29,7 +29,7 @@ class AlbumDetailLoader
 
     public function __construct(
         AlbumDetailFactory $factory,
-MediaSearcher $mediaSearcher
+        MediaSearcher $mediaSearcher
     ) {
         $this->factory = $factory;
         $this->mediaSearcher = $mediaSearcher;
@@ -41,19 +41,19 @@ MediaSearcher $mediaSearcher
             return new AlbumDetailCollection();
         }
 
-        $albums = $this->read($uuids, $context);
+        $albumCollection = $this->read($uuids, $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('media.album_uuid', $uuids));
-        /** @var MediaSearchResult $medias */
-        $medias = $this->mediaSearcher->search($criteria, $context);
+        /** @var MediaSearchResult $media */
+        $media = $this->mediaSearcher->search($criteria, $context);
 
         /** @var AlbumDetailStruct $album */
-        foreach ($albums as $album) {
-            $album->setMedias($medias->filterByAlbumUuid($album->getUuid()));
+        foreach ($albumCollection as $album) {
+            $album->setMedia($media->filterByAlbumUuid($album->getUuid()));
         }
 
-        return $albums;
+        return $albumCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): AlbumDetailCollection

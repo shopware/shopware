@@ -6,6 +6,7 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
+use Shopware\ShippingMethodPrice\Extension\ShippingMethodPriceExtension;
 use Shopware\ShippingMethodPrice\Struct\ShippingMethodPriceBasicStruct;
 
 class ShippingMethodPriceBasicFactory extends Factory
@@ -33,6 +34,7 @@ class ShippingMethodPriceBasicFactory extends Factory
         $shippingMethodPrice->setPrice((float) $data[$selection->getField('price')]);
         $shippingMethodPrice->setFactor((float) $data[$selection->getField('factor')]);
 
+        /** @var $extension ShippingMethodPriceExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($shippingMethodPrice, $data, $selection, $context);
         }

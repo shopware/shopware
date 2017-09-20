@@ -30,9 +30,9 @@ class CurrencyBasicLoader
             return new CurrencyBasicCollection();
         }
 
-        $currencies = $this->read($uuids, $context);
+        $currenciesCollection = $this->read($uuids, $context);
 
-        return $currencies;
+        return $currenciesCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): CurrencyBasicCollection

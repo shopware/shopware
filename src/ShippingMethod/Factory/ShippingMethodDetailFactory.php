@@ -168,8 +168,8 @@ class ShippingMethodDetailFactory extends ShippingMethodBasicFactory
             );
         }
 
-        if ($holidaies = $selection->filter('holidaies')) {
-            $mapping = QuerySelection::escape($holidaies->getRoot() . '.mapping');
+        if ($holidays = $selection->filter('holidays')) {
+            $mapping = QuerySelection::escape($holidays->getRoot() . '.mapping');
 
             $query->leftJoin(
                 $selection->getRootEscaped(),
@@ -180,11 +180,11 @@ class ShippingMethodDetailFactory extends ShippingMethodBasicFactory
             $query->leftJoin(
                 $mapping,
                 'holiday',
-                $holidaies->getRootEscaped(),
-                sprintf('%s.holiday_uuid = %s.uuid', $mapping, $holidaies->getRootEscaped())
+                $holidays->getRootEscaped(),
+                sprintf('%s.holiday_uuid = %s.uuid', $mapping, $holidays->getRootEscaped())
             );
 
-            $this->holidayFactory->joinDependencies($holidaies, $query, $context);
+            $this->holidayFactory->joinDependencies($holidays, $query, $context);
 
             $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
         }
@@ -249,7 +249,7 @@ class ShippingMethodDetailFactory extends ShippingMethodBasicFactory
         $fields = parent::getAllFields();
         $fields['categories'] = $this->categoryFactory->getAllFields();
         $fields['countries'] = $this->areaCountryFactory->getAllFields();
-        $fields['holidaies'] = $this->holidayFactory->getAllFields();
+        $fields['holidays'] = $this->holidayFactory->getAllFields();
         $fields['paymentMethods'] = $this->paymentMethodFactory->getAllFields();
         $fields['prices'] = $this->shippingMethodPriceFactory->getAllFields();
 

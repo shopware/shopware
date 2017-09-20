@@ -30,9 +30,9 @@ class ProductManufacturerBasicLoader
             return new ProductManufacturerBasicCollection();
         }
 
-        $productManufacturers = $this->read($uuids, $context);
+        $productManufacturersCollection = $this->read($uuids, $context);
 
-        return $productManufacturers;
+        return $productManufacturersCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): ProductManufacturerBasicCollection

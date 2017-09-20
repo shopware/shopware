@@ -30,9 +30,9 @@ class CustomerBasicLoader
             return new CustomerBasicCollection();
         }
 
-        $customers = $this->read($uuids, $context);
+        $customersCollection = $this->read($uuids, $context);
 
-        return $customers;
+        return $customersCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): CustomerBasicCollection

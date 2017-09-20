@@ -30,9 +30,9 @@ class ShopBasicLoader
             return new ShopBasicCollection();
         }
 
-        $shops = $this->read($uuids, $context);
+        $shopsCollection = $this->read($uuids, $context);
 
-        return $shops;
+        return $shopsCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): ShopBasicCollection

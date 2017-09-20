@@ -15,7 +15,7 @@ class PriceGroupDetailCollection extends PriceGroupBasicCollection
     {
         $uuids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getDiscountUuids() as $uuid) {
+            foreach ($element->getDiscounts()->getUuids() as $uuid) {
                 $uuids[] = $uuid;
             }
         }

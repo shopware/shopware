@@ -58,7 +58,7 @@ class PaymentMethodTranslationWrittenEvent extends NestedEvent
     {
         $this->events->add($event);
     }
-
+    
     public function getEvents(): NestedEventCollection
     {
         return $this->events;

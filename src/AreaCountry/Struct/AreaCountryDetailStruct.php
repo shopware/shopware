@@ -7,11 +7,6 @@ use Shopware\AreaCountryState\Struct\AreaCountryStateBasicCollection;
 class AreaCountryDetailStruct extends AreaCountryBasicStruct
 {
     /**
-     * @var string[]
-     */
-    protected $stateUuids = [];
-
-    /**
      * @var AreaCountryStateBasicCollection
      */
     protected $states;
@@ -19,16 +14,6 @@ class AreaCountryDetailStruct extends AreaCountryBasicStruct
     public function __construct()
     {
         $this->states = new AreaCountryStateBasicCollection();
-    }
-
-    public function getStateUuids(): array
-    {
-        return $this->stateUuids;
-    }
-
-    public function setStateUuids(array $stateUuids): void
-    {
-        $this->stateUuids = $stateUuids;
     }
 
     public function getStates(): AreaCountryStateBasicCollection

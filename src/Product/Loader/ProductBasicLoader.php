@@ -26,7 +26,7 @@ class ProductBasicLoader
 
     public function __construct(
         ProductBasicFactory $factory,
-CustomerGroupBasicLoader $customerGroupBasicLoader
+        CustomerGroupBasicLoader $customerGroupBasicLoader
     ) {
         $this->factory = $factory;
         $this->customerGroupBasicLoader = $customerGroupBasicLoader;
@@ -38,16 +38,16 @@ CustomerGroupBasicLoader $customerGroupBasicLoader
             return new ProductBasicCollection();
         }
 
-        $products = $this->read($uuids, $context);
+        $productsCollection = $this->read($uuids, $context);
 
-        $blockedCustomerGroupss = $this->customerGroupBasicLoader->load($products->getBlockedCustomerGroupsUuids(), $context);
+        $blockedCustomerGroups = $this->customerGroupBasicLoader->load($productsCollection->getBlockedCustomerGroupsUuids(), $context);
 
         /** @var ProductBasicStruct $product */
-        foreach ($products as $product) {
-            $product->setBlockedCustomerGroupss($blockedCustomerGroupss->getList($product->getBlockedCustomerGroupsUuids()));
+        foreach ($productsCollection as $product) {
+            $product->setBlockedCustomerGroups($blockedCustomerGroups->getList($product->getBlockedCustomerGroupsUuids()));
         }
 
-        return $products;
+        return $productsCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): ProductBasicCollection

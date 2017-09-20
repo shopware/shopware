@@ -6,6 +6,7 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
+use Shopware\ShopTemplate\Extension\ShopTemplateExtension;
 use Shopware\ShopTemplate\Struct\ShopTemplateBasicStruct;
 
 class ShopTemplateBasicFactory extends Factory
@@ -53,6 +54,7 @@ class ShopTemplateBasicFactory extends Factory
         $shopTemplate->setParentId(isset($data[$selection->getField('parent_id')]) ? (int) $data[$selection->getField('parent_id')] : null);
         $shopTemplate->setParentUuid(isset($data[$selection->getField('parent_uuid')]) ? (string) $data[$selection->getField('parent_uuid')] : null);
 
+        /** @var $extension ShopTemplateExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($shopTemplate, $data, $selection, $context);
         }

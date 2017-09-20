@@ -67,7 +67,19 @@ class Util
     {
         $lastChar = substr($name, strlen($name) - 1, 1);
 
+        $name = ucfirst($name);
+
         switch (true) {
+            case ($name === 'Tax'):
+                return 'Taxes';
+            case ($name === 'Album'):
+                return 'Album';
+            case ($name === 'OrderAddress'):
+                return 'OrderAddresses';
+            case ($name === 'ShippingAddress'):
+                return 'ShippingAddresses';
+            case ($name === 'BillingAddress'):
+                return 'BillingAddresses';
             case ($name === 'BlockedCustomerGroups'):
                 return 'BlockedCustomerGroups';
             case ($name === 'CustomerGroups'):
@@ -76,6 +88,8 @@ class Util
                 return 'Information';
             case ($name === 'Media'):
                 return 'Media';
+            case ($name === 'Address'):
+                return 'Addresses';
             case ($name === 'CustomerAddress'):
                 return 'CustomerAddresses';
             case ($name == 'Holiday'):

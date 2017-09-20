@@ -88,12 +88,6 @@
         <service id="shopware.write.resource.mail-translation.resource" class="Shopware\Framework\Write\Resource\MailTranslationResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.write.resource.order-state.resource" class="Shopware\Framework\Write\Resource\OrderStateResource">
-            <tag name="shopware.framework.write.resource"/> 
-        </service>
-        <service id="shopware.write.resource.order-state-translation.resource" class="Shopware\Framework\Write\Resource\OrderStateTranslationResource">
-            <tag name="shopware.framework.write.resource"/> 
-        </service>
         <service id="shopware.write.resource.plugin.resource" class="Shopware\Framework\Write\Resource\PluginResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
@@ -281,42 +275,6 @@
             <tag name="shopware.framework.write.resource"/> 
         </service>
         <service id="shopware.write.resource.multi-edit-queue-articles.resource" class="Shopware\Framework\Write\Resource\MultiEditQueueArticlesResource">
-            <tag name="shopware.framework.write.resource"/> 
-        </service>
-        <service id="shopware.write.resource.order.resource" class="Shopware\Framework\Write\Resource\OrderResource">
-            <tag name="shopware.framework.write.resource"/> 
-        </service>
-        <service id="shopware.write.resource.order-basket.resource" class="Shopware\Framework\Write\Resource\OrderBasketResource">
-            <tag name="shopware.framework.write.resource"/> 
-        </service>
-        <service id="shopware.write.resource.order-basket-signatures.resource" class="Shopware\Framework\Write\Resource\OrderBasketSignaturesResource">
-            <tag name="shopware.framework.write.resource"/> 
-        </service>
-        <service id="shopware.write.resource.order-billingaddress.resource" class="Shopware\Framework\Write\Resource\OrderBillingaddressResource">
-            <tag name="shopware.framework.write.resource"/> 
-        </service>
-        <service id="shopware.write.resource.order-comparisons.resource" class="Shopware\Framework\Write\Resource\OrderComparisonsResource">
-            <tag name="shopware.framework.write.resource"/> 
-        </service>
-        <service id="shopware.write.resource.order-details.resource" class="Shopware\Framework\Write\Resource\OrderDetailsResource">
-            <tag name="shopware.framework.write.resource"/> 
-        </service>
-        <service id="shopware.write.resource.order-documents.resource" class="Shopware\Framework\Write\Resource\OrderDocumentsResource">
-            <tag name="shopware.framework.write.resource"/> 
-        </service>
-        <service id="shopware.write.resource.order-esd.resource" class="Shopware\Framework\Write\Resource\OrderEsdResource">
-            <tag name="shopware.framework.write.resource"/> 
-        </service>
-        <service id="shopware.write.resource.order-history.resource" class="Shopware\Framework\Write\Resource\OrderHistoryResource">
-            <tag name="shopware.framework.write.resource"/> 
-        </service>
-        <service id="shopware.write.resource.order-notes.resource" class="Shopware\Framework\Write\Resource\OrderNotesResource">
-            <tag name="shopware.framework.write.resource"/> 
-        </service>
-        <service id="shopware.write.resource.order-number.resource" class="Shopware\Framework\Write\Resource\OrderNumberResource">
-            <tag name="shopware.framework.write.resource"/> 
-        </service>
-        <service id="shopware.write.resource.order-shippingaddress.resource" class="Shopware\Framework\Write\Resource\OrderShippingaddressResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
         <service id="shopware.write.resource.plugin-recommendations.resource" class="Shopware\Framework\Write\Resource\PluginRecommendationsResource">

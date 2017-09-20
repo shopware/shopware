@@ -30,9 +30,9 @@ class ProductDetailBasicLoader
             return new ProductDetailBasicCollection();
         }
 
-        $productDetails = $this->read($uuids, $context);
+        $productDetailsCollection = $this->read($uuids, $context);
 
-        return $productDetails;
+        return $productDetailsCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): ProductDetailBasicCollection

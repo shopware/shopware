@@ -50,6 +50,40 @@ class Generate
         $generator = new DomainGenerator($dbalConnection, $dir);
 
         $tables = [
+            'order_state' => [],
+            'order' => [
+                'associations' => [
+                    self::createAssociation('customer', self::ManyToOne, true, false, 'customer', 'customer_uuid', '', '', false, true),
+                    self::createAssociation('order_state', self::ManyToOne, true, false, 'state', 'order_state_uuid', '', '', false),
+                    self::createAssociation('payment_method', self::ManyToOne, true, false, 'paymentMethod', 'payment_method_uuid', '', '', false, true),
+                    self::createAssociation('currency', self::ManyToOne, true, false, 'currency', 'currency_uuid', '', '', false, true),
+                    self::createAssociation('shop', self::ManyToOne, true, false, 'shop', 'shop_uuid', '', '', false, true),
+                    self::createAssociation('order_address', self::ManyToOne, true, false, 'billingAddress', 'billing_address_uuid', '', '', false, false),
+                    self::createAssociation('order_line_item', self::OneToMany, false, true, 'lineItem', 'order_uuid', '', '', false),
+                    self::createAssociation('order_delivery', self::OneToMany, false, true, 'delivery', 'order_uuid', '', '', false, true),
+                ]
+            ],
+            'order_line_item'  => [
+                'associations' => []
+            ],
+            'order_address'  => [
+                'associations' => [
+                    self::createAssociation('area_country', self::ManyToOne, true, false, 'country', 'area_country_uuid', '', '', false),
+                    self::createAssociation('area_country_state', self::ManyToOne, true, false, 'state', 'area_country_state_uuid', '', '', true),
+                ]
+            ],
+            'order_delivery'  => [
+                'associations' => [
+                    self::createAssociation('order_address', self::ManyToOne, true, false, 'shippingAddress', 'shipping_address_uuid', '', '', false, false),
+                    self::createAssociation('shipping_method', self::ManyToOne, true, false, 'shippingMethod', 'shipping_method_uuid', '', '', false, true),
+                    self::createAssociation('order_delivery_position', self::OneToMany, false, true, 'position', 'order_delivery_uuid', '', '', false, false),
+                ]
+            ],
+            'order_delivery_position'  => [
+                'associations' => [
+                    self::createAssociation('order_line_item', self::ManyToOne, true, false, 'lineItem', 'order_line_item_uuid', '', '', false)
+                ]
+            ],
             'product' => [
                 'seo_url_name' => 'detail_page',
                 'associations' => [
@@ -234,18 +268,18 @@ class Generate
         ];
 
         $context = new \ReadGenerator\Context();
-        $context->createFactory = false;
-        $context->createStruct = false;
-        $context->createCollection = false;
-        $context->createExtension = false;
-        $context->createController = true;
-        $context->createWriter = false;
+//        $context->createFactory = false;
+//        $context->createStruct = false;
+//        $context->createCollection = false;
+//        $context->createExtension = false;
+//        $context->createController = true;
+//        $context->createWriter = false;
         $context->createBundle = false;
-        $context->createEvent = false;
-        $context->createLoader = false;
-        $context->createSearcher = false;
-        $context->createRepository = false;
-        $context->createServiceXml = false;
+//        $context->createEvent = false;
+//        $context->createLoader = false;
+//        $context->createSearcher = false;
+//        $context->createRepository = false;
+//        $context->createServiceXml = false;
         
         foreach ($tables as $table => $assocs) {
             $generator->generate($table, $assocs, $context);

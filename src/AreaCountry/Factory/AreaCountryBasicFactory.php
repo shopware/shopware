@@ -2,6 +2,7 @@
 
 namespace Shopware\AreaCountry\Factory;
 
+use Shopware\AreaCountry\Extension\AreaCountryExtension;
 use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
@@ -49,6 +50,7 @@ class AreaCountryBasicFactory extends Factory
         $areaCountry->setForceStateInRegistration((bool) $data[$selection->getField('force_state_in_registration')]);
         $areaCountry->setName((string) $data[$selection->getField('name')]);
 
+        /** @var $extension AreaCountryExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($areaCountry, $data, $selection, $context);
         }

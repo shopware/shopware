@@ -35,9 +35,9 @@ class #structClass#Loader
             return new #structClass#Collection();
         }
 
-        $#plural# = $this->read($uuids, $context);
+        $#plural#Collection = $this->read($uuids, $context);
 #iteration#
-        return $#plural#;
+        return $#plural#Collection;
     }
 
     private function read(array $uuids, TranslationContext $context): #structClass#Collection

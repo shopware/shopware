@@ -30,9 +30,9 @@ class TaxAreaRuleBasicLoader
             return new TaxAreaRuleBasicCollection();
         }
 
-        $taxAreaRules = $this->read($uuids, $context);
+        $taxAreaRulesCollection = $this->read($uuids, $context);
 
-        return $taxAreaRules;
+        return $taxAreaRulesCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): TaxAreaRuleBasicCollection

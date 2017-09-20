@@ -155,8 +155,8 @@ class CategoryDetailFactory extends CategoryBasicFactory
             );
         }
 
-        if ($blockedCustomerGroupss = $selection->filter('blockedCustomerGroupss')) {
-            $mapping = QuerySelection::escape($blockedCustomerGroupss->getRoot() . '.mapping');
+        if ($blockedCustomerGroups = $selection->filter('blockedCustomerGroups')) {
+            $mapping = QuerySelection::escape($blockedCustomerGroups->getRoot() . '.mapping');
 
             $query->leftJoin(
                 $selection->getRootEscaped(),
@@ -167,11 +167,11 @@ class CategoryDetailFactory extends CategoryBasicFactory
             $query->leftJoin(
                 $mapping,
                 'customer_group',
-                $blockedCustomerGroupss->getRootEscaped(),
-                sprintf('%s.customer_group_uuid = %s.uuid', $mapping, $blockedCustomerGroupss->getRootEscaped())
+                $blockedCustomerGroups->getRootEscaped(),
+                sprintf('%s.customer_group_uuid = %s.uuid', $mapping, $blockedCustomerGroups->getRootEscaped())
             );
 
-            $this->customerGroupFactory->joinDependencies($blockedCustomerGroupss, $query, $context);
+            $this->customerGroupFactory->joinDependencies($blockedCustomerGroups, $query, $context);
 
             $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
         }
@@ -193,7 +193,7 @@ class CategoryDetailFactory extends CategoryBasicFactory
         $fields['productStream'] = $this->productStreamFactory->getAllFields();
         $fields['media'] = $this->mediaFactory->getAllFields();
         $fields['products'] = $this->productFactory->getAllFields();
-        $fields['blockedCustomerGroupss'] = $this->customerGroupFactory->getAllFields();
+        $fields['blockedCustomerGroups'] = $this->customerGroupFactory->getAllFields();
 
         return $fields;
     }

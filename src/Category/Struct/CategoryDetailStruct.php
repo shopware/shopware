@@ -37,12 +37,12 @@ class CategoryDetailStruct extends CategoryBasicStruct
     /**
      * @var CustomerGroupBasicCollection
      */
-    protected $blockedCustomerGroupss;
+    protected $blockedCustomerGroups;
 
     public function __construct()
     {
         $this->products = new ProductBasicCollection();
-        $this->blockedCustomerGroupss = new CustomerGroupBasicCollection();
+        $this->blockedCustomerGroups = new CustomerGroupBasicCollection();
     }
 
     public function getProductStream(): ?ProductStreamBasicStruct
@@ -95,13 +95,13 @@ class CategoryDetailStruct extends CategoryBasicStruct
         $this->blockedCustomerGroupsUuids = $blockedCustomerGroupsUuids;
     }
 
-    public function getBlockedCustomerGroupss(): CustomerGroupBasicCollection
+    public function getBlockedCustomerGroups(): CustomerGroupBasicCollection
     {
-        return $this->blockedCustomerGroupss;
+        return $this->blockedCustomerGroups;
     }
 
-    public function setBlockedCustomerGroupss(CustomerGroupBasicCollection $blockedCustomerGroupss): void
+    public function setBlockedCustomerGroups(CustomerGroupBasicCollection $blockedCustomerGroups): void
     {
-        $this->blockedCustomerGroupss = $blockedCustomerGroupss;
+        $this->blockedCustomerGroups = $blockedCustomerGroups;
     }
 }

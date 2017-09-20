@@ -53,11 +53,11 @@ class ShippingMethodDetailLoader
 
     public function __construct(
         ShippingMethodDetailFactory $factory,
-CategoryBasicLoader $categoryBasicLoader,
-AreaCountryBasicLoader $areaCountryBasicLoader,
-HolidayBasicLoader $holidayBasicLoader,
-PaymentMethodBasicLoader $paymentMethodBasicLoader,
-ShippingMethodPriceSearcher $shippingMethodPriceSearcher
+        CategoryBasicLoader $categoryBasicLoader,
+        AreaCountryBasicLoader $areaCountryBasicLoader,
+        HolidayBasicLoader $holidayBasicLoader,
+        PaymentMethodBasicLoader $paymentMethodBasicLoader,
+        ShippingMethodPriceSearcher $shippingMethodPriceSearcher
     ) {
         $this->factory = $factory;
         $this->categoryBasicLoader = $categoryBasicLoader;
@@ -73,15 +73,15 @@ ShippingMethodPriceSearcher $shippingMethodPriceSearcher
             return new ShippingMethodDetailCollection();
         }
 
-        $shippingMethods = $this->read($uuids, $context);
+        $shippingMethodsCollection = $this->read($uuids, $context);
 
-        $categories = $this->categoryBasicLoader->load($shippingMethods->getCategoryUuids(), $context);
+        $categories = $this->categoryBasicLoader->load($shippingMethodsCollection->getCategoryUuids(), $context);
 
-        $countries = $this->areaCountryBasicLoader->load($shippingMethods->getCountryUuids(), $context);
+        $countries = $this->areaCountryBasicLoader->load($shippingMethodsCollection->getCountryUuids(), $context);
 
-        $holidaies = $this->holidayBasicLoader->load($shippingMethods->getHolidayUuids(), $context);
+        $holidays = $this->holidayBasicLoader->load($shippingMethodsCollection->getHolidayUuids(), $context);
 
-        $paymentMethods = $this->paymentMethodBasicLoader->load($shippingMethods->getPaymentMethodUuids(), $context);
+        $paymentMethods = $this->paymentMethodBasicLoader->load($shippingMethodsCollection->getPaymentMethodUuids(), $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('shipping_method_price.shipping_method_uuid', $uuids));
@@ -89,15 +89,15 @@ ShippingMethodPriceSearcher $shippingMethodPriceSearcher
         $prices = $this->shippingMethodPriceSearcher->search($criteria, $context);
 
         /** @var ShippingMethodDetailStruct $shippingMethod */
-        foreach ($shippingMethods as $shippingMethod) {
+        foreach ($shippingMethodsCollection as $shippingMethod) {
             $shippingMethod->setCategories($categories->getList($shippingMethod->getCategoryUuids()));
             $shippingMethod->setCountries($countries->getList($shippingMethod->getCountryUuids()));
-            $shippingMethod->setHolidaies($holidaies->getList($shippingMethod->getHolidayUuids()));
+            $shippingMethod->setHolidays($holidays->getList($shippingMethod->getHolidayUuids()));
             $shippingMethod->setPaymentMethods($paymentMethods->getList($shippingMethod->getPaymentMethodUuids()));
             $shippingMethod->setPrices($prices->filterByShippingMethodUuid($shippingMethod->getUuid()));
         }
 
-        return $shippingMethods;
+        return $shippingMethodsCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): ShippingMethodDetailCollection

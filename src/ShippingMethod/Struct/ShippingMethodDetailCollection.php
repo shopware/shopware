@@ -71,11 +71,11 @@ class ShippingMethodDetailCollection extends ShippingMethodBasicCollection
         return $uuids;
     }
 
-    public function getHolidaies(): HolidayBasicCollection
+    public function getHolidays(): HolidayBasicCollection
     {
         $collection = new HolidayBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getHolidaies()->getIterator()->getArrayCopy());
+            $collection->fill($element->getHolidays()->getIterator()->getArrayCopy());
         }
 
         return $collection;
@@ -107,7 +107,7 @@ class ShippingMethodDetailCollection extends ShippingMethodBasicCollection
     {
         $uuids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getPriceUuids() as $uuid) {
+            foreach ($element->getPrices()->getUuids() as $uuid) {
                 $uuids[] = $uuid;
             }
         }

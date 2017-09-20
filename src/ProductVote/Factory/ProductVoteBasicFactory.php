@@ -4,6 +4,7 @@ namespace Shopware\ProductVote\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
+use Shopware\ProductVote\Extension\ProductVoteExtension;
 use Shopware\ProductVote\Struct\ProductVoteBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -47,6 +48,7 @@ class ProductVoteBasicFactory extends Factory
         $productVote->setShopUuid(isset($data[$selection->getField('shop_uuid')]) ? (string) $data[$selection->getField('shop_uuid')] : null);
         $productVote->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
 
+        /** @var $extension ProductVoteExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($productVote, $data, $selection, $context);
         }

@@ -2,17 +2,19 @@
 
 namespace Shopware\PaymentMethod\Writer\Resource;
 
-use Shopware\Framework\Write\Field\BoolField;
+use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\Field\FkField;
-use Shopware\Framework\Write\Field\FloatField;
 use Shopware\Framework\Write\Field\IntField;
-use Shopware\Framework\Write\Field\LongTextField;
 use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
+use Shopware\Framework\Write\Field\BoolField;
+use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\SubresourceField;
+use Shopware\Framework\Write\Field\LongTextField;
+use Shopware\Framework\Write\Field\LongTextWithHtmlField;
+use Shopware\Framework\Write\Field\FloatField;
 use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
-use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\Resource;
 
 class PaymentMethodResource extends Resource
@@ -23,8 +25,8 @@ class PaymentMethodResource extends Resource
     protected const CLASS_FIELD = 'class';
     protected const TABLE_FIELD = 'table';
     protected const HIDE_FIELD = 'hide';
-    protected const DEBIT_PERCENT_FIELD = 'debitPercent';
-    protected const SURCHARGE_FIELD = 'surcharge';
+    protected const PERCENTAGE_SURCHARGE_FIELD = 'percentageSurcharge';
+    protected const ABSOLUTE_SURCHARGE_FIELD = 'absoluteSurcharge';
     protected const SURCHARGE_STRING_FIELD = 'surchargeString';
     protected const POSITION_FIELD = 'position';
     protected const ACTIVE_FIELD = 'active';
@@ -41,15 +43,15 @@ class PaymentMethodResource extends Resource
     public function __construct()
     {
         parent::__construct('payment_method');
-
+        
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
         $this->fields[self::TECHNICAL_NAME_FIELD] = (new StringField('technical_name'))->setFlags(new Required());
         $this->fields[self::TEMPLATE_FIELD] = new StringField('template');
         $this->fields[self::CLASS_FIELD] = new StringField('class');
         $this->fields[self::TABLE_FIELD] = new StringField('table');
         $this->fields[self::HIDE_FIELD] = new BoolField('hide');
-        $this->fields[self::DEBIT_PERCENT_FIELD] = new FloatField('debit_percent');
-        $this->fields[self::SURCHARGE_FIELD] = new FloatField('surcharge');
+        $this->fields[self::PERCENTAGE_SURCHARGE_FIELD] = new FloatField('percentage_surcharge');
+        $this->fields[self::ABSOLUTE_SURCHARGE_FIELD] = new FloatField('absolute_surcharge');
         $this->fields[self::SURCHARGE_STRING_FIELD] = new StringField('surcharge_string');
         $this->fields[self::POSITION_FIELD] = new IntField('position');
         $this->fields[self::ACTIVE_FIELD] = new BoolField('active');
@@ -61,6 +63,7 @@ class PaymentMethodResource extends Resource
         $this->fields[self::MOBILE_INACTIVE_FIELD] = new BoolField('mobile_inactive');
         $this->fields[self::RISK_RULES_FIELD] = new LongTextField('risk_rules');
         $this->fields['customers'] = new SubresourceField(\Shopware\Customer\Writer\Resource\CustomerResource::class);
+        $this->fields['orders'] = new SubresourceField(\Shopware\Order\Writer\Resource\OrderResource::class);
         $this->fields['plugin'] = new ReferenceField('pluginUuid', 'uuid', \Shopware\Framework\Write\Resource\PluginResource::class);
         $this->fields['pluginUuid'] = (new FkField('plugin_uuid', \Shopware\Framework\Write\Resource\PluginResource::class, 'uuid'));
         $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
@@ -71,33 +74,38 @@ class PaymentMethodResource extends Resource
         $this->fields['shippingMethodPaymentMethods'] = new SubresourceField(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodPaymentMethodResource::class);
         $this->fields['shops'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopResource::class);
     }
-
+    
     public function getWriteOrder(): array
     {
         return [
             \Shopware\Customer\Writer\Resource\CustomerResource::class,
+            \Shopware\Order\Writer\Resource\OrderResource::class,
             \Shopware\Framework\Write\Resource\PluginResource::class,
             \Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::class,
             \Shopware\PaymentMethod\Writer\Resource\PaymentMethodTranslationResource::class,
             \Shopware\PaymentMethod\Writer\Resource\PaymentMethodCountryResource::class,
             \Shopware\PaymentMethod\Writer\Resource\PaymentMethodShopResource::class,
             \Shopware\ShippingMethod\Writer\Resource\ShippingMethodPaymentMethodResource::class,
-            \Shopware\Shop\Writer\Resource\ShopResource::class,
+            \Shopware\Shop\Writer\Resource\ShopResource::class
         ];
     }
-
+    
     public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\PaymentMethod\Event\PaymentMethodWrittenEvent
     {
         $event = new \Shopware\PaymentMethod\Event\PaymentMethodWrittenEvent($updates[self::class] ?? [], $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Customer\Writer\Resource\CustomerResource::class])) {
+                if (!empty($updates[\Shopware\Customer\Writer\Resource\CustomerResource::class])) {
             $event->addEvent(\Shopware\Customer\Writer\Resource\CustomerResource::createWrittenEvent($updates));
         }
 
         if (!empty($updates[\Shopware\Customer\Writer\Resource\CustomerResource::class])) {
             $event->addEvent(\Shopware\Customer\Writer\Resource\CustomerResource::createWrittenEvent($updates));
+        }
+
+        if (!empty($updates[\Shopware\Order\Writer\Resource\OrderResource::class])) {
+            $event->addEvent(\Shopware\Order\Writer\Resource\OrderResource::createWrittenEvent($updates));
         }
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\PluginResource::class])) {
@@ -127,6 +135,7 @@ class PaymentMethodResource extends Resource
         if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
             $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates));
         }
+
 
         return $event;
     }

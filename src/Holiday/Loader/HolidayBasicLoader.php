@@ -30,9 +30,9 @@ class HolidayBasicLoader
             return new HolidayBasicCollection();
         }
 
-        $holidaies = $this->read($uuids, $context);
+        $holidaysCollection = $this->read($uuids, $context);
 
-        return $holidaies;
+        return $holidaysCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): HolidayBasicCollection

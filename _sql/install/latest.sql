@@ -1016,19 +1016,6 @@ CREATE TABLE `s_cart` (
   UNIQUE KEY `token` (`token`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
-DROP TABLE IF EXISTS `s_cart_order`;
-CREATE TABLE `s_cart_order` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `token` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `content` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `order_time` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `token` (`token`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
 DROP TABLE IF EXISTS `s_categories`;
 CREATE TABLE `s_categories` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,

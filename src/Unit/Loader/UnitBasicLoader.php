@@ -30,9 +30,9 @@ class UnitBasicLoader
             return new UnitBasicCollection();
         }
 
-        $units = $this->read($uuids, $context);
+        $unitsCollection = $this->read($uuids, $context);
 
-        return $units;
+        return $unitsCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): UnitBasicCollection

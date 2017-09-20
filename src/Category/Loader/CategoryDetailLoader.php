@@ -32,8 +32,8 @@ class CategoryDetailLoader
 
     public function __construct(
         CategoryDetailFactory $factory,
-ProductBasicLoader $productBasicLoader,
-CustomerGroupBasicLoader $customerGroupBasicLoader
+        ProductBasicLoader $productBasicLoader,
+        CustomerGroupBasicLoader $customerGroupBasicLoader
     ) {
         $this->factory = $factory;
         $this->productBasicLoader = $productBasicLoader;
@@ -46,19 +46,19 @@ CustomerGroupBasicLoader $customerGroupBasicLoader
             return new CategoryDetailCollection();
         }
 
-        $categories = $this->read($uuids, $context);
+        $categoriesCollection = $this->read($uuids, $context);
 
-        $products = $this->productBasicLoader->load($categories->getProductUuids(), $context);
+        $products = $this->productBasicLoader->load($categoriesCollection->getProductUuids(), $context);
 
-        $blockedCustomerGroupss = $this->customerGroupBasicLoader->load($categories->getBlockedCustomerGroupsUuids(), $context);
+        $blockedCustomerGroups = $this->customerGroupBasicLoader->load($categoriesCollection->getBlockedCustomerGroupsUuids(), $context);
 
         /** @var CategoryDetailStruct $category */
-        foreach ($categories as $category) {
+        foreach ($categoriesCollection as $category) {
             $category->setProducts($products->getList($category->getProductUuids()));
-            $category->setBlockedCustomerGroupss($blockedCustomerGroupss->getList($category->getBlockedCustomerGroupsUuids()));
+            $category->setBlockedCustomerGroups($blockedCustomerGroups->getList($category->getBlockedCustomerGroupsUuids()));
         }
 
-        return $categories;
+        return $categoriesCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): CategoryDetailCollection

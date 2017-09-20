@@ -15,7 +15,7 @@ class AlbumDetailCollection extends AlbumBasicCollection
     {
         $uuids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getMediaUuids() as $uuid) {
+            foreach ($element->getMedia()->getUuids() as $uuid) {
                 $uuids[] = $uuid;
             }
         }
@@ -23,11 +23,11 @@ class AlbumDetailCollection extends AlbumBasicCollection
         return $uuids;
     }
 
-    public function getMedias(): MediaBasicCollection
+    public function getMedia(): MediaBasicCollection
     {
         $collection = new MediaBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getMedias()->getIterator()->getArrayCopy());
+            $collection->fill($element->getMedia()->getIterator()->getArrayCopy());
         }
 
         return $collection;

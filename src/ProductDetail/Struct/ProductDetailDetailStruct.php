@@ -7,11 +7,6 @@ use Shopware\ProductPrice\Struct\ProductPriceBasicCollection;
 class ProductDetailDetailStruct extends ProductDetailBasicStruct
 {
     /**
-     * @var string[]
-     */
-    protected $priceUuids = [];
-
-    /**
      * @var ProductPriceBasicCollection
      */
     protected $prices;
@@ -19,16 +14,6 @@ class ProductDetailDetailStruct extends ProductDetailBasicStruct
     public function __construct()
     {
         $this->prices = new ProductPriceBasicCollection();
-    }
-
-    public function getPriceUuids(): array
-    {
-        return $this->priceUuids;
-    }
-
-    public function setPriceUuids(array $priceUuids): void
-    {
-        $this->priceUuids = $priceUuids;
     }
 
     public function getPrices(): ProductPriceBasicCollection

@@ -9,6 +9,7 @@ use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\PriceGroup\Factory\PriceGroupBasicFactory;
 use Shopware\PriceGroup\Struct\PriceGroupBasicStruct;
+use Shopware\Product\Extension\ProductExtension;
 use Shopware\Product\Struct\ProductBasicStruct;
 use Shopware\ProductDetail\Factory\ProductDetailBasicFactory;
 use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
@@ -160,6 +161,7 @@ class ProductBasicFactory extends Factory
             $product->setBlockedCustomerGroupsUuids(array_filter($uuids));
         }
 
+        /** @var $extension ProductExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($product, $data, $selection, $context);
         }
@@ -234,8 +236,8 @@ class ProductBasicFactory extends Factory
             $this->priceGroupFactory->joinDependencies($priceGroup, $query, $context);
         }
 
-        if ($blockedCustomerGroupss = $selection->filter('blockedCustomerGroupss')) {
-            $mapping = QuerySelection::escape($blockedCustomerGroupss->getRoot() . '.mapping');
+        if ($blockedCustomerGroups = $selection->filter('blockedCustomerGroups')) {
+            $mapping = QuerySelection::escape($blockedCustomerGroups->getRoot() . '.mapping');
 
             $query->leftJoin(
                 $selection->getRootEscaped(),
@@ -246,11 +248,11 @@ class ProductBasicFactory extends Factory
             $query->leftJoin(
                 $mapping,
                 'customer_group',
-                $blockedCustomerGroupss->getRootEscaped(),
-                sprintf('%s.customer_group_uuid = %s.uuid', $mapping, $blockedCustomerGroupss->getRootEscaped())
+                $blockedCustomerGroups->getRootEscaped(),
+                sprintf('%s.customer_group_uuid = %s.uuid', $mapping, $blockedCustomerGroups->getRootEscaped())
             );
 
-            $this->customerGroupFactory->joinDependencies($blockedCustomerGroupss, $query, $context);
+            $this->customerGroupFactory->joinDependencies($blockedCustomerGroups, $query, $context);
 
             $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
         }
@@ -291,7 +293,7 @@ class ProductBasicFactory extends Factory
         $fields['tax'] = $this->taxFactory->getAllFields();
         $fields['canonicalUrl'] = $this->seoUrlFactory->getAllFields();
         $fields['priceGroup'] = $this->priceGroupFactory->getAllFields();
-        $fields['blockedCustomerGroupss'] = $this->customerGroupFactory->getAllFields();
+        $fields['blockedCustomerGroups'] = $this->customerGroupFactory->getAllFields();
 
         return $fields;
     }

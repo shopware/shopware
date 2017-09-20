@@ -12,6 +12,7 @@ use Shopware\Locale\Factory\LocaleBasicFactory;
 use Shopware\Locale\Struct\LocaleBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
+use Shopware\Shop\Extension\ShopExtension;
 use Shopware\Shop\Struct\ShopBasicStruct;
 
 class ShopBasicFactory extends Factory
@@ -110,6 +111,7 @@ class ShopBasicFactory extends Factory
             );
         }
 
+        /** @var $extension ShopExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($shop, $data, $selection, $context);
         }

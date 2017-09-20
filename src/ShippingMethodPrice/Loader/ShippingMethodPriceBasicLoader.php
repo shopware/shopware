@@ -30,9 +30,9 @@ class ShippingMethodPriceBasicLoader
             return new ShippingMethodPriceBasicCollection();
         }
 
-        $shippingMethodPrices = $this->read($uuids, $context);
+        $shippingMethodPricesCollection = $this->read($uuids, $context);
 
-        return $shippingMethodPrices;
+        return $shippingMethodPricesCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): ShippingMethodPriceBasicCollection

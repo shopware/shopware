@@ -145,7 +145,7 @@ class ProductBasicStruct extends Struct
     /**
      * @var CustomerGroupBasicCollection
      */
-    protected $blockedCustomerGroupss;
+    protected $blockedCustomerGroups;
 
     public function getUuid(): string
     {
@@ -407,13 +407,13 @@ class ProductBasicStruct extends Struct
         $this->blockedCustomerGroupsUuids = $blockedCustomerGroupsUuids;
     }
 
-    public function getBlockedCustomerGroupss(): CustomerGroupBasicCollection
+    public function getBlockedCustomerGroups(): CustomerGroupBasicCollection
     {
-        return $this->blockedCustomerGroupss;
+        return $this->blockedCustomerGroups;
     }
 
-    public function setBlockedCustomerGroupss(CustomerGroupBasicCollection $blockedCustomerGroupss): void
+    public function setBlockedCustomerGroups(CustomerGroupBasicCollection $blockedCustomerGroups): void
     {
-        $this->blockedCustomerGroupss = $blockedCustomerGroupss;
+        $this->blockedCustomerGroups = $blockedCustomerGroups;
     }
 }

@@ -16,16 +16,16 @@ class CustomerAddressBasicLoadedEvent extends NestedEvent
     /**
      * @var CustomerAddressBasicCollection
      */
-    protected $customerAddresss;
+    protected $customerAddresses;
 
     /**
      * @var TranslationContext
      */
     protected $context;
 
-    public function __construct(CustomerAddressBasicCollection $customerAddresss, TranslationContext $context)
+    public function __construct(CustomerAddressBasicCollection $customerAddresses, TranslationContext $context)
     {
-        $this->customerAddresss = $customerAddresss;
+        $this->customerAddresses = $customerAddresses;
         $this->context = $context;
     }
 
@@ -34,9 +34,9 @@ class CustomerAddressBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getCustomerAddresss(): CustomerAddressBasicCollection
+    public function getCustomerAddresses(): CustomerAddressBasicCollection
     {
-        return $this->customerAddresss;
+        return $this->customerAddresses;
     }
 
     public function getContext(): TranslationContext
@@ -47,8 +47,8 @@ class CustomerAddressBasicLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         return new NestedEventCollection([
-            new AreaCountryBasicLoadedEvent($this->customerAddresss->getCountries(), $this->context),
-            new AreaCountryStateBasicLoadedEvent($this->customerAddresss->getStates(), $this->context),
+            new AreaCountryBasicLoadedEvent($this->customerAddresses->getCountries(), $this->context),
+            new AreaCountryStateBasicLoadedEvent($this->customerAddresses->getStates(), $this->context),
         ]);
     }
 }

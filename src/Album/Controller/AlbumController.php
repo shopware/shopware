@@ -28,7 +28,7 @@ class AlbumController extends ApiController
 
     public function getXmlRootKey(): string
     {
-        return 'albums';
+        return 'album';
     }
 
     public function getXmlChildKey(): string
@@ -64,14 +64,14 @@ class AlbumController extends ApiController
 
         $criteria->setFetchCount(true);
 
-        $albums = $this->albumRepository->search(
+        $album = $this->albumRepository->search(
             $criteria,
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $albums,
-            'total' => $albums->getTotal(),
+            'data' => $album,
+            'total' => $album->getTotal(),
         ];
 
         return $this->createResponse($response, $context);
@@ -88,12 +88,12 @@ class AlbumController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('albumUuid');
-        $albums = $this->albumRepository->read(
+        $album = $this->albumRepository->read(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($albums->get($uuid), $context);
+        return $this->createResponse($album->get($uuid), $context);
     }
 
     /**
@@ -110,13 +110,13 @@ class AlbumController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $albums = $this->albumRepository->read(
+        $album = $this->albumRepository->read(
             $createEvent->getAlbumUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $albums,
+            'data' => $album,
             'errors' => $createEvent->getErrors(),
         ];
 
@@ -137,13 +137,13 @@ class AlbumController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $albums = $this->albumRepository->read(
+        $album = $this->albumRepository->read(
             $createEvent->getAlbumUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $albums,
+            'data' => $album,
             'errors' => $createEvent->getErrors(),
         ];
 
@@ -164,13 +164,13 @@ class AlbumController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $albums = $this->albumRepository->read(
+        $album = $this->albumRepository->read(
             $createEvent->getAlbumUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $albums,
+            'data' => $album,
             'errors' => $createEvent->getErrors(),
         ];
 
@@ -202,13 +202,13 @@ class AlbumController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $albums = $this->albumRepository->read(
+        $album = $this->albumRepository->read(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );
 
         return $this->createResponse(
-            ['data' => $albums->get($payload['uuid'])],
+            ['data' => $album->get($payload['uuid'])],
             $context
         );
     }

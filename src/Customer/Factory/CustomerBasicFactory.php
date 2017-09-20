@@ -4,6 +4,7 @@ namespace Shopware\Customer\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Customer\Extension\CustomerExtension;
 use Shopware\Customer\Struct\CustomerBasicStruct;
 use Shopware\CustomerAddress\Factory\CustomerAddressBasicFactory;
 use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
@@ -149,6 +150,7 @@ class CustomerBasicFactory extends Factory
             );
         }
 
+        /** @var $extension CustomerExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($customer, $data, $selection, $context);
         }

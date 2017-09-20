@@ -14,16 +14,16 @@ class AlbumBasicLoadedEvent extends NestedEvent
     /**
      * @var AlbumBasicCollection
      */
-    protected $albums;
+    protected $album;
 
     /**
      * @var TranslationContext
      */
     protected $context;
 
-    public function __construct(AlbumBasicCollection $albums, TranslationContext $context)
+    public function __construct(AlbumBasicCollection $album, TranslationContext $context)
     {
-        $this->albums = $albums;
+        $this->album = $album;
         $this->context = $context;
     }
 
@@ -32,9 +32,9 @@ class AlbumBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getAlbums(): AlbumBasicCollection
+    public function getAlbum(): AlbumBasicCollection
     {
-        return $this->albums;
+        return $this->album;
     }
 
     public function getContext(): TranslationContext

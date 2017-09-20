@@ -3,6 +3,7 @@
 namespace Shopware\Category\Factory;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Category\Extension\CategoryExtension;
 use Shopware\Category\Struct\CategoryBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\ExtensionRegistryInterface;
@@ -97,6 +98,7 @@ class CategoryBasicFactory extends Factory
             );
         }
 
+        /** @var $extension CategoryExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($category, $data, $selection, $context);
         }

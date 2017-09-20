@@ -30,9 +30,9 @@ class ProductPriceBasicLoader
             return new ProductPriceBasicCollection();
         }
 
-        $productPrices = $this->read($uuids, $context);
+        $productPricesCollection = $this->read($uuids, $context);
 
-        return $productPrices;
+        return $productPricesCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): ProductPriceBasicCollection

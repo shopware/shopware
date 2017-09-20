@@ -4,6 +4,7 @@ namespace Shopware\PriceGroup\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
+use Shopware\PriceGroup\Extension\PriceGroupExtension;
 use Shopware\PriceGroup\Struct\PriceGroupBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -27,6 +28,7 @@ class PriceGroupBasicFactory extends Factory
         $priceGroup->setUuid((string) $data[$selection->getField('uuid')]);
         $priceGroup->setName((string) $data[$selection->getField('name')]);
 
+        /** @var $extension PriceGroupExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($priceGroup, $data, $selection, $context);
         }

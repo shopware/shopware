@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\Order\Factory\OrderBasicFactory" id="shopware.order.basic_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="service" id="shopware.extension.registry" />
+            <argument id="shopware.customer.basic_factory" type="service"/>
+            <argument id="shopware.order_state.basic_factory" type="service"/>
+            <argument id="shopware.payment_method.basic_factory" type="service"/>
+            <argument id="shopware.currency.basic_factory" type="service"/>
+            <argument id="shopware.shop.basic_factory" type="service"/>
+            <argument id="shopware.order_address.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\Order\Factory\OrderDetailFactory" id="shopware.order.detail_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="service" id="shopware.extension.registry" />
+            <argument id="shopware.order_line_item.basic_factory" type="service"/>
+            <argument id="shopware.order_delivery.detail_factory" type="service"/>
+            <argument id="shopware.customer.basic_factory" type="service"/>
+            <argument id="shopware.order_state.basic_factory" type="service"/>
+            <argument id="shopware.payment_method.basic_factory" type="service"/>
+            <argument id="shopware.currency.basic_factory" type="service"/>
+            <argument id="shopware.shop.basic_factory" type="service"/>
+            <argument id="shopware.order_address.basic_factory" type="service"/>
+        </service>
+
+
+        <service class="Shopware\Order\Controller\OrderController" id="shopware.order.api_controller">
+            <argument id="shopware.order.repository" type="service"/>
+        </service>
+        
+
+        <service class="Shopware\Order\Writer\OrderWriter" id="shopware.order.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
+        <service class="Shopware\Order\Loader\OrderBasicLoader" id="shopware.order.basic_loader">
+            <argument id="shopware.order.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\Order\Loader\OrderDetailLoader" id="shopware.order.detail_loader">
+            <argument id="shopware.order.detail_factory" type="service"/>
+            <argument id="shopware.order_line_item.searcher" type="service"/>
+            <argument id="shopware.order_delivery.searcher" type="service"/>
+            <argument id="shopware.order_delivery.detail_loader" type="service"/>
+        </service>
+
+        <service class="Shopware\Order\Searcher\OrderSearcher" id="shopware.order.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.search.sql_parser" type="service"/>
+            <argument id="shopware.order.detail_factory" type="service"/>
+            <argument id="shopware.order.basic_loader" type="service"/>
+        </service>
+
+        <service class="Shopware\Order\Repository\OrderRepository" id="shopware.order.repository">
+            <argument id="shopware.order.detail_loader" type="service"/>
+            <argument id="shopware.order.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.order.searcher" type="service"/>
+            <argument id="shopware.order.writer" type="service"/>
+        </service>
+
+    </services>
+</container>

@@ -28,7 +28,7 @@ class TaxController extends ApiController
 
     public function getXmlRootKey(): string
     {
-        return 'taxs';
+        return 'taxes';
     }
 
     public function getXmlChildKey(): string
@@ -64,14 +64,14 @@ class TaxController extends ApiController
 
         $criteria->setFetchCount(true);
 
-        $taxs = $this->taxRepository->search(
+        $taxes = $this->taxRepository->search(
             $criteria,
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $taxs,
-            'total' => $taxs->getTotal(),
+            'data' => $taxes,
+            'total' => $taxes->getTotal(),
         ];
 
         return $this->createResponse($response, $context);
@@ -88,12 +88,12 @@ class TaxController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('taxUuid');
-        $taxs = $this->taxRepository->read(
+        $taxes = $this->taxRepository->read(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($taxs->get($uuid), $context);
+        return $this->createResponse($taxes->get($uuid), $context);
     }
 
     /**
@@ -110,13 +110,13 @@ class TaxController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $taxs = $this->taxRepository->read(
+        $taxes = $this->taxRepository->read(
             $createEvent->getTaxUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $taxs,
+            'data' => $taxes,
             'errors' => $createEvent->getErrors(),
         ];
 
@@ -137,13 +137,13 @@ class TaxController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $taxs = $this->taxRepository->read(
+        $taxes = $this->taxRepository->read(
             $createEvent->getTaxUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $taxs,
+            'data' => $taxes,
             'errors' => $createEvent->getErrors(),
         ];
 
@@ -164,13 +164,13 @@ class TaxController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $taxs = $this->taxRepository->read(
+        $taxes = $this->taxRepository->read(
             $createEvent->getTaxUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $taxs,
+            'data' => $taxes,
             'errors' => $createEvent->getErrors(),
         ];
 
@@ -202,13 +202,13 @@ class TaxController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $taxs = $this->taxRepository->read(
+        $taxes = $this->taxRepository->read(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );
 
         return $this->createResponse(
-            ['data' => $taxs->get($payload['uuid'])],
+            ['data' => $taxes->get($payload['uuid'])],
             $context
         );
     }

@@ -2,6 +2,7 @@
 
 namespace Shopware\AreaCountryState\Factory;
 
+use Shopware\AreaCountryState\Extension\AreaCountryStateExtension;
 use Shopware\AreaCountryState\Struct\AreaCountryStateBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
@@ -35,6 +36,7 @@ class AreaCountryStateBasicFactory extends Factory
         $areaCountryState->setActive((bool) $data[$selection->getField('active')]);
         $areaCountryState->setName((string) $data[$selection->getField('name')]);
 
+        /** @var $extension AreaCountryStateExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($areaCountryState, $data, $selection, $context);
         }

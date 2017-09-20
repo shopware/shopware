@@ -4,6 +4,7 @@ namespace Shopware\Holiday\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
+use Shopware\Holiday\Extension\HolidayExtension;
 use Shopware\Holiday\Struct\HolidayBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -31,6 +32,7 @@ class HolidayBasicFactory extends Factory
         $holiday->setEventDate(new \DateTime($data[$selection->getField('event_date')]));
         $holiday->setName((string) $data[$selection->getField('name')]);
 
+        /** @var $extension HolidayExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($holiday, $data, $selection, $context);
         }

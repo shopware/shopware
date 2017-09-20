@@ -32,8 +32,8 @@ class PaymentMethodDetailLoader
 
     public function __construct(
         PaymentMethodDetailFactory $factory,
-ShopBasicLoader $shopBasicLoader,
-AreaCountryBasicLoader $areaCountryBasicLoader
+        ShopBasicLoader $shopBasicLoader,
+        AreaCountryBasicLoader $areaCountryBasicLoader
     ) {
         $this->factory = $factory;
         $this->shopBasicLoader = $shopBasicLoader;
@@ -46,19 +46,19 @@ AreaCountryBasicLoader $areaCountryBasicLoader
             return new PaymentMethodDetailCollection();
         }
 
-        $paymentMethods = $this->read($uuids, $context);
+        $paymentMethodsCollection = $this->read($uuids, $context);
 
-        $shops = $this->shopBasicLoader->load($paymentMethods->getShopUuids(), $context);
+        $shops = $this->shopBasicLoader->load($paymentMethodsCollection->getShopUuids(), $context);
 
-        $countries = $this->areaCountryBasicLoader->load($paymentMethods->getCountryUuids(), $context);
+        $countries = $this->areaCountryBasicLoader->load($paymentMethodsCollection->getCountryUuids(), $context);
 
         /** @var PaymentMethodDetailStruct $paymentMethod */
-        foreach ($paymentMethods as $paymentMethod) {
+        foreach ($paymentMethodsCollection as $paymentMethod) {
             $paymentMethod->setShops($shops->getList($paymentMethod->getShopUuids()));
             $paymentMethod->setCountries($countries->getList($paymentMethod->getCountryUuids()));
         }
 
-        return $paymentMethods;
+        return $paymentMethodsCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): PaymentMethodDetailCollection

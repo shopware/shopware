@@ -30,9 +30,9 @@ class LocaleBasicLoader
             return new LocaleBasicCollection();
         }
 
-        $locales = $this->read($uuids, $context);
+        $localesCollection = $this->read($uuids, $context);
 
-        return $locales;
+        return $localesCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): LocaleBasicCollection

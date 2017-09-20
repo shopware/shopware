@@ -4,6 +4,7 @@ namespace Shopware\ListingSorting\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
+use Shopware\ListingSorting\Extension\ListingSortingExtension;
 use Shopware\ListingSorting\Struct\ListingSortingBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -35,6 +36,7 @@ class ListingSortingBasicFactory extends Factory
         $listingSorting->setPayload((string) $data[$selection->getField('payload')]);
         $listingSorting->setLabel((string) $data[$selection->getField('label')]);
 
+        /** @var $extension ListingSortingExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($listingSorting, $data, $selection, $context);
         }

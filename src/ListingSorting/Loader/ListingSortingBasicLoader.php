@@ -30,9 +30,9 @@ class ListingSortingBasicLoader
             return new ListingSortingBasicCollection();
         }
 
-        $listingSortings = $this->read($uuids, $context);
+        $listingSortingsCollection = $this->read($uuids, $context);
 
-        return $listingSortings;
+        return $listingSortingsCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): ListingSortingBasicCollection

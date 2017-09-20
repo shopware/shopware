@@ -7,11 +7,6 @@ use Shopware\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicCollection;
 class CustomerGroupDetailStruct extends CustomerGroupBasicStruct
 {
     /**
-     * @var string[]
-     */
-    protected $discountUuids = [];
-
-    /**
      * @var CustomerGroupDiscountBasicCollection
      */
     protected $discounts;
@@ -19,16 +14,6 @@ class CustomerGroupDetailStruct extends CustomerGroupBasicStruct
     public function __construct()
     {
         $this->discounts = new CustomerGroupDiscountBasicCollection();
-    }
-
-    public function getDiscountUuids(): array
-    {
-        return $this->discountUuids;
-    }
-
-    public function setDiscountUuids(array $discountUuids): void
-    {
-        $this->discountUuids = $discountUuids;
     }
 
     public function getDiscounts(): CustomerGroupDiscountBasicCollection

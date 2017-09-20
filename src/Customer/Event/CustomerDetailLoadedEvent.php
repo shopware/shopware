@@ -48,7 +48,7 @@ class CustomerDetailLoadedEvent extends NestedEvent
     {
         return new NestedEventCollection([
             new CustomerBasicLoadedEvent($this->customers, $this->context),
-            new CustomerAddressBasicLoadedEvent($this->customers->getAddresss(), $this->context),
+            new CustomerAddressBasicLoadedEvent($this->customers->getAddresses(), $this->context),
             new ShopBasicLoadedEvent($this->customers->getShops(), $this->context),
         ]);
     }

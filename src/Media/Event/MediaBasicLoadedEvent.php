@@ -15,16 +15,16 @@ class MediaBasicLoadedEvent extends NestedEvent
     /**
      * @var MediaBasicCollection
      */
-    protected $medias;
+    protected $media;
 
     /**
      * @var TranslationContext
      */
     protected $context;
 
-    public function __construct(MediaBasicCollection $medias, TranslationContext $context)
+    public function __construct(MediaBasicCollection $media, TranslationContext $context)
     {
-        $this->medias = $medias;
+        $this->media = $media;
         $this->context = $context;
     }
 
@@ -33,9 +33,9 @@ class MediaBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getMedias(): MediaBasicCollection
+    public function getMedia(): MediaBasicCollection
     {
-        return $this->medias;
+        return $this->media;
     }
 
     public function getContext(): TranslationContext
@@ -46,7 +46,7 @@ class MediaBasicLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         return new NestedEventCollection([
-            new AlbumBasicLoadedEvent($this->medias->getAlbums(), $this->context),
+            new AlbumBasicLoadedEvent($this->media->getAlbum(), $this->context),
         ]);
     }
 }

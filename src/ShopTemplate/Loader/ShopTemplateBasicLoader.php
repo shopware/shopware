@@ -30,9 +30,9 @@ class ShopTemplateBasicLoader
             return new ShopTemplateBasicCollection();
         }
 
-        $shopTemplates = $this->read($uuids, $context);
+        $shopTemplatesCollection = $this->read($uuids, $context);
 
-        return $shopTemplates;
+        return $shopTemplatesCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): ShopTemplateBasicCollection

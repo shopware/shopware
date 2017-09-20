@@ -6,6 +6,7 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
+use Shopware\TaxAreaRule\Extension\TaxAreaRuleExtension;
 use Shopware\TaxAreaRule\Struct\TaxAreaRuleBasicStruct;
 
 class TaxAreaRuleBasicFactory extends Factory
@@ -41,6 +42,7 @@ class TaxAreaRuleBasicFactory extends Factory
         $taxAreaRule->setActive((bool) $data[$selection->getField('active')]);
         $taxAreaRule->setName((string) $data[$selection->getField('name')]);
 
+        /** @var $extension TaxAreaRuleExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($taxAreaRule, $data, $selection, $context);
         }

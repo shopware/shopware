@@ -25,6 +25,7 @@
 namespace Shopware\Framework\Write\Query;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Search\QuerySelection;
 
 class UpdateQuery extends WriteQuery
 {
@@ -55,7 +56,7 @@ class UpdateQuery extends WriteQuery
 
     public function execute(Connection $connection): int
     {
-        return $connection->update($this->tableName, $this->payload, $this->pkData);
+        return $connection->update(QuerySelection::escape($this->tableName), $this->payload, $this->pkData);
     }
 
     public function getPayload(): array

@@ -53,11 +53,11 @@ class ProductDetailLoader
 
     public function __construct(
         ProductDetailFactory $factory,
-CustomerGroupBasicLoader $customerGroupBasicLoader,
-ProductDetailSearcher $productDetailSearcher,
-ProductDetailDetailLoader $productDetailDetailLoader,
-CategoryBasicLoader $categoryBasicLoader,
-ProductVoteSearcher $productVoteSearcher
+        CustomerGroupBasicLoader $customerGroupBasicLoader,
+        ProductDetailSearcher $productDetailSearcher,
+        ProductDetailDetailLoader $productDetailDetailLoader,
+        CategoryBasicLoader $categoryBasicLoader,
+        ProductVoteSearcher $productVoteSearcher
     ) {
         $this->factory = $factory;
         $this->customerGroupBasicLoader = $customerGroupBasicLoader;
@@ -73,16 +73,16 @@ ProductVoteSearcher $productVoteSearcher
             return new ProductDetailCollection();
         }
 
-        $products = $this->read($uuids, $context);
+        $productsCollection = $this->read($uuids, $context);
 
-        $blockedCustomerGroupss = $this->customerGroupBasicLoader->load($products->getBlockedCustomerGroupsUuids(), $context);
+        $blockedCustomerGroups = $this->customerGroupBasicLoader->load($productsCollection->getBlockedCustomerGroupsUuids(), $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('product_detail.product_uuid', $uuids));
         $detailsUuids = $this->productDetailSearcher->searchUuids($criteria, $context);
         $details = $this->productDetailDetailLoader->load($detailsUuids->getUuids(), $context);
 
-        $categories = $this->categoryBasicLoader->load($products->getCategoryUuids(), $context);
+        $categories = $this->categoryBasicLoader->load($productsCollection->getCategoryUuids(), $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('product_vote.product_uuid', $uuids));
@@ -90,15 +90,15 @@ ProductVoteSearcher $productVoteSearcher
         $votes = $this->productVoteSearcher->search($criteria, $context);
 
         /** @var ProductDetailStruct $product */
-        foreach ($products as $product) {
-            $product->setBlockedCustomerGroupss($blockedCustomerGroupss->getList($product->getBlockedCustomerGroupsUuids()));
+        foreach ($productsCollection as $product) {
+            $product->setBlockedCustomerGroups($blockedCustomerGroups->getList($product->getBlockedCustomerGroupsUuids()));
             $product->setDetails($details->filterByProductUuid($product->getUuid()));
 
             $product->setCategories($categories->getList($product->getCategoryUuids()));
             $product->setVotes($votes->filterByProductUuid($product->getUuid()));
         }
 
-        return $products;
+        return $productsCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): ProductDetailCollection

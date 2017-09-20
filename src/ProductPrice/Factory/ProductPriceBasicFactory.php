@@ -4,6 +4,7 @@ namespace Shopware\ProductPrice\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
+use Shopware\ProductPrice\Extension\ProductPriceExtension;
 use Shopware\ProductPrice\Struct\ProductPriceBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -41,6 +42,7 @@ class ProductPriceBasicFactory extends Factory
         $productPrice->setBasePrice(isset($data[$selection->getField('base_price')]) ? (float) $data[$selection->getField('base_price')] : null);
         $productPrice->setPercentage(isset($data[$selection->getField('percentage')]) ? (float) $data[$selection->getField('percentage')] : null);
 
+        /** @var $extension ProductPriceExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($productPrice, $data, $selection, $context);
         }

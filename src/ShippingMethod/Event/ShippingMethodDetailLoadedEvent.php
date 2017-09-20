@@ -53,7 +53,7 @@ class ShippingMethodDetailLoadedEvent extends NestedEvent
             new ShippingMethodBasicLoadedEvent($this->shippingMethods, $this->context),
             new CategoryBasicLoadedEvent($this->shippingMethods->getCategories(), $this->context),
             new AreaCountryBasicLoadedEvent($this->shippingMethods->getCountries(), $this->context),
-            new HolidayBasicLoadedEvent($this->shippingMethods->getHolidaies(), $this->context),
+            new HolidayBasicLoadedEvent($this->shippingMethods->getHolidays(), $this->context),
             new PaymentMethodBasicLoadedEvent($this->shippingMethods->getPaymentMethods(), $this->context),
             new ShippingMethodPriceBasicLoadedEvent($this->shippingMethods->getPrices(), $this->context),
         ]);

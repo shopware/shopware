@@ -2,6 +2,7 @@
 
 namespace Shopware\Album\Factory;
 
+use Shopware\Album\Extension\AlbumExtension;
 use Shopware\Album\Struct\AlbumBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
@@ -43,6 +44,7 @@ class AlbumBasicFactory extends Factory
         $album->setThumbnailHighDpiQuality(isset($data[$selection->getField('thumbnail_high_dpi_quality')]) ? (int) $data[$selection->getField('thumbnail_high_dpi_quality')] : null);
         $album->setName((string) $data[$selection->getField('name')]);
 
+        /** @var $extension AlbumExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($album, $data, $selection, $context);
         }

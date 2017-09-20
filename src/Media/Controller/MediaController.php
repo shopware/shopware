@@ -28,7 +28,7 @@ class MediaController extends ApiController
 
     public function getXmlRootKey(): string
     {
-        return 'medias';
+        return 'media';
     }
 
     public function getXmlChildKey(): string
@@ -64,14 +64,14 @@ class MediaController extends ApiController
 
         $criteria->setFetchCount(true);
 
-        $medias = $this->mediaRepository->search(
+        $media = $this->mediaRepository->search(
             $criteria,
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $medias,
-            'total' => $medias->getTotal(),
+            'data' => $media,
+            'total' => $media->getTotal(),
         ];
 
         return $this->createResponse($response, $context);
@@ -88,12 +88,12 @@ class MediaController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('mediaUuid');
-        $medias = $this->mediaRepository->read(
+        $media = $this->mediaRepository->read(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($medias->get($uuid), $context);
+        return $this->createResponse($media->get($uuid), $context);
     }
 
     /**
@@ -110,13 +110,13 @@ class MediaController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $medias = $this->mediaRepository->read(
+        $media = $this->mediaRepository->read(
             $createEvent->getMediaUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $medias,
+            'data' => $media,
             'errors' => $createEvent->getErrors(),
         ];
 
@@ -137,13 +137,13 @@ class MediaController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $medias = $this->mediaRepository->read(
+        $media = $this->mediaRepository->read(
             $createEvent->getMediaUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $medias,
+            'data' => $media,
             'errors' => $createEvent->getErrors(),
         ];
 
@@ -164,13 +164,13 @@ class MediaController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $medias = $this->mediaRepository->read(
+        $media = $this->mediaRepository->read(
             $createEvent->getMediaUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $medias,
+            'data' => $media,
             'errors' => $createEvent->getErrors(),
         ];
 
@@ -202,13 +202,13 @@ class MediaController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $medias = $this->mediaRepository->read(
+        $media = $this->mediaRepository->read(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );
 
         return $this->createResponse(
-            ['data' => $medias->get($payload['uuid'])],
+            ['data' => $media->get($payload['uuid'])],
             $context
         );
     }

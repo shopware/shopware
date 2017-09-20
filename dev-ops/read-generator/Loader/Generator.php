@@ -39,7 +39,7 @@ class Generator
             $iteration = '
 #fetches#
 /** @var #classUc#BasicStruct $#classLc# */
-        foreach ($#plural# as $#classLc#) {
+        foreach ($#plural#Collection as $#classLc#) {
 #assignments#
         }
             ';
@@ -92,7 +92,7 @@ class Generator
             $iteration = '
 #fetches#
         /** @var #classUc#DetailStruct $#classLc# */
-        foreach ($#plural# as $#classLc#) {
+        foreach ($#plural#Collection as $#classLc#) {
 #assignments#
         }
             ';
@@ -156,7 +156,7 @@ class Generator
                     $constructor[] = str_replace(
                         ['#classUc#', '#classLc#'],
                         [ucfirst($associationClass), lcfirst($associationClass)],
-                        '#classUc#BasicLoader $#classLc#BasicLoader'
+                        '        #classUc#BasicLoader $#classLc#BasicLoader'
                     );
                     $uses[] = str_replace(
                         ['#classUc#'],
@@ -212,7 +212,7 @@ class Generator
                     $constructor[] = str_replace(
                         ['#classUc#', '#classLc#'],
                         [ucfirst($associationClass), lcfirst($associationClass)],
-                        '#classUc#Searcher $#classLc#Searcher'
+                        '        #classUc#Searcher $#classLc#Searcher'
                     );
                     $uses[] = str_replace(
                         ['#classUc#'],
@@ -239,7 +239,7 @@ class Generator
                         $constructor[] = str_replace(
                             ['#classUc#', '#classLc#'],
                             [ucfirst($associationClass), lcfirst($associationClass)],
-                            '#classUc#DetailLoader $#classLc#DetailLoader'
+                            '        #classUc#DetailLoader $#classLc#DetailLoader'
                         );
                         $uses[] = str_replace(
                             ['#classUc#'],
@@ -286,7 +286,7 @@ class Generator
                     $constructor[] = str_replace(
                         ['#classUc#', '#classLc#'],
                         [ucfirst($associationClass), lcfirst($associationClass)],
-                        '#classUc#BasicLoader $#classLc#BasicLoader'
+                        '        #classUc#BasicLoader $#classLc#BasicLoader'
                     );
                     $uses[] = str_replace(
                         ['#classUc#'],

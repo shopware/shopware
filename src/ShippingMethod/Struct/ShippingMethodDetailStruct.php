@@ -38,7 +38,7 @@ class ShippingMethodDetailStruct extends ShippingMethodBasicStruct
     /**
      * @var HolidayBasicCollection
      */
-    protected $holidaies;
+    protected $holidays;
 
     /**
      * @var string[]
@@ -51,11 +51,6 @@ class ShippingMethodDetailStruct extends ShippingMethodBasicStruct
     protected $paymentMethods;
 
     /**
-     * @var string[]
-     */
-    protected $priceUuids = [];
-
-    /**
      * @var ShippingMethodPriceBasicCollection
      */
     protected $prices;
@@ -64,7 +59,7 @@ class ShippingMethodDetailStruct extends ShippingMethodBasicStruct
     {
         $this->categories = new CategoryBasicCollection();
         $this->countries = new AreaCountryBasicCollection();
-        $this->holidaies = new HolidayBasicCollection();
+        $this->holidays = new HolidayBasicCollection();
         $this->paymentMethods = new PaymentMethodBasicCollection();
         $this->prices = new ShippingMethodPriceBasicCollection();
     }
@@ -119,14 +114,14 @@ class ShippingMethodDetailStruct extends ShippingMethodBasicStruct
         $this->holidayUuids = $holidayUuids;
     }
 
-    public function getHolidaies(): HolidayBasicCollection
+    public function getHolidays(): HolidayBasicCollection
     {
-        return $this->holidaies;
+        return $this->holidays;
     }
 
-    public function setHolidaies(HolidayBasicCollection $holidaies): void
+    public function setHolidays(HolidayBasicCollection $holidays): void
     {
-        $this->holidaies = $holidaies;
+        $this->holidays = $holidays;
     }
 
     public function getPaymentMethodUuids(): array
@@ -147,16 +142,6 @@ class ShippingMethodDetailStruct extends ShippingMethodBasicStruct
     public function setPaymentMethods(PaymentMethodBasicCollection $paymentMethods): void
     {
         $this->paymentMethods = $paymentMethods;
-    }
-
-    public function getPriceUuids(): array
-    {
-        return $this->priceUuids;
-    }
-
-    public function setPriceUuids(array $priceUuids): void
-    {
-        $this->priceUuids = $priceUuids;
     }
 
     public function getPrices(): ShippingMethodPriceBasicCollection

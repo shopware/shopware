@@ -3,6 +3,7 @@
 namespace Shopware\Currency\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Currency\Extension\CurrencyExtension;
 use Shopware\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
@@ -39,6 +40,7 @@ class CurrencyBasicFactory extends Factory
         $currency->setShortName((string) $data[$selection->getField('short_name')]);
         $currency->setName((string) $data[$selection->getField('name')]);
 
+        /** @var $extension CurrencyExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($currency, $data, $selection, $context);
         }

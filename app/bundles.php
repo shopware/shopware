@@ -60,4 +60,10 @@ return [
     Shopware\Tax\Tax::class => ['all' => true],
     Shopware\TaxAreaRule\TaxAreaRule::class => ['all' => true],
     Shopware\Unit\Unit::class => ['all' => true],
+    Shopware\Order\Order::class => ['all' => true],
+    Shopware\OrderAddress\OrderAddress::class => ['all' => true],
+    Shopware\OrderDelivery\OrderDelivery::class => ['all' => true],
+    Shopware\OrderDeliveryPosition\OrderDeliveryPosition::class => ['all' => true],
+    Shopware\OrderLineItem\OrderLineItem::class => ['all' => true],
+    Shopware\OrderState\OrderState::class => ['all' => true]
 ];

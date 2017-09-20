@@ -30,9 +30,9 @@ class ProductStreamBasicLoader
             return new ProductStreamBasicCollection();
         }
 
-        $productStreams = $this->read($uuids, $context);
+        $productStreamsCollection = $this->read($uuids, $context);
 
-        return $productStreams;
+        return $productStreamsCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): ProductStreamBasicCollection

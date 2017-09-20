@@ -14,16 +14,16 @@ class HolidayBasicLoadedEvent extends NestedEvent
     /**
      * @var HolidayBasicCollection
      */
-    protected $holidaies;
+    protected $holidays;
 
     /**
      * @var TranslationContext
      */
     protected $context;
 
-    public function __construct(HolidayBasicCollection $holidaies, TranslationContext $context)
+    public function __construct(HolidayBasicCollection $holidays, TranslationContext $context)
     {
-        $this->holidaies = $holidaies;
+        $this->holidays = $holidays;
         $this->context = $context;
     }
 
@@ -32,9 +32,9 @@ class HolidayBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getHolidaies(): HolidayBasicCollection
+    public function getHolidays(): HolidayBasicCollection
     {
-        return $this->holidaies;
+        return $this->holidays;
     }
 
     public function getContext(): TranslationContext

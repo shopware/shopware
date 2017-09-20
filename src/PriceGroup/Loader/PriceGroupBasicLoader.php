@@ -30,9 +30,9 @@ class PriceGroupBasicLoader
             return new PriceGroupBasicCollection();
         }
 
-        $priceGroups = $this->read($uuids, $context);
+        $priceGroupsCollection = $this->read($uuids, $context);
 
-        return $priceGroups;
+        return $priceGroupsCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): PriceGroupBasicCollection

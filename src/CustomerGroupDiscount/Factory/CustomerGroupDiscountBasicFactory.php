@@ -3,6 +3,7 @@
 namespace Shopware\CustomerGroupDiscount\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\CustomerGroupDiscount\Extension\CustomerGroupDiscountExtension;
 use Shopware\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicStruct;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
@@ -31,6 +32,7 @@ class CustomerGroupDiscountBasicFactory extends Factory
         $customerGroupDiscount->setPercentageDiscount((float) $data[$selection->getField('percentage_discount')]);
         $customerGroupDiscount->setMinimumCartAmount((float) $data[$selection->getField('minimum_cart_amount')]);
 
+        /** @var $extension CustomerGroupDiscountExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($customerGroupDiscount, $data, $selection, $context);
         }

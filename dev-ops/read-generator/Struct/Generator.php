@@ -238,7 +238,21 @@ class Generator
                     );
                     break;
 
-                case (Util::isToMany($association['type'])):
+                case ($association['type'] === Util::ONE_TO_MANY):
+                    $plural = Util::getPlural($propertyName);
+                    $properties[] = str_replace(
+                        ['#associationClassUc#', '#plural#'],
+                        [ucfirst($associationClass), lcfirst($plural)],
+                        '
+    /**
+     * @var #associationClassUc#BasicCollection
+     */
+    protected $#plural#;
+'
+                    );
+                    break;
+
+                case ($association['type'] === Util::MANY_TO_MANY):
                     $plural = Util::getPlural($propertyName);
                     $properties[] = str_replace(
                         ['#classLc#'],
@@ -285,7 +299,7 @@ class Generator
                     );
                     break;
 
-                case (Util::isToMany($association['type'])):
+                case (Util::MANY_TO_MANY === $association['type']):
                     $plural = Util::getPlural($propertyName);
                     $properties[] = str_replace(
                         ['#classLc#', '#classUc#'],
@@ -298,6 +312,16 @@ class Generator
                         file_get_contents(__DIR__ . '/templates/to_many_association_property_getter_and_setter.txt')
                     );
                     break;
+
+                case (Util::ONE_TO_MANY === $association['type']):
+                    $plural = Util::getPlural($propertyName);
+                    $properties[] = str_replace(
+                        ['#associationClassUc#', '#plural#', '#pluralUc#'],
+                        [ucfirst($associationClass), lcfirst($plural), ucfirst($plural)],
+                        file_get_contents(__DIR__ . '/templates/to_many_association_property_getter_and_setter.txt')
+                    );
+                    break;
+
             }
         }
 

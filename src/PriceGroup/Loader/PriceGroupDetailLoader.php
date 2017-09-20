@@ -29,7 +29,7 @@ class PriceGroupDetailLoader
 
     public function __construct(
         PriceGroupDetailFactory $factory,
-PriceGroupDiscountSearcher $priceGroupDiscountSearcher
+        PriceGroupDiscountSearcher $priceGroupDiscountSearcher
     ) {
         $this->factory = $factory;
         $this->priceGroupDiscountSearcher = $priceGroupDiscountSearcher;
@@ -41,7 +41,7 @@ PriceGroupDiscountSearcher $priceGroupDiscountSearcher
             return new PriceGroupDetailCollection();
         }
 
-        $priceGroups = $this->read($uuids, $context);
+        $priceGroupsCollection = $this->read($uuids, $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('price_group_discount.price_group_uuid', $uuids));
@@ -49,11 +49,11 @@ PriceGroupDiscountSearcher $priceGroupDiscountSearcher
         $discounts = $this->priceGroupDiscountSearcher->search($criteria, $context);
 
         /** @var PriceGroupDetailStruct $priceGroup */
-        foreach ($priceGroups as $priceGroup) {
+        foreach ($priceGroupsCollection as $priceGroup) {
             $priceGroup->setDiscounts($discounts->filterByPriceGroupUuid($priceGroup->getUuid()));
         }
 
-        return $priceGroups;
+        return $priceGroupsCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): PriceGroupDetailCollection

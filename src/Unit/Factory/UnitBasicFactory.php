@@ -6,6 +6,7 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
+use Shopware\Unit\Extension\UnitExtension;
 use Shopware\Unit\Struct\UnitBasicStruct;
 
 class UnitBasicFactory extends Factory
@@ -31,6 +32,7 @@ class UnitBasicFactory extends Factory
         $unit->setShortCode((string) $data[$selection->getField('short_code')]);
         $unit->setName((string) $data[$selection->getField('name')]);
 
+        /** @var $extension UnitExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($unit, $data, $selection, $context);
         }

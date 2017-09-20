@@ -26,7 +26,7 @@ class ShopDetailLoader
 
     public function __construct(
         ShopDetailFactory $factory,
-CurrencyBasicLoader $currencyBasicLoader
+        CurrencyBasicLoader $currencyBasicLoader
     ) {
         $this->factory = $factory;
         $this->currencyBasicLoader = $currencyBasicLoader;
@@ -38,16 +38,16 @@ CurrencyBasicLoader $currencyBasicLoader
             return new ShopDetailCollection();
         }
 
-        $shops = $this->read($uuids, $context);
+        $shopsCollection = $this->read($uuids, $context);
 
-        $availableCurrencies = $this->currencyBasicLoader->load($shops->getAvailableCurrencyUuids(), $context);
+        $availableCurrencies = $this->currencyBasicLoader->load($shopsCollection->getAvailableCurrencyUuids(), $context);
 
         /** @var ShopDetailStruct $shop */
-        foreach ($shops as $shop) {
+        foreach ($shopsCollection as $shop) {
             $shop->setAvailableCurrencies($availableCurrencies->getList($shop->getAvailableCurrencyUuids()));
         }
 
-        return $shops;
+        return $shopsCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): ShopDetailCollection

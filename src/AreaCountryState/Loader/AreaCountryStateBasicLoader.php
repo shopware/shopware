@@ -30,9 +30,9 @@ class AreaCountryStateBasicLoader
             return new AreaCountryStateBasicCollection();
         }
 
-        $areaCountryStates = $this->read($uuids, $context);
+        $areaCountryStatesCollection = $this->read($uuids, $context);
 
-        return $areaCountryStates;
+        return $areaCountryStatesCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): AreaCountryStateBasicCollection

@@ -7,37 +7,22 @@ use Shopware\Media\Struct\MediaBasicCollection;
 class AlbumDetailStruct extends AlbumBasicStruct
 {
     /**
-     * @var string[]
-     */
-    protected $mediaUuids = [];
-
-    /**
      * @var MediaBasicCollection
      */
-    protected $medias;
+    protected $media;
 
     public function __construct()
     {
-        $this->medias = new MediaBasicCollection();
+        $this->media = new MediaBasicCollection();
     }
 
-    public function getMediaUuids(): array
+    public function getMedia(): MediaBasicCollection
     {
-        return $this->mediaUuids;
+        return $this->media;
     }
 
-    public function setMediaUuids(array $mediaUuids): void
+    public function setMedia(MediaBasicCollection $media): void
     {
-        $this->mediaUuids = $mediaUuids;
-    }
-
-    public function getMedias(): MediaBasicCollection
-    {
-        return $this->medias;
-    }
-
-    public function setMedias(MediaBasicCollection $medias): void
-    {
-        $this->medias = $medias;
+        $this->media = $media;
     }
 }

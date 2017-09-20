@@ -50,15 +50,15 @@ class AlbumDetailFactory extends AlbumBasicFactory
     {
         parent::joinDependencies($selection, $query, $context);
 
-        if ($medias = $selection->filter('medias')) {
+        if ($media = $selection->filter('media')) {
             $query->leftJoin(
                 $selection->getRootEscaped(),
                 'media',
-                $medias->getRootEscaped(),
-                sprintf('%s.uuid = %s.album_uuid', $selection->getRootEscaped(), $medias->getRootEscaped())
+                $media->getRootEscaped(),
+                sprintf('%s.uuid = %s.album_uuid', $selection->getRootEscaped(), $media->getRootEscaped())
             );
 
-            $this->mediaFactory->joinDependencies($medias, $query, $context);
+            $this->mediaFactory->joinDependencies($media, $query, $context);
 
             $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
         }
@@ -67,7 +67,7 @@ class AlbumDetailFactory extends AlbumBasicFactory
     public function getAllFields(): array
     {
         $fields = parent::getAllFields();
-        $fields['medias'] = $this->mediaFactory->getAllFields();
+        $fields['media'] = $this->mediaFactory->getAllFields();
 
         return $fields;
     }

@@ -147,7 +147,7 @@ class ProductBasicCollection extends Collection
         );
     }
 
-    public function getTaxs(): TaxBasicCollection
+    public function getTaxes(): TaxBasicCollection
     {
         return new TaxBasicCollection(
             $this->fmap(function (ProductBasicStruct $product) {
@@ -186,11 +186,11 @@ class ProductBasicCollection extends Collection
         return $uuids;
     }
 
-    public function getBlockedCustomerGroupss(): CustomerGroupBasicCollection
+    public function getBlockedCustomerGroups(): CustomerGroupBasicCollection
     {
         $collection = new CustomerGroupBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getBlockedCustomerGroupss()->getIterator()->getArrayCopy());
+            $collection->fill($element->getBlockedCustomerGroups()->getIterator()->getArrayCopy());
         }
 
         return $collection;

@@ -16,7 +16,7 @@ class CustomerDetailCollection extends CustomerBasicCollection
     {
         $uuids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getAddressUuids() as $uuid) {
+            foreach ($element->getAddresses()->getUuids() as $uuid) {
                 $uuids[] = $uuid;
             }
         }
@@ -24,11 +24,11 @@ class CustomerDetailCollection extends CustomerBasicCollection
         return $uuids;
     }
 
-    public function getAddresss(): CustomerAddressBasicCollection
+    public function getAddresses(): CustomerAddressBasicCollection
     {
         $collection = new CustomerAddressBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getAddresss()->getIterator()->getArrayCopy());
+            $collection->fill($element->getAddresses()->getIterator()->getArrayCopy());
         }
 
         return $collection;

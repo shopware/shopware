@@ -7,11 +7,6 @@ use Shopware\PriceGroupDiscount\Struct\PriceGroupDiscountBasicCollection;
 class PriceGroupDetailStruct extends PriceGroupBasicStruct
 {
     /**
-     * @var string[]
-     */
-    protected $discountUuids = [];
-
-    /**
      * @var PriceGroupDiscountBasicCollection
      */
     protected $discounts;
@@ -19,16 +14,6 @@ class PriceGroupDetailStruct extends PriceGroupBasicStruct
     public function __construct()
     {
         $this->discounts = new PriceGroupDiscountBasicCollection();
-    }
-
-    public function getDiscountUuids(): array
-    {
-        return $this->discountUuids;
-    }
-
-    public function setDiscountUuids(array $discountUuids): void
-    {
-        $this->discountUuids = $discountUuids;
     }
 
     public function getDiscounts(): PriceGroupDiscountBasicCollection

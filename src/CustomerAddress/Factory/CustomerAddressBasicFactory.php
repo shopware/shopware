@@ -8,6 +8,7 @@ use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\AreaCountryState\Factory\AreaCountryStateBasicFactory;
 use Shopware\AreaCountryState\Struct\AreaCountryStateBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\CustomerAddress\Extension\CustomerAddressExtension;
 use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
@@ -96,6 +97,7 @@ class CustomerAddressBasicFactory extends Factory
             );
         }
 
+        /** @var $extension CustomerAddressExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($customerAddress, $data, $selection, $context);
         }

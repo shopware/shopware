@@ -3,6 +3,7 @@
 namespace Shopware\CustomerGroup\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\CustomerGroup\Extension\CustomerGroupExtension;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
@@ -39,6 +40,7 @@ class CustomerGroupBasicFactory extends Factory
         $customerGroup->setMinimumOrderAmountSurcharge(isset($data[$selection->getField('minimum_order_amount_surcharge')]) ? (float) $data[$selection->getField('minimum_order_amount_surcharge')] : null);
         $customerGroup->setName((string) $data[$selection->getField('name')]);
 
+        /** @var $extension CustomerGroupExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($customerGroup, $data, $selection, $context);
         }

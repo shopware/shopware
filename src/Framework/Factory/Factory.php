@@ -51,7 +51,7 @@ abstract class Factory
     {
         $query = new QueryBuilder($this->connection, $selection);
         $query->addSelect($selection->buildSelect());
-        $query->from($this->getRootName(), $selection->getRootEscaped());
+        $query->from(QuerySelection::escape($this->getRootName()), $selection->getRootEscaped());
 
         $this->joinDependencies($selection, $query, $translationContext);
 
@@ -70,7 +70,7 @@ abstract class Factory
 
         $query = new QueryBuilder($this->connection, $selection);
         $query->select(QuerySelection::escapeFieldSelect($this->getRootName() . '.uuid'));
-        $query->from($this->getRootName(), $selection->getRootEscaped());
+        $query->from(QuerySelection::escape($this->getRootName()), $selection->getRootEscaped());
 
         $this->joinDependencies($selection, $query, $translationContext);
 

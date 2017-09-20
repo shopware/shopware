@@ -30,9 +30,9 @@ class TaxBasicLoader
             return new TaxBasicCollection();
         }
 
-        $taxs = $this->read($uuids, $context);
+        $taxesCollection = $this->read($uuids, $context);
 
-        return $taxs;
+        return $taxesCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): TaxBasicCollection

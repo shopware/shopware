@@ -30,9 +30,9 @@ class CustomerAddressBasicLoader
             return new CustomerAddressBasicCollection();
         }
 
-        $customerAddresss = $this->read($uuids, $context);
+        $customerAddressesCollection = $this->read($uuids, $context);
 
-        return $customerAddresss;
+        return $customerAddressesCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): CustomerAddressBasicCollection

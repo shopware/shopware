@@ -39,12 +39,12 @@ class PaymentMethodBasicStruct extends Struct
     /**
      * @var float|null
      */
-    protected $debitPercent;
+    protected $percentageSurcharge;
 
     /**
      * @var float|null
      */
-    protected $surcharge;
+    protected $absoluteSurcharge;
 
     /**
      * @var string|null
@@ -171,24 +171,24 @@ class PaymentMethodBasicStruct extends Struct
         $this->hide = $hide;
     }
 
-    public function getDebitPercent(): ?float
+    public function getPercentageSurcharge(): ?float
     {
-        return $this->debitPercent;
+        return $this->percentageSurcharge;
     }
 
-    public function setDebitPercent(?float $debitPercent): void
+    public function setPercentageSurcharge(?float $percentageSurcharge): void
     {
-        $this->debitPercent = $debitPercent;
+        $this->percentageSurcharge = $percentageSurcharge;
     }
 
-    public function getSurcharge(): ?float
+    public function getAbsoluteSurcharge(): ?float
     {
-        return $this->surcharge;
+        return $this->absoluteSurcharge;
     }
 
-    public function setSurcharge(?float $surcharge): void
+    public function setAbsoluteSurcharge(?float $absoluteSurcharge): void
     {
-        $this->surcharge = $surcharge;
+        $this->absoluteSurcharge = $absoluteSurcharge;
     }
 
     public function getSurchargeString(): ?string

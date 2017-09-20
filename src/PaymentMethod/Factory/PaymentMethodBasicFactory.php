@@ -4,6 +4,7 @@ namespace Shopware\PaymentMethod\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
+use Shopware\PaymentMethod\Extension\PaymentMethodExtension;
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -20,8 +21,8 @@ class PaymentMethodBasicFactory extends Factory
        'class' => 'class',
        'table' => 'table',
        'hide' => 'hide',
-       'debit_percent' => 'debit_percent',
-       'surcharge' => 'surcharge',
+       'percentage_surcharge' => 'percentage_surcharge',
+       'absolute_surcharge' => 'absolute_surcharge',
        'surcharge_string' => 'surcharge_string',
        'position' => 'position',
        'active' => 'active',
@@ -49,8 +50,8 @@ class PaymentMethodBasicFactory extends Factory
         $paymentMethod->setClass(isset($data[$selection->getField('class')]) ? (string) $data[$selection->getField('class')] : null);
         $paymentMethod->setTable(isset($data[$selection->getField('table')]) ? (string) $data[$selection->getField('table')] : null);
         $paymentMethod->setHide((bool) $data[$selection->getField('hide')]);
-        $paymentMethod->setDebitPercent(isset($data[$selection->getField('debit_percent')]) ? (float) $data[$selection->getField('debit_percent')] : null);
-        $paymentMethod->setSurcharge(isset($data[$selection->getField('surcharge')]) ? (float) $data[$selection->getField('surcharge')] : null);
+        $paymentMethod->setPercentageSurcharge(isset($data[$selection->getField('percentage_surcharge')]) ? (float) $data[$selection->getField('percentage_surcharge')] : null);
+        $paymentMethod->setAbsoluteSurcharge(isset($data[$selection->getField('absolute_surcharge')]) ? (float) $data[$selection->getField('absolute_surcharge')] : null);
         $paymentMethod->setSurchargeString(isset($data[$selection->getField('surcharge_string')]) ? (string) $data[$selection->getField('surcharge_string')] : null);
         $paymentMethod->setPosition((int) $data[$selection->getField('position')]);
         $paymentMethod->setActive((bool) $data[$selection->getField('active')]);
@@ -65,6 +66,7 @@ class PaymentMethodBasicFactory extends Factory
         $paymentMethod->setName((string) $data[$selection->getField('name')]);
         $paymentMethod->setAdditionalDescription((string) $data[$selection->getField('additional_description')]);
 
+        /** @var $extension PaymentMethodExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($paymentMethod, $data, $selection, $context);
         }

@@ -145,4 +145,9 @@ class ConfiguredLineItem extends \Shopware\Framework\Struct\Struct implements De
     {
         $this->delivery = $delivery;
     }
+
+    public function getType(): string
+    {
+        return $this->lineItem->getType();
+    }
 }

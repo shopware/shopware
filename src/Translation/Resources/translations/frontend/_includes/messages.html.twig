@@ -1,0 +1,117 @@
+{#
+    Global messages template
+
+    The template provides an easy way to display messages in the storefront. The following types are supported:
+     * error (red)
+     * success (green)
+     * warning (yellow)
+     * info (blue)
+    The component requires at least the parameters ```content``` and ```type``` to display the message correctly.
+
+    ```
+     {include file="frontend/_includes/messages.tpl" type="error" content="Your content"}
+    ```
+
+    Customized icons can be passed using the icon font to the component using the parameter ```icon```:
+    ```
+     {include file="frontend/_includes/messages.tpl" type="error" content="Your content" icon="icon--shopware"}
+    ```
+
+    The border-radius can be modified using the parameter ```borderRadius```. The default behavior contains a
+    border radius for the message:
+    ```
+     {include file="frontend/_includes/messages.tpl" type="error" content="Your content" borderRadius=true}
+    ```
+
+    If you need to display a bunch of messages (for example error messages in the registration), you can pass an array
+    of messages to the template using the parameter ```list```:
+
+    ```
+    {include file="frontend/_includes/messages.tpl" type="error" list=$error_messages}
+    ```
+
+    The template also supportes bold texts for the content or list entires, which could be modified using the parameter
+    ```bold```. By default the parameter is set to ```true```.
+
+    ```
+    {include file="frontend/_includes/messages.tpl" type="error" content="Your content" bold=false}
+    ```
+
+    If you need to insert the message into the DOM but don't want to display it, you can use the parameter ```visible```
+    to hide the message on startup. By default the parameter is set to ```true```.
+
+    ```
+    {include file="frontend/_includes/messages.tpl" type="error" content="Your content" visible=false}
+    ```
+#}
+
+{# Icon classes #}
+{% block frontend_global_messages_icon_class %}
+{{ set iconCls = 'icon--check' }}
+{% if type == 'error' %}
+    {{ set iconCls = 'icon--cross' }}
+{% elseif type == 'success' %}
+    {{ set iconCls = 'icon--check' }}
+{% elseif type == 'warning' %}
+    {{ set iconCls = 'icon--warning' }}
+{% else %}
+    {{ set iconCls = 'icon--info' }}
+{% endif %}
+
+{# Support for customized icons #}
+{% if isset(icon) and count(icon) %}
+    {{ set iconCls = icon }}
+{% endif %}
+{% endblock %}
+
+{# Support for non border-radius #}
+{% block frontend_global_messages_border_radius %}
+{{ set hasBorderRadius = true }}
+{% if isset(borderRadius) %}
+{{ set hasBorderRadius = borderRadius }}
+{% endif %}
+{% endblock %}
+
+{# Support for bold text #}
+{% block frontend_global_messages_bold %}
+{{ set isBold = false }}
+{% if isset(bold) %}
+{{ set isBold = bold }}
+{% endif %}
+{% endblock %}
+
+{# Support for hiding the message on startup #}
+{% block frontend_global_messages_visible %}
+    {{ set isVisible = true }}
+    {% if isset(visible) %}
+        {{ set isVisible = visible }}
+    {% endif %}
+{% endblock %}
+
+{# Messages container #}
+{block name="frontend_global_messages_container"}
+<div class="alert is--{{ type }}{% if hasBorderRadius and hasBorderRadius === true %} is--rounded{% endif %}{% if isVisible === false %} is--hidden{% endif %}">
+
+    {# Icon column #}
+    {% block frontend_global_messages_icon %}
+    <div class="alert--icon">
+        <i class="icon--element {{ iconCls }}"></i>
+    </div>
+    {% endblock %}
+
+    {# Content column #}
+    {% block frontend_global_messages_content %}
+    <div class="alert--content{if $isBold} is--strong{/if}">
+        {% if content and not list %}
+            {{ content }}
+        {% else %}
+        <ul class="alert--list">
+            {% for entry in list %}
+            <li class="list--entry{% if loop.first %} is--first{% endif %}{% if loop.last %} is--last{% endif %}">{{ entry }}</li>
+            {% endfor%}
+        </ul>
+        {% endif %}
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

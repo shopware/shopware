@@ -2,6 +2,7 @@
 
 namespace Shopware\Area\Factory;
 
+use Shopware\Area\Extension\AreaExtension;
 use Shopware\Area\Struct\AreaBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
@@ -29,6 +30,7 @@ class AreaBasicFactory extends Factory
         $area->setActive((bool) $data[$selection->getField('active')]);
         $area->setName((string) $data[$selection->getField('name')]);
 
+        /** @var $extension AreaExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($area, $data, $selection, $context);
         }

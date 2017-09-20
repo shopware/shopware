@@ -1009,3 +1009,96 @@ ALTER TABLE `shipping_method_translation`
 ALTER TABLE `unit_translation`
   CHANGE `unit` `short_code` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `language_uuid`,
   CHANGE `description` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `short_code`;
+
+
+# Create order and delivery tables #
+CREATE TABLE `order` (
+  `uuid` VARCHAR(42) NOT NULL,
+  `order_date` DATETIME NOT NULL,
+  `customer_uuid` VARCHAR(42) NOT NULL,
+  `amount_total` DOUBLE NOT NULL,
+  `position_price` DOUBLE NOT NULL,
+  `shipping_total` DOUBLE NOT NULL,
+  `order_state_uuid` VARCHAR(42) NOT NULL,
+  `payment_method_uuid` VARCHAR(42) NOT NULL,
+  `is_net` TINYINT(1) NOT NULL,
+  `is_tax_free` TINYINT(1) NOT NULL,
+  `currency_uuid` VARCHAR(42) NOT NULL,
+  `shop_uuid` VARCHAR(42) NOT NULL,
+  `billing_address_uuid` VARCHAR(42) NOT NULL,
+  `context` LONGTEXT NOT NULL,
+  `payload` LONGTEXT NOT NULL,
+  PRIMARY KEY (`uuid`)
+) COLLATE = 'utf8mb4_unicode_ci' ENGINE = InnoDB;
+
+CREATE TABLE `order_line_item` (
+  `uuid` VARCHAR(42) NOT NULL,
+  `order_uuid` VARCHAR(42) NOT NULL,
+  `identifier` VARCHAR(255) NOT NULL,
+  `quantity` INT(11) NOT NULL,
+  `unit_price` DOUBLE NOT NULL,
+  `total_price` DOUBLE NOT NULL,
+  `type` VARCHAR(42),
+  `payload` LONGTEXT NOT NULL,
+  PRIMARY KEY (`uuid`)
+) COLLATE = 'utf8mb4_unicode_ci' ENGINE = InnoDB;
+
+
+CREATE TABLE `order_address` (
+  `uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `company` varchar(255) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `department` varchar(35) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `salutation` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(100) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `first_name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `last_name` varchar(60) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `street` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `zipcode` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `city` varchar(70) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `area_country_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `area_country_state_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `vat_id` varchar(50) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `phone_number` varchar(40) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `additional_address_line1` varchar(255) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `additional_address_line2` varchar(255) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  UNIQUE KEY `ui_order_address.uuid` (`uuid`),
+  KEY `area_country_state_uuid` (`area_country_state_uuid`),
+  KEY `area_country_uuid` (`area_country_uuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `order_delivery` (
+  `uuid` VARCHAR(42) NOT NULL,
+  `order_uuid` VARCHAR(42) NOT NULL,
+  `shipping_address_uuid` VARCHAR(42) NOT NULL,
+  `shipping_method_uuid` VARCHAR(42) NOT NULL,
+  `shipping_date_earliest` DATETIME NOT NULL,
+  `shipping_date_latest` DATETIME NOT NULL,
+  `payload` LONGTEXT NOT NULL,
+  PRIMARY KEY (`uuid`)
+) COLLATE = 'utf8mb4_unicode_ci' ENGINE = InnoDB;
+
+CREATE TABLE `order_delivery_position` (
+  `uuid` VARCHAR(42) NOT NULL,
+  `order_delivery_uuid` VARCHAR(42) NOT NULL,
+  `order_line_item_uuid` VARCHAR(42) NOT NULL,
+  `unit_price` DOUBLE NOT NULL,
+  `total_price` DOUBLE NOT NULL,
+  `quantity` DOUBLE NOT NULL,
+  `payload` LONGTEXT NOT NULL,
+  PRIMARY KEY (`uuid`)
+) COLLATE = 'utf8mb4_unicode_ci' ENGINE = InnoDB;
+
+ALTER TABLE `order` ADD FOREIGN KEY (`customer_uuid`) REFERENCES `customer` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `order` ADD FOREIGN KEY (`order_state_uuid`) REFERENCES `order_state` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `order` ADD FOREIGN KEY (`payment_method_uuid`) REFERENCES `payment_method` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `order` ADD FOREIGN KEY (`currency_uuid`) REFERENCES `currency` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `order` ADD FOREIGN KEY (`billing_address_uuid`) REFERENCES `order_address` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `order` ADD FOREIGN KEY (`shop_uuid`) REFERENCES `shop` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `order_delivery` ADD FOREIGN KEY (`order_uuid`) REFERENCES `order` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `order_delivery` ADD FOREIGN KEY (`shipping_address_uuid`) REFERENCES `order_address` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `order_delivery` ADD FOREIGN KEY (`shipping_method_uuid`) REFERENCES `shipping_method` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `order_address` ADD FOREIGN KEY (`area_country_state_uuid`) REFERENCES `area_country_state` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `order_address` ADD FOREIGN KEY (`area_country_uuid`) REFERENCES `area_country` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `order_line_item` ADD FOREIGN KEY (`order_uuid`) REFERENCES `order` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `order_delivery_position` ADD FOREIGN KEY (`order_delivery_uuid`) REFERENCES `order_delivery` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `order_delivery_position` ADD FOREIGN KEY (`order_line_item_uuid`) REFERENCES `order_line_item` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;

@@ -14,16 +14,16 @@ class TaxBasicLoadedEvent extends NestedEvent
     /**
      * @var TaxBasicCollection
      */
-    protected $taxs;
+    protected $taxes;
 
     /**
      * @var TranslationContext
      */
     protected $context;
 
-    public function __construct(TaxBasicCollection $taxs, TranslationContext $context)
+    public function __construct(TaxBasicCollection $taxes, TranslationContext $context)
     {
-        $this->taxs = $taxs;
+        $this->taxes = $taxes;
         $this->context = $context;
     }
 
@@ -32,9 +32,9 @@ class TaxBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getTaxs(): TaxBasicCollection
+    public function getTaxes(): TaxBasicCollection
     {
-        return $this->taxs;
+        return $this->taxes;
     }
 
     public function getContext(): TranslationContext

@@ -151,6 +151,19 @@ class Generator
 
                 continue;
             }
+            if ($association['type'] === Util::ONE_TO_MANY) {
+                $getters[] =  str_replace(
+                    ['#classUc#', '#pluralUc#'],
+                    [ucfirst($property), ucfirst($plural)],
+                    file_get_contents(__DIR__ . '/templates/collective_one_to_many_uuid_getter.txt')
+                );
+                $getters[] = str_replace(
+                    ['#pluralUc#', '#associationClassUc#'],
+                    [ucfirst($plural), ucfirst($associationClass)],
+                    file_get_contents(__DIR__ . '/templates/collective_to_many_association_getter.txt')
+                );
+                continue;
+            }
             $getters[] =  str_replace(
                 ['#classUc#'],
                 [ucfirst($property)],

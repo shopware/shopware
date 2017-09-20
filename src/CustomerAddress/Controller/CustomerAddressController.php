@@ -28,7 +28,7 @@ class CustomerAddressController extends ApiController
 
     public function getXmlRootKey(): string
     {
-        return 'customerAddresss';
+        return 'customerAddresses';
     }
 
     public function getXmlChildKey(): string
@@ -64,14 +64,14 @@ class CustomerAddressController extends ApiController
 
         $criteria->setFetchCount(true);
 
-        $customerAddresss = $this->customerAddressRepository->search(
+        $customerAddresses = $this->customerAddressRepository->search(
             $criteria,
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $customerAddresss,
-            'total' => $customerAddresss->getTotal(),
+            'data' => $customerAddresses,
+            'total' => $customerAddresses->getTotal(),
         ];
 
         return $this->createResponse($response, $context);
@@ -88,12 +88,12 @@ class CustomerAddressController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('customerAddressUuid');
-        $customerAddresss = $this->customerAddressRepository->read(
+        $customerAddresses = $this->customerAddressRepository->read(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($customerAddresss->get($uuid), $context);
+        return $this->createResponse($customerAddresses->get($uuid), $context);
     }
 
     /**
@@ -110,13 +110,13 @@ class CustomerAddressController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $customerAddresss = $this->customerAddressRepository->read(
+        $customerAddresses = $this->customerAddressRepository->read(
             $createEvent->getCustomerAddressUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $customerAddresss,
+            'data' => $customerAddresses,
             'errors' => $createEvent->getErrors(),
         ];
 
@@ -137,13 +137,13 @@ class CustomerAddressController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $customerAddresss = $this->customerAddressRepository->read(
+        $customerAddresses = $this->customerAddressRepository->read(
             $createEvent->getCustomerAddressUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $customerAddresss,
+            'data' => $customerAddresses,
             'errors' => $createEvent->getErrors(),
         ];
 
@@ -164,13 +164,13 @@ class CustomerAddressController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $customerAddresss = $this->customerAddressRepository->read(
+        $customerAddresses = $this->customerAddressRepository->read(
             $createEvent->getCustomerAddressUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
         $response = [
-            'data' => $customerAddresss,
+            'data' => $customerAddresses,
             'errors' => $createEvent->getErrors(),
         ];
 
@@ -202,13 +202,13 @@ class CustomerAddressController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $customerAddresss = $this->customerAddressRepository->read(
+        $customerAddresses = $this->customerAddressRepository->read(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );
 
         return $this->createResponse(
-            ['data' => $customerAddresss->get($payload['uuid'])],
+            ['data' => $customerAddresses->get($payload['uuid'])],
             $context
         );
     }

@@ -4,6 +4,7 @@ namespace Shopware\Locale\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
+use Shopware\Locale\Extension\LocaleExtension;
 use Shopware\Locale\Struct\LocaleBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -31,6 +32,7 @@ class LocaleBasicFactory extends Factory
         $locale->setLanguage((string) $data[$selection->getField('language')]);
         $locale->setTerritory((string) $data[$selection->getField('territory')]);
 
+        /** @var $extension LocaleExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($locale, $data, $selection, $context);
         }

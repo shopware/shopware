@@ -1,0 +1,60 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\OrderDelivery\Factory\OrderDeliveryBasicFactory" id="shopware.order_delivery.basic_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="service" id="shopware.extension.registry" />
+            <argument id="shopware.order_address.basic_factory" type="service"/>
+            <argument id="shopware.shipping_method.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\OrderDelivery\Factory\OrderDeliveryDetailFactory" id="shopware.order_delivery.detail_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="service" id="shopware.extension.registry" />
+            <argument id="shopware.order_delivery_position.basic_factory" type="service"/>
+            <argument id="shopware.order_address.basic_factory" type="service"/>
+            <argument id="shopware.shipping_method.basic_factory" type="service"/>
+        </service>
+
+
+        <service class="Shopware\OrderDelivery\Controller\OrderDeliveryController" id="shopware.order_delivery.api_controller">
+            <argument id="shopware.order_delivery.repository" type="service"/>
+        </service>
+        
+
+        <service class="Shopware\OrderDelivery\Writer\OrderDeliveryWriter" id="shopware.order_delivery.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
+        <service class="Shopware\OrderDelivery\Loader\OrderDeliveryBasicLoader" id="shopware.order_delivery.basic_loader">
+            <argument id="shopware.order_delivery.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\OrderDelivery\Loader\OrderDeliveryDetailLoader" id="shopware.order_delivery.detail_loader">
+            <argument id="shopware.order_delivery.detail_factory" type="service"/>
+            <argument id="shopware.order_delivery_position.searcher" type="service"/>
+        </service>
+
+        <service class="Shopware\OrderDelivery\Searcher\OrderDeliverySearcher" id="shopware.order_delivery.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.search.sql_parser" type="service"/>
+            <argument id="shopware.order_delivery.detail_factory" type="service"/>
+            <argument id="shopware.order_delivery.basic_loader" type="service"/>
+        </service>
+
+        <service class="Shopware\OrderDelivery\Repository\OrderDeliveryRepository" id="shopware.order_delivery.repository">
+            <argument id="shopware.order_delivery.detail_loader" type="service"/>
+            <argument id="shopware.order_delivery.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.order_delivery.searcher" type="service"/>
+            <argument id="shopware.order_delivery.writer" type="service"/>
+        </service>
+
+    </services>
+</container>

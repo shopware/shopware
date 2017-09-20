@@ -8,14 +8,9 @@ use Shopware\Shop\Struct\ShopBasicStruct;
 class CustomerDetailStruct extends CustomerBasicStruct
 {
     /**
-     * @var string[]
-     */
-    protected $addressUuids = [];
-
-    /**
      * @var CustomerAddressBasicCollection
      */
-    protected $addresss;
+    protected $addresses;
 
     /**
      * @var ShopBasicStruct
@@ -24,27 +19,17 @@ class CustomerDetailStruct extends CustomerBasicStruct
 
     public function __construct()
     {
-        $this->addresss = new CustomerAddressBasicCollection();
+        $this->addresses = new CustomerAddressBasicCollection();
     }
 
-    public function getAddressUuids(): array
+    public function getAddresses(): CustomerAddressBasicCollection
     {
-        return $this->addressUuids;
+        return $this->addresses;
     }
 
-    public function setAddressUuids(array $addressUuids): void
+    public function setAddresses(CustomerAddressBasicCollection $addresses): void
     {
-        $this->addressUuids = $addressUuids;
-    }
-
-    public function getAddresss(): CustomerAddressBasicCollection
-    {
-        return $this->addresss;
-    }
-
-    public function setAddresss(CustomerAddressBasicCollection $addresss): void
-    {
-        $this->addresss = $addresss;
+        $this->addresses = $addresses;
     }
 
     public function getShop(): ShopBasicStruct

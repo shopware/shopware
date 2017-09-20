@@ -34,8 +34,8 @@ class AreaDetailLoader
 
     public function __construct(
         AreaDetailFactory $factory,
-AreaCountrySearcher $areaCountrySearcher,
-AreaCountryDetailLoader $areaCountryDetailLoader
+        AreaCountrySearcher $areaCountrySearcher,
+        AreaCountryDetailLoader $areaCountryDetailLoader
     ) {
         $this->factory = $factory;
         $this->areaCountrySearcher = $areaCountrySearcher;
@@ -48,7 +48,7 @@ AreaCountryDetailLoader $areaCountryDetailLoader
             return new AreaDetailCollection();
         }
 
-        $areas = $this->read($uuids, $context);
+        $areasCollection = $this->read($uuids, $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('area_country.area_uuid', $uuids));
@@ -56,11 +56,11 @@ AreaCountryDetailLoader $areaCountryDetailLoader
         $countries = $this->areaCountryDetailLoader->load($countriesUuids->getUuids(), $context);
 
         /** @var AreaDetailStruct $area */
-        foreach ($areas as $area) {
+        foreach ($areasCollection as $area) {
             $area->setCountries($countries->filterByAreaUuid($area->getUuid()));
         }
 
-        return $areas;
+        return $areasCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): AreaDetailCollection

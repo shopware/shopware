@@ -4,6 +4,7 @@ namespace Shopware\ProductManufacturer\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
+use Shopware\ProductManufacturer\Extension\ProductManufacturerExtension;
 use Shopware\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -41,6 +42,7 @@ class ProductManufacturerBasicFactory extends Factory
         $productManufacturer->setMetaDescription(isset($data[$selection->getField('meta_description')]) ? (string) $data[$selection->getField('meta_description')] : null);
         $productManufacturer->setMetaKeywords(isset($data[$selection->getField('meta_keywords')]) ? (string) $data[$selection->getField('meta_keywords')] : null);
 
+        /** @var $extension ProductManufacturerExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($productManufacturer, $data, $selection, $context);
         }

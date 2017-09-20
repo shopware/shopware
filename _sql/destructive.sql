@@ -837,3 +837,23 @@ ALTER TABLE `tax_area_rule`
     DROP `area_country_state_id`,
     DROP `tax_id`,
     DROP `customer_group_id`;
+
+DROP TABLE `s_order_attributes`;
+DROP TABLE `s_order`;
+DROP TABLE `s_order_basket_attributes`;
+DROP TABLE `s_order_basket`;
+DROP TABLE `s_order_basket_signatures`;
+DROP TABLE `s_order_billingaddress_attributes`;
+DROP TABLE `s_order_billingaddress`;
+DROP TABLE `s_order_comparisons`;
+DROP TABLE `s_order_details_attributes`;
+DROP TABLE `s_order_details`;
+DROP TABLE `s_order_documents_attributes`;
+DROP TABLE `s_order_documents`;
+DROP TABLE `s_order_esd`;
+DROP TABLE `s_order_history`;
+DROP TABLE `s_order_notes`;
+DROP TABLE `s_order_number`;
+DROP TABLE `s_order_shippingaddress_attributes`;
+DROP TABLE `s_order_shippingaddress`;
+

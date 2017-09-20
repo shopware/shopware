@@ -51,9 +51,9 @@ class CategoryDetailLoadedEvent extends NestedEvent
         return new NestedEventCollection([
             new CategoryBasicLoadedEvent($this->categories, $this->context),
             new ProductStreamBasicLoadedEvent($this->categories->getProductStreams(), $this->context),
-            new MediaBasicLoadedEvent($this->categories->getMedias(), $this->context),
+            new MediaBasicLoadedEvent($this->categories->getMedia(), $this->context),
             new ProductBasicLoadedEvent($this->categories->getProducts(), $this->context),
-            new CustomerGroupBasicLoadedEvent($this->categories->getBlockedCustomerGroupss(), $this->context),
+            new CustomerGroupBasicLoadedEvent($this->categories->getBlockedCustomerGroups(), $this->context),
         ]);
     }
 }

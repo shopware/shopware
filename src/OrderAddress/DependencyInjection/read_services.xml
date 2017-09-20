@@ -1,0 +1,46 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\OrderAddress\Factory\OrderAddressBasicFactory" id="shopware.order_address.basic_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="service" id="shopware.extension.registry" />
+            <argument id="shopware.area_country.basic_factory" type="service"/>
+            <argument id="shopware.area_country_state.basic_factory" type="service"/>
+        </service>
+
+
+        <service class="Shopware\OrderAddress\Controller\OrderAddressController" id="shopware.order_address.api_controller">
+            <argument id="shopware.order_address.repository" type="service"/>
+        </service>
+        
+
+        <service class="Shopware\OrderAddress\Writer\OrderAddressWriter" id="shopware.order_address.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
+        <service class="Shopware\OrderAddress\Loader\OrderAddressBasicLoader" id="shopware.order_address.basic_loader">
+            <argument id="shopware.order_address.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\OrderAddress\Searcher\OrderAddressSearcher" id="shopware.order_address.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.search.sql_parser" type="service"/>
+            <argument id="shopware.order_address.basic_factory" type="service"/>
+            <argument id="shopware.order_address.basic_loader" type="service"/>
+        </service>
+
+        <service class="Shopware\OrderAddress\Repository\OrderAddressRepository" id="shopware.order_address.repository">
+            <argument id="shopware.order_address.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.order_address.searcher" type="service"/>
+            <argument id="shopware.order_address.writer" type="service"/>
+        </service>
+
+    </services>
+</container>

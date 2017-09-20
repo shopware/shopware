@@ -23,7 +23,7 @@ class CategoryDetailCollection extends CategoryBasicCollection
         );
     }
 
-    public function getMedias(): MediaBasicCollection
+    public function getMedia(): MediaBasicCollection
     {
         return new MediaBasicCollection(
             $this->fmap(function (CategoryDetailStruct $category) {
@@ -66,11 +66,11 @@ class CategoryDetailCollection extends CategoryBasicCollection
         return $uuids;
     }
 
-    public function getBlockedCustomerGroupss(): CustomerGroupBasicCollection
+    public function getBlockedCustomerGroups(): CustomerGroupBasicCollection
     {
         $collection = new CustomerGroupBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getBlockedCustomerGroupss()->getIterator()->getArrayCopy());
+            $collection->fill($element->getBlockedCustomerGroups()->getIterator()->getArrayCopy());
         }
 
         return $collection;

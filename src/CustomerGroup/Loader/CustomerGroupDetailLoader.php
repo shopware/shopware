@@ -29,7 +29,7 @@ class CustomerGroupDetailLoader
 
     public function __construct(
         CustomerGroupDetailFactory $factory,
-CustomerGroupDiscountSearcher $customerGroupDiscountSearcher
+        CustomerGroupDiscountSearcher $customerGroupDiscountSearcher
     ) {
         $this->factory = $factory;
         $this->customerGroupDiscountSearcher = $customerGroupDiscountSearcher;
@@ -41,7 +41,7 @@ CustomerGroupDiscountSearcher $customerGroupDiscountSearcher
             return new CustomerGroupDetailCollection();
         }
 
-        $customerGroups = $this->read($uuids, $context);
+        $customerGroupsCollection = $this->read($uuids, $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('customer_group_discount.customer_group_uuid', $uuids));
@@ -49,11 +49,11 @@ CustomerGroupDiscountSearcher $customerGroupDiscountSearcher
         $discounts = $this->customerGroupDiscountSearcher->search($criteria, $context);
 
         /** @var CustomerGroupDetailStruct $customerGroup */
-        foreach ($customerGroups as $customerGroup) {
+        foreach ($customerGroupsCollection as $customerGroup) {
             $customerGroup->setDiscounts($discounts->filterByCustomerGroupUuid($customerGroup->getUuid()));
         }
 
-        return $customerGroups;
+        return $customerGroupsCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): CustomerGroupDetailCollection

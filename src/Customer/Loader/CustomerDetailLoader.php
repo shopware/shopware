@@ -29,7 +29,7 @@ class CustomerDetailLoader
 
     public function __construct(
         CustomerDetailFactory $factory,
-CustomerAddressSearcher $customerAddressSearcher
+        CustomerAddressSearcher $customerAddressSearcher
     ) {
         $this->factory = $factory;
         $this->customerAddressSearcher = $customerAddressSearcher;
@@ -41,19 +41,19 @@ CustomerAddressSearcher $customerAddressSearcher
             return new CustomerDetailCollection();
         }
 
-        $customers = $this->read($uuids, $context);
+        $customersCollection = $this->read($uuids, $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('customer_address.customer_uuid', $uuids));
-        /** @var CustomerAddressSearchResult $addresss */
-        $addresss = $this->customerAddressSearcher->search($criteria, $context);
+        /** @var CustomerAddressSearchResult $addresses */
+        $addresses = $this->customerAddressSearcher->search($criteria, $context);
 
         /** @var CustomerDetailStruct $customer */
-        foreach ($customers as $customer) {
-            $customer->setAddresss($addresss->filterByCustomerUuid($customer->getUuid()));
+        foreach ($customersCollection as $customer) {
+            $customer->setAddresses($addresses->filterByCustomerUuid($customer->getUuid()));
         }
 
-        return $customers;
+        return $customersCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): CustomerDetailCollection

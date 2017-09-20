@@ -30,9 +30,9 @@ class PaymentMethodBasicLoader
             return new PaymentMethodBasicCollection();
         }
 
-        $paymentMethods = $this->read($uuids, $context);
+        $paymentMethodsCollection = $this->read($uuids, $context);
 
-        return $paymentMethods;
+        return $paymentMethodsCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): PaymentMethodBasicCollection

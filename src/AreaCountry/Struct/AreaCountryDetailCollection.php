@@ -15,7 +15,7 @@ class AreaCountryDetailCollection extends AreaCountryBasicCollection
     {
         $uuids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getStateUuids() as $uuid) {
+            foreach ($element->getStates()->getUuids() as $uuid) {
                 $uuids[] = $uuid;
             }
         }

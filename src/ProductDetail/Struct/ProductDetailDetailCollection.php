@@ -15,7 +15,7 @@ class ProductDetailDetailCollection extends ProductDetailBasicCollection
     {
         $uuids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getPriceUuids() as $uuid) {
+            foreach ($element->getPrices()->getUuids() as $uuid) {
                 $uuids[] = $uuid;
             }
         }

@@ -91,7 +91,6 @@ class TemplateFinder
         if (!$wholeInheritance && array_key_exists($template, $this->queue)) {
             $queue = $this->queue[$template];
         }
-
         if (empty($queue)) {
             $queue = $this->queue[$template] = $this->directories;
         }

@@ -25,6 +25,7 @@
 namespace Shopware\Framework\Write;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Search\QuerySelection;
 
 class SqlGateway
 {
@@ -48,7 +49,7 @@ class SqlGateway
         $qb = $this->connection
             ->createQueryBuilder()
             ->select('COUNT(*)')
-            ->from($tableName);
+            ->from(QuerySelection::escape($tableName));
 
         foreach ($pkData as $pkDatum => $pkValue) {
             $qb->andWhere($pkDatum . '= :' . $pkDatum);
@@ -69,9 +70,9 @@ class SqlGateway
     {
         //        $this->connection->transactional(function() use ($data, $tableName) {
         $affectedRows = $this->connection->insert(
-                $tableName,
-                $data
-            );
+            QuerySelection::escape($tableName),
+            $data
+        );
 
         if (!$affectedRows) {
             throw new ExceptionNoInsertedRecord('Unable to insert data');
@@ -87,10 +88,10 @@ class SqlGateway
     {
         //        $this->connection->transactional(function() use ($uuid, $data, $tableName) {
         $affectedRows = $this->connection->update(
-                $tableName,
-                $data,
-                $uuid
-            );
+            QuerySelection::escape($tableName),
+            $data,
+            $uuid
+        );
 
         if (0 === $affectedRows) {
             throw new ExceptionNoUpdatedRecord(sprintf('Unable to update "%s"::"%s" - no rows updated with %s', $tableName, print_r($uuid, true), print_r($data, true)));

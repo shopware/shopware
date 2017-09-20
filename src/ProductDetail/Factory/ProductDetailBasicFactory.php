@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
+use Shopware\ProductDetail\Extension\ProductDetailExtension;
 use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -97,6 +98,7 @@ class ProductDetailBasicFactory extends Factory
             );
         }
 
+        /** @var $extension ProductDetailExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($productDetail, $data, $selection, $context);
         }

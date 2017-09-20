@@ -53,10 +53,10 @@ class ProductBasicLoadedEvent extends NestedEvent
         return new NestedEventCollection([
             new ProductManufacturerBasicLoadedEvent($this->products->getManufacturers(), $this->context),
             new ProductDetailBasicLoadedEvent($this->products->getMainDetails(), $this->context),
-            new TaxBasicLoadedEvent($this->products->getTaxs(), $this->context),
+            new TaxBasicLoadedEvent($this->products->getTaxes(), $this->context),
             new SeoUrlBasicLoadedEvent($this->products->getCanonicalUrls(), $this->context),
             new PriceGroupBasicLoadedEvent($this->products->getPriceGroups(), $this->context),
-            new CustomerGroupBasicLoadedEvent($this->products->getBlockedCustomerGroupss(), $this->context),
+            new CustomerGroupBasicLoadedEvent($this->products->getBlockedCustomerGroups(), $this->context),
         ]);
     }
 }

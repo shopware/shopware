@@ -30,9 +30,9 @@ class ProductVoteBasicLoader
             return new ProductVoteBasicCollection();
         }
 
-        $productVotes = $this->read($uuids, $context);
+        $productVotesCollection = $this->read($uuids, $context);
 
-        return $productVotes;
+        return $productVotesCollection;
     }
 
     private function read(array $uuids, TranslationContext $context): ProductVoteBasicCollection

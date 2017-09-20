@@ -4,6 +4,7 @@ namespace Shopware\PriceGroupDiscount\Factory;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\Factory;
+use Shopware\PriceGroupDiscount\Extension\PriceGroupDiscountExtension;
 use Shopware\PriceGroupDiscount\Struct\PriceGroupDiscountBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -33,6 +34,7 @@ class PriceGroupDiscountBasicFactory extends Factory
         $priceGroupDiscount->setPercentageDiscount((float) $data[$selection->getField('percentage_discount')]);
         $priceGroupDiscount->setProductCount((float) $data[$selection->getField('product_count')]);
 
+        /** @var $extension PriceGroupDiscountExtension */
         foreach ($this->getExtensions() as $extension) {
             $extension->hydrate($priceGroupDiscount, $data, $selection, $context);
         }

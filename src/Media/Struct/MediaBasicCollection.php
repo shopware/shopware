@@ -82,7 +82,7 @@ class MediaBasicCollection extends Collection
         });
     }
 
-    public function getAlbums(): AlbumBasicCollection
+    public function getAlbum(): AlbumBasicCollection
     {
         return new AlbumBasicCollection(
             $this->fmap(function (MediaBasicStruct $media) {

@@ -146,4 +146,14 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
     {
         return $this->rule;
     }
+
+    public function getDeliveryInformation(): DeliveryInformation
+    {
+        return $this->deliveryInformation;
+    }
+
+    public function getType(): string
+    {
+        return $this->lineItem->getType();
+    }
 }

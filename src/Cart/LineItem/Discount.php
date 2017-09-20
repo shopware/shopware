@@ -27,7 +27,7 @@ namespace Shopware\Cart\LineItem;
 use Shopware\Cart\Price\Price;
 use Shopware\CartBridge\View\ViewLineItemInterface;
 use Shopware\Framework\Struct\Struct;
-use Shopware\Media\Struct\Media;
+use Shopware\Media\Struct\MediaBasicStruct;
 
 class Discount extends Struct implements CalculatedLineItemInterface, ViewLineItemInterface
 {
@@ -93,8 +93,13 @@ class Discount extends Struct implements CalculatedLineItemInterface, ViewLineIt
         return $this->label;
     }
 
-    public function getCover(): ? Media
+    public function getCover(): ? MediaBasicStruct
     {
         return null;
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
     }
 }

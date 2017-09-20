@@ -97,6 +97,12 @@ class StoreFrontCartService
         $this->orderPersister = $orderPersister;
     }
 
+    public function createNew(): ViewCart
+    {
+        $this->createNewCart();
+        return $this->getCart();
+    }
+
     public function getCart(): ViewCart
     {
         return $this->viewCartTransformer->transform(
@@ -107,7 +113,7 @@ class StoreFrontCartService
 
     public function add(LineItemInterface $item): void
     {
-        $cart = $this->getCart()->getCalculatedCart()->getCartContainer();
+        $cart = $this->getCartContainer();
 
         $cart->getLineItems()->add($item);
 

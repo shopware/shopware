@@ -33,7 +33,7 @@ use Shopware\Cart\Price\PriceDefinition;
 use Shopware\Cart\Tax\CalculatedTaxCollection;
 use Shopware\Cart\Tax\TaxRuleCollection;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\ShippingMethod\Struct\ShippingMethod;
+use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
 
 class StockDeliverySeparator
 {
@@ -163,7 +163,7 @@ class StockDeliverySeparator
         DeliveryCollection $deliveries,
         DeliveryPosition $position,
         ShippingLocation $location,
-        ShippingMethod $shippingMethod
+        ShippingMethodBasicStruct $shippingMethod
     ): void {
         $delivery = $deliveries->getDelivery(
             $position->getDeliveryDate(),

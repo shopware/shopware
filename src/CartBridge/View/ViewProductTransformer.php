@@ -25,27 +25,36 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\View;
 
-use Shopware\Bundle\StoreFrontBundle\Media\MediaServiceInterface;
 use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\Product\CalculatedProduct;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Product\Gateway\ProductRepository;
+use Shopware\Product\Repository\ProductRepository;
+use Shopware\ProductDetail\Repository\ProductDetailRepository;
 
 class ViewProductTransformer implements ViewLineItemTransformerInterface
 {
-    /**
-     * @var MediaServiceInterface
-     */
-    private $mediaService;
+//    /**
+//     * @var MediaServiceInterface
+//     */
+//    private $mediaService;
 
     /**
      * @var ProductRepository
      */
     private $productRepository;
 
-    public function __construct(ProductRepository $productRepository)
-    {
+    /**
+     * @var ProductDetailRepository
+     */
+    private $productDetailRepository;
+
+    public function __construct(
+        ProductRepository $productRepository,
+        ProductDetailRepository $productDetailRepository
+    ) {
         $this->productRepository = $productRepository;
+        $this->productDetailRepository = $productDetailRepository;
     }
 
     /**
@@ -62,23 +71,31 @@ class ViewProductTransformer implements ViewLineItemTransformerInterface
             return;
         }
 
-        $listProducts = $this->productRepository->read(
+        $variants = $this->productDetailRepository->read(
             $collection->getIdentifiers(),
-            $context->getTranslationContext(),
-            ProductRepository::FETCH_MINIMAL
+            $context->getTranslationContext()
         );
+
+        $products = $this->productRepository->read(
+            $variants->getProductUuids(),
+            $context->getTranslationContext()
+        );
+
 
 //        $covers = $this->mediaService->getVariantCovers($listProducts, $context);
 
-        foreach ($listProducts as $listProduct) {
-            /** @var CalculatedProduct $calculated */
-            $calculated = $collection->get($listProduct->getNumber());
+        /** @var CalculatedLineItemCollection $collection */
+        foreach ($collection as $calculated) {
+
+            $variant = $variants->get($calculated->getIdentifier());
+
+            $product = $products->get($variant->getProductUuid());
 
 //            if (isset($covers[$listProduct->getNumber()])) {
 //                $listProduct->setCover($covers[$listProduct->getNumber()]);
 //            }
 
-            $template = ViewProduct::createFromProducts($listProduct, $calculated);
+            $template = ViewProduct::createFromProducts($product, $variant, $calculated);
 
             $templateCart->getViewLineItems()->add($template);
         }

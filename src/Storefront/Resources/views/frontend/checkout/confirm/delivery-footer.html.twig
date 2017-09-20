@@ -1,0 +1,38 @@
+{% sw_extends 'frontend/checkout/cart/cart-footer.html.twig' %}
+
+{# @var delivery \Shopware\CartBridge\View\ViewDelivery#}
+{# @var location \Shopware\Cart\Delivery\ShippingLocation #}
+{% set location = delivery.delivery.location %}
+{% set deliveryDate = delivery.delivery.deliveryDate %}
+{% set shippingMethod = delivery.delivery.shippingMethod %}
+
+{# Hide add product #}
+{% block frontend_checkout_cart_footer_add_product %}
+{% endblock %}
+
+{%  block frontend_checkout_cart_footer_field_labels %}
+    <div class="shipping-address" style="margin: 16px;">
+        <div class="shipping-address--label" style="width: 65%; float: left; text-align: right; margin-right: 5%;"><b>Lieferadresse:</b></div>
+        <div class="shipping-address--content" style="width: 30%; float: left;">
+            {{ location.address.street }}<br>
+            {{ location.address.zipcode }} {{ location.address.city }}<br>
+            {% if location.address.state %} {{ location.address.state.name }}<br>{% endif %}
+            {{ location.country.name }}<br>
+        </div>
+        <br style="clear: both;" />
+    </div>
+    <div class="delivery-date" style="margin: 20px 16px 16px 16px;">
+        <div class="delivery-date--label" style="width: 65%; float: left; text-align: right; margin-right: 5%;"><b>Lieferdatum:</b></div>
+        <div class="delivery-date--content" style="width: 30%; float: left;">
+            Zwischen dem <i>{{ deliveryDate.earliest.date|date('d.m.Y') }}</i> und <i>{{ deliveryDate.latest.date|date('d.m.Y') }}</i>
+        </div>
+        <br style="clear: both;" />
+    </div>
+    <div class="shipping-method" style="margin: 20px 16px 16px 16px;">
+        <div class="shipping-method--label" style="width: 65%; float: left; text-align: right; margin-right: 5%;"><b>Versandart:</b></div>
+        <div class="shipping-method--content" style="width: 30%; float: left;">
+            {{ shippingMethod.name }}
+        </div>
+        <br style="clear: both;" />
+    </div>
+{% endblock %}

@@ -31,6 +31,7 @@ use Shopware\Cart\LineItem\Discount;
 use Shopware\Cart\Price\PercentagePriceCalculator;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\CustomerGroup\Struct\CustomerGroup;
+use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
 
 class CustomerGroupDiscountGateway
 {
@@ -78,16 +79,16 @@ class CustomerGroupDiscountGateway
         return new Discount('customer-group-discount', $discount, 'Customer group discount');
     }
 
-    private function getDiscount(CustomerGroup $customerGroup, float $price): ? float
+    private function getDiscount(CustomerGroupBasicStruct $customerGroup, float $price): ? float
     {
         $query = $this->connection->createQueryBuilder();
-        $query->select(['discounts.basketdiscount']);
-        $query->from('s_core_customergroups_discounts', 'discounts');
-        $query->andWhere('discounts.groupID = :id');
-        $query->andWhere('discounts.basketdiscountstart <= :price');
-        $query->orderBy('basketdiscountstart', 'DESC');
+        $query->select(['discounts.percentage_discount']);
+        $query->from('customer_group_discount', 'discounts');
+        $query->andWhere('discounts.customer_group_uuid = :customer_group_uuid');
+        $query->andWhere('discounts.minimum_cart_amount <= :price');
+        $query->orderBy('minimum_cart_amount', 'DESC');
         $query->setParameter('price', $price);
-        $query->setParameter('id', $customerGroup->getId());
+        $query->setParameter('customer_group_uuid', $customerGroup->getUuid());
         $query->setMaxResults(1);
 
         $discount = $query->execute()->fetch(\PDO::FETCH_COLUMN);

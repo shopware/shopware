@@ -32,7 +32,7 @@ use Shopware\Cart\Rule\Rule;
 use Shopware\Cart\Rule\Validatable;
 use Shopware\CartBridge\View\ViewLineItemInterface;
 use Shopware\Framework\Struct\Struct;
-use Shopware\Media\Struct\Media;
+use Shopware\Media\Struct\MediaBasicStruct;
 
 class CalculatedVoucher extends Struct implements CalculatedLineItemInterface, ViewLineItemInterface, Validatable
 {
@@ -60,11 +60,6 @@ class CalculatedVoucher extends Struct implements CalculatedLineItemInterface, V
      * @var string
      */
     protected $identifier;
-
-    /**
-     * @var string
-     */
-    protected $type = 'voucher';
 
     /**
      * @var \Shopware\Cart\Rule\Rule
@@ -106,7 +101,7 @@ class CalculatedVoucher extends Struct implements CalculatedLineItemInterface, V
         return $this->label;
     }
 
-    public function getCover(): ? Media
+    public function getCover(): ? MediaBasicStruct
     {
         return null;
     }
@@ -124,5 +119,10 @@ class CalculatedVoucher extends Struct implements CalculatedLineItemInterface, V
     public function getRule(): ? Rule
     {
         return $this->rule;
+    }
+
+    public function getType(): string
+    {
+        return $this->lineItem->getType();
     }
 }

@@ -37,7 +37,7 @@ use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 
-class VoucherProcessor implements CartProcessorInterface
+class  VoucherProcessor implements CartProcessorInterface
 {
     const TYPE_VOUCHER = 'voucher';
 
@@ -130,7 +130,7 @@ class VoucherProcessor implements CartProcessorInterface
                         $this->percentageTaxRuleBuilder->buildRules(
                             $prices->sum()
                         ),
-                        $voucher->getPrice()->getQuantity(),
+                        1,
                         $voucher->getPrice()->isCalculated()
                     ),
                     $context

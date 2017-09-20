@@ -1,0 +1,57 @@
+{% sw_extends 'frontend/checkout/cart/items/product.html.twig' %}
+
+
+    {# Delivery item quantity #}
+    {% block frontend_checkout_cart_item_quantity %}
+        <div class="panel--td column--quantity is--align-right">
+
+            {# Label #}
+            {% block frontend_checkout_cart_item_quantity_label %}
+                <div class="column--label quantity--label">
+                    {% trans from 'frontend/checkout/cart_header' %}CartColumnQuantity{% endtrans %}
+                </div>
+            {% endblock %}
+
+            {% block frontend_checkout_cart_item_quantity_selection %}
+                {{ deliveryPosition.quantity }}
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {# Accumulated delivery item price #}
+    {% block frontend_checkout_cart_item_total_sum %}
+        <div class="panel--td column--total-price is--align-right">
+            {% block frontend_checkout_cart_item_total_price_label %}
+                <div class="column--label total-price--label">
+                    {% trans from 'frontend/checkout/cart_header' %}CartColumnTotal{% endtrans %}
+                </div>
+            {% endblock %}
+
+            {{ deliveryPosition.price.totalPrice|localizedcurrency(context.currency.shortName) }}
+            {{ block('frontend_checkout_cart_tax_symbol') }}
+        </div>
+    {% endblock %}
+
+    {# Delivery item tax price #}
+    {% block frontend_checkout_cart_item_tax_price %}
+        <div class="panel--td column--tax-price block is--align-right">
+            {% block frontend_checkout_cart_item_tax_label %}
+                {#<div class="column--label tax-price--label">#}
+                    {#{if $sUserData.additional.charge_vat && !$sUserData.additional.show_net}#}
+                    {#{% trans from "frontend/checkout/confirm_header" %}CheckoutColumnExcludeTax{% endtrans %}#}
+                    {#{elseif $sUserData.additional.charge_vat}#}
+                    {#{% trans from "frontend/checkout/confirm_header" %}CheckoutColumnTax{% endtrans %}#}
+                    {#{/if}#}
+                {#</div>#}
+            {% endblock %}
+
+            {#{% if $sUserData.additional.charge_vat %}#}
+            {#{%  set taxAmount = deliveryPosition.price.taxRules.rate * viewLineItem.calculatedLineItem.price.totalPrice / 100 %}#}
+            {#{{ taxAmount|round(2)|localizedcurrency(context.currency.shortName) }}#}
+            {#{% else %}&nbsp;{% endif }#}
+        </div>
+    {% endblock %}
+
+    {# Hide action column #}
+    {% block frontend_checkout_cart_item_delete_article %}
+    {% endblock %}

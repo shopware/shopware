@@ -36,4 +36,6 @@ interface CalculatedLineItemInterface extends \JsonSerializable
     public function getQuantity(): int;
 
     public function getLineItem(): ? LineItemInterface;
+
+    public function getType(): string;
 }

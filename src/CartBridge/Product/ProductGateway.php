@@ -91,25 +91,34 @@ class ProductGateway implements ProductGatewayInterface
         $query = $this->connection->createQueryBuilder();
 
         $query->select([
-            'variant.order_number',
+            'variant.uuid',
+            'variant.product_uuid',
             'variant.stock',
             'variant.weight',
             'variant.width',
             'variant.height',
             'variant.length',
-            'variant.shipping_time',
-            "GROUP_CONCAT(DISTINCT customerGroups.customer_group_id SEPARATOR '|') as blocked_groups",
-            "GROUP_CONCAT(DISTINCT shop.id SEPARATOR '|') AS allowed_shops",
-            'product.last_stock as closeout',
+            '(
+                SELECT GROUP_CONCAT(DISTINCT c.customer_group_uuid SEPARATOR \'|\') 
+                FROM product_avoid_customer_group as c 
+                WHERE c.product_uuid = variant.product_uuid
+            ) as blocked_groups',
+
+            '(
+                SELECT GROUP_CONCAT(DISTINCT shop.uuid SEPARATOR \'|\')
+                FROM shop
+                    INNER JOIN product_category_ro categories_ro
+                WHERE shop.category_uuid = categories_ro.category_uuid
+                AND categories_ro.product_uuid = variant.product_uuid
+
+             ) AS allowed_shops',
+            'product.is_closeout as closeout',
         ]);
         $query->from('product_detail', 'variant');
-        $query->innerJoin('variant', 'product', 'product', 'product.id = variant.product_id');
-        $query->leftJoin('variant', 'product_avoid_customer_group', 'customerGroups', 'customerGroups.product_id = variant.product_id');
-        $query->leftJoin('variant', 'product_category_ro', 'categories_ro', 'categories_ro.product_id = variant.product_id');
-        $query->leftJoin('categories_ro', 's_core_shops', 'shop', 'shop.category_id = categories_ro.category_id');
-        $query->groupBy('variant.id');
+        $query->innerJoin('variant', 'product', 'product', 'product.uuid = variant.product_uuid');
 
-        $query->where('variant.order_number IN (:numbers)');
+        // group by uuid is not possible at the moment since the column is not unique
+        $query->where('variant.uuid IN (:numbers)');
         $query->setParameter('numbers', $numbers, Connection::PARAM_STR_ARRAY);
 
         return $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
@@ -156,21 +165,13 @@ class ProductGateway implements ProductGatewayInterface
         $rule = new OrRule();
 
         if (!empty($row['blocked_groups'])) {
-            $ids = array_filter(explode('|', $row['blocked_groups']));
-            $ids = array_map(function ($id) {
-                return (int) $id;
-            }, $ids);
-
-            $rule->addRule(new CustomerGroupRule($ids));
+            $uuids = array_filter(explode('|', $row['blocked_groups']));
+            $rule->addRule(new CustomerGroupRule($uuids));
         }
 
         if ($row['allowed_shops']) {
-            $ids = array_filter(explode('|', $row['allowed_shops']));
-            $ids = array_map(function ($id) {
-                return (int) $id;
-            }, $ids);
-
-            $rule->addRule(new ShopRule($ids, Rule::OPERATOR_NEQ));
+            $uuids = array_filter(explode('|', $row['allowed_shops']));
+            $rule->addRule(new ShopRule($uuids, Rule::OPERATOR_NEQ));
         }
 
         return $rule;

@@ -81,8 +81,7 @@
 
 {# Messages container #}
 {% block frontend_global_messages_container %}
-    <div class="alert is--{{ type }}{{ hasBorderRadius and hasBorderRadius == true ? ' is rounded' : '' }}{{ visible == false ? ' is--hidden' : '' }}">
-
+    <div class="alert is--{{ type }}{{ hasBorderRadius and hasBorderRadius == true ? ' is rounded' : '' }}{{ isVisible ? ' is--hidden' : '' }}">
         {# Icon column #}
         {% block frontend_global_messages_icon %}
             <div class="alert--icon">

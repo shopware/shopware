@@ -56,15 +56,16 @@ class ShopRule extends Rule
     ): Match {
         switch ($this->operator) {
             case self::OPERATOR_EQ:
+
                 return new Match(
-                    in_array($context->getShop()->getId(), $this->shopIds, true),
+                    in_array($context->getShop()->getUuid(), $this->shopIds, true),
                     ['Shop not matched']
                 );
 
             case self::OPERATOR_NEQ:
 
                 return new Match(
-                    !in_array($context->getShop()->getId(), $this->shopIds, true),
+                    !in_array($context->getShop()->getUuid(), $this->shopIds, true),
                     ['Shop not matched']
                 );
 

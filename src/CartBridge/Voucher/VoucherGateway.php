@@ -85,7 +85,7 @@ class VoucherGateway implements VoucherGatewayInterface
         return new AbsoluteVoucherData(
             $row['code'],
             $this->buildRule($row),
-            new PriceDefinition($price, new TaxRuleCollection(), 1, true)
+            new PriceDefinition($price * -1, new TaxRuleCollection(), 1, true)
         );
     }
 

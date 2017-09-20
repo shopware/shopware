@@ -28,6 +28,9 @@ namespace Shopware\CartBridge\View;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Error\ErrorCollection;
 use Shopware\Cart\Price\CartPrice;
+use Shopware\Cart\Price\Price;
+use Shopware\Cart\Tax\CalculatedTaxCollection;
+use Shopware\Cart\Tax\TaxRuleCollection;
 use Shopware\Framework\Struct\Struct;
 
 class ViewCart extends Struct
@@ -81,6 +84,19 @@ class ViewCart extends Struct
     public function getDeliveries(): ViewDeliveryCollection
     {
         return $this->deliveries;
+    }
+
+    public function getTotalShippingCosts(): Price
+    {
+        $deliveries = $this->getDeliveries();
+        $totalShippingCosts = new Price(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection());
+
+        /** @var ViewDelivery $delivery */
+        foreach($deliveries as $delivery) {
+            $totalShippingCosts->add($delivery->getDelivery()->getShippingCosts());
+        }
+
+        return $totalShippingCosts;
     }
 
     public function clearErrors(): ErrorCollection

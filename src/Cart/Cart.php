@@ -25,7 +25,6 @@
 namespace Shopware\Cart;
 
 use Shopware\Cart\DependencyInjection\CompilerPass\CartCalculatorProcessor;
-use Shopware\Cart\DependencyInjection\CompilerPass\CartProcessorCompilerPass;
 use Shopware\Cart\DependencyInjection\CompilerPass\CartRuleDataCollectorCompilerPass;
 use Shopware\Cart\DependencyInjection\CompilerPass\TaxRuleCalculatorCompilerPass;
 use Symfony\Component\Config\FileLocator;
@@ -46,7 +45,6 @@ class Cart extends Bundle
         $loader->load('services.xml');
 
         $container->addCompilerPass(new CartCalculatorProcessor());
-        $container->addCompilerPass(new CartProcessorCompilerPass());
         $container->addCompilerPass(new CartRuleDataCollectorCompilerPass());
         $container->addCompilerPass(new TaxRuleCalculatorCompilerPass());
     }

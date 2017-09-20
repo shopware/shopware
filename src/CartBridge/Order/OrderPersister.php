@@ -25,36 +25,136 @@
 namespace Shopware\CartBridge\Order;
 
 use Doctrine\DBAL\Connection;
+use Ramsey\Uuid\Uuid;
 use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Delivery\Delivery;
+use Shopware\Cart\Delivery\DeliveryPosition;
+use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Cart\Order\OrderPersisterInterface;
+use Shopware\Cart\Tax\TaxDetector;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Order\Repository\OrderRepository;
+use Shopware\Serializer\SerializerRegistry;
 
 class OrderPersister implements OrderPersisterInterface
 {
     /**
-     * @var Connection
+     * @var OrderRepository
      */
-    private $connection;
+    private $repository;
 
     /**
-     * @param Connection $connection
+     * @var TaxDetector
      */
-    public function __construct(Connection $connection)
+    private $taxDetector;
+
+    public function __construct(OrderRepository $repository, TaxDetector $taxDetector)
     {
-        $this->connection = $connection;
+        $this->repository = $repository;
+        $this->taxDetector = $taxDetector;
     }
 
     public function persist(CalculatedCart $calculatedCart, ShopContext $context): void
     {
-        $this->connection->executeUpdate(
-            'INSERT INTO `s_cart_order` (`token`, `name`, `content`, `order_time`) 
-             VALUES (:token, :name, :content, :order_time)',
-            [
-                ':token' => $calculatedCart->getToken(),
-                ':name' => $calculatedCart->getName(),
-                ':content' => json_encode($calculatedCart),
-                ':order_time' => (new \DateTime())->format('Y-m-d H:i:s'),
-            ]
-        );
+        $order = $this->convert($calculatedCart, $context);
+
+        $this->repository->create([$order], $context->getTranslationContext());
+    }
+
+    private function convert(CalculatedCart $calculatedCart, ShopContext $context): array
+    {
+        $addressUuid = Uuid::uuid4()->toString();
+
+        $data = [
+            'date' => (new \DateTime())->format('Y-m-d H:i:s'),
+            'amountTotal' => $calculatedCart->getPrice()->getTotalPrice(),
+            'amountNet' => $calculatedCart->getPrice()->getNetPrice(),
+            'positionPrice' => $calculatedCart->getPrice()->getPositionPrice(),
+            'shippingTotal' => $calculatedCart->getShippingCosts()->getTotalPrice(),
+            'shippingNet' => $calculatedCart->getShippingCosts()->getTotalPrice() - $calculatedCart->getShippingCosts()->getCalculatedTaxes()->getAmount(),
+            'isNet' => !$this->taxDetector->useGross($context),
+            'isTaxFree' => $this->taxDetector->isNetDelivery($context),
+            'customerUuid' => $context->getCustomer()->getUuid(),
+            'stateUuid' => 'SWAG-ORDER-STATE-UUID-0',
+            'paymentMethodUuid' => $context->getPaymentMethod()->getUuid(),
+            'currencyUuid' => $context->getCurrency()->getUuid(),
+            'shopUuid' => $context->getShop()->getUuid(),
+            'billingAddressUuid' => $addressUuid,
+            'lineItems' => [],
+            'deliverys' => [],
+            'context' => json_encode($context),
+            'payload' => json_encode($calculatedCart),
+        ];
+
+        $address = $context->getCustomer()->getActiveBillingAddress();
+
+        $data['billingAddress'] = $this->convertAddress($address);
+        $data['billingAddress']['uuid'] = $addressUuid;
+
+        $lineItemMap = [];
+        /** @var CalculatedLineItemInterface $lineItem */
+        foreach ($calculatedCart->getCalculatedLineItems() as $lineItem) {
+            $uuid = Uuid::uuid4()->toString();
+            $lineItemMap[$lineItem->getIdentifier()] = $uuid;
+
+            $data['lineItems'][] = [
+                'uuid' => $uuid,
+                'identifier' => $lineItem->getIdentifier(),
+                'quantity' => $lineItem->getQuantity(),
+                'unitPrice' => $lineItem->getPrice()->getUnitPrice(),
+                'totalPrice' => $lineItem->getPrice()->getTotalPrice(),
+                'type' => $lineItem->getType(),
+                'payload' => json_encode($lineItem)
+            ];
+        }
+
+        /** @var Delivery $delivery */
+        foreach ($calculatedCart->getDeliveries() as $delivery) {
+            $deliveryData = [
+                'shippingDateEarliest' => $delivery->getDeliveryDate()->getEarliest()->format('Y-m-d H:i:s'),
+                'shippingDateLatest' => $delivery->getDeliveryDate()->getLatest()->format('Y-m-d H:i:s'),
+                'shippingMethodUuid' => $delivery->getShippingMethod()->getUuid(),
+                'shippingAddress' => $this->convertAddress($delivery->getLocation()->getAddress()),
+                'positions' => [],
+                'payload' => json_encode($delivery)
+            ];
+            
+            /** @var DeliveryPosition $position */
+            foreach ($delivery->getPositions() as $position) {
+                $deliveryData['positions'][] = [
+                    'unitPrice' => $position->getPrice()->getUnitPrice(),
+                    'totalPrice' => $position->getPrice()->getTotalPrice(),
+                    'quantity' => $position->getQuantity(),
+                    'payload' => json_encode($position),
+                    'orderLineItemUuid' => $lineItemMap[$position->getIdentifier()]
+                ];
+            }
+
+            $data['deliverys'][] = $deliveryData;
+        }
+        
+        return $data;
+    }
+
+    private function convertAddress(CustomerAddressBasicStruct $address): array
+    {
+        return array_filter([
+            'company' => $address->getCompany(),
+            'department' => $address->getDepartment(),
+            'salutation' => $address->getSalutation(),
+            'title' => $address->getTitle(),
+            'firstName' => $address->getFirstName(),
+            'lastName' => $address->getLastName(),
+            'street' => $address->getStreet(),
+            'zipcode' => $address->getZipcode(),
+            'city' => $address->getCity(),
+            'vatId' => $address->getVatId(),
+            'phoneNumber' => $address->getPhoneNumber(),
+            'additionalAddressLine1' => $address->getAdditionalAddressLine1(),
+            'additionalAddressLine2' => $address->getAdditionalAddressLine2(),
+            'areaCountryUuid' => $address->getAreaCountryUuid(),
+            'areaCountryStateUuid' => $address->getAreaCountryStateUuid()
+        ]);
     }
 }

@@ -60,6 +60,10 @@ class DynamicLineItemGateway implements DynamicLineItemGatewayInterface
     {
         $lineItems = new CalculatedLineItemCollection();
 
+        if ($cart->getCalculatedLineItems()->count() <= 0) {
+            return $lineItems;
+        }
+
         if ($lineItem = $this->customerGroupDiscountGateway->get($cart, $context)) {
             $lineItems->add($lineItem);
         }

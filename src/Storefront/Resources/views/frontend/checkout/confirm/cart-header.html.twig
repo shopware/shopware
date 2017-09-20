@@ -1,0 +1,11 @@
+{% sw_extends "frontend/checkout/cart/cart-header.html.twig" %}
+
+{# Hide the price per unit #}
+{% block frontend_checkout_cart_header_price %}{% endblock %}
+
+{# Product tax #}
+{% block frontend_checkout_cart_header_tax %}
+    <div class="panel--th column--tax-price block is--align-right">
+        {% trans from 'frontend/checkout/confirm_header' %}CheckoutColumnTax{% endtrans %}
+    </div>
+{% endblock %}

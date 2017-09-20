@@ -1,0 +1,182 @@
+{# Add product using the sku #}
+{% block frontend_checkout_cart_footer_add_product %}
+<form method="post" action="{{ path('cart_add_product') }}" class="table--add-product add-product--form block-group">
+
+    {% block frontend_checkout_cart_footer_add_product_field %}
+    {#<input name="number" class="add-product--field block" type="text" placeholder="{s name='CheckoutFooterAddProductPlaceholder' namespace='frontend/checkout/cart_footer_left'}{/s}" />#}
+        <input name="identifier" class="add-product--field block" type="text" placeholder="{% trans from 'frontend/checkout/cart_footer_left' %}CheckoutFooterAddProductPlaceholder{% endtrans %}" />
+        <input type="hidden" name="quantity" value="1" />
+        <input type="hidden" name="target" value="{{ 'cart_index' }}" />
+    {% endblock %}
+
+    {% block frontend_checkout_cart_footer_add_product_button %}
+    <button type="submit" class="add-product--button btn is--primary is--center block">
+        <i class="icon--arrow-right"></i>
+    </button>
+    {% endblock %}
+</form>
+{% endblock %}
+
+{% block frontend_checkout_cart_footer_element %}
+<div class="basket--footer">
+    <div class="table--aggregation">
+        {# Add product using a voucher #}
+        {% block frontend_checkout_cart_footer_add_voucher %}
+        <form method="post" action="{{ path('cart_add_voucher') }}" class="table--add-voucher add-voucher--form">
+
+            {% block frontend_checkout_cart_footer_add_voucher_trigger %}
+            <input type="checkbox" id="add-voucher--trigger" class="add-voucher--checkbox">
+            {% endblock %}
+
+            {% block frontend_checkout_cart_footer_add_voucher_label %}
+            {#<label for="add-voucher--trigger" class="add-voucher--label">{s name="CheckoutFooterVoucherTrigger"}{/s}</label>#}
+            <label for="add-voucher--trigger" class="add-voucher--label">{% trans from 'frontend/checkout/cart_footer' %}CheckoutFooterVoucherTrigger{% endtrans %}</label>
+            {% endblock %}
+
+            <div class="add-voucher--panel is--hidden block-group">
+                {% block frontend_checkout_cart_footer_add_voucher_field %}
+                {#<input type="text" class="add-voucher--field is--medium block" name="code" placeholder="{"{s name='CheckoutFooterAddVoucherLabelInline'}{/s}"|escape}" />#}
+                <input type="text" class="add-voucher--field is--medium block" name="identifier" placeholder="{% trans from 'frontend/checkout/cart_footer' %}CheckoutFooterAddVoucherLabelInline{% endtrans %}" />
+                <input type="hidden" name="target" value="{{ 'cart_index' }}" />
+                {% endblock %}
+
+                {% block frontend_checkout_cart_footer_add_voucher_button %}
+                <button type="submit" class="add-voucher--button is--medium btn is--primary is--center block">
+                    <i class="icon--arrow-right"></i>
+                </button>
+                {% endblock %}
+            </div>
+        </form>
+        {% endblock %}
+
+        {#{* Shipping costs pre-calculation *}#}
+        {#{if $sBasket.content && !$sUserLoggedIn && !$sUserData.additional.user.id && {config name=basketShowCalculation}}#}
+
+        {#{block name='frontend_checkout_shipping_costs_country_trigger'}#}
+        {#<a href="#show-hide--shipping-costs" class="table--shipping-costs-trigger">#}
+            {#{s name='CheckoutFooterEstimatedShippingCosts'}{/s} <i class="icon--arrow-right"></i>#}
+        {#</a>#}
+        {#{/block}#}
+
+        {#{block name='frontend_checkout_shipping_costs_country_include'}#}
+        {#{include file="frontend/checkout/shipping_costs.tpl"}#}
+        {#{/block}#}
+        {#{/if}#}
+    </div>
+
+    {%  block frontend_checkout_cart_footer_field_labels %}
+    <ul class="aggregation--list">
+
+        {# Basket sum #}
+        {% block frontend_checkout_cart_footer_field_labels_sum  %}
+        <li class="list--entry block-group entry--sum">
+
+            {% block frontend_checkout_cart_footer_field_labels_sum_label %}
+            <div class="entry--label block">
+                {#{s name="CartFooterLabelSum"}{/s}#}
+                {% trans from 'frontend/checkout/cart_footer' %}CartFooterLabelSum{% endtrans %}
+            </div>
+            {% endblock %}
+
+            {% block frontend_checkout_cart_footer_field_labels_sum_value %}
+            <div class="entry--value block">
+                {#{$cart.calculatedCart.price.positionPrice|currency}{s name="Star" namespace="frontend/listing/box_article"}{/s}#}
+                {{ cart.calculatedCart.price.positionPrice|localizedcurrency(context.currency.shortName) }}{% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
+            </div>
+            {% endblock %}
+        </li>
+        {% endblock %}
+
+        {# Shipping costs #}
+        {% block frontend_checkout_cart_footer_field_labels_shipping %}
+        <li class="list--entry block-group entry--shipping">
+
+            {% block frontend_checkout_cart_footer_field_labels_shipping_label %}
+            <div class="entry--label block">
+                {#{s name="CartFooterLabelShipping"}{/s}#}
+                {% trans from 'frontend/checkout/cart_footer' %}CartFooterLabelShipping{% endtrans %}
+            </div>
+            {% endblock %}
+
+            {% block frontend_checkout_cart_footer_field_labels_shipping_value %}
+            <div class="entry--value block">
+                {#{$cart.calculatedCart.shippingCosts|currency}{s name="Star" namespace="frontend/listing/box_article"}{/s}#}
+                {{ cart.totalShippingCosts.unitPrice|localizedcurrency(context.currency.shortName) }}{% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
+            </div>
+            {% endblock %}
+        </li>
+        {% endblock %}
+
+        {# Total sum #}
+        {% block frontend_checkout_cart_footer_field_labels_total %}
+        <li class="list--entry block-group entry--total">
+
+            {% block frontend_checkout_cart_footer_field_labels_total_label %}
+            <div class="entry--label block">
+                {#{s name="CartFooterLabelTotal"}{/s}#}
+                {% trans from 'frontend/checkout/cart_footer' %}CartFooterLabelTotal{% endtrans %}
+            </div>
+            {% endblock %}
+
+            {% block frontend_checkout_cart_footer_field_labels_total_value %}
+            <div class="entry--value block is--no-star">
+                {{ cart.calculatedCart.price.totalPrice|localizedcurrency(context.currency.shortName) }}
+            </div>
+            {% endblock %}
+        </li>
+        {% endblock %}
+
+        {# Total net #}
+        {% block frontend_checkout_cart_footer_field_labels_totalnet %}
+        {# {if $sUserData.additional.charge_vat} #}
+        <li class="list--entry block-group entry--totalnet">
+
+            {% block frontend_checkout_cart_footer_field_labels_totalnet_label %}
+            <div class="entry--label block">
+                {#{s name="CartFooterTotalNet"}{/s}#}
+                {% trans from 'frontend/checkout/cart_footer' %}CartFooterTotalNet{% endtrans %}
+            </div>
+            {% endblock %}
+
+            {% block frontend_checkout_cart_footer_field_labels_totalnet_value %}
+            <div class="entry--value block is--no-star">
+                {#{$cart.calculatedCart.price.netPrice|currency}#}
+                {{ cart.calculatedCart.price.netPrice|localizedcurrency(context.currency.shortName) }}
+            </div>
+            {% endblock %}
+        </li>
+        {# {/if} #}
+        {% endblock %}
+
+        {# Taxes #}
+        {% block frontend_checkout_cart_footer_field_labels_taxes %}
+
+        {% for rule in cart.calculatedCart.price.calculatedTaxes %}
+        {% set value = rule.tax %}
+        {% set rate = rule.taxRate %}
+
+        {% block frontend_checkout_cart_footer_field_labels_taxes_entry %}
+        <li class="list--entry block-group entry--taxes">
+
+            {% block frontend_checkout_cart_footer_field_labels_taxes_label %}
+            <div class="entry--label block">
+                {#{s name="CartFooterTotalTax"}{/s}#}
+                {# TODO: Format tax rate before passing to to template #}
+                {% trans with {'%rate%': rate} from 'frontend/checkout/cart_footer' %}CartFooterTotalTax{% endtrans %}
+            </div>
+            {% endblock %}
+
+            {% block frontend_checkout_cart_footer_field_labels_taxes_value %}
+            <div class="entry--value block is--no-star">
+                {{ value|localizedcurrency(context.currency.shortName) }}
+            </div>
+            {% endblock %}
+        </li>
+        {% endblock %}
+        {% endfor %}
+        {% endblock %}
+
+    </ul>
+    {% endblock %}
+</div>
+{% endblock %}

@@ -29,6 +29,7 @@ use Shopware\Cart\Delivery\DeliveryCollection;
 use Shopware\Cart\Error\ErrorCollection;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\Price\CartPrice;
+use Shopware\Cart\Price\Price;
 use Shopware\Framework\Struct\Struct;
 
 class CalculatedCart extends Struct
@@ -105,12 +106,15 @@ class CalculatedCart extends Struct
         return $this->cartContainer->clearErrors();
     }
 
+    public function getShippingCosts(): Price
+    {
+        return $this->getDeliveries()->getShippingCosts()->sum();
+    }
+
     public function jsonSerialize(): array
     {
         $data = parent::jsonSerialize();
-
-        $data['shippingCosts'] = $this->getDeliveries()->getShippingCosts()->sum()->getTotalPrice();
-
+        $data['shippingCosts'] = $this->getShippingCosts();
         return $data;
     }
 }

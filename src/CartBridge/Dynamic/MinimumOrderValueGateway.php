@@ -62,7 +62,7 @@ class MinimumOrderValueGateway
 
         $customerGroup = $context->getCurrentCustomerGroup();
 
-        if (!$customerGroup->getMinimumOrderValue()) {
+        if (!$customerGroup->getMinimumOrderAmount()) {
             return null;
         }
 
@@ -74,21 +74,21 @@ class MinimumOrderValueGateway
 
         $price = $goods->getPrices()->sum();
 
-        if ($customerGroup->getMinimumOrderValue() <= $price->getTotalPrice()) {
+        if ($customerGroup->getMinimumOrderAmount() <= $price->getTotalPrice()) {
             return null;
         }
 
         $rules = $this->percentageTaxRuleBuilder->buildRules($price);
 
         $surcharge = $this->priceCalculator->calculate(
-            new PriceDefinition($customerGroup->getSurcharge(), $rules, 1, true),
+            new PriceDefinition($customerGroup->getMinimumOrderAmountSurcharge(), $rules, 1, true),
             $context
         );
 
         return new Discount(
             'minimum-order-value',
             $surcharge,
-            sprintf('Minimum order value of %s', $customerGroup->getMinimumOrderValue())
+            sprintf('Minimum order value of %s', $customerGroup->getMinimumOrderAmount())
         );
     }
 }

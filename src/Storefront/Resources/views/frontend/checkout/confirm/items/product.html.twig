@@ -1,0 +1,28 @@
+{% sw_extends "frontend/checkout/cart/items/product.html.twig" %}
+
+{# Additional product information #}
+{% block frontend_checkout_cart_item_details_inline %}
+{{ viewLineItem.variant.additionalText }}
+{% endblock %}
+
+{% block frontend_checkout_cart_item_quantity_target %}
+    <input type="hidden" name="target" value="checkout_confirm" />
+{% endblock %}
+
+{% block frontend_checkout_cart_item_tax_price %}
+<div class="panel--td column--tax-price block is--align-right">
+    {% block frontend_checkout_cart_item_tax_label %}
+    <div class="column--label tax-price--label">
+        {#{if $sUserData.additional.charge_vat && !$sUserData.additional.show_net}#}
+        {% trans from "frontend/checkout/confirm_header" %}CheckoutColumnExcludeTax{% endtrans %}
+        {#{elseif $sUserData.additional.charge_vat}#}
+        {#{% trans from "frontend/checkout/confirm_header" %}CheckoutColumnTax{% endtrans %}#}
+        {/if}
+    </div>
+    {% endblock %}
+
+    {#{% if $sUserData.additional.charge_vat %}#}
+        {{ viewLineItem.calculatedLineItem.price.calculatedTaxes.amount|localizedcurrency(context.currency.shortName) }}
+    {#{% else %}&nbsp;{% endif }#}
+</div>
+{% endblock %}

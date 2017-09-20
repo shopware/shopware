@@ -52,7 +52,8 @@
         </service>
 
         <service id="shopware.cart.order.persister" class="Shopware\CartBridge\Order\OrderPersister">
-            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.order.repository" type="service"/>
+            <argument id="cart.tax.detector" type="service"/>
         </service>
 
         <service id="shopware.cart.persister" class="Shopware\CartBridge\Cart\CartPersister">
@@ -62,6 +63,7 @@
 
         <service id="shopware.cart.view.product_transformer" class="Shopware\CartBridge\View\ViewProductTransformer">
             <argument type="service" id="shopware.product.repository" />
+            <argument type="service" id="shopware.product_detail.repository" />
         </service>
 
         <service id="shopware.cart.view.cart_transformer" class="Shopware\CartBridge\View\ViewCartTransformer">

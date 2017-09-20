@@ -32,10 +32,19 @@ use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\PriceDefinition;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\ShippingMethod\Struct\ShippingMethod;
+use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
 
 class DeliveryCalculator
 {
+
+    const CALCULATION_BY_WEIGHT = 0;
+
+    const CALCULATION_BY_PRICE = 1;
+
+    const CALCULATION_BY_LINE_ITEM_COUNT = 2;
+
+    const CALCULATION_BY_CUSTOM = 3;
+
     /**
      * @var Connection
      */
@@ -64,7 +73,7 @@ class DeliveryCalculator
     public function calculate(Delivery $delivery, ShopContext $context): void
     {
         switch ($delivery->getShippingMethod()->getCalculation()) {
-            case ShippingMethod::CALCULATION_BY_WEIGHT:
+            case self::CALCULATION_BY_WEIGHT:
                 $costs = $this->calculateShippingCosts(
                     $this->findShippingCosts(
                         $delivery->getShippingMethod(),
@@ -75,7 +84,7 @@ class DeliveryCalculator
                 );
 
                 break;
-            case ShippingMethod::CALCULATION_BY_PRICE:
+            case self::CALCULATION_BY_PRICE:
                 $costs = $this->calculateShippingCosts(
                     $this->findShippingCosts(
                         $delivery->getShippingMethod(),
@@ -87,7 +96,7 @@ class DeliveryCalculator
 
                 break;
 
-            case ShippingMethod::CALCULATION_BY_LINE_ITEM_COUNT:
+            case self::CALCULATION_BY_LINE_ITEM_COUNT:
                 $costs = $this->calculateShippingCosts(
                     $this->findShippingCosts(
                         $delivery->getShippingMethod(),
@@ -98,7 +107,7 @@ class DeliveryCalculator
                 );
                 break;
 
-            case ShippingMethod::CALCULATION_BY_CUSTOM:
+            case self::CALCULATION_BY_CUSTOM:
 
                 return;
         }
@@ -117,16 +126,16 @@ class DeliveryCalculator
         return $this->priceCalculator->calculate($definition, $context);
     }
 
-    private function findShippingCosts(ShippingMethod $shippingMethod, float $value): float
+    private function findShippingCosts(ShippingMethodBasicStruct $shippingMethod, float $value): float
     {
         $query = $this->connection->createQueryBuilder();
-        $query->select('costs.value');
-        $query->from('s_premium_shippingcosts', 'costs');
-        $query->andWhere('costs.`from` <= :value');
-        $query->andWhere('costs.dispatchID = :id');
-        $query->setParameter('id', $shippingMethod->getId());
+        $query->select('costs.price');
+        $query->from('shipping_method_price', 'costs');
+        $query->andWhere('costs.`quantity_from` <= :value');
+        $query->andWhere('costs.shipping_method_uuid = :uuid');
+        $query->setParameter('uuid', $shippingMethod->getUuid());
         $query->setParameter('value', $value);
-        $query->addOrderBy('value', 'DESC');
+        $query->addOrderBy('price', 'DESC');
         $query->setMaxResults(1);
 
         return (float) $query->execute()->fetch(\PDO::FETCH_COLUMN);

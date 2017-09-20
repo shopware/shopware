@@ -29,7 +29,7 @@
 {# Cart entry #}
 {% block frontend_index_checkout_actions_cart %}
     <li class="navigation--entry entry--cart" role="menuitem">
-        <a class="btn is--icon-left cart--link" href="{url controller='checkout' action='cart'}" title="{{ 'IndexLinkCart'|trans([], 'frontend/index/checkout_actions')|escape }}">
+        <a class="btn is--icon-left cart--link" href="{{ url('checkout_cart') }}" title="{{ 'IndexLinkCart'|trans([], 'frontend/index/checkout_actions')|escape }}">
             <span class="cart--display">
                 {% if shopware.context.logged_in %}
                     {% trans from "frontend/index/checkout_actions" %}IndexLinkCheckout{% endtrans %}

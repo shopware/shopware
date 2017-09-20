@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace Shopware\CartBridge\View;
 
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
-use Shopware\Media\Struct\Media;
+use Shopware\Media\Struct\MediaBasicStruct;
 
 interface ViewLineItemInterface extends \JsonSerializable
 {
@@ -34,5 +34,7 @@ interface ViewLineItemInterface extends \JsonSerializable
 
     public function getLabel(): string;
 
-    public function getCover(): ? Media;
+    public function getCover(): ? MediaBasicStruct;
+
+    public function getType(): string;
 }

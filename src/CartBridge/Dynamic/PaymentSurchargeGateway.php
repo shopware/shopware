@@ -71,12 +71,12 @@ class PaymentSurchargeGateway
         $goods = $cart->getCalculatedLineItems()->filterGoods();
 
         switch (true) {
-            case $payment->getSurcharge() !== null:
+            case $payment->getAbsoluteSurcharge() !== null:
                 $rules = $this->percentageTaxRuleBuilder->buildRules(
                     $goods->getPrices()->sum()
                 );
                 $surcharge = $this->priceCalculator->calculate(
-                    new PriceDefinition($payment->getSurcharge(), $rules, 1, true),
+                    new PriceDefinition($payment->getAbsoluteSurcharge(), $rules, 1, true),
                     $context
                 );
 

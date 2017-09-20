@@ -27,10 +27,11 @@ namespace Shopware\CartBridge\View;
 
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Cart\Product\CalculatedProduct;
-use Shopware\Media\Struct\Media;
-use Shopware\Product\Struct\Product;
+use Shopware\Media\Struct\MediaBasicStruct;
+use Shopware\Product\Struct\ProductBasicStruct;
+use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
 
-class ViewProduct extends Product implements ViewLineItemInterface
+class ViewProduct extends ProductBasicStruct implements ViewLineItemInterface
 {
     /**
      * @var CalculatedProduct
@@ -38,14 +39,14 @@ class ViewProduct extends Product implements ViewLineItemInterface
     protected $product;
 
     /**
+     * @var ProductDetailBasicStruct
+     */
+    protected $variant;
+
+    /**
      * @var string
      */
     protected $type = 'product';
-
-    public function __construct(string $uuid, string $variantUuid, string $number, CalculatedProduct $product)
-    {
-        $this->product = $product;
-    }
 
     /**
      * {@inheritdoc}
@@ -64,23 +65,24 @@ class ViewProduct extends Product implements ViewLineItemInterface
     }
 
     public static function createFromProducts(
-        Product $simpleProduct,
+        ProductBasicStruct $simpleProduct,
+        ProductDetailBasicStruct $variant,
         CalculatedProduct $calculatedProduct
     ): ViewProduct {
-        $product = new self(
-            $simpleProduct->getUuid(),
-            $simpleProduct->getVariantUuid(),
-            $simpleProduct->getNumber(),
-            $calculatedProduct
-        );
+
+        $product = new self();
+
         foreach ($simpleProduct as $key => $value) {
             $product->$key = $value;
         }
 
+        $product->variant = $variant;
+        $product->product = $calculatedProduct;
+
         return $product;
     }
 
-    public function getCover(): ? Media
+    public function getCover(): ? MediaBasicStruct
     {
         return null;
     }
@@ -93,4 +95,21 @@ class ViewProduct extends Product implements ViewLineItemInterface
 
         return $data;
     }
+
+    /**
+     * @return ProductDetailBasicStruct
+     */
+    public function getVariant(): ProductDetailBasicStruct
+    {
+        return $this->variant;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
 }

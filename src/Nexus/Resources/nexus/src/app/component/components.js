@@ -10,7 +10,7 @@ import './atom/sw-field';
 import './atom/utils/sw-loader/sw-loader';
 import './atom/sw-card';
 import './atom/sw-button';
-import 'src/app/component/atom/form/sw-multi-select';
+import './atom/form/sw-multi-select';
 
 // Molecules
 

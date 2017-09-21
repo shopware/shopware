@@ -15,6 +15,6 @@
         </div>
     </div>
 
-    <sw-multi-select label="Kategorie" id="category" placeholder="Your product categories..." :serviceProvider="serviceProvider" :values="[{name: product.manufacturer.name, uuid: product.manufacturer.uuid}]"></sw-multi-select>
+    <sw-multi-select label="Kategorie" id="category" placeholder="Your product categories..." :serviceProvider="serviceProvider"></sw-multi-select>
     <sw-loader v-if="isWorking"></sw-loader>
 </sw-card>

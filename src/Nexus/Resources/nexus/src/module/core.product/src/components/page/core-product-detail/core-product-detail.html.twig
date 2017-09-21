@@ -1,7 +1,7 @@
 <sw-workspace>
     <header class="toolbar--middle-section" slot="header">
         <h1 class="workspace--headline">
-            <span v-if="product.name">{{ product.name }} <span class="is--small">von {{ product.manufacturer.name }}</span></span>
+            <span v-if="!isWorking">{{ product.name }} <span class="is--small">von {{ product.manufacturer.name }}</span></span>
             <span v-else class="headline--empty">(lade Produkt...)</span>
         </h1>
 
@@ -46,5 +46,18 @@
         </ul>
 
         <core-product-basic-form :product="product" :manufacturers="manufacturers" :isWorking="isWorking" :serviceProvider="categoryService"></core-product-basic-form>
+
+        <sw-card title="Preise">
+            <div class="split--container">
+                <div class="container--item">
+                    <sw-field label="Preis" id="title" type="text" name="name" placeholder="Your product price..." suffix="€"></sw-field>
+                    <sw-field label="Mehrwertsteuer" id="title" type="text" name="name" placeholder="Your product tax..." suffix="%"></sw-field>
+                </div>
+                <div class="container--item">
+                    <sw-field label="Rabatt" id="title" type="text" name="name" placeholder="Your rebate..." suffix="€"></sw-field>
+                    <sw-field label="Einkaufspreis (netto)" id="title" type="text" name="name" placeholder="Your purchase price..." suffix="€"></sw-field>
+                </div>
+            </div>
+        </sw-card>
     </div>
 </sw-workspace>

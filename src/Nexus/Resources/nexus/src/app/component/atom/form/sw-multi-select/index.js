@@ -16,6 +16,10 @@ export default Shopware.ComponentFactory.register('sw-multi-select', {
             type: Array,
             required: false,
             default: []
+        },
+        label: {
+            type: String,
+            default: ''
         }
     },
 

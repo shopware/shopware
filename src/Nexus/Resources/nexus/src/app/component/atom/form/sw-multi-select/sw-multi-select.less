@@ -1,13 +1,22 @@
 .sw-multi-select {
-    display: block;
-    position: relative;
-    width: 100%;
-    padding: 4px 6px;
-    border-radius: 4px;
-    border: 1px solid #E9EFF4;
-    background: #fff;
-    font-size: 14px;
-    line-height: 27px;
+    label {
+        display: block;
+        margin-bottom: 12px;
+        font-weight: bold;
+        color: rgba(20,36,50,0.8);
+    }
+
+    .sw-multi-select--inner {
+        display: block;
+        position: relative;
+        width: 100%;
+        padding: 4px 6px;
+        border-radius: 4px;
+        border: 1px solid #E9EFF4;
+        background: #fff;
+        font-size: 14px;
+        line-height: 27px;
+    }
 
     .sw-multi-select--list {
         display: block;
@@ -57,7 +66,6 @@
         outline: none;
     }
 }
-
 .sw-drop-down {
     position: absolute;
     left: -1px;

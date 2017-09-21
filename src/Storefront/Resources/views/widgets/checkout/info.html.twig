@@ -16,7 +16,7 @@
 {% block frontend_index_checkout_actions_my_options %}
     <li class="navigation--entry entry--account" role="menuitem">
         {% block frontend_index_checkout_actions_account %}
-            <a href="{url controller='account'}" title="{{ 'IndexLinkAccount'|trans([], 'frontend/index/checkout_actions')|escape }}" class="btn is--icon-left entry--link account--link">
+            <a href="{{ path('account_home') }}" title="{{ 'IndexLinkAccount'|trans([], 'frontend/index/checkout_actions')|escape }}" class="btn is--icon-left entry--link account--link">
                 <i class="icon--account"></i>
                 <span class="account--display">
                     {% trans from "frontend/index/checkout_actions" %}IndexLinkAccount{% endtrans %}

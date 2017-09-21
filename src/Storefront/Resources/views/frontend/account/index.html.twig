@@ -1,0 +1,293 @@
+{% sw_extends "@Storefront/frontend/index/index.html.twig" %}
+
+{# Breadcrumb #}
+{% block frontend_index_start %}
+    {{ parent() }}
+    {#{assign var='sBreadcrumb' value=[['name'=>"{% trans from "frontend/account/index" %}AccountTitle{% endtrans %}", 'link' =>{url controller='account' action='index'}]]}#}
+{% endblock %}
+
+{% block frontend_index_left_categories_my_account %}{% endblock %}
+
+{# Account Sidebar #}
+{% block frontend_index_content_left %}
+    {% block frontend_account_sidebar %}
+        {% sw_include "@Storefront/frontend/account/sidebar.html.twig" %}
+    {% endblock %}
+{% endblock %}
+
+
+{# Account Main Content #}
+{% block frontend_index_content %}
+    <div class="content account--content">
+
+        {# Success messages #}
+        {% block frontend_account_index_success_messages %}
+            {#{include file="frontend/account/success_messages.tpl"}#}
+        {% endblock %}
+
+        {# Error messages #}
+        {% block frontend_account_index_error_messages %}
+            {% if sErrorMessages %}
+                <div class="account--error">
+                    {include file="frontend/register/error_message.tpl" error_messages=$sErrorMessages}
+                </div>
+            {% endif %}
+        {% endblock %}
+
+        {# Welcome text #}
+        {% block frontend_account_index_welcome %}
+
+            <div class="account--welcome panel">
+                {% block frontend_account_index_welcome_headline %}
+                    <h1 class="panel--title">{% trans from "frontend/account/index" %}AccountHeaderWelcome{% endtrans %},
+                        {% if shopware.config.displayprofiletitle %}{{ context.customer.title }}{% endif %}
+                        {{ context.customer.firstName }} {{ context.customer.lastName }}
+                    </h1>
+                {% endblock %}
+
+                {% block frontend_account_index_welcome_content %}
+                    <div class="panel--body is--wide">
+                        <p>{% trans from "frontend/account/index" %}AccountHeaderInfo{% endtrans %}</p>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        <div data-panel-auto-resizer="true" class="account-info--container">
+            {# General user informations #}
+            {% block frontend_account_index_info %}
+                <div class="account--info account--box panel has--border is--rounded">
+
+                    {% block frontend_account_index_info_headline %}
+                        <h2 class="panel--title is--underline">{% trans from "frontend/account/index" %}AccountHeaderBasic{% endtrans %}</h2>
+                    {% endblock %}
+
+                    {% block frontend_account_index_info_content %}
+                        <div class="panel--body is--wide">
+                            <p>
+                                {{ context.customer.salutation }}
+                                {% if shopware.config.displayprofiletitle %}{{ context.customer.title }}{% endif %}
+                                {{ context.customer.firstName }} {{ context.customer.lastName }}<br/>
+                                {% if context.customer.birthday %}
+                                    {{ context.customer.birthday.format('dd.MM.y') }}<br/>
+                                {% endif %}
+                                {{ context.customer.email }}
+                            </p>
+                        </div>
+                    {% endblock %}
+
+                    {% block frontend_account_index_info_actions %}
+                        <div class="panel--actions is--wide">
+                            <a href="{url controller=account action=profile}" title="{% trans from "frontend/account/index" %}AccountLinkChangeProfile{% endtrans %}" class="btn is--small">
+                                {% trans from "frontend/account/index" %}AccountLinkChangeProfile{% endtrans %}
+                            </a>
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {# Payment information #}
+            {% block frontend_account_index_payment_method %}
+                <div class="account--payment account--box panel has--border is--rounded">
+
+                    {% block frontend_account_index_payment_method_headline %}
+                        <h2 class="panel--title is--underline">{% trans from "frontend/account/index" %}AccountHeaderPayment{% endtrans %}</h2>
+                    {% endblock %}
+
+                    {% block frontend_account_index_payment_method_content %}
+                        <div class="panel--body is--wide">
+                            <p>
+                                <strong>{{ context.paymentMethod.name }}</strong><br/>
+
+                                {% if not context.paymentMethod.allowEsd and shopware.config.showesd %}
+                                    {% trans from "frontend/account/index" %}AccountInfoInstantDownloads{% endtrans %}
+                                {% endif %}
+                            </p>
+                        </div>
+                    {% endblock %}
+
+                    {% block frontend_account_index_payment_method_actions %}
+                        <div class="panel--actions is--wide">
+                            <a href="{url controller='account' action='payment'}"
+                               title="{% trans from "frontend/account/index" %}AccountLinkChangePayment{% endtrans %}"
+                               class="btn is--small">
+                                {% trans from "frontend/account/index" %}AccountLinkChangePayment{% endtrans %}
+                            </a>
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+
+        {% block frontend_account_index_addresses %}
+            <div data-panel-auto-resizer="true" class="account-address--container">
+                {# Billing addresses #}
+                {% block frontend_account_index_primary_billing %}
+                    <div class="account--billing account--box panel has--border is--rounded">
+
+                        {% block frontend_account_index_primary_billing_headline %}
+                            <h2 class="panel--title is--underline">{% trans from "frontend/account/index" %}AccountHeaderPrimaryBilling{% endtrans %}</h2>
+                        {% endblock %}
+
+                        {% block frontend_account_index_primary_billing_content %}
+                            <div class="panel--body is--wide">
+                                {% if context.customer.defaultBillingAddress.company %}
+                                    <p>
+                                        <span class="address--company">{{ context.customer.defaultBillingAddress.company }}</span>
+                                        {% if context.customer.defaultBillingAddress.department %}
+                                            - <span class="address--department">{{ context.customer.defaultBillingAddress.department }}</span>
+                                        {% endif %}
+                                    </p>
+                                {% endif %}
+                                <p>
+                                    <span class="address--salutation">{{ context.customer.defaultBillingAddress.salutation }}</span>
+                                    {% if shopware.config.displayprofiletitle %}
+                                        <span class="address--title">{{ context.customer.defaultBillingAddress.title }}</span><br/>
+                                    {% endif %}
+                                    <span class="address--firstname">{{ context.customer.defaultBillingAddress.firstName }}</span> <span class="address--lastname">{{ context.customer.defaultBillingAddress.lastName }}</span><br />
+                                    <span class="address--street">{{ context.customer.defaultBillingAddress.street }}</span><br />
+                                    {% if context.customer.defaultBillingAddress.additionalAddressLine1 %}<span class="address--additional-one">{{ context.customer.defaultBillingAddress.additionalAddressLine1 }}</span><br />{% endif %}
+                                    {% if context.customer.defaultBillingAddress.additionalAddressLine2 %}<span class="address--additional-two">{{ context.customer.defaultBillingAddress.additionalAddressLine2 }}</span><br />{% endif %}
+                                    {% if shopware.config.showZipBeforeCity %}
+                                        <span class="address--zipcode">{{ context.customer.defaultBillingAddress.zipcode }}</span> <span class="address--city">{{ context.customer.defaultBillingAddress.city }}</span>
+                                    {% else %}
+                                        <span class="address--city">{{ context.customer.defaultBillingAddress.city }}</span> <span class="address--zipcode">{{ context.customer.defaultBillingAddress.zipcode }}</span>
+                                    {% endif %}<br />
+                                    {% if context.customer.defaultBillingAddress.state %}<span class="address--statename">{{ context.customer.defaultBillingAddress.state.name }}</span><br />{% endif %}
+                                    <span class="address--countryname">{{ context.customer.defaultBillingAddress.country.name }}</span>
+                                </p>
+                            </div>
+                        {% endblock %}
+
+                        {% block frontend_account_index_primary_billing_actions %}
+                            <div class="panel--actions is--wide">
+                                <a href="{url controller=address action=edit id=$sUserData.additional.user.default_billing_address_id sTarget=account}"
+                                   title="{% trans from "frontend/account/index" %}AccountLinkChangeBilling{% endtrans %}"
+                                   class="btn">
+                                    {% trans from "frontend/account/index" %}AccountLinkChangeBilling{% endtrans %}
+                                </a>
+                                <br/>
+                                <a href="{url controller=address}"
+                                   data-address-selection="true"
+                                   data-setDefaultBillingAddress="1"
+                                   data-id="{{ context.customer.defaultBillingAddressUuid }}"
+                                   title="{% trans from "frontend/account/index" %}AccountLinkChangeBilling{% endtrans %}">
+                                    {% trans from "frontend/account/index" %}AccountLinkSelectBilling{% endtrans %}
+                                </a>
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {# Shipping addresses #}
+                {% block frontend_account_index_primary_shipping %}
+                    <div class="account--shipping account--box panel has--border is--rounded">
+
+                        {% block frontend_account_index_primary_shipping_headline %}
+                            <h2 class="panel--title is--underline">{% trans from "frontend/account/index" %}AccountHeaderPrimaryShipping{% endtrans %}</h2>
+                        {% endblock %}
+
+                        {% block frontend_account_index_primary_shipping_content %}
+                            <div class="panel--body is--wide">
+                                {% if context.customer.defaultBillingAddressUuid == context.customer.defaultShippingAddressUuid %}
+                                    {% block frontend_account_index_primary_shipping_content_equality_notice %}
+                                        <div class="shipping--equal-info">
+                                            {% trans from "frontend/account/index" %}AccountAddressEqualsBilling{% endtrans %}
+                                        </div>
+                                    {% endblock %}
+                                {% else %}
+                                    {% block frontend_account_index_primary_shipping_content_address %}
+                                        {% if context.customer.defaultShippingAddress.company %}
+                                            <p>
+                                                <span class="address--company">{{ context.customer.defaultShippingAddress.company }}</span>
+                                                {% if context.customer.defaultShippingAddress.department %}
+                                                    - <span class="address--department">{{ context.customer.defaultShippingAddress.department }}</span>
+                                                {% endif %}
+                                            </p>
+                                        {% endif %}
+                                        <p>
+                                            <span class="address--salutation">{{ context.customer.defaultShippingAddress.salutation }}</span>
+                                            {% if shopware.config.displayprofiletitle %}
+                                                <span class="address--title">{{ context.customer.defaultShippingAddress.title }}</span><br/>
+                                            {% endif %}
+                                            <span class="address--firstname">{{ context.customer.defaultShippingAddress.firstName }}</span> <span class="address--lastname">{{ context.customer.defaultShippingAddress.lastName }}</span><br />
+                                            <span class="address--street">{{ context.customer.defaultShippingAddress.street }}</span><br />
+                                            {% if context.customer.defaultShippingAddress.additionalAddressLine1 %}<span class="address--additional-one">{{ context.customer.defaultShippingAddress.additionalAddressLine1 }}</span><br />{% endif %}
+                                            {% if context.customer.defaultShippingAddress.additionalAddressLine2 %}<span class="address--additional-two">{{ context.customer.defaultShippingAddress.additionalAddressLine2 }}</span><br />{% endif %}
+                                            {% if shopware.config.showZipBeforeCity %}
+                                            <span class="address--zipcode">{{ context.customer.defaultShippingAddress.zipcode }}</span> <span class="address--city">{{ context.customer.defaultShippingAddress.city }}</span>
+                                        {% else %}
+                                            <span class="address--city">{{ context.customer.defaultShippingAddress.city }}</span> <span class="address--zipcode">{{ context.customer.defaultShippingAddress.zipcode }}</span>
+                                            {% endif %}<br />
+                                            {% if context.customer.defaultShippingAddress.state %}<span class="address--statename">{{ context.customer.defaultShippingAddress.state.name }}</span><br />{% endif %}
+                                            <span class="address--countryname">{{ context.customer.defaultShippingAddress.country.name }}</span>
+                                        </p>
+                                    {% endblock %}
+                                {% endif %}
+                            </div>
+                        {% endblock %}
+
+                        {% block frontend_account_index_primary_shipping_actions %}
+                            {% if context.customer.defaultBillingAddressUuid == context.customer.defaultShippingAddressUuid %}
+                                {% block frontend_account_index_primary_shipping_choose_seperate_address %}
+                                        <div class="panel--actions is--wide">
+                                            <a href="{url controller=address}"
+                                               class="btn choose-different-address"
+                                               data-address-selection="true"
+                                               data-setDefaultShippingAddress="1"
+                                               data-id="{{ context.customer.defaultShippingAddressUuid }}"
+                                               title="{% trans from "frontend/account/index" %}ConfirmAddressChooseDifferentShippingAddress" namespace="frontend/checkout/confirm{% endtrans %}">
+                                                {% trans from "frontend/account/index" %}ConfirmAddressChooseDifferentShippingAddress" namespace="frontend/checkout/confirm{% endtrans %}
+                                            </a>
+                                        </div>
+                                {% endblock %}
+                            {% else %}
+                                {% block frontend_account_index_primary_shipping_add_select_address %}
+                                    <div class="panel--actions is--wide">
+                                        <a href="{url controller=address action=edit id=$sUserData.additional.user.default_shipping_address_id sTarget=account}"
+                                           title="{% trans from "frontend/account/index" %}AccountLinkChangeShipping{% endtrans %}"
+                                           class="btn">
+                                            {% trans from "frontend/account/index" %}AccountLinkChangeShipping{% endtrans %}
+                                        </a>
+                                        <br/>
+                                        <a href="{url controller=address}"
+                                           data-address-selection="true"
+                                           data-setDefaultShippingAddress="1"
+                                           data-id="{$sUserData.additional.user.default_shipping_address_id}"
+                                           title="{% trans from "frontend/account/index" %}AccountLinkSelectShipping{% endtrans %}">
+                                            {% trans from "frontend/account/index" %}AccountLinkSelectShipping{% endtrans %}
+                                        </a>
+                                    </div>
+                                {% endblock %}
+                            {% endif %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {# Newsletter settings #}
+        {% block frontend_account_index_newsletter_settings %}
+            <div class="account--newsletter account--box panel has--border is--rounded newsletter">
+
+                {% block frontend_account_index_newsletter_settings_headline %}
+                <h2 class="panel--title is--underline">{% trans from "frontend/account/index" %}AccountHeaderNewsletter{% endtrans %}</h2>
+                {% endblock %}
+
+                {% block frontend_account_index_newsletter_settings_content %}
+                    <div class="panel--body is--wide">
+                        <form name="frmRegister" method="post" action="{url action=saveNewsletter}">
+                            <fieldset>
+                                <input type="checkbox" name="newsletter" value="1" id="newsletter" data-auto-submit="true" {% if context.customer.newsletter %}checked="checked"{% endif %} />
+                                <label for="newsletter">
+                                    {% trans from "frontend/account/index" %}AccountLabelWantNewsletter{% endtrans %}
+                                </label>
+                            </fieldset>
+                        </form>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+    </div>
+{% endblock %}

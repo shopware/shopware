@@ -95,6 +95,7 @@
             <argument id="shopware.context.service.context_factory" type="service"/>
             <argument id="shopware.cache" type="service"/>
             <argument id="shopware.serializer.serializer_registry" type="service"/>
+            <argument id="security.token_storage" type="service"/>
         </service>
 
         <service class="Shopware\Storefront\Context\StorefrontContextSwitcher" id="shopware.storefront.context.storefront_context_switcher">
@@ -112,6 +113,14 @@
 
         <service class="Shopware\Storefront\Page\Detail\DetailPageLoader" id="shopware.storefront.page.detail.detail_page_loader">
             <argument id="shopware.product.storefront_repository" type="service"/>
+        </service>
+
+        <service class="Shopware\Storefront\Firewall\CustomerProvider" id="shopware.storefront.firewall.customer_provider">
+            <argument type="service" id="shopware.customer.repository" />
+        </service>
+
+        <service class="Shopware\Storefront\Controller\AccountController" id="shopware.storefront.controller.account">
+            <argument type="service" id="security.authentication_utils" />
         </service>
 
     </services>

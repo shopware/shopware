@@ -76,12 +76,12 @@
 
 {# Support for hiding the message on startup #}
 {% block frontend_global_messages_visible %}
-    {% set isVisible = visible ?: true %}
+    {% set isVisible = visible ? true : false %}
 {% endblock %}
 
 {# Messages container #}
 {% block frontend_global_messages_container %}
-    <div class="alert is--{{ type }}{{ hasBorderRadius and hasBorderRadius == true ? ' is rounded' : '' }}{{ isVisible == false ? ' is--hidden' : '' }}">
+    <div class="alert is--{{ type }}{{ hasBorderRadius and hasBorderRadius == true ? ' is rounded' : '' }}{{ visible == false ? ' is--hidden' : '' }}">
 
         {# Icon column #}
         {% block frontend_global_messages_icon %}

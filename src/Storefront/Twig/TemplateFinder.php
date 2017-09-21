@@ -87,9 +87,12 @@ class TemplateFinder
      */
     public function find(string $template, $wholeInheritance = false): string
     {
+        $queue = [];
         if (!$wholeInheritance && array_key_exists($template, $this->queue)) {
             $queue = $this->queue[$template];
-        } else {
+        }
+
+        if (empty($queue)) {
             $queue = $this->queue[$template] = $this->directories;
         }
 

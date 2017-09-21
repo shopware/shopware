@@ -24,6 +24,34 @@ framework:
         prefix_seed: shopware
         app: cache.adapter.filesystem
 
+security:
+    firewalls:
+        account:
+            pattern: .*
+            anonymous: ~
+            form_login:
+                default_target_path: /account
+                login_path: /account/login
+                check_path: /account/login
+                username_parameter: email
+                password_parameter: password
+            logout:
+                path: /account/logout
+                target: /
+
+    access_control:
+        - { path: ^/account/(login|login_check|logout)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/account, roles: ROLE_CUSTOMER }
+
+    providers:
+        customer:
+            id: shopware.storefront.firewall.customer_provider
+
+    encoders:
+        Shopware\Storefront\Firewall\CustomerUser:
+            algorithm: bcrypt
+            cost: 10
+
 twig:
     debug:            "%kernel.debug%"
     strict_variables: false

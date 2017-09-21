@@ -64,10 +64,10 @@ class ShopSubscriber implements EventSubscriberInterface
     {
         return [
             KernelEvents::REQUEST => [
-                ['startSession', 50],
-                ['setSeoRedirect', 40],
-                ['loadContext', 30],
-                ['setActiveCategory', 20],
+                ['startSession', 7],
+                ['setSeoRedirect', 6],
+                ['loadContext', 5],
+                ['setActiveCategory', 4],
             ],
             KernelEvents::RESPONSE => [
                 ['setShopCookie', 10],

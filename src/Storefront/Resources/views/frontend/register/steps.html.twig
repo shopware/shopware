@@ -1,0 +1,47 @@
+{# Step box #}
+<div class="steps--container container">
+    <div class="steps--content panel--body center">
+        {% block frontend_register_steps %}
+            <ul class="steps--list">
+
+                {# First Step - Address #}
+                {% block frontend_register_steps_basket %}
+                    <li class="steps--entry step--basket{if $sStepActive=='address'} is--active{/if}">
+                        <span class="icon">{% trans from "frontend/register/steps" %}CheckoutStepAddressNumber{% endtrans %}</span>
+                        <span class="text"><span class="text--inner">{% trans from "frontend/register/steps" %}CheckoutStepAddressText{% endtrans %}</span></span>
+                    </li>
+                {% endblock %}
+
+                {# Spacer #}
+                {% block frontend_register_steps_spacer1 %}
+                    <li class="steps--entry steps--spacer">
+                        <i class="icon--arrow-right"></i>
+                    </li>
+                {% endblock %}
+
+                {# Second Step - Payment #}
+                {% block frontend_register_steps_register %}
+                    <li class="steps--entry step--register{if $sStepActive=='paymentShipping'} is--active{/if}">
+                        <span class="icon">{% trans from "frontend/register/steps" %}CheckoutStepPaymentShippingNumber{% endtrans %}</span>
+                        <span class="text"><span class="text--inner">{% trans from "frontend/register/steps" %}CheckoutStepPaymentShippingText{% endtrans %}</span></span>
+                    </li>
+                {% endblock %}
+
+                {# Spacer #}
+                {% block frontend_register_steps_spacer2 %}
+                    <li class="steps--entry steps--spacer">
+                        <i class="icon--arrow-right"></i>
+                    </li>
+                {% endblock %}
+
+                {# Third Step - Confirmation #}
+                {% block frontend_register_steps_confirm %}
+                    <li class="steps--entry step--confirm{if $sStepActive=='finished'} is--active{/if}">
+                        <span class="icon">{% trans from "frontend/register/steps" %}CheckoutStepConfirmNumber{% endtrans %}</span>
+                        <span class="text"><span class="text--inner">{% trans from "frontend/register/steps" %}CheckoutStepConfirmText{% endtrans %}</span></span>
+                    </li>
+                {% endblock %}
+            </ul>
+        {% endblock %}
+    </div>
+</div>

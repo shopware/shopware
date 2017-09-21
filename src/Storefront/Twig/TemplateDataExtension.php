@@ -28,6 +28,7 @@ use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Config\ConfigServiceInterface;
 use Shopware\Storefront\Session\ShopSubscriber;
 use Shopware\Storefront\Theme\ThemeConfigReader;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\TranslatorInterface;
 
@@ -88,6 +89,8 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
             return [];
         }
 
+        list($controllerName, $controllerAction) = $this->getControllerNameAndAction($request);
+
         return [
             'shopware' => [
                 'config' => $this->configService->getByShop(
@@ -96,6 +99,8 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
                 ),
                 'theme' => $this->getThemeConfig(),
             ],
+            'controllerName' => $controllerName,
+            'controllerAction' => $controllerAction,
             'context' => $context,
             'activeRoute' => $request->attributes->get('_route'),
         ];
@@ -120,5 +125,22 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
         );
 
         return $themeConfig;
+    }
+
+    private function getControllerNameAndAction(Request $request): array
+    {
+        $controller = $request->attributes->get('_controller');
+
+        if (!$controller) {
+            return ['', ''];
+        }
+
+        list($controllerName, $action) = explode(':', $controller);
+
+        $controllerNameParts = explode('.', $controllerName);
+        $controllerName = array_pop($controllerNameParts);
+        $action = substr($action, 0, -6);
+
+        return [$controllerName, $action];
     }
 }

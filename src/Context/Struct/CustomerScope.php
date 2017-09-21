@@ -83,10 +83,10 @@ class CustomerScope extends Struct
         }
 
         return new self(
-            $context->getCustomer()->getId(),
+            $context->getCustomer()->getUuid(),
             $context->getCurrentCustomerGroup()->getUuid(),
-            $context->getCustomer()->getActiveBillingAddress()->getId(),
-            $context->getCustomer()->getActiveShippingAddress()->getId()
+            $context->getCustomer()->getActiveBillingAddress()->getUuid(),
+            $context->getCustomer()->getActiveShippingAddress()->getUuid()
         );
     }
 }

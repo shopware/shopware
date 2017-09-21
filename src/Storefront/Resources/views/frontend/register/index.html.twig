@@ -1,0 +1,200 @@
+{% sw_extends "frontend/index/index.html.twig" %}
+
+{# Title #}
+{% block frontend_index_header_title %}
+    {% trans from "frontend/register/index" %}RegisterTitle{% endtrans %} | {{ shopware.config.shopname }}
+{% endblock %}
+
+{# Back to the shop button #}
+{% block frontend_index_logo_trusted_shops %}
+    {{ parent() }}
+
+    {% if shopware.theme.checkoutHeader and sTarget == "account" %}
+        <a href="{{ url('homepage') }}"
+           class="btn is--small btn--back-top-shop is--icon-left"
+           title="{% trans from "frontend/checkout/finish" %}FinishButtonBackToShop{% endtrans %}">
+            <i class="icon--arrow-left"></i>
+            {% trans from "frontend/checkout/finish" %}FinishButtonBackToShop{% endtrans %}
+        </a>
+    {% endif %}
+{% endblock %}
+
+{# Hide breadcrumb #}
+{% block frontend_index_breadcrumb %}
+    {% if sTarget == "account" %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
+{# Hide shop navigation #}
+{% block frontend_index_shop_navigation %}
+    {% if shopware.theme.checkoutHeader or sTarget == "account" %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
+{# Step box #}
+{% block frontend_index_navigation_categories_top %}
+    {% if sTarget == "account" or true %}
+        {{ parent() }}
+    {% else %}
+
+        {% if shopware.theme.checkoutHeader %}
+            {{ parent() }}
+        {% endif %}
+
+        {% sw_include "frontend/register/steps.html.twig" with {"sStepActive": "address"} %}
+    {% endif %}
+{% endblock %}
+
+
+{% block frontend_index_top_bar_container %}
+    {% if not shopware.theme.checkoutHeader or sTarget == "account" %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
+{% block frontend_index_logo_supportinfo %}
+    {% if sTarget != "account" %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
+{% block frontend_index_content_left %}
+    {#{% sw_include "frontend/index/sidebar.html.twig" %}#}
+{% endblock %}
+
+{% block frontend_index_footer %}
+    {% if not shopware.theme.checkoutFooter or sTarget == "account" %}
+        {{ parent() }}
+    {% else %}
+        {% block frontend_index_register_footer %}
+            {#{% sw_include "frontend/index/footer_minimal.tpl" %}#}
+        {% endblock %}
+    {% endif %}
+{% endblock %}
+
+{% block frontend_index_content %}
+    {% block frontend_register_index_registration %}
+        <div class="register--content panel content block has--border is--rounded{if $errors.occurred} is--collapsed{/if}" id="registration" data-register="true">
+
+            {% block frontend_register_index_dealer_register %}
+                {# Included for compatibility reasons #}
+            {% endblock %}
+
+            {% block frontend_register_index_cgroup_header %}
+                {% if register.personal.sValidation %}
+                    {# Include information related to registration for other customergroups then guest, this block get overridden by b2b essentials plugin #}
+                    <div class="panel register--supplier">
+                        <h2 class="panel--title is--underline">{{ shopware.config.shopname }} {% trans from "frontend/register/index" %}RegisterHeadlineSupplier{% endtrans %}</h2>
+
+                        <div class="panel--body is--wide">
+                            <p class="is--bold">{% trans from "frontend/register/index" %}RegisterInfoSupplier3{% endtrans %}</p>
+
+                            <h3 class="is--bold">{% trans from "frontend/register/index" %}RegisterInfoSupplier4{% endtrans %}</h3>
+                            <p>{% trans from "frontend/register/index" %}RegisterInfoSupplier5{% endtrans %}</p>
+
+                            <h3 class="is--bold">{% trans from "frontend/register/index" %}RegisterInfoSupplier6{% endtrans %}</h3>
+                            <p>{% trans from "frontend/register/index" %}RegisterInfoSupplier7{% endtrans %}</p>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endblock %}
+
+            {% block frontend_register_index_form %}
+                <form method="post" action="{url action=saveRegister sTarget=$sTarget sTargetAction=$sTargetAction}" class="panel register--form">
+
+                    {% block frontend_register_index_form_captcha_fieldset %}
+                        {#{include file="frontend/register/error_message.tpl" error_messages=$errors.captcha}#}
+                    {% endblock %}
+
+                    {% block frontend_register_index_form_personal_fieldset %}
+                        {#{include file="frontend/register/error_message.tpl" error_messages=$errors.personal}#}
+                        {#{% sw_include "frontend/register/personal_fieldset.html.twig" with {"formData": register.personal, "errorFlags": errors.personal} %}#}
+                    {% endblock %}
+
+                    {% block frontend_register_index_form_billing_fieldset %}
+                        {#{include file="frontend/register/error_message.tpl" error_messages=$errors.billing}#}
+                        {#{% sw_include "frontend/register/billing_fieldset.html.twig" with {"formData": register.billing, "errorFlags": errors.billing, 'countries': countries} %}#}
+                    {% endblock %}
+
+                    {% block frontend_register_index_form_shipping_fieldset %}
+                        {#{include file="frontend/register/error_message.tpl" error_messages=$errors.shipping}#}
+                        {#{% sw_include "frontend/register/shipping_fieldset.html.twig" with {"formData": register.shipping, "errorFlags": errors.shipping, 'countries': countries} %}#}
+                    {% endblock %}
+
+                    {# Privacy checkbox #}
+                    {#{if !$update}#}
+                        {#{if {config name=ACTDPRCHECK}}#}
+                            {% block frontend_register_index_input_privacy %}
+                                <div class="register--privacy">
+                                    <input name="register[personal][dpacheckbox]" type="checkbox" id="dpacheckbox"{if $form_data.dpacheckbox} checked="checked"{/if} required="required" aria-required="true" value="1" class="chkbox is--required" />
+                                    <label for="dpacheckbox" class="chklabel{if isset($errors.personal.dpacheckbox)} has--error{/if}">{% trans from "frontend/register/index" %}RegisterLabelDataCheckbox{% endtrans %}</label>
+                                </div>
+                            {% endblock %}
+                        {#{/if}#}
+                    {#{/if}#}
+
+                    {% block frontend_register_index_form_required %}
+                        {# Required fields hint #}
+                        <div class="register--required-info required_fields">
+                            {% trans from "frontend/register/personal_fieldset" %}RegisterPersonalRequiredText{% endtrans %}
+                        </div>
+                    {% endblock %}
+
+                    {# Captcha #}
+                    {% block frontend_register_index_form_captcha %}
+                        {#{$captchaHasError = $errors.captcha}#}
+                        {#{$captchaName = {config name=registerCaptcha}}#}
+                        {#{include file="widgets/captcha/custom_captcha.tpl" captchaName=$captchaName captchaHasError=$captchaHasError}#}
+                    {% endblock %}
+
+                    {% block frontend_register_index_form_submit %}
+                        {# Submit button #}
+                        <div class="register--action">
+                            <button type="submit" class="register--submit btn is--primary is--large is--icon-right" name="Submit">{% trans from "frontend/register/index" %}RegisterIndexNewActionSubmit{% endtrans %} <i class="icon--arrow-right"></i></button>
+                        </div>
+                    {% endblock %}
+                </form>
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {% block frontend_register_index_login %}
+        {% sw_include "frontend/register/login.html.twig" %}
+    {% endblock %}
+
+    {% block frontend_register_index_advantages %}
+        <div class="register--advantages block">
+            <h2 class="panel--title">{% trans from "frontend/register/index" %}RegisterInfoAdvantagesTitle{% endtrans %}</h2>
+            {% block frontend_index_content_advantages_list %}
+                <ul class="list--unordered is--checked register--advantages-list">
+                    {% block frontend_index_content_advantages_entry1 %}
+                        <li class="register--advantages-entry">
+                            {% trans from "frontend/register/index" %}RegisterInfoAdvantagesEntry1{% endtrans %}
+                        </li>
+                    {% endblock %}
+
+                    {% block frontend_index_content_advantages_entry2 %}
+                        <li class="register--advantages-entry">
+                            {% trans from "frontend/register/index" %}RegisterInfoAdvantagesEntry2{% endtrans %}
+                        </li>
+                    {% endblock %}
+
+                    {% block frontend_index_content_advantages_entry3 %}
+                        <li class="register--advantages-entry">
+                            {% trans from "frontend/register/index" %}RegisterInfoAdvantagesEntry3{% endtrans %}
+                        </li>
+                    {% endblock %}
+
+                    {% block frontend_index_content_advantages_entry4 %}
+                        <li class="register--advantages-entry">
+                            {% trans from "frontend/register/index" %}RegisterInfoAdvantagesEntry4{% endtrans %}
+                        </li>
+                    {% endblock %}
+                </ul>
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+{% endblock %}

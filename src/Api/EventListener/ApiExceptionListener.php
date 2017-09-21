@@ -44,6 +44,7 @@ class ApiExceptionListener extends ExceptionListener
         $envelope = new ResponseEnvelope();
         $envelope->setParameters($event->getRequest()->request->all());
         $envelope->setException($exception);
+
         $response = JsonResponse::create($envelope, $exception->getStatusCode());
         $event->setResponse($response);
 

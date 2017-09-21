@@ -13,10 +13,10 @@
 
 <body class="{% block frontend_index_body_classes %}
     is--ctl-{{ controllerName|lower }} is--act-{{ controllerAction|lower }}
-    {% if sUserLoggedIn %} is--user{% endif %}
+    {% if context.customer %} is--user{% endif %}
     {% if sTarget %} is--target-{{ sTarget|escape('html') }}{% endif %}
     {% if theme.checkoutHeader and (( controllerName|lower == "checkout" and controllerAction|lower != "cart") or (controllerName|lower == "register" and sTarget != "account")) %} is--minimal-header{% endif %}
-    {% if not shopware.theme.displaysidebar %} is--no-sidebar{% endif %}
+    {#{% if not shopware.theme.displaysidebar %} is--no-sidebar{% endif %}#}
     {% endblock %}">
 
     {% block frontend_index_after_body %}{% endblock %}
@@ -108,7 +108,7 @@
 
                         {# Sidebar left #}
                         {% block frontend_index_content_left %}
-                            {#{% sw_include '@Shopware/frontend/index/sidebar.html.twig' %}#}
+                            {% sw_include '@Storefront/frontend/index/sidebar.html.twig' %}
                         {% endblock %}
 
                         {# Main content #}

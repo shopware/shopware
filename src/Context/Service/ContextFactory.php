@@ -26,6 +26,7 @@ namespace Shopware\Context\Service;
 
 use Doctrine\DBAL\Connection;
 use Shopware\AreaCountry\Repository\AreaCountryRepository;
+use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\AreaCountryState\Repository\AreaCountryStateRepository;
 use Shopware\Cart\Delivery\ShippingLocation;
 use Shopware\Context\Struct\CheckoutScope;
@@ -292,6 +293,10 @@ class ContextFactory implements ContextFactoryInterface
     {
         $customers = $this->customerRepository->read([$customerScope->getCustomerUuid()], $translationContext);
         $customer = $customers->get($customerScope->getCustomerUuid());
+
+        if (!$customer) {
+            return $customer;
+        }
 
         if (!$customerScope->getBillingAddressUuid() && !$customerScope->getShippingAddressUuid()) {
             return $customer;

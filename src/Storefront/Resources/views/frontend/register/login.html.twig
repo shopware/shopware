@@ -1,0 +1,76 @@
+{% trans_default_domain "frontend/account/login" %}
+<div class="register--login content block">
+
+    {# Error messages #}
+    {% block frontend_register_login_error_messages %}
+        {% if error %}
+            {% sw_include "frontend/register/error_message.html.twig" with {"error": error} %}
+        {% endif %}
+    {% endblock %}
+
+    {# New customer #}
+    {% block frontend_register_login_newcustomer %}
+        <div class="register--new-customer">
+            <a href="#registration"
+               class="new-customer-btn btn is--icon-right"
+               id="new-customer-action"
+               data-collapseTarget="#registration">
+                {% trans %}LoginLinkRegister2{% endtrans %}
+            </a>
+        </div>
+    {% endblock %}
+
+    {# Existing customer #}
+    {% block frontend_register_login_customer %}
+        <div class="register--existing-customer panel has--border is--rounded">
+
+            <h2 class="panel--title is--underline">{% trans %}LoginHeaderExistingCustomer{% endtrans %}</h2>
+            <div class="panel--body is--wide">
+                {% block frontend_register_login_form %}
+                    {% if register.personal.sValidation %}
+                        {% set postUrl = url('account_login_check', {'sTarget': sTarget, 'sTargetAction': sTargetAction, 'sValidation': register.personal.sValidation}) %}
+                    {% else %}
+                        {% set postUrl = url('account_login_check', {'sTarget': sTarget, 'sTargetAction': sTargetAction}) %}
+                    {% endif %}
+
+                    <form name="sLogin" method="post" action="{{ path('account_login_check') }}">
+                        {% if sTarget %}
+                            <input name="sTarget" type="hidden" value="{{ sTarget }}" />
+                        {% endif %}
+
+                        {% block frontend_register_login_description %}
+                            <div class="register--login-description">{% trans %}LoginHeaderFields{% endtrans %}</div>
+                        {% endblock %}
+
+                        {% block frontend_register_login_input_email %}
+                            <div class="register--login-email">
+                                <input name="email" placeholder="{% trans %}LoginPlaceholderMail{% endtrans %}" type="email" autocomplete="email" tabindex="1" value="{{ last_email }}" id="email" class="register--login-field{% if sErrorFlag.email %} has--error{% endif %}" />
+                            </div>
+                        {% endblock %}
+
+                        {% block frontend_register_login_input_password %}
+                            <div class="register--login-password">
+                                <input name="password" placeholder="{% trans %}LoginPlaceholderPassword{% endtrans %}" type="password" autocomplete="current-password" tabindex="2" id="passwort" class="register--login-field{% if sErrorFlag.password %} has--error{% endif %}" />
+                            </div>
+                        {% endblock %}
+
+                        {% block frontend_register_login_input_lostpassword %}
+                            <div class="register--login-lostpassword">
+                                <a href="{url controller=account action=password}" title="{% trans %}LoginLinkLostPassword{% endtrans %}">
+                                    {% trans %}LoginLinkLostPassword{% endtrans %}
+                                </a>
+                            </div>
+                        {% endblock %}
+
+                        {% block frontend_register_login_input_form_submit %}
+                            <div class="register--login-action">
+                                <button type="submit" class="register--login-btn btn is--primary is--large is--icon-right" name="Submit">{% trans %}LoginLinkLogon{% endtrans %} <i class="icon--arrow-right"></i></button>
+                            </div>
+                        {% endblock %}
+                    </form>
+                {% endblock %}
+            </div>
+
+        </div>
+    {% endblock %}
+</div>

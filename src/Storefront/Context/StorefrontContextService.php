@@ -32,6 +32,8 @@ use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\ShopScope;
 use Shopware\Serializer\SerializerRegistry;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @category  Shopware
@@ -62,16 +64,23 @@ class StorefrontContextService implements StorefrontContextServiceInterface
      */
     private $requestStack;
 
+    /**
+     * @var TokenStorageInterface
+     */
+    private $securityTokenStorage;
+
     public function __construct(
         RequestStack $requestStack,
         ContextFactoryInterface $factory,
         CacheItemPoolInterface $cache,
-        SerializerRegistry $serializerRegistry
+        SerializerRegistry $serializerRegistry,
+        TokenStorageInterface $securityTokenStorage
     ) {
         $this->requestStack = $requestStack;
         $this->factory = $factory;
         $this->cache = $cache;
         $this->serializerRegistry = $serializerRegistry;
+        $this->securityTokenStorage = $securityTokenStorage;
     }
 
     public function getShopContext(): ShopContext
@@ -178,8 +187,10 @@ class StorefrontContextService implements StorefrontContextServiceInterface
 
     private function getStorefrontCustomerUuid(): ?string
     {
-        if ($customerId = $this->getSessionValueOrNull('custmer_uuid')) {
-            return (string) $customerId;
+        $token = $this->securityTokenStorage->getToken();
+
+        if ($token && $token->getUser() && $token->getUser() instanceof UserInterface) {
+            return $token->getUser()->getUuid();
         }
 
         return null;

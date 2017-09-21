@@ -10740,8 +10740,8 @@ INSERT INTO `s_statistics_visitors` (`id`, `shopID`, `datum`, `pageimpressions`,
 
 TRUNCATE TABLE `s_user`;
 INSERT INTO `s_user` (`id`, `customernumber`, `password`, `email`, `active`, `accountmode`, `confirmationkey`, `paymentID`, `firstlogin`, `lastlogin`, `sessionID`, `newsletter`, `validation`, `affiliate`, `customergroup`, `paymentpreset`, `language`, `subshopID`, `referer`, `pricegroupID`, `internalcomment`, `failedlogins`, `lockeduntil`, `default_billing_address_id`, `default_shipping_address_id`, `salutation`, `firstname`, `lastname`) VALUES
-(1, '20001', 'a256a310bc1e5db755fd392c524028a8', 'test@example.com', 1, 0, '', 5, '2011-11-23', '2012-01-04 14:12:05', 'uiorqd755gaar8dn89ukp178c7', 0, '', 0, 'EK', 0, '1', 1, '', NULL, '', 0, NULL, 1, 3, 'mr', 'Max', 'Mustermann'),
-(2, '20003', '352db51c3ff06159d380d3d9935ec814', 'mustermann@b2b.de', 1, 0, '', 4, '2012-08-30', '2012-08-30 11:43:17', '66e9b10064a19b1fcf6eb9310c0753866c764836', 0, '0', 0, 'H', 4, '1', 1, '', NULL, '', 0, NULL, 2, 4, 'mr', 'Händler', 'Kundengruppe-Netto');
+(1, '20001', '$2a$10$7KPS0PSki8KMz3V4N5O0queZaDF5TWNPd0K4ir382KT2i3xm01QzK', 'test@example.com', 1, 0, '', 5, '2011-11-23', '2012-01-04 14:12:05', 'uiorqd755gaar8dn89ukp178c7', 0, '', 0, 'EK', 0, '1', 1, '', NULL, '', 0, NULL, 1, 3, 'mr', 'Max', 'Mustermann'),
+(2, '20003', '$2a$10$Ai.rWb8IdPznxOGmMPqbcO/Zj72x3myTNIB3QE0vri5dB3Png9fJO', 'mustermann@b2b.de', 1, 0, '', 4, '2012-08-30', '2012-08-30 11:43:17', '66e9b10064a19b1fcf6eb9310c0753866c764836', 0, '0', 0, 'H', 4, '1', 1, '', NULL, '', 0, NULL, 2, 4, 'mr', 'Händler', 'Kundengruppe-Netto');
 
 TRUNCATE TABLE `s_user_attributes`;
 TRUNCATE TABLE `s_user_billingaddress`;

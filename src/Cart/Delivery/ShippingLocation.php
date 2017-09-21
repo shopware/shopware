@@ -57,8 +57,8 @@ class ShippingLocation extends Struct
     public static function createFromAddress(CustomerAddressBasicStruct $address): ShippingLocation
     {
         return new self(
-            $address->getAreaCountry(),
-            $address->getAreaCountryState(),
+            $address->getCountry(),
+            $address->getState(),
             $address
         );
     }
@@ -71,7 +71,7 @@ class ShippingLocation extends Struct
     public function getCountry(): AreaCountryBasicStruct
     {
         if ($this->address) {
-            return $this->address->getAreaCountry();
+            return $this->address->getCountry();
         }
 
         return $this->country;
@@ -80,7 +80,7 @@ class ShippingLocation extends Struct
     public function getState(): ?AreaCountryStateBasicStruct
     {
         if ($this->address) {
-            return $this->address->getAreaCountryState();
+            return $this->address->getState();
         }
 
         return $this->state;

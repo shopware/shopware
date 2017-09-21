@@ -1,0 +1,105 @@
+{% sw_extends "@Storefront/frontend/index/sidebar.html.twig" %}
+
+{% block frontend_index_left_categories %}
+    {% if context.customer %}
+    <div class="account--menu is--rounded">
+        {% block frontend_account_menu %}
+
+            {# Sidebar navigation headline #}
+            {% block frontend_account_menu_title %}
+                <h2 class="navigation--headline">
+                    {% trans from "frontend/account/sidebar" %}AccountHeaderNavigation{% endtrans %}
+                </h2>
+            {% endblock %}
+
+            {# Sidebar menu container #}
+            <div class="account--menu-container">
+
+                {# Sidebar navigation #}
+                <ul class="sidebar--navigation navigation--list is--level0 show--active-items">
+
+                    {# Link to the account overview page #}
+                    {% block frontend_account_menu_link_overview %}
+                        <li class="navigation--entry">
+                            <a href="{url controller='account'}" title="{% trans from "frontend/account/sidebar" %}AccountLinkOverview{% endtrans %}" class="navigation--link{if {controllerName|lower} == 'account' && $sAction == 'index'} is--active{/if}">
+                                {% trans from "frontend/account/sidebar" %}AccountLinkOverview{% endtrans %}
+                            </a>
+                        </li>
+                    {% endblock %}
+
+                    {# Link to the account overview page #}
+                    {% block frontend_account_menu_link_profile %}
+                        <li class="navigation--entry">
+                            <a href="{url controller='account' action=profile}" title="{% trans from "frontend/account/sidebar" %}AccountLinkProfile{% endtrans %}" class="navigation--link{if {controllerName|lower} == 'account' && $sAction == 'profile'} is--active{/if}">
+                                {% trans from "frontend/account/sidebar" %}AccountLinkProfile{% endtrans %}
+                            </a>
+                        </li>
+                    {% endblock %}
+
+                    {# Link to the user addresses #}
+                    {% block frontend_account_menu_link_addresses %}
+                        <li class="navigation--entry">
+                            <a href="{url controller='address' action='index'}" title="{% trans from "frontend/account/sidebar" %}AccountLinkAddresses{% endtrans %}" class="navigation--link{if {controllerName} == 'address'} is--active{/if}">
+                                {% trans from "frontend/account/sidebar" %}AccountLinkAddresses{% endtrans %}
+                            </a>
+                        </li>
+                    {% endblock %}
+
+                    {# Link to the user payment method settings #}
+                    {% block frontend_account_menu_link_payment %}
+                        <li class="navigation--entry">
+                            <a href="{url controller='account' action='payment'}" title="{% trans from "frontend/account/sidebar" %}AccountLinkPayment{% endtrans %}" class="navigation--link{if $sAction == 'payment'} is--active{/if}">
+                                {% trans from "frontend/account/sidebar" %}AccountLinkPayment{% endtrans %}
+                            </a>
+                        </li>
+                    {% endblock %}
+
+                    {# Link to the user orders #}
+                    {% block frontend_account_menu_link_orders %}
+                        <li class="navigation--entry">
+                            <a href="{url controller='account' action='orders'}" title="{% trans from "frontend/account/sidebar" %}AccountLinkPreviousOrders{% endtrans %}" class="navigation--link{if $sAction == 'orders'} is--active{/if}">
+                                {% trans from "frontend/account/sidebar" %}AccountLinkPreviousOrders{% endtrans %}
+                            </a>
+                        </li>
+                    {% endblock %}
+
+                    {# Link to the user downloads #}
+                    {% block frontend_account_menu_link_downloads %}
+                        {% if shopware.config.showesd %}
+                            <li class="navigation--entry">
+                                <a href="{url controller='account' action='downloads'}" title="{% trans from "frontend/account/sidebar" %}AccountLinkDownloads{% endtrans %}" class="navigation--link{if $sAction == 'downloads'} is--active{/if}">
+                                    {% trans from "frontend/account/sidebar" %}AccountLinkDownloads{% endtrans %}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endblock %}
+
+                    {# Link to the user product notes #}
+                    {% block frontend_account_menu_link_notes %}
+                        <li class="navigation--entry">
+                            <a href="{url controller='note'}" title="{% trans from "frontend/account/sidebar" %}AccountLinkNotepad{% endtrans %}" class="navigation--link{if {controllerName} == 'note'} is--active{/if}">
+                                {% trans from "frontend/account/sidebar" %}AccountLinkNotepad{% endtrans %}
+                            </a>
+                        </li>
+                    {% endblock %}
+
+                    {# Link to the partner statistics #}
+                    {% block frontend_account_menu_link_partner_statistics %}
+                        {#{action action="partnerStatisticMenuItem" controller="account"}#}
+                    {% endblock %}
+
+                    {# Logout action #}
+                    {% block frontend_account_menu_link_logout %}
+                        <li class="navigation--entry">
+                            <a href="{{ path('account_logout') }}" title="{% trans from "frontend/account/sidebar" %}AccountLinkLogout2{% endtrans %}" class="navigation--link link--logout">
+                                <i class="icon--logout"></i> {% trans from "frontend/account/sidebar" %}AccountLinkLogout2{% endtrans %}
+                            </a>
+                        </li>
+                    {% endblock %}
+
+                </ul>
+            </div>
+        {% endblock %}
+    </div>
+    {% endif %}
+{% endblock %}

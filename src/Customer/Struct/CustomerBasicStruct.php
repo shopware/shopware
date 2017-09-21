@@ -503,7 +503,7 @@ class CustomerBasicStruct extends Struct
         return $this->activeBillingAddress;
     }
 
-    public function setActiveBillingAddress(CustomerAddressBasicStruct $activeBillingAddress): void
+    public function setActiveBillingAddress(?CustomerAddressBasicStruct $activeBillingAddress): void
     {
         $this->activeBillingAddress = $activeBillingAddress;
     }
@@ -517,7 +517,7 @@ class CustomerBasicStruct extends Struct
         return $this->activeShippingAddress;
     }
 
-    public function setActiveShippingAddress(CustomerAddressBasicStruct $activeShippingAddress): void
+    public function setActiveShippingAddress(?CustomerAddressBasicStruct $activeShippingAddress): void
     {
         $this->activeShippingAddress = $activeShippingAddress;
     }

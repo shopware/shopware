@@ -174,7 +174,7 @@ class Router implements RouterInterface, RequestMatcherInterface
         $stripBaseUrl = $this->rewriteBaseUrl($shop['base_url'], $shop['base_path']);
 
         $route = $this->getRouteCollection()->get($name);
-        if ($route->getOption('seo') !== true) {
+        if ($route && $route->getOption('seo') !== true) {
             return $generator->generate($name, $parameters, $referenceType);
         }
 

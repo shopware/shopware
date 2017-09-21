@@ -41,7 +41,7 @@ class CheckoutController extends FrontendController
         $cartService = $this->get('shopware.cart.storefront_service');
 
         if (!$context->getCustomer()) {
-            return $this->redirectToRoute('checkout_cart');
+            return $this->redirectToRoute('account_login');
         }
         if ($cartService->getCart()->getCalculatedCart()->getCalculatedLineItems()->count() === 0) {
             return $this->redirectToRoute('checkout_cart');

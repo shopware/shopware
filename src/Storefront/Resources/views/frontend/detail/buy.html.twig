@@ -1,6 +1,13 @@
 {% block frontend_detail_buy %}
-    {#{% set url = url('cart_add_product', {'target': 'checkout_cart' }) %}#}
-    <form name="sAddToBasket" method="post" action="{{ url }}" class="buybox--form" data-add-article="true" data-eventName="submit"{% if theme.offcanvasCart %}{% set url = url('homepage', {'target': 'ajaxCart' }) %} data-showModal="false" data-addArticleUrl="{{ url }}"{% endif %}>
+    {% set url = url('cart_add_product', {'target': 'checkout_cart' }) %}
+    <form name="sAddToBasket"
+          method="post"
+          action="{{ url }}"
+          class="buybox--form"
+          {#data-add-article="true"#}
+          {#data-eventName="submit"{% if theme.offcanvasCart %}{% set url = url('homepage', {'target': 'ajaxCart' }) %}data-showModal="false" data-addArticleUrl="{{ url }}"{% endif %}#}
+    >
+
         {% block frontend_detail_buy_configurator_inputs %}
             {% if product.sConfigurator and product.sConfiguratorSettings.type == 3 %}
                 {% for group in product.sConfigurator %}
@@ -9,44 +16,7 @@
             {% endif %}
         {% endblock %}
 
-        <input type="hidden" name="sActionIdentifier" value="{{ sUniqueRand }}"/>
-        <input type="hidden" name="sAddAccessories" id="sAddAccessories" value=""/>
-
         <input type="hidden" name="identifier" value="{{ product.mainDetailUuid }}"/>
-
-        {# Article accessories #}
-        {% block frontend_detail_buy_accessories_outer %}
-            {% if product.sAccessories %}
-                {% block frontend_detail_buy_accessories %}
-                    <div class="buybox--accessory">
-                        {% for sAccessory in product.sAccessories %}
-
-                            {# Group name #}
-                            <h2 class="accessory--title">{{ sAccessory.groupname}}</h2>
-                            <div class="accessory--group">
-
-                                {# Group description #}
-                                <p class="group--description">
-                                    {{ sAccessory.groupdescription }}
-                                </p>
-
-                                {% for sAccessoryChild in sAccessory.childs %}
-                                    <input type="checkbox" class="sValueChanger chkbox" name="sValueChange"
-                                           id="CHECK{$sAccessoryChild.ordernumber}" value="{$sAccessoryChild.ordernumber}"/>
-                                    {#<label for="CHECK{$sAccessoryChild.ordernumber}">{$sAccessoryChild.optionname|truncate:35}#}
-                                        {#({s name="DetailBuyLabelSurcharge"}{/s}#}
-                                        {#: {$sAccessoryChild.price} {$sConfig.sCURRENCYHTML})#}
-                                    {#</label>#}
-                                    <div id="DIV{$sAccessoryChild.ordernumber}" class="accessory--overlay">
-                                        {#{include file="frontend/detail/accessory.tpl" sArticle=$sAccessoryChild.sArticle}#}
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endblock %}
-            {% endif %}
-        {% endblock %}
 
         {#{$sCountConfigurator=$sArticle.sConfigurator|@count}#}
 

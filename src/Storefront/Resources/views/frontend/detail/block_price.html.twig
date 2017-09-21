@@ -1,5 +1,7 @@
 {% block frontend_detail_data_block_prices_start %}
-    <div class="block-prices--container{if $hidden && !$sArticle.selected} is--hidden{% endif %} block-price--{$sArticle.ordernumber}">
+    {# @var product \Shopware\Product\Struct\StorefrontDetailProductStruct #}
+
+    <div class="block-prices--container block-price--{{ product.uuid }}">
 
         {#{hasReferencePrice = ($sArticle.referenceprice > 0)}#}
         {% set hasReferencePrice = 1 %}

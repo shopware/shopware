@@ -3,29 +3,13 @@
 namespace Shopware\Product\Struct;
 
 use Shopware\ProductPrice\Struct\ProductListingPrice;
-use Shopware\ProductPrice\Struct\ProductPriceBasicCollection;
 
-class StorefrontListingProductStruct extends ProductBasicStruct
+class StorefrontListingProductStruct extends StorefrontBasicProductStruct
 {
-    /**
-     * @var ProductPriceBasicCollection
-     */
-    protected $prices;
-
     /**
      * @var ProductListingPrice
      */
     protected $listingPrice;
-
-    public function getPrices(): ProductPriceBasicCollection
-    {
-        return $this->prices;
-    }
-
-    public function setPrices(ProductPriceBasicCollection $prices): void
-    {
-        $this->prices = $prices;
-    }
 
     public function getListingPrice(): ProductListingPrice
     {

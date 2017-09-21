@@ -1,0 +1,88 @@
+{% block frontend_detail_data_block_prices_start %}
+    <div class="block-prices--container{if $hidden && !$sArticle.selected} is--hidden{% endif %} block-price--{$sArticle.ordernumber}">
+
+        {#{hasReferencePrice = ($sArticle.referenceprice > 0)}#}
+        {% set hasReferencePrice = 1 %}
+
+        {% block frontend_detail_data_block_prices_table %}
+            <table class="block-prices--table">
+                {% block frontend_detail_data_block_prices_table_inner %}
+                    {% block frontend_detail_data_block_prices_table_head %}
+                        <thead class="block-prices--head">
+                            {% block frontend_detail_data_block_prices_table_head_inner %}
+                                <tr class="block-prices--row">
+                                    {% block frontend_detail_data_block_prices_table_head_row %}
+                                        {% block frontend_detail_data_block_prices_table_head_cell_quantity %}
+                                            <th class="block-prices--cell">
+                                                {% trans from 'frontend/detail/data' %}DetailDataColumnQuantity{% endtrans %}
+                                            </th>
+                                        {% endblock %}
+                                        {% block frontend_detail_data_block_prices_table_head_cell_price %}
+                                            <th class="block-prices--cell">
+                                                {% trans from 'frontend/detail/data' %}DetailDataColumnPrice{% endtrans %}
+                                            </th>
+                                        {% endblock %}
+                                        {% if hasReferencePrice %}
+                                            {% block frontend_detail_data_block_prices_table_head_cell_reference_price %}
+                                                <th class="block-prices--cell">
+                                                    {% trans from 'frontend/detail/data' %}DetailDataColumnReferencePrice{% endtrans %}
+                                                </th>
+                                            {% endblock %}
+                                        {% endif %}
+                                    {% endblock %}
+                                </tr>
+                            {% endblock %}
+                        </thead>
+                    {% endblock %}
+
+                    {% block frontend_detail_data_block_prices_table_body %}
+                        <tbody class="block-prices--body">
+                            {% block frontend_detail_data_block_prices_table_body_inner %}
+                                {% set cylceClasses = ['is--primary', 'is--secondary'] %}
+                                {% for price in product.prices %}
+                                    {# @var price \Shopware\ProductPrice\Struct\ProductPriceBasicStruct #}
+                                    {% block frontend_detail_data_block_prices %}
+                                        <tr class="block-prices--row {{ cycle(cylceClasses, loop.index) }}" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+                                            {% block frontend_detail_data_block_prices_table_body_row %}
+                                                {% block frontend_detail_data_block_prices_table_body_cell_quantity %}
+                                                    <td class="block-prices--cell">
+
+                                                        <meta itemprop="priceCurrency" content="{$Shop->getCurrency()->getCurrency()}" />
+                                                        <meta itemprop="price" content="{$blockPrice.price}" />
+                                                        <link itemprop="availability" href="http://schema.org/InStock" />
+
+                                                        {% if price.quantityStart == 1 %}
+                                                            {% trans from 'frontend/detail/data' %}DetailDataInfoUntil{% endtrans %}
+                                                            <span class="block-prices--quantity">{{ price.quantityEnd }}</span>
+                                                        {% else %}
+                                                            {% trans from 'frontend/detail/data' %}DetailDataInfoFrom{% endtrans %}
+                                                            <span class="block-prices--quantity">{{ price.quantityStart }}</span>
+                                                        {% endif %}
+                                                    </td>
+                                                {% endblock %}
+                                                {% block frontend_detail_data_block_prices_table_body_cell_price %}
+                                                    <td class="block-prices--cell">
+                                                        {{ price.price|localizedcurrency(context.currency.shortName) }}{% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
+                                                    </td>
+                                                {% endblock %}
+                                                {% if hasReferencePrice %}
+                                                    {% block frontend_detail_data_block_prices_table_body_cell_reference_price %}
+                                                        <td class="block-prices--cell">
+                                                            {#{$blockPrice.referenceprice|currency}#}
+                                                            {#{% trans from 'frontend/listing/box_article' %}Star{% endtrans %} /#}
+                                                            {#{$sArticle.referenceunit} {$sArticle.sUnit.description}#}
+                                                        </td>
+                                                    {% endblock %}
+                                                {% endif %}
+                                            {% endblock %}
+                                        </tr>
+                                    {% endblock %}
+                                {% endfor %}
+                            {% endblock %}
+                        </tbody>
+                    {% endblock %}
+                {% endblock %}
+            </table>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -148,4 +148,9 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     {
         return array_values($this->elements)[0];
     }
+
+    public function last()
+    {
+        return array_values($this->elements)[count($this->elements) - 1];
+    }
 }

@@ -1,112 +1,96 @@
 {% block frontend_detail_data %}
+    {# @var product \Shopware\Product\Struct\StorefrontDetailProductStruct #}
 
-    {% if product.liveshoppingData.valid_to_ts == false %}
-        {# Graduated prices #}
-        {%  if product.detailPrice.hasDifferentPrices and product.liveshoppingData is defined and product.liveshoppingData.valid_to_ts == false %}
+    {%  if product.prices.count > 1 %}
+        {% sw_include '@Storefront/frontend/detail/block_price.html.twig' %}
+    {% else %}
+        <div class="product--price price--default{if $sArticle.has_pseudoprice} price--discount{/if}">
+            {% block frontend_detail_data_price_configurator %}
+                {% set price = product.price(1) %}
 
-            {# Include block prices #}
-            {% block frontend_detail_data_block_price_include %}
-                <span>hier</span>
-                 {#{include file="frontend/detail/block_price.tpl" sArticle=$sArticle}#}
+                {% if price %}
+                    {% block frontend_detail_data_price_default %}
+                        <span class="price--content content--default">
+                            <meta itemprop="price" content="{$sArticle.price|replace:',':'.'}">
+                            {{ price.price|localizedcurrency(context.currency.shortName) }}{% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
+                        </span>
+                    {% endblock %}
+                {% endif %}
             {% endblock %}
-        {% else %}
 
-            <div class="product--price price--default{if $sArticle.has_pseudoprice} price--discount{/if}">
+            {# Discount price #}
+            {#{block name='frontend_detail_data_pseudo_price'}#}
+                {#{if $sArticle.has_pseudoprice}#}
 
-                {# Default price #}
-                {% block frontend_detail_data_price_configurator %}
-                    {% if product.detailPrice.hasDifferentPrices and product.sConfigurator and sView == 1 %}
-                        {# Price - Starting from #}
-                        {% block frontend_detail_data_price_configurator_starting_from_content %}
-                            {#<span class="price--content content--starting-from">#}
-                                {#{s name="DetailDataInfoFrom"}{/s} {$sArticle.priceStartingFrom|currency} {s name="Star" namespace="frontend/listing/box_article"}{/s}#}
-                            {#</span>#}
-                        {% endblock %}
-                    {% else %}
-                        {# Regular price #}
-                        {% block frontend_detail_data_price_default %}
-                            <span class="price--content content--default">
-                                <meta itemprop="price" content="{$sArticle.price|replace:',':'.'}">
-                                {% if product.detailPrice.hasDifferentPrices and product.liveshoppingData == false %}{% trans from 'frontend/listing/box_article' %}ListingBoxArticleStartsAt{% endtrans %} {% endif %}{{ product.detailPrice.price|localizedcurrency(context.currency.shortName) }} {% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
-                            </span>
-                        {% endblock %}
-                    {% endif %}
-                {% endblock %}
-
-                {# Discount price #}
-                {#{block name='frontend_detail_data_pseudo_price'}#}
-                    {#{if $sArticle.has_pseudoprice}#}
-
-                        {#{block name='frontend_detail_data_pseudo_price_discount_icon'}#}
-                            {#<span class="price--discount-icon">#}
-                                {#<i class="icon--percent2"></i>#}
-                            {#</span>#}
-                        {#{/block}#}
-
-                        {#{* Discount price content *}#}
-                        {#{block name='frontend_detail_data_pseudo_price_discount_content'}#}
-                            {#<span class="content--discount">#}
-
-                                {#{block name='frontend_detail_data_pseudo_price_discount_before'}#}
-                                    {#{s name="priceDiscountLabel"}{/s}#}
-                                {#{/block}#}
-
-                                {#<span class="price--line-through">{$sArticle.pseudoprice|currency} {s name="Star" namespace="frontend/listing/box_article"}{/s}</span>#}
-
-                                {#{block name='frontend_detail_data_pseudo_price_discount_after'}#}
-                                    {#{s name="priceDiscountInfo"}{/s}#}
-                                {#{/block}#}
-
-                                {#{* Percentage discount *}#}
-                                {#{block name='frontend_detail_data_pseudo_price_discount_content_percentage'}#}
-                                    {#{if $sArticle.pseudopricePercent.float}#}
-                                        {#<span class="price--discount-percentage">({$sArticle.pseudopricePercent.float|number}% {s name="DetailDataInfoSavePercent"}{/s})</span>#}
-                                    {#{/if}#}
-                                {#{/block}#}
-                            {#</span>#}
-                        {#{/block}#}
-                    {#{/if}#}
-                {#{/block}#}
-            </div>
-        {% endif %}
-
-        {# Unit price #}
-        {#{if $sArticle.purchaseunit}#}
-            {#{block name='frontend_detail_data_price'}#}
-                {#<div class='product--price price--unit'>#}
-
-                    {#{* Unit price label *}#}
-                    {#{block name='frontend_detail_data_price_unit_label'}#}
-                        {#<span class="price--label label--purchase-unit">#}
-                                {#{s name="DetailDataInfoContent"}{/s}#}
-                            {#</span>#}
+                    {#{block name='frontend_detail_data_pseudo_price_discount_icon'}#}
+                        {#<span class="price--discount-icon">#}
+                            {#<i class="icon--percent2"></i>#}
+                        {#</span>#}
                     {#{/block}#}
 
-                    {#{* Unit price content *}#}
-                    {#{block name='frontend_detail_data_price_unit_content'}#}
-                        {#{$sArticle.purchaseunit} {$sArticle.sUnit.description}#}
+                    {#{* Discount price content *}#}
+                    {#{block name='frontend_detail_data_pseudo_price_discount_content'}#}
+                        {#<span class="content--discount">#}
+
+                            {#{block name='frontend_detail_data_pseudo_price_discount_before'}#}
+                                {#{s name="priceDiscountLabel"}{/s}#}
+                            {#{/block}#}
+
+                            {#<span class="price--line-through">{$sArticle.pseudoprice|currency} {s name="Star" namespace="frontend/listing/box_article"}{/s}</span>#}
+
+                            {#{block name='frontend_detail_data_pseudo_price_discount_after'}#}
+                                {#{s name="priceDiscountInfo"}{/s}#}
+                            {#{/block}#}
+
+                            {#{* Percentage discount *}#}
+                            {#{block name='frontend_detail_data_pseudo_price_discount_content_percentage'}#}
+                                {#{if $sArticle.pseudopricePercent.float}#}
+                                    {#<span class="price--discount-percentage">({$sArticle.pseudopricePercent.float|number}% {s name="DetailDataInfoSavePercent"}{/s})</span>#}
+                                {#{/if}#}
+                            {#{/block}#}
+                        {#</span>#}
                     {#{/block}#}
-
-                    {#{* Unit price is based on a reference unit *}#}
-                    {#{if $sArticle.purchaseunit && $sArticle.purchaseunit != $sArticle.referenceunit}#}
-
-                        {#{* Reference unit price content *}#}
-                        {#{block name='frontend_detail_data_price_unit_reference_content'}#}
-                            {#({$sArticle.referenceprice|currency} {s name="Star" namespace="frontend/listing/box_article"}{/s}#}
-                            {#/ {$sArticle.referenceunit} {$sArticle.sUnit.description})#}
-                        {#{/block}#}
-                    {#{/if}#}
-                {#</div>#}
+                {#{/if}#}
             {#{/block}#}
-        {#{/if}#}
-
-        {# Tax information #}
-        {% block frontend_detail_data_tax %}
-            <p class="product--tax" data-content="" data-modalbox="true" data-targetSelector="a" data-mode="ajax">
-                {% trans from 'frontend/detail/data' %}DetailDataPriceInfo{% endtrans %}
-            </p>
-        {% endblock %}
+        </div>
     {% endif %}
+
+    {# Unit price #}
+    {#{if $sArticle.purchaseunit}#}
+        {#{block name='frontend_detail_data_price'}#}
+            {#<div class='product--price price--unit'>#}
+
+                {#{* Unit price label *}#}
+                {#{block name='frontend_detail_data_price_unit_label'}#}
+                    {#<span class="price--label label--purchase-unit">#}
+                            {#{s name="DetailDataInfoContent"}{/s}#}
+                        {#</span>#}
+                {#{/block}#}
+
+                {#{* Unit price content *}#}
+                {#{block name='frontend_detail_data_price_unit_content'}#}
+                    {#{$sArticle.purchaseunit} {$sArticle.sUnit.description}#}
+                {#{/block}#}
+
+                {#{* Unit price is based on a reference unit *}#}
+                {#{if $sArticle.purchaseunit && $sArticle.purchaseunit != $sArticle.referenceunit}#}
+
+                    {#{* Reference unit price content *}#}
+                    {#{block name='frontend_detail_data_price_unit_reference_content'}#}
+                        {#({$sArticle.referenceprice|currency} {s name="Star" namespace="frontend/listing/box_article"}{/s}#}
+                        {#/ {$sArticle.referenceunit} {$sArticle.sUnit.description})#}
+                    {#{/block}#}
+                {#{/if}#}
+            {#</div>#}
+        {#{/block}#}
+    {#{/if}#}
+
+    {# Tax information #}
+    {% block frontend_detail_data_tax %}
+        <p class="product--tax" data-content="" data-modalbox="true" data-targetSelector="a" data-mode="ajax">
+            {% trans from 'frontend/detail/data' %}DetailDataPriceInfo{% endtrans %}
+        </p>
+    {% endblock %}
 
     {#{if $sArticle.sBlockPrices && (!$sArticle.sConfigurator || $sArticle.pricegroupActive)}#}
         {#{foreach $sArticle.sBlockPrices as $blockPrice}#}

@@ -39,6 +39,7 @@ class CustomerGroupResource extends Resource
         $this->fields['discounts'] = new SubresourceField(\Shopware\CustomerGroupDiscount\Writer\Resource\CustomerGroupDiscountResource::class);
         $this->fields['priceGroupDiscounts'] = new SubresourceField(\Shopware\PriceGroupDiscount\Writer\Resource\PriceGroupDiscountResource::class);
         $this->fields['productAvoidCustomerGroups'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupResource::class);
+        $this->fields['productDetailPrices'] = new SubresourceField(\Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceResource::class);
         $this->fields['shippingMethods'] = new SubresourceField(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodResource::class);
         $this->fields['shops'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopResource::class);
         $this->fields['taxAreaRules'] = new SubresourceField(\Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleResource::class);
@@ -54,6 +55,7 @@ class CustomerGroupResource extends Resource
             \Shopware\CustomerGroupDiscount\Writer\Resource\CustomerGroupDiscountResource::class,
             \Shopware\PriceGroupDiscount\Writer\Resource\PriceGroupDiscountResource::class,
             \Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupResource::class,
+            \Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceResource::class,
             \Shopware\ShippingMethod\Writer\Resource\ShippingMethodResource::class,
             \Shopware\Shop\Writer\Resource\ShopResource::class,
             \Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleResource::class,
@@ -92,6 +94,10 @@ class CustomerGroupResource extends Resource
 
         if (!empty($updates[\Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupResource::class])) {
             $event->addEvent(\Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupResource::createWrittenEvent($updates));
+        }
+
+        if (!empty($updates[\Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceResource::class])) {
+            $event->addEvent(\Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceResource::createWrittenEvent($updates));
         }
 
         if (!empty($updates[\Shopware\ShippingMethod\Writer\Resource\ShippingMethodResource::class])) {

@@ -1,6 +1,6 @@
 # cleanup data
-UPDATE product_price p SET p.pricegroup = 'EK' WHERE p.pricegroup NOT IN (SELECT group_key FROM customer_group);
-UPDATE product_price p SET p.customer_group_uuid = (SELECT c.uuid FROM customer_group c WHERE c.group_key = p.pricegroup LIMIT 1);
+UPDATE product_detail_price p SET p.pricegroup = 'EK' WHERE p.pricegroup NOT IN (SELECT group_key FROM customer_group);
+UPDATE product_detail_price p SET p.customer_group_uuid = (SELECT c.uuid FROM customer_group c WHERE c.group_key = p.pricegroup LIMIT 1);
 
 -- DROP FOREIGN KEYS BEFORE DROPPING IDs
 ALTER TABLE area_country_attribute
@@ -105,8 +105,8 @@ ALTER TABLE product_media_attribute
     DROP FOREIGN KEY `product_media_attribute_ibfk_1`
 ;
 
-ALTER TABLE product_price_attribute
-    DROP FOREIGN KEY `product_price_attribute_ibfk_1`
+ALTER TABLE product_detail_price_attribute
+    DROP FOREIGN KEY `product_detail_price_attribute_ibfk_1`
 ;
 
 ALTER TABLE product_stream_assignment
@@ -580,16 +580,16 @@ ALTER TABLE product_notification
     DROP `id`
 ;
 
-ALTER TABLE product_price
+ALTER TABLE product_detail_price
     DROP `id`,
     DROP `product_id`,
-    DROP FOREIGN KEY `fk_product_price.product_uuid`,
-    DROP FOREIGN KEY `fk_product_price.product_detail_uuid`,
+    DROP FOREIGN KEY `fk_product_detail_price.product_uuid`,
+    DROP FOREIGN KEY `fk_product_detail_price.product_detail_uuid`,
     DROP `product_uuid`,
     DROP `product_detail_id`
 ;
 
-ALTER TABLE product_price_attribute
+ALTER TABLE product_detail_price_attribute
     DROP `id`,
     DROP `price_id`
 ;
@@ -763,7 +763,7 @@ ALTER TABLE `product_media`
     DROP `parent_id`,
     DROP `media_id`;
 
-ALTER TABLE `product_price`
+ALTER TABLE `product_detail_price`
     DROP `pricegroup`;
 
 # ALTER TABLE `product_stream`

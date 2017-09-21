@@ -113,7 +113,7 @@ class Generate
                 ]
             ],
             'tax' => [],
-            'product_price' => [
+            'product_detail_price' => [
                 'associatons' => [
                     self::createAssociation('customer_group', self::ManyToOne, true, false, 'customerGroup', 'customer_group_uuid', '', '', false)
                 ]
@@ -121,7 +121,7 @@ class Generate
             'product_detail' => [
                 'associations' => [
                     self::createAssociation('unit', self::ManyToOne, true, false, 'unit', 'unit_uuid'),
-                    self::createAssociation('product_price', self::OneToMany, false, true, 'price', 'product_detail_uuid'),
+                    self::createAssociation('product_detail_price', self::OneToMany, false, true, 'price', 'product_detail_uuid'),
                 ],
             ],
             'product_manufacturer' => [],

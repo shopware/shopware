@@ -309,7 +309,7 @@ ALTER TABLE s_articles_prices CHANGE COLUMN `to` `to` VARCHAR(50) NULL DEFAULT N
 
 
 ALTER TABLE s_articles_prices
-    RENAME TO product_price,
+    RENAME TO product_detail_price,
     ADD COLUMN uuid VARCHAR(42) NOT NULL AFTER id,
     CHANGE COLUMN articledetailsID product_detail_id INT(11) NOT NULL DEFAULT '0',
     CHANGE COLUMN articleID product_id INT(11) NOT NULL DEFAULT '0',
@@ -321,10 +321,10 @@ ALTER TABLE s_articles_prices
 
 
 ALTER TABLE s_articles_prices_attributes
-    RENAME TO product_price_attribute,
+    RENAME TO product_detail_price_attribute,
     ADD uuid VARCHAR(42) NOT NULL AFTER id,
     CHANGE priceID price_id INT(11) unsigned,
-    ADD product_price_uuid VARCHAR(42) NOT NULL AFTER price_id
+    ADD product_detail_price_uuid VARCHAR(42) NOT NULL AFTER price_id
 ;
 
 
@@ -1557,13 +1557,14 @@ ALTER TABLE `product_media`
     ADD `media_uuid` varchar(42) NOT NULL,
     ADD `parent_uuid` varchar(42) NULL AFTER `media_uuid`;
 
-ALTER TABLE `product_price`
+ALTER TABLE `product_detail_price`
     ADD `customer_group_uuid` varchar(42) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `pricegroup`,
     CHANGE `from` `quantity_start` int(11) NOT NULL DEFAULT '0' AFTER `customer_group_uuid`,
     CHANGE `to` `quantity_end` int(11) NULL AFTER `quantity_start`,
     CHANGE `pseudoprice` `pseudo_price` double NULL AFTER `price`,
     CHANGE `baseprice` `base_price` double NULL AFTER `pseudo_price`,
     CHANGE `percent` `percentage` decimal(10,2) NULL AFTER `base_price`;
+
 
 ALTER TABLE `product_vote`
     CHANGE `uuid` `uuid` varchar(42) COLLATE 'utf8mb4_unicode_ci' NOT NULL FIRST,
@@ -1677,7 +1678,7 @@ DROP INDEX article_cover_image_query ON product_media;
 
 -- cleanup inconsistent data
 
-UPDATE product_price SET `quantity_end` = NULL WHERE `quantity_end` = 0;
+UPDATE product_detail_price SET `quantity_end` = NULL WHERE `quantity_end` = 0;
 
 INSERT IGNORE INTO `shop_template` (`id`, `template`, `name`, `description`, `author`, `license`, `esi`, `style_support`, `emotion`, `version`, `plugin_id`, `parent_id`) VALUES
     (11,    'Responsive',    '__theme_name__',    '__theme_description__',    '__author__',    '__license__',    1,    1,    1,    3,    NULL,    NULL);
@@ -1854,16 +1855,16 @@ UPDATE product_notification p SET
 ;
 
 
-UPDATE product_price p SET
+UPDATE product_detail_price p SET
     p.uuid = CONCAT('SWAG-PRODUCT-PRICE-UUID-', p.id),
     p.product_uuid = CONCAT('SWAG-PRODUCT-UUID-', p.product_id),
     p.product_detail_uuid = (SELECT sub.order_number FROM product_detail sub WHERE sub.id = p.product_detail_id LIMIT 1)
 ;
 
 
-UPDATE product_price_attribute p SET
+UPDATE product_detail_price_attribute p SET
     p.uuid       = CONCAT('SWAG-PRODUCT-PRICE-ATTRIBUTE-UUID-', p.id),
-    p.product_price_uuid = CONCAT('SWAG-PRODUCT-PRICE-UUID-', p.price_id)
+    p.product_detail_price_uuid = CONCAT('SWAG-PRODUCT-PRICE-UUID-', p.price_id)
 ;
 
 
@@ -2357,7 +2358,7 @@ CREATE UNIQUE INDEX `ui_product_media.uuid` ON product_media (uuid);
 CREATE UNIQUE INDEX `ui_product_media_mapping.uuid` ON product_media_mapping (uuid);
 CREATE UNIQUE INDEX `ui_product_link.uuid` ON product_link (uuid);
 CREATE UNIQUE INDEX `ui_product_manufacturer.uuid` ON product_manufacturer (uuid);
-CREATE UNIQUE INDEX `ui_product_price.uuid` ON product_price (uuid);
+CREATE UNIQUE INDEX `ui_product_detail_price.uuid` ON product_detail_price (uuid);
 CREATE UNIQUE INDEX `ui_log.uuid` ON log (uuid);
 CREATE UNIQUE INDEX `ui_payment_method.uuid` ON payment_method (uuid);
 CREATE UNIQUE INDEX `ui_payment_method_attribute.uuid` ON payment_method_attribute (uuid);
@@ -2411,7 +2412,7 @@ ALTER TABLE `product_category_seo`
     ADD INDEX `shop_uuid_product_uuid` (`shop_uuid`, `product_uuid`),
     ADD INDEX `category_uuid` (`category_uuid`);
 
-ALTER TABLE `product_price`
+ALTER TABLE `product_detail_price`
     ADD INDEX `product_detail_uuid_from` (`product_detail_uuid`, `quantity_start`),
     ADD INDEX `product_uuid` (`product_uuid`),
     ADD INDEX `product_detail_uuid` (`product_detail_uuid`),
@@ -2814,17 +2815,17 @@ ALTER TABLE product_manufacturer_attribute
 FOREIGN KEY (product_manufacturer_uuid) REFERENCES product_manufacturer (uuid) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
-ALTER TABLE product_price
-    ADD CONSTRAINT `fk_product_price.product_uuid`
+ALTER TABLE product_detail_price
+    ADD CONSTRAINT `fk_product_detail_price.product_uuid`
 FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
 
-    ADD CONSTRAINT `fk_product_price.product_detail_uuid`
+    ADD CONSTRAINT `fk_product_detail_price.product_detail_uuid`
 FOREIGN KEY (product_detail_uuid) REFERENCES product_detail (uuid) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
-ALTER TABLE product_price_attribute
-    ADD CONSTRAINT `fk_product_price_attribute.product_uuid`
-FOREIGN KEY (product_price_uuid) REFERENCES product_price (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+ALTER TABLE product_detail_price_attribute
+    ADD CONSTRAINT `fk_product_detail_price_attribute.product_uuid`
+FOREIGN KEY (product_detail_price_uuid) REFERENCES product_detail_price (uuid) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
 ALTER TABLE product_accessory
@@ -3080,7 +3081,7 @@ ALTER TABLE `filter_value`
 ALTER TABLE `product_media`
     ADD FOREIGN KEY (`product_detail_uuid`) REFERENCES `product_detail` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE `product_price`
+ALTER TABLE `product_detail_price`
     ADD FOREIGN KEY (`product_detail_uuid`) REFERENCES `product_detail` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `product_vote`

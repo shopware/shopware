@@ -1,13 +1,13 @@
 <?php
 
-namespace Shopware\#classUc#;
+namespace Shopware\ProductDetailPrice;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class #classUc# extends Bundle
+class ProductDetailPrice extends Bundle
 {
     /**
      * {@inheritdoc}

@@ -1,24 +1,25 @@
 <?php
 
-namespace Shopware\Product\Repository;
+namespace Shopware\Storefront\Bridge\Product\Repository;
 
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\PriceDefinition;
 use Shopware\Cart\Tax\PercentageTaxRule;
 use Shopware\Cart\Tax\TaxRuleCollection;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Product\Repository\ProductRepository;
 use Shopware\Product\Searcher\ProductSearchResult;
 use Shopware\Product\Struct\ProductBasicCollection;
 use Shopware\Product\Struct\ProductBasicStruct;
-use Shopware\Product\Struct\StorefrontDetailProductStruct;
-use Shopware\Product\Struct\StorefrontListingProductStruct;
-use Shopware\ProductPrice\Repository\ProductPriceRepository;
-use Shopware\ProductPrice\Searcher\ProductPriceSearchResult;
-use Shopware\ProductPrice\Struct\ProductListingPrice;
-use Shopware\ProductPrice\Struct\ProductPriceBasicCollection;
-use Shopware\ProductPrice\Struct\ProductPriceBasicStruct;
+use Shopware\ProductDetailPrice\Repository\ProductDetailPriceRepository;
+use Shopware\ProductDetailPrice\Searcher\ProductDetailPriceSearchResult;
+use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicCollection;
+use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicStruct;
 use Shopware\Search\Criteria;
 use Shopware\Search\Query\TermsQuery;
+use Shopware\Storefront\Bridge\Product\Struct\DetailProductStruct;
+use Shopware\Storefront\Bridge\Product\Struct\ListingPriceStruct;
+use Shopware\Storefront\Bridge\Product\Struct\ListingProductStruct;
 
 class StorefrontProductRepository
 {
@@ -28,7 +29,7 @@ class StorefrontProductRepository
     private $repository;
 
     /**
-     * @var ProductPriceRepository
+     * @var ProductDetailPriceRepository
      */
     private $priceRepository;
 
@@ -39,7 +40,7 @@ class StorefrontProductRepository
 
     public function __construct(
         ProductRepository $repository,
-        ProductPriceRepository $priceRepository,
+        ProductDetailPriceRepository $priceRepository,
         PriceCalculator $priceCalculator
     ) {
         $this->repository = $repository;
@@ -56,7 +57,7 @@ class StorefrontProductRepository
         $detailProducts = new ProductBasicCollection();
 
         foreach ($products as $product) {
-            $detailProduct = StorefrontDetailProductStruct::createFrom($product);
+            $detailProduct = DetailProductStruct::createFrom($product);
 
             $calculated = $this->getCalculatedPrices($detailProduct, $prices, $context);
 
@@ -68,18 +69,16 @@ class StorefrontProductRepository
         return $detailProducts;
     }
 
-    public function search(Criteria $criteria, ShopContext $context): ProductSearchResult
+    public function read(array $uuids, ShopContext $context): ProductBasicCollection
     {
-        $uuids = $this->repository->searchUuids($criteria, $context->getTranslationContext());
-
-        $products = $this->repository->read($uuids->getUuids(), $context->getTranslationContext());
+        $products = $this->repository->read($uuids, $context->getTranslationContext());
 
         $prices = $this->fetchPrices($context, $products);
 
         $listingProducts = new ProductBasicCollection();
 
         foreach ($products as $product) {
-            $listingProduct = StorefrontListingProductStruct::createFrom($product);
+            $listingProduct = ListingProductStruct::createFrom($product);
 
             $listingProduct->setPrices(
                 $this->getCalculatedPrices($listingProduct, $prices, $context)
@@ -89,17 +88,26 @@ class StorefrontProductRepository
             $listingProducts->add($listingProduct);
         }
 
-        $result = new ProductSearchResult($listingProducts->getElements());
+        return $listingProducts;
+    }
+
+    public function search(Criteria $criteria, ShopContext $context): ProductSearchResult
+    {
+        $uuids = $this->repository->searchUuids($criteria, $context->getTranslationContext());
+
+        $products = $this->read($uuids->getUuids(), $context);
+
+        $result = new ProductSearchResult($products->getElements());
         $result->setTotal($uuids->getTotal());
 
         return $result;
     }
 
-    public function fetchPrices(ShopContext $context, ProductBasicCollection $products): ProductPriceSearchResult
+    private function fetchPrices(ShopContext $context, ProductBasicCollection $products): ProductDetailPriceSearchResult
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('product_price.product_detail_uuid', $products->getMainDetailUuids()));
-        $criteria->addFilter(new TermsQuery('product_price.customer_group_uuid', [
+        $criteria->addFilter(new TermsQuery('product_detail_price.product_detail_uuid', $products->getMainDetailUuids()));
+        $criteria->addFilter(new TermsQuery('product_detail_price.customer_group_uuid', [
             $context->getCurrentCustomerGroup()->getUuid(),
             $context->getFallbackCustomerGroup()->getUuid(),
         ]));
@@ -107,21 +115,16 @@ class StorefrontProductRepository
         return $this->priceRepository->search($criteria, $context->getTranslationContext());
     }
 
-    private function getCalculatedPrices(
-        ProductBasicStruct $product,
-        ProductPriceSearchResult $prices,
-        ShopContext $context
-    ): ProductPriceBasicCollection {
+    private function getCalculatedPrices(ProductBasicStruct $product, ProductDetailPriceSearchResult $prices, ShopContext $context): ProductDetailPriceBasicCollection
+    {
         $productPrices = $prices->filterByProductDetailUuid($product->getMainDetailUuid());
         $productPrices = $this->filterCustomerPrices($productPrices, $context);
 
         return $this->calculatePrices($product, $productPrices, $context);
     }
 
-    private function filterCustomerPrices(
-        ProductPriceBasicCollection $prices,
-        ShopContext $context
-    ): ProductPriceBasicCollection {
+    private function filterCustomerPrices(ProductDetailPriceBasicCollection $prices, ShopContext $context): ProductDetailPriceBasicCollection
+    {
         $current = $prices->filterByCustomerGroupUuid(
             $context->getCurrentCustomerGroup()->getUuid()
         );
@@ -134,16 +137,13 @@ class StorefrontProductRepository
         );
     }
 
-    private function calculatePrices(
-        ProductBasicStruct $product,
-        ProductPriceBasicCollection $prices,
-        ShopContext $context
-    ): ProductPriceBasicCollection {
+    private function calculatePrices(ProductBasicStruct $product, ProductDetailPriceBasicCollection $prices, ShopContext $context): ProductDetailPriceBasicCollection
+    {
         $taxRules = new TaxRuleCollection([
             new PercentageTaxRule($product->getTax()->getRate(), 100),
         ]);
 
-        /** @var ProductPriceBasicStruct $price */
+        /** @var ProductDetailPriceBasicStruct $price */
         foreach ($prices as $price) {
             $definition = new PriceDefinition($price->getPrice(), $taxRules);
             $calculated = $this->priceCalculator->calculate($definition, $context);
@@ -153,9 +153,9 @@ class StorefrontProductRepository
         return $prices;
     }
 
-    private function getListingPrice(StorefrontListingProductStruct $listingProduct): ProductListingPrice
+    private function getListingPrice(ListingProductStruct $listingProduct): ListingPriceStruct
     {
-        $listingPrice = ProductListingPrice::createFrom(
+        $listingPrice = ListingPriceStruct::createFrom(
             $listingProduct->getPrices()->last()
         );
 

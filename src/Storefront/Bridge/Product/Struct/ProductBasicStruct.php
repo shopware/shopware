@@ -1,20 +1,21 @@
 <?php
 
-namespace Shopware\Product\Struct;
+namespace Shopware\Storefront\Bridge\Product\Struct;
 
-use Shopware\ProductPrice\Struct\ProductPriceBasicCollection;
-use Shopware\ProductPrice\Struct\ProductPriceBasicStruct;
+use Shopware\Product\Struct\ProductBasicStruct as ApiBasicStruct;
+use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicCollection;
+use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicStruct;
 
-class StorefrontBasicProductStruct extends ProductBasicStruct
+class ProductBasicStruct extends ApiBasicStruct
 {
     /**
-     * @var ProductPriceBasicCollection
+     * @var ProductDetailPriceBasicCollection
      */
     protected $prices;
 
-    public function getPrice(int $quantity): ?ProductPriceBasicStruct
+    public function getPrice(int $quantity): ?ProductDetailPriceBasicStruct
     {
-        /** @var ProductPriceBasicStruct $price */
+        /** @var ProductDetailPriceBasicStruct $price */
         foreach ($this->prices as $price) {
             if ($price->getQuantityStart() > $quantity) {
                 continue;
@@ -37,12 +38,12 @@ class StorefrontBasicProductStruct extends ProductBasicStruct
         return $this->getMainDetail()->getStock() >= $this->getMainDetail()->getMinPurchase();
     }
 
-    public function getPrices(): ProductPriceBasicCollection
+    public function getPrices(): ProductDetailPriceBasicCollection
     {
         return $this->prices;
     }
 
-    public function setPrices(ProductPriceBasicCollection $prices): void
+    public function setPrices(ProductDetailPriceBasicCollection $prices): void
     {
         $this->prices = $prices;
     }

@@ -1,6 +1,6 @@
 {% block frontend_listing_product_box_button_detail %}
 
-    {# @var product \Shopware\Product\Struct\StoreFrontListingProductStruct#}
+    {# @var product \Shopware\Storefront\Bridge\Product\Struct\ListingProductStruct #}
     {% if product.canonicalUrl %}
         {% set url = product.canonicalUrl.url %}
     {% else %}

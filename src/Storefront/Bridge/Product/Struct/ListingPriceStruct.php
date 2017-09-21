@@ -1,8 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\ProductPrice\Struct;
+namespace Shopware\Storefront\Bridge\Product\Struct;
 
-class ProductListingPrice extends ProductPriceBasicStruct
+use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicStruct;
+
+class ListingPriceStruct extends ProductDetailPriceBasicStruct
 {
     /**
      * @var bool

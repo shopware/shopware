@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Page\Listing;
 
-use Shopware\Category\Struct\CategoryBasicStruct;
 use Shopware\Framework\Struct\Struct;
 use Shopware\Product\Struct\ProductBasicCollection;
 use Shopware\Search\Criteria;

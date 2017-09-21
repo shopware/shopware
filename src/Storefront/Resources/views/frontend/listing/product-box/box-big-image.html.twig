@@ -5,7 +5,7 @@
 {% block frontend_listing_box_article_description %}{% endblock %}
 
 {% block frontend_listing_box_article_picture %}
-{# @var product \Shopware\Product\Struct\StoreFrontListingProductStruct #}
+{# @var product \Shopware\Storefront\Bridge\Product\Struct\ListingProductStruct #}
 
 {% if product.canonicalUrl %}
     {% set url = product.canonicalUrl.url %}

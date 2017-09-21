@@ -1,0 +1,8 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Storefront\Bridge\Product\Struct;
+
+class DetailProductStruct extends ProductBasicStruct
+{
+
+}

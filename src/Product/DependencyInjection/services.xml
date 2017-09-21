@@ -11,12 +11,5 @@
         </service>
 
         <defaults autowire="true" />
-
-        <service class="Shopware\Product\Repository\StorefrontProductRepository" id="shopware.product.storefront_repository">
-            <argument id="shopware.product.repository" type="service"/>
-            <argument id="shopware.product_price.repository" type="service"/>
-            <argument id="cart.price.calculator" type="service" />
-        </service>
-
     </services>
 </container>

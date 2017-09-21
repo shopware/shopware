@@ -108,11 +108,11 @@
         </service>
 
         <service class="Shopware\Storefront\Page\Listing\ListingPageLoader" id="shopware.storefront.page.listing.listing_page_loader">
-            <argument id="shopware.product.storefront_repository" type="service"/>
+            <argument id="shopware.storefront.product_repository" type="service"/>
         </service>
 
         <service class="Shopware\Storefront\Page\Detail\DetailPageLoader" id="shopware.storefront.page.detail.detail_page_loader">
-            <argument id="shopware.product.storefront_repository" type="service"/>
+            <argument id="shopware.storefront.product_repository" type="service"/>
         </service>
 
         <service class="Shopware\Storefront\Firewall\CustomerProvider" id="shopware.storefront.firewall.customer_provider">
@@ -121,6 +121,12 @@
 
         <service class="Shopware\Storefront\Controller\AccountController" id="shopware.storefront.controller.account">
             <argument type="service" id="security.authentication_utils" />
+        </service>
+
+        <service class="Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository" id="shopware.storefront.product_repository">
+            <argument id="shopware.product.repository" type="service"/>
+            <argument id="shopware.product_detail_price.repository" type="service"/>
+            <argument id="cart.price.calculator" type="service"/>
         </service>
 
     </services>

@@ -49,7 +49,7 @@ return [
     Shopware\Product\Product::class => ['all' => true],
     Shopware\ProductDetail\ProductDetail::class => ['all' => true],
     Shopware\ProductManufacturer\ProductManufacturer::class => ['all' => true],
-    Shopware\ProductPrice\ProductPrice::class => ['all' => true],
+    Shopware\ProductDetailPrice\ProductDetailPrice::class => ['all' => true],
     Shopware\ProductStream\ProductStream::class => ['all' => true],
     Shopware\SeoUrl\SeoUrl::class => ['all' => true],
     Shopware\Serializer\Serializer::class => ['all' => true],

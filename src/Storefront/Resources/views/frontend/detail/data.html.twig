@@ -1,5 +1,5 @@
 {% block frontend_detail_data %}
-    {# @var product \Shopware\Product\Struct\StorefrontDetailProductStruct #}
+    {# @var product \Shopware\Storefront\Bridge\Product\Struct\DetailProductStruct #}
 
     {%  if product.prices.count > 1 %}
         {% sw_include '@Storefront/frontend/detail/block_price.html.twig' %}

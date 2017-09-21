@@ -121,7 +121,7 @@ class ProductPriceGateway implements ProductPriceGatewayInterface
             'tax.tax_rate as __tax_tax',
         ]);
 
-        $query->from('product_price', 'price');
+        $query->from('product_detail_price', 'price');
         $query->innerJoin('price', 'product_detail', 'variant', 'variant.uuid = price.product_detail_uuid');
         $query->innerJoin('variant', 'product', 'product', 'product.uuid = variant.product_uuid');
         $query->innerJoin('variant', 'tax', 'tax', 'tax.uuid = product.tax_uuid');

@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Page\Listing;
 
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Product\Repository\StorefrontProductRepository;
 use Shopware\Search\Criteria;
 use Shopware\Search\Query\TermQuery;
+use Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository;
 use Symfony\Component\HttpFoundation\Request;
 
 class ListingPageLoader

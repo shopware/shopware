@@ -33,7 +33,8 @@ class AreaCountryStateResource extends Resource
         $this->fields['areaCountryUuid'] = (new FkField('area_country_uuid', \Shopware\AreaCountry\Writer\Resource\AreaCountryResource::class, 'uuid'))->setFlags(new Required());
         $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields['translations'] = (new SubresourceField(\Shopware\AreaCountryState\Writer\Resource\AreaCountryStateTranslationResource::class, 'languageUuid'))->setFlags(new Required());
-        $this->fields['customerAddresss'] = new SubresourceField(\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class);
+        $this->fields['customerAddresses'] = new SubresourceField(\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class);
+        $this->fields['orderAddresses'] = new SubresourceField(\Shopware\OrderAddress\Writer\Resource\OrderAddressResource::class);
         $this->fields['taxAreaRules'] = new SubresourceField(\Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleResource::class);
     }
 
@@ -44,6 +45,7 @@ class AreaCountryStateResource extends Resource
             \Shopware\AreaCountryState\Writer\Resource\AreaCountryStateResource::class,
             \Shopware\AreaCountryState\Writer\Resource\AreaCountryStateTranslationResource::class,
             \Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class,
+            \Shopware\OrderAddress\Writer\Resource\OrderAddressResource::class,
             \Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleResource::class,
         ];
     }
@@ -68,6 +70,10 @@ class AreaCountryStateResource extends Resource
 
         if (!empty($updates[\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class])) {
             $event->addEvent(\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::createWrittenEvent($updates));
+        }
+
+        if (!empty($updates[\Shopware\OrderAddress\Writer\Resource\OrderAddressResource::class])) {
+            $event->addEvent(\Shopware\OrderAddress\Writer\Resource\OrderAddressResource::createWrittenEvent($updates));
         }
 
         if (!empty($updates[\Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleResource::class])) {

@@ -49,13 +49,14 @@ class ShopResource extends Resource
         $this->fields['configFormFieldValues'] = new SubresourceField(\Shopware\Framework\Write\Resource\ConfigFormFieldValueResource::class);
         $this->fields['customers'] = new SubresourceField(\Shopware\Customer\Writer\Resource\CustomerResource::class);
         $this->fields['mailAttachments'] = new SubresourceField(\Shopware\Framework\Write\Resource\MailAttachmentResource::class);
+        $this->fields['orders'] = new SubresourceField(\Shopware\Order\Writer\Resource\OrderResource::class);
         $this->fields['paymentMethodShops'] = new SubresourceField(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodShopResource::class);
         $this->fields['premiumProducts'] = new SubresourceField(\Shopware\Framework\Write\Resource\PremiumProductResource::class);
         $this->fields['productCategorySeos'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductCategorySeoResource::class);
         $this->fields['productVotes'] = new SubresourceField(\Shopware\ProductVote\Writer\Resource\ProductVoteResource::class);
         $this->fields['shippingMethods'] = new SubresourceField(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodResource::class);
         $this->fields['parent'] = new ReferenceField('parentUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopResource::class);
-        $this->fields['parentUuid'] = (new FkField('parent_uuid', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid'));
+        $this->fields['parentUuid'] = new FkField('parent_uuid', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields['template'] = new ReferenceField('templateUuid', 'uuid', \Shopware\ShopTemplate\Writer\Resource\ShopTemplateResource::class);
         $this->fields['templateUuid'] = (new FkField('shop_template_uuid', \Shopware\ShopTemplate\Writer\Resource\ShopTemplateResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['documentTemplate'] = new ReferenceField('documentTemplateUuid', 'uuid', \Shopware\ShopTemplate\Writer\Resource\ShopTemplateResource::class);
@@ -69,15 +70,15 @@ class ShopResource extends Resource
         $this->fields['customerGroup'] = new ReferenceField('customerGroupUuid', 'uuid', \Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::class);
         $this->fields['customerGroupUuid'] = (new FkField('customer_group_uuid', \Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['fallbackLocale'] = new ReferenceField('fallbackLocaleUuid', 'uuid', \Shopware\Locale\Writer\Resource\LocaleResource::class);
-        $this->fields['fallbackLocaleUuid'] = (new FkField('fallback_locale_uuid', \Shopware\Locale\Writer\Resource\LocaleResource::class, 'uuid'));
+        $this->fields['fallbackLocaleUuid'] = new FkField('fallback_locale_uuid', \Shopware\Locale\Writer\Resource\LocaleResource::class, 'uuid');
         $this->fields['paymentMethod'] = new ReferenceField('paymentMethodUuid', 'uuid', \Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::class);
-        $this->fields['paymentMethodUuid'] = (new FkField('payment_method_uuid', \Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::class, 'uuid'));
+        $this->fields['paymentMethodUuid'] = new FkField('payment_method_uuid', \Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::class, 'uuid');
         $this->fields['shippingMethod'] = new ReferenceField('shippingMethodUuid', 'uuid', \Shopware\ShippingMethod\Writer\Resource\ShippingMethodResource::class);
-        $this->fields['shippingMethodUuid'] = (new FkField('shipping_method_uuid', \Shopware\ShippingMethod\Writer\Resource\ShippingMethodResource::class, 'uuid'));
+        $this->fields['shippingMethodUuid'] = new FkField('shipping_method_uuid', \Shopware\ShippingMethod\Writer\Resource\ShippingMethodResource::class, 'uuid');
         $this->fields['areaCountry'] = new ReferenceField('areaCountryUuid', 'uuid', \Shopware\AreaCountry\Writer\Resource\AreaCountryResource::class);
-        $this->fields['areaCountryUuid'] = (new FkField('area_country_uuid', \Shopware\AreaCountry\Writer\Resource\AreaCountryResource::class, 'uuid'));
-        $this->fields['s'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopResource::class);
-        $this->fields['currencys'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopCurrencyResource::class);
+        $this->fields['areaCountryUuid'] = new FkField('area_country_uuid', \Shopware\AreaCountry\Writer\Resource\AreaCountryResource::class, 'uuid');
+        $this->fields['parent'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopResource::class);
+        $this->fields['currencies'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopCurrencyResource::class);
         $this->fields['pageGroupMappings'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopPageGroupMappingResource::class);
         $this->fields['templateConfigFormFieldValues'] = new SubresourceField(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigFormFieldValueResource::class);
         $this->fields['snippets'] = new SubresourceField(\Shopware\Framework\Write\Resource\SnippetResource::class);
@@ -92,6 +93,7 @@ class ShopResource extends Resource
             \Shopware\Framework\Write\Resource\ConfigFormFieldValueResource::class,
             \Shopware\Customer\Writer\Resource\CustomerResource::class,
             \Shopware\Framework\Write\Resource\MailAttachmentResource::class,
+            \Shopware\Order\Writer\Resource\OrderResource::class,
             \Shopware\PaymentMethod\Writer\Resource\PaymentMethodShopResource::class,
             \Shopware\Framework\Write\Resource\PremiumProductResource::class,
             \Shopware\Product\Writer\Resource\ProductCategorySeoResource::class,
@@ -135,6 +137,10 @@ class ShopResource extends Resource
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\MailAttachmentResource::class])) {
             $event->addEvent(\Shopware\Framework\Write\Resource\MailAttachmentResource::createWrittenEvent($updates));
+        }
+
+        if (!empty($updates[\Shopware\Order\Writer\Resource\OrderResource::class])) {
+            $event->addEvent(\Shopware\Order\Writer\Resource\OrderResource::createWrittenEvent($updates));
         }
 
         if (!empty($updates[\Shopware\PaymentMethod\Writer\Resource\PaymentMethodShopResource::class])) {

@@ -29,7 +29,7 @@ class StatisticSearchResource extends Resource
         $this->fields[self::RESULT_COUNT_FIELD] = (new IntField('result_count'))->setFlags(new Required());
         $this->fields[self::SHOP_ID_FIELD] = new IntField('shop_id');
         $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopResource::class);
-        $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid'));
+        $this->fields['shopUuid'] = new FkField('shop_uuid', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
     }
 
     public function getWriteOrder(): array

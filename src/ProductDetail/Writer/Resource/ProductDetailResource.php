@@ -74,8 +74,8 @@ class ProductDetailResource extends Resource
         $this->fields[self::ADDITIONAL_TEXT_FIELD] = new TranslatedField('additionalText', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields[self::PACK_UNIT_FIELD] = new TranslatedField('packUnit', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields['translations'] = new SubresourceField(\Shopware\ProductDetail\Writer\Resource\ProductDetailTranslationResource::class, 'languageUuid');
+        $this->fields['prices'] = new SubresourceField(\Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceResource::class);
         $this->fields['productMedias'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductMediaResource::class);
-        $this->fields['productPrices'] = new SubresourceField(\Shopware\ProductPrice\Writer\Resource\ProductPriceResource::class);
     }
 
     public function getWriteOrder(): array
@@ -85,8 +85,8 @@ class ProductDetailResource extends Resource
             \Shopware\Product\Writer\Resource\ProductResource::class,
             \Shopware\ProductDetail\Writer\Resource\ProductDetailResource::class,
             \Shopware\ProductDetail\Writer\Resource\ProductDetailTranslationResource::class,
+            \Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceResource::class,
             \Shopware\Product\Writer\Resource\ProductMediaResource::class,
-            \Shopware\ProductPrice\Writer\Resource\ProductPriceResource::class,
         ];
     }
 
@@ -112,12 +112,12 @@ class ProductDetailResource extends Resource
             $event->addEvent(\Shopware\ProductDetail\Writer\Resource\ProductDetailTranslationResource::createWrittenEvent($updates));
         }
 
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductMediaResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductMediaResource::createWrittenEvent($updates));
+        if (!empty($updates[\Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceResource::class])) {
+            $event->addEvent(\Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceResource::createWrittenEvent($updates));
         }
 
-        if (!empty($updates[\Shopware\ProductPrice\Writer\Resource\ProductPriceResource::class])) {
-            $event->addEvent(\Shopware\ProductPrice\Writer\Resource\ProductPriceResource::createWrittenEvent($updates));
+        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductMediaResource::class])) {
+            $event->addEvent(\Shopware\Product\Writer\Resource\ProductMediaResource::createWrittenEvent($updates));
         }
 
         return $event;

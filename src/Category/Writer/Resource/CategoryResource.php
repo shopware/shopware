@@ -64,9 +64,9 @@ class CategoryResource extends Resource
         $this->fields[self::UPDATED_AT_FIELD] = (new DateField('updated_at'))->setFlags(new Required());
         $this->fields['blogs'] = new SubresourceField(\Shopware\Framework\Write\Resource\BlogResource::class);
         $this->fields['parent'] = new ReferenceField('parentUuid', 'uuid', \Shopware\Category\Writer\Resource\CategoryResource::class);
-        $this->fields['parentUuid'] = (new FkField('parent_uuid', \Shopware\Category\Writer\Resource\CategoryResource::class, 'uuid'));
+        $this->fields['parentUuid'] = new FkField('parent_uuid', \Shopware\Category\Writer\Resource\CategoryResource::class, 'uuid');
         $this->fields['media'] = new ReferenceField('mediaUuid', 'uuid', \Shopware\Media\Writer\Resource\MediaResource::class);
-        $this->fields['mediaUuid'] = (new FkField('media_uuid', \Shopware\Media\Writer\Resource\MediaResource::class, 'uuid'));
+        $this->fields['mediaUuid'] = new FkField('media_uuid', \Shopware\Media\Writer\Resource\MediaResource::class, 'uuid');
         $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields[self::META_KEYWORDS_FIELD] = new TranslatedField('metaKeywords', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields[self::META_TITLE_FIELD] = new TranslatedField('metaTitle', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
@@ -74,11 +74,11 @@ class CategoryResource extends Resource
         $this->fields[self::CMS_HEADLINE_FIELD] = new TranslatedField('cmsHeadline', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields[self::CMS_DESCRIPTION_FIELD] = new TranslatedField('cmsDescription', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields['translations'] = (new SubresourceField(\Shopware\Category\Writer\Resource\CategoryTranslationResource::class, 'languageUuid'))->setFlags(new Required());
-        $this->fields['s'] = new SubresourceField(\Shopware\Category\Writer\Resource\CategoryResource::class);
+        $this->fields['parent'] = new SubresourceField(\Shopware\Category\Writer\Resource\CategoryResource::class);
         $this->fields['avoidCustomerGroups'] = new SubresourceField(\Shopware\Category\Writer\Resource\CategoryAvoidCustomerGroupResource::class);
-        $this->fields['productCategorys'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductCategoryResource::class);
+        $this->fields['productCategories'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductCategoryResource::class);
         $this->fields['productCategorySeos'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductCategorySeoResource::class);
-        $this->fields['shippingMethodCategorys'] = new SubresourceField(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodCategoryResource::class);
+        $this->fields['shippingMethodCategories'] = new SubresourceField(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodCategoryResource::class);
         $this->fields['shops'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopResource::class);
     }
 

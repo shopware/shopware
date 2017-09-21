@@ -2,19 +2,12 @@
 
 namespace Shopware\OrderDeliveryPosition\Writer\Resource;
 
-use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\Field\FkField;
-use Shopware\Framework\Write\Field\IntField;
-use Shopware\Framework\Write\Field\ReferenceField;
-use Shopware\Framework\Write\Field\StringField;
-use Shopware\Framework\Write\Field\BoolField;
-use Shopware\Framework\Write\Field\DateField;
-use Shopware\Framework\Write\Field\SubresourceField;
-use Shopware\Framework\Write\Field\LongTextField;
-use Shopware\Framework\Write\Field\LongTextWithHtmlField;
 use Shopware\Framework\Write\Field\FloatField;
-use Shopware\Framework\Write\Field\TranslatedField;
+use Shopware\Framework\Write\Field\LongTextField;
+use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\UuidField;
+use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\Resource;
 
 class OrderDeliveryPositionResource extends Resource
@@ -28,7 +21,7 @@ class OrderDeliveryPositionResource extends Resource
     public function __construct()
     {
         parent::__construct('order_delivery_position');
-        
+
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
         $this->fields[self::UNIT_PRICE_FIELD] = (new FloatField('unit_price'))->setFlags(new Required());
         $this->fields[self::TOTAL_PRICE_FIELD] = (new FloatField('total_price'))->setFlags(new Required());
@@ -39,23 +32,23 @@ class OrderDeliveryPositionResource extends Resource
         $this->fields['orderLineItem'] = new ReferenceField('orderLineItemUuid', 'uuid', \Shopware\OrderLineItem\Writer\Resource\OrderLineItemResource::class);
         $this->fields['orderLineItemUuid'] = (new FkField('order_line_item_uuid', \Shopware\OrderLineItem\Writer\Resource\OrderLineItemResource::class, 'uuid'))->setFlags(new Required());
     }
-    
+
     public function getWriteOrder(): array
     {
         return [
             \Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource::class,
             \Shopware\OrderLineItem\Writer\Resource\OrderLineItemResource::class,
-            \Shopware\OrderDeliveryPosition\Writer\Resource\OrderDeliveryPositionResource::class
+            \Shopware\OrderDeliveryPosition\Writer\Resource\OrderDeliveryPositionResource::class,
         ];
     }
-    
+
     public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\OrderDeliveryPosition\Event\OrderDeliveryPositionWrittenEvent
     {
         $event = new \Shopware\OrderDeliveryPosition\Event\OrderDeliveryPositionWrittenEvent($updates[self::class] ?? [], $errors);
 
         unset($updates[self::class]);
 
-                if (!empty($updates[\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource::class])) {
+        if (!empty($updates[\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource::class])) {
             $event->addEvent(\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource::createWrittenEvent($updates));
         }
 
@@ -66,7 +59,6 @@ class OrderDeliveryPositionResource extends Resource
         if (!empty($updates[\Shopware\OrderDeliveryPosition\Writer\Resource\OrderDeliveryPositionResource::class])) {
             $event->addEvent(\Shopware\OrderDeliveryPosition\Writer\Resource\OrderDeliveryPositionResource::createWrittenEvent($updates));
         }
-
 
         return $event;
     }

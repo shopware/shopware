@@ -30,7 +30,7 @@ class ProductStreamResource extends Resource
         $this->fields[self::TYPE_FIELD] = new IntField('type');
         $this->fields[self::DESCRIPTION_FIELD] = new LongTextField('description');
         $this->fields['listingSorting'] = new ReferenceField('listingSortingUuid', 'uuid', \Shopware\ListingSorting\Writer\Resource\ListingSortingResource::class);
-        $this->fields['listingSortingUuid'] = (new FkField('listing_sorting_uuid', \Shopware\ListingSorting\Writer\Resource\ListingSortingResource::class, 'uuid'));
+        $this->fields['listingSortingUuid'] = new FkField('listing_sorting_uuid', \Shopware\ListingSorting\Writer\Resource\ListingSortingResource::class, 'uuid');
         $this->fields['assignments'] = new SubresourceField(\Shopware\ProductStream\Writer\Resource\ProductStreamAssignmentResource::class);
         $this->fields['tabs'] = new SubresourceField(\Shopware\ProductStream\Writer\Resource\ProductStreamTabResource::class);
     }

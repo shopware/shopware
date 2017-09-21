@@ -36,8 +36,9 @@ class CurrencyResource extends Resource
         $this->fields[self::SHORT_NAME_FIELD] = new TranslatedField('shortName', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields['translations'] = (new SubresourceField(\Shopware\Currency\Writer\Resource\CurrencyTranslationResource::class, 'languageUuid'))->setFlags(new Required());
+        $this->fields['orders'] = new SubresourceField(\Shopware\Order\Writer\Resource\OrderResource::class);
         $this->fields['shops'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopResource::class);
-        $this->fields['shopCurrencys'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopCurrencyResource::class);
+        $this->fields['shopCurrencies'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopCurrencyResource::class);
     }
 
     public function getWriteOrder(): array
@@ -45,6 +46,7 @@ class CurrencyResource extends Resource
         return [
             \Shopware\Currency\Writer\Resource\CurrencyResource::class,
             \Shopware\Currency\Writer\Resource\CurrencyTranslationResource::class,
+            \Shopware\Order\Writer\Resource\OrderResource::class,
             \Shopware\Shop\Writer\Resource\ShopResource::class,
             \Shopware\Shop\Writer\Resource\ShopCurrencyResource::class,
         ];
@@ -62,6 +64,10 @@ class CurrencyResource extends Resource
 
         if (!empty($updates[\Shopware\Currency\Writer\Resource\CurrencyTranslationResource::class])) {
             $event->addEvent(\Shopware\Currency\Writer\Resource\CurrencyTranslationResource::createWrittenEvent($updates));
+        }
+
+        if (!empty($updates[\Shopware\Order\Writer\Resource\OrderResource::class])) {
+            $event->addEvent(\Shopware\Order\Writer\Resource\OrderResource::createWrittenEvent($updates));
         }
 
         if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {

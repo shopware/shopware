@@ -2,19 +2,12 @@
 
 namespace Shopware\OrderAddress\Writer\Resource;
 
-use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\Field\FkField;
-use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
-use Shopware\Framework\Write\Field\BoolField;
-use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\SubresourceField;
-use Shopware\Framework\Write\Field\LongTextField;
-use Shopware\Framework\Write\Field\LongTextWithHtmlField;
-use Shopware\Framework\Write\Field\FloatField;
-use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
+use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\Resource;
 
 class OrderAddressResource extends Resource
@@ -37,7 +30,7 @@ class OrderAddressResource extends Resource
     public function __construct()
     {
         parent::__construct('order_address');
-        
+
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
         $this->fields[self::COMPANY_FIELD] = new StringField('company');
         $this->fields[self::DEPARTMENT_FIELD] = new StringField('department');
@@ -56,10 +49,10 @@ class OrderAddressResource extends Resource
         $this->fields['areaCountry'] = new ReferenceField('areaCountryUuid', 'uuid', \Shopware\AreaCountry\Writer\Resource\AreaCountryResource::class);
         $this->fields['areaCountryUuid'] = (new FkField('area_country_uuid', \Shopware\AreaCountry\Writer\Resource\AreaCountryResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['areaCountryState'] = new ReferenceField('areaCountryStateUuid', 'uuid', \Shopware\AreaCountryState\Writer\Resource\AreaCountryStateResource::class);
-        $this->fields['areaCountryStateUuid'] = (new FkField('area_country_state_uuid', \Shopware\AreaCountryState\Writer\Resource\AreaCountryStateResource::class, 'uuid'));
-        $this->fields['orderDeliverys'] = new SubresourceField(\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource::class);
+        $this->fields['areaCountryStateUuid'] = new FkField('area_country_state_uuid', \Shopware\AreaCountryState\Writer\Resource\AreaCountryStateResource::class, 'uuid');
+        $this->fields['orderDeliveries'] = new SubresourceField(\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource::class);
     }
-    
+
     public function getWriteOrder(): array
     {
         return [
@@ -67,17 +60,17 @@ class OrderAddressResource extends Resource
             \Shopware\AreaCountry\Writer\Resource\AreaCountryResource::class,
             \Shopware\AreaCountryState\Writer\Resource\AreaCountryStateResource::class,
             \Shopware\OrderAddress\Writer\Resource\OrderAddressResource::class,
-            \Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource::class
+            \Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource::class,
         ];
     }
-    
+
     public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\OrderAddress\Event\OrderAddressWrittenEvent
     {
         $event = new \Shopware\OrderAddress\Event\OrderAddressWrittenEvent($updates[self::class] ?? [], $errors);
 
         unset($updates[self::class]);
 
-                if (!empty($updates[\Shopware\Order\Writer\Resource\OrderResource::class])) {
+        if (!empty($updates[\Shopware\Order\Writer\Resource\OrderResource::class])) {
             $event->addEvent(\Shopware\Order\Writer\Resource\OrderResource::createWrittenEvent($updates));
         }
 
@@ -96,7 +89,6 @@ class OrderAddressResource extends Resource
         if (!empty($updates[\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource::class])) {
             $event->addEvent(\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource::createWrittenEvent($updates));
         }
-
 
         return $event;
     }

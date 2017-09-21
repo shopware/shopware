@@ -27,7 +27,7 @@ class FilterValueResource extends Resource
         $this->fields['option'] = new ReferenceField('optionUuid', 'uuid', \Shopware\Framework\Write\Resource\FilterOptionResource::class);
         $this->fields['optionUuid'] = (new FkField('option_uuid', \Shopware\Framework\Write\Resource\FilterOptionResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['media'] = new ReferenceField('mediaUuid', 'uuid', \Shopware\Media\Writer\Resource\MediaResource::class);
-        $this->fields['mediaUuid'] = (new FkField('media_uuid', \Shopware\Media\Writer\Resource\MediaResource::class, 'uuid'));
+        $this->fields['mediaUuid'] = new FkField('media_uuid', \Shopware\Media\Writer\Resource\MediaResource::class, 'uuid');
         $this->fields[self::VALUE_FIELD] = new TranslatedField('value', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields['translations'] = (new SubresourceField(\Shopware\Framework\Write\Resource\FilterValueTranslationResource::class, 'languageUuid'))->setFlags(new Required());
     }

@@ -25,8 +25,8 @@ class PluginCategoryResource extends Resource
         $this->primaryKeyFields[self::LOCALE_FIELD] = (new StringField('locale'))->setFlags(new Required());
         $this->fields[self::NAME_FIELD] = (new LongTextField('name'))->setFlags(new Required());
         $this->fields['parent'] = new ReferenceField('parentUuid', 'uuid', \Shopware\Framework\Write\Resource\PluginCategoryResource::class);
-        $this->fields['parentUuid'] = (new FkField('parent_uuid', \Shopware\Framework\Write\Resource\PluginCategoryResource::class, 'uuid'));
-        $this->fields['s'] = new SubresourceField(\Shopware\Framework\Write\Resource\PluginCategoryResource::class);
+        $this->fields['parentUuid'] = new FkField('parent_uuid', \Shopware\Framework\Write\Resource\PluginCategoryResource::class, 'uuid');
+        $this->fields['parent'] = new SubresourceField(\Shopware\Framework\Write\Resource\PluginCategoryResource::class);
     }
 
     public function getWriteOrder(): array

@@ -2,19 +2,15 @@
 
 namespace Shopware\Order\Writer\Resource;
 
-use Shopware\Framework\Write\Flag\Required;
-use Shopware\Framework\Write\Field\FkField;
-use Shopware\Framework\Write\Field\IntField;
-use Shopware\Framework\Write\Field\ReferenceField;
-use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\DateField;
-use Shopware\Framework\Write\Field\SubresourceField;
-use Shopware\Framework\Write\Field\LongTextField;
-use Shopware\Framework\Write\Field\LongTextWithHtmlField;
+use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\FloatField;
-use Shopware\Framework\Write\Field\TranslatedField;
+use Shopware\Framework\Write\Field\LongTextField;
+use Shopware\Framework\Write\Field\ReferenceField;
+use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\UuidField;
+use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\Resource;
 
 class OrderResource extends Resource
@@ -32,7 +28,7 @@ class OrderResource extends Resource
     public function __construct()
     {
         parent::__construct('order');
-        
+
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
         $this->fields[self::DATE_FIELD] = (new DateField('order_date'))->setFlags(new Required());
         $this->fields[self::AMOUNT_TOTAL_FIELD] = (new FloatField('amount_total'))->setFlags(new Required());
@@ -54,10 +50,10 @@ class OrderResource extends Resource
         $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['billingAddress'] = new ReferenceField('billingAddressUuid', 'uuid', \Shopware\OrderAddress\Writer\Resource\OrderAddressResource::class);
         $this->fields['billingAddressUuid'] = (new FkField('billing_address_uuid', \Shopware\OrderAddress\Writer\Resource\OrderAddressResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['deliverys'] = new SubresourceField(\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource::class);
+        $this->fields['deliveries'] = new SubresourceField(\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource::class);
         $this->fields['lineItems'] = new SubresourceField(\Shopware\OrderLineItem\Writer\Resource\OrderLineItemResource::class);
     }
-    
+
     public function getWriteOrder(): array
     {
         return [
@@ -68,18 +64,18 @@ class OrderResource extends Resource
             \Shopware\Shop\Writer\Resource\ShopResource::class,
             \Shopware\OrderAddress\Writer\Resource\OrderAddressResource::class,
             \Shopware\Order\Writer\Resource\OrderResource::class,
-            \Shopware\OrderLineItem\Writer\Resource\OrderLineItemResource::class,
             \Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource::class,
+            \Shopware\OrderLineItem\Writer\Resource\OrderLineItemResource::class,
         ];
     }
-    
+
     public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Order\Event\OrderWrittenEvent
     {
         $event = new \Shopware\Order\Event\OrderWrittenEvent($updates[self::class] ?? [], $errors);
 
         unset($updates[self::class]);
 
-                if (!empty($updates[\Shopware\Customer\Writer\Resource\CustomerResource::class])) {
+        if (!empty($updates[\Shopware\Customer\Writer\Resource\CustomerResource::class])) {
             $event->addEvent(\Shopware\Customer\Writer\Resource\CustomerResource::createWrittenEvent($updates));
         }
 
@@ -114,7 +110,6 @@ class OrderResource extends Resource
         if (!empty($updates[\Shopware\OrderLineItem\Writer\Resource\OrderLineItemResource::class])) {
             $event->addEvent(\Shopware\OrderLineItem\Writer\Resource\OrderLineItemResource::createWrittenEvent($updates));
         }
-
 
         return $event;
     }

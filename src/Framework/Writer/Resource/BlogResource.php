@@ -45,9 +45,9 @@ class BlogResource extends Resource
         $this->fields[self::META_DESCRIPTION_FIELD] = new StringField('meta_description');
         $this->fields[self::META_TITLE_FIELD] = new StringField('meta_title');
         $this->fields['user'] = new ReferenceField('userUuid', 'uuid', \Shopware\Framework\Write\Resource\UserResource::class);
-        $this->fields['userUuid'] = (new FkField('user_uuid', \Shopware\Framework\Write\Resource\UserResource::class, 'uuid'));
+        $this->fields['userUuid'] = new FkField('user_uuid', \Shopware\Framework\Write\Resource\UserResource::class, 'uuid');
         $this->fields['category'] = new ReferenceField('categoryUuid', 'uuid', \Shopware\Category\Writer\Resource\CategoryResource::class);
-        $this->fields['categoryUuid'] = (new FkField('category_uuid', \Shopware\Category\Writer\Resource\CategoryResource::class, 'uuid'));
+        $this->fields['categoryUuid'] = new FkField('category_uuid', \Shopware\Category\Writer\Resource\CategoryResource::class, 'uuid');
         $this->fields[self::TITLE_FIELD] = new TranslatedField('title', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields[self::SHORT_DESCRIPTION_FIELD] = new TranslatedField('shortDescription', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields[self::DESCRIPTION_FIELD] = new TranslatedField('description', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
@@ -56,7 +56,7 @@ class BlogResource extends Resource
         $this->fields[self::META_TITLE_FIELD] = new TranslatedField('metaTitle', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields['translations'] = (new SubresourceField(\Shopware\Framework\Write\Resource\BlogTranslationResource::class, 'languageUuid'))->setFlags(new Required());
         $this->fields['comments'] = new SubresourceField(\Shopware\Framework\Write\Resource\BlogCommentResource::class);
-        $this->fields['medias'] = new SubresourceField(\Shopware\Framework\Write\Resource\BlogMediaResource::class);
+        $this->fields['media'] = new SubresourceField(\Shopware\Framework\Write\Resource\BlogMediaResource::class);
         $this->fields['products'] = new SubresourceField(\Shopware\Framework\Write\Resource\BlogProductResource::class);
         $this->fields['tags'] = new SubresourceField(\Shopware\Framework\Write\Resource\BlogTagResource::class);
     }

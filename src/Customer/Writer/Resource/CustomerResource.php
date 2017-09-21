@@ -76,12 +76,13 @@ class CustomerResource extends Resource
         $this->fields['mainShop'] = new ReferenceField('mainShopUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopResource::class);
         $this->fields['mainShopUuid'] = (new FkField('main_shop_uuid', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['lastPaymentMethod'] = new ReferenceField('lastPaymentMethodUuid', 'uuid', \Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::class);
-        $this->fields['lastPaymentMethodUuid'] = (new FkField('last_payment_method_uuid', \Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::class, 'uuid'));
+        $this->fields['lastPaymentMethodUuid'] = new FkField('last_payment_method_uuid', \Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::class, 'uuid');
         $this->fields['defaultBillingAddress'] = new ReferenceField('defaultBillingAddressUuid', 'uuid', \Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class);
-        $this->fields['defaultBillingAddressUuid'] = (new FkField('default_billing_address_uuid', \Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class, 'uuid'));
+        $this->fields['defaultBillingAddressUuid'] = new FkField('default_billing_address_uuid', \Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class, 'uuid');
         $this->fields['defaultShippingAddress'] = new ReferenceField('defaultShippingAddressUuid', 'uuid', \Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class);
-        $this->fields['defaultShippingAddressUuid'] = (new FkField('default_shipping_address_uuid', \Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class, 'uuid'));
-        $this->fields['addresss'] = new SubresourceField(\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class);
+        $this->fields['defaultShippingAddressUuid'] = new FkField('default_shipping_address_uuid', \Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class, 'uuid');
+        $this->fields['addresses'] = new SubresourceField(\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class);
+        $this->fields['orders'] = new SubresourceField(\Shopware\Order\Writer\Resource\OrderResource::class);
         $this->fields['statisticCurrentCustomers'] = new SubresourceField(\Shopware\Framework\Write\Resource\StatisticCurrentCustomerResource::class);
     }
 
@@ -93,6 +94,7 @@ class CustomerResource extends Resource
             \Shopware\Shop\Writer\Resource\ShopResource::class,
             \Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class,
             \Shopware\Customer\Writer\Resource\CustomerResource::class,
+            \Shopware\Order\Writer\Resource\OrderResource::class,
             \Shopware\Framework\Write\Resource\StatisticCurrentCustomerResource::class,
         ];
     }
@@ -137,6 +139,10 @@ class CustomerResource extends Resource
 
         if (!empty($updates[\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class])) {
             $event->addEvent(\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::createWrittenEvent($updates));
+        }
+
+        if (!empty($updates[\Shopware\Order\Writer\Resource\OrderResource::class])) {
+            $event->addEvent(\Shopware\Order\Writer\Resource\OrderResource::createWrittenEvent($updates));
         }
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\StatisticCurrentCustomerResource::class])) {

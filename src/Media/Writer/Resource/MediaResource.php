@@ -38,13 +38,13 @@ class MediaResource extends Resource
         $this->fields[self::CREATED_AT_FIELD] = (new DateField('created_at'))->setFlags(new Required());
         $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['blogMedias'] = new SubresourceField(\Shopware\Framework\Write\Resource\BlogMediaResource::class);
-        $this->fields['categorys'] = new SubresourceField(\Shopware\Category\Writer\Resource\CategoryResource::class);
+        $this->fields['categories'] = new SubresourceField(\Shopware\Category\Writer\Resource\CategoryResource::class);
         $this->fields['filterValues'] = new SubresourceField(\Shopware\Framework\Write\Resource\FilterValueResource::class);
         $this->fields['mailAttachments'] = new SubresourceField(\Shopware\Framework\Write\Resource\MailAttachmentResource::class);
         $this->fields['album'] = new ReferenceField('albumUuid', 'uuid', \Shopware\Album\Writer\Resource\AlbumResource::class);
         $this->fields['albumUuid'] = (new FkField('album_uuid', \Shopware\Album\Writer\Resource\AlbumResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['user'] = new ReferenceField('userUuid', 'uuid', \Shopware\Framework\Write\Resource\UserResource::class);
-        $this->fields['userUuid'] = (new FkField('user_uuid', \Shopware\Framework\Write\Resource\UserResource::class, 'uuid'));
+        $this->fields['userUuid'] = new FkField('user_uuid', \Shopware\Framework\Write\Resource\UserResource::class, 'uuid');
         $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields[self::DESCRIPTION_FIELD] = new TranslatedField('description', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields['translations'] = (new SubresourceField(\Shopware\Media\Writer\Resource\MediaTranslationResource::class, 'languageUuid'))->setFlags(new Required());

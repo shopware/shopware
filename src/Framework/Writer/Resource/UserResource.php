@@ -54,7 +54,7 @@ class UserResource extends Resource
         $this->fields[self::EXTENDED_EDITOR_FIELD] = new BoolField('extended_editor');
         $this->fields[self::DISABLED_CACHE_FIELD] = new BoolField('disabled_cache');
         $this->fields['blogs'] = new SubresourceField(\Shopware\Framework\Write\Resource\BlogResource::class);
-        $this->fields['medias'] = new SubresourceField(\Shopware\Media\Writer\Resource\MediaResource::class);
+        $this->fields['media'] = new SubresourceField(\Shopware\Media\Writer\Resource\MediaResource::class);
         $this->fields['locale'] = new ReferenceField('localeUuid', 'uuid', \Shopware\Locale\Writer\Resource\LocaleResource::class);
         $this->fields['localeUuid'] = (new FkField('locale_uuid', \Shopware\Locale\Writer\Resource\LocaleResource::class, 'uuid'))->setFlags(new Required());
     }

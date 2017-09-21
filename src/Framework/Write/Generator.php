@@ -27,7 +27,10 @@ namespace Shopware\Framework\Write;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use ReadGenerator\Util;
 use Symfony\Component\DependencyInjection\Container;
+
+require_once __DIR__ . '/../../../dev-ops/read-generator/Util.php';
 
 class Generator
 {
@@ -285,9 +288,16 @@ EOD;
 
             $otherResourceTemplate = $resourceTemplates[$foreignTableName];
 
+            $resourceName = $resourceTemplate->getResourceName($otherResourceTemplate->getTable());
+            if ($otherResourceTemplate->getTable() === $table) {
+                $plural = 'parent';
+            } else {
+                $plural = Util::getPlural($resourceName);
+            }
+
             $otherResourceTemplate->addField(sprintf(
                 '$this->fields[\'%s\'] = new SubresourceField(%s::class);',
-                $resourceTemplate->getResourceName($otherResourceTemplate->getTable()) . 's',
+                lcfirst($plural),
                 '\\' . $resourceTemplate->getNamespace() . '\\' . $resourceTemplate->getClassName()
             ));
 
@@ -440,11 +450,6 @@ EOD;
     {
         return lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $value))));
     }
-
-    private function toMinusCase($value)
-    {
-        return str_replace('_', '-', $value);
-    }
 }
 
 class FieldName
@@ -528,7 +533,7 @@ class %s extends Resource
 
         unset($updates[self::class]);
 
-        %s
+%s
         return $event;
     }%s
 }

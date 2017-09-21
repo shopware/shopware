@@ -45,8 +45,8 @@ class MailResource extends Resource
         $this->fields[self::TYPE_FIELD] = new IntField('mail_type');
         $this->fields[self::CONTEXT_FIELD] = new LongTextField('context');
         $this->fields[self::DIRTY_FIELD] = new BoolField('dirty');
-        $this->fields['orderState'] = new ReferenceField('orderStateUuid', 'uuid', \Shopware\Framework\Write\Resource\OrderStateResource::class);
-        $this->fields['orderStateUuid'] = (new FkField('order_state_uuid', \Shopware\Framework\Write\Resource\OrderStateResource::class, 'uuid'));
+        $this->fields['orderState'] = new ReferenceField('orderStateUuid', 'uuid', \Shopware\OrderState\Writer\Resource\OrderStateResource::class);
+        $this->fields['orderStateUuid'] = new FkField('order_state_uuid', \Shopware\OrderState\Writer\Resource\OrderStateResource::class, 'uuid');
         $this->fields[self::FROM_MAIL_FIELD] = new TranslatedField('fromMail', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields[self::FROM_NAME_FIELD] = new TranslatedField('fromName', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields[self::SUBJECT_FIELD] = new TranslatedField('subject', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
@@ -59,7 +59,7 @@ class MailResource extends Resource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\OrderStateResource::class,
+            \Shopware\OrderState\Writer\Resource\OrderStateResource::class,
             \Shopware\Framework\Write\Resource\MailResource::class,
             \Shopware\Framework\Write\Resource\MailTranslationResource::class,
             \Shopware\Framework\Write\Resource\MailAttachmentResource::class,
@@ -72,8 +72,8 @@ class MailResource extends Resource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\OrderStateResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\OrderStateResource::createWrittenEvent($updates));
+        if (!empty($updates[\Shopware\OrderState\Writer\Resource\OrderStateResource::class])) {
+            $event->addEvent(\Shopware\OrderState\Writer\Resource\OrderStateResource::createWrittenEvent($updates));
         }
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\MailResource::class])) {

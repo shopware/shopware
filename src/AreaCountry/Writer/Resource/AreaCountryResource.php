@@ -48,9 +48,10 @@ class AreaCountryResource extends Resource
         $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields['translations'] = (new SubresourceField(\Shopware\AreaCountry\Writer\Resource\AreaCountryTranslationResource::class, 'languageUuid'))->setFlags(new Required());
         $this->fields['states'] = new SubresourceField(\Shopware\AreaCountryState\Writer\Resource\AreaCountryStateResource::class);
-        $this->fields['customerAddresss'] = new SubresourceField(\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class);
-        $this->fields['paymentMethodCountrys'] = new SubresourceField(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodCountryResource::class);
-        $this->fields['shippingMethodCountrys'] = new SubresourceField(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodCountryResource::class);
+        $this->fields['customerAddresses'] = new SubresourceField(\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class);
+        $this->fields['orderAddresses'] = new SubresourceField(\Shopware\OrderAddress\Writer\Resource\OrderAddressResource::class);
+        $this->fields['paymentMethodCountries'] = new SubresourceField(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodCountryResource::class);
+        $this->fields['shippingMethodCountries'] = new SubresourceField(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodCountryResource::class);
         $this->fields['shops'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopResource::class);
         $this->fields['taxAreaRules'] = new SubresourceField(\Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleResource::class);
     }
@@ -63,6 +64,7 @@ class AreaCountryResource extends Resource
             \Shopware\AreaCountry\Writer\Resource\AreaCountryTranslationResource::class,
             \Shopware\AreaCountryState\Writer\Resource\AreaCountryStateResource::class,
             \Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class,
+            \Shopware\OrderAddress\Writer\Resource\OrderAddressResource::class,
             \Shopware\PaymentMethod\Writer\Resource\PaymentMethodCountryResource::class,
             \Shopware\ShippingMethod\Writer\Resource\ShippingMethodCountryResource::class,
             \Shopware\Shop\Writer\Resource\ShopResource::class,
@@ -94,6 +96,10 @@ class AreaCountryResource extends Resource
 
         if (!empty($updates[\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class])) {
             $event->addEvent(\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::createWrittenEvent($updates));
+        }
+
+        if (!empty($updates[\Shopware\OrderAddress\Writer\Resource\OrderAddressResource::class])) {
+            $event->addEvent(\Shopware\OrderAddress\Writer\Resource\OrderAddressResource::createWrittenEvent($updates));
         }
 
         if (!empty($updates[\Shopware\PaymentMethod\Writer\Resource\PaymentMethodCountryResource::class])) {

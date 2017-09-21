@@ -68,16 +68,17 @@ class ShippingMethodResource extends Resource
         $this->fields[self::BIND_SQL_FIELD] = new LongTextField('bind_sql');
         $this->fields[self::STATUS_LINK_FIELD] = new LongTextField('status_link');
         $this->fields[self::CALCULATION_SQL_FIELD] = new LongTextField('calculation_sql');
+        $this->fields['orderDeliveries'] = new SubresourceField(\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource::class);
         $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopResource::class);
-        $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid'));
+        $this->fields['shopUuid'] = new FkField('shop_uuid', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields['customerGroup'] = new ReferenceField('customerGroupUuid', 'uuid', \Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::class);
-        $this->fields['customerGroupUuid'] = (new FkField('customer_group_uuid', \Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::class, 'uuid'));
+        $this->fields['customerGroupUuid'] = new FkField('customer_group_uuid', \Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::class, 'uuid');
         $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields[self::DESCRIPTION_FIELD] = new TranslatedField('description', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields[self::COMMENT_FIELD] = new TranslatedField('comment', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields['translations'] = (new SubresourceField(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodTranslationResource::class, 'languageUuid'))->setFlags(new Required());
-        $this->fields['categorys'] = new SubresourceField(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodCategoryResource::class);
-        $this->fields['countrys'] = new SubresourceField(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodCountryResource::class);
+        $this->fields['categories'] = new SubresourceField(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodCategoryResource::class);
+        $this->fields['countries'] = new SubresourceField(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodCountryResource::class);
         $this->fields['holidays'] = new SubresourceField(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodHolidayResource::class);
         $this->fields['paymentMethods'] = new SubresourceField(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodPaymentMethodResource::class);
         $this->fields['prices'] = new SubresourceField(\Shopware\ShippingMethodPrice\Writer\Resource\ShippingMethodPriceResource::class);
@@ -87,6 +88,7 @@ class ShippingMethodResource extends Resource
     public function getWriteOrder(): array
     {
         return [
+            \Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource::class,
             \Shopware\Shop\Writer\Resource\ShopResource::class,
             \Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::class,
             \Shopware\ShippingMethod\Writer\Resource\ShippingMethodResource::class,
@@ -104,6 +106,10 @@ class ShippingMethodResource extends Resource
         $event = new \Shopware\ShippingMethod\Event\ShippingMethodWrittenEvent($updates[self::class] ?? [], $errors);
 
         unset($updates[self::class]);
+
+        if (!empty($updates[\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource::class])) {
+            $event->addEvent(\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource::createWrittenEvent($updates));
+        }
 
         if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
             $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates));

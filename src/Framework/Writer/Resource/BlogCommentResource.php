@@ -37,7 +37,7 @@ class BlogCommentResource extends Resource
         $this->fields[self::EMAIL_FIELD] = (new StringField('email'))->setFlags(new Required());
         $this->fields[self::POINTS_FIELD] = (new FloatField('points'))->setFlags(new Required());
         $this->fields['blog'] = new ReferenceField('blogUuid', 'uuid', \Shopware\Framework\Write\Resource\BlogResource::class);
-        $this->fields['blogUuid'] = (new FkField('blog_uuid', \Shopware\Framework\Write\Resource\BlogResource::class, 'uuid'));
+        $this->fields['blogUuid'] = new FkField('blog_uuid', \Shopware\Framework\Write\Resource\BlogResource::class, 'uuid');
     }
 
     public function getWriteOrder(): array

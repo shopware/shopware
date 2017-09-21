@@ -26,7 +26,7 @@ class HolidayResource extends Resource
         $this->fields[self::EVENT_DATE_FIELD] = (new DateField('event_date'))->setFlags(new Required());
         $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields['translations'] = (new SubresourceField(\Shopware\Holiday\Writer\Resource\HolidayTranslationResource::class, 'languageUuid'))->setFlags(new Required());
-        $this->fields['shippingMethodHolidays'] = new SubresourceField(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodHolidayResource::class);
+        $this->fields['shippingMethodHolidaies'] = new SubresourceField(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodHolidayResource::class);
     }
 
     public function getWriteOrder(): array

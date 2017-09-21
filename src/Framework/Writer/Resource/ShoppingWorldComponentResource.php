@@ -36,7 +36,7 @@ class ShoppingWorldComponentResource extends Resource
         $this->fields[self::PLUGIN_ID_FIELD] = new IntField('plugin_id');
         $this->primaryKeyFields[self::UUID_FIELD] = new UuidField('uuid');
         $this->fields['plugin'] = new ReferenceField('pluginUuid', 'uuid', \Shopware\Framework\Write\Resource\PluginResource::class);
-        $this->fields['pluginUuid'] = (new FkField('plugin_uuid', \Shopware\Framework\Write\Resource\PluginResource::class, 'uuid'));
+        $this->fields['pluginUuid'] = new FkField('plugin_uuid', \Shopware\Framework\Write\Resource\PluginResource::class, 'uuid');
         $this->fields['fields'] = new SubresourceField(\Shopware\Framework\Write\Resource\ShoppingWorldComponentFieldResource::class);
     }
 

@@ -39,11 +39,11 @@ class AlbumResource extends Resource
         $this->fields[self::THUMBNAIL_QUALITY_FIELD] = new IntField('thumbnail_quality');
         $this->fields[self::THUMBNAIL_HIGH_DPI_QUALITY_FIELD] = new IntField('thumbnail_high_dpi_quality');
         $this->fields['parent'] = new ReferenceField('parentUuid', 'uuid', \Shopware\Album\Writer\Resource\AlbumResource::class);
-        $this->fields['parentUuid'] = (new FkField('parent_uuid', \Shopware\Album\Writer\Resource\AlbumResource::class, 'uuid'));
+        $this->fields['parentUuid'] = new FkField('parent_uuid', \Shopware\Album\Writer\Resource\AlbumResource::class, 'uuid');
         $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields['translations'] = (new SubresourceField(\Shopware\Album\Writer\Resource\AlbumTranslationResource::class, 'languageUuid'))->setFlags(new Required());
-        $this->fields['s'] = new SubresourceField(\Shopware\Album\Writer\Resource\AlbumResource::class);
-        $this->fields['medias'] = new SubresourceField(\Shopware\Media\Writer\Resource\MediaResource::class);
+        $this->fields['parent'] = new SubresourceField(\Shopware\Album\Writer\Resource\AlbumResource::class);
+        $this->fields['media'] = new SubresourceField(\Shopware\Media\Writer\Resource\MediaResource::class);
     }
 
     public function getWriteOrder(): array

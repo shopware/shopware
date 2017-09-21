@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\PaymentMethod\Event;
+namespace Shopware\ProductDetailPrice\Event;
 
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
-class PaymentMethodCountryWrittenEvent extends NestedEvent
+class ProductDetailPriceWrittenEvent extends NestedEvent
 {
-    const NAME = 'payment_method_country.written';
+    const NAME = 'product_detail_price.written';
 
     /**
      * @var string[]
      */
-    private $paymentMethodCountryUuids;
+    private $productDetailPriceUuids;
 
     /**
      * @var NestedEventCollection
@@ -24,9 +24,9 @@ class PaymentMethodCountryWrittenEvent extends NestedEvent
      */
     private $errors;
 
-    public function __construct(array $paymentMethodCountryUuids, array $errors = [])
+    public function __construct(array $productDetailPriceUuids, array $errors = [])
     {
-        $this->paymentMethodCountryUuids = $paymentMethodCountryUuids;
+        $this->productDetailPriceUuids = $productDetailPriceUuids;
         $this->events = new NestedEventCollection();
         $this->errors = $errors;
     }
@@ -39,9 +39,9 @@ class PaymentMethodCountryWrittenEvent extends NestedEvent
     /**
      * @return string[]
      */
-    public function getPaymentMethodCountryUuids(): array
+    public function getProductDetailPriceUuids(): array
     {
-        return $this->paymentMethodCountryUuids;
+        return $this->productDetailPriceUuids;
     }
 
     public function getErrors(): array

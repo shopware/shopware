@@ -61,8 +61,8 @@ class ShopPageResource extends Resource
         $this->fields[self::SHOP_IDS_FIELD] = new StringField('shop_ids');
         $this->fields[self::SHOP_UUIDS_FIELD] = new LongTextField('shop_uuids');
         $this->fields['parent'] = new ReferenceField('parentUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopPageResource::class);
-        $this->fields['parentUuid'] = (new FkField('parent_uuid', \Shopware\Shop\Writer\Resource\ShopPageResource::class, 'uuid'));
-        $this->fields['s'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopPageResource::class);
+        $this->fields['parentUuid'] = new FkField('parent_uuid', \Shopware\Shop\Writer\Resource\ShopPageResource::class, 'uuid');
+        $this->fields['parent'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopPageResource::class);
     }
 
     public function getWriteOrder(): array

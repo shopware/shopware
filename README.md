@@ -1,4 +1,4 @@
-# Shopware 5
+# Shopware Project Next
 
 [![Build Status](https://travis-ci.org/shopware/shopware.svg?branch=labs)](https://travis-ci.org/shopware/shopware)
 [![Crowdin](https://d322cqt584bo4o.cloudfront.net/shopware/localized.svg)](https://crowdin.com/project/shopware)
@@ -6,15 +6,7 @@
 - **License**: Dual license AGPL v3 / Proprietary
 - **Github Repository**: <https://github.com/shopware/shopware>
 - **Issue Tracker**: <https://issues.shopware.com>
-
-## Overview
-
-![Shopware 5 collage](http://cdn.shopware.de/github/readme_screenshot.png)
-
-Shopware 5 is the next generation of open source e-commerce software made in Germany. Based on bleeding edge technologies like `Symfony 2`, `Doctrine 2` & `Zend Framework` Shopware comes as the perfect platform for your next e-commerce project.
-Furthermore Shopware 5 provides an event-driven plugin system and an advanced hook system, giving you the ability to customize every part of the platform.
-
-Visit the forum at <http://forum.shopware.com/>
+- **Branch**: `labs`
 
 ### Shopware Server Requirements
 
@@ -95,7 +87,33 @@ You can now access your shop
 
 # Backend
 
-The backend is now accessible under http://your.shop.com/nexus
+- **Requirements:**
+    - Node.js > 8.x
+    - NPM > 5.x
+
+After initializing the application itself using `./psh.phar init` the stack is up and running. The backend is like a separate application with its own dependencies. Therefore we create a commands for your convince to set it up as well:
+
+```bash
+./psh.phar nexus:init
+```
+
+This will resolve the Node.js dependencies of the backend. If you're having trouble setting resolving the using `psh`, go to the `src/Nexus/Resources/nexus` directory and run `npm install` / `yarn` in the folder to resolve the dependencies manually.
+
+Now you're having two ways to go. If you just want to have a working copy of the backend you have to build the project:
+
+```bash
+./psh.phar nexus:build
+```
+
+Now you can access the complied version of the backend using `<http://your-shop-url/nexus>`.
+
+If you want to start developing with the backend we're highly recommend the hot module reloading mode. In this mode we're spawning a custom Node.js webserver which is using the `webpack-devserver`:
+
+```bash
+./psh.phar nexus:watch
+```
+
+The hot module reloading mode enables you to use the [Vue.js DevTools](https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) as well as having hot module reloading in place for your components.
 
 # Get involved
 

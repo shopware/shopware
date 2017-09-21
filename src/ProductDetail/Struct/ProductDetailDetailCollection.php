@@ -2,7 +2,7 @@
 
 namespace Shopware\ProductDetail\Struct;
 
-use Shopware\ProductPrice\Struct\ProductPriceBasicCollection;
+use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicCollection;
 
 class ProductDetailDetailCollection extends ProductDetailBasicCollection
 {
@@ -23,9 +23,9 @@ class ProductDetailDetailCollection extends ProductDetailBasicCollection
         return $uuids;
     }
 
-    public function getPrices(): ProductPriceBasicCollection
+    public function getPrices(): ProductDetailPriceBasicCollection
     {
-        $collection = new ProductPriceBasicCollection();
+        $collection = new ProductDetailPriceBasicCollection();
         foreach ($this->elements as $element) {
             $collection->fill($element->getPrices()->getIterator()->getArrayCopy());
         }

@@ -6,7 +6,7 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 use Shopware\ProductDetail\Struct\ProductDetailDetailCollection;
-use Shopware\ProductPrice\Event\ProductPriceBasicLoadedEvent;
+use Shopware\ProductDetailPrice\Event\ProductDetailPriceBasicLoadedEvent;
 
 class ProductDetailDetailLoadedEvent extends NestedEvent
 {
@@ -47,7 +47,7 @@ class ProductDetailDetailLoadedEvent extends NestedEvent
     {
         return new NestedEventCollection([
             new ProductDetailBasicLoadedEvent($this->productDetails, $this->context),
-            new ProductPriceBasicLoadedEvent($this->productDetails->getPrices(), $this->context),
+            new ProductDetailPriceBasicLoadedEvent($this->productDetails->getPrices(), $this->context),
         ]);
     }
 }

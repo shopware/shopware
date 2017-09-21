@@ -7,7 +7,7 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
 use Shopware\ProductDetail\Struct\ProductDetailDetailStruct;
-use Shopware\ProductPrice\Factory\ProductPriceBasicFactory;
+use Shopware\ProductDetailPrice\Factory\ProductDetailPriceBasicFactory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Shopware\Unit\Factory\UnitBasicFactory;
@@ -15,18 +15,18 @@ use Shopware\Unit\Factory\UnitBasicFactory;
 class ProductDetailDetailFactory extends ProductDetailBasicFactory
 {
     /**
-     * @var ProductPriceBasicFactory
+     * @var ProductDetailPriceBasicFactory
      */
-    protected $productPriceFactory;
+    protected $productDetailPriceFactory;
 
     public function __construct(
         Connection $connection,
         ExtensionRegistryInterface $registry,
-        ProductPriceBasicFactory $productPriceFactory,
+        ProductDetailPriceBasicFactory $productDetailPriceFactory,
         UnitBasicFactory $unitFactory
     ) {
         parent::__construct($connection, $registry, $unitFactory);
-        $this->productPriceFactory = $productPriceFactory;
+        $this->productDetailPriceFactory = $productDetailPriceFactory;
     }
 
     public function getFields(): array
@@ -55,12 +55,12 @@ class ProductDetailDetailFactory extends ProductDetailBasicFactory
         if ($prices = $selection->filter('prices')) {
             $query->leftJoin(
                 $selection->getRootEscaped(),
-                'product_price',
+                'product_detail_price',
                 $prices->getRootEscaped(),
                 sprintf('%s.uuid = %s.product_detail_uuid', $selection->getRootEscaped(), $prices->getRootEscaped())
             );
 
-            $this->productPriceFactory->joinDependencies($prices, $query, $context);
+            $this->productDetailPriceFactory->joinDependencies($prices, $query, $context);
 
             $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
         }
@@ -69,7 +69,7 @@ class ProductDetailDetailFactory extends ProductDetailBasicFactory
     public function getAllFields(): array
     {
         $fields = parent::getAllFields();
-        $fields['prices'] = $this->productPriceFactory->getAllFields();
+        $fields['prices'] = $this->productDetailPriceFactory->getAllFields();
 
         return $fields;
     }

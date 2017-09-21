@@ -2,26 +2,26 @@
 
 namespace Shopware\ProductDetail\Struct;
 
-use Shopware\ProductPrice\Struct\ProductPriceBasicCollection;
+use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicCollection;
 
 class ProductDetailDetailStruct extends ProductDetailBasicStruct
 {
     /**
-     * @var ProductPriceBasicCollection
+     * @var ProductDetailPriceBasicCollection
      */
     protected $prices;
 
     public function __construct()
     {
-        $this->prices = new ProductPriceBasicCollection();
+        $this->prices = new ProductDetailPriceBasicCollection();
     }
 
-    public function getPrices(): ProductPriceBasicCollection
+    public function getPrices(): ProductDetailPriceBasicCollection
     {
         return $this->prices;
     }
 
-    public function setPrices(ProductPriceBasicCollection $prices): void
+    public function setPrices(ProductDetailPriceBasicCollection $prices): void
     {
         $this->prices = $prices;
     }

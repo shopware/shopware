@@ -8,8 +8,8 @@ use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\ProductDetail\Factory\ProductDetailDetailFactory;
 use Shopware\ProductDetail\Struct\ProductDetailDetailCollection;
 use Shopware\ProductDetail\Struct\ProductDetailDetailStruct;
-use Shopware\ProductPrice\Searcher\ProductPriceSearcher;
-use Shopware\ProductPrice\Searcher\ProductPriceSearchResult;
+use Shopware\ProductDetailPrice\Searcher\ProductDetailPriceSearcher;
+use Shopware\ProductDetailPrice\Searcher\ProductDetailPriceSearchResult;
 use Shopware\Search\Criteria;
 use Shopware\Search\Query\TermsQuery;
 
@@ -23,16 +23,16 @@ class ProductDetailDetailLoader
     private $factory;
 
     /**
-     * @var ProductPriceSearcher
+     * @var ProductDetailPriceSearcher
      */
-    private $productPriceSearcher;
+    private $productDetailPriceSearcher;
 
     public function __construct(
         ProductDetailDetailFactory $factory,
-        ProductPriceSearcher $productPriceSearcher
+        ProductDetailPriceSearcher $productDetailPriceSearcher
     ) {
         $this->factory = $factory;
-        $this->productPriceSearcher = $productPriceSearcher;
+        $this->productDetailPriceSearcher = $productDetailPriceSearcher;
     }
 
     public function load(array $uuids, TranslationContext $context): ProductDetailDetailCollection
@@ -44,9 +44,9 @@ class ProductDetailDetailLoader
         $productDetailsCollection = $this->read($uuids, $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('product_price.product_detail_uuid', $uuids));
-        /** @var ProductPriceSearchResult $prices */
-        $prices = $this->productPriceSearcher->search($criteria, $context);
+        $criteria->addFilter(new TermsQuery('product_detail_price.product_detail_uuid', $uuids));
+        /** @var ProductDetailPriceSearchResult $prices */
+        $prices = $this->productDetailPriceSearcher->search($criteria, $context);
 
         /** @var ProductDetailDetailStruct $productDetail */
         foreach ($productDetailsCollection as $productDetail) {

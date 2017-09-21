@@ -226,7 +226,7 @@ class ContextFactory implements ContextFactoryInterface
         return $context;
     }
 
-    private function getCurrency(ShopBasicStruct $shop, ?string $currencyUuid, TranslationContext $context): CurrencyBasicStruct
+    private function getCurrency(ShopDetailStruct $shop, ?string $currencyUuid, TranslationContext $context): CurrencyBasicStruct
     {
         if ($currencyUuid === null) {
             return $shop->getCurrency();
@@ -241,7 +241,7 @@ class ContextFactory implements ContextFactoryInterface
         return $currency->get($currencyUuid);
     }
 
-    private function getPaymentMethod(?CustomerBasicStruct $customer, ShopBasicStruct $shop, TranslationContext $context, CheckoutScope $checkoutScope): PaymentMethodBasicStruct
+    private function getPaymentMethod(?CustomerBasicStruct $customer, ShopDetailStruct $shop, TranslationContext $context, CheckoutScope $checkoutScope): PaymentMethodBasicStruct
     {
         //payment switched in checkout?
         if ($checkoutScope->getPaymentMethodUuid()) {
@@ -263,7 +263,7 @@ class ContextFactory implements ContextFactoryInterface
         return $shop->getPaymentMethod();
     }
 
-    private function getShippingMethod(ShopBasicStruct $shop, TranslationContext $context, CheckoutScope $checkoutScope): ShippingMethodBasicStruct
+    private function getShippingMethod(ShopDetailStruct $shop, TranslationContext $context, CheckoutScope $checkoutScope): ShippingMethodBasicStruct
     {
         if ($checkoutScope->getShippingMethodUuid()) {
             return $this->shippingMethodRepository->read([$checkoutScope->getShippingMethodUuid()], $context)
@@ -289,7 +289,7 @@ class ContextFactory implements ContextFactoryInterface
         );
     }
 
-    private function loadCustomer(CustomerScope $customerScope, TranslationContext $translationContext): CustomerBasicStruct
+    private function loadCustomer(CustomerScope $customerScope, TranslationContext $translationContext): ?CustomerBasicStruct
     {
         $customers = $this->customerRepository->read([$customerScope->getCustomerUuid()], $translationContext);
         $customer = $customers->get($customerScope->getCustomerUuid());
@@ -321,7 +321,7 @@ class ContextFactory implements ContextFactoryInterface
     }
 
     private function loadShippingLocation(
-        ShopBasicStruct $shop,
+        ShopDetailStruct $shop,
         TranslationContext $translationContext,
         CheckoutScope $checkoutScope
     ): ShippingLocation {

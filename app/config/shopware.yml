@@ -50,7 +50,7 @@ security:
     encoders:
         Shopware\Storefront\Firewall\CustomerUser:
             algorithm: bcrypt
-            cost: 10
+            cost: 11
 
 twig:
     debug:            "%kernel.debug%"

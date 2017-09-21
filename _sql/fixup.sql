@@ -3087,6 +3087,5 @@ ALTER TABLE `product_vote`
     ADD FOREIGN KEY (`shop_uuid`) REFERENCES `shop` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-
-
-
+UPDATE `payment_method` SET absolute_surcharge = NULL WHERE absolute_surcharge = 0;
+UPDATE `payment_method` SET percentage_surcharge = NULL WHERE percentage_surcharge = 0;

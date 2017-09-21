@@ -1,4 +1,4 @@
-# Shopware Project Next
+# Shopware
 
 [![Build Status](https://travis-ci.org/shopware/shopware.svg?branch=labs)](https://travis-ci.org/shopware/shopware)
 [![Crowdin](https://d322cqt584bo4o.cloudfront.net/shopware/localized.svg)](https://crowdin.com/project/shopware)
@@ -35,11 +35,13 @@
 
 ### Installation via Git
 
-Follow the instruction below if you want to install Shopware 5 using Git.
+Follow the instruction below if you want to install Shopware using Git.
 
 1.) Clone the git repository to the desired location using:
 
     git clone https://github.com/shopware/shopware.git
+    cd shopware
+    git checkout labs
 
 In case you wish to contribute to Shopware, fork the `labs` branch rather than cloning it, and create a pull request via Github. For further information please read the section "Get involved" of this document.
 
@@ -65,16 +67,14 @@ If you don't want to use docker, please follow the next steps:
 Depending on your server configuration, it might be necessary to set whole write permissions (777) to the files and folders above.
 You can also start testing with lower permissions due to security reasons (644 for example) as long as your php process can write to those files.
 
-3.) Please configure your web server that the web directory is your root directory. At the moment we didn't support subdirectories.
-
-4.) Copy the .psh.yaml.dist file to .psh.yaml.override and delete everything what is not part of the const section. Your override file should look like this:
+3.) Copy the .psh.yaml.dist file to .psh.yaml.override and delete everything what is not part of the const section. Your override file should look like this:
 ```yaml
 const:
   DB_USER: "app"
   DB_PASSWORD: "app"
-  DB_HOST: "mysql"
+  DB_HOST: "localhost"
   DB_NAME: "shopware"
-  SW_HOST: "10.101.101.56"
+  SW_HOST: "your-shop.com"  
   SW_BASE_PATH: ""
   PHP_VERSION: "7.1"
 ``` 
@@ -83,7 +83,7 @@ Please replace the provided credentials with your own. After that you can provis
 ./psh.phar init
 ```
 
-You can now access your shop
+You can now access your shop. If you want to install Shopware in a sub directory, please fill out the setting `SW_BASE PATH` with your installation path e.g. for example `/sub/direcory`. If you're seeing an Apache directory listing, then you have to modify your `SW_BASE_PATH` and append `/web` to the given path. Please keep in mind that you have to re-run `./psh.phar init` when you're modifying your `.psh.yaml.override` file.
 
 # Backend
 

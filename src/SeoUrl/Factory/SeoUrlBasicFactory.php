@@ -62,7 +62,12 @@ class SeoUrlBasicFactory extends Factory
         $seoUrl->setCreatedAt(new \DateTime($data[$selection->getField('created_at')]));
 
         $routerContext = $this->container->get('router')->getContext();
-        $url = implode('/', array_filter([$routerContext->getBaseUrl(), $seoUrl->getSeoPathInfo()]));
+
+        $url = implode('/', array_filter([
+            trim($routerContext->getBaseUrl(), '/'),
+            trim($seoUrl->getSeoPathInfo(), '/')
+        ]));
+
         $url = sprintf('%s://%s/%s', $routerContext->getScheme(), $routerContext->getHost(), $url);
         $seoUrl->setUrl($url);
 

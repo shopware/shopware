@@ -1,4 +1,4 @@
-FROM mysql:5.7
+FROM mysql:5.7.19
 
 RUN apt-get update \
   && apt-get install --no-install-recommends -y \

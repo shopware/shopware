@@ -46,3 +46,6 @@ environments:
   nexus:
     paths:
       - "dev-ops/nexus/actions"
+  bamboo:
+    paths:
+      - "dev-ops/bamboo.shopware.com/actions"

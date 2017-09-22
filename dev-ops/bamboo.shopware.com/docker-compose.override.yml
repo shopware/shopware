@@ -1,0 +1,9 @@
+#override defaults for ci
+version: '2'
+
+services:
+  app_server:
+    network_mode: bridge
+
+  app_mysql:
+    network_mode: bridge

@@ -13,7 +13,6 @@ use Shopware\Framework\Write\FieldException\WriteStackException;
 use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
 use Shopware\Shop\Writer\Resource\ShopResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CategoryWriter
 {
@@ -32,7 +31,7 @@ class CategoryWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -148,10 +147,8 @@ class CategoryWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            CategoryWriteExtenderEvent::NAME,
-            new CategoryWriteExtenderEvent($extenderCollection)
-        );
+        $event = new CategoryWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(CategoryWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

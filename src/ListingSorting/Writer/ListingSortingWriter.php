@@ -13,7 +13,6 @@ use Shopware\ListingSorting\Event\ListingSortingWriteExtenderEvent;
 use Shopware\ListingSorting\Event\ListingSortingWrittenEvent;
 use Shopware\ListingSorting\Writer\Resource\ListingSortingResource;
 use Shopware\Shop\Writer\Resource\ShopResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingSortingWriter
 {
@@ -32,7 +31,7 @@ class ListingSortingWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -148,10 +147,8 @@ class ListingSortingWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            ListingSortingWriteExtenderEvent::NAME,
-            new ListingSortingWriteExtenderEvent($extenderCollection)
-        );
+        $event = new ListingSortingWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(ListingSortingWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

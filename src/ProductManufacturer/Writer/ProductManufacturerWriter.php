@@ -13,7 +13,6 @@ use Shopware\ProductManufacturer\Event\ProductManufacturerWriteExtenderEvent;
 use Shopware\ProductManufacturer\Event\ProductManufacturerWrittenEvent;
 use Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerResource;
 use Shopware\Shop\Writer\Resource\ShopResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductManufacturerWriter
 {
@@ -32,7 +31,7 @@ class ProductManufacturerWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -148,10 +147,8 @@ class ProductManufacturerWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            ProductManufacturerWriteExtenderEvent::NAME,
-            new ProductManufacturerWriteExtenderEvent($extenderCollection)
-        );
+        $event = new ProductManufacturerWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(ProductManufacturerWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

@@ -13,7 +13,6 @@ use Shopware\ProductDetailPrice\Event\ProductDetailPriceWriteExtenderEvent;
 use Shopware\ProductDetailPrice\Event\ProductDetailPriceWrittenEvent;
 use Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceResource;
 use Shopware\Shop\Writer\Resource\ShopResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductDetailPriceWriter
 {
@@ -32,7 +31,7 @@ class ProductDetailPriceWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -148,10 +147,8 @@ class ProductDetailPriceWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            ProductDetailPriceWriteExtenderEvent::NAME,
-            new ProductDetailPriceWriteExtenderEvent($extenderCollection)
-        );
+        $event = new ProductDetailPriceWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(ProductDetailPriceWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

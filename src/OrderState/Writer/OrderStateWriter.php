@@ -13,7 +13,6 @@ use Shopware\OrderState\Event\OrderStateWriteExtenderEvent;
 use Shopware\OrderState\Event\OrderStateWrittenEvent;
 use Shopware\OrderState\Writer\Resource\OrderStateResource;
 use Shopware\Shop\Writer\Resource\ShopResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderStateWriter
 {
@@ -32,7 +31,7 @@ class OrderStateWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -148,10 +147,8 @@ class OrderStateWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            OrderStateWriteExtenderEvent::NAME,
-            new OrderStateWriteExtenderEvent($extenderCollection)
-        );
+        $event = new OrderStateWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(OrderStateWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

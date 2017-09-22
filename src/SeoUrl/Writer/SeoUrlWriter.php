@@ -13,7 +13,6 @@ use Shopware\SeoUrl\Event\SeoUrlWriteExtenderEvent;
 use Shopware\SeoUrl\Event\SeoUrlWrittenEvent;
 use Shopware\SeoUrl\Writer\Resource\SeoUrlResource;
 use Shopware\Shop\Writer\Resource\ShopResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SeoUrlWriter
 {
@@ -32,7 +31,7 @@ class SeoUrlWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -148,10 +147,8 @@ class SeoUrlWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            SeoUrlWriteExtenderEvent::NAME,
-            new SeoUrlWriteExtenderEvent($extenderCollection)
-        );
+        $event = new SeoUrlWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(SeoUrlWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

@@ -13,7 +13,6 @@ use Shopware\Shop\Writer\Resource\ShopResource;
 use Shopware\Unit\Event\UnitWriteExtenderEvent;
 use Shopware\Unit\Event\UnitWrittenEvent;
 use Shopware\Unit\Writer\Resource\UnitResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UnitWriter
 {
@@ -32,7 +31,7 @@ class UnitWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -148,10 +147,8 @@ class UnitWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            UnitWriteExtenderEvent::NAME,
-            new UnitWriteExtenderEvent($extenderCollection)
-        );
+        $event = new UnitWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(UnitWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

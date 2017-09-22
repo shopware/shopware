@@ -13,7 +13,6 @@ use Shopware\ProductVote\Event\ProductVoteWriteExtenderEvent;
 use Shopware\ProductVote\Event\ProductVoteWrittenEvent;
 use Shopware\ProductVote\Writer\Resource\ProductVoteResource;
 use Shopware\Shop\Writer\Resource\ShopResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductVoteWriter
 {
@@ -32,7 +31,7 @@ class ProductVoteWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -148,10 +147,8 @@ class ProductVoteWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            ProductVoteWriteExtenderEvent::NAME,
-            new ProductVoteWriteExtenderEvent($extenderCollection)
-        );
+        $event = new ProductVoteWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(ProductVoteWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

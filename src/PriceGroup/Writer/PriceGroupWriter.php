@@ -13,7 +13,6 @@ use Shopware\PriceGroup\Event\PriceGroupWriteExtenderEvent;
 use Shopware\PriceGroup\Event\PriceGroupWrittenEvent;
 use Shopware\PriceGroup\Writer\Resource\PriceGroupResource;
 use Shopware\Shop\Writer\Resource\ShopResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PriceGroupWriter
 {
@@ -32,7 +31,7 @@ class PriceGroupWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -148,10 +147,8 @@ class PriceGroupWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            PriceGroupWriteExtenderEvent::NAME,
-            new PriceGroupWriteExtenderEvent($extenderCollection)
-        );
+        $event = new PriceGroupWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(PriceGroupWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

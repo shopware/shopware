@@ -13,7 +13,6 @@ use Shopware\OrderAddress\Event\OrderAddressWriteExtenderEvent;
 use Shopware\OrderAddress\Event\OrderAddressWrittenEvent;
 use Shopware\OrderAddress\Writer\Resource\OrderAddressResource;
 use Shopware\Shop\Writer\Resource\ShopResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderAddressWriter
 {
@@ -32,7 +31,7 @@ class OrderAddressWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -148,10 +147,8 @@ class OrderAddressWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            OrderAddressWriteExtenderEvent::NAME,
-            new OrderAddressWriteExtenderEvent($extenderCollection)
-        );
+        $event = new OrderAddressWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(OrderAddressWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

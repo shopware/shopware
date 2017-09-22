@@ -13,7 +13,6 @@ use Shopware\OrderDelivery\Event\OrderDeliveryWriteExtenderEvent;
 use Shopware\OrderDelivery\Event\OrderDeliveryWrittenEvent;
 use Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource;
 use Shopware\Shop\Writer\Resource\ShopResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderDeliveryWriter
 {
@@ -32,7 +31,7 @@ class OrderDeliveryWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -148,10 +147,8 @@ class OrderDeliveryWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            OrderDeliveryWriteExtenderEvent::NAME,
-            new OrderDeliveryWriteExtenderEvent($extenderCollection)
-        );
+        $event = new OrderDeliveryWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(OrderDeliveryWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

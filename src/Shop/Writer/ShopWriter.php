@@ -12,7 +12,6 @@ use Shopware\Framework\Write\Writer;
 use Shopware\Shop\Event\ShopWriteExtenderEvent;
 use Shopware\Shop\Event\ShopWrittenEvent;
 use Shopware\Shop\Writer\Resource\ShopResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ShopWriter
 {
@@ -31,7 +30,7 @@ class ShopWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -147,10 +146,8 @@ class ShopWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            ShopWriteExtenderEvent::NAME,
-            new ShopWriteExtenderEvent($extenderCollection)
-        );
+        $event = new ShopWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(ShopWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

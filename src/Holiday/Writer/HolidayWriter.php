@@ -13,7 +13,6 @@ use Shopware\Holiday\Event\HolidayWriteExtenderEvent;
 use Shopware\Holiday\Event\HolidayWrittenEvent;
 use Shopware\Holiday\Writer\Resource\HolidayResource;
 use Shopware\Shop\Writer\Resource\ShopResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class HolidayWriter
 {
@@ -32,7 +31,7 @@ class HolidayWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -148,10 +147,8 @@ class HolidayWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            HolidayWriteExtenderEvent::NAME,
-            new HolidayWriteExtenderEvent($extenderCollection)
-        );
+        $event = new HolidayWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(HolidayWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

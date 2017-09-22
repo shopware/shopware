@@ -13,7 +13,6 @@ use Shopware\Shop\Writer\Resource\ShopResource;
 use Shopware\Tax\Event\TaxWriteExtenderEvent;
 use Shopware\Tax\Event\TaxWrittenEvent;
 use Shopware\Tax\Writer\Resource\TaxResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class TaxWriter
 {
@@ -32,7 +31,7 @@ class TaxWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -148,10 +147,8 @@ class TaxWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            TaxWriteExtenderEvent::NAME,
-            new TaxWriteExtenderEvent($extenderCollection)
-        );
+        $event = new TaxWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(TaxWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

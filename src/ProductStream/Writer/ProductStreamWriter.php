@@ -13,7 +13,6 @@ use Shopware\ProductStream\Event\ProductStreamWriteExtenderEvent;
 use Shopware\ProductStream\Event\ProductStreamWrittenEvent;
 use Shopware\ProductStream\Writer\Resource\ProductStreamResource;
 use Shopware\Shop\Writer\Resource\ShopResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductStreamWriter
 {
@@ -32,7 +31,7 @@ class ProductStreamWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -148,10 +147,8 @@ class ProductStreamWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            ProductStreamWriteExtenderEvent::NAME,
-            new ProductStreamWriteExtenderEvent($extenderCollection)
-        );
+        $event = new ProductStreamWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(ProductStreamWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

@@ -13,7 +13,6 @@ use Shopware\OrderLineItem\Event\OrderLineItemWriteExtenderEvent;
 use Shopware\OrderLineItem\Event\OrderLineItemWrittenEvent;
 use Shopware\OrderLineItem\Writer\Resource\OrderLineItemResource;
 use Shopware\Shop\Writer\Resource\ShopResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderLineItemWriter
 {
@@ -32,7 +31,7 @@ class OrderLineItemWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -148,10 +147,8 @@ class OrderLineItemWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            OrderLineItemWriteExtenderEvent::NAME,
-            new OrderLineItemWriteExtenderEvent($extenderCollection)
-        );
+        $event = new OrderLineItemWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(OrderLineItemWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

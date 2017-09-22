@@ -13,7 +13,6 @@ use Shopware\OrderDeliveryPosition\Event\OrderDeliveryPositionWriteExtenderEvent
 use Shopware\OrderDeliveryPosition\Event\OrderDeliveryPositionWrittenEvent;
 use Shopware\OrderDeliveryPosition\Writer\Resource\OrderDeliveryPositionResource;
 use Shopware\Shop\Writer\Resource\ShopResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderDeliveryPositionWriter
 {
@@ -32,7 +31,7 @@ class OrderDeliveryPositionWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -148,10 +147,8 @@ class OrderDeliveryPositionWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            OrderDeliveryPositionWriteExtenderEvent::NAME,
-            new OrderDeliveryPositionWriteExtenderEvent($extenderCollection)
-        );
+        $event = new OrderDeliveryPositionWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(OrderDeliveryPositionWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

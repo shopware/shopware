@@ -13,7 +13,6 @@ use Shopware\ShippingMethod\Event\ShippingMethodWriteExtenderEvent;
 use Shopware\ShippingMethod\Event\ShippingMethodWrittenEvent;
 use Shopware\ShippingMethod\Writer\Resource\ShippingMethodResource;
 use Shopware\Shop\Writer\Resource\ShopResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ShippingMethodWriter
 {
@@ -32,7 +31,7 @@ class ShippingMethodWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -148,10 +147,8 @@ class ShippingMethodWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            ShippingMethodWriteExtenderEvent::NAME,
-            new ShippingMethodWriteExtenderEvent($extenderCollection)
-        );
+        $event = new ShippingMethodWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(ShippingMethodWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

@@ -13,7 +13,6 @@ use Shopware\Media\Event\MediaWriteExtenderEvent;
 use Shopware\Media\Event\MediaWrittenEvent;
 use Shopware\Media\Writer\Resource\MediaResource;
 use Shopware\Shop\Writer\Resource\ShopResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MediaWriter
 {
@@ -32,7 +31,7 @@ class MediaWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -148,10 +147,8 @@ class MediaWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            MediaWriteExtenderEvent::NAME,
-            new MediaWriteExtenderEvent($extenderCollection)
-        );
+        $event = new MediaWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(MediaWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

@@ -13,7 +13,6 @@ use Shopware\Locale\Event\LocaleWriteExtenderEvent;
 use Shopware\Locale\Event\LocaleWrittenEvent;
 use Shopware\Locale\Writer\Resource\LocaleResource;
 use Shopware\Shop\Writer\Resource\ShopResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class LocaleWriter
 {
@@ -32,7 +31,7 @@ class LocaleWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -148,10 +147,8 @@ class LocaleWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            LocaleWriteExtenderEvent::NAME,
-            new LocaleWriteExtenderEvent($extenderCollection)
-        );
+        $event = new LocaleWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(LocaleWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

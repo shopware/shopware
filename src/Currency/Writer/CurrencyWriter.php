@@ -13,7 +13,6 @@ use Shopware\Framework\Write\FieldException\WriteStackException;
 use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
 use Shopware\Shop\Writer\Resource\ShopResource;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CurrencyWriter
 {
@@ -32,7 +31,7 @@ class CurrencyWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -148,10 +147,8 @@ class CurrencyWriter
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            CurrencyWriteExtenderEvent::NAME,
-            new CurrencyWriteExtenderEvent($extenderCollection)
-        );
+        $event = new CurrencyWriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(CurrencyWriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

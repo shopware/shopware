@@ -12,32 +12,161 @@
 >
 
     <php>
-        <server name="KERNEL_CLASS" value="AppKernel" />
+        <server name="KERNEL_CLASS" value="AppKernel"/>
     </php>
 
     <testsuites>
-        <testsuite name="Framework tests">
-            <directory>src/Framework/Tests</directory>
+
+        <testsuite name="Album Tests">
+            <directory>src/Album/Test</directory>
         </testsuite>
-        <testsuite name="Framework tests">
-            <directory>src/Product/Tests</directory>
+        <testsuite name="Api Tests">
+            <directory>src/Api/Test</directory>
         </testsuite>
-        <testsuite name="Category tests">
-            <directory>src/Product/Tests</directory>
+        <testsuite name="Area Tests">
+            <directory>src/Area/Test</directory>
         </testsuite>
+        <testsuite name="AreaCountry Tests">
+            <directory>src/AreaCountry/Test</directory>
+        </testsuite>
+        <testsuite name="AreaCountryState Tests">
+            <directory>src/AreaCountryState/Test</directory>
+        </testsuite>
+        <testsuite name="Cart Tests">
+            <directory>src/Cart/Test</directory>
+        </testsuite>
+        <testsuite name="CartBridge Tests">
+            <directory>src/CartBridge/Test</directory>
+        </testsuite>
+        <testsuite name="Category Tests">
+            <directory>src/Category/Test</directory>
+        </testsuite>
+        <testsuite name="Context Tests">
+            <directory>src/Context/Test</directory>
+        </testsuite>
+        <testsuite name="Currency Tests">
+            <directory>src/Currency/Test</directory>
+        </testsuite>
+        <testsuite name="Customer Tests">
+            <directory>src/Customer/Test</directory>
+        </testsuite>
+        <testsuite name="CustomerAddress Tests">
+            <directory>src/CustomerAddress/Test</directory>
+        </testsuite>
+        <testsuite name="CustomerGroup Tests">
+            <directory>src/CustomerGroup/Test</directory>
+        </testsuite>
+        <testsuite name="CustomerGroupDiscount Tests">
+            <directory>src/CustomerGroupDiscount/Test</directory>
+        </testsuite>
+        <testsuite name="Filesystem Tests">
+            <directory>src/Filesystem/Test</directory>
+        </testsuite>
+        <testsuite name="Framework Tests">
+            <directory>src/Framework/Test</directory>
+        </testsuite>
+        <testsuite name="Holiday Tests">
+            <directory>src/Holiday/Test</directory>
+        </testsuite>
+        <testsuite name="ListingSorting Tests">
+            <directory>src/ListingSorting/Test</directory>
+        </testsuite>
+        <testsuite name="Locale Tests">
+            <directory>src/Locale/Test</directory>
+        </testsuite>
+        <testsuite name="Media Tests">
+            <directory>src/Media/Test</directory>
+        </testsuite>
+        <testsuite name="Nexus Tests">
+            <directory>src/Nexus/Test</directory>
+        </testsuite>
+        <testsuite name="Order Tests">
+            <directory>src/Order/Test</directory>
+        </testsuite>
+        <testsuite name="OrderAddress Tests">
+            <directory>src/OrderAddress/Test</directory>
+        </testsuite>
+        <testsuite name="OrderDelivery Tests">
+            <directory>src/OrderDelivery/Test</directory>
+        </testsuite>
+        <testsuite name="OrderDeliveryPosition Tests">
+            <directory>src/OrderDeliveryPosition/Test</directory>
+        </testsuite>
+        <testsuite name="OrderLineItem Tests">
+            <directory>src/OrderLineItem/Test</directory>
+        </testsuite>
+        <testsuite name="OrderState Tests">
+            <directory>src/OrderState/Test</directory>
+        </testsuite>
+        <testsuite name="PaymentMethod Tests">
+            <directory>src/PaymentMethod/Test</directory>
+        </testsuite>
+        <testsuite name="PriceGroup Tests">
+            <directory>src/PriceGroup/Test</directory>
+        </testsuite>
+        <testsuite name="PriceGroupDiscount Tests">
+            <directory>src/PriceGroupDiscount/Test</directory>
+        </testsuite>
+        <testsuite name="Product Tests">
+            <directory>src/Product/Test</directory>
+        </testsuite>
+        <testsuite name="ProductDetail Tests">
+            <directory>src/ProductDetail/Test</directory>
+        </testsuite>
+        <testsuite name="ProductDetailPrice Tests">
+            <directory>src/ProductDetailPrice/Test</directory>
+        </testsuite>
+        <testsuite name="ProductManufacturer Tests">
+            <directory>src/ProductManufacturer/Test</directory>
+        </testsuite>
+        <testsuite name="ProductStream Tests">
+            <directory>src/ProductStream/Test</directory>
+        </testsuite>
+        <testsuite name="ProductVote Tests">
+            <directory>src/ProductVote/Test</directory>
+        </testsuite>
+        <testsuite name="Search Tests">
+            <directory>src/Search/Test</directory>
+        </testsuite>
+        <testsuite name="SeoUrl Tests">
+            <directory>src/SeoUrl/Test</directory>
+        </testsuite>
+        <testsuite name="Serializer Tests">
+            <directory>src/Serializer/Test</directory>
+        </testsuite>
+        <testsuite name="ShippingMethod Tests">
+            <directory>src/ShippingMethod/Test</directory>
+        </testsuite>
+        <testsuite name="ShippingMethodPrice Tests">
+            <directory>src/ShippingMethodPrice/Test</directory>
+        </testsuite>
+        <testsuite name="Shop Tests">
+            <directory>src/Shop/Test</directory>
+        </testsuite>
+        <testsuite name="ShopTemplate Tests">
+            <directory>src/ShopTemplate/Test</directory>
+        </testsuite>
+        <testsuite name="Storefront Tests">
+            <directory>src/Storefront/Test</directory>
+        </testsuite>
+        <testsuite name="Tax Tests">
+            <directory>src/Tax/Test</directory>
+        </testsuite>
+        <testsuite name="TaxAreaRule Tests">
+            <directory>src/TaxAreaRule/Test</directory>
+        </testsuite>
+        <testsuite name="Translation Tests">
+            <directory>src/Translation/Test</directory>
+        </testsuite>
+        <testsuite name="Unit Tests">
+            <directory>src/Unit/Test</directory>
+        </testsuite>
+
     </testsuites>
 
     <filter>
         <whitelist>
             <directory>src</directory>
-            <exclude>
-                <directory>src/*Bundle/Resources</directory>
-                <directory>src/*Bundle/Tests</directory>
-                <directory>src/*/*Bundle/Resources</directory>
-                <directory>src/*/*Bundle/Tests</directory>
-                <directory>src/*/Bundle/*Bundle/Resources</directory>
-                <directory>src/*/Bundle/*Bundle/Tests</directory>
-            </exclude>
         </whitelist>
     </filter>
 </phpunit>

@@ -76,3 +76,7 @@ app/config/parameters.yml
 /dev-ops/check_requirements.php
 /performance/_fixtures.php
 /src/Nexus/Resources/public
+
+# tests / ci
+/build/
+!build/artifacts/.gitkeep

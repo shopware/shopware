@@ -11,7 +11,6 @@ services:
       - app_volumes
     environment:
       TERM: xterm
-      COMPOSER_CACHE_DIR: /var/www/composer-cache-dir
 
   app_mysql:
     build: dev-ops/docker/containers/mysql
@@ -27,3 +26,4 @@ services:
     volumes:
       - .:/project
       - .:/var/www/shopware
+      - ~/.composer/cache:/home/app-shell/.composer/cache

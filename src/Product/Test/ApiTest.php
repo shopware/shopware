@@ -3,7 +3,7 @@
 namespace Shopware\Product\Tests;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Recovery\Common\HttpClient\Client;
+use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 
@@ -39,38 +39,28 @@ class ApiTest extends WebTestCase
 
         self::assertSame(
             200,
-            $this->client->getResponse()->getStatusCode(),
-            $this->client->getResponse()->getContent()
+            $this->client->getResponse()->getStatusCode()
         );
     }
 
-    /**
-     * @group test
-     */
     public function test_product_insert_route()
     {
-        $this->markTestSkipped('Not working currently');
-
         $this->client->request(
             'POST',
             '/api/product.json',
             [
-                'uuid' => 'abc',
-                'the_unknown_field' => 'do nothing?',
-                'taxUuid' => 'SWAG-CONFIG-TAX-UUID-1',
-                'productManufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2'],
-                'mode' => 0,
-                'lastStock' => 1,
-                'crossbundlelook' => 1,
-                'notification' => 0,
-                'template' => 'foo',
+                [
+                    'uuid' => 'abc',
+                    'the_unknown_field' => 'do nothing?',
+                    'taxUuid' => 'SWAG-CONFIG-TAX-UUID-1',
+                    'productManufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2'],
+                ]
             ]
         );
 
         self::assertSame(
             200,
-            $this->client->getResponse()->getStatusCode(),
-            $this->client->getResponse()->getContent()
+            $this->client->getResponse()->getStatusCode()
         );
     }
 }

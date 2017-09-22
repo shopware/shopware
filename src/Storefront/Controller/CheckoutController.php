@@ -33,6 +33,7 @@ class CheckoutController extends FrontendController
 
     /**
      * @Route("/checkout/confirm", name="checkout_confirm", options={"seo"="false"})
+     *
      * @param ShopContext $context
      * @return RedirectResponse|Response
      */
@@ -57,19 +58,27 @@ class CheckoutController extends FrontendController
      * @Route("/checkout/finish", name="checkout_finish", options={"seo"="false"})
      * @Method({"POST"})
      *
-     * @param Request $request
      * @param ShopContext $context
-     * @return RedirectResponse
+     * @return RedirectResponse|Response
      */
-    public function finishAction(Request $request, ShopContext $context): RedirectResponse
+    public function finishAction(ShopContext $context): Response
     {
         $cartService = $this->get('shopware.cart.storefront_service');
+
+        if (!$context->getCustomer()) {
+            return $this->redirectToRoute('account_login');
+        }
+        if ($cartService->getCart()->getCalculatedCart()->getCalculatedLineItems()->count() === 0) {
+            return $this->redirectToRoute('checkout_cart');
+        }
+
+        $cart = $cartService->getCart();
+        $clonedCart = clone $cart;
         $cartService->order();
 
-        return $this->redirectToRoute('homepage');
-//        return $this->render('frontend/checkout/finish.html.twig', [
-//            'cart' => $cartService->getCart(),
-//            'customer' => $context->getCustomer()
-//        ]);
+        return $this->render('frontend/checkout/finish.html.twig', [
+            'cart' => $clonedCart,
+            'customer' => $context->getCustomer()
+        ]);
     }
 }

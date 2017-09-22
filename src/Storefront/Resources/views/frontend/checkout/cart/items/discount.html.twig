@@ -1,6 +1,4 @@
-
-{#<div class="table--tr block-group row--rebate{if $isLast} is--last-row{/if}">#}
-<div class="table--tr block-group row--rebate">
+<div class="table--tr block-group row--rebate{% if isLast %} is--last-row{% endif %}">
     {# @var viewLineItem \Shopware\CartBridge\View\ViewLineItemInterface #}
 
     {# Product information column #}

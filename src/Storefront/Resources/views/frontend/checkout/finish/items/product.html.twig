@@ -1,0 +1,27 @@
+{% sw_extends "frontend/checkout/cart/items/product.html.twig" %}
+
+{# Unit price #}
+{% block frontend_checkout_cart_item_price %}
+{% endblock %}
+
+
+{# Delivery item quantity #}
+{% block frontend_checkout_cart_item_quantity %}
+    <div class="panel--td column--quantity is--align-right">
+
+        {# Label #}
+        {% block frontend_checkout_cart_item_quantity_label %}
+            <div class="column--label quantity--label">
+                {% trans from 'frontend/checkout/cart_header' %}CartColumnQuantity{% endtrans %}
+            </div>
+        {% endblock %}
+
+        {% block frontend_checkout_cart_item_quantity_selection %}
+            {{ viewLineItem.calculatedLineItem.quantity }}
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{# Delete column #}
+{% block frontend_checkout_cart_item_delete_article %}
+{% endblock %}

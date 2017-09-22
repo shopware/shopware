@@ -143,7 +143,7 @@ class CartController extends FrontendController
             return new JsonResponse(['success' => true]);
         }
 
-        if ($target == self::ROUTE_CHECKOUT_CART || $this->get('shopware.storefront.context.storefront_context_service')->getShopContext()->getCustomer()) {
+        if ($target == self::ROUTE_CHECKOUT_CART || !$this->get('shopware.storefront.context.storefront_context_service')->getShopContext()->getCustomer()) {
             return $this->redirectToRoute(self::ROUTE_CHECKOUT_CART);
         }
 

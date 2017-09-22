@@ -1,5 +1,4 @@
-{#<div class="table--tr block-group row--voucher{if $isLast} is--last-row{/if}">#}
-<div class="table--tr block-group row--voucher">
+<div class="table--tr block-group row--voucher{% if isLast %} is--last-row{% endif %}">
 
     {# Product information column #}
     {% block frontend_checkout_cart_item_voucher_name %}

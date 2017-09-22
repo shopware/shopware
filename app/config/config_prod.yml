@@ -14,3 +14,7 @@ monolog:
 
 parameters:
     swag_test.param1: 1000
+
+#framework:
+#    cache:
+#        app: cache.adapter.apcu

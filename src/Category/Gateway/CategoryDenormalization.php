@@ -32,7 +32,7 @@ use Doctrine\DBAL\Connection;
  * Most write operations take place in product_category_ro.
  *
  * @category  Shopware
- * @package   Shopware\Components\Model
+ *
  * @copyright Copyright (c) shopware AG (http://www.shopware.de)
  */
 class CategoryDenormalization
@@ -59,6 +59,7 @@ class CategoryDenormalization
      * <code>
      *
      * @param string $uuid
+     *
      * @return array
      */
     public function getParentCategoryUuids(string $uuid): array
@@ -85,6 +86,7 @@ class CategoryDenormalization
      * Returns count for paging rebuildCategoryPath()
      *
      * @param string $categoryUuid
+     *
      * @return int
      */
     public function rebuildCategoryPathCount($categoryUuid = null): int
@@ -118,8 +120,9 @@ class CategoryDenormalization
      * Sets path for child categories of given $categoryId
      *
      * @param string $categoryUuid
-     * @param int $count
-     * @param int $offset
+     * @param int    $count
+     * @param int    $offset
+     *
      * @return int
      */
     public function rebuildCategoryPath($categoryUuid = null, $count = null, $offset = 0): int
@@ -164,6 +167,7 @@ class CategoryDenormalization
      *
      * @param string $categoryUuid
      * @param $categoryPath
+     *
      * @return int
      */
     public function rebuildPath(string $categoryUuid, $categoryPath = null): int
@@ -192,6 +196,7 @@ class CategoryDenormalization
      * Rebuilds the path for a single category
      *
      * @param string $categoryUuid
+     *
      * @return int
      */
     public function removeOldAssignmentsCount(string $categoryUuid): int
@@ -222,8 +227,9 @@ class CategoryDenormalization
      * If Category is moved to a new parentId this returns removes old connections
      *
      * @param string $categoryUUid
-     * @param int $count
-     * @param int $offset
+     * @param int    $count
+     * @param int    $offset
+     *
      * @return int
      */
     public function removeOldAssignments(string $categoryUUid, $count = null, $offset = 0): int
@@ -270,6 +276,7 @@ class CategoryDenormalization
      * Returns count for paging rebuildAssignmentsCount()
      *
      * @param string $categoryUuid
+     *
      * @return int
      */
     public function rebuildAssignmentsCount(string $categoryUuid): int
@@ -297,8 +304,9 @@ class CategoryDenormalization
 
     /**
      * @param string $categoryUuid
-     * @param int $count
-     * @param int $offset
+     * @param int    $count
+     * @param int    $offset
+     *
      * @return int
      */
     public function rebuildAssignments(string $categoryUuid, $count = null, $offset = 0): int
@@ -367,8 +375,9 @@ class CategoryDenormalization
     }
 
     /**
-     * @param int $count maximum number of assignments to denormalize
+     * @param int $count  maximum number of assignments to denormalize
      * @param int $offset
+     *
      * @return int number of new denormalized assignments
      */
     public function rebuildAllAssignments($count = null, $offset = 0): int
@@ -399,7 +408,7 @@ class CategoryDenormalization
 
     public function buildProductAssignments(string $productUuid): int
     {
-        $deleted = $this->removeProductAssignments($productUuid);
+        $this->removeProductAssignments($productUuid);
 
         $allAssignsSql = '
             SELECT ac.product_uuid, ac.category_uuid, c.parent_uuid
@@ -431,6 +440,7 @@ class CategoryDenormalization
      *
      * @param string $productUuid
      * @param string $categoryUuid
+     *
      * @return int
      */
     public function removeAssignment(string $productUuid, string $categoryUuid): int
@@ -467,6 +477,7 @@ class CategoryDenormalization
      * Removes all connections for given $articleId
      *
      * @param string $productUuid
+     *
      * @return int count of deleted rows
      */
     public function removeProductAssignments(string $productUuid): int
@@ -487,6 +498,7 @@ class CategoryDenormalization
      * Removes all connections for given $categoryId
      *
      * @param string $categoryUuid
+     *
      * @return int count of deleted rows
      */
     public function removeCategoryAssignmentments(string $categoryUuid): int
@@ -547,9 +559,11 @@ class CategoryDenormalization
      * Adds an adapter-specific LIMIT clause to the SELECT statement.
      *
      * @param string $sql
-     * @param int $count
-     * @param int $offset OPTIONAL
+     * @param int    $count
+     * @param int    $offset OPTIONAL
+     *
      * @throws \Exception
+     *
      * @return string
      */
     public function limit(string $sql, int $count, int $offset = 0): string

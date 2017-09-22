@@ -108,6 +108,11 @@ class CategoryBasicStruct extends Struct
     protected $name;
 
     /**
+     * @var array
+     */
+    protected $pathNames;
+
+    /**
      * @var string|null
      */
     protected $metaKeywords;
@@ -340,6 +345,16 @@ class CategoryBasicStruct extends Struct
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getPathNames(): array
+    {
+        return $this->pathNames;
+    }
+
+    public function setPathNames(array $pathNames): void
+    {
+        $this->pathNames = $pathNames;
     }
 
     public function getMetaKeywords(): ?string

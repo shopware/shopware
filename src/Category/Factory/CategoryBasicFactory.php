@@ -39,6 +39,7 @@ class CategoryBasicFactory extends Factory
        'created_at' => 'created_at',
        'updated_at' => 'updated_at',
        'name' => 'translation.name',
+       'path_names' => 'translation.path_names',
        'meta_keywords' => 'translation.meta_keywords',
        'meta_title' => 'translation.meta_title',
        'meta_description' => 'translation.meta_description',
@@ -86,6 +87,7 @@ class CategoryBasicFactory extends Factory
         $category->setCreatedAt(new \DateTime($data[$selection->getField('created_at')]));
         $category->setUpdatedAt(new \DateTime($data[$selection->getField('updated_at')]));
         $category->setName((string) $data[$selection->getField('name')]);
+        $category->setPathNames(array_filter(explode('|', (string) $data[$selection->getField('path_names')])));
         $category->setMetaKeywords(isset($data[$selection->getField('meta_keywords')]) ? (string) $data[$selection->getField('meta_keywords')] : null);
         $category->setMetaTitle(isset($data[$selection->getField('meta_title')]) ? (string) $data[$selection->getField('meta_title')] : null);
         $category->setMetaDescription(isset($data[$selection->getField('meta_description')]) ? (string) $data[$selection->getField('meta_description')] : null);

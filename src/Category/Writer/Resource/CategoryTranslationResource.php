@@ -12,6 +12,7 @@ use Shopware\Framework\Write\Resource;
 class CategoryTranslationResource extends Resource
 {
     protected const NAME_FIELD = 'name';
+    protected const PATH_NAMES_FIELD = 'pathNames';
     protected const META_KEYWORDS_FIELD = 'metaKeywords';
     protected const META_TITLE_FIELD = 'metaTitle';
     protected const META_DESCRIPTION_FIELD = 'metaDescription';
@@ -23,6 +24,7 @@ class CategoryTranslationResource extends Resource
         parent::__construct('category_translation');
 
         $this->fields[self::NAME_FIELD] = (new StringField('name'))->setFlags(new Required());
+        $this->fields[self::PATH_NAMES_FIELD] = new LongTextField('path_names');
         $this->fields[self::META_KEYWORDS_FIELD] = new LongTextField('meta_keywords');
         $this->fields[self::META_TITLE_FIELD] = new StringField('meta_title');
         $this->fields[self::META_DESCRIPTION_FIELD] = new LongTextField('meta_description');

@@ -35,6 +35,7 @@ class CategoryResource extends Resource
     protected const CREATED_AT_FIELD = 'createdAt';
     protected const UPDATED_AT_FIELD = 'updatedAt';
     protected const NAME_FIELD = 'name';
+    protected const PATH_NAMES_FIELD = 'pathNames';
     protected const META_KEYWORDS_FIELD = 'metaKeywords';
     protected const META_TITLE_FIELD = 'metaTitle';
     protected const META_DESCRIPTION_FIELD = 'metaDescription';
@@ -64,10 +65,11 @@ class CategoryResource extends Resource
         $this->fields[self::UPDATED_AT_FIELD] = (new DateField('updated_at'))->setFlags(new Required());
         $this->fields['blogs'] = new SubresourceField(\Shopware\Framework\Write\Resource\BlogResource::class);
         $this->fields['parent'] = new ReferenceField('parentUuid', 'uuid', \Shopware\Category\Writer\Resource\CategoryResource::class);
-        $this->fields['parentUuid'] = new FkField('parent_uuid', \Shopware\Category\Writer\Resource\CategoryResource::class, 'uuid');
+        $this->fields['parentUuid'] = (new FkField('parent_uuid', \Shopware\Category\Writer\Resource\CategoryResource::class, 'uuid'));
         $this->fields['media'] = new ReferenceField('mediaUuid', 'uuid', \Shopware\Media\Writer\Resource\MediaResource::class);
-        $this->fields['mediaUuid'] = new FkField('media_uuid', \Shopware\Media\Writer\Resource\MediaResource::class, 'uuid');
+        $this->fields['mediaUuid'] = (new FkField('media_uuid', \Shopware\Media\Writer\Resource\MediaResource::class, 'uuid'));
         $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
+        $this->fields[self::PATH_NAMES_FIELD] = new TranslatedField('pathNames', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields[self::META_KEYWORDS_FIELD] = new TranslatedField('metaKeywords', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields[self::META_TITLE_FIELD] = new TranslatedField('metaTitle', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields[self::META_DESCRIPTION_FIELD] = new TranslatedField('metaDescription', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
@@ -152,13 +154,13 @@ class CategoryResource extends Resource
 
     public function getDefaults(string $type): array
     {
-        if (self::FOR_UPDATE === $type) {
+        if ($type === self::FOR_UPDATE) {
             return [
                 self::UPDATED_AT_FIELD => new \DateTime(),
             ];
         }
 
-        if (self::FOR_INSERT === $type) {
+        if ($type === self::FOR_INSERT) {
             return [
                 self::UPDATED_AT_FIELD => new \DateTime(),
                 self::CREATED_AT_FIELD => new \DateTime(),

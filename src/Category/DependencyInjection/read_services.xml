@@ -25,7 +25,6 @@
         <service class="Shopware\Category\Controller\CategoryController" id="shopware.category.api_controller">
             <argument id="shopware.category.repository" type="service"/>
         </service>
-        
 
         <service class="Shopware\Category\Writer\CategoryWriter" id="shopware.category.writer">
             <argument type="service" id="shopware.framework.write.field_aware.default_extender" />

@@ -66,11 +66,12 @@ CREATE TABLE `category_translation` (
   `category_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
   `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
   `name` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `meta_keywords` MEDIUMTEXT NULL COLLATE 'utf8mb4_unicode_ci',
+  `path_names` longtext NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+  `meta_keywords` MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
   `meta_title` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
-  `meta_description` MEDIUMTEXT NULL COLLATE 'utf8mb4_unicode_ci',
+  `meta_description` MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
   `cms_headline` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
-  `cms_description` MEDIUMTEXT NULL COLLATE 'utf8mb4_unicode_ci'
+  `cms_description` MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci'
 )
 COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
@@ -1096,11 +1097,11 @@ ALTER TABLE `order` ADD FOREIGN KEY (`payment_method_uuid`) REFERENCES `payment_
 ALTER TABLE `order` ADD FOREIGN KEY (`currency_uuid`) REFERENCES `currency` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `order` ADD FOREIGN KEY (`billing_address_uuid`) REFERENCES `order_address` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `order` ADD FOREIGN KEY (`shop_uuid`) REFERENCES `shop` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `order_line_item` ADD FOREIGN KEY (`order_uuid`) REFERENCES `order` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `order_delivery` ADD FOREIGN KEY (`order_uuid`) REFERENCES `order` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `order_delivery` ADD FOREIGN KEY (`shipping_address_uuid`) REFERENCES `order_address` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `order_delivery` ADD FOREIGN KEY (`shipping_method_uuid`) REFERENCES `shipping_method` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `order_address` ADD FOREIGN KEY (`area_country_state_uuid`) REFERENCES `area_country_state` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `order_address` ADD FOREIGN KEY (`area_country_uuid`) REFERENCES `area_country` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE `order_line_item` ADD FOREIGN KEY (`order_uuid`) REFERENCES `order` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `order_delivery_position` ADD FOREIGN KEY (`order_delivery_uuid`) REFERENCES `order_delivery` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `order_delivery_position` ADD FOREIGN KEY (`order_line_item_uuid`) REFERENCES `order_line_item` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;

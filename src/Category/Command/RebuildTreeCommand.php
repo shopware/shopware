@@ -24,14 +24,18 @@
 
 namespace Shopware\Category\Command;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Category\Gateway\CategoryDenormalization;
+use Shopware\Category\Struct\CategoryBasicCollection;
+use Shopware\Category\Struct\CategoryBasicStruct;
+use Shopware\Context\Struct\TranslationContext;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class RebuildTreeCommand  extends ContainerAwareCommand
+class RebuildTreeCommand extends ContainerAwareCommand
 {
     /**
      * {@inheritdoc}
@@ -58,7 +62,7 @@ class RebuildTreeCommand  extends ContainerAwareCommand
             $output->writeln('Removing orphans');
             $component->removeOrphanedAssignments();
             $output->writeln('Rebuild path info');
-            $component->rebuildCategoryPath();
+            $this->updateCategoryPath();
             $output->writeln('Removing assignments');
             $component->removeAllAssignments();
         }
@@ -78,5 +82,17 @@ class RebuildTreeCommand  extends ContainerAwareCommand
             $progressHelper->advance($limit);
         }
         $progressHelper->finish();
+    }
+
+    private function updateCategoryPath(): void
+    {
+        /** @var Connection $connection */
+        $connection = $this->getContainer()->get('dbal_connection');
+        $connection->executeUpdate('UPDATE category SET path = NULL');
+
+        $context = new TranslationContext('SWAG-SHOP-UUID-1', true, null);
+
+        $builder = $this->getContainer()->get('shopware.category.denormalization.category_path_builder');
+        $builder->update('SWAG-CATEGORY-UUID-1', $context);
     }
 }

@@ -6,6 +6,9 @@ use Shopware\Search\CriteriaPartInterface;
 
 class FieldSorting implements CriteriaPartInterface
 {
+    const ASCENDING = 'ASC';
+    const DESCENDING = 'DESC';
+
     /**
      * @var string
      */
@@ -16,7 +19,7 @@ class FieldSorting implements CriteriaPartInterface
      */
     protected $direction;
 
-    public function __construct(string $field, string $direction = 'ASC')
+    public function __construct(string $field, string $direction = self::ASCENDING)
     {
         $this->field = $field;
         $this->direction = $direction;

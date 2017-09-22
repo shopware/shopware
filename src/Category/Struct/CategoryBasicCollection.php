@@ -167,4 +167,18 @@ class CategoryBasicCollection extends Collection
     {
         return $element->getUuid();
     }
+
+    public function merge(CategoryBasicCollection $collection)
+    {
+        $new = clone $this;
+
+        /** @var CategoryBasicStruct $category */
+        foreach ($collection as $category) {
+            if ($new->has($category->getUuid())) {
+                continue;
+            }
+            $new->add($category);
+        }
+        return $new;
+    }
 }

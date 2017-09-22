@@ -187,6 +187,7 @@ class Generate
                 'seo_url_name' => 'listing_page',
                 'columns' => [
                     'path' => ['type' => 'array'],
+                    'path_names' => ['type' => 'array'],
                     'facet_ids' => ['type' => 'array'],
                     'sorting_ids' => ['type' => 'array'],
                 ],

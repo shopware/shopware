@@ -15,6 +15,6 @@
         </div>
     </div>
 
-    <sw-multi-select label="Kategorie" id="category" placeholder="Your product categories..." :serviceProvider="serviceProvider"></sw-multi-select>
+    <sw-multi-select label="Kategorie" id="category" placeholder="Your product categories..." :serviceProvider="serviceProvider" v-model="product.categories"></sw-multi-select>
     <sw-loader v-if="isWorking"></sw-loader>
 </sw-card>

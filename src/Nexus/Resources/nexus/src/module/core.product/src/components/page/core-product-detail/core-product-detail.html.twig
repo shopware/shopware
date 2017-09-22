@@ -50,14 +50,18 @@
         <sw-card title="Preise">
             <div class="split--container">
                 <div class="container--item">
-                    <sw-field label="Preis" id="title" type="text" name="name" placeholder="Your product price..." suffix="€"></sw-field>
-                    <sw-field label="Mehrwertsteuer" id="title" type="text" name="name" placeholder="Your product tax..." suffix="%"></sw-field>
+                    <sw-field label="Preis" id="price" type="number" name="price" placeholder="Your product price..." suffix="€"></sw-field>
+                    <sw-field  label="Mehrwertsteuer" id="tax" type="select" name="tax" placeholder="Your product tax..." v-model="product.taxUuid">
+                        <option v-for="tax in taxRates" :value="tax.uuid">{{ tax.name }}</option>
+                    </sw-field>
                 </div>
                 <div class="container--item">
-                    <sw-field label="Rabatt" id="title" type="text" name="name" placeholder="Your rebate..." suffix="€"></sw-field>
-                    <sw-field label="Einkaufspreis (netto)" id="title" type="text" name="name" placeholder="Your purchase price..." suffix="€"></sw-field>
+                    <sw-field label="Rabatt" id="rebate" type="text" name="rebate" placeholder="Your rebate..." suffix="€"></sw-field>
+                    <sw-field label="Einkaufspreis (netto)" id="purchasePrice" type="number" name="purcharseprice" placeholder="Your purchase price..." suffix="€"></sw-field>
                 </div>
             </div>
+
+            <sw-loader v-if="isWorking"></sw-loader>
         </sw-card>
     </div>
 </sw-workspace>

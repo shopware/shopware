@@ -54,6 +54,15 @@ export default function ProductService(client) {
             return Promise.reject(new Error('"uuid" argument needs to be provided'));
         }
 
+        // We have to remap the categories at the moment
+        if (payload.categories) {
+            payload.categories = payload.categories.map((entry) => {
+                return {
+                    categoryUuid: entry
+                };
+            });
+        }
+
         return client.patch(`/product/${uuid}.json`, payload).then((response) => {
             return response.data;
         });

@@ -3,7 +3,7 @@ import template from './core-product-detail.html.twig';
 import './core-product-detail.less';
 
 export default Shopware.ComponentFactory.register('core-product-detail', {
-    inject: ['productService', 'categoryService', 'productManufacturerService'],
+    inject: ['productService', 'categoryService', 'productManufacturerService', 'taxService'],
 
     data() {
         return {
@@ -12,6 +12,7 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
                 manufacturer: {},
                 attribute: {},
                 mainDetail: {},
+                categories: [],
                 extensions: {
                     nexus: {
                         voteAverage: 10.5,
@@ -19,6 +20,7 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
                     }
                 }
             },
+            taxRates: [],
             manufacturers: [],
             notModifiedProduct: {}
         };
@@ -42,6 +44,7 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
         getData() {
             this.getProductData();
             this.getManufacturerData();
+            this.getTaxData();
         },
 
         getProductData() {
@@ -61,10 +64,22 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
             });
         },
 
+        getTaxData() {
+            this.taxService.readAll().then((response) => {
+                this.taxRates = response.data;
+            });
+        },
+
         onSaveForm() {
             const uuid = this.$route.params.uuid;
             const changeSet = utils.compareObjects(this.notModifiedProduct, this.product);
 
+            // Check if we're having categories and apply them to the change set
+            if (this.product.categories.length) {
+                changeSet.categories = this.product.categories;
+            }
+
+            console.log(changeSet);
             this.isWorking = true;
             this.productService.updateByUuid(uuid, changeSet).then((response) => {
                 this.notModifiedProduct = { ...response.data };

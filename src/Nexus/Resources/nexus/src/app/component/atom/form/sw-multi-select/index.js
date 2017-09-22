@@ -14,12 +14,15 @@ export default Shopware.ComponentFactory.register('sw-multi-select', {
         },
         values: {
             type: Array,
-            required: false,
-            default: []
+            required: false
         },
         label: {
             type: String,
             default: ''
+        },
+        id: {
+            type: String,
+            required: true
         }
     },
 

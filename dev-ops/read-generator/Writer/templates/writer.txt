@@ -32,7 +32,7 @@ class #classUc#Writer
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, EventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;
@@ -52,10 +52,8 @@ class #classUc#Writer
         $extenderCollection = new FieldExtenderCollection();
         $extenderCollection->addExtender($this->extender);
 
-        $event = $this->eventDispatcher->dispatch(
-            #classUc#WriteExtenderEvent::NAME,
-            new #classUc#WriteExtenderEvent($extenderCollection)
-        );
+        $event = new #classUc#WriteExtenderEvent($extenderCollection);
+        $this->eventDispatcher->dispatch(#classUc#WriteExtenderEvent::NAME, $event);
 
         return $event->getExtenderCollection();
     }

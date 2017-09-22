@@ -137,8 +137,11 @@ class Router implements RouterInterface, RequestMatcherInterface
      */
     public function getRouteCollection(): RouteCollection
     {
-        $cacheItem = $this->cache->getItem('router_routes');
+        if ($this->routes !== null) {
+            return $this->routes;
+        }
 
+        $cacheItem = $this->cache->getItem('router_routes');
         if ($routes = $cacheItem->get()) {
             $this->routes = $routes;
             return $this->routes;

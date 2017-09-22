@@ -82,7 +82,7 @@ class OrderPersister implements OrderPersisterInterface
             'shopUuid' => $context->getShop()->getUuid(),
             'billingAddressUuid' => $addressUuid,
             'lineItems' => [],
-            'deliverys' => [],
+            'deliveries' => [],
             'context' => json_encode($context),
             'payload' => json_encode($calculatedCart),
         ];
@@ -131,7 +131,7 @@ class OrderPersister implements OrderPersisterInterface
                 ];
             }
 
-            $data['deliverys'][] = $deliveryData;
+            $data['deliveries'][] = $deliveryData;
         }
         
         return $data;

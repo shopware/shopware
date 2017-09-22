@@ -43,10 +43,9 @@ class CurrencyDetailFactory extends CurrencyBasicFactory
     ): CurrencyBasicStruct {
         /** @var CurrencyDetailStruct $currency */
         $currency = parent::hydrate($data, $currency, $selection, $context);
-
         if ($selection->hasField('_sub_select_shop_uuids')) {
             $uuids = explode('|', $data[$selection->getField('_sub_select_shop_uuids')]);
-            $currency->setShopUuids(array_filter($uuids));
+            $currency->setShopUuids(array_values(array_filter($uuids)));
         }
 
         return $currency;

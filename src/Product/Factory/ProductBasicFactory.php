@@ -155,10 +155,9 @@ class ProductBasicFactory extends Factory
                 $this->priceGroupFactory->hydrate($data, new PriceGroupBasicStruct(), $priceGroup, $context)
             );
         }
-
         if ($selection->hasField('_sub_select_customerGroup_uuids')) {
             $uuids = explode('|', $data[$selection->getField('_sub_select_customerGroup_uuids')]);
-            $product->setBlockedCustomerGroupsUuids(array_filter($uuids));
+            $product->setBlockedCustomerGroupsUuids(array_values(array_filter($uuids)));
         }
 
         /** @var $extension ProductExtension */

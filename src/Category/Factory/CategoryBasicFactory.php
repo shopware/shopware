@@ -69,7 +69,7 @@ class CategoryBasicFactory extends Factory
     ): CategoryBasicStruct {
         $category->setUuid((string) $data[$selection->getField('uuid')]);
         $category->setParentUuid(isset($data[$selection->getField('parent_uuid')]) ? (string) $data[$selection->getField('parent_uuid')] : null);
-        $category->setPath(array_filter(explode('|', (string) $data[$selection->getField('path')])));
+        $category->setPath(array_values(array_filter(explode('|', (string) $data[$selection->getField('path')]))));
         $category->setPosition((int) $data[$selection->getField('position')]);
         $category->setLevel((int) $data[$selection->getField('level')]);
         $category->setTemplate(isset($data[$selection->getField('template')]) ? (string) $data[$selection->getField('template')] : null);
@@ -87,7 +87,7 @@ class CategoryBasicFactory extends Factory
         $category->setCreatedAt(new \DateTime($data[$selection->getField('created_at')]));
         $category->setUpdatedAt(new \DateTime($data[$selection->getField('updated_at')]));
         $category->setName((string) $data[$selection->getField('name')]);
-        $category->setPathNames(array_filter(explode('|', (string) $data[$selection->getField('path_names')])));
+        $category->setPathNames(array_values(array_filter(explode('|', (string) $data[$selection->getField('path_names')]))));
         $category->setMetaKeywords(isset($data[$selection->getField('meta_keywords')]) ? (string) $data[$selection->getField('meta_keywords')] : null);
         $category->setMetaTitle(isset($data[$selection->getField('meta_title')]) ? (string) $data[$selection->getField('meta_title')] : null);
         $category->setMetaDescription(isset($data[$selection->getField('meta_description')]) ? (string) $data[$selection->getField('meta_description')] : null);

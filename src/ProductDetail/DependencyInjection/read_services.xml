@@ -18,6 +18,7 @@
             <argument id="shopware.unit.basic_factory" type="service"/>
         </service>
 
+
         <service class="Shopware\ProductDetail\Controller\ProductDetailController" id="shopware.product_detail.api_controller">
             <argument id="shopware.product_detail.repository" type="service"/>
         </service>

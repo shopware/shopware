@@ -52,15 +52,14 @@ class PaymentMethodDetailFactory extends PaymentMethodBasicFactory
     ): PaymentMethodBasicStruct {
         /** @var PaymentMethodDetailStruct $paymentMethod */
         $paymentMethod = parent::hydrate($data, $paymentMethod, $selection, $context);
-
         if ($selection->hasField('_sub_select_shop_uuids')) {
             $uuids = explode('|', $data[$selection->getField('_sub_select_shop_uuids')]);
-            $paymentMethod->setShopUuids(array_filter($uuids));
+            $paymentMethod->setShopUuids(array_values(array_filter($uuids)));
         }
 
         if ($selection->hasField('_sub_select_areaCountry_uuids')) {
             $uuids = explode('|', $data[$selection->getField('_sub_select_areaCountry_uuids')]);
-            $paymentMethod->setCountryUuids(array_filter($uuids));
+            $paymentMethod->setCountryUuids(array_values(array_filter($uuids)));
         }
 
         return $paymentMethod;

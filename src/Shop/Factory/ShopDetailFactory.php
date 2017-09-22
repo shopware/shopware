@@ -155,10 +155,9 @@ class ShopDetailFactory extends ShopBasicFactory
                 $this->shopTemplateFactory->hydrate($data, new ShopTemplateBasicStruct(), $shopTemplate, $context)
             );
         }
-
         if ($selection->hasField('_sub_select_currency_uuids')) {
             $uuids = explode('|', $data[$selection->getField('_sub_select_currency_uuids')]);
-            $shop->setAvailableCurrencyUuids(array_filter($uuids));
+            $shop->setAvailableCurrencyUuids(array_values(array_filter($uuids)));
         }
 
         return $shop;

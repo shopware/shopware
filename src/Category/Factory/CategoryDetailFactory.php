@@ -86,15 +86,14 @@ class CategoryDetailFactory extends CategoryBasicFactory
                 $this->mediaFactory->hydrate($data, new MediaBasicStruct(), $media, $context)
             );
         }
-
         if ($selection->hasField('_sub_select_product_uuids')) {
             $uuids = explode('|', $data[$selection->getField('_sub_select_product_uuids')]);
-            $category->setProductUuids(array_filter($uuids));
+            $category->setProductUuids(array_values(array_filter($uuids)));
         }
 
         if ($selection->hasField('_sub_select_customerGroup_uuids')) {
             $uuids = explode('|', $data[$selection->getField('_sub_select_customerGroup_uuids')]);
-            $category->setBlockedCustomerGroupsUuids(array_filter($uuids));
+            $category->setBlockedCustomerGroupsUuids(array_values(array_filter($uuids)));
         }
 
         return $category;

@@ -69,10 +69,9 @@ class ProductDetailFactory extends ProductBasicFactory
     ): ProductBasicStruct {
         /** @var ProductDetailStruct $product */
         $product = parent::hydrate($data, $product, $selection, $context);
-
         if ($selection->hasField('_sub_select_category_uuids')) {
             $uuids = explode('|', $data[$selection->getField('_sub_select_category_uuids')]);
-            $product->setCategoryUuids(array_filter($uuids));
+            $product->setCategoryUuids(array_values(array_filter($uuids)));
         }
 
         return $product;

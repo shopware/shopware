@@ -78,25 +78,24 @@ class ShippingMethodDetailFactory extends ShippingMethodBasicFactory
     ): ShippingMethodBasicStruct {
         /** @var ShippingMethodDetailStruct $shippingMethod */
         $shippingMethod = parent::hydrate($data, $shippingMethod, $selection, $context);
-
         if ($selection->hasField('_sub_select_category_uuids')) {
             $uuids = explode('|', $data[$selection->getField('_sub_select_category_uuids')]);
-            $shippingMethod->setCategoryUuids(array_filter($uuids));
+            $shippingMethod->setCategoryUuids(array_values(array_filter($uuids)));
         }
 
         if ($selection->hasField('_sub_select_areaCountry_uuids')) {
             $uuids = explode('|', $data[$selection->getField('_sub_select_areaCountry_uuids')]);
-            $shippingMethod->setCountryUuids(array_filter($uuids));
+            $shippingMethod->setCountryUuids(array_values(array_filter($uuids)));
         }
 
         if ($selection->hasField('_sub_select_holiday_uuids')) {
             $uuids = explode('|', $data[$selection->getField('_sub_select_holiday_uuids')]);
-            $shippingMethod->setHolidayUuids(array_filter($uuids));
+            $shippingMethod->setHolidayUuids(array_values(array_filter($uuids)));
         }
 
         if ($selection->hasField('_sub_select_paymentMethod_uuids')) {
             $uuids = explode('|', $data[$selection->getField('_sub_select_paymentMethod_uuids')]);
-            $shippingMethod->setPaymentMethodUuids(array_filter($uuids));
+            $shippingMethod->setPaymentMethodUuids(array_values(array_filter($uuids)));
         }
 
         return $shippingMethod;

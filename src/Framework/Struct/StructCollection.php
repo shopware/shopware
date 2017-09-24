@@ -55,6 +55,6 @@ class StructCollection extends Collection
 
     public function get($key): ? Struct
     {
-        return $this->elements[$key];
+        return $this->elements[$key] ?? null;
     }
 }

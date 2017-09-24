@@ -80,7 +80,7 @@ class RecentOrderRuleCollector implements CollectorInterface
 
         $time = $this->connection->fetchColumn(
             'SELECT MAX(ordertime) FROM s_order WHERE userID = :userId',
-            [':userId' => $customer->getId()]
+            [':userId' => $customer->getUuid()]
         );
 
         if ($time) {

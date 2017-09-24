@@ -53,7 +53,7 @@ class BillingAreaRule extends \Shopware\Cart\Rule\Rule
             return new Match(false, ['Not logged in customer']);
         }
 
-        $id = $customer->getActiveBillingAddress()->getCountry()->getArea()->getId();
+        $id = $customer->getActiveBillingAddress()->getCountry()->getAreaUuid();
 
         return new Match(
             in_array($id, $this->areaIds, true),

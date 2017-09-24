@@ -53,7 +53,7 @@ class BillingCountryRule extends \Shopware\Cart\Rule\Rule
             return new Match(false, ['Not logged in customer']);
         }
 
-        $id = $customer->getActiveBillingAddress()->getCountry()->getId();
+        $id = $customer->getActiveBillingAddress()->getCountry()->getUuid();
 
         return new Match(
             in_array($id, $this->countryIds, true),

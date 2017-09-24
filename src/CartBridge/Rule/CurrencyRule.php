@@ -51,7 +51,7 @@ class CurrencyRule extends Rule
         StructCollection $collection
     ): Match {
         return new Match(
-            in_array($context->getCurrency()->getId(), $this->currencyIds, true),
+            in_array($context->getCurrency()->getUuid(), $this->currencyIds, true),
             ['Currency not matched']
         );
     }

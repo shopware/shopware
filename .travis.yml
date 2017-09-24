@@ -1,0 +1,28 @@
+language: php
+
+php:
+  - 7.1
+
+sudo: required
+
+services:
+  - docker
+
+cache:
+   directories:
+     - $HOME/.composer/cache/files
+
+env:
+  - DOCKER_COMPOSE_VERSION=1.16.1
+
+before_install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+
+script:
+    - php psh.phar bamboo:start
+    - php psh.phar docker:status
+    - php psh.phar bamboo:continuous
+    - php psh.phar bamboo:stop

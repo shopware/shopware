@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+    <xsd:element name="plugin" type="pluginType"/>
+
+    <xsd:complexType name="pluginType">
+        <xsd:sequence>
+            <xsd:element name="label" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="version" type="xsd:string"/>
+            <xsd:element name="copyright" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="license" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="link" type="xsd:anyURI" minOccurs="0"/>
+            <xsd:element name="author" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="description" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="changelog" type="changelogLog" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="requiredPlugins" type="requiredPluginList" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="compatibility" type="compatibilityType" minOccurs="0"/>
+            <xsd:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="compatibilityType">
+        <xsd:sequence>
+            <xsd:element name="blacklist" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="minVersion" type="xsd:string"/>
+        <xsd:attribute name="maxVersion" type="xsd:string"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="changelogLog">
+        <xsd:sequence>
+            <xsd:element name="changes" type="translatableString" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="version" type="xsd:string"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="requiredPluginList">
+        <xsd:sequence>
+            <xsd:element name="requiredPlugin" type="requiredPlugin" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="requiredPlugin">
+        <xsd:sequence>
+            <xsd:element name="blacklist" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="pluginName" type="xsd:string"/>
+        <xsd:attribute name="minVersion" type="xsd:string"/>
+        <xsd:attribute name="maxVersion" type="xsd:string"/>
+    </xsd:complexType>
+
+    <xsd:simpleType name="scope">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="local"/>
+            <xsd:enumeration value="shop"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:complexType name="translatableString">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute name="lang" type="xsd:language" default="en"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+</xsd:schema>

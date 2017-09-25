@@ -26,6 +26,11 @@ declare(strict_types=1);
 namespace Shopware\Framework\Plugin;
 
 use Shopware\Filesystem\PrefixFilesystem;
+use Shopware\Framework\Plugin\Context\ActivateContext;
+use Shopware\Framework\Plugin\Context\DeactivateContext;
+use Shopware\Framework\Plugin\Context\InstallContext;
+use Shopware\Framework\Plugin\Context\UninstallContext;
+use Shopware\Framework\Plugin\Context\UpdateContext;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
@@ -57,6 +62,55 @@ class Plugin extends Bundle
     public function registerBundles(string $environment): array
     {
         return [];
+    }
+
+    /**
+     * This method can be overridden
+     *
+     * @param InstallContext $context
+     */
+    public function install(InstallContext $context)
+    {
+    }
+
+    /**
+     * This method can be overridden
+     *
+     * @param UpdateContext $context
+     */
+    public function update(UpdateContext $context)
+    {
+        $context->scheduleClearCache(InstallContext::CACHE_LIST_DEFAULT);
+    }
+
+    /**
+     * This method can be overridden
+     *
+     * @param ActivateContext $context
+     */
+    public function activate(ActivateContext $context)
+    {
+        $context->scheduleClearCache(InstallContext::CACHE_LIST_DEFAULT);
+    }
+
+    /**
+     * This method can be overridden
+     *
+     * @param DeactivateContext $context
+     */
+    public function deactivate(DeactivateContext $context)
+    {
+        $context->scheduleClearCache(InstallContext::CACHE_LIST_DEFAULT);
+    }
+
+    /**
+     * This method can be overridden
+     *
+     * @param UninstallContext $context
+     */
+    public function uninstall(UninstallContext $context)
+    {
+        $context->scheduleClearCache(InstallContext::CACHE_LIST_DEFAULT);
     }
 
     public function build(ContainerBuilder $container)

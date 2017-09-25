@@ -18,7 +18,7 @@ class AppKernel extends Kernel
     /**
      * @var PluginCollection
      */
-    private static $pluginCollection;
+    private static $plugins;
 
     /**
      * @var array
@@ -37,9 +37,92 @@ class AppKernel extends Kernel
     {
         parent::__construct($environment, $debug);
 
-        self::$pluginCollection = new PluginCollection();
+        self::$plugins = new PluginCollection();
     }
 
+    public function registerBundles()
+    {
+        $bundles = [
+            // symfony
+            new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
+            new \Symfony\Bundle\SecurityBundle\SecurityBundle(),
+            new \Symfony\Bundle\TwigBundle\TwigBundle(),
+            new \Symfony\Bundle\MonologBundle\MonologBundle(),
+            new \Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle(),
+            new \Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
+            new \Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
+            new \Symfony\Bundle\AsseticBundle\AsseticBundle(),
+
+            // shopware
+            new \Shopware\Framework\Framework(),
+            new \Shopware\Api\Api(),
+            new \Shopware\Cart\Cart(),
+            new \Shopware\CartBridge\CartBridge(),
+            new \Shopware\Context\Context(),
+            new \Shopware\Nexus\Nexus(),
+            new \Shopware\Translation\Translation(),
+            new \Shopware\Filesystem\Filesystem(),
+            new \Shopware\Search\Search(),
+            new \Shopware\Album\Album(),
+            new \Shopware\Area\Area(),
+            new \Shopware\ProductVote\ProductVote(),
+            new \Shopware\AreaCountry\AreaCountry(),
+            new \Shopware\AreaCountryState\AreaCountryState(),
+            new \Shopware\Category\Category(),
+            new \Shopware\Currency\Currency(),
+            new \Shopware\Customer\Customer(),
+            new \Shopware\CustomerAddress\CustomerAddress(),
+            new \Shopware\CustomerGroup\CustomerGroup(),
+            new \Shopware\CustomerGroupDiscount\CustomerGroupDiscount(),
+            new \Shopware\Holiday\Holiday(),
+            new \Shopware\ListingSorting\ListingSorting(),
+            new \Shopware\Locale\Locale(),
+            new \Shopware\Media\Media(),
+            new \Shopware\PaymentMethod\PaymentMethod(),
+            new \Shopware\PriceGroup\PriceGroup(),
+            new \Shopware\PriceGroupDiscount\PriceGroupDiscount(),
+            new \Shopware\Product\Product(),
+            new \Shopware\ProductDetail\ProductDetail(),
+            new \Shopware\ProductManufacturer\ProductManufacturer(),
+            new \Shopware\ProductDetailPrice\ProductDetailPrice(),
+            new \Shopware\ProductStream\ProductStream(),
+            new \Shopware\SeoUrl\SeoUrl(),
+            new \Shopware\Serializer\Serializer(),
+            new \Shopware\ShippingMethod\ShippingMethod(),
+            new \Shopware\ShippingMethodPrice\ShippingMethodPrice(),
+            new \Shopware\Shop\Shop(),
+            new \Shopware\ShopTemplate\ShopTemplate(),
+            new \Shopware\Tax\Tax(),
+            new \Shopware\TaxAreaRule\TaxAreaRule(),
+            new \Shopware\Unit\Unit(),
+            new \Shopware\Order\Order(),
+            new \Shopware\OrderAddress\OrderAddress(),
+            new \Shopware\OrderDelivery\OrderDelivery(),
+            new \Shopware\OrderDeliveryPosition\OrderDeliveryPosition(),
+            new \Shopware\OrderLineItem\OrderLineItem(),
+            new \Shopware\OrderState\OrderState(),
+            new \Shopware\ProductListingPrice\ProductListingPrice(),
+            new \Shopware\Denormalization\Denormalization(),
+            new \Shopware\ProductMedia\ProductMedia(),
+        ];
+
+        // debug
+        if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
+            $bundles[]= new \Symfony\Bundle\DebugBundle\DebugBundle();
+            $bundles[]= new \Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
+            $bundles[]= new \Sensio\Bundle\DistributionBundle\SensioDistributionBundle();
+
+            if ('dev' === $this->getEnvironment()) {
+                $bundles[]= new \Sensio\Bundle\GeneratorBundle\SensioGeneratorBundle();
+            }
+        }
+
+        // themes and plugins
+        $bundles = array_merge($bundles, $this->themes);
+        $bundles = array_merge($bundles, self::$plugins->getActivePlugins());
+
+        return $bundles;
+    }
 
     public function boot($withPlugins = true)
     {
@@ -72,7 +155,7 @@ class AppKernel extends Kernel
      */
     public static function getPlugins(): PluginCollection
     {
-        return self::$pluginCollection;
+        return self::$plugins;
     }
 
     /**
@@ -88,22 +171,6 @@ class AppKernel extends Kernel
     public static function getConnection(): ?PDO
     {
         return self::$connection;
-    }
-
-    public function registerBundles(): iterable
-    {
-        $contents = require dirname(__DIR__) . '/app/bundles.php';
-        $contents = array_merge($contents, $this->themes);
-
-        foreach (self::getPlugins() as $plugin) {
-            $contents[get_class($plugin)] = ['all' => true];
-        }
-
-        foreach ($contents as $class => $envs) {
-            if (isset($envs['all']) || isset($envs[$this->environment])) {
-                yield new $class();
-            }
-        }
     }
 
     public function getRootDir()
@@ -136,7 +203,7 @@ class AppKernel extends Kernel
 
         $activePluginMeta = [];
 
-        foreach (self::getPlugins()->all() as $namespace => $plugin) {
+        foreach (self::getPlugins()->getActivePlugins() as $namespace => $plugin) {
             $pluginName = $plugin->getName();
             $activePluginMeta[$pluginName] = [
                 'name' => $pluginName,
@@ -161,7 +228,7 @@ class AppKernel extends Kernel
 
     protected function getContainerClass()
     {
-        $pluginHash = sha1(implode('', array_keys(self::getPlugins()->all())));
+        $pluginHash = sha1(implode('', array_keys(self::getPlugins()->getActivePlugins())));
 
         return $this->name . ucfirst(
                 $this->environment
@@ -171,7 +238,7 @@ class AppKernel extends Kernel
     protected function initializeThemes(): array
     {
         return $this->themes = [
-            Shopware\Storefront\Storefront::class => ['all' => true],
+            new \Shopware\Storefront\Storefront(),
         ];
     }
 
@@ -209,12 +276,10 @@ class AppKernel extends Kernel
                 );
             }
 
-            if (false === in_array($pluginName, $activePlugins, true)) {
-                continue;
-            }
+            $isActive = in_array($pluginName, $activePlugins, true);
 
             /** @var Plugin $plugin */
-            $plugin = new $className(true);
+            $plugin = new $className($isActive);
 
             if (!$plugin instanceof Plugin) {
                 throw new \RuntimeException(
@@ -222,7 +287,7 @@ class AppKernel extends Kernel
                 );
             }
 
-            self::$pluginCollection->add($plugin);
+            self::$plugins->add($plugin);
         }
     }
 }

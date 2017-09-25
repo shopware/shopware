@@ -8,3 +8,5 @@ bin/console denormalize:build:category:path
 bin/console denormalize:index:products
 
 bin/console seo:url:generate
+
+bin/console plugin:refresh

@@ -54,7 +54,7 @@ class TemplateFinder
     {
         $this->loader = $loader;
 
-        array_map([$this, 'addBundle'], $kernel::getPlugins()->all());
+        array_map([$this, 'addBundle'], $kernel::getPlugins()->getActivePlugins());
         array_map([$this, 'addTheme'], $kernel->getThemes());
 
         $this->loader->addPath($kernel->getRootDir() . '/../src/Api/Resources/views', 'Api');

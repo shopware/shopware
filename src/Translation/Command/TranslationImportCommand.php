@@ -86,7 +86,7 @@ class TranslationImportCommand extends ContainerAwareCommand implements EventSub
         ];
 
         if ($input->getOption('with-plugins')) {
-            foreach ($this->getContainer()->get('shopware.plugins')->all() as $plugin) {
+            foreach ($this->getContainer()->get('shopware.plugins')->getActivePlugins() as $plugin) {
                 $translationPath = $plugin->getPath() . '/Resources/translations';
                 if (!file_exists($translationPath)) {
                     continue;

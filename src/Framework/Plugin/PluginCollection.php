@@ -57,6 +57,16 @@ class PluginCollection
         return $this->plugins;
     }
 
+    /**
+     * @return Plugin[]
+     */
+    public function getActivePlugins(): array
+    {
+        return array_filter($this->plugins, function (Plugin $plugin) {
+            return $plugin->isActive();
+        });
+    }
+
     public function filter(Closure $closure)
     {
         return new static(array_filter($this->plugins, $closure));

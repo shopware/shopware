@@ -97,6 +97,57 @@
             <argument type="collection" />
         </service>
 
+        <!-- Pluginsystem -->
+        <service id="shopware.framework.plugin.manager" class="Shopware\Framework\Plugin\PluginManager">
+            <argument>%kernel.plugin_dir%</argument>
+            <argument type="service" id="kernel"/>
+            <argument type="service" id="dbal_connection"/>
+            <argument type="service" id="service_container"/>
+            <argument type="service" id="shopware.framework.plugin.requirement_validator" />
+        </service>
+
+        <service class="Shopware\Framework\Plugin\XmlPluginInfoReader" id="shopware.framework.plugin.xml_plugin_info_reader"/>
+
+        <service class="Shopware\Framework\Plugin\RequirementValidator" id="shopware.framework.plugin.requirement_validator">
+            <argument id="shopware.framework.plugin.xml_plugin_info_reader" type="service"/>
+
+        </service>
+
+
+        <service class="Shopware\Framework\Plugin\Command\PluginRefreshCommand" id="shopware.framework.commands.plugin_refresh_command">
+            <tag name="console.command" />
+            <argument type="service" id="shopware.framework.plugin.manager" />
+        </service>
+
+        <service class="Shopware\Framework\Plugin\Command\PluginInstallCommand" id="shopware.framework.commands.plugin_install_command">
+            <tag name="console.command" />
+            <argument type="service" id="shopware.framework.plugin.manager" />
+        </service>
+
+        <service class="Shopware\Framework\Plugin\Command\PluginActivateCommand" id="shopware.framework.commands.plugin_activate_command">
+            <tag name="console.command" />
+            <argument type="service" id="shopware.framework.plugin.manager" />
+        </service>
+
+        <service class="Shopware\Framework\Plugin\Command\PluginDeactivateCommand" id="shopware.framework.commands.plugin_deactivate_command">
+            <tag name="console.command" />
+            <argument type="service" id="shopware.framework.plugin.manager" />
+        </service>
+
+        <service class="Shopware\Framework\Plugin\Command\PluginUninstallCommand" id="shopware.framework.commands.plugin_uninstall_command">
+            <tag name="console.command" />
+            <argument type="service" id="shopware.framework.plugin.manager" />
+        </service>
+
+        <service class="Shopware\Framework\Plugin\Command\PluginUpdateCommand" id="shopware.framework.commands.plugin_update_command">
+            <tag name="console.command" />
+            <argument type="service" id="shopware.framework.plugin.manager" />
+        </service>
+
+        <service class="Shopware\Framework\Plugin\Command\PluginListCommand" id="shopware.framework.commands.plugin_list_command">
+            <tag name="console.command" />
+            <argument type="service" id="shopware.framework.plugin.manager" />
+        </service>
 
     </services>
 </container>

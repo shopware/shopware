@@ -1,0 +1,77 @@
+.sw-core-order--detail {
+    max-width: 800px;
+    margin: 0 auto;
+    padding-top: 70px;
+}
+
+.split--container {
+    &:after {
+        content: ".";
+        clear: both;
+        display: block;
+        visibility: hidden;
+        height: 0;
+    }
+
+    .container--item {
+        width: 50%;
+        display: block;
+        float: left;
+
+        &:first-child {
+            padding-right: 16px;
+        }
+        &:last-child {
+            padding-left: 16px;
+        }
+    }
+}
+
+// Tabs container definition
+.container--tabs {
+    background: #F0F3F7;
+    border-radius: 6px;
+    padding: 6px;
+    display: block;
+    margin-bottom: 28px;
+
+    &:after {
+        content: ".";
+        clear: both;
+        display: block;
+        visibility: hidden;
+        height: 0;
+    }
+
+    .tabs--item {
+        display: block;
+        float: left;
+        padding: 12px 26px;
+        margin: 0 10px;
+        border-radius: 6px;
+        color: #c9cdd1;
+        font-size: 14px;
+        line-height: 18px;
+
+        .item--link {
+            color: #c9cdd1;
+            text-decoration: none;
+        }
+
+        &:first-child {
+            margin-left: 0;
+        }
+
+        &:last-child {
+            margin-right: 0;
+        }
+
+        &.router-link-active {
+            background: #fff;
+
+            .item--link {
+                color: #4da1ff;
+            }
+        }
+    }
+}

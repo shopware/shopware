@@ -1,11 +1,13 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import 'src/app/component/components';
+import VueMoment from 'vue-moment';
 
 const vueComponents = {};
 
 export default function VueAdapter(context) {
     Vue.use(VueRouter);
+    Vue.use(VueMoment);
 
     Vue.filter('image', (value) => {
         if (!value) {

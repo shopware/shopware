@@ -8,6 +8,7 @@
         <service class="Shopware\OrderDelivery\Factory\OrderDeliveryBasicFactory" id="shopware.order_delivery.basic_factory">
             <argument id="dbal_connection" type="service"/>
             <argument type="service" id="shopware.extension.registry" />
+            <argument id="shopware.order_state.basic_factory" type="service"/>
             <argument id="shopware.order_address.basic_factory" type="service"/>
             <argument id="shopware.shipping_method.basic_factory" type="service"/>
         </service>
@@ -16,6 +17,7 @@
             <argument id="dbal_connection" type="service"/>
             <argument type="service" id="shopware.extension.registry" />
             <argument id="shopware.order_delivery_position.basic_factory" type="service"/>
+            <argument id="shopware.order_state.basic_factory" type="service"/>
             <argument id="shopware.order_address.basic_factory" type="service"/>
             <argument id="shopware.shipping_method.basic_factory" type="service"/>
         </service>

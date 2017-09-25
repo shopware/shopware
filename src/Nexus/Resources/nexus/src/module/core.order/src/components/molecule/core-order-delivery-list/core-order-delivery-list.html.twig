@@ -1,0 +1,55 @@
+{% block order_delivery_list %}
+
+    <div class="core-order-delivery--list">
+        <sw-grid>
+            {% block grid_header %}
+                <sw-grid-header>
+                    {% block grid_header_columns %}
+                        <sw-grid-col :width="50">&nbsp;</sw-grid-col>
+                        <sw-grid-col :width="50">#</sw-grid-col>
+                        <sw-grid-col :width="400">Lieferadresse</sw-grid-col>
+                        <sw-grid-col :width="300">Versandart</sw-grid-col>
+                        <sw-grid-col :width="400">Lieferdatum</sw-grid-col>
+                        <sw-grid-col :width="200">Lieferstatus</sw-grid-col>
+                        <sw-grid-col :width="200">Trackingcode</sw-grid-col>
+                    {% endblock %}
+                </sw-grid-header>
+            {% endblock %}
+
+            {% block grid_body %}
+                <sw-grid-body>
+                    {% block grid_item %}
+                        <sw-grid-row v-for="(item, index) in deliveryList" :key="item.uuid" :editable="true" :item="item">
+                            {% block grid_columns %}
+                                <sw-grid-col :width="50"><input type="checkbox" readonly="true" /></sw-grid-col>
+                                <sw-grid-col :width="50">{{index + 1}}</sw-grid-col>
+                                <sw-grid-col :width="400">
+                                    {{ item.shippingAddress.street }}
+                                    <br>
+                                    {{ item.shippingAddress.zipcode }} {{ item.shippingAddress.city }}
+                                    <br>
+                                    {{ item.shippingAddress.country.name }}
+                                </sw-grid-col>
+                                <sw-grid-col :width="300">{{ item.shippingMethod.name}}</sw-grid-col>
+                                <sw-grid-col :width="400">
+                                    {{ item.shippingDateEarliest.date | moment('lll') }}
+                                    <br /> bis <br />
+                                    {{ item.shippingDateLatest.date | moment('lll') }}
+                                </sw-grid-col>
+                                <sw-grid-col :width="200">{{ item.state.description }}</sw-grid-col>
+                                <sw-grid-col :width="200">{{ item.tackingCode }}</sw-grid-col>
+                            {% endblock %}
+                        </sw-grid-row>
+                    {% endblock %}
+                </sw-grid-body>
+            {% endblock %}
+
+            {% block grid_pagination %}
+                <sw-pagination :page-num="pageNum" :max-page="maxPage" :per-page="limit" :total="total" v-on:data-changed="handlePagination"></sw-pagination>
+            {% endblock %}
+
+            <sw-loader v-if="isWorking"></sw-loader>
+        </sw-grid>
+    </div>
+
+{% endblock %}

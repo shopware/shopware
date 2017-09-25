@@ -6,6 +6,7 @@ export default {
     formDataToObject,
     warn,
     currency,
+    date,
     compareObjects: updatedDiff,
     createUuid: uuidv4
 };
@@ -56,12 +57,21 @@ function warn(name = 'Core', ...message) {
  * Converts a Number to a formatted currency. Especially helpful for template filters.
  *
  * @param {Number} val - Number which should be formatted as a currency.
+ * @param {String} sign - Currency sign which should be displayed
  * @returns {string} Formatted string
  */
-function currency(val) {
+function currency(val, sign) {
     const opts = {
         style: 'currency',
-        currency: 'EUR'
+        currency: sign || 'EUR'
     };
-    return val.toLocaleString('de-DE', opts);
+    let language = 'de-DE';
+    if (opts.currency === 'USD') {
+        language = 'en-US';
+    }
+    return val.toLocaleString(language, opts);
+}
+
+function date(val) {
+    return val.toLocaleString('de-DE');
 }

@@ -20,7 +20,7 @@ export default Shopware.ComponentFactory.register('sw-field', {
             default: ''
         },
         value: {
-            type: [String, Boolean, Number],
+            type: [String, Boolean, Number, Date],
             default: ''
         },
         suffix: {

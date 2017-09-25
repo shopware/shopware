@@ -1,0 +1,61 @@
+<div class="address-form">
+    <div class="split--container">
+        <div class="container--item">
+            <sw-field label="Company" id="company" type="string" name="company" v-model="address.company" placeholder="The Company of the address"></sw-field>
+        </div>
+        <div class="container--item">
+            <sw-field label="Department" id="department" type="string" name="department" v-model="address.department" placeholder="The Department of the address"></sw-field>
+        </div>
+    </div>
+    <div class="split--container">
+        <div class="container--item">
+            <sw-field label="Salutation" id="salutation" type="string" name="salutation" v-model="address.salutation" placeholder="The Salutation of the address"></sw-field>
+        </div>
+        <div class="container--item">
+            <sw-field label="Title" id="title" type="string" name="title" v-model="address.title" placeholder="The Title of the address"></sw-field>
+        </div>
+    </div>
+    <div class="split--container">
+        <div class="container--item">
+            <sw-field label="First name" id="firstName" type="string" name="firstName" v-model="address.firstName" placeholder="The First_name of the address"></sw-field>
+        </div>
+        <div class="container--item">
+            <sw-field label="Last name" id="lastName" type="string" name="lastName" v-model="address.lastName" placeholder="The Last_name of the address"></sw-field>
+        </div>
+    </div>
+    <div class="split--container">
+        <div class="container--item">
+            <sw-field label="Street" id="street" type="string" name="street" v-model="address.street" placeholder="The Street of the address"></sw-field>
+        </div>
+        <div class="container--item">
+            <sw-field label="Zipcode" id="zipcode" type="string" name="zipcode" v-model="address.zipcode" placeholder="The Zipcode of the address"></sw-field>
+        </div>
+    </div>
+    <div class="split--container">
+        <div class="container--item">
+            <sw-field label="City" id="city" type="string" name="city" v-model="address.city" placeholder="The City of the address"></sw-field>
+        </div>
+        <div class="container--item">
+            <sw-field label="Area country" id="areaCountryUuid" type="select" name="country" placeholder="The country" v-model="address.areaCountryUuid">
+                <option v-for="country in countries" :value="country.uuid">{{ country.name }}</option>
+            </sw-field>
+        </div>
+    </div>
+    <div class="split--container">
+        <div class="container--item">
+            <sw-field label="Vat id" id="vatId" type="string" name="vatId" v-model="address.vatId" placeholder="The Vat_id of the address"></sw-field>
+        </div>
+        <div class="container--item">
+            <sw-field label="Phone number" id="phoneNumber" type="string" name="phoneNumber" v-model="address.phoneNumber" placeholder="The Phone_number of the address"></sw-field>
+        </div>
+    </div>
+    <div class="split--container">
+        <div class="container--item">
+            <sw-field label="Additional address line1" id="additionalAddressLine1" type="string" name="additionalAddressLine1" v-model="address.additionalAddressLine1" placeholder="The Additional_address_line1 of the address"></sw-field>
+        </div>
+        <div class="container--item">
+            <sw-field label="Additional address line2" id="additionalAddressLine2" type="string" name="additionalAddressLine2" v-model="address.additionalAddressLine2" placeholder="The Additional_address_line2 of the address"></sw-field>
+        </div>
+    </div>
+    <sw-loader v-if="isWorking"></sw-loader>
+</div>

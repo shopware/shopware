@@ -4,6 +4,7 @@ namespace Shopware\OrderDelivery\Struct;
 
 use Shopware\Framework\Struct\Struct;
 use Shopware\OrderAddress\Struct\OrderAddressBasicStruct;
+use Shopware\OrderState\Struct\OrderStateBasicStruct;
 use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
 
 class OrderDeliveryBasicStruct extends Struct
@@ -26,6 +27,16 @@ class OrderDeliveryBasicStruct extends Struct
     /**
      * @var string
      */
+    protected $orderStateUuid;
+
+    /**
+     * @var string|null
+     */
+    protected $trackingCode;
+
+    /**
+     * @var string
+     */
     protected $shippingMethodUuid;
 
     /**
@@ -42,6 +53,11 @@ class OrderDeliveryBasicStruct extends Struct
      * @var string
      */
     protected $payload;
+
+    /**
+     * @var OrderStateBasicStruct
+     */
+    protected $state;
 
     /**
      * @var OrderAddressBasicStruct
@@ -83,6 +99,26 @@ class OrderDeliveryBasicStruct extends Struct
         $this->shippingAddressUuid = $shippingAddressUuid;
     }
 
+    public function getOrderStateUuid(): string
+    {
+        return $this->orderStateUuid;
+    }
+
+    public function setOrderStateUuid(string $orderStateUuid): void
+    {
+        $this->orderStateUuid = $orderStateUuid;
+    }
+
+    public function getTrackingCode(): ?string
+    {
+        return $this->trackingCode;
+    }
+
+    public function setTrackingCode(?string $trackingCode): void
+    {
+        $this->trackingCode = $trackingCode;
+    }
+
     public function getShippingMethodUuid(): string
     {
         return $this->shippingMethodUuid;
@@ -121,6 +157,16 @@ class OrderDeliveryBasicStruct extends Struct
     public function setPayload(string $payload): void
     {
         $this->payload = $payload;
+    }
+
+    public function getState(): OrderStateBasicStruct
+    {
+        return $this->state;
+    }
+
+    public function setState(OrderStateBasicStruct $state): void
+    {
+        $this->state = $state;
     }
 
     public function getShippingAddress(): OrderAddressBasicStruct

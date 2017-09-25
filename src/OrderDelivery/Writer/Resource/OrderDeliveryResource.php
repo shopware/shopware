@@ -6,6 +6,7 @@ use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\LongTextField;
 use Shopware\Framework\Write\Field\ReferenceField;
+use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
@@ -14,6 +15,8 @@ use Shopware\Framework\Write\Resource;
 class OrderDeliveryResource extends Resource
 {
     protected const UUID_FIELD = 'uuid';
+    protected const ORDER_STATE_UUID_FIELD = 'orderStateUuid';
+    protected const TRACKING_CODE_FIELD = 'trackingCode';
     protected const SHIPPING_DATE_EARLIEST_FIELD = 'shippingDateEarliest';
     protected const SHIPPING_DATE_LATEST_FIELD = 'shippingDateLatest';
     protected const PAYLOAD_FIELD = 'payload';
@@ -23,6 +26,8 @@ class OrderDeliveryResource extends Resource
         parent::__construct('order_delivery');
 
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
+        $this->fields[self::ORDER_STATE_UUID_FIELD] = (new StringField('order_state_uuid'))->setFlags(new Required());
+        $this->fields[self::TRACKING_CODE_FIELD] = new StringField('tracking_code');
         $this->fields[self::SHIPPING_DATE_EARLIEST_FIELD] = (new DateField('shipping_date_earliest'))->setFlags(new Required());
         $this->fields[self::SHIPPING_DATE_LATEST_FIELD] = (new DateField('shipping_date_latest'))->setFlags(new Required());
         $this->fields[self::PAYLOAD_FIELD] = (new LongTextField('payload'))->setFlags(new Required());

@@ -36,7 +36,7 @@ class QueryStringParser
                     array_map(function(array $query) {
                         return self::fromArray($query);
                     }, $query['queries']),
-                    $query['operator']
+                    array_key_exists('operator', $query) ? $query['operator'] : 'AND'
                 );
             case 'match':
                 return new MatchQuery($query['field'], $query['value']);
@@ -45,7 +45,7 @@ class QueryStringParser
                     array_map(function(array $query) {
                         return self::fromArray($query);
                     }, $query['queries']),
-                    $query['operator']
+                    array_key_exists('operator', $query) ? $query['operator'] : 'AND'
                 );
             case 'range':
                 return new RangeQuery($query['field'], $query['parameters']);

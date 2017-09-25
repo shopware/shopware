@@ -1,0 +1,43 @@
+{% block order_line_item_list %}
+
+    <div class="core-order-line-item--list">
+        <sw-grid>
+            {% block grid_header %}
+                <sw-grid-header>
+                    {% block grid_header_columns %}
+                        <sw-grid-col :width="50">&nbsp;</sw-grid-col>
+                        <sw-grid-col :width="200">Nummer</sw-grid-col>
+                        <sw-grid-col :width="200">Type</sw-grid-col>
+                        <sw-grid-col :width="200">Stückpreis</sw-grid-col>
+                        <sw-grid-col :width="200">Anzahl</sw-grid-col>
+                        <sw-grid-col :width="200">Gesamtpreis</sw-grid-col>
+                    {% endblock %}
+                </sw-grid-header>
+            {% endblock %}
+
+            {% block grid_body %}
+                <sw-grid-body>
+                    {% block grid_item %}
+                        <sw-grid-row v-for="(item, index) in lineItemList" :key="item.uuid" :editable="true" :item="item">
+                            {% block grid_columns %}
+                                <sw-grid-col :width="50"><input type="checkbox" readonly="true" /></sw-grid-col>
+                                <sw-grid-col :width="200">{{ item.identifier }}</sw-grid-col>
+                                <sw-grid-col :width="200">{{ item.type }}</sw-grid-col>
+                                <sw-grid-col :width="200">{{ item.unitPrice | currency(order.currency.shortName) }}</sw-grid-col>
+                                <sw-grid-col :width="200">{{ item.quantity }}</sw-grid-col>
+                                <sw-grid-col :width="200">{{ item.totalPrice | currency(order.currency.shortName) }}</sw-grid-col>
+                            {% endblock %}
+                        </sw-grid-row>
+                    {% endblock %}
+                </sw-grid-body>
+            {% endblock %}
+
+            {% block grid_pagination %}
+                <sw-pagination :page-num="pageNum" :max-page="maxPage" :per-page="limit" :total="total" v-on:data-changed="handlePagination"></sw-pagination>
+            {% endblock %}
+
+            <sw-loader v-if="isWorking"></sw-loader>
+        </sw-grid>
+    </div>
+
+{% endblock %}

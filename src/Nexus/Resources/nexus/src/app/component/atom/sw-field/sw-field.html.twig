@@ -19,6 +19,9 @@
     <!-- Checkbox -->
     <input v-else-if="type === 'checkbox'" type="checkbox" :name="name" :id="id" :value="value" @input="$emit('input', $event.target.value)">
 
+    <!-- Date -->
+    <input v-else-if="type === 'datetime'" type="datetime-local" :name="name" :id="id" :value="value" @input="$emit('input', $event.target.value)">
+
     <!-- Default Input -->
     <input v-else :type="type" :name="name" :id="id" :placeholder="placeholder" :value="value" @input="$emit('input', $event.target.value)" />
 

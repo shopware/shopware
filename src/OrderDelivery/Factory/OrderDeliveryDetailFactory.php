@@ -9,6 +9,7 @@ use Shopware\OrderAddress\Factory\OrderAddressBasicFactory;
 use Shopware\OrderDelivery\Struct\OrderDeliveryBasicStruct;
 use Shopware\OrderDelivery\Struct\OrderDeliveryDetailStruct;
 use Shopware\OrderDeliveryPosition\Factory\OrderDeliveryPositionBasicFactory;
+use Shopware\OrderState\Factory\OrderStateBasicFactory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Shopware\ShippingMethod\Factory\ShippingMethodBasicFactory;
@@ -24,10 +25,11 @@ class OrderDeliveryDetailFactory extends OrderDeliveryBasicFactory
         Connection $connection,
         ExtensionRegistryInterface $registry,
         OrderDeliveryPositionBasicFactory $orderDeliveryPositionFactory,
+        OrderStateBasicFactory $orderStateFactory,
         OrderAddressBasicFactory $orderAddressFactory,
         ShippingMethodBasicFactory $shippingMethodFactory
     ) {
-        parent::__construct($connection, $registry, $orderAddressFactory, $shippingMethodFactory);
+        parent::__construct($connection, $registry, $orderStateFactory, $orderAddressFactory, $shippingMethodFactory);
         $this->orderDeliveryPositionFactory = $orderDeliveryPositionFactory;
     }
 

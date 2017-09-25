@@ -1070,9 +1070,11 @@ CREATE TABLE `order_delivery` (
   `uuid` VARCHAR(42) NOT NULL,
   `order_uuid` VARCHAR(42) NOT NULL,
   `shipping_address_uuid` VARCHAR(42) NOT NULL,
+  `order_state_uuid` VARCHAR(42) NOT NULL,
+  `tracking_code` VARCHAR(200) NULL DEFAULT NULL,
   `shipping_method_uuid` VARCHAR(42) NOT NULL,
-  `shipping_date_earliest` DATETIME NOT NULL,
-  `shipping_date_latest` DATETIME NOT NULL,
+  `shipping_date_earliest` DATE NOT NULL,
+  `shipping_date_latest` DATE NOT NULL,
   `payload` LONGTEXT NOT NULL,
   PRIMARY KEY (`uuid`)
 ) COLLATE = 'utf8mb4_unicode_ci' ENGINE = InnoDB;

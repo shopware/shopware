@@ -7,6 +7,7 @@ use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 use Shopware\OrderAddress\Event\OrderAddressBasicLoadedEvent;
 use Shopware\OrderDelivery\Struct\OrderDeliveryBasicCollection;
+use Shopware\OrderState\Event\OrderStateBasicLoadedEvent;
 use Shopware\ShippingMethod\Event\ShippingMethodBasicLoadedEvent;
 
 class OrderDeliveryBasicLoadedEvent extends NestedEvent
@@ -47,6 +48,7 @@ class OrderDeliveryBasicLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         return new NestedEventCollection([
+            new OrderStateBasicLoadedEvent($this->orderDeliveries->getStates(), $this->context),
             new OrderAddressBasicLoadedEvent($this->orderDeliveries->getShippingAddresses(), $this->context),
             new ShippingMethodBasicLoadedEvent($this->orderDeliveries->getShippingMethods(), $this->context),
         ]);

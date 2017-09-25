@@ -10,6 +10,8 @@ use Shopware\OrderAddress\Factory\OrderAddressBasicFactory;
 use Shopware\OrderAddress\Struct\OrderAddressBasicStruct;
 use Shopware\OrderDelivery\Extension\OrderDeliveryExtension;
 use Shopware\OrderDelivery\Struct\OrderDeliveryBasicStruct;
+use Shopware\OrderState\Factory\OrderStateBasicFactory;
+use Shopware\OrderState\Struct\OrderStateBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Shopware\ShippingMethod\Factory\ShippingMethodBasicFactory;
@@ -24,11 +26,18 @@ class OrderDeliveryBasicFactory extends Factory
        'uuid' => 'uuid',
        'order_uuid' => 'order_uuid',
        'shipping_address_uuid' => 'shipping_address_uuid',
+       'order_state_uuid' => 'order_state_uuid',
+       'tracking_code' => 'tracking_code',
        'shipping_method_uuid' => 'shipping_method_uuid',
        'shipping_date_earliest' => 'shipping_date_earliest',
        'shipping_date_latest' => 'shipping_date_latest',
        'payload' => 'payload',
     ];
+
+    /**
+     * @var OrderStateBasicFactory
+     */
+    protected $orderStateFactory;
 
     /**
      * @var OrderAddressBasicFactory
@@ -43,10 +52,12 @@ class OrderDeliveryBasicFactory extends Factory
     public function __construct(
         Connection $connection,
         ExtensionRegistryInterface $registry,
+        OrderStateBasicFactory $orderStateFactory,
         OrderAddressBasicFactory $orderAddressFactory,
         ShippingMethodBasicFactory $shippingMethodFactory
     ) {
         parent::__construct($connection, $registry);
+        $this->orderStateFactory = $orderStateFactory;
         $this->orderAddressFactory = $orderAddressFactory;
         $this->shippingMethodFactory = $shippingMethodFactory;
     }
@@ -60,10 +71,18 @@ class OrderDeliveryBasicFactory extends Factory
         $orderDelivery->setUuid((string) $data[$selection->getField('uuid')]);
         $orderDelivery->setOrderUuid((string) $data[$selection->getField('order_uuid')]);
         $orderDelivery->setShippingAddressUuid((string) $data[$selection->getField('shipping_address_uuid')]);
+        $orderDelivery->setOrderStateUuid((string) $data[$selection->getField('order_state_uuid')]);
+        $orderDelivery->setTrackingCode(isset($data[$selection->getField('tracking_code')]) ? (string) $data[$selection->getField('tracking_code')] : null);
         $orderDelivery->setShippingMethodUuid((string) $data[$selection->getField('shipping_method_uuid')]);
         $orderDelivery->setShippingDateEarliest(new \DateTime($data[$selection->getField('shipping_date_earliest')]));
         $orderDelivery->setShippingDateLatest(new \DateTime($data[$selection->getField('shipping_date_latest')]));
         $orderDelivery->setPayload((string) $data[$selection->getField('payload')]);
+        $orderState = $selection->filter('state');
+        if ($orderState && !empty($data[$orderState->getField('uuid')])) {
+            $orderDelivery->setState(
+                $this->orderStateFactory->hydrate($data, new OrderStateBasicStruct(), $orderState, $context)
+            );
+        }
         $orderAddress = $selection->filter('shippingAddress');
         if ($orderAddress && !empty($data[$orderAddress->getField('uuid')])) {
             $orderDelivery->setShippingAddress(
@@ -89,6 +108,7 @@ class OrderDeliveryBasicFactory extends Factory
     {
         $fields = array_merge(self::FIELDS, parent::getFields());
 
+        $fields['state'] = $this->orderStateFactory->getFields();
         $fields['shippingAddress'] = $this->orderAddressFactory->getFields();
         $fields['shippingMethod'] = $this->shippingMethodFactory->getFields();
 
@@ -97,6 +117,16 @@ class OrderDeliveryBasicFactory extends Factory
 
     public function joinDependencies(QuerySelection $selection, QueryBuilder $query, TranslationContext $context): void
     {
+        if ($orderState = $selection->filter('state')) {
+            $query->leftJoin(
+                $selection->getRootEscaped(),
+                'order_state',
+                $orderState->getRootEscaped(),
+                sprintf('%s.uuid = %s.order_state_uuid', $orderState->getRootEscaped(), $selection->getRootEscaped())
+            );
+            $this->orderStateFactory->joinDependencies($orderState, $query, $context);
+        }
+
         if ($orderAddress = $selection->filter('shippingAddress')) {
             $query->leftJoin(
                 $selection->getRootEscaped(),
@@ -138,6 +168,7 @@ class OrderDeliveryBasicFactory extends Factory
     public function getAllFields(): array
     {
         $fields = array_merge(self::FIELDS, $this->getExtensionFields());
+        $fields['state'] = $this->orderStateFactory->getAllFields();
         $fields['shippingAddress'] = $this->orderAddressFactory->getAllFields();
         $fields['shippingMethod'] = $this->shippingMethodFactory->getAllFields();
 

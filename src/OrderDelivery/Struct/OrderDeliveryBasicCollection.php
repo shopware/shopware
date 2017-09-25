@@ -4,6 +4,7 @@ namespace Shopware\OrderDelivery\Struct;
 
 use Shopware\Framework\Struct\Collection;
 use Shopware\OrderAddress\Struct\OrderAddressBasicCollection;
+use Shopware\OrderState\Struct\OrderStateBasicCollection;
 use Shopware\ShippingMethod\Struct\ShippingMethodBasicCollection;
 
 class OrderDeliveryBasicCollection extends Collection
@@ -83,6 +84,20 @@ class OrderDeliveryBasicCollection extends Collection
         });
     }
 
+    public function getOrderStateUuids(): array
+    {
+        return $this->fmap(function (OrderDeliveryBasicStruct $orderDelivery) {
+            return $orderDelivery->getOrderStateUuid();
+        });
+    }
+
+    public function filterByOrderStateUuid(string $uuid): OrderDeliveryBasicCollection
+    {
+        return $this->filter(function (OrderDeliveryBasicStruct $orderDelivery) use ($uuid) {
+            return $orderDelivery->getOrderStateUuid() === $uuid;
+        });
+    }
+
     public function getShippingMethodUuids(): array
     {
         return $this->fmap(function (OrderDeliveryBasicStruct $orderDelivery) {
@@ -95,6 +110,15 @@ class OrderDeliveryBasicCollection extends Collection
         return $this->filter(function (OrderDeliveryBasicStruct $orderDelivery) use ($uuid) {
             return $orderDelivery->getShippingMethodUuid() === $uuid;
         });
+    }
+
+    public function getStates(): OrderStateBasicCollection
+    {
+        return new OrderStateBasicCollection(
+            $this->fmap(function (OrderDeliveryBasicStruct $orderDelivery) {
+                return $orderDelivery->getState();
+            })
+        );
     }
 
     public function getShippingAddresses(): OrderAddressBasicCollection

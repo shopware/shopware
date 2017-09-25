@@ -59,7 +59,7 @@ class OrderPersister implements OrderPersisterInterface
     {
         $order = $this->convert($calculatedCart, $context);
 
-        $this->repository->create([$order], $context->getTranslationContext());
+        $response = $this->repository->create([$order], $context->getTranslationContext());
     }
 
     private function convert(CalculatedCart $calculatedCart, ShopContext $context): array
@@ -116,6 +116,7 @@ class OrderPersister implements OrderPersisterInterface
                 'shippingDateLatest' => $delivery->getDeliveryDate()->getLatest()->format('Y-m-d H:i:s'),
                 'shippingMethodUuid' => $delivery->getShippingMethod()->getUuid(),
                 'shippingAddress' => $this->convertAddress($delivery->getLocation()->getAddress()),
+                'orderStateUuid' => 'SWAG-ORDER-STATE-UUID-0',
                 'positions' => [],
                 'payload' => json_encode($delivery)
             ];

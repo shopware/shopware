@@ -74,6 +74,7 @@ class Generate
             ],
             'order_delivery'  => [
                 'associations' => [
+                    self::createAssociation('order_state', self::ManyToOne, true, false, 'state', 'order_state_uuid', '', '', false, false),
                     self::createAssociation('order_address', self::ManyToOne, true, false, 'shippingAddress', 'shipping_address_uuid', '', '', false, false),
                     self::createAssociation('shipping_method', self::ManyToOne, true, false, 'shippingMethod', 'shipping_method_uuid', '', '', false, true),
                     self::createAssociation('order_delivery_position', self::OneToMany, false, true, 'position', 'order_delivery_uuid', '', '', false, false),

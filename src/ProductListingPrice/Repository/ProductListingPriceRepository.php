@@ -4,7 +4,6 @@ namespace Shopware\ProductListingPrice\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\ProductListingPrice\Event\ProductListingPriceBasicLoadedEvent;
-use Shopware\ProductListingPrice\Event\ProductListingPriceWrittenEvent;
 use Shopware\ProductListingPrice\Loader\ProductListingPriceBasicLoader;
 use Shopware\ProductListingPrice\Searcher\ProductListingPriceSearcher;
 use Shopware\ProductListingPrice\Searcher\ProductListingPriceSearchResult;

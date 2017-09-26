@@ -36,9 +36,11 @@ class CheckoutController extends Controller
      */
     public function shopMenuAction()
     {
+        $cartService = $this->get('shopware.cart.storefront_service');
+
         return $this->render('@Shopware/widgets/checkout/info.html.twig', [
-            'sBasketQuantity' => 0,
-            'sBasketAmount' => 0,
+            'cartQuantity' => $cartService->getCartContainer()->getLineItems()->count(),
+            'cartAmount' => $cartService->getCart()->getCalculatedCart()->getPrice()->getTotalPrice(),
             'sNotesQuantity' => 0,
             'sUserLoggedIn' => false,
         ]);

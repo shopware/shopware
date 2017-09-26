@@ -4,7 +4,6 @@ namespace Shopware\ProductVoteAverage\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\ProductVoteAverage\Event\ProductVoteAverageBasicLoadedEvent;
-use Shopware\ProductVoteAverage\Event\ProductVoteAverageWrittenEvent;
 use Shopware\ProductVoteAverage\Loader\ProductVoteAverageBasicLoader;
 use Shopware\ProductVoteAverage\Searcher\ProductVoteAverageSearcher;
 use Shopware\ProductVoteAverage\Searcher\ProductVoteAverageSearchResult;

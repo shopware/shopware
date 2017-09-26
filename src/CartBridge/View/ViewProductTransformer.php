@@ -31,6 +31,12 @@ use Shopware\Cart\Product\CalculatedProduct;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Product\Repository\ProductRepository;
 use Shopware\ProductDetail\Repository\ProductDetailRepository;
+use Shopware\ProductMedia\Repository\ProductMediaRepository;
+use Shopware\ProductMedia\Searcher\ProductMediaSearchResult;
+use Shopware\ProductMedia\Struct\ProductMediaBasicStruct;
+use Shopware\Search\Criteria;
+use Shopware\Search\Query\TermQuery;
+use Shopware\Search\Query\TermsQuery;
 
 class ViewProductTransformer implements ViewLineItemTransformerInterface
 {
@@ -48,13 +54,19 @@ class ViewProductTransformer implements ViewLineItemTransformerInterface
      * @var ProductDetailRepository
      */
     private $productDetailRepository;
+    /**
+     * @var ProductMediaRepository
+     */
+    private $productMediaRepository;
 
     public function __construct(
         ProductRepository $productRepository,
-        ProductDetailRepository $productDetailRepository
+        ProductDetailRepository $productDetailRepository,
+        ProductMediaRepository $productMediaRepository
     ) {
         $this->productRepository = $productRepository;
         $this->productDetailRepository = $productDetailRepository;
+        $this->productMediaRepository = $productMediaRepository;
     }
 
     /**
@@ -81,7 +93,7 @@ class ViewProductTransformer implements ViewLineItemTransformerInterface
             $context->getTranslationContext()
         );
 
-//        $covers = $this->mediaService->getVariantCovers($listProducts, $context);
+        $covers = $this->fetchCovers($variants->getProductUuids(), $context);
 
         /** @var CalculatedLineItemCollection $collection */
         foreach ($collection as $calculated) {
@@ -89,13 +101,32 @@ class ViewProductTransformer implements ViewLineItemTransformerInterface
 
             $product = $products->get($variant->getProductUuid());
 
-//            if (isset($covers[$listProduct->getNumber()])) {
-//                $listProduct->setCover($covers[$listProduct->getNumber()]);
-//            }
+            /** @var ProductMediaBasicStruct $cover */
+            $cover = $covers->filterByProductUuid($product->getUuid())->first();
 
             $template = ViewProduct::createFromProducts($product, $variant, $calculated);
 
+            if ($cover) {
+                $template->setCover($cover->getMedia());
+            }
+
             $templateCart->getViewLineItems()->add($template);
         }
+    }
+
+    /**
+     * @param array       $uuids
+     * @param ShopContext $context
+     *
+     * @return ProductMediaSearchResult
+     */
+    protected function fetchCovers(array $uuids, ShopContext $context): ProductMediaSearchResult
+    {
+        /** @var ProductMediaSearchResult $media */
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermsQuery('product_media.productUuid', $uuids));
+        $criteria->addFilter(new TermQuery('product_media.isCover', true));
+
+        return $this->productMediaRepository->search($criteria, $context->getTranslationContext());
     }
 }

@@ -1,15 +1,14 @@
 <div class="table--tr block-group row--product{% if isLast %} is--last-row{% endif %}">
 
-    {#{% if sBasketItem.additional_details.sConfigurator %}#}
-        {#{$detailLink={url controller=detail sArticle=$sBasketItem.articleID number=$sBasketItem.ordernumber forceSecure}}#}
-    {#{% else %}#}
-        {#{$detailLink=$sBasketItem.linkDetails}#}
-    {#{% endif %}#}
+    {% if viewLineItem.canonicalUrl %}
+        {% set detailUrl = viewLineItem.canonicalUrl.url %}
+    {% else %}
+        {% set detailUrl = url('detail_page', { 'uuid': viewLineItem.uuid }) %}
+    {% endif %}
 
     {# Product information column #}
     {% block frontend_checkout_cart_item_name %}
     <div class="column--product">
-
         {# Product image #}
         {% block frontend_checkout_cart_item_image %}
         <div class="panel--td column--image">
@@ -19,11 +18,12 @@
                     {% block frontend_checkout_cart_item_image_container_outer %}
                     <div class="table--media-inner">
                         {% block frontend_checkout_cart_item_image_container_inner %}
-                        {#{$image = $sBasketItem.additional_details.image}#}
-                        {#{$desc = $sBasketItem.articlename|escape}#}
 
-                            {#{% if image.thumbnails[0] %}#}
-                                {#<a href="{{ detailLink }}" title="{$sBasketItem.articlename|strip_tags|escape}" class="table--media-link"#}
+                            {% set image = viewLineItem.cover %}
+                            {% set desc = viewLineItem.name|striptags|escape %}
+
+                            {% if image.thumbnails[0] %}
+                                <a href="{{ detailUrl }}" title="{{ desc }}" class="table--media-link">
                                    {#{if {config name=detailmodal} && {controllerAction|lower} === 'confirm'}#}
                                     {#data-modalbox="true"#}
                                     {#data-content="{url controller="detail" action="productQuickView" ordernumber="{{ sBasketItem.ordernumber }}" fullPath forceSecure}"#}
@@ -36,11 +36,11 @@
                                     {#{% if image.description %}#}
                                         {#{$desc = $image.description|escape}#}
                                     {#{% endif %}#}
-                                    {#<img srcset="{{ image.thumbnails[0].sourceSet }}" alt="{{ desc }}" title="{$desc|truncate:160}" />#}
-                                {#</a>#}
+                                    <img src="{{ image.thumbnails[0].url }}" alt="{{ desc }}" title="{{ desc|truncate(160) }}" />
+                                </a>
                             {#{% else %}#}
                                 {#<img src="{link file='frontend/_public/src/img/no-picture.jpg'}" alt="{{ desc }}" title="{$desc|truncate:160}" />#}
-                            {#{% endif %}#}
+                            {% endif %}
                         {% endblock %}
                     </div>
                     {% endblock %}
@@ -56,8 +56,8 @@
 
             {# Product name #}
             {% block frontend_checkout_cart_item_details_title %}
-            <a class="content--title" href="#" title="title">{{ viewLineItem.name }}</a>
-            {#<a class="content--title" href="{{ detailLink }}" title="{$sBasketItem.articlename|strip_tags|escape}"#}
+
+            <a class="content--title" href="{{ detailUrl }}" title="{{ viewLineItem.name|striptags|escape }}">
                {#{if {config name=detailmodal} && {controllerAction|lower} === 'confirm'}#}
             {#data-modalbox="true"#}
             {#data-content="{url controller="detail" action="productQuickView" ordernumber="{{ sBasketItem.ordernumber }}" fullPath forceSecure}"#}
@@ -67,8 +67,8 @@
             {#data-title="{$sBasketItem.articlename|strip_tags|escape}"#}
             {#data-updateImages="true"#}
             {#{% endif %}>#}
-            {#{$sBasketItem.articlename|strip_tags|truncate:60}#}
-            {#</a>#}
+                {{ viewLineItem.name|striptags|truncate(60) }}
+            </a>
             {% endblock %}
 
             {# Product SKU number #}

@@ -649,11 +649,11 @@
 
                             {% block frontend_checkout_confirm_product_table_item_before %}{% endblock %}
 
-                            {#{* Delivery items *}#}
+                            {#{* Order items *}#}
                             {% block frontend_checkout_confirm_product_table_item_outer %}
                                 {% for viewPosition in cart.viewLineItems %}
                                     {% block frontend_checkout_confirm_product_table_item %}
-                                        {% sw_include "frontend/checkout/confirm/items/product.html.twig"
+                                        {% sw_include "frontend/checkout/confirm/confirm-item.html.twig"
                                         with {
                                         'isLast': loop.last,
                                         'viewLineItem': viewPosition,

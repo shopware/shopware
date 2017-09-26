@@ -39,7 +39,7 @@ use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
 
 class ProductPriceGatewayTest extends TestCase
 {
-    const QUERY_TO_UNLIMITED = 'beliebig';
+    const QUERY_TO_UNLIMITED = 0;
 
     public function testNoProductPricesDefined(): void
     {

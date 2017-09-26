@@ -16,7 +16,7 @@ abstract class ProductVoteAverageExtension implements ExtensionInterface, EventS
     public static function getSubscribedEvents()
     {
         return [
-            ProductVoteAverageBasicLoadedEvent::NAME => 'productVoteAverageBasicLoaded'
+            ProductVoteAverageBasicLoadedEvent::NAME => 'productVoteAverageBasicLoaded',
         ];
     }
 

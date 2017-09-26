@@ -38,12 +38,12 @@
                 {% endif %}
             </span>
 
-            <span class="badge is--primary is--minimal cart--quantity{% if sBasketQuantity < 1 %} is--hidden{% endif %}">{{ sBasketQuantity ?: '0' }}</span>
+            <span class="badge is--primary is--minimal cart--quantity{% if cartQuantity < 1 %} is--hidden{% endif %}">{{ cartQuantity ?: '0' }}</span>
 
             <i class="icon--basket"></i>
 
             <span class="cart--amount">
-                {{ sBasketAmount|number_format(2) }} {% trans from "frontend/listing/box_article" %}Star{% endtrans %}
+                {{ cartAmount|number_format(2) }} {% trans from "frontend/listing/box_article" %}Star{% endtrans %}
             </span>
         </a>
         <div class="ajax-loader">&nbsp;</div>

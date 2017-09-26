@@ -79,6 +79,11 @@ class StoreFrontCartService
      */
     private $orderPersister;
 
+    /**
+     * @var CartContainer
+     */
+    private $cartContainer;
+
     public function __construct(
         CartCalculator $calculation,
         CartPersisterInterface $persister,
@@ -151,23 +156,27 @@ class StoreFrontCartService
         $this->createNewCart();
     }
 
-    private function getCartContainer(): CartContainer
+    public function getCartContainer(): CartContainer
     {
+        if ($this->cartContainer) {
+            return $this->cartContainer;
+        }
+
         if ($this->getCartToken() === null) {
             //first access for frontend session
-            return $this->createNewCart();
+            return $this->cartContainer = $this->createNewCart();
         }
 
         try {
             //try to access existing cartContainer, identified by session token
-            return $this->persister->load($this->getCartToken());
+            return $this->cartContainer = $this->persister->load($this->getCartToken());
         } catch (\Exception $e) {
             $this->logger->error(
                 sprintf('Cart with token %s can not be loaded with message: %s', $this->getCartToken(), $e->getMessage())
             );
 
             //token not found, create new cartContainer
-            return $this->createNewCart();
+            return $this->cartContainer = $this->createNewCart();
         }
     }
 

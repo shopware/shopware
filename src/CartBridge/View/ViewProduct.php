@@ -30,6 +30,7 @@ use Shopware\Cart\Product\CalculatedProduct;
 use Shopware\Media\Struct\MediaBasicStruct;
 use Shopware\Product\Struct\ProductBasicStruct;
 use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
+use Shopware\ProductMedia\Struct\ProductMediaBasicStruct;
 
 class ViewProduct extends ProductBasicStruct implements ViewLineItemInterface
 {
@@ -47,6 +48,11 @@ class ViewProduct extends ProductBasicStruct implements ViewLineItemInterface
      * @var string
      */
     protected $type = 'product';
+
+    /**
+     * @var MediaBasicStruct
+     */
+    protected $cover;
 
     /**
      * {@inheritdoc}
@@ -81,11 +87,6 @@ class ViewProduct extends ProductBasicStruct implements ViewLineItemInterface
         return $product;
     }
 
-    public function getCover(): ? MediaBasicStruct
-    {
-        return null;
-    }
-
     public function jsonSerialize(): array
     {
         $data = parent::jsonSerialize();
@@ -109,5 +110,21 @@ class ViewProduct extends ProductBasicStruct implements ViewLineItemInterface
     public function getType(): string
     {
         return $this->type;
+    }
+
+    /**
+     * @return ProductMediaBasicStruct
+     */
+    public function getCover(): ?MediaBasicStruct
+    {
+        return $this->cover;
+    }
+
+    /**
+     * @param ProductMediaBasicStruct $media
+     */
+    public function setCover(?MediaBasicStruct $media)
+    {
+        $this->cover = $media;
     }
 }

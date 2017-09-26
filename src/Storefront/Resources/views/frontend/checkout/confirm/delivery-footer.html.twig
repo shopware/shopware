@@ -12,7 +12,9 @@
 
 {%  block frontend_checkout_cart_footer_field_labels %}
     <div class="shipping-address" style="margin: 16px;">
-        <div class="shipping-address--label" style="width: 65%; float: left; text-align: right; margin-right: 5%;"><b>Lieferadresse:</b></div>
+        <div class="shipping-address--label" style="width: 65%; float: left; text-align: right; margin-right: 5%;">
+            <b>{% trans from 'frontend/checkout/cart_footer' %}CartFooterPaymentMethod{% endtrans %}</b>
+        </div>
         <div class="shipping-address--content" style="width: 30%; float: left;">
             {{ location.address.street }}<br>
             {{ location.address.zipcode }} {{ location.address.city }}<br>
@@ -22,21 +24,30 @@
         <br style="clear: both;" />
     </div>
     <div class="delivery-date" style="margin: 20px 16px 16px 16px;">
-        <div class="delivery-date--label" style="width: 65%; float: left; text-align: right; margin-right: 5%;"><b>Lieferdatum:</b></div>
+        <div class="delivery-date--label" style="width: 65%; float: left; text-align: right; margin-right: 5%;">
+            <b>{% trans from 'frontend/checkout/cart_footer' %}CartFooterDeliveryDate{% endtrans %}:</b>
+        </div>
         <div class="delivery-date--content" style="width: 30%; float: left;">
-            Zwischen dem <i>{{ deliveryDate.earliest.date|date('d.m.Y') }}</i> und <i>{{ deliveryDate.latest.date|date('d.m.Y') }}</i>
+            {% trans from 'frontend/checkout/cart_footer' %}CartFooterDeliveryDetail{% endtrans %}
+            <i>{{ deliveryDate.earliest.date|date('d.m.Y') }}</i>
+            {% trans from 'frontend/checkout/cart_footer' %}CartFooterDeliveryDetailAnd{% endtrans %}
+            <i>{{ deliveryDate.latest.date|date('d.m.Y') }}</i>
         </div>
         <br style="clear: both;" />
     </div>
     <div class="shipping-method" style="margin: 20px 16px 16px 16px;">
-        <div class="shipping-method--label" style="width: 65%; float: left; text-align: right; margin-right: 5%;"><b>Versandart:</b></div>
+        <div class="shipping-method--label" style="width: 65%; float: left; text-align: right; margin-right: 5%;">
+            <b>{% trans from 'frontend/checkout/cart_footer' %}CartFooterShippingMethod{% endtrans %}</b>
+        </div>
         <div class="shipping-method--content" style="width: 30%; float: left;">
             {{ shippingMethod.name }}
         </div>
         <br style="clear: both;" />
     </div>
     <div class="shipping-costs" style="margin: 20px 16px 16px 16px;">
-        <div class="shipping-costs--label" style="width: 65%; float: left; text-align: right; margin-right: 5%;"><b>Versandkosten:</b></div>
+        <div class="shipping-costs--label" style="width: 65%; float: left; text-align: right; margin-right: 5%;">
+            <b>{% trans from 'frontend/checkout/cart_footer' %}CartFooterLabelShipping{% endtrans %}</b>
+        </div>
         <div class="shipping-costs--content" style="width: 30%; float: left;">
             {{ delivery.delivery.shippingCosts.totalPrice|localizedcurrency(context.currency.shortName) }}
         </div>

@@ -15,7 +15,12 @@ var plugins = {};
 var appEntry = baseWebpackConfig.entry.app;
 delete baseWebpackConfig.entry.app;
 
-// Try to load plugin definition file
+/**
+ * Try to load plugin definition file
+ *
+ * ToDo: module name path:
+ * { 'pluginName': 'complete/Path/To/Plugin/Resources/Views/src/+moduleName+/manifest.js' }
+ */
 try {
     plugins = require('../../../../../web/cache/config_nexus_plugins.json');
 

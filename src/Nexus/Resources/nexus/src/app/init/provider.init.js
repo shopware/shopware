@@ -1,5 +1,6 @@
 import EventEmitter from 'src/core/factory/event-emitter.factory';
 import ProductService from 'src/core/service/api/product/product.service';
+import ProductRepository from 'src/core/service/repository/product.repository';
 import OrderService from 'src/core/service/api/order/order.service';
 import CustomerService from 'src/core/service/api/customer/customer.service';
 import PaymentMethodService from 'src/core/service/api/payment_method/payment_method.service';
@@ -29,6 +30,7 @@ export default function initializeProviders(app, configuration, done) {
         .addProvider('eventEmitter', EventEmitter(eventSystem))
         .addProvider('stateContainer', stateContainer)
         .addProvider('productService', ProductService(httpClient))
+        .addProvider('productRepository', ProductRepository(httpClient))
         .addProvider('orderService', OrderService(httpClient))
         .addProvider('currencyService', CurrencyService(httpClient))
         .addProvider('shopService', ShopService(httpClient))

@@ -4,7 +4,7 @@ import './core-product-list.less';
 import template from './core-product-list.twig';
 
 export default Shopware.ComponentFactory.register('core-product-list', {
-    inject: ['productService'],
+    inject: ['productRepository'],
     mixins: [PaginationMixin],
 
     data() {
@@ -29,12 +29,13 @@ export default Shopware.ComponentFactory.register('core-product-list', {
     methods: {
         getData() {
             this.isWorking = true;
-            this.productService
-                .readAll(this.limit, this.offset)
-                .then((response) => {
-                    this.productList = response.data;
-                    this.errors = response.errors;
-                    this.total = response.total;
+            this.productRepository
+                .getList(this.limit, this.offset)
+                .then((listData) => {
+                    this.productListProxy = listData.listProxy;
+                    this.productList = listData.listProxy.data;
+                    this.total = listData.total;
+                    this.errors = listData.errors;
                     this.isWorking = false;
                 });
         }

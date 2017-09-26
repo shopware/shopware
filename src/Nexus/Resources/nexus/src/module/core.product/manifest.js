@@ -1,6 +1,5 @@
 import productList from 'module/core.product/src/components/page/core-product-list';
 import productDetail from 'module/core.product/src/components/page/core-product-detail';
-import productCreate from 'module/core.product/src/components/page/core-product-create';
 import productSidebar from 'module/core.product/src/components/organism/core-product-sidebar';
 import 'module/core.product/src/components';
 
@@ -23,7 +22,7 @@ export default {
         },
 
         create: {
-            component: productCreate,
+            component: productDetail,
             path: 'product/create',
             meta: {
                 parentPath: 'core.product.index'

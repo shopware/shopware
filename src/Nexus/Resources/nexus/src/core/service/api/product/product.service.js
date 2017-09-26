@@ -9,6 +9,7 @@ export default function ProductService(client) {
         readAll,
         readByUuid,
         updateByUuid,
+        create,
         getReturnFormat,
         setReturnFormat
     };
@@ -46,7 +47,7 @@ export default function ProductService(client) {
      * Updates a single product. Partial updates are supported using the {@param payload}.
      *
      * @param {String} uuid - Product UUID
-     * @param {Object} payload - Changeset
+     * @param {Object} payload - change set
      * @returns {Promise}
      */
     function updateByUuid(uuid, payload) {
@@ -55,6 +56,18 @@ export default function ProductService(client) {
         }
 
         return client.patch(`/product/${uuid}.json`, payload).then((response) => {
+            return response.data;
+        });
+    }
+
+    /**
+     * Creates a new product.
+     *
+     * @param {Object} payload - the data of the new product
+     * @returns {Promise}
+     */
+    function create(payload) {
+        return client.post('/product.json', payload).then((response) => {
             return response.data;
         });
     }

@@ -1,8 +1,8 @@
 <sw-workspace>
     <header class="toolbar--middle-section" slot="header">
         <h1 class="workspace--headline">
-            <span v-if="!isWorking">{{ product.name }} <span class="is--small">von {{ product.manufacturer.name }}</span></span>
-            <span v-else class="headline--empty">(lade Produkt...)</span>
+            <span v-if="product.name">{{ product.name }} <span v-if="product.manufacturer" class="is--small">von {{ product.manufacturer.name }}</span></span>
+            <span v-else class="headline--empty">(neues Produkt)</span>
         </h1>
 
         <div class="toolbar--primary-actions">

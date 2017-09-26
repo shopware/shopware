@@ -8,7 +8,6 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
         return {
             isWorking: false,
             product: {
-                manufacturer: {},
                 attribute: {},
                 mainDetail: {},
                 categories: [],
@@ -49,6 +48,11 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
         getProductData() {
             const uuid = this.$route.params.uuid;
 
+            if (!uuid) {
+                this.createNewProduct();
+                return;
+            }
+
             this.isWorking = true;
 
             this.productRepository.getByUuid(uuid).then((productProxy) => {
@@ -56,6 +60,13 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
                 this.product = productProxy.data;
                 this.isWorking = false;
             });
+        },
+
+        createNewProduct() {
+            const productProxy = this.productRepository.getNew();
+
+            this.productProxy = productProxy;
+            this.product = productProxy.data;
         },
 
         getManufacturerData() {
@@ -72,6 +83,16 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
 
         onSave() {
             const uuid = this.$route.params.uuid;
+
+            if (!uuid) {
+                this.isWorking = true;
+                this.productRepository.create(this.productProxy).then((data) => {
+                    if (data.uuid) {
+                        this.$router.push({ path: `/core/product/detail/${data.uuid}` });
+                    }
+                });
+                return;
+            }
 
             this.isWorking = true;
             this.productRepository.updateByUuid(uuid, this.productProxy).then(() => {

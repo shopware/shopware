@@ -1,12 +1,15 @@
 import ProductServiceFactory from './../api/product/product.service';
 import ProxyFactory from './../../factory/data-proxy.factory';
+import utils from './../util.service';
 
 export default function ProductRepository(client) {
     const ProductService = ProductServiceFactory(client);
 
     return {
+        getNew,
         getByUuid,
         updateByUuid,
+        create,
         getList
     };
 
@@ -41,7 +44,36 @@ export default function ProductRepository(client) {
 
         return ProductService.updateByUuid(uuid, proxy.changeSet).then((response) => {
             proxy.data = response.data;
+            return response.data;
         });
+    }
+
+    function create(proxy) {
+        return ProductService.create([proxy.data]).then((response) => {
+            if (response.errors.length) {
+                console.error(response.errors);
+                return Promise.reject(new Error('API error'));
+            }
+
+            proxy.data = response.data[0];
+            return response.data[0];
+        });
+    }
+
+    function getNew() {
+        const uuid = utils.createUuid();
+        const product = {
+            uuid: null,
+            taxUuid: 'SWAG-TAX-UUID-1',
+            mainDetailUuid: uuid,
+            manufacturerUuid: null,
+            details: [{
+                uuid,
+                name: ''
+            }]
+        };
+
+        return ProxyFactory.create(product);
     }
 
     function getList(limit, offset) {

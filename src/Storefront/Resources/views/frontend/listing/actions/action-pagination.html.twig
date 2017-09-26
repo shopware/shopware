@@ -1,0 +1,66 @@
+{# Paging which will be included in the "listing/listing_actions.tpl" #}
+
+<div class="listing--paging panel--paging">
+
+    {# Pagination label #}
+    {% block frontend_listing_actions_paging_label %}{% endblock %}
+
+    {# Pagination - Frist page #}
+    {% block frontend_listing_actions_paging_first %}
+        {% if sPage > 1 %}
+            <a href="{{ baseUrl }}?p=1" title="{% trans from 'frontend/listing/listing_actions' %}ListingLinkFirst{% endtrans %}" class="paging--link paging--prev" data-action-link="true">
+                <i class="icon--arrow-left"></i>
+                <i class="icon--arrow-left"></i>
+            </a>
+        {% endif %}
+    {% endblock %}
+
+    {# Pagination - Previous page #}
+    {% block frontend_listing_actions_paging_previous %}
+        {% if sPage > 1 %}
+            <a href="{{ baseUrl }}?p={{ sPage - 1 }}" title="{% trans from 'frontend/listing/listing_actions' %}ListingLinkPrevious{% endtrans %}" class="paging--link paging--prev" data-action-link="true">
+                <i class="icon--arrow-left"></i>
+            </a>
+        {% endif %}
+    {% endblock %}
+
+    {# Pagination - current page #}
+    {% block frontend_listing_actions_paging_numbers %}
+        {% if pages > 1 %}
+            <a title="{{ sCategoryContent.name }}" class="paging--link is--active">{{ sPage }}</a>
+        {% endif %}
+    {% endblock %}
+
+    {# Pagination - Next page #}
+    {% block frontend_listing_actions_paging_next %}
+        {% if sPage < pages %}
+            <a href="{{ baseUrl }}?p={{ sPage+1 }}" title="{% trans from 'frontend/listing/listing_actions' %}ListingLinkNext{% endtrans %}" class="paging--link paging--next" data-action-link="true">
+                <i class="icon--arrow-right"></i>
+            </a>
+        {% endif %}
+    {% endblock %}
+
+    {# Pagination - Last page #}
+    {% block frontend_listing_actions_paging_last %}
+        {% if sPage < pages %}
+            <a href="{{ baseUrl }}?p={{ pages }}" title="{% trans from 'frontend/listing/listing_actions' %}ListingLinkLast{% endtrans %}" class="paging--link paging--next" data-action-link="true">
+                <i class="icon--arrow-right"></i>
+                <i class="icon--arrow-right"></i>
+            </a>
+        {% endif %}
+    {% endblock %}
+
+    {# Pagination - Number of pages #}
+    {% block frontend_listing_actions_count %}
+        {% if pages > 1 %}
+            <span class="paging--display">
+                {% trans from 'frontend/listing/listing_actions' %}ListingTextFrom{% endtrans %} <strong>{{ pages }}</strong>
+            </span>
+        {% endif %}
+    {% endblock %}
+
+    {# Products per page selection #}
+    {% block frontend_listing_actions_items_per_page %}
+        {% sw_include '@Storefront/frontend/listing/actions/action-per-page.html.twig' %}
+    {% endblock %}
+</div>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="{encoding}" ?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+<link href="{{ navigation.activeCategory.atomFeed }}" rel="self" type="application/atom+xml" />
+<author>
+    <name>{{ shopware.config.shopName }}</name>
+</author>
+<title>{% block frontend_listing_atom_title %}{{ navigation.activeCategory.description }}{% endblock %} }</title>
+<id>{{ navigation.activeCategory.rssFeed }}</id>
+<updated>{{ "now"|date('ATOM') }}</updated>
+{% for product in products %}
+    {% block frontend_listing_atom_entry %}
+        <entry>
+            <title type="text">{% block frontend_listing_atom_article_title %}{% spaceless %}{{ product.name|striptags|truncate(80, true) }}{% endspaceless %}{% endblock %}</title>
+            <id>{% block frontend_listing_atom_article_name %}{{ product.linkDetails }}{% endblock %}</id>
+            <link href="{% block frontend_listing_atom_link %}{{ product.linkDetails }}{% endblock %}"/>
+            <summary type="html">
+            <![CDATA[
+                {% block frontend_listing_atom_short_description %}
+                {% if product.description %}
+                    {% spaceless %}{{ product.description|striptags|truncate(280, true) }}{% endspaceless %}
+                {% else %}
+                    {% spaceless %}{{ product.descriptionLong|striptags|truncate(280, true) }}{% endspaceless %}
+                {% endif %}{% endblock %}
+            ]]>
+            </summary>
+            <content type="html">
+            <![CDATA[
+                {{ product.descriptionLong|striptags }}
+            ]]>
+            </content>
+            <updated>{% if product.updated_at %}{{ product.updated_at|date('ATOM') }}{% else %}{{ product.created_at|date('ATOM') }}{% endif %}</updated>
+        </entry>
+    {% endblock %}
+{% endfor %}
+</feed>

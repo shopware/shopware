@@ -1,6 +1,4 @@
-{% sw_extends "@Shopware/frontend/listing/product-box/box-basic.html.twig" %}
-
-{#{namespace name="frontend/listing/box_article"}#}
+{% sw_extends "@Storefront/frontend/listing/product-box/box-basic.html.twig" %}
 
 {% block frontend_listing_box_article_description %}{% endblock %}
 
@@ -16,16 +14,16 @@
                     <span class="price--pseudo">
 
                         {% block frontend_listing_box_article_price_discount_before %}
-                            {#{s name="priceDiscountLabel" namespace="frontend/detail/data"}{/s}#}
+                            {% trans from 'frontend/detail/data' %}priceDiscountLabel{% endtrans %}
                         {% endblock %}
 
                         <span class="price--discount is--nowrap">
                             {{ sArticle.pseudoprice|localizedcurrency(context.currency.shortName) }}
-                            {#{s name="Star"}{/s}#}
+                            {% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
                         </span>
 
                         {% block frontend_listing_box_article_price_discount_after %}
-                            {#{s name="priceDiscountInfo" namespace="frontend/detail/data"}{/s}#}
+                            {% trans from 'frontend/detail/data' %}priceDiscountInfo{% endtrans %}
                         {% endblock %}
                     </span>
                 {% endif %}

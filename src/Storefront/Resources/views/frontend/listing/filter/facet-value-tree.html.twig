@@ -1,0 +1,82 @@
+{#{namespace name="frontend/listing/listing_actions"}#}
+
+{% block frontend_listing_filter_facet_value_tree %}
+    {% set filterType = 'value-tree' %}
+    {% set listingMode = shopware.config.listingMode %}
+    {% if listingMode == 'filter_ajax_reload' %}
+        {% set type = 'value-tree-single' %}
+    {% endif %}
+
+    <div class="filter-panel filter--value-tree facet--{{ facet.facetName }}"
+         data-filter-type="{{ filterType }}"
+         data-facet-name="{{ facet.facetName }}"
+         data-field-name="{{ facet.fieldName }}">
+
+        {% block frontend_listing_filter_facet_value_tree_flyout %}
+            <div class="filter-panel--flyout">
+
+                {% block frontend_listing_filter_facet_value_tree_title %}
+                    <label class="filter-panel--title">
+                        {{ facet.label }}
+                    </label>
+                {% endblock %}
+
+                {% block frontend_listing_filter_facet_value_tree_icon %}
+                    <span class="filter-panel--icon"></span>
+                {% endblock %}
+
+                {% block frontend_listing_filter_facet_value_tree_content %}
+                    <div class="filter-panel--content">
+
+                        {% block frontend_listing_filter_facet_value_tree_list %}
+
+                            {#{function name=valueTree level=0}#}
+                                {#<ul class="filter-panel--option-list{% if level > 0 %} sub-level level--{{ level }}{% endif %}">#}
+                                    {#{% for option in options %}#}
+
+                                        {#{% block frontend_listing_filter_facet_value_tree_option %}#}
+                                            {#<li class="filter-panel--option value-tree--option">#}
+
+                                                {#{% block frontend_listing_filter_facet_value_tree_option_container %}#}
+                                                    {#<div class="option--container value-tree--container">#}
+                                                        {#{% set disabled = option.active and facet.active %}#}
+
+                                                        {#{% block frontend_listing_filter_facet_value_tree_input %}#}
+                                                            {#<span class="filter-panel--input{if $disabled} is--disabled{% endif %}">#}
+                                                                {#<input type="checkbox"#}
+                                                                       {#data-parent-id="{{ parent }}"#}
+                                                                       {#id="__{{ facet->getFieldName() }}__{{ option->getId() }}"#}
+                                                                       {#name="__{{ facet->getFieldName() }}__{{ option->getId() }}"#}
+                                                                       {#value="{{ option->getId() }}"#}
+                                                                       {#{% if option.isActive %}checked="checked"{elseif $disabled}disabled="disabled"{% endif %}/>#}
+
+                                                                {#<span class="input--state">&nbsp;</span>#}
+                                                            {#</span>#}
+                                                        {#{% endblock %}#}
+
+                                                        {#{% block frontend_listing_filter_facet_value_tree_label"}#}
+                                                            {#<label class="filter-panel--label value-tree--label"#}
+                                                                   {#for="__{{ facet->getFieldName()}__{{ option->getId()}">#}
+                                                                {#{{ option->getLabel()}#}
+                                                            {#</label>#}
+                                                        {#{% endblock %}#}
+                                                    {#</div>#}
+                                                {#{% endblock %}#}
+
+                                                {#{% if !empty($option->getValues()) %}#}
+                                                    {#{valueTree options=$option->getValues() level=$level+1 parent=$option->getId()}#}
+                                                {#{% endif %}#}
+                                            {#</li>#}
+                                        {#{% endblock %}#}
+                                    {#{% endfor %}#}
+                                {#</ul>#}
+                            {#{/function}#}
+
+                            {#{valueTree options=$facet->getValues() parent=null}#}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

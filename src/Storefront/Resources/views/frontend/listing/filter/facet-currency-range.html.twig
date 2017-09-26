@@ -1,0 +1,12 @@
+{% sw_extends '@Storefront/frontend/listing/filter/facet-range.html.twig' %}
+
+{% block frontend_listing_filter_facet_range_slider_config %}
+    {% set startMin = facet.activeMin %}
+    {% set startMax = facet.activeMax %}
+    {% set rangeMin = facet.min %}
+    {% set rangeMax = facet.max %}
+    {% set roundPretty = 'false' %}
+    {% set format = 0|localizedcurrency(context.currency.shortName) %}
+    {% set stepCount = 100 %}
+    {% set stepCurve = 'linear' %}
+{% endblock %}

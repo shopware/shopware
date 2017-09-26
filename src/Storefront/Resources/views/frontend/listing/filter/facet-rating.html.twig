@@ -1,0 +1,52 @@
+{% block frontend_listing_filter_facet_rating %}
+    <div class="filter-panel filter--rating facet--{{ facet.facetName }}"
+         data-filter-type="rating"
+         data-facet-name="{{ facet.facetName }}"
+         data-field-name="{{ facet.fieldName }}">
+
+        {% block frontend_listing_filter_facet_rating_flyout %}
+            <div class="filter-panel--flyout">
+
+                {% block frontend_listing_filter_facet_rating_title %}
+                    <label class="filter-panel--title">
+                        {{ facet.label }}
+                    </label>
+                {% endblock %}
+
+                {% block frontend_listing_filter_facet_rating_icon %}
+                    <span class="filter-panel--icon"></span>
+                {% endblock %}
+
+                {% block frontend_listing_filter_facet_rating_content %}
+                    <div class="filter-panel--content">
+
+                        {% block frontend_listing_filter_facet_rating_stars %}
+                            <div class="filter-panel--star-rating">
+                                {% for value in facet.values %}
+                                    {% block frontend_listing_filter_facet_rating_container %}
+                                        <label for="rating_{{ value.id }}" class="rating-star--outer-container{% if value.isActive %} is--active{% endif %}">
+                                            <input class="is--hidden" type="checkbox" name="rating" id="rating_{{ value.id }}" value="{{ value.id }}" {% if value.isActive %}checked="checked" {% endif %}/>
+
+                                            {% set start = 1 %}
+                                            {% set count = value.id %}
+                                            {% for i in range(start, count) %}
+                                                <i class="icon--star"></i>
+                                            {% endfor %}
+
+                                            {% set start = value.id + 1 %}
+                                            {% set count = 5 %}
+                                            {% for i in range(start, count) %}
+                                                <i class="icon--star-empty"></i>
+                                            {% endfor %}
+                                            <span class="rating-star--suffix">{s name="RatingStarSuffix"}& more{/s}</span>
+                                        </label>
+                                    {% endblock %}
+                                {% endfor %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

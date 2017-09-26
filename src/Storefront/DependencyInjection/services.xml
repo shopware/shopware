@@ -48,6 +48,14 @@
             <tag name="twig.extension" />
         </service>
 
+        <service id="twig.extension.text" class="Twig_Extensions_Extension_Text">
+            <tag name="twig.extension" />
+        </service>
+
+        <service id="shopware.storefront.twig.instance_of_extension" class="Shopware\Storefront\Twig\InstanceOfExtension">
+            <tag name="twig.extension"/>
+        </service>
+
         <service id="shopware.storefront.component.theme.config_reader" class="Shopware\Storefront\Theme\ThemeConfigReader">
             <argument type="service" id="dbal_connection" />
         </service>

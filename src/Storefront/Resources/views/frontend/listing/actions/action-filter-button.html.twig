@@ -1,0 +1,18 @@
+{# Filter button which will be included in the "listing/listing_actions.tpl" #}
+
+{% block frontend_listing_actions_filter_button %}
+    {% if facets|length > 0 %}
+        <div class="action--filter-btn">
+            <a href="#"
+               class="filter--trigger btn is--small"
+               data-filter-trigger="true"
+               data-offcanvas="true"
+               data-offCanvasSelector=".action--filter-options"
+               data-closeButtonSelector=".filter--close-btn">
+                <i class="icon--filter"></i>
+                {% trans from 'frontend/listing/listing_actions' %}ListingFilterButton{% endtrans %}
+                <span class="action--collapse-icon"></span>
+            </a>
+        </div>
+    {% endif %}
+{% endblock %}

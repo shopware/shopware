@@ -12,23 +12,23 @@
         </span>
      {% endblock %}
 
-    {#{% block frontend_listing_box_article_price_discount %}#}
-        {#{% if $sArticle.has_pseudoprice}#}
-            {#<span class="price--pseudo">#}
+    {% block frontend_listing_box_article_price_discount %}
+        {% if product.has_pseudoprice %}
+            <span class="price--pseudo">
 
-                {#{% block frontend_listing_box_article_price_discount_before'}#}
-                    {#{s name="priceDiscountLabel" namespace="frontend/detail/data"}{/s}#}
-                 {#{% endblock %}#}
+                {% block frontend_listing_box_article_price_discount_before %}
+                    {% trans from 'frontend/detail/data' %}priceDiscountLabel{% endtrans %}
+                 {% endblock %}
 
-                {#<span class="price--discount is--nowrap">#}
-                    {#{$sArticle.pseudoprice|currency}#}
-                    {#{s name="Star"}{/s}#}
-                {#</span>#}
+                <span class="price--discount is--nowrap">
+                    {{ product.pseudoprice|localizedcurrency(context.currency.shortName) }}
+                    {% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
+                </span>
 
-                {#{% block frontend_listing_box_article_price_discount_after'}#}
-                    {#{s name="priceDiscountInfo" namespace="frontend/detail/data"}{/s}#}
-                 {#{% endblock %}#}
-            {#</span>#}
-        {#{% endif %}>#}
-     {#{% endblock %}#}
+                {% block frontend_listing_box_article_price_discount_after %}
+                    {% trans from 'frontend/detail/data' %}priceDiscountInfo{% endtrans %}
+                {% endblock %}
+            </span>
+        {% endif %}
+     {% endblock %}
 </div>

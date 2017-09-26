@@ -1,0 +1,35 @@
+{# Sorting filter which will be included in the "listing/listing_actions.tpl" #}
+
+{% set hideSortings = sCategoryContent.hide_sortings or sortings|length == 0 %}
+
+<form class="action--sort action--content block{% if hideSortings %} is--hidden{% endif %}" method="get" data-action-form="true">
+
+    {# Necessary to reset the page to the first one #}
+    <input type="hidden" name="{{ shortParameters.sPage }}" value="1">
+
+    {# Sorting label #}
+    {% block frontend_listing_actions_sort_label %}
+        <label class="sort--label action--label">{% trans from 'frontend/listing/listing_actions' %}ListingLabelSort{% endtrans %}</label>
+    {% endblock %}
+
+    {# Sorting field #}
+    {% block frontend_listing_actions_sort_field %}
+        {% set listingMode = shopware.config.listingMode %}
+
+        <div class="sort--select select-field">
+            <select name="{{ shortParameters.sSort }}"
+                    class="sort--field action--field"
+                    data-auto-submit="true"
+                    {% if listingMode != 'full_page_reload' %}data-loadingindicator="false"{% endif %}>
+
+                {% for sorting in sortings %}
+                    {% block frontend_listing_actions_sort_field_release %}
+                        <option value="{{ sorting.id }}"{% if sSort == sorting.id %} selected="selected"{% endif %}>{{ sorting.label }}</option>
+                    {% endblock %}
+                {% endfor %}
+
+                {% block frontend_listing_actions_sort_values %}{% endblock %}
+            </select>
+        </div>
+    {% endblock %}
+</form>

@@ -1,0 +1,82 @@
+{% sw_extends '@Storefront/frontend/listing/index.html.twig' %}
+
+{% block frontend_index_header_meta_tags_opengraph %}
+    {% set description = "{% trans from 'frontend/listing/listing' %}IndexMetaDescriptionStandard{% endtrans %}" %}
+    {% if manufacturer.description %}
+        {% set description = manufacturer.description|striptags|truncate(240,true) %}
+    {% endif %}
+
+    <meta property="og:type" content="product" />
+    <meta property="og:site_name" content="{{ shopware.config.shopName }}" />
+    <meta property="og:title" content="{{ manufacturer.name }}" />
+    <meta property="og:description" content="{{ description }}" />
+
+    <meta name="twitter:card" content="product" />
+    <meta name="twitter:site" content="{{ shopware.config.shopName }}" />
+    <meta name="twitter:title" content="{{ manufacturer.name }}" />
+    <meta name="twitter:description" content="{{ description }}" />
+
+    {# Images #}
+    {% if manufacturer.coverFile %}
+        <meta property="og:image" content="{{ manufacturer.coverFile }}" />
+        <meta name="twitter:image" content="{{ manufacturer.coverFile }}" />
+    {% else %}
+        {#<meta property="og:image" content="{link file=$theme.desktopLogo fullPath}" />#}
+        {#<meta name="twitter:image" content="{link file=$theme.desktopLogo fullPath}" />#}
+    {% endif %}
+{% endblock %}
+
+{% block frontend_listing_listing_content %}
+    <div class="listing"
+         data-ajax-wishlist="true"
+         data-compare-ajax="true"
+            {% if theme.infiniteScrolling %}
+            data-infinite-scrolling="true"
+            {#data-ajaxUrl="{url module="widgets" controller="Listing" action="ajaxListing" sSupplier=$manufacturer->getId()}"#}
+            data-loadPreviousSnippet="{% trans from 'frontend/listing/listing' %}ListingActionsLoadPrevious{% endtrans %}"
+            data-loadMoreSnippet="{% trans from 'frontend/listing/listing' %}ListingActionsLoadMore{% endtrans %}"
+            data-categoryId="{{ navigation.activeCategory.id }}"
+            data-pages="{{ pages }}"
+            data-threshold="{{ theme.infiniteThreshold }}"{% endif %}>
+
+        {# Actual listing #}
+        {% block frontend_listing_list_inline %}
+            {% for product in product %}
+                {% sw_include '@Storefront/frontend/listing/box_product.html.twig' %}
+            {% endfor %}
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% block frontend_listing_text %}
+    <div class="vendor--info panel has--border">
+
+        {# Vendor headline #}
+        {% block frontend_listing_list_filter_supplier_headline %}
+            <h1 class="panel--title is--underline">
+                {% trans from 'frontend/listing/listing' %}ListingInfoFilterSupplier{% endtrans %} {{ manufacturer.name }}
+            </h1>
+        {% endblock %}
+
+        {# Vendor content e.g. description and logo #}
+        {% block frontend_listing_list_filter_supplier_content %}
+            <div class="panel--body is--wide">
+
+                {% if manufacturer.coverFile %}
+                    <div class="vendor--image-wrapper">
+                        <img class="vendor--image" src="{{ manufacturer.coverFile }}" alt="{{ manufacturer.name }}">
+                    </div>
+                {% endif %}
+
+                {% if manufacturer.description %}
+                    <div class="vendor--text">
+                        {{ manufacturer.description }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% block frontend_listing_index_topseller %}
+{% endblock %}

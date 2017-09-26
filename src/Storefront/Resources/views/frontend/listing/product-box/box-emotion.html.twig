@@ -1,0 +1,113 @@
+{% sw_extends '@Storefront/frontend/listing/product-box/box-basic.html.twig' %}
+
+{#{namespace name="frontend/listing/box_article"}#}
+
+{% block frontend_listing_box_article %}
+    <div class="product--box box--{$productBoxLayout}" data-ordernumber="{{ product.ordernumber }}">
+        {% set productName = product.name %}
+        {% if product.additionaltext %}
+            {% set productName = productName ~ ' ' ~ product.additionaltext %}
+        {% endif %}
+
+        {% block frontend_listing_box_article_content %}
+            <div class="box--content">
+
+                {# Product badges #}
+                {% block frontend_listing_box_article_badges %}
+                    {% if not imageOnly %}
+                        {% sw_include '@Storefront/frontend/listing/product-box/product-badges.html.twig' %}
+                    {% endif %}
+                {% endblock %}
+
+                {% block frontend_listing_box_article_info_container %}
+                    <div class="product--info">
+
+                        {# Product image #}
+                        {% block frontend_listing_box_article_picture %}
+                            <a href="{{ product.linkDetails }}"
+                               title="{{ productName }}"
+                               class="product--image{% if imageOnly %} is--large{% endif %}">
+
+                                {% block frontend_listing_box_article_image_element %}
+                                    <span class="image--element">
+
+                                        {% block frontend_listing_box_article_image_media %}
+                                            <span class="image--media">
+
+                                                {% block frontend_listing_box_article_image_picture %}
+                                                    {% if product.image.thumbnails %}
+
+                                                        {% set baseSource = product.image.thumbnails[0].source %}
+
+                                                        {% if itemCols and emotion.grid.cols and not fixedImageSize %}
+                                                            {% set colSize = 100 / emotion.grid.cols %}
+                                                            {% set itemSize = "{$itemCols # $colSize}vw" %}
+                                                        {% else %}
+                                                            {% set itemSize = "200px" %}
+                                                        {% endif %}
+
+                                                        {% for image in product.image.thumbnails %}
+                                                            {% set srcSet = "{% if loop.index not same as (0) %}{{ srcSet }}, {% endif %}{{ image.source }} {{ image.maxWidth }}w" %}
+
+                                                            {% if image.retinaSource %}
+                                                                {% set srcSetRetina = "{% if loop.index not same as (0) %}{{ srcSetRetina }}, {% endif %}{{ image.retinaSource }} {{ image.maxWidth }}w" %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% elseif product.image.source %}
+                                                        {% set baseSource = product.image.source %}
+                                                    {% else %}
+                                                        {% set baseSource = "{link file='frontend/_public/src/img/no-picture.jpg'}" %}
+                                                    {% endif %}
+
+                                                    {% set desc = productName %}
+
+                                                    {% if product.image.description %}
+                                                        {% set desc = product.image.description %}
+                                                    {% endif %}
+                                                    <picture>
+                                                        {% if srcSetRetina %}<source sizes="(min-width: 48em) {{ itemSize }}, 100vw" srcset="{$srcSetRetina}" media="(min-resolution: 192dpi)" />{% endif %}
+                                                        {% if srcSet %}<source sizes="(min-width: 48em) {{ itemSize }}, 100vw" srcset="{{ srcSet }}" />{% endif %}
+                                                        <img src="{{ baseSource }}" alt="{{ desc }}" title="{{ desc|truncate(160, true) }}"/>
+                                                    </picture>
+                                                {% endblock %}
+                                            </span>
+                                        {% endblock %}
+                                    </span>
+                                {% endblock %}
+                            </a>
+                        {% endblock %}
+
+                        {% if not imageOnly %}
+                            <div class="product--details">
+
+                                {# Product name #}
+                                {% block frontend_listing_box_article_name %}
+                                    <a href="{{ product.linkDetails }}"
+                                       class="product--title"
+                                       title="{{ productName }}">
+                                        {{ productName|truncate(50, true) }}
+                                    </a>
+                                {% endblock %}
+
+                                {% block frontend_listing_box_article_price_info %}
+                                    <div class="product--price-info">
+
+                                        {# Product price - Unit price #}
+                                        {% block frontend_listing_box_article_unit %}
+                                            {% sw_include '@Storefront/frontend/listing/product-box/product-price-unit.html.twig' %}
+                                        {% endblock %}
+
+                                        {# Product price - Default and discount price #}
+                                        {% block frontend_listing_box_article_price %}
+                                            {% sw_include '@Storefront/frontend/listing/product-box/product-price.html.twig' %}
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

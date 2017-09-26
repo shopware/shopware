@@ -1,0 +1,94 @@
+{% block frontend_listing_filter_facet_multi_selection %}
+    <div class="filter-panel filter--multi-selection filter-facet--{{ filterType }} facet--{{ facet.facetName }}"
+         data-filter-type="{{ filterType }}"
+         data-facet-name="{{ facet.facetName }}"
+         data-field-name="{{ facet.fieldName }}">
+
+        {% block frontend_listing_filter_facet_multi_selection_flyout %}
+            <div class="filter-panel--flyout">
+
+                {% block frontend_listing_filter_facet_multi_selection_title %}
+                    <label class="filter-panel--title" for="{$facet->getFieldName()}">
+                        {{ facet.label }}
+                    </label>
+                {% endblock %}
+
+                {% block frontend_listing_filter_facet_multi_selection_icon %}
+                    <span class="filter-panel--icon"></span>
+                {% endblock %}
+
+                {% block frontend_listing_filter_facet_multi_selection_content %}
+                    {% set inputType = 'checkbox' %}
+
+                    {% if filterType == 'radio' %}
+                        {% set inputType = 'radio' %}
+                    {% endif %}
+
+                    {% set indicator = inputType %}
+
+                    {% set isMediaFacet = false %}
+                    {% if facet is instanceof('Shopware\\Bundle\\SearchBundle\\FacetResult\\MediaListFacetResult') %}
+                        {% set isMediaFacet = true %}
+
+                        {% set indicator = 'media' %}
+                    {% endif %}
+
+                    <div class="filter-panel--content input-type--{{ indicator }}">
+
+                        {% block frontend_listing_filter_facet_multi_selection_list %}
+                            <ul class="filter-panel--option-list">
+
+                                {% for option in facet.values %}
+
+                                    {% block frontend_listing_filter_facet_multi_selection_option %}
+                                        <li class="filter-panel--option">
+
+                                            {% block frontend_listing_filter_facet_multi_selection_option_container %}
+                                                <div class="option--container">
+
+                                                    {% block frontend_listing_filter_facet_multi_selection_input %}
+                                                        <span class="filter-panel--input">
+                                                            {% set name = "__" ~  facet.fieldName ~ "__" ~ option.id %}
+                                                            {% if filterType == 'radio' %}
+                                                                {% set name = facet.fieldName %}
+                                                            {% endif %}
+
+                                                            <input type="{{ inputType }}"
+                                                                   id="'__' ~ {{ facet.fieldName }} ~ '__' ~ {{ option.id }}"
+                                                                   name="{{ name }}"
+                                                                   value="{{ option.id }}"
+                                                                   {% if option.isActive %}checked="checked" {% endif %}/>
+
+                                                            <span class="input--state">&nbsp;</span>
+                                                        </span>
+                                                    {% endblock %}
+
+                                                    {% block frontend_listing_filter_facet_multi_selection_label %}
+                                                        <label class="filter-panel--label"
+                                                               for="'__' ~ {{ facet.fieldName }} ~ '__' ~ {{ option.id }}">
+
+                                                            {% if facet is instanceof('Shopware\\Bundle\\SearchBundle\\FacetResult\\MediaListFacetResult') %}
+                                                                {% set mediaFile = asset('bundles/storefront/src/img/no-picture.jpg') %}
+                                                                {% if option.media is defined %}
+                                                                    {% set mediaFile = option.media.file %}
+                                                                {% endif %}
+
+                                                                <img class="filter-panel--media-image" src="{{ mediaFile }}" alt="{{ option.label }}" />
+                                                            {% else %}
+                                                                {{ option.label }}
+                                                            {% endif %}
+                                                        </label>
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
+                                        </li>
+                                    {% endblock %}
+                                {% endfor %}
+                            </ul>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

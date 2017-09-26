@@ -1,4 +1,4 @@
-{% sw_extends "@Shopware/frontend/listing/product-box/box-basic.html.twig" %}
+{% sw_extends "@Storefront/frontend/listing/product-box/box-basic.html.twig" %}
 
 {#{namespace name="frontend/listing/box_article"}#}
 
@@ -14,19 +14,19 @@
 {% endif %}
 
 <a href="{{ url }}"
-   title="{{ product.name|escape }}"
+   title="{{ product.name }}"
    class="product--image">
     {% block frontend_listing_box_article_image_element %}
     <span class="image--element">
             {% block frontend_listing_box_article_image_media %}
                 <span class="image--media">
 
-                    {#{$desc = $sArticle.articleName|escape}#}
+                    {#{$desc = $sArticle.articleName}#}
 
                     {#{if isset($sArticle.image.thumbnails)}#}
 
                         {#{if $sArticle.image.description}#}
-                            {#{$desc = $sArticle.image.description|escape}#}
+                            {#{$desc = $sArticle.image.description}#}
                         {#{/if}#}
 
                         {#{% block frontend_listing_box_article_image_picture_element %}#}
@@ -37,8 +37,8 @@
                     {#{else}#}
 
                         <img src="{{ asset('bundles/storefront/src/img/no-picture.jpg') }} %}"
-                             alt="{{ product.name|escape }}"
-                             title="{{ product.name|escape }}" />
+                             alt="{{ product.name }}"
+                             title="{{ product.name }}" />
                     {#{/if}#}
                 </span>
             {% endblock %}

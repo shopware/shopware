@@ -1,9 +1,9 @@
-{% sw_extends '@Shopware/frontend/index/header.html.twig' %}
+{% sw_extends '@Storefront/frontend/index/header.html.twig' %}
 
 {# Keywords #}
 {% block frontend_index_header_meta_keywords %}
     {% if navigation.activeCategory.metaKeywords %}
-        {{ navigation.activeCategory.metaKeywords|escape('html') }}
+        {{ navigation.activeCategory.metaKeywords }}
     {% endif %}
 {% endblock %}
 
@@ -14,23 +14,23 @@
     {% endset %}
     {% if navigation.activeCategory.cmsDescription %}
         {% set description %}
-            {{ navigation.activeCategory.cmsDescription|trim|striptags|slice(0,240)|escape('html') }}
+            {{ navigation.activeCategory.cmsDescription|trim|striptags|truncate(240, true) }}
         {% endset %}
     {% elseif navigation.activeCategory.metaDescription %}
         {% set description %}
-            {{ navigation.activeCategory.metaDescription|trim|striptags|escape('html') }}
+            {{ navigation.activeCategory.metaDescription|trim|striptags }}
         {% endset %}
     {% endif %}
 
     <meta property="og:type" content="product" />
-    <meta property="og:site_name" content="{{ shopware.config.shopName|escape('html') }}" />
-    <meta property="og:title" content="{{ navigation.activeCategory.name|escape('html') }}" />
-    <meta property="og:description" content="{{ description|escape('html') }}" />
+    <meta property="og:site_name" content="{{ shopware.config.shopName }}" />
+    <meta property="og:title" content="{{ navigation.activeCategory.name }}" />
+    <meta property="og:description" content="{{ description }}" />
 
     <meta name="twitter:card" content="product" />
-    <meta name="twitter:site" content="{{ shopware.config.shopName|escape('html') }}" />
-    <meta name="twitter:title" content="{{ navigation.activeCategory.name|escape('html') }}" />
-    <meta name="twitter:description" content="{{ description|escape('html') }}" />
+    <meta name="twitter:site" content="{{ shopware.config.shopName }}" />
+    <meta name="twitter:title" content="{{ navigation.activeCategory.name }}" />
+    <meta name="twitter:description" content="{{ description }}" />
 
     {# Images #}
     {% if navigation.activeCategory.media.fileName %}
@@ -50,7 +50,7 @@
 {% endblock %}
 
 {# Description #}
-{% block frontend_index_header_meta_description %}{% if navigation.activeCategory.metaDescription %}{{ navigation.activeCategory.metaDescription|striptags|escape }}{% else %}{% trans from 'frontend/index/header' %}IndexMetaDescriptionStandard{% endtrans %}{% endif %}{% endblock %}
+{% block frontend_index_header_meta_description %}{% if navigation.activeCategory.metaDescription %}{{ navigation.activeCategory.metaDescription|striptags }}{% else %}{% trans from 'frontend/index/header' %}IndexMetaDescriptionStandard{% endtrans %}{% endif %}{% endblock %}
 
 {# Canonical link #}
 {% block frontend_index_header_canonical %}
@@ -82,9 +82,9 @@
 {% block frontend_index_header_title %}
     {#{strip}#}
     {% if navigation.activeCategory.metaTitle %}
-        {{ navigation.activeCategory.metaTitle|escape('html') }} | {{ shopware.config.shopName|escape('html') }}
+        {{ navigation.activeCategory.metaTitle }} | {{ shopware.config.shopName }}
     {% elseif navigation.activeCategory.name %}
-        {{ navigation.activeCategory.name|escape('html') }} | {{ shopware.config.shopName|escape('html') }}
+        {{ navigation.activeCategory.name }} | {{ shopware.config.shopName }}
     {% else %}
         {{ parent() }}
     {% endif %}

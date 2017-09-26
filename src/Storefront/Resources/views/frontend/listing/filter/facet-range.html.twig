@@ -1,0 +1,99 @@
+{% block frontend_listing_filter_facet_range %}
+    <div class="filter-panel filter--range facet--{{ facet.facetName }}"
+         data-filter-type="range"
+         data-facet-name="{{ facet.facetName }}"
+         data-field-name="{{ facet.facetName }}">
+
+        {% block frontend_listing_filter_facet_range_flyout %}
+            <div class="filter-panel--flyout">
+
+                {% block frontend_listing_filter_facet_range_title %}
+                    <label class="filter-panel--title">
+                        {{ facet.label }}
+                    </label>
+                {% endblock %}
+
+                {% block frontend_listing_filter_facet_range_icon %}
+                    <span class="filter-panel--icon"></span>
+                {% endblock %}
+
+                {% block frontend_listing_filter_facet_range_content %}
+                    <div class="filter-panel--content">
+
+                        {% block frontend_listing_filter_facet_range_slider %}
+                            {% set startMin = facet.activeMin %}
+                            {% set startMax = facet.activeMax %}
+                            {% set rangeMin = facet.min %}
+                            {% set rangeMax = facet.max %}
+                            {% set roundPretty = 'false' %}
+                            {% set format = '' %}
+                            {% set stepCount = 100 %}
+                            {% set stepCurve = 'linear' %}
+
+                            <div class="range-slider"
+                                 data-range-slider="true"
+                                 data-roundPretty="{{ roundPretty }}"
+                                 data-labelFormat="{{ format }}"
+                                 data-stepCount="{{ stepCount }}"
+                                 data-stepCurve="{{ stepCurve }}"
+                                 data-startMin="{{ startMin }}"
+                                 data-startMax="{{ startMax }}"
+                                 data-rangeMin="{{ rangeMin }}"
+                                 data-rangeMax="{{ rangeMax }}">
+
+                                {% block frontend_listing_filter_facet_range_input_min %}
+                                    <input type="hidden"
+                                           id="{{ facet.minFieldName }}"
+                                           name="{{ facet.minFieldName }}"
+                                           data-range-input="min"
+                                           value="{{ startMin }}" {% if not facet.isActive or startMin == 0 %}disabled="disabled" {% endif %}/>
+                                {% endblock %}
+
+                                {% block frontend_listing_filter_facet_range_input_max %}
+                                    <input type="hidden"
+                                           id="{{ facet.maxFieldName }}"
+                                           name="{{ facet.maxFieldName }}"
+                                           data-range-input="max"
+                                           value="{{ startMax }}" {% if facet.isActive or startMax == 0 %}disabled="disabled" {% endif %}/>
+                                {% endblock %}
+
+                                {% block frontend_listing_filter_facet_range_info %}
+                                    <div class="filter-panel--range-info">
+
+                                        {% block frontend_listing_filter_facet_range_info_min %}
+                                            <span class="range-info--min">
+                                                {% trans from 'frontend/listing/listing_actions' %}ListingFilterRangeFrom"{% endtrans %}
+                                            </span>
+                                        {% endblock %}
+
+                                        {% block frontend_listing_filter_facet_range_label_min %}
+                                            <label class="range-info--label"
+                                                   for="{{ facet.minFieldName }}"
+                                                   data-range-label="min">
+                                                {{ startMin }}
+                                            </label>
+                                        {% endblock %}
+
+                                        {% block frontend_listing_filter_facet_range_info_max %}
+                                            <span class="range-info--max">
+                                                {% trans from 'frontend/listing/listing_actions' %}ListingFilterRangeTo"{% endtrans %}
+                                            </span>
+                                        {% endblock %}
+
+                                        {% block frontend_listing_filter_facet_range_label_max %}
+                                            <label class="range-info--label"
+                                                   for="{{ facet.maxFieldName }}"
+                                                   data-range-label="max">
+                                                {{ startMax }}
+                                            </label>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

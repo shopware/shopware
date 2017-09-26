@@ -1,0 +1,8 @@
+{#  Iteration for the different filter facets.
+    The file is called recursive for deeper structured facet groups.
+#}
+{% for facet in facets %}
+    {% if facet.template != null %}
+        {#{% sw_include file=$facet->getTemplate() facet=$facet}#}
+    {% endif %}
+{% endfor %}

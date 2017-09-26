@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="{encoding}" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+<atom:link href="{{ navigation.activeCategory.rssFeed }}" rel="self" type="application/rss+xml" />
+<title>{% block frontend_atom_title %}{{ navigation.activeCategory.description }}{% endblock %}</title>
+<link>{url controller='index'}</link>
+<description>{{ shopware.config.shopName }} - {{ navigation.activeCategory.description }}</description>
+<language>de-de</language>
+<lastBuildDate>{{ "now"|date('RSS') }}</lastBuildDate>
+{% for product in products %}
+<item>
+    <title>{% block frontend_listing_rss_article_name %}{{ product.name }}{% endblock %}</title>
+    <guid>{% block frontend_listing_rss_guid %}{{ product.linkDetails }}{% endblock %}</guid>
+    <link>{% block frontend_listing_rss_link %}{{ product.linkDetails }}{% endblock %}</link>
+    <description>{% block frontend_listing_rss_description %}{{ product.descriptionLong|striptags|truncate(280, true) }}{% endblock %}</description>
+    <category>{% block frontend_listing_rss_category %}{{ product.supplierName }}{% endblock %}</category>
+{% if product.updated_at %}
+    <pubDate>{% block frontend_listing_rss_date %}{{ product.updated_at|date('RSS') }}{% endblock %}</pubDate>
+{% endif %}
+</item>
+{% endfor %}
+</channel>
+</rss>

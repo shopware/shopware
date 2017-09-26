@@ -1,7 +1,7 @@
-{% sw_extends "@Shopware/frontend/index/index.html.twig" %}
+{% sw_extends "@Storefront/frontend/index/index.html.twig" %}
 
 {% block frontend_index_header %}
-    {% sw_include '@Shopware/frontend/listing/header.html.twig' %}
+    {% sw_include '@Storefront/frontend/listing/header.html.twig' %}
 {% endblock %}
 
 {% block frontend_index_content_left %}
@@ -10,7 +10,7 @@
         {#{% set countCtrlUrl = "{url module="widgets" controller="listing" action="listingCount" params=$ajaxCountUrlParams fullPath}"}#}
     {% endblock %}
 
-    {% sw_include '@Shopware/frontend/listing/sidebar.html.twig' %}
+    {% sw_include '@Storefront/frontend/listing/sidebar.html.twig' %}
 {% endblock %}
 
 {# Main content #}
@@ -22,7 +22,7 @@
     {% set pages = 1 %}
 
     {% if listing.criteria %}
-        {% set pages = (numberOfProducts / listing.criteria.getLimit())|round %}
+        {% set pages = (numberOfProducts / listing.criteria.limit)|round %}
     {% endif %}
 
     {# Layout for the product boxes #}
@@ -37,14 +37,14 @@
         {# Banner #}
         {% block frontend_listing_index_banner %}
             {% if hasEmotion == false %}
-                {% sw_include '@Shopware/frontend/listing/banner.html.twig' %}
+                {% sw_include '@Storefront/frontend/listing/banner.html.twig' %}
             {% endif %}
         {%  endblock %}
 
         {# Category headline #}
         {% block frontend_listing_index_text %}
             {% if hasEmotion == false %}
-                {% sw_include '@Shopware/frontend/listing/text.html.twig' %}
+                {% sw_include '@Storefront/frontend/listing/text.html.twig' %}
             {% endif %}
         {%  endblock %}
 
@@ -57,7 +57,7 @@
 
         {# Listing #}
         {% block frontend_listing_index_listing %}
-            {% sw_include '@Shopware/frontend/listing/listing.html.twig' %}
+            {% sw_include '@Storefront/frontend/listing/listing.html.twig' %}
         {% endblock %}
     </div>
 {% endblock %}

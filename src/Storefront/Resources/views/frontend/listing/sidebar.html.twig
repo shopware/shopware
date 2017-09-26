@@ -1,4 +1,4 @@
-{% sw_extends "@Shopware/frontend/index/sidebar.html.twig" %}
+{% sw_extends "@Storefront/frontend/index/sidebar.html.twig" %}
 
 {% block frontend_index_sidebar %}
     {% if theme.sidebarFilter %}
@@ -6,13 +6,13 @@
             <div class="listing--sidebar">
                 {{ parent() }}
 
-                {% if criteria %}
+                {#{% if criteria %}#}
                     <div class="sidebar-filter">
                         <div class="sidebar-filter--content">
-                            {#{% sw_include "@Shopware/frontend/listing/actions/action-filter-panel.tpl" %}#}
+                            {% sw_include "@Storefront/frontend/listing/actions/action-filter-panel.html.twig" %}
                         </div>
                     </div>
-                {% endif %}
+                {#{% endif %}#}
             </div>
         {% endblock %}
     {% else %}

@@ -1,0 +1,30 @@
+{% block frontend_listing_product_box_button_buy %}
+    {#{% set url = {url controller=checkout action=addProduct sTargetAction=ajaxAddArticle} %}#}
+
+    {% block frontend_listing_product_box_button_buy_form %}
+        <form name="sAddToBasket"
+              method="post"
+              action="{{ url }}"
+              class="buybox--form"
+              data-add-article="true"
+              data-eventName="submit"
+              {% if theme.offcanvasCart %}
+                 data-showModal="false"
+                 {#data-addArticleUrl="{url controller=checkout action=addProduct sTargetAction=ajaxCart}"#}
+              {% endif %}>
+
+            {% block frontend_listing_product_box_button_buy_order_number %}
+                <input type="hidden" name="number" value="{{ product.ordernumber }}"/>
+                <input type="hidden" name="quantity" value="1"/>
+            {% endblock %}
+
+            {% block frontend_listing_product_box_button_buy_button %}
+                <button class="buybox--button % block btn is--primary is--icon-right is--center is--large">
+                    {% block frontend_listing_product_box_button_buy_button_text %}
+                    {% trans from 'frontend/listing/box_article' %}ListingBuyActionAdd{% endtrans %}<i class="icon--basket"></i> <i class="icon--arrow-right"></i>
+                    {% endblock %}
+                </button>
+            {% endblock %}
+        </form>
+    {% endblock %}
+{% endblock %}

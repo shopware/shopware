@@ -1,0 +1,9 @@
+{% block frontend_listing_filter_facet_media_list %}
+    {% set filterType = 'value-list' %}
+    {% set listingMode = shopware.config.listingMode %}
+    {% if listingMode == 'filter_ajax_reload' %}
+        {% set filterType = 'value-list-single' %}
+    {% endif %}
+
+    {% sw_include '@Storefront/frontend/listing/filter/_includes/filter-multi-media-selection.html.twig' %}
+{% endblock %}

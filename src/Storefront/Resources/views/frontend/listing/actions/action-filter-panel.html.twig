@@ -1,0 +1,81 @@
+{# Filter options which will be included in the "listing/listing_actions.html.twig" #}
+
+{% block frontend_listing_actions_filter %}
+    {% set listingMode = shopware.config.listingMode %}
+
+    <div class="action--filter-options off-canvas{% if facets|length <= 0 %} is--hidden{% endif %}{% if listingMode != 'full_page_reload' %} is--ajax-reload{% endif %}">
+
+        {% block frontend_listing_actions_filter_close_button %}
+            <a href="#" class="filter--close-btn" data-show-products-text="{% trans from 'frontend/listing/listing_actions' %}ListingActionsCloseFilterShowProducts{% endtrans %}">
+                {% trans from 'frontend/listing/listing_actions' %}ListingActionsCloseFilter{% endtrans %} <i class="icon--arrow-right"></i>
+            </a>
+        {% endblock %}
+
+        {% block frontend_listing_actions_filter_container %}
+            <div class="filter--container">
+                {% block frontend_listing_actions_filter_form %}
+                    <form id="filter"
+                        method="get"
+                        data-filter-form="true"
+                        data-is-in-sidebar="{% if theme.sidebarFilter %}true{% else %}false{% endif %}"
+                        data-listing-url="{{ countCtrlUrl }}"
+                        data-is-filtered="{{ criteria.getUserConditions|length }}"
+                        data-load-facets="{% if listingMode == 'filter_ajax_reload' %}true{% else %}false{% endif %}"
+                        data-instant-filter-result="{% if listingMode != 'full_page_reload' %}true{% else %}false{% endif %}"
+                        class="{%  if listingMode != 'full_page_reload' %} is--instant-filter{% endif %}">
+
+                        {% if listingMode == 'full_page_reload' %}
+                            {% set clsSuffix = 'filter--actions-top' %}
+                            {% sw_include '@Storefront/frontend/listing/actions/filter-apply-button.html.twig' %}
+                        {% endif %}
+
+                        {% block frontend_listing_actions_filter_form_page %}
+                            <input type="hidden" name="{shortParameters['sPage']}" value="1"/>
+                        {% endblock %}
+
+                        {% block frontend_listing_actions_filter_form_search %}
+                            {% if term %}
+                                <input type="hidden" name="{$shortParameters['sSearch']}" value="{{ term }}"/>
+                            {% endif %}
+                        {% endblock %}
+
+                        {% block frontend_listing_actions_filter_form_sort %}
+                            {% if sSort %}
+                                <input type="hidden" name="{$shortParameters['sSort']}" value="{{ sSort }}"/>
+                            {% endif %}
+                        {% endblock %}
+
+                        {% block frontend_listing_actions_filter_form_perpage %}
+                            {% if criteria and criteria.limit %}
+                                <input type="hidden" name="{$shortParameters['sPerPage']}" value="{{ criteria.limit }}"/>
+                            {% endif %}
+                        {% endblock %}
+
+                        {% block frontend_listing_actions_filter_form_category %}
+                            {% if not sCategoryContent and sCategoryCurrent != sCategoryStart and controllerName != 'search' %}
+                                <input type="hidden" name="{$shortParameters['sCategory']}" value="{$sCategoryCurrent}" />
+                            {% endif %}
+                        {% endblock %}
+
+                        {% block frontend_listing_actions_filter_form_facets %}
+                            <div class="filter--facet-container">
+                                {#{% sw_include '@Storefront/frontend/listing/actions/action-filter-facets.html.twig' with facets %}#}
+                            </div>
+                        {% endblock %}
+
+                        {% block frontend_listing_actions_filter_active_filters %}
+                            <div class="filter--active-container"
+                                 data-reset-label="{% trans from 'frontend/listing/listing_actions' %}ListingFilterResetAll{% endtrans %}">
+                            </div>
+                        {% endblock %}
+
+                        {% if listingMode == 'full_page_reload' %}
+                            {% set clsSuffix = 'filter--actions-bottom' %}
+                            {% sw_include '@Storefront/frontend/listing/actions/filter-apply-button.html.twig' %}
+                        {% endif %}
+                    </form>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

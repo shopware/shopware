@@ -26,7 +26,7 @@
     {#{/foreach}#}
 
     {#<div class="{$showListingCls}{if $fullscreen} is--align-center{/if}">#}
-        {#<a href="{url controller='cat' sPage=1 sCategory=$sCategoryContent.id}" title="{$sCategoryContent.name|escape}" class="link--show-listing{if $fullscreen} btn is--primary{/if}">#}
+        {#<a href="{url controller='cat' sPage=1 sCategory=$sCategoryContent.id}" title="{$sCategoryContent.name}" class="link--show-listing{if $fullscreen} btn is--primary{/if}">#}
             {#{s name="ListingActionsOffersLink"}Weitere Artikel in dieser Kategorie &raquo;{/s}#}
         {#</a>#}
     {#</div>#}
@@ -54,7 +54,7 @@
 
             {# Sorting and changing layout #}
             {% block frontend_listing_top_actions %}
-                {#{% sw_include '@Shopware/frontend/listing/listing_actions.html.twig' %}#}
+                {% sw_include '@Storefront/frontend/listing/listing_actions.html.twig' %}
             {% endblock %}
 
             {% block frontend_listing_listing_container %}
@@ -83,7 +83,7 @@
                             {% block frontend_listing_list_inline %}
                                 {# @var product \Shopware\Storefront\Bridge\Product\Struct\ListingProductStruct #}
                                 {% for product in listing.products %}
-                                    {% sw_include "@Shopware/frontend/listing/box_product.html.twig" %}
+                                    {% sw_include "@Storefront/frontend/listing/box_product.html.twig" %}
                                 {% endfor %}
                             {% endblock %}
                         </div>
@@ -94,7 +94,7 @@
             {# Paging #}
             {% block frontend_listing_bottom_paging %}
                 <div class="listing--bottom-paging">
-                    {#{% sw_include "@Shopware/frontend/listing/actions/action-pagination.html.twig" %}#}
+                    {% sw_include "@Storefront/frontend/listing/actions/action-pagination.html.twig" %}
                 </div>
             {% endblock %}
         </div>

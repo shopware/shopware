@@ -1,0 +1,46 @@
+{# Listing actions #}
+{% block frontend_listing_actions_top %}
+    {% set listingMode = '{{ shopware.config.listingMode }}' %}
+    {% set class = 'listing--actions is--rounded' %}
+
+    {% if navigation.activeCategory.hide_sortings or sortings|length == 0 %}
+        {% set class = "{{ class }} without-sortings" %}
+    {% endif %}
+
+    {% if theme.sidebarFilter or facets|length == 0 %}
+        {% set class = "{{ class }} without-facets" %}
+    {% endif %}
+
+    {% if theme.infiniteScrolling %}
+        {% set class = "{{ class }} without-pagination" %}
+    {% endif %}
+
+    <div data-listing-actions="true"
+          {% if not listingMode == 'full_page_reload' %}data-bufferTime="0" {% endif %}
+         class="{{ class }}{% block frontend_listing_actions_class %}{% endblock %}">
+
+        {# Filter action button #}
+        {% block frontend_listing_actions_filter %}
+             {% sw_include '@Storefront/frontend/listing/actions/action-filter-button.html.twig' %}
+        {% endblock %}
+
+        {# Order by selection #}
+        {% block frontend_listing_actions_sort %}
+             {% sw_include '@Storefront/frontend/listing/actions/action-sorting.html.twig' %}
+        {% endblock %}
+
+        {# Filter options #}
+        {% block frontend_listing_actions_filter_options %}
+             {% if not theme.sidebarFilter %}
+                 {% sw_include '@Storefront/frontend/listing/actions/action-filter-panel.html.twig' %}
+             {% endif %}
+        {% endblock %}
+
+        {# Listing pagination #}
+        {% block frontend_listing_actions_paging %}
+             {% sw_include '@Storefront/frontend/listing/actions/action-pagination.html.twig' %}
+        {% endblock %}
+
+        {% block frontend_listing_actions_close %}{% endblock %}
+    </div>
+{% endblock %}

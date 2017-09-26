@@ -1,0 +1,9 @@
+{% block frontend_listing_filter_facet_radio %}
+    {% set filterType = 'radio' %}
+    {% set listingMode = shopware.config.listingMode %}
+    {% if listingMode == 'filter_ajax_reload' %}
+        {% set filterType = 'value-list-single' %}
+    {% endif %}
+
+    {% sw_include '@Storefront/frontend/listing/filter/_includes/filter-multi-selection.html.twig' %}
+{% endblock %}

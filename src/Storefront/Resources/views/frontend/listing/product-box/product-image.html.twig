@@ -1,29 +1,29 @@
 {# Product image - uses the picture element for responsive retina images. #}
 <a href="{{ product.linkDetails }}"
-   title="{{ product.name|escape }}"
+   title="{{ product.name }}"
    class="product--image">
     {% block frontend_listing_box_article_image_element %}
         <span class="image--element">
             {% block frontend_listing_box_article_image_media %}
                 <span class="image--media">
 
-                    {% set desc = product.name|escape %}
+                    {% set desc = product.name %}
 
                     {% if product.image.thumbnails is defined %}
 
                         {% if product.image.description %}
-                            {% set desc = product.image.description|escape %}
+                            {% set desc = product.image.description %}
                         {% endif %}
 
                         {% block frontend_listing_box_article_image_picture_element %}
                             <img srcset="{{ product.image.thumbnails[0].sourceSet }}"
                                  alt="{{ desc }}"
-                                 title="{{ desc|slice(0,160) }}" />
+                                 title="{{ desc|truncate(160, true) }}" />
                         {% endblock %}
                     {% else %}
                         <img src="{{ asset('bundles/storefront/src/img/no-picture.jpg') }}"
                              alt="{{ desc }}"
-                             title="{{ desc|slice(0,160) }}" />
+                             title="{{ desc|truncate(160, true) }}" />
                     {% endif %}
                 </span>
             {% endblock %}

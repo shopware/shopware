@@ -1,0 +1,32 @@
+<div class="price--unit">
+
+    {# Price is based on the purchase unit #}
+    {% if product.purchaseunit and product.purchaseunit != 0 %}
+
+        {# Unit price label #}
+        {% block frontend_listing_box_article_unit_label %}
+            <span class="price--label label--purchase-unit is--bold is--nowrap">
+                {% trans from 'frontend/listing/box_article' %}ListingBoxArticleContent{% endtrans %}
+            </span>
+        {% endblock %}
+
+        {# Unit price content #}
+        {% block frontend_listing_box_article_unit_content %}
+            <span class="is--nowrap">
+                {{ product.purchaseunit }} {{ product.sUnit.description }}
+            </span>
+        {% endblock %}
+    {% endif %}
+
+    {# Unit price is based on a reference unit #}
+    {% if product.purchaseunit and product.purchaseunit != product.referenceunit %}
+
+        {# Reference unit price content #}
+        {% block frontend_listing_box_article_unit_reference_content %}
+            <span class="is--nowrap">
+                ({{ product.referenceprice|localizedcurrency(context.currency.shortName) }}
+                {% trans from 'frontend/listing/box_article' %}Star{% endtrans %} / {{ product.referenceunit }} {{ product.sUnit.description }})
+            </span>
+        {% endblock %}
+    {% endif %}
+</div>

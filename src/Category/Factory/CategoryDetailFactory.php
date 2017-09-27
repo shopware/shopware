@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Category\Factory;
 
@@ -87,12 +87,12 @@ class CategoryDetailFactory extends CategoryBasicFactory
             );
         }
         if ($selection->hasField('_sub_select_product_uuids')) {
-            $uuids = explode('|', $data[$selection->getField('_sub_select_product_uuids')]);
+            $uuids = explode('|', (string) $data[$selection->getField('_sub_select_product_uuids')]);
             $category->setProductUuids(array_values(array_filter($uuids)));
         }
 
         if ($selection->hasField('_sub_select_blockedCustomerGroups_uuids')) {
-            $uuids = explode('|', $data[$selection->getField('_sub_select_blockedCustomerGroups_uuids')]);
+            $uuids = explode('|', (string) $data[$selection->getField('_sub_select_blockedCustomerGroups_uuids')]);
             $category->setBlockedCustomerGroupsUuids(array_values(array_filter($uuids)));
         }
 

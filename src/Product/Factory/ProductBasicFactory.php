@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Product\Factory;
 
@@ -141,7 +141,7 @@ class ProductBasicFactory extends Factory
             );
         }
         if ($selection->hasField('_sub_select_blockedCustomerGroups_uuids')) {
-            $uuids = explode('|', $data[$selection->getField('_sub_select_blockedCustomerGroups_uuids')]);
+            $uuids = explode('|', (string) $data[$selection->getField('_sub_select_blockedCustomerGroups_uuids')]);
             $product->setBlockedCustomerGroupsUuids(array_values(array_filter($uuids)));
         }
 

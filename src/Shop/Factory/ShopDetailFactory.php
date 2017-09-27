@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Shop\Factory;
 
@@ -156,7 +156,7 @@ class ShopDetailFactory extends ShopBasicFactory
             );
         }
         if ($selection->hasField('_sub_select_availableCurrency_uuids')) {
-            $uuids = explode('|', $data[$selection->getField('_sub_select_availableCurrency_uuids')]);
+            $uuids = explode('|', (string) $data[$selection->getField('_sub_select_availableCurrency_uuids')]);
             $shop->setAvailableCurrencyUuids(array_values(array_filter($uuids)));
         }
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Currency\Factory;
 
@@ -44,7 +44,7 @@ class CurrencyDetailFactory extends CurrencyBasicFactory
         /** @var CurrencyDetailStruct $currency */
         $currency = parent::hydrate($data, $currency, $selection, $context);
         if ($selection->hasField('_sub_select_shop_uuids')) {
-            $uuids = explode('|', $data[$selection->getField('_sub_select_shop_uuids')]);
+            $uuids = explode('|', (string) $data[$selection->getField('_sub_select_shop_uuids')]);
             $currency->setShopUuids(array_values(array_filter($uuids)));
         }
 

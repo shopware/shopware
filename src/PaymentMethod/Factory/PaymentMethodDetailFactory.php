@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\PaymentMethod\Factory;
 
@@ -53,12 +53,12 @@ class PaymentMethodDetailFactory extends PaymentMethodBasicFactory
         /** @var PaymentMethodDetailStruct $paymentMethod */
         $paymentMethod = parent::hydrate($data, $paymentMethod, $selection, $context);
         if ($selection->hasField('_sub_select_shop_uuids')) {
-            $uuids = explode('|', $data[$selection->getField('_sub_select_shop_uuids')]);
+            $uuids = explode('|', (string) $data[$selection->getField('_sub_select_shop_uuids')]);
             $paymentMethod->setShopUuids(array_values(array_filter($uuids)));
         }
 
         if ($selection->hasField('_sub_select_country_uuids')) {
-            $uuids = explode('|', $data[$selection->getField('_sub_select_country_uuids')]);
+            $uuids = explode('|', (string) $data[$selection->getField('_sub_select_country_uuids')]);
             $paymentMethod->setCountryUuids(array_values(array_filter($uuids)));
         }
 

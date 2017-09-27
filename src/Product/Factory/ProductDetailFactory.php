@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Product\Factory;
 
@@ -79,12 +79,12 @@ class ProductDetailFactory extends ProductBasicFactory
         /** @var ProductDetailStruct $product */
         $product = parent::hydrate($data, $product, $selection, $context);
         if ($selection->hasField('_sub_select_category_uuids')) {
-            $uuids = explode('|', $data[$selection->getField('_sub_select_category_uuids')]);
+            $uuids = explode('|', (string) $data[$selection->getField('_sub_select_category_uuids')]);
             $product->setCategoryUuids(array_values(array_filter($uuids)));
         }
 
         if ($selection->hasField('_sub_select_categoryTree_uuids')) {
-            $uuids = explode('|', $data[$selection->getField('_sub_select_categoryTree_uuids')]);
+            $uuids = explode('|', (string) $data[$selection->getField('_sub_select_categoryTree_uuids')]);
             $product->setCategoryTreeUuids(array_values(array_filter($uuids)));
         }
 

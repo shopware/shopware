@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\ShippingMethod\Factory;
 
@@ -79,22 +79,22 @@ class ShippingMethodDetailFactory extends ShippingMethodBasicFactory
         /** @var ShippingMethodDetailStruct $shippingMethod */
         $shippingMethod = parent::hydrate($data, $shippingMethod, $selection, $context);
         if ($selection->hasField('_sub_select_category_uuids')) {
-            $uuids = explode('|', $data[$selection->getField('_sub_select_category_uuids')]);
+            $uuids = explode('|', (string) $data[$selection->getField('_sub_select_category_uuids')]);
             $shippingMethod->setCategoryUuids(array_values(array_filter($uuids)));
         }
 
         if ($selection->hasField('_sub_select_country_uuids')) {
-            $uuids = explode('|', $data[$selection->getField('_sub_select_country_uuids')]);
+            $uuids = explode('|', (string) $data[$selection->getField('_sub_select_country_uuids')]);
             $shippingMethod->setCountryUuids(array_values(array_filter($uuids)));
         }
 
         if ($selection->hasField('_sub_select_holiday_uuids')) {
-            $uuids = explode('|', $data[$selection->getField('_sub_select_holiday_uuids')]);
+            $uuids = explode('|', (string) $data[$selection->getField('_sub_select_holiday_uuids')]);
             $shippingMethod->setHolidayUuids(array_values(array_filter($uuids)));
         }
 
         if ($selection->hasField('_sub_select_paymentMethod_uuids')) {
-            $uuids = explode('|', $data[$selection->getField('_sub_select_paymentMethod_uuids')]);
+            $uuids = explode('|', (string) $data[$selection->getField('_sub_select_paymentMethod_uuids')]);
             $shippingMethod->setPaymentMethodUuids(array_values(array_filter($uuids)));
         }
 

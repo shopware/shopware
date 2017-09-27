@@ -45,9 +45,14 @@ class AlbumDetailLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection([
+        $events = [
             new AlbumBasicLoadedEvent($this->album, $this->context),
-            new MediaBasicLoadedEvent($this->album->getMedia(), $this->context),
-        ]);
+        ];
+
+        if ($this->album->getMedia()->count() > 0) {
+            $events[] = new MediaBasicLoadedEvent($this->album->getMedia(), $this->context);
+        }
+
+        return new NestedEventCollection($events);
     }
 }

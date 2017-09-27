@@ -107,8 +107,9 @@ abstract class Searcher
     }
 
     /**
-     * @param Criteria $criteria
+     * @param Criteria           $criteria
      * @param TranslationContext $context
+     *
      * @return QueryBuilder
      */
     abstract protected function createQuery(Criteria $criteria, TranslationContext $context): QueryBuilder;
@@ -116,8 +117,9 @@ abstract class Searcher
     /**
      * Hydrate the fetch rows and create a typed hint search result
      *
-     * @param UuidSearchResult $result
+     * @param UuidSearchResult   $result
      * @param TranslationContext $context
+     *
      * @return SearchResultInterface
      */
     abstract protected function load(UuidSearchResult $result, TranslationContext $context): SearchResultInterface;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
@@ -55,14 +56,14 @@ class UserBillingaddressResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\UserBillingaddressWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\UserBillingaddressWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\UserBillingaddressWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\UserBillingaddressWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\UserBillingaddressResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\UserBillingaddressResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\UserBillingaddressResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

@@ -2,6 +2,8 @@
 
 namespace Shopware\OrderLineItem\Writer\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\FloatField;
 use Shopware\Framework\Write\Field\IntField;
@@ -22,6 +24,8 @@ class OrderLineItemResource extends Resource
     protected const TOTAL_PRICE_FIELD = 'totalPrice';
     protected const TYPE_FIELD = 'type';
     protected const PAYLOAD_FIELD = 'payload';
+    protected const CREATED_AT_FIELD = 'createdAt';
+    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -34,6 +38,8 @@ class OrderLineItemResource extends Resource
         $this->fields[self::TOTAL_PRICE_FIELD] = (new FloatField('total_price'))->setFlags(new Required());
         $this->fields[self::TYPE_FIELD] = new StringField('type');
         $this->fields[self::PAYLOAD_FIELD] = (new LongTextField('payload'))->setFlags(new Required());
+        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
+        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['orderDeliveryPositions'] = new SubresourceField(\Shopware\OrderDeliveryPosition\Writer\Resource\OrderDeliveryPositionResource::class);
         $this->fields['order'] = new ReferenceField('orderUuid', 'uuid', \Shopware\Order\Writer\Resource\OrderResource::class);
         $this->fields['orderUuid'] = (new FkField('order_uuid', \Shopware\Order\Writer\Resource\OrderResource::class, 'uuid'))->setFlags(new Required());
@@ -48,24 +54,42 @@ class OrderLineItemResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\OrderLineItem\Event\OrderLineItemWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\OrderLineItem\Event\OrderLineItemWrittenEvent
     {
-        $event = new \Shopware\OrderLineItem\Event\OrderLineItemWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\OrderLineItem\Event\OrderLineItemWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\OrderDeliveryPosition\Writer\Resource\OrderDeliveryPositionResource::class])) {
-            $event->addEvent(\Shopware\OrderDeliveryPosition\Writer\Resource\OrderDeliveryPositionResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\OrderDeliveryPosition\Writer\Resource\OrderDeliveryPositionResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Order\Writer\Resource\OrderResource::class])) {
-            $event->addEvent(\Shopware\Order\Writer\Resource\OrderResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Order\Writer\Resource\OrderResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\OrderLineItem\Writer\Resource\OrderLineItemResource::class])) {
-            $event->addEvent(\Shopware\OrderLineItem\Writer\Resource\OrderLineItemResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\OrderLineItem\Writer\Resource\OrderLineItemResource::createWrittenEvent($updates, $context));
         }
 
         return $event;
+    }
+
+    public function getDefaults(string $type): array
+    {
+        if (self::FOR_UPDATE === $type) {
+            return [
+                self::UPDATED_AT_FIELD => new \DateTime(),
+            ];
+        }
+
+        if (self::FOR_INSERT === $type) {
+            return [
+                self::UPDATED_AT_FIELD => new \DateTime(),
+                self::CREATED_AT_FIELD => new \DateTime(),
+            ];
+        }
+
+        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

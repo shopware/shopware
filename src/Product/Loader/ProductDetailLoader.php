@@ -10,8 +10,11 @@ use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\Product\Factory\ProductDetailFactory;
 use Shopware\Product\Struct\ProductDetailCollection;
 use Shopware\Product\Struct\ProductDetailStruct;
-use Shopware\ProductDetail\Loader\ProductDetailDetailLoader;
+use Shopware\ProductDetail\Loader\ProductDetailBasicLoader;
 use Shopware\ProductDetail\Searcher\ProductDetailSearcher;
+use Shopware\ProductDetail\Searcher\ProductDetailSearchResult;
+use Shopware\ProductListingPrice\Searcher\ProductListingPriceSearcher;
+use Shopware\ProductListingPrice\Searcher\ProductListingPriceSearchResult;
 use Shopware\ProductVote\Searcher\ProductVoteSearcher;
 use Shopware\ProductVote\Searcher\ProductVoteSearchResult;
 use Shopware\Search\Criteria;
@@ -27,19 +30,24 @@ class ProductDetailLoader
     private $factory;
 
     /**
+     * @var ProductDetailBasicLoader
+     */
+    private $productDetailBasicLoader;
+
+    /**
      * @var CustomerGroupBasicLoader
      */
     private $customerGroupBasicLoader;
 
     /**
+     * @var ProductListingPriceSearcher
+     */
+    private $productListingPriceSearcher;
+
+    /**
      * @var ProductDetailSearcher
      */
     private $productDetailSearcher;
-
-    /**
-     * @var ProductDetailDetailLoader
-     */
-    private $productDetailDetailLoader;
 
     /**
      * @var CategoryBasicLoader
@@ -53,16 +61,18 @@ class ProductDetailLoader
 
     public function __construct(
         ProductDetailFactory $factory,
+        ProductDetailBasicLoader $productDetailBasicLoader,
         CustomerGroupBasicLoader $customerGroupBasicLoader,
+        ProductListingPriceSearcher $productListingPriceSearcher,
         ProductDetailSearcher $productDetailSearcher,
-        ProductDetailDetailLoader $productDetailDetailLoader,
         CategoryBasicLoader $categoryBasicLoader,
         ProductVoteSearcher $productVoteSearcher
     ) {
         $this->factory = $factory;
+        $this->productDetailBasicLoader = $productDetailBasicLoader;
         $this->customerGroupBasicLoader = $customerGroupBasicLoader;
+        $this->productListingPriceSearcher = $productListingPriceSearcher;
         $this->productDetailSearcher = $productDetailSearcher;
-        $this->productDetailDetailLoader = $productDetailDetailLoader;
         $this->categoryBasicLoader = $categoryBasicLoader;
         $this->productVoteSearcher = $productVoteSearcher;
     }
@@ -75,14 +85,23 @@ class ProductDetailLoader
 
         $productsCollection = $this->read($uuids, $context);
 
+        $mainDetails = $this->productDetailBasicLoader->load($productsCollection->getMainDetailUuids(), $context);
+
         $blockedCustomerGroups = $this->customerGroupBasicLoader->load($productsCollection->getBlockedCustomerGroupsUuids(), $context);
 
         $criteria = new Criteria();
+        $criteria->addFilter(new TermsQuery('product_listing_price_ro.product_uuid', $uuids));
+        /** @var ProductListingPriceSearchResult $listingPrices */
+        $listingPrices = $this->productListingPriceSearcher->search($criteria, $context);
+
+        $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('product_detail.product_uuid', $uuids));
-        $detailsUuids = $this->productDetailSearcher->searchUuids($criteria, $context);
-        $details = $this->productDetailDetailLoader->load($detailsUuids->getUuids(), $context);
+        /** @var ProductDetailSearchResult $details */
+        $details = $this->productDetailSearcher->search($criteria, $context);
 
         $categories = $this->categoryBasicLoader->load($productsCollection->getCategoryUuids(), $context);
+
+        $categoryTree = $this->categoryBasicLoader->load($productsCollection->getCategoryTreeUuids(), $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('product_vote.product_uuid', $uuids));
@@ -91,10 +110,17 @@ class ProductDetailLoader
 
         /** @var ProductDetailStruct $product */
         foreach ($productsCollection as $product) {
+            if ($product->getMainDetailUuid()) {
+                $product->setMainDetail($mainDetails->get($product->getMainDetailUuid()));
+            }
+
             $product->setBlockedCustomerGroups($blockedCustomerGroups->getList($product->getBlockedCustomerGroupsUuids()));
+            $product->setListingPrices($listingPrices->filterByProductUuid($product->getUuid()));
+
             $product->setDetails($details->filterByProductUuid($product->getUuid()));
 
             $product->setCategories($categories->getList($product->getCategoryUuids()));
+            $product->setCategoryTree($categoryTree->getList($product->getCategoryTreeUuids()));
             $product->setVotes($votes->filterByProductUuid($product->getUuid()));
         }
 

@@ -16,6 +16,15 @@ class Generator
         $this->directory = $directory;
     }
 
+    public function getFiles($table)
+    {
+        $class = Util::snakeCaseToCamelCase($table);
+        return [
+            $this->directory.'/'.ucfirst($class).'/Extension/'.ucfirst($class).'Extension.php'
+        ];
+    }
+
+
     public function generate(string $table, array $config): void
     {
         $class = Util::snakeCaseToCamelCase($table);

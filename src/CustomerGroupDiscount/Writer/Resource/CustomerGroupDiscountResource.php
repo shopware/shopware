@@ -2,6 +2,8 @@
 
 namespace Shopware\CustomerGroupDiscount\Writer\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\FloatField;
 use Shopware\Framework\Write\Field\ReferenceField;
@@ -14,6 +16,8 @@ class CustomerGroupDiscountResource extends Resource
     protected const UUID_FIELD = 'uuid';
     protected const PERCENTAGE_DISCOUNT_FIELD = 'percentageDiscount';
     protected const MINIMUM_CART_AMOUNT_FIELD = 'minimumCartAmount';
+    protected const CREATED_AT_FIELD = 'createdAt';
+    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -22,6 +26,8 @@ class CustomerGroupDiscountResource extends Resource
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
         $this->fields[self::PERCENTAGE_DISCOUNT_FIELD] = (new FloatField('percentage_discount'))->setFlags(new Required());
         $this->fields[self::MINIMUM_CART_AMOUNT_FIELD] = (new FloatField('minimum_cart_amount'))->setFlags(new Required());
+        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
+        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['customerGroup'] = new ReferenceField('customerGroupUuid', 'uuid', \Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::class);
         $this->fields['customerGroupUuid'] = (new FkField('customer_group_uuid', \Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::class, 'uuid'))->setFlags(new Required());
     }
@@ -34,20 +40,38 @@ class CustomerGroupDiscountResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\CustomerGroupDiscount\Event\CustomerGroupDiscountWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\CustomerGroupDiscount\Event\CustomerGroupDiscountWrittenEvent
     {
-        $event = new \Shopware\CustomerGroupDiscount\Event\CustomerGroupDiscountWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\CustomerGroupDiscount\Event\CustomerGroupDiscountWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::class])) {
-            $event->addEvent(\Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\CustomerGroupDiscount\Writer\Resource\CustomerGroupDiscountResource::class])) {
-            $event->addEvent(\Shopware\CustomerGroupDiscount\Writer\Resource\CustomerGroupDiscountResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\CustomerGroupDiscount\Writer\Resource\CustomerGroupDiscountResource::createWrittenEvent($updates, $context));
         }
 
         return $event;
+    }
+
+    public function getDefaults(string $type): array
+    {
+        if (self::FOR_UPDATE === $type) {
+            return [
+                self::UPDATED_AT_FIELD => new \DateTime(),
+            ];
+        }
+
+        if (self::FOR_INSERT === $type) {
+            return [
+                self::UPDATED_AT_FIELD => new \DateTime(),
+                self::CREATED_AT_FIELD => new \DateTime(),
+            ];
+        }
+
+        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

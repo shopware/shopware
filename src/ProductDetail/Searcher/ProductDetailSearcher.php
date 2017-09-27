@@ -4,7 +4,7 @@ namespace Shopware\ProductDetail\Searcher;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\ProductDetail\Factory\ProductDetailDetailFactory;
+use Shopware\ProductDetail\Factory\ProductDetailBasicFactory;
 use Shopware\ProductDetail\Loader\ProductDetailBasicLoader;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\SqlParser;
@@ -16,7 +16,7 @@ use Shopware\Search\UuidSearchResult;
 class ProductDetailSearcher extends Searcher
 {
     /**
-     * @var ProductDetailDetailFactory
+     * @var ProductDetailBasicFactory
      */
     private $factory;
 
@@ -25,7 +25,7 @@ class ProductDetailSearcher extends Searcher
      */
     private $loader;
 
-    public function __construct(Connection $connection, SqlParser $parser, ProductDetailDetailFactory $factory, ProductDetailBasicLoader $loader)
+    public function __construct(Connection $connection, SqlParser $parser, ProductDetailBasicFactory $factory, ProductDetailBasicLoader $loader)
     {
         parent::__construct($connection, $parser);
         $this->factory = $factory;

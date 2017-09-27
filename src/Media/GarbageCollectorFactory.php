@@ -26,8 +26,8 @@ namespace Shopware\Media;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
-use Shopware\Media\Strategy\StrategyInterface;
 use Shopware\Media\GarbageCollector\MediaPosition;
+use Shopware\Media\Strategy\StrategyInterface;
 use Shopware\Models\Media\Media;
 
 /**
@@ -51,8 +51,8 @@ class GarbageCollectorFactory
     private $strategy;
 
     /**
-     * @param Connection                  $connection
-     * @param StrategyInterface           $strategy
+     * @param Connection        $connection
+     * @param StrategyInterface $strategy
      */
     public function __construct(Connection $connection, StrategyInterface $strategy)
     {

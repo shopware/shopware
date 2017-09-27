@@ -32,19 +32,6 @@ class TranslationImportCommand extends ContainerAwareCommand implements EventSub
         $this->importService = $importService;
     }
 
-
-    /**
-     * @inheritDoc
-     */
-    protected function configure()
-    {
-        $this->setName('translation:import')
-            ->setDefinition([
-                new InputOption('with-plugins', null, InputOption::VALUE_NONE, 'Search through plugin directories for translation files.'),
-                new InputOption('force', 'f', InputOption::VALUE_NONE, 'Truncate table before importing the translations.'),
-            ]);
-    }
-
     public static function getSubscribedEvents()
     {
         return [
@@ -52,33 +39,6 @@ class TranslationImportCommand extends ContainerAwareCommand implements EventSub
             ImportFinishEvent::EVENT_NAME => 'onFinish',
             ImportAdvanceEvent::EVENT_NAME => 'onAdvance',
         ];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
-        $this->io = new SymfonyStyle($input, $output);
-
-        $folders = [
-            $this->getContainer()->getParameter('kernel.root_dir') . '/../src/Translation/Resources/translations'
-        ];
-
-        if ($input->getOption('with-plugins')) {
-            foreach ($this->getContainer()->get('shopware.plugins')->all() as $plugin) {
-                $translationPath = $plugin->getPath() . '/Resources/translations';
-                if (!file_exists($translationPath)) {
-                    continue;
-                }
-
-                $folders[] = $translationPath;
-            }
-        }
-
-        $truncate = (bool) $input->getOption('force');
-
-        $this->importService->import($folders, $truncate);
     }
 
     public function onStart(ImportStartEvent $event)
@@ -100,5 +60,44 @@ class TranslationImportCommand extends ContainerAwareCommand implements EventSub
     {
         $this->io->progressFinish();
         $this->io->success('Translations imported successfully.');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function configure()
+    {
+        $this->setName('translation:import')
+            ->setDefinition([
+                new InputOption('with-plugins', null, InputOption::VALUE_NONE, 'Search through plugin directories for translation files.'),
+                new InputOption('force', 'f', InputOption::VALUE_NONE, 'Truncate table before importing the translations.'),
+            ]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $this->io = new SymfonyStyle($input, $output);
+
+        $folders = [
+            $this->getContainer()->getParameter('kernel.root_dir') . '/../src/Translation/Resources/translations',
+        ];
+
+        if ($input->getOption('with-plugins')) {
+            foreach ($this->getContainer()->get('shopware.plugins')->all() as $plugin) {
+                $translationPath = $plugin->getPath() . '/Resources/translations';
+                if (!file_exists($translationPath)) {
+                    continue;
+                }
+
+                $folders[] = $translationPath;
+            }
+        }
+
+        $truncate = (bool) $input->getOption('force');
+
+        $this->importService->import($folders, $truncate);
     }
 }

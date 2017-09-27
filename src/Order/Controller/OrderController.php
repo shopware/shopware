@@ -69,12 +69,10 @@ class OrderController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $orders,
-            'total' => $orders->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $orders, 'total' => $orders->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -88,12 +86,12 @@ class OrderController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('orderUuid');
-        $orders = $this->orderRepository->read(
+        $orders = $this->orderRepository->readDetail(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($orders->get($uuid), $context);
+        return $this->createResponse(['data' => $orders->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class OrderController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

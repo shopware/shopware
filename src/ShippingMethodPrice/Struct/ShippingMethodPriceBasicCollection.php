@@ -53,6 +53,17 @@ class ShippingMethodPriceBasicCollection extends Collection
         });
     }
 
+    public function merge(ShippingMethodPriceBasicCollection $collection)
+    {
+        /** @var ShippingMethodPriceBasicStruct $shippingMethodPrice */
+        foreach ($collection as $shippingMethodPrice) {
+            if ($this->has($this->getKey($shippingMethodPrice))) {
+                continue;
+            }
+            $this->add($shippingMethodPrice);
+        }
+    }
+
     public function getShippingMethodUuids(): array
     {
         return $this->fmap(function (ShippingMethodPriceBasicStruct $shippingMethodPrice) {

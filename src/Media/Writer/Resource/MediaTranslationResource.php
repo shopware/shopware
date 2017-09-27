@@ -2,6 +2,7 @@
 
 namespace Shopware\Media\Writer\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\LongTextField;
 use Shopware\Framework\Write\Field\ReferenceField;
@@ -35,22 +36,22 @@ class MediaTranslationResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Media\Event\MediaTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Media\Event\MediaTranslationWrittenEvent
     {
-        $event = new \Shopware\Media\Event\MediaTranslationWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Media\Event\MediaTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Media\Writer\Resource\MediaResource::class])) {
-            $event->addEvent(\Shopware\Media\Writer\Resource\MediaResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Media\Writer\Resource\MediaResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Media\Writer\Resource\MediaTranslationResource::class])) {
-            $event->addEvent(\Shopware\Media\Writer\Resource\MediaTranslationResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Media\Writer\Resource\MediaTranslationResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

@@ -19,12 +19,12 @@
             $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
         }
 
-        if ($selection->hasField('_sub_select_#associationClassLc#_uuids')) {
+        if ($selection->hasField('_sub_select_#propertyLc#_uuids')) {
             $query->addSelect('
                 (
                     SELECT GROUP_CONCAT(mapping.#associationTable#_uuid SEPARATOR \'|\')
                     FROM #mappingTable# mapping
                     WHERE mapping.#table#_uuid = ' . $selection->getRootEscaped() . '.uuid
-                ) as ' . QuerySelection::escape($selection->getField('_sub_select_#associationClassLc#_uuids'))
+                ) as ' . QuerySelection::escape($selection->getField('_sub_select_#propertyLc#_uuids'))
             );
         }

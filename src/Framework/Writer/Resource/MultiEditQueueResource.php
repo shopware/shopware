@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\IntField;
@@ -41,18 +42,18 @@ class MultiEditQueueResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\MultiEditQueueWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\MultiEditQueueWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\MultiEditQueueWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\MultiEditQueueWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\MultiEditQueueResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\MultiEditQueueResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\MultiEditQueueResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\MultiEditQueueArticlesResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\MultiEditQueueArticlesResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\MultiEditQueueArticlesResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

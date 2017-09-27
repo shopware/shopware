@@ -2,7 +2,9 @@
 
 namespace Shopware\AreaCountry\Writer\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\BoolField;
+use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\ReferenceField;
@@ -26,6 +28,8 @@ class AreaCountryResource extends Resource
     protected const ISO3_FIELD = 'iso3';
     protected const DISPLAY_STATE_IN_REGISTRATION_FIELD = 'displayStateInRegistration';
     protected const FORCE_STATE_IN_REGISTRATION_FIELD = 'forceStateInRegistration';
+    protected const CREATED_AT_FIELD = 'createdAt';
+    protected const UPDATED_AT_FIELD = 'updatedAt';
     protected const NAME_FIELD = 'name';
 
     public function __construct()
@@ -43,6 +47,8 @@ class AreaCountryResource extends Resource
         $this->fields[self::ISO3_FIELD] = new StringField('iso3');
         $this->fields[self::DISPLAY_STATE_IN_REGISTRATION_FIELD] = new BoolField('display_state_in_registration');
         $this->fields[self::FORCE_STATE_IN_REGISTRATION_FIELD] = new BoolField('force_state_in_registration');
+        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
+        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['area'] = new ReferenceField('areaUuid', 'uuid', \Shopware\Area\Writer\Resource\AreaResource::class);
         $this->fields['areaUuid'] = (new FkField('area_uuid', \Shopware\Area\Writer\Resource\AreaResource::class, 'uuid'))->setFlags(new Required());
         $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
@@ -72,52 +78,70 @@ class AreaCountryResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\AreaCountry\Event\AreaCountryWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\AreaCountry\Event\AreaCountryWrittenEvent
     {
-        $event = new \Shopware\AreaCountry\Event\AreaCountryWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\AreaCountry\Event\AreaCountryWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Area\Writer\Resource\AreaResource::class])) {
-            $event->addEvent(\Shopware\Area\Writer\Resource\AreaResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Area\Writer\Resource\AreaResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\AreaCountry\Writer\Resource\AreaCountryResource::class])) {
-            $event->addEvent(\Shopware\AreaCountry\Writer\Resource\AreaCountryResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\AreaCountry\Writer\Resource\AreaCountryResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\AreaCountry\Writer\Resource\AreaCountryTranslationResource::class])) {
-            $event->addEvent(\Shopware\AreaCountry\Writer\Resource\AreaCountryTranslationResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\AreaCountry\Writer\Resource\AreaCountryTranslationResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\AreaCountryState\Writer\Resource\AreaCountryStateResource::class])) {
-            $event->addEvent(\Shopware\AreaCountryState\Writer\Resource\AreaCountryStateResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\AreaCountryState\Writer\Resource\AreaCountryStateResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class])) {
-            $event->addEvent(\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\OrderAddress\Writer\Resource\OrderAddressResource::class])) {
-            $event->addEvent(\Shopware\OrderAddress\Writer\Resource\OrderAddressResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\OrderAddress\Writer\Resource\OrderAddressResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\PaymentMethod\Writer\Resource\PaymentMethodCountryResource::class])) {
-            $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodCountryResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodCountryResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\ShippingMethod\Writer\Resource\ShippingMethodCountryResource::class])) {
-            $event->addEvent(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodCountryResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodCountryResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleResource::class])) {
-            $event->addEvent(\Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleResource::createWrittenEvent($updates, $context));
         }
 
         return $event;
+    }
+
+    public function getDefaults(string $type): array
+    {
+        if (self::FOR_UPDATE === $type) {
+            return [
+                self::UPDATED_AT_FIELD => new \DateTime(),
+            ];
+        }
+
+        if (self::FOR_INSERT === $type) {
+            return [
+                self::UPDATED_AT_FIELD => new \DateTime(),
+                self::CREATED_AT_FIELD => new \DateTime(),
+            ];
+        }
+
+        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

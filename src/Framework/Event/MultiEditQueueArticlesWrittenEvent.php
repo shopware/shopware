@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class MultiEditQueueArticlesWrittenEvent extends NestedEvent
 {
     const NAME = 'multi_edit_queue_articles.written';
@@ -9,28 +11,39 @@ class MultiEditQueueArticlesWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $multiEditQueueArticlesUuids;
+    protected $multiEditQueueArticlesUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $multiEditQueueArticlesUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $multiEditQueueArticlesUuids, TranslationContext $context, array $errors = [])
     {
         $this->multiEditQueueArticlesUuids = $multiEditQueueArticlesUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class EsBacklogWrittenEvent extends NestedEvent
 {
     const NAME = 'es_backlog.written';
@@ -9,28 +11,39 @@ class EsBacklogWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $esBacklogUuids;
+    protected $esBacklogUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $esBacklogUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $esBacklogUuids, TranslationContext $context, array $errors = [])
     {
         $this->esBacklogUuids = $esBacklogUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

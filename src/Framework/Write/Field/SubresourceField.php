@@ -24,7 +24,6 @@
 
 namespace Shopware\Framework\Write\Field;
 
-use Shopware\Framework\Write\FieldAware\WriteQueryQueueAware;
 use Shopware\Framework\Write\FieldAware\ExceptionStackAware;
 use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Framework\Write\FieldAware\FieldExtenderCollectionAware;
@@ -32,6 +31,7 @@ use Shopware\Framework\Write\FieldAware\PathAware;
 use Shopware\Framework\Write\FieldAware\ResourceRegistryAware;
 use Shopware\Framework\Write\FieldAware\SqlGatewayAware;
 use Shopware\Framework\Write\FieldAware\WriteContextAware;
+use Shopware\Framework\Write\FieldAware\WriteQueryQueueAware;
 use Shopware\Framework\Write\FieldException\FieldExceptionStack;
 use Shopware\Framework\Write\FieldException\MalformatDataException;
 use Shopware\Framework\Write\Query\WriteQueryQueue;

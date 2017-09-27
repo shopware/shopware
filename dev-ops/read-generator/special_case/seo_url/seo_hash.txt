@@ -8,3 +8,19 @@
         $this->seoHash = $seoHash;
     }
 
+    /**
+     * @var string
+     */
+    protected $url;
+
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(string $url): void
+    {
+        $this->url = $url;
+    }
+
+

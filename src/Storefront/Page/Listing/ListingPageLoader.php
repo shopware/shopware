@@ -25,8 +25,7 @@ class ListingPageLoader
         string $categoryUuid,
         Request $request,
         ShopContext $context
-    ): ListingPageStruct
-    {
+    ): ListingPageStruct {
         $criteria = $this->createCriteria($categoryUuid, $request);
 
         $products = $this->productRepository->search($criteria, $context);
@@ -40,26 +39,27 @@ class ListingPageLoader
     }
 
     /**
-     * @param string $categoryUuid
+     * @param string  $categoryUuid
      * @param Request $request
+     *
      * @return Criteria
      */
     private function createCriteria(string $categoryUuid, Request $request): Criteria
     {
         $limit = 20;
         if ($request->get('limit')) {
-            $limit = (int)$request->get('limit');
+            $limit = (int) $request->get('limit');
         }
         $page = 1;
         if ($request->get('page')) {
-            $page = (int)$request->get('page');
+            $page = (int) $request->get('page');
         }
 
         $criteria = new Criteria();
         $criteria->setOffset(($page - 1) * $limit);
         $criteria->setLimit($limit);
         $criteria->addFilter(new TermQuery('product.active', 1));
-        $criteria->addFilter(new TermQuery('product.categories.uuid', $categoryUuid));
+        $criteria->addFilter(new TermQuery('product.categoryTree.uuid', $categoryUuid));
 
         return $criteria;
     }

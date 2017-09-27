@@ -11,13 +11,6 @@
             <argument id="shopware.unit.basic_factory" type="service"/>
         </service>
 
-        <service class="Shopware\ProductDetail\Factory\ProductDetailDetailFactory" id="shopware.product_detail.detail_factory">
-            <argument id="dbal_connection" type="service"/>
-            <argument type="service" id="shopware.extension.registry" />
-            <argument id="shopware.product_detail_price.basic_factory" type="service"/>
-            <argument id="shopware.unit.basic_factory" type="service"/>
-        </service>
-
 
         <service class="Shopware\ProductDetail\Controller\ProductDetailController" id="shopware.product_detail.api_controller">
             <argument id="shopware.product_detail.repository" type="service"/>
@@ -32,22 +25,17 @@
         
         <service class="Shopware\ProductDetail\Loader\ProductDetailBasicLoader" id="shopware.product_detail.basic_loader">
             <argument id="shopware.product_detail.basic_factory" type="service"/>
-        </service>
-
-        <service class="Shopware\ProductDetail\Loader\ProductDetailDetailLoader" id="shopware.product_detail.detail_loader">
-            <argument id="shopware.product_detail.detail_factory" type="service"/>
             <argument id="shopware.product_detail_price.searcher" type="service"/>
         </service>
 
         <service class="Shopware\ProductDetail\Searcher\ProductDetailSearcher" id="shopware.product_detail.searcher">
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
-            <argument id="shopware.product_detail.detail_factory" type="service"/>
+            <argument id="shopware.product_detail.basic_factory" type="service"/>
             <argument id="shopware.product_detail.basic_loader" type="service"/>
         </service>
 
         <service class="Shopware\ProductDetail\Repository\ProductDetailRepository" id="shopware.product_detail.repository">
-            <argument id="shopware.product_detail.detail_loader" type="service"/>
             <argument id="shopware.product_detail.basic_loader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.product_detail.searcher" type="service"/>

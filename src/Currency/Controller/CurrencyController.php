@@ -69,12 +69,10 @@ class CurrencyController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $currencies,
-            'total' => $currencies->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $currencies, 'total' => $currencies->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -88,12 +86,12 @@ class CurrencyController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('currencyUuid');
-        $currencies = $this->currencyRepository->read(
+        $currencies = $this->currencyRepository->readDetail(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($currencies->get($uuid), $context);
+        return $this->createResponse(['data' => $currencies->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class CurrencyController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

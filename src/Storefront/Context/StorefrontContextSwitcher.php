@@ -47,10 +47,10 @@ class StorefrontContextSwitcher
 
     public function switchContext(?int $shippingMethodId, ?int $paymentMethodId): ShopContext
     {
-        if ($shippingMethodId !== null) {
+        if (null !== $shippingMethodId) {
             $this->session->set('shippingMethodId', $shippingMethodId);
         }
-        if ($paymentMethodId !== null) {
+        if (null !== $paymentMethodId) {
             $this->session->set('paymentMethodId', $paymentMethodId);
         }
 

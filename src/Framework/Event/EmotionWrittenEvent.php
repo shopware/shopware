@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class EmotionWrittenEvent extends NestedEvent
 {
     const NAME = 'emotion.written';
@@ -9,28 +11,39 @@ class EmotionWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $emotionUuids;
+    protected $emotionUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $emotionUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $emotionUuids, TranslationContext $context, array $errors = [])
     {
         $this->emotionUuids = $emotionUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

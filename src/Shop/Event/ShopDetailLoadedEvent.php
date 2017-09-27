@@ -52,16 +52,35 @@ class ShopDetailLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection([
+        $events = [
             new ShopBasicLoadedEvent($this->shops, $this->context),
-            new LocaleBasicLoadedEvent($this->shops->getFallbackLocales(), $this->context),
-            new CategoryBasicLoadedEvent($this->shops->getCategories(), $this->context),
-            new CustomerGroupBasicLoadedEvent($this->shops->getCustomerGroups(), $this->context),
-            new PaymentMethodBasicLoadedEvent($this->shops->getPaymentMethods(), $this->context),
-            new ShippingMethodBasicLoadedEvent($this->shops->getShippingMethods(), $this->context),
-            new AreaCountryBasicLoadedEvent($this->shops->getCountries(), $this->context),
-            new ShopTemplateBasicLoadedEvent($this->shops->getTemplates(), $this->context),
-            new CurrencyBasicLoadedEvent($this->shops->getAvailableCurrencies(), $this->context),
-        ]);
+        ];
+
+        if ($this->shops->getFallbackLocales()->count() > 0) {
+            $events[] = new LocaleBasicLoadedEvent($this->shops->getFallbackLocales(), $this->context);
+        }
+        if ($this->shops->getCategories()->count() > 0) {
+            $events[] = new CategoryBasicLoadedEvent($this->shops->getCategories(), $this->context);
+        }
+        if ($this->shops->getCustomerGroups()->count() > 0) {
+            $events[] = new CustomerGroupBasicLoadedEvent($this->shops->getCustomerGroups(), $this->context);
+        }
+        if ($this->shops->getPaymentMethods()->count() > 0) {
+            $events[] = new PaymentMethodBasicLoadedEvent($this->shops->getPaymentMethods(), $this->context);
+        }
+        if ($this->shops->getShippingMethods()->count() > 0) {
+            $events[] = new ShippingMethodBasicLoadedEvent($this->shops->getShippingMethods(), $this->context);
+        }
+        if ($this->shops->getCountries()->count() > 0) {
+            $events[] = new AreaCountryBasicLoadedEvent($this->shops->getCountries(), $this->context);
+        }
+        if ($this->shops->getTemplates()->count() > 0) {
+            $events[] = new ShopTemplateBasicLoadedEvent($this->shops->getTemplates(), $this->context);
+        }
+        if ($this->shops->getAvailableCurrencies()->count() > 0) {
+            $events[] = new CurrencyBasicLoadedEvent($this->shops->getAvailableCurrencies(), $this->context);
+        }
+
+        return new NestedEventCollection($events);
     }
 }

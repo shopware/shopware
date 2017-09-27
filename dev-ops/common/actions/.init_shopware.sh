@@ -3,6 +3,8 @@
 
 bin/console translation:import --with-plugins
 
-bin/console category:rebuild:tree
+bin/console denormalize:build:category:path
+
+bin/console denormalize:index:products
 
 bin/console seo:url:generate

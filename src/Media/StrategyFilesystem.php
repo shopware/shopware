@@ -57,7 +57,7 @@ class StrategyFilesystem extends AbstractFilesystem
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function listContents($directory = '', $recursive = false)
     {

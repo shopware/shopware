@@ -11,7 +11,6 @@ use Shopware\Product\Repository\ProductRepository;
 use Shopware\Product\Searcher\ProductSearchResult;
 use Shopware\Product\Struct\ProductBasicCollection;
 use Shopware\Product\Struct\ProductBasicStruct;
-use Shopware\ProductDetailPrice\Repository\ProductDetailPriceRepository;
 use Shopware\ProductDetailPrice\Searcher\ProductDetailPriceSearchResult;
 use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicCollection;
 use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicStruct;
@@ -29,22 +28,15 @@ class StorefrontProductRepository
     private $repository;
 
     /**
-     * @var ProductDetailPriceRepository
-     */
-    private $priceRepository;
-
-    /**
      * @var PriceCalculator
      */
     private $priceCalculator;
 
     public function __construct(
         ProductRepository $repository,
-        ProductDetailPriceRepository $priceRepository,
         PriceCalculator $priceCalculator
     ) {
         $this->repository = $repository;
-        $this->priceRepository = $priceRepository;
         $this->priceCalculator = $priceCalculator;
     }
 
@@ -52,16 +44,14 @@ class StorefrontProductRepository
     {
         $products = $this->repository->read($uuids, $context->getTranslationContext());
 
-        $prices = $this->fetchPrices($context, $products);
-
         $detailProducts = new ProductBasicCollection();
 
         foreach ($products as $product) {
             $detailProduct = DetailProductStruct::createFrom($product);
 
-            $calculated = $this->getCalculatedPrices($detailProduct, $prices, $context);
+            $calculated = $this->getCalculatedPrices($detailProduct, $context);
 
-            $detailProduct->setPrices($calculated);
+            $detailProduct->getMainDetail()->setPrices($calculated);
 
             $detailProducts->add($detailProduct);
         }
@@ -73,15 +63,16 @@ class StorefrontProductRepository
     {
         $products = $this->repository->read($uuids, $context->getTranslationContext());
 
-        $prices = $this->fetchPrices($context, $products);
-
         $listingProducts = new ProductBasicCollection();
 
+        /** @var ProductBasicStruct $product */
         foreach ($products as $product) {
             $listingProduct = ListingProductStruct::createFrom($product);
 
-            $listingProduct->setPrices(
-                $this->getCalculatedPrices($listingProduct, $prices, $context)
+            $prices = $product->getMainDetail()->getPrices();
+
+            $listingProduct->getMainDetail()->setPrices(
+                $this->getCalculatedPrices($listingProduct, $context)
             );
             $listingProduct->setListingPrice($this->getListingPrice($listingProduct));
 
@@ -115,10 +106,12 @@ class StorefrontProductRepository
         return $this->priceRepository->search($criteria, $context->getTranslationContext());
     }
 
-    private function getCalculatedPrices(ProductBasicStruct $product, ProductDetailPriceSearchResult $prices, ShopContext $context): ProductDetailPriceBasicCollection
+    private function getCalculatedPrices(ProductBasicStruct $product, ShopContext $context): ProductDetailPriceBasicCollection
     {
-        $productPrices = $prices->filterByProductDetailUuid($product->getMainDetailUuid());
-        $productPrices = $this->filterCustomerPrices($productPrices, $context);
+        $productPrices = $this->filterCustomerPrices(
+            $product->getMainDetail()->getPrices(),
+            $context
+        );
 
         return $this->calculatePrices($product, $productPrices, $context);
     }
@@ -156,11 +149,11 @@ class StorefrontProductRepository
     private function getListingPrice(ListingProductStruct $listingProduct): ListingPriceStruct
     {
         $listingPrice = ListingPriceStruct::createFrom(
-            $listingProduct->getPrices()->last()
+            $listingProduct->getMainDetail()->getPrices()->last()
         );
 
         $listingPrice->setHasDifferentPrices(
-            $listingProduct->getPrices()->count() > 0
+            $listingProduct->getMainDetail()->getPrices()->count() > 0
         );
 
         return $listingPrice;

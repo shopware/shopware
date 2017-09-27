@@ -26,7 +26,6 @@ namespace Shopware\Context\Service;
 
 use Doctrine\DBAL\Connection;
 use Shopware\AreaCountry\Repository\AreaCountryRepository;
-use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\AreaCountryState\Repository\AreaCountryStateRepository;
 use Shopware\Cart\Delivery\ShippingLocation;
 use Shopware\Context\Struct\CheckoutScope;
@@ -43,16 +42,13 @@ use Shopware\Customer\Struct\CustomerBasicStruct;
 use Shopware\CustomerAddress\Repository\CustomerAddressRepository;
 use Shopware\CustomerGroup\Repository\CustomerGroupRepository;
 use Shopware\PaymentMethod\Repository\PaymentMethodRepository;
-use Shopware\PaymentMethod\Struct\PaymentMethod;
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
 use Shopware\PriceGroupDiscount\Repository\PriceGroupDiscountRepository;
 use Shopware\Search\Criteria;
 use Shopware\ShippingMethod\Repository\ShippingMethodRepository;
-use Shopware\ShippingMethod\Struct\ShippingMethod;
 use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
 use Shopware\Shop\Repository\ShopRepository;
 use Shopware\Shop\Struct\Shop;
-use Shopware\Shop\Struct\ShopBasicStruct;
 use Shopware\Shop\Struct\ShopDetailStruct;
 use Shopware\Storefront\Context\StorefrontContextService;
 use Shopware\Tax\Repository\TaxRepository;
@@ -165,7 +161,7 @@ class ContextFactory implements ContextFactoryInterface
 
         //load active currency, fallback to shop currency
         $currency = $this->getCurrency($shop, $shopScope->getCurrencyUuid(), $translationContext);
-        
+
         //fallback customer group is hard coded to 'EK'
         $customerGroups = $this->customerGroupRepository->read(
             [StorefrontContextService::FALLBACK_CUSTOMER_GROUP],
@@ -177,7 +173,7 @@ class ContextFactory implements ContextFactoryInterface
 
         $customer = null;
 
-        if ($customerScope->getCustomerUuid() !== null) {
+        if (null !== $customerScope->getCustomerUuid()) {
             //load logged in customer and set active addresses
             $customer = $this->loadCustomer($customerScope, $translationContext);
 
@@ -228,7 +224,7 @@ class ContextFactory implements ContextFactoryInterface
 
     private function getCurrency(ShopDetailStruct $shop, ?string $currencyUuid, TranslationContext $context): CurrencyBasicStruct
     {
-        if ($currencyUuid === null) {
+        if (null === $currencyUuid) {
             return $shop->getCurrency();
         }
 
@@ -282,6 +278,7 @@ class ContextFactory implements ContextFactoryInterface
         $query->setParameter('uuid', $shopUuid);
 
         $data = $query->execute()->fetch(\PDO::FETCH_ASSOC);
+
         return new TranslationContext(
             $data['uuid'],
             (bool) $data['is_default'],
@@ -325,7 +322,6 @@ class ContextFactory implements ContextFactoryInterface
         TranslationContext $translationContext,
         CheckoutScope $checkoutScope
     ): ShippingLocation {
-
         //allows to preview cart calculation for a specify state for not logged in customers
         if ($checkoutScope->getStateUuid()) {
             $state = $this->countryStateRepository->read([$checkoutScope->getStateUuid()], $translationContext)

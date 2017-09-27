@@ -28,6 +28,11 @@ abstract class CustomerAddressExtension implements ExtensionInterface, EventSubs
     ): void {
     }
 
+    public function getDetailFields(): array
+    {
+        return [];
+    }
+
     public function getBasicFields(): array
     {
         return [];

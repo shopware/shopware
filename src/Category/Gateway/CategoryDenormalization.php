@@ -91,7 +91,7 @@ class CategoryDenormalization
      */
     public function rebuildCategoryPathCount($categoryUuid = null): int
     {
-        if ($categoryUuid === null) {
+        if (null === $categoryUuid) {
             $sql = '
                 SELECT count(uuid)
                 FROM category
@@ -128,7 +128,7 @@ class CategoryDenormalization
     public function rebuildCategoryPath($categoryUuid = null, $count = null, $offset = 0): int
     {
         $parameters = [];
-        if ($categoryUuid === null) {
+        if (null === $categoryUuid) {
             $sql = '
                 SELECT uuid, path
                 FROM  category
@@ -146,7 +146,7 @@ class CategoryDenormalization
             ];
         }
 
-        if ($count !== null) {
+        if (null !== $count) {
             $sql = $this->limit($sql, $count, $offset);
         }
 
@@ -242,7 +242,7 @@ class CategoryDenormalization
             GROUP BY parent_category_uuid
        ';
 
-        if ($count !== null) {
+        if (null !== $count) {
             $sql = $this->limit($sql, $count, $offset);
         }
 
@@ -319,7 +319,7 @@ class CategoryDenormalization
             GROUP BY c.uuid
         ';
 
-        if ($count !== null) {
+        if (null !== $count) {
             $affectedCategoriesSql = $this->limit($affectedCategoriesSql, $count, $offset);
         }
 
@@ -332,7 +332,7 @@ class CategoryDenormalization
         }
 
         // in case that a leaf category is moved
-        if (count($affectedCategories) === 0) {
+        if (0 === count($affectedCategories)) {
             $affectedCategories = [$categoryUuid];
         }
 
@@ -392,7 +392,7 @@ class CategoryDenormalization
             ORDER BY product_uuid, category_uuid
         ';
 
-        if ($count !== null) {
+        if (null !== $count) {
             $allAssignsSql = $this->limit($allAssignsSql, $count, $offset);
         }
 
@@ -608,7 +608,7 @@ class CategoryDenormalization
                 ]
             );
 
-            if ($selectStmt->fetchColumn() === false) {
+            if (false === $selectStmt->fetchColumn()) {
                 ++$count;
 
                 $insertStmt->execute(

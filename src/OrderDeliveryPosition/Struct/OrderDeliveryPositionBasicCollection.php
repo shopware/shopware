@@ -54,6 +54,17 @@ class OrderDeliveryPositionBasicCollection extends Collection
         });
     }
 
+    public function merge(OrderDeliveryPositionBasicCollection $collection)
+    {
+        /** @var OrderDeliveryPositionBasicStruct $orderDeliveryPosition */
+        foreach ($collection as $orderDeliveryPosition) {
+            if ($this->has($this->getKey($orderDeliveryPosition))) {
+                continue;
+            }
+            $this->add($orderDeliveryPosition);
+        }
+    }
+
     public function getOrderDeliveryUuids(): array
     {
         return $this->fmap(function (OrderDeliveryPositionBasicStruct $orderDeliveryPosition) {

@@ -20,6 +20,8 @@ class AreaCountryStateBasicFactory extends Factory
        'short_code' => 'short_code',
        'position' => 'position',
        'active' => 'active',
+       'created_at' => 'created_at',
+       'updated_at' => 'updated_at',
        'name' => 'translation.name',
     ];
 
@@ -34,6 +36,8 @@ class AreaCountryStateBasicFactory extends Factory
         $areaCountryState->setShortCode((string) $data[$selection->getField('short_code')]);
         $areaCountryState->setPosition((int) $data[$selection->getField('position')]);
         $areaCountryState->setActive((bool) $data[$selection->getField('active')]);
+        $areaCountryState->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
+        $areaCountryState->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
         $areaCountryState->setName((string) $data[$selection->getField('name')]);
 
         /** @var $extension AreaCountryStateExtension */

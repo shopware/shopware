@@ -31,10 +31,9 @@ use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Delivery\ShippingLocation;
 use Shopware\Cart\Rule\Rule;
 use Shopware\CartBridge\Rule\ShippingAreaRule;
-use Shopware\Framework\Struct\StructCollection;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\CountryArea\Struct\CountryArea;
 use Shopware\Country\Struct\Country;
+use Shopware\Framework\Struct\StructCollection;
 
 class ShippingAreaRuleTest extends TestCase
 {

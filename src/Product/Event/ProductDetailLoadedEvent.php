@@ -47,11 +47,23 @@ class ProductDetailLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection([
+        $events = [
             new ProductBasicLoadedEvent($this->products, $this->context),
-            new ProductDetailBasicLoadedEvent($this->products->getDetails(), $this->context),
-            new CategoryBasicLoadedEvent($this->products->getCategories(), $this->context),
-            new ProductVoteBasicLoadedEvent($this->products->getVotes(), $this->context),
-        ]);
+        ];
+
+        if ($this->products->getDetails()->count() > 0) {
+            $events[] = new ProductDetailBasicLoadedEvent($this->products->getDetails(), $this->context);
+        }
+        if ($this->products->getCategories()->count() > 0) {
+            $events[] = new CategoryBasicLoadedEvent($this->products->getCategories(), $this->context);
+        }
+        if ($this->products->getCategoryTree()->count() > 0) {
+            $events[] = new CategoryBasicLoadedEvent($this->products->getCategoryTree(), $this->context);
+        }
+        if ($this->products->getVotes()->count() > 0) {
+            $events[] = new ProductVoteBasicLoadedEvent($this->products->getVotes(), $this->context);
+        }
+
+        return new NestedEventCollection($events);
     }
 }

@@ -4,9 +4,6 @@ namespace Shopware\Product\Tests;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Category\Gateway\CategoryDenormalization;
-use Shopware\Framework\Api\Generator;
-use Shopware\Framework\Api\WriteContext;
-use Shopware\Framework\Api\Writer;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class CategoryDenormalizationTest extends KernelTestCase
@@ -22,7 +19,6 @@ class CategoryDenormalizationTest extends KernelTestCase
      * @var CategoryDenormalization
      */
     private $categoryDenormalization;
-
 
     public function setUp()
     {
@@ -46,7 +42,8 @@ class CategoryDenormalizationTest extends KernelTestCase
         self::assertEquals(6, $count);
     }
 
-    public function test_to_create_all_assignments() {
+    public function test_to_create_all_assignments()
+    {
         $limit = 10;
         $progress = 0;
         $this->categoryDenormalization->removeOrphanedAssignments();

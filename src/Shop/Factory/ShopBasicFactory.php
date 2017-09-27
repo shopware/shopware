@@ -45,6 +45,8 @@ class ShopBasicFactory extends Factory
        'payment_method_uuid' => 'payment_method_uuid',
        'shipping_method_uuid' => 'shipping_method_uuid',
        'area_country_uuid' => 'area_country_uuid',
+       'created_at' => 'created_at',
+       'updated_at' => 'updated_at',
     ];
 
     /**
@@ -98,6 +100,8 @@ class ShopBasicFactory extends Factory
         $shop->setPaymentMethodUuid(isset($data[$selection->getField('payment_method_uuid')]) ? (string) $data[$selection->getField('payment_method_uuid')] : null);
         $shop->setShippingMethodUuid(isset($data[$selection->getField('shipping_method_uuid')]) ? (string) $data[$selection->getField('shipping_method_uuid')] : null);
         $shop->setAreaCountryUuid(isset($data[$selection->getField('area_country_uuid')]) ? (string) $data[$selection->getField('area_country_uuid')] : null);
+        $shop->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
+        $shop->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
         $currency = $selection->filter('currency');
         if ($currency && !empty($data[$currency->getField('uuid')])) {
             $shop->setCurrency(

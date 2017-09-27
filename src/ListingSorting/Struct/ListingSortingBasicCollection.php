@@ -53,6 +53,17 @@ class ListingSortingBasicCollection extends Collection
         });
     }
 
+    public function merge(ListingSortingBasicCollection $collection)
+    {
+        /** @var ListingSortingBasicStruct $listingSorting */
+        foreach ($collection as $listingSorting) {
+            if ($this->has($this->getKey($listingSorting))) {
+                continue;
+            }
+            $this->add($listingSorting);
+        }
+    }
+
     protected function getKey(ListingSortingBasicStruct $element): string
     {
         return $element->getUuid();

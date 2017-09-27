@@ -53,6 +53,17 @@ class PriceGroupDiscountBasicCollection extends Collection
         });
     }
 
+    public function merge(PriceGroupDiscountBasicCollection $collection)
+    {
+        /** @var PriceGroupDiscountBasicStruct $priceGroupDiscount */
+        foreach ($collection as $priceGroupDiscount) {
+            if ($this->has($this->getKey($priceGroupDiscount))) {
+                continue;
+            }
+            $this->add($priceGroupDiscount);
+        }
+    }
+
     public function getPriceGroupUuids(): array
     {
         return $this->fmap(function (PriceGroupDiscountBasicStruct $priceGroupDiscount) {

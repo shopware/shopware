@@ -28,7 +28,6 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use ReadGenerator\Util;
-use Symfony\Component\DependencyInjection\Container;
 
 require_once __DIR__ . '/../../../dev-ops/read-generator/Util.php';
 
@@ -45,11 +44,6 @@ class Generator
     </services>
 </container>
 EOD;
-
-    /**
-     * @var Container
-     */
-    private $container;
 
     private $fieldTypeMap = [
         'description_long' => 'LongTextWithHtmlField',
@@ -81,9 +75,25 @@ EOD;
         'attr20',
     ];
 
-    public function __construct(Container $container)
+    private $ignoreTables = [
+        's_cart',
+    ];
+
+    /**
+     * @var \Doctrine\DBAL\Connection
+     */
+    private $connection;
+
+    public function __construct()
     {
-        $this->container = $container;
+        $connection = \Shopware\Framework\Doctrine\DatabaseConnector::createPdoConnection();
+
+        $this->connection = new \Doctrine\DBAL\Connection(
+            ['pdo' => $connection],
+            new \Doctrine\DBAL\Driver\PDOMySql\Driver(),
+            null,
+            null
+        );
     }
 
     public function generateAll()
@@ -95,11 +105,14 @@ EOD;
         @exec('rm -R ' . __DIR__ . '/../../**/Event/*WrittenEvent.php');
         @exec('rm -R ' . __DIR__ . '/Resource/*.php');
 
-        $connection = $this->container->get('dbal_connection');
+        $connection = $this->connection;
         $schemaManager = $connection->getSchemaManager();
 
         $tables = array_filter($schemaManager->listTableNames(), function ($name) {
             return false === strpos($name, '_attribute') && false === strpos($name, '_ro');
+        });
+        $tables = array_filter($tables, function ($name) {
+            return !in_array($name, $this->ignoreTables, true);
         });
 
         $resources = [];
@@ -114,13 +127,13 @@ EOD;
         $services = [];
 
         /** @var ResourceTemplate $resource */
-        foreach ($resources as $resource) {
+        foreach ($resources as $table => $resource) {
             @mkdir($resource->getPath(), 0777, true);
             @mkdir($resource->getEventPath(), 0777, true);
 
             file_put_contents(
                 $resource->getPath() . '/' . $resource->getClassName() . '.php',
-                $resource->renderClass()
+                $resource->renderClass($table)
             );
 
             file_put_contents(
@@ -146,7 +159,7 @@ EOD;
 
     public function generateBaseColumns(string $table): ResourceTemplate
     {
-        $connection = $this->container->get('dbal_connection');
+        $connection = $this->connection;
 
         $resourceTemplate = new ResourceTemplate($table);
 
@@ -187,7 +200,7 @@ EOD;
 
     public function generateForeignKeyColumns(string $table, array $resourceTemplates): ResourceTemplate
     {
-        $connection = $this->container->get('dbal_connection');
+        $connection = $this->connection;
 
         /** @var ResourceTemplate $resourceTemplate */
         $resourceTemplate = $resourceTemplates[$table];
@@ -309,7 +322,7 @@ EOD;
 
     private function isPrimary(Column $column, array $indexes): bool
     {
-        if ($column->getName() === 'uuid') {
+        if ('uuid' === $column->getName()) {
             return true;
         }
 
@@ -332,7 +345,7 @@ EOD;
 
     private function makeForeignKeyColumns(Column $column, string $tableName, string $foreignFieldName, string $foreignTableName, array $foreignResources, bool $isPrimary)
     {
-        if (strpos($column->getName(), '_uuid') === false) {
+        if (false === strpos($column->getName(), '_uuid')) {
             echo "Error at $tableName::{$column->getName()}\n ";
 
             return [];
@@ -494,6 +507,7 @@ class ResourceTemplate
 
 namespace %s;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\IntField;
@@ -527,9 +541,9 @@ class %s extends Resource
         ];
     }
     
-    public static function createWrittenEvent(array $updates, array $errors = []): \%s\Event\%sWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \%s\Event\%sWrittenEvent
     {
-        $event = new \%s\Event\%sWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \%s\Event\%sWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
@@ -542,31 +556,13 @@ EOD;
 
     private $eventBodyTemplate = <<<'EOD'
         if (!empty($updates[%s])) {
-            $event->addEvent(%s::createWrittenEvent($updates));
+            $event->addEvent(%s::createWrittenEvent($updates, $context));
         }
 
 
 EOD;
 
     private $defaultDateMethod = <<<'EOD'
-    
-    
-    public function getDefaults(string $type): array {
-        if($type === self::FOR_UPDATE) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if($type === self::FOR_INSERT) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
-    }
 EOD;
 
     private $serviceDefinitionTemplate = <<<'EOD'
@@ -582,6 +578,7 @@ namespace %s\Event;
 
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Context\Struct\TranslationContext;
 
 class %sWrittenEvent extends NestedEvent
 {
@@ -590,28 +587,39 @@ class %sWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $%sUuids;
+    protected $%sUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
+    
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
 
-    public function __construct(array $%sUuids, array $errors = [])
+    public function __construct(array $%sUuids, TranslationContext $context, array $errors = [])
     {
         $this->%sUuids = $%sUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+    
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**
@@ -760,7 +768,7 @@ EOD;
     {
         $tableName = $this->table;
 
-        if (strpos($tableName, 's_') === 0) {
+        if (0 === strpos($tableName, 's_')) {
             $tableName = substr($tableName, 2);
         }
 
@@ -776,11 +784,11 @@ EOD;
     {
         $tableName = $this->table;
 
-        if (strpos($tableName, $inRelationToTable) === 0) {
+        if (0 === strpos($tableName, $inRelationToTable)) {
             $tableName = substr($tableName, strlen($inRelationToTable));
         }
 
-        if (strpos($tableName, 's_') === 0) {
+        if (0 === strpos($tableName, 's_')) {
             $tableName = substr($tableName, 2);
         }
 
@@ -791,7 +799,7 @@ EOD;
     {
         $tableName = $this->table;
 
-        if (strpos($tableName, 's_') === 0) {
+        if (0 === strpos($tableName, 's_')) {
             $tableName = substr($tableName, 2);
         }
 
@@ -802,7 +810,7 @@ EOD;
     {
         $tableName = $this->table;
 
-        if (strpos($tableName, 's_') === 0) {
+        if (0 === strpos($tableName, 's_')) {
             $tableName = substr($tableName, 2);
         }
 
@@ -825,11 +833,22 @@ EOD;
         );
     }
 
-    public function renderClass(): string
+    public function renderClass($table): string
     {
         $renderedOrder = [];
         foreach (array_unique($this->order) as $classRef) {
             $renderedOrder[] = $classRef . '::class';
+        }
+
+        if ('order' === $table) {
+            $lineItemIndex = array_search('\Shopware\OrderLineItem\Writer\Resource\OrderLineItemResource::class', $renderedOrder, true);
+            $deliveryIndex = array_search('\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource::class', $renderedOrder, true);
+
+            if (false !== $lineItemIndex && false !== $deliveryIndex && $lineItemIndex > $deliveryIndex) {
+                $tmp = $renderedOrder[$deliveryIndex];
+                $renderedOrder[$deliveryIndex] = $renderedOrder[$lineItemIndex];
+                $renderedOrder[$lineItemIndex] = $tmp;
+            }
         }
 
         $clearedFields = [];
@@ -886,7 +905,7 @@ EOD;
     public function hasARequiredField()
     {
         foreach ($this->fields as $field) {
-            if (strpos($field, 'new Required()') !== false) {
+            if (false !== strpos($field, 'new Required()')) {
                 return true;
             }
         }
@@ -899,7 +918,7 @@ EOD;
         $srcDir = __DIR__ . '/../../';
         $tableName = $this->table;
 
-        if (strpos($tableName, 's_') === 0) {
+        if (0 === strpos($tableName, 's_')) {
             $tableName = substr($tableName, 2);
         }
 
@@ -919,7 +938,7 @@ EOD;
     private function hasDates()
     {
         foreach ($this->consts as $const) {
-            if (strpos($const, 'CREATED_AT_FIELD') !== false) {
+            if (false !== strpos($const, 'CREATED_AT_FIELD')) {
                 return true;
             }
         }

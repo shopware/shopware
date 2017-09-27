@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FloatField;
@@ -63,14 +64,14 @@ class EmarketingPartnerResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\EmarketingPartnerWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\EmarketingPartnerWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\EmarketingPartnerWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\EmarketingPartnerWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\EmarketingPartnerResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\EmarketingPartnerResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\EmarketingPartnerResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

@@ -37,7 +37,7 @@ use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 
-class  VoucherProcessor implements CartProcessorInterface
+class VoucherProcessor implements CartProcessorInterface
 {
     const TYPE_VOUCHER = 'voucher';
 

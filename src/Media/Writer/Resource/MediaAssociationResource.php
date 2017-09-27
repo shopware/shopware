@@ -2,6 +2,7 @@
 
 namespace Shopware\Media\Writer\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
@@ -29,14 +30,14 @@ class MediaAssociationResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Media\Event\MediaAssociationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Media\Event\MediaAssociationWrittenEvent
     {
-        $event = new \Shopware\Media\Event\MediaAssociationWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Media\Event\MediaAssociationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Media\Writer\Resource\MediaAssociationResource::class])) {
-            $event->addEvent(\Shopware\Media\Writer\Resource\MediaAssociationResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Media\Writer\Resource\MediaAssociationResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

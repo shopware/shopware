@@ -2,6 +2,7 @@
 
 namespace Shopware\Product\Event;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -12,28 +13,39 @@ class ProductCategorySeoWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $productCategorySeoUuids;
+    protected $productCategorySeoUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $productCategorySeoUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $productCategorySeoUuids, TranslationContext $context, array $errors = [])
     {
         $this->productCategorySeoUuids = $productCategorySeoUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

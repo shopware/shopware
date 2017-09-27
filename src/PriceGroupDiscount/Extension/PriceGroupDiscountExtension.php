@@ -28,6 +28,11 @@ abstract class PriceGroupDiscountExtension implements ExtensionInterface, EventS
     ): void {
     }
 
+    public function getDetailFields(): array
+    {
+        return [];
+    }
+
     public function getBasicFields(): array
     {
         return [];

@@ -28,6 +28,11 @@ abstract class LocaleExtension implements ExtensionInterface, EventSubscriberInt
     ): void {
     }
 
+    public function getDetailFields(): array
+    {
+        return [];
+    }
+
     public function getBasicFields(): array
     {
         return [];

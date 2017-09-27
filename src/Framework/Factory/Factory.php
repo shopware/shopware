@@ -26,10 +26,6 @@ abstract class Factory
         $this->registry = $registry;
     }
 
-    abstract protected function getRootName(): string;
-
-    abstract protected function getExtensionNamespace(): string;
-
     public function getFields(): array
     {
         return $this->getExtensionFields();
@@ -77,6 +73,15 @@ abstract class Factory
         return $query;
     }
 
+    public function getAllFields(): array
+    {
+        return $this->getFields();
+    }
+
+    abstract protected function getRootName(): string;
+
+    abstract protected function getExtensionNamespace(): string;
+
     protected function joinExtensionDependencies(QuerySelection $selection, QueryBuilder $query, TranslationContext $context): void
     {
         foreach ($this->getExtensions() as $extension) {
@@ -101,11 +106,7 @@ abstract class Factory
                 $fields[$key] = $field;
             }
         }
-        return $fields;
-    }
 
-    public function getAllFields(): array
-    {
-        return $this->getFields();
+        return $fields;
     }
 }

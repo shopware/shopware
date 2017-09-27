@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class FilterOptionTranslationWrittenEvent extends NestedEvent
 {
     const NAME = 'filter_option_translation.written';
@@ -9,28 +11,39 @@ class FilterOptionTranslationWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $filterOptionTranslationUuids;
+    protected $filterOptionTranslationUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $filterOptionTranslationUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $filterOptionTranslationUuids, TranslationContext $context, array $errors = [])
     {
         $this->filterOptionTranslationUuids = $filterOptionTranslationUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

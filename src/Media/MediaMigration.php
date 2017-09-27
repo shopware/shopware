@@ -60,7 +60,7 @@ class MediaMigration implements MediaMigrationInterface
      */
     private $statistics = [
         'migrated' => 0,
-        'skipped' => 0
+        'skipped' => 0,
     ];
 
     public function __construct(FilesystemInterface $filesystem, StrategyInterface $toStrategy, EventDispatcherInterface $event, LoggerInterface $logger)
@@ -96,12 +96,12 @@ class MediaMigration implements MediaMigrationInterface
         $cnt = 0;
 
         foreach ($contents as $item) {
-            if ($item['type'] === 'dir') {
+            if ('dir' === $item['type']) {
                 $cnt += $this->countFiles($item['path']);
             }
 
-            if ($item['type'] === 'file') {
-                if (strpos($item['basename'], '.') === 0) {
+            if ('file' === $item['type']) {
+                if (0 === strpos($item['basename'], '.')) {
                     continue;
                 }
 
@@ -139,13 +139,13 @@ class MediaMigration implements MediaMigrationInterface
         $contents = $this->filesystem->listContents($directory);
 
         foreach ($contents as $item) {
-            if ($item['type'] === 'dir') {
+            if ('dir' === $item['type']) {
                 $this->migrateFiles($item['path']);
                 continue;
             }
 
-            if ($item['type'] === 'file') {
-                if (strpos($item['basename'], '.') === 0) {
+            if ('file' === $item['type']) {
+                if (0 === strpos($item['basename'], '.')) {
                     continue;
                 }
 

@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class MultiEditFilterWrittenEvent extends NestedEvent
 {
     const NAME = 'multi_edit_filter.written';
@@ -9,28 +11,39 @@ class MultiEditFilterWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $multiEditFilterUuids;
+    protected $multiEditFilterUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $multiEditFilterUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $multiEditFilterUuids, TranslationContext $context, array $errors = [])
     {
         $this->multiEditFilterUuids = $multiEditFilterUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

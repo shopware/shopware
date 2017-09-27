@@ -41,6 +41,5 @@ class Category extends Bundle
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('read_services.xml');
         $loader->load('write-resources.xml');
-        $loader->load('services.xml');
     }
 }

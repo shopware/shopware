@@ -30,12 +30,10 @@ use Shopware\AreaCountryState\Struct\AreaCountryStateBasicStruct;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Delivery\ShippingLocation;
 use Shopware\CartBridge\Rule\ShippingStreetRule;
-use Shopware\Address\Struct\Address;
-use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Framework\Struct\StructCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Country\Struct\Country;
-use Shopware\CountryState\Struct\CountryState;
+use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Framework\Struct\StructCollection;
 
 class ShippingStreetRuleTest extends TestCase
 {

@@ -10,7 +10,7 @@ use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\PriceGroup\Factory\PriceGroupBasicFactory;
 use Shopware\Product\Struct\ProductBasicStruct;
 use Shopware\Product\Struct\ProductDetailStruct;
-use Shopware\ProductDetail\Factory\ProductDetailDetailFactory;
+use Shopware\ProductDetail\Factory\ProductDetailBasicFactory;
 use Shopware\ProductManufacturer\Factory\ProductManufacturerBasicFactory;
 use Shopware\ProductVote\Factory\ProductVoteBasicFactory;
 use Shopware\Search\QueryBuilder;
@@ -21,7 +21,7 @@ use Shopware\Tax\Factory\TaxBasicFactory;
 class ProductDetailFactory extends ProductBasicFactory
 {
     /**
-     * @var ProductDetailDetailFactory
+     * @var ProductDetailBasicFactory
      */
     protected $productDetailFactory;
 
@@ -38,7 +38,7 @@ class ProductDetailFactory extends ProductBasicFactory
     public function __construct(
         Connection $connection,
         ExtensionRegistryInterface $registry,
-        ProductDetailDetailFactory $productDetailFactory,
+        ProductDetailBasicFactory $productDetailFactory,
         CategoryBasicFactory $categoryFactory,
         ProductVoteBasicFactory $productVoteFactory,
         ProductManufacturerBasicFactory $productManufacturerFactory,
@@ -47,7 +47,7 @@ class ProductDetailFactory extends ProductBasicFactory
         PriceGroupBasicFactory $priceGroupFactory,
         CustomerGroupBasicFactory $customerGroupFactory
     ) {
-        parent::__construct($connection, $registry, $productManufacturerFactory, $productDetailFactory, $taxFactory, $seoUrlFactory, $priceGroupFactory, $customerGroupFactory);
+        parent::__construct($connection, $registry, $productManufacturerFactory, $taxFactory, $seoUrlFactory, $priceGroupFactory, $customerGroupFactory);
         $this->productDetailFactory = $productDetailFactory;
         $this->categoryFactory = $categoryFactory;
         $this->productVoteFactory = $productVoteFactory;
@@ -57,6 +57,7 @@ class ProductDetailFactory extends ProductBasicFactory
     {
         $fields = array_merge(parent::getFields(), $this->getExtensionFields());
         $fields['_sub_select_category_uuids'] = '_sub_select_category_uuids';
+        $fields['_sub_select_categoryTree_uuids'] = '_sub_select_categoryTree_uuids';
 
         return $fields;
     }
@@ -72,6 +73,11 @@ class ProductDetailFactory extends ProductBasicFactory
         if ($selection->hasField('_sub_select_category_uuids')) {
             $uuids = explode('|', $data[$selection->getField('_sub_select_category_uuids')]);
             $product->setCategoryUuids(array_values(array_filter($uuids)));
+        }
+
+        if ($selection->hasField('_sub_select_categoryTree_uuids')) {
+            $uuids = explode('|', $data[$selection->getField('_sub_select_categoryTree_uuids')]);
+            $product->setCategoryTreeUuids(array_values(array_filter($uuids)));
         }
 
         return $product;
@@ -99,7 +105,7 @@ class ProductDetailFactory extends ProductBasicFactory
 
             $query->leftJoin(
                 $selection->getRootEscaped(),
-                'product_category_ro',
+                'product_category',
                 $mapping,
                 sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $mapping)
             );
@@ -119,9 +125,40 @@ class ProductDetailFactory extends ProductBasicFactory
             $query->addSelect('
                 (
                     SELECT GROUP_CONCAT(mapping.category_uuid SEPARATOR \'|\')
-                    FROM product_category_ro mapping
+                    FROM product_category mapping
                     WHERE mapping.product_uuid = ' . $selection->getRootEscaped() . '.uuid
                 ) as ' . QuerySelection::escape($selection->getField('_sub_select_category_uuids'))
+            );
+        }
+
+        if ($categoryTree = $selection->filter('categoryTree')) {
+            $mapping = QuerySelection::escape($categoryTree->getRoot() . '.mapping');
+
+            $query->leftJoin(
+                $selection->getRootEscaped(),
+                'product_category_ro',
+                $mapping,
+                sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $mapping)
+            );
+            $query->leftJoin(
+                $mapping,
+                'category',
+                $categoryTree->getRootEscaped(),
+                sprintf('%s.category_uuid = %s.uuid', $mapping, $categoryTree->getRootEscaped())
+            );
+
+            $this->categoryFactory->joinDependencies($categoryTree, $query, $context);
+
+            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+        }
+
+        if ($selection->hasField('_sub_select_categoryTree_uuids')) {
+            $query->addSelect('
+                (
+                    SELECT GROUP_CONCAT(mapping.category_uuid SEPARATOR \'|\')
+                    FROM product_category_ro mapping
+                    WHERE mapping.product_uuid = ' . $selection->getRootEscaped() . '.uuid
+                ) as ' . QuerySelection::escape($selection->getField('_sub_select_categoryTree_uuids'))
             );
         }
 
@@ -144,6 +181,7 @@ class ProductDetailFactory extends ProductBasicFactory
         $fields = parent::getAllFields();
         $fields['details'] = $this->productDetailFactory->getAllFields();
         $fields['categories'] = $this->categoryFactory->getAllFields();
+        $fields['categoryTree'] = $this->categoryFactory->getAllFields();
         $fields['votes'] = $this->productVoteFactory->getAllFields();
 
         return $fields;

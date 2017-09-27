@@ -69,12 +69,10 @@ class SeoUrlController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $seoUrls,
-            'total' => $seoUrls->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $seoUrls, 'total' => $seoUrls->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -93,7 +91,7 @@ class SeoUrlController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($seoUrls->get($uuid), $context);
+        return $this->createResponse(['data' => $seoUrls->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class SeoUrlController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

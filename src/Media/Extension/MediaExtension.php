@@ -28,6 +28,11 @@ abstract class MediaExtension implements ExtensionInterface, EventSubscriberInte
     ): void {
     }
 
+    public function getDetailFields(): array
+    {
+        return [];
+    }
+
     public function getBasicFields(): array
     {
         return [];

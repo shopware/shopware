@@ -40,7 +40,7 @@ class VoucherValidator implements ValidatorInterface
     ): bool {
         $vouchers = $cart->getCalculatedLineItems()->filterInstance(CalculatedVoucher::class);
 
-        if ($vouchers->count() === 0) {
+        if (0 === $vouchers->count()) {
             return true;
         }
 

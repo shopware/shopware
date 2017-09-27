@@ -1,6 +1,6 @@
         $#associationClassLc# = $selection->filter('#propertyLc#');
         if ($#associationClassLc# && !empty($data[$#associationClassLc#->getField('uuid')])) {
             $#classLc#->set#propertyUc#(
-                $this->#associationClassLc#Factory->hydrate($data, new #classUc#BasicStruct(), $#associationClassLc#, $context)
+                $this->#associationClassLc#Factory->hydrate($data, new #classUc##type#Struct(), $#associationClassLc#, $context)
             );
         }

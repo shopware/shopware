@@ -69,12 +69,10 @@ class HolidayController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $holidays,
-            'total' => $holidays->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $holidays, 'total' => $holidays->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -93,7 +91,7 @@ class HolidayController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($holidays->get($uuid), $context);
+        return $this->createResponse(['data' => $holidays->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class HolidayController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

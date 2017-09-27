@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Firewall;
 
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\EquatableInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class CustomerUser implements UserInterface, EquatableInterface
 {
@@ -51,7 +51,7 @@ class CustomerUser implements UserInterface, EquatableInterface
 
     public function isEqualTo(UserInterface $user)
     {
-        if (!$user instanceof CustomerUser) {
+        if (!$user instanceof self) {
             return false;
         }
 

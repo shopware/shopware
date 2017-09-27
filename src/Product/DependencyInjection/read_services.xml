@@ -9,7 +9,6 @@
             <argument id="dbal_connection" type="service"/>
             <argument type="service" id="shopware.extension.registry" />
             <argument id="shopware.product_manufacturer.basic_factory" type="service"/>
-            <argument id="shopware.product_detail.basic_factory" type="service"/>
             <argument id="shopware.tax.basic_factory" type="service"/>
             <argument id="shopware.seo_url.basic_factory" type="service"/>
             <argument id="shopware.price_group.basic_factory" type="service"/>
@@ -19,7 +18,7 @@
         <service class="Shopware\Product\Factory\ProductDetailFactory" id="shopware.product.detail_factory">
             <argument id="dbal_connection" type="service"/>
             <argument type="service" id="shopware.extension.registry" />
-            <argument id="shopware.product_detail.detail_factory" type="service"/>
+            <argument id="shopware.product_detail.basic_factory" type="service"/>
             <argument id="shopware.category.basic_factory" type="service"/>
             <argument id="shopware.product_vote.basic_factory" type="service"/>
             <argument id="shopware.product_manufacturer.basic_factory" type="service"/>
@@ -43,14 +42,17 @@
         
         <service class="Shopware\Product\Loader\ProductBasicLoader" id="shopware.product.basic_loader">
             <argument id="shopware.product.basic_factory" type="service"/>
+            <argument id="shopware.product_detail.basic_loader" type="service"/>
             <argument id="shopware.customer_group.basic_loader" type="service"/>
+            <argument id="shopware.product_listing_price_ro.searcher" type="service"/>
         </service>
 
         <service class="Shopware\Product\Loader\ProductDetailLoader" id="shopware.product.detail_loader">
             <argument id="shopware.product.detail_factory" type="service"/>
+            <argument id="shopware.product_detail.basic_loader" type="service"/>
             <argument id="shopware.customer_group.basic_loader" type="service"/>
+            <argument id="shopware.product_listing_price_ro.searcher" type="service"/>
             <argument id="shopware.product_detail.searcher" type="service"/>
-            <argument id="shopware.product_detail.detail_loader" type="service"/>
             <argument id="shopware.category.basic_loader" type="service"/>
             <argument id="shopware.product_vote.searcher" type="service"/>
         </service>

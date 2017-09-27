@@ -6,7 +6,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckoutController extends FrontendController
@@ -35,6 +34,7 @@ class CheckoutController extends FrontendController
      * @Route("/checkout/confirm", name="checkout_confirm", options={"seo"="false"})
      *
      * @param ShopContext $context
+     *
      * @return RedirectResponse|Response
      */
     public function confirmAction(ShopContext $context): Response
@@ -44,7 +44,7 @@ class CheckoutController extends FrontendController
         if (!$context->getCustomer()) {
             return $this->redirectToRoute('account_login');
         }
-        if ($cartService->getCart()->getCalculatedCart()->getCalculatedLineItems()->count() === 0) {
+        if (0 === $cartService->getCart()->getCalculatedCart()->getCalculatedLineItems()->count()) {
             return $this->redirectToRoute('checkout_cart');
         }
 
@@ -59,6 +59,7 @@ class CheckoutController extends FrontendController
      * @Method({"POST"})
      *
      * @param ShopContext $context
+     *
      * @return RedirectResponse|Response
      */
     public function finishAction(ShopContext $context): Response
@@ -68,7 +69,7 @@ class CheckoutController extends FrontendController
         if (!$context->getCustomer()) {
             return $this->redirectToRoute('account_login');
         }
-        if ($cartService->getCart()->getCalculatedCart()->getCalculatedLineItems()->count() === 0) {
+        if (0 === $cartService->getCart()->getCalculatedCart()->getCalculatedLineItems()->count()) {
             return $this->redirectToRoute('checkout_cart');
         }
 
@@ -78,7 +79,7 @@ class CheckoutController extends FrontendController
 
         return $this->render('frontend/checkout/finish.html.twig', [
             'cart' => $clonedCart,
-            'customer' => $context->getCustomer()
+            'customer' => $context->getCustomer(),
         ]);
     }
 }

@@ -26,16 +26,12 @@ namespace Shopware\Cart\Test\Infrastructure\Validator\Rule;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
-use Shopware\AreaCountryState\Struct\AreaCountryStateBasicStruct;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Delivery\ShippingLocation;
 use Shopware\CartBridge\Rule\ShippingZipCodeRule;
-use Shopware\Address\Struct\Address;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
-use Shopware\Context\Struct\ShopContext;
-use Shopware\Country\Struct\Country;
-use Shopware\CountryState\Struct\CountryState;
 
 class ShippingZipCodeRuleTest extends TestCase
 {

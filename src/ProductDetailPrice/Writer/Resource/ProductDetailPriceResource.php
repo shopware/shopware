@@ -2,6 +2,8 @@
 
 namespace Shopware\ProductDetailPrice\Writer\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\FloatField;
 use Shopware\Framework\Write\Field\IntField;
@@ -19,6 +21,8 @@ class ProductDetailPriceResource extends Resource
     protected const PSEUDO_PRICE_FIELD = 'pseudoPrice';
     protected const BASE_PRICE_FIELD = 'basePrice';
     protected const PERCENTAGE_FIELD = 'percentage';
+    protected const CREATED_AT_FIELD = 'createdAt';
+    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -31,6 +35,8 @@ class ProductDetailPriceResource extends Resource
         $this->fields[self::PSEUDO_PRICE_FIELD] = new FloatField('pseudo_price');
         $this->fields[self::BASE_PRICE_FIELD] = new FloatField('base_price');
         $this->fields[self::PERCENTAGE_FIELD] = new FloatField('percentage');
+        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
+        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['customerGroup'] = new ReferenceField('customerGroupUuid', 'uuid', \Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::class);
         $this->fields['customerGroupUuid'] = (new FkField('customer_group_uuid', \Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['productDetail'] = new ReferenceField('productDetailUuid', 'uuid', \Shopware\ProductDetail\Writer\Resource\ProductDetailResource::class);
@@ -46,24 +52,42 @@ class ProductDetailPriceResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\ProductDetailPrice\Event\ProductDetailPriceWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ProductDetailPrice\Event\ProductDetailPriceWrittenEvent
     {
-        $event = new \Shopware\ProductDetailPrice\Event\ProductDetailPriceWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\ProductDetailPrice\Event\ProductDetailPriceWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::class])) {
-            $event->addEvent(\Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\ProductDetail\Writer\Resource\ProductDetailResource::class])) {
-            $event->addEvent(\Shopware\ProductDetail\Writer\Resource\ProductDetailResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\ProductDetail\Writer\Resource\ProductDetailResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceResource::class])) {
-            $event->addEvent(\Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceResource::createWrittenEvent($updates, $context));
         }
 
         return $event;
+    }
+
+    public function getDefaults(string $type): array
+    {
+        if (self::FOR_UPDATE === $type) {
+            return [
+                self::UPDATED_AT_FIELD => new \DateTime(),
+            ];
+        }
+
+        if (self::FOR_INSERT === $type) {
+            return [
+                self::UPDATED_AT_FIELD => new \DateTime(),
+                self::CREATED_AT_FIELD => new \DateTime(),
+            ];
+        }
+
+        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

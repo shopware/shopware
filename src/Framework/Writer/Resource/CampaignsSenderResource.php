@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\Resource;
@@ -26,14 +27,14 @@ class CampaignsSenderResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\CampaignsSenderWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CampaignsSenderWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\CampaignsSenderWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\CampaignsSenderWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\CampaignsSenderResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\CampaignsSenderResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\CampaignsSenderResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

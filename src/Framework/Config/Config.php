@@ -55,7 +55,7 @@ class Config extends ParameterBag implements \ArrayAccess
 
     public function formatName($name)
     {
-        if (strpos($name, 's') === 0 && preg_match('#^s[A-Z]#', $name)) {
+        if (0 === strpos($name, 's') && preg_match('#^s[A-Z]#', $name)) {
             $name = substr($name, 1);
         }
 

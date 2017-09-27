@@ -9,6 +9,7 @@ use Shopware\Framework\Event\NestedEventCollection;
 use Shopware\PriceGroup\Event\PriceGroupBasicLoadedEvent;
 use Shopware\Product\Struct\ProductBasicCollection;
 use Shopware\ProductDetail\Event\ProductDetailBasicLoadedEvent;
+use Shopware\ProductListingPrice\Event\ProductListingPriceBasicLoadedEvent;
 use Shopware\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
 use Shopware\SeoUrl\Event\SeoUrlBasicLoadedEvent;
 use Shopware\Tax\Event\TaxBasicLoadedEvent;
@@ -50,13 +51,29 @@ class ProductBasicLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection([
-            new ProductManufacturerBasicLoadedEvent($this->products->getManufacturers(), $this->context),
-            new ProductDetailBasicLoadedEvent($this->products->getMainDetails(), $this->context),
-            new TaxBasicLoadedEvent($this->products->getTaxes(), $this->context),
-            new SeoUrlBasicLoadedEvent($this->products->getCanonicalUrls(), $this->context),
-            new PriceGroupBasicLoadedEvent($this->products->getPriceGroups(), $this->context),
-            new CustomerGroupBasicLoadedEvent($this->products->getBlockedCustomerGroups(), $this->context),
-        ]);
+        $events = [];
+        if ($this->products->getManufacturers()->count() > 0) {
+            $events[] = new ProductManufacturerBasicLoadedEvent($this->products->getManufacturers(), $this->context);
+        }
+        if ($this->products->getMainDetails()->count() > 0) {
+            $events[] = new ProductDetailBasicLoadedEvent($this->products->getMainDetails(), $this->context);
+        }
+        if ($this->products->getTaxes()->count() > 0) {
+            $events[] = new TaxBasicLoadedEvent($this->products->getTaxes(), $this->context);
+        }
+        if ($this->products->getCanonicalUrls()->count() > 0) {
+            $events[] = new SeoUrlBasicLoadedEvent($this->products->getCanonicalUrls(), $this->context);
+        }
+        if ($this->products->getPriceGroups()->count() > 0) {
+            $events[] = new PriceGroupBasicLoadedEvent($this->products->getPriceGroups(), $this->context);
+        }
+        if ($this->products->getBlockedCustomerGroups()->count() > 0) {
+            $events[] = new CustomerGroupBasicLoadedEvent($this->products->getBlockedCustomerGroups(), $this->context);
+        }
+        if ($this->products->getListingPrices()->count() > 0) {
+            $events[] = new ProductListingPriceBasicLoadedEvent($this->products->getListingPrices(), $this->context);
+        }
+
+        return new NestedEventCollection($events);
     }
 }

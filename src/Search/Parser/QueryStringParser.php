@@ -33,7 +33,7 @@ class QueryStringParser
                 return new TermQuery($query['field'], $query['value']);
             case 'nested':
                 return new NestedQuery(
-                    array_map(function(array $query) {
+                    array_map(function (array $query) {
                         return self::fromArray($query);
                     }, $query['queries']),
                     array_key_exists('operator', $query) ? $query['operator'] : 'AND'
@@ -42,7 +42,7 @@ class QueryStringParser
                 return new MatchQuery($query['field'], $query['value']);
             case 'not':
                 return new NotQuery(
-                    array_map(function(array $query) {
+                    array_map(function (array $query) {
                         return self::fromArray($query);
                     }, $query['queries']),
                     array_key_exists('operator', $query) ? $query['operator'] : 'AND'
@@ -66,45 +66,44 @@ class QueryStringParser
                 return [
                     'type' => 'term',
                     'field' => $query->getField(),
-                    'value' => $query->getValue()
+                    'value' => $query->getValue(),
                 ];
             case $query instanceof NestedQuery:
                 return [
                     'type' => 'nested',
-                    'queries' => array_map(function(Query $nested) {
+                    'queries' => array_map(function (Query $nested) {
                         return self::toArray($nested);
                     }, $query->getQueries()),
-                    'operator' => $query->getOperator()
+                    'operator' => $query->getOperator(),
                 ];
             case $query instanceof MatchQuery:
                 return [
                     'type' => 'match',
                     'field' => $query->getField(),
-                    'value' => $query->getValue()
+                    'value' => $query->getValue(),
                 ];
             case $query instanceof NotQuery:
                 return [
                     'type' => 'not',
-                    'queries' => array_map(function(Query $nested) {
+                    'queries' => array_map(function (Query $nested) {
                         return self::toArray($nested);
                     }, $query->getQueries()),
-                    'operator' => $query->getOperator()
+                    'operator' => $query->getOperator(),
                 ];
             case $query instanceof RangeQuery:
                 return [
                     'type' => 'range',
                     'field' => $query->getField(),
-                    'parameters' => $query->getParameters()
+                    'parameters' => $query->getParameters(),
                 ];
             case $query instanceof TermsQuery:
                 return [
                     'type' => 'term',
                     'field' => $query->getField(),
-                    'value' => implode('|', $query->getValue())
+                    'value' => implode('|', $query->getValue()),
                 ];
             default:
                 throw new \RuntimeException(sprintf('Unsupported query type %s', get_class($query)));
         }
     }
-
 }

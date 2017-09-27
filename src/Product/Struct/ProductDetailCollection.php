@@ -57,6 +57,28 @@ class ProductDetailCollection extends ProductBasicCollection
         return $collection;
     }
 
+    public function getCategoryTreeUuids(): array
+    {
+        $uuids = [];
+        foreach ($this->elements as $element) {
+            foreach ($element->getCategoryTreeUuids() as $uuid) {
+                $uuids[] = $uuid;
+            }
+        }
+
+        return $uuids;
+    }
+
+    public function getCategoryTree(): CategoryBasicCollection
+    {
+        $collection = new CategoryBasicCollection();
+        foreach ($this->elements as $element) {
+            $collection->fill($element->getCategoryTree()->getIterator()->getArrayCopy());
+        }
+
+        return $collection;
+    }
+
     public function getVoteUuids(): array
     {
         $uuids = [];

@@ -17,6 +17,8 @@ class UnitBasicFactory extends Factory
     const FIELDS = [
        'id' => 'id',
        'uuid' => 'uuid',
+       'created_at' => 'created_at',
+       'updated_at' => 'updated_at',
        'short_code' => 'translation.short_code',
        'name' => 'translation.name',
     ];
@@ -29,6 +31,8 @@ class UnitBasicFactory extends Factory
     ): UnitBasicStruct {
         $unit->setId((int) $data[$selection->getField('id')]);
         $unit->setUuid((string) $data[$selection->getField('uuid')]);
+        $unit->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
+        $unit->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
         $unit->setShortCode((string) $data[$selection->getField('short_code')]);
         $unit->setName((string) $data[$selection->getField('name')]);
 

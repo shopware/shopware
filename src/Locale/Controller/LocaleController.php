@@ -69,12 +69,10 @@ class LocaleController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $locales,
-            'total' => $locales->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $locales, 'total' => $locales->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -93,7 +91,7 @@ class LocaleController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($locales->get($uuid), $context);
+        return $this->createResponse(['data' => $locales->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class LocaleController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

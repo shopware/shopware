@@ -34,13 +34,12 @@ class Product extends Bundle
     /**
      * {@inheritdoc}
      */
-    public function build(ContainerBuilder $container)
+    public function build(ContainerBuilder $container): void
     {
         parent::build($container);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('read_services.xml');
         $loader->load('write-resources.xml');
-        $loader->load('services.xml');
     }
 }

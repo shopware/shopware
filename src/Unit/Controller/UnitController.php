@@ -69,12 +69,10 @@ class UnitController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $units,
-            'total' => $units->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $units, 'total' => $units->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -93,7 +91,7 @@ class UnitController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($units->get($uuid), $context);
+        return $this->createResponse(['data' => $units->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class UnitController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

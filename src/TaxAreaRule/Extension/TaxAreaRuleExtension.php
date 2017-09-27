@@ -28,6 +28,11 @@ abstract class TaxAreaRuleExtension implements ExtensionInterface, EventSubscrib
     ): void {
     }
 
+    public function getDetailFields(): array
+    {
+        return [];
+    }
+
     public function getBasicFields(): array
     {
         return [];

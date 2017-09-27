@@ -38,6 +38,16 @@ class ProductStreamBasicStruct extends Struct
     protected $listingSortingUuid;
 
     /**
+     * @var \DateTime|null
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $updatedAt;
+
+    /**
      * @var ListingSortingBasicStruct
      */
     protected $sorting;
@@ -100,6 +110,26 @@ class ProductStreamBasicStruct extends Struct
     public function setListingSortingUuid(?string $listingSortingUuid): void
     {
         $this->listingSortingUuid = $listingSortingUuid;
+    }
+
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTime $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 
     public function getSorting(): ListingSortingBasicStruct

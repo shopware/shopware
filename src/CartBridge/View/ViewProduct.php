@@ -69,7 +69,6 @@ class ViewProduct extends ProductBasicStruct implements ViewLineItemInterface
         ProductDetailBasicStruct $variant,
         CalculatedProduct $calculatedProduct
     ): ViewProduct {
-
         $product = new self();
 
         foreach ($simpleProduct as $key => $value) {
@@ -111,5 +110,4 @@ class ViewProduct extends ProductBasicStruct implements ViewLineItemInterface
     {
         return $this->type;
     }
-
 }

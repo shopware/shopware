@@ -2,6 +2,7 @@
 
 namespace Shopware\Search\Writer\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\Resource;
@@ -28,14 +29,14 @@ class SearchIndexResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Search\Event\SearchIndexWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Search\Event\SearchIndexWrittenEvent
     {
-        $event = new \Shopware\Search\Event\SearchIndexWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Search\Event\SearchIndexWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Search\Writer\Resource\SearchIndexResource::class])) {
-            $event->addEvent(\Shopware\Search\Writer\Resource\SearchIndexResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Search\Writer\Resource\SearchIndexResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

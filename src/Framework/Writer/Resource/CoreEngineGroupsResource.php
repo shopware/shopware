@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
@@ -33,14 +34,14 @@ class CoreEngineGroupsResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\CoreEngineGroupsWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CoreEngineGroupsWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\CoreEngineGroupsWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\CoreEngineGroupsWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\CoreEngineGroupsResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\CoreEngineGroupsResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\CoreEngineGroupsResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

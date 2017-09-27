@@ -38,7 +38,7 @@ class ArraySerializer implements SerializerInterface
 
     public function supportsFormat(string $format): bool
     {
-        return $format === 'array';
+        return 'array' === $format;
     }
 
     public function serialize($data)

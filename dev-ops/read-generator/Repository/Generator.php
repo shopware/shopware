@@ -16,6 +16,14 @@ class Generator
         $this->directory = $directory;
     }
 
+    public function getFiles($table)
+    {
+        $class = Util::snakeCaseToCamelCase($table);
+        return [
+            $this->directory.'/'.ucfirst($class).'/Repository/'.ucfirst($class).'Repository.php'
+        ];
+    }
+
     public function generate(string $table, array $config)
     {
         $class = Util::snakeCaseToCamelCase($table);

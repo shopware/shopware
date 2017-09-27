@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\LongTextField;
 use Shopware\Framework\Write\Field\StringField;
@@ -34,14 +35,14 @@ class SchemaVersionResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\SchemaVersionWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\SchemaVersionWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\SchemaVersionWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\SchemaVersionWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\SchemaVersionResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\SchemaVersionResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\SchemaVersionResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

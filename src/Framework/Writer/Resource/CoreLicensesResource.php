@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\IntField;
@@ -52,14 +53,14 @@ class CoreLicensesResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\CoreLicensesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CoreLicensesWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\CoreLicensesWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\CoreLicensesWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\CoreLicensesResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\CoreLicensesResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\CoreLicensesResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

@@ -20,6 +20,8 @@ class ShippingMethodPriceBasicFactory extends Factory
        'quantity_from' => 'quantity_from',
        'price' => 'price',
        'factor' => 'factor',
+       'created_at' => 'created_at',
+       'updated_at' => 'updated_at',
     ];
 
     public function hydrate(
@@ -33,6 +35,8 @@ class ShippingMethodPriceBasicFactory extends Factory
         $shippingMethodPrice->setQuantityFrom((float) $data[$selection->getField('quantity_from')]);
         $shippingMethodPrice->setPrice((float) $data[$selection->getField('price')]);
         $shippingMethodPrice->setFactor((float) $data[$selection->getField('factor')]);
+        $shippingMethodPrice->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
+        $shippingMethodPrice->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
 
         /** @var $extension ShippingMethodPriceExtension */
         foreach ($this->getExtensions() as $extension) {

@@ -28,6 +28,11 @@ abstract class ShopTemplateExtension implements ExtensionInterface, EventSubscri
     ): void {
     }
 
+    public function getDetailFields(): array
+    {
+        return [];
+    }
+
     public function getBasicFields(): array
     {
         return [];

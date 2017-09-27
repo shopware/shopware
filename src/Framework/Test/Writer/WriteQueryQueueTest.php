@@ -16,5 +16,4 @@ class WriteQueryQueueTest extends TestCase
 
         self::assertEquals(['A', 'B-1', 'B', 'B1', 'C'], $queue->getOrder());
     }
-
 }

@@ -30,15 +30,14 @@ use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\LineItem;
 use Shopware\Cart\Price\Price;
 use Shopware\Cart\Rule\Container\AndRule;
-use Shopware\Cart\Rule\Rule;
 use Shopware\Cart\Tax\CalculatedTaxCollection;
 use Shopware\Cart\Tax\TaxRuleCollection;
+use Shopware\Cart\Test\Common\DummyProduct;
 use Shopware\Cart\Voucher\CalculatedVoucher;
 use Shopware\Cart\Voucher\VoucherProcessor;
 use Shopware\CartBridge\Rule\GoodsCountRule;
-use Shopware\Framework\Struct\StructCollection;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Cart\Test\Common\DummyProduct;
+use Shopware\Framework\Struct\StructCollection;
 
 class GoodsCountRuleTest extends TestCase
 {

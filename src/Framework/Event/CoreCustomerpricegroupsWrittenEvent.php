@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class CoreCustomerpricegroupsWrittenEvent extends NestedEvent
 {
     const NAME = 'core_customerpricegroups.written';
@@ -9,28 +11,39 @@ class CoreCustomerpricegroupsWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $coreCustomerpricegroupsUuids;
+    protected $coreCustomerpricegroupsUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $coreCustomerpricegroupsUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $coreCustomerpricegroupsUuids, TranslationContext $context, array $errors = [])
     {
         $this->coreCustomerpricegroupsUuids = $coreCustomerpricegroupsUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

@@ -25,18 +25,14 @@
 namespace Shopware\Cart\Test\Infrastructure\Validator\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Area\Struct\AreaBasicStruct;
 use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\CartBridge\Rule\BillingAreaRule;
-use Shopware\Address\Struct\Address;
+use Shopware\Context\Struct\ShopContext;
+use Shopware\Country\Struct\Country;
 use Shopware\Customer\Struct\CustomerBasicStruct;
 use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
-use Shopware\Context\Struct\ShopContext;
-use Shopware\CountryArea\Struct\CountryArea;
-use Shopware\Country\Struct\Country;
-use Shopware\Customer\Struct\Customer;
 
 class BillingAreaRuleTest extends TestCase
 {

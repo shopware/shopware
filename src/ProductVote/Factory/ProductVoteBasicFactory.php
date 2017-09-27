@@ -27,6 +27,7 @@ class ProductVoteBasicFactory extends Factory
        'answered_at' => 'answered_at',
        'shop_uuid' => 'shop_uuid',
        'created_at' => 'created_at',
+       'updated_at' => 'updated_at',
     ];
 
     public function hydrate(
@@ -47,6 +48,7 @@ class ProductVoteBasicFactory extends Factory
         $productVote->setAnsweredAt(isset($data[$selection->getField('answered_at')]) ? new \DateTime($data[$selection->getField('answered_at')]) : null);
         $productVote->setShopUuid(isset($data[$selection->getField('shop_uuid')]) ? (string) $data[$selection->getField('shop_uuid')] : null);
         $productVote->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
+        $productVote->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
 
         /** @var $extension ProductVoteExtension */
         foreach ($this->getExtensions() as $extension) {

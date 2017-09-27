@@ -88,6 +88,16 @@ class OrderBasicStruct extends Struct
     protected $payload;
 
     /**
+     * @var \DateTime|null
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $updatedAt;
+
+    /**
      * @var CustomerBasicStruct
      */
     protected $customer;
@@ -265,6 +275,26 @@ class OrderBasicStruct extends Struct
     public function setPayload(string $payload): void
     {
         $this->payload = $payload;
+    }
+
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTime $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 
     public function getCustomer(): CustomerBasicStruct

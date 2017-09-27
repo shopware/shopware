@@ -69,12 +69,10 @@ class ShopTemplateController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $shopTemplates,
-            'total' => $shopTemplates->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $shopTemplates, 'total' => $shopTemplates->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -93,7 +91,7 @@ class ShopTemplateController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($shopTemplates->get($uuid), $context);
+        return $this->createResponse(['data' => $shopTemplates->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class ShopTemplateController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

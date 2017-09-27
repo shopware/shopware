@@ -50,6 +50,7 @@ class DomainGenerator
 
         if ($context->createStruct) {
             $generator = new \ReadGenerator\Struct\Generator($this->directory, $this->connection);
+            $this->removeFiles($generator->getFiles($table));
             $generator->generate($table, $config);
             if (Util::getAssociationsForDetailStruct($table, $config)) {
                 $generator->generateDetail($table, $config);
@@ -58,6 +59,7 @@ class DomainGenerator
 
         if ($context->createCollection) {
             $generator = new \ReadGenerator\Collection\Generator($this->directory, $this->connection);
+            $this->removeFiles($generator->getFiles($table));
             $generator->generate($table, $config);
             if (Util::getAssociationsForDetailStruct($table, $config)) {
                 $generator->generateDetail($table, $config);
@@ -66,6 +68,7 @@ class DomainGenerator
 
         if ($context->createFactory) {
             $generator = new \ReadGenerator\Factory\Generator($this->directory, $this->connection);
+            $this->removeFiles($generator->getFiles($table));
             $services[] = $generator->generate($table, $config);
             if (Util::getAssociationsForDetailStruct($table, $config)) {
                 $services[] = $generator->generateDetail($table, $config);
@@ -74,16 +77,19 @@ class DomainGenerator
 
         if ($context->createExtension) {
             $generator = new \ReadGenerator\Extension\Generator($this->directory);
+            $this->removeFiles($generator->getFiles($table));
             $generator->generate($table, $config);
         }
 
         if ($context->createController) {
             $generator = new \ReadGenerator\Controller\Generator($this->directory);
+            $this->removeFiles($generator->getFiles($table));
             $services[] = $generator->generate($table, $config);
         }
 
         if ($context->createWriter) {
             $generator = new \ReadGenerator\Writer\Generator($this->directory);
+            $this->removeFiles($generator->getFiles($table));
             $services[] = $generator->generate($table, $config);
         }
 
@@ -94,6 +100,7 @@ class DomainGenerator
 
         if ($context->createEvent) {
             $generator = new \ReadGenerator\Event\Generator($this->directory);
+            $this->removeFiles($generator->getFiles($table));
             $generator->generate($table, $config);
             if (Util::getAssociationsForDetailStruct($table, $config)) {
                 $generator->generateDetail($table, $config);
@@ -102,6 +109,7 @@ class DomainGenerator
 
         if ($context->createLoader) {
             $generator = new \ReadGenerator\Loader\Generator($this->directory);
+            $this->removeFiles($generator->getFiles($table));
             $services[] = $generator->generate($table, $config);
             if (Util::getAssociationsForDetailStruct($table, $config)) {
                 $services[] = $generator->generateDetail($table, $config);
@@ -110,17 +118,28 @@ class DomainGenerator
 
         if ($context->createSearcher) {
             $generator = new \ReadGenerator\Searcher\Generator($this->directory);
+            $this->removeFiles($generator->getFiles($table));
             $services[] = $generator->generate($table, $config);
             $generator->generateSearchResult($table);
         }
 
         if ($context->createRepository) {
             $generator = new \ReadGenerator\Repository\Generator($this->directory);
+            $this->removeFiles($generator->getFiles($table));
             $services[] = $generator->generate($table, $config);
         }
 
         if ($context->createServiceXml) {
             $this->createSevicesXml($table, $services);
+        }
+    }
+
+    private function removeFiles(array $files): void
+    {
+        foreach ($files as $file) {
+            if (file_exists($file)) {
+                unlink($file);
+            }
         }
     }
 

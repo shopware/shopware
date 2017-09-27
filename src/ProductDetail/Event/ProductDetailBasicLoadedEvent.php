@@ -6,6 +6,7 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 use Shopware\ProductDetail\Struct\ProductDetailBasicCollection;
+use Shopware\ProductDetailPrice\Event\ProductDetailPriceBasicLoadedEvent;
 use Shopware\Unit\Event\UnitBasicLoadedEvent;
 
 class ProductDetailBasicLoadedEvent extends NestedEvent
@@ -45,8 +46,14 @@ class ProductDetailBasicLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection([
-            new UnitBasicLoadedEvent($this->productDetails->getUnits(), $this->context),
-        ]);
+        $events = [];
+        if ($this->productDetails->getUnits()->count() > 0) {
+            $events[] = new UnitBasicLoadedEvent($this->productDetails->getUnits(), $this->context);
+        }
+        if ($this->productDetails->getPrices()->count() > 0) {
+            $events[] = new ProductDetailPriceBasicLoadedEvent($this->productDetails->getPrices(), $this->context);
+        }
+
+        return new NestedEventCollection($events);
     }
 }

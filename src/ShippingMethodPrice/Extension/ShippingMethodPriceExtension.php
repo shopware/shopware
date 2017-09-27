@@ -28,6 +28,11 @@ abstract class ShippingMethodPriceExtension implements ExtensionInterface, Event
     ): void {
     }
 
+    public function getDetailFields(): array
+    {
+        return [];
+    }
+
     public function getBasicFields(): array
     {
         return [];

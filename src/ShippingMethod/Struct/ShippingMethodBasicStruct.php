@@ -132,6 +132,16 @@ class ShippingMethodBasicStruct extends Struct
     protected $calculationSql;
 
     /**
+     * @var \DateTime|null
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $updatedAt;
+
+    /**
      * @var string
      */
     protected $name;
@@ -394,6 +404,26 @@ class ShippingMethodBasicStruct extends Struct
     public function setCalculationSql(?string $calculationSql): void
     {
         $this->calculationSql = $calculationSql;
+    }
+
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTime $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 
     public function getName(): string

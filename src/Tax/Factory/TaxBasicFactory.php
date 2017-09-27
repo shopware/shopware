@@ -19,6 +19,8 @@ class TaxBasicFactory extends Factory
        'uuid' => 'uuid',
        'tax_rate' => 'tax_rate',
        'name' => 'name',
+       'created_at' => 'created_at',
+       'updated_at' => 'updated_at',
     ];
 
     public function hydrate(
@@ -31,6 +33,8 @@ class TaxBasicFactory extends Factory
         $tax->setUuid((string) $data[$selection->getField('uuid')]);
         $tax->setRate((float) $data[$selection->getField('tax_rate')]);
         $tax->setName((string) $data[$selection->getField('name')]);
+        $tax->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
+        $tax->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
 
         /** @var $extension TaxExtension */
         foreach ($this->getExtensions() as $extension) {

@@ -160,6 +160,16 @@ class CustomerBasicStruct extends Struct
     protected $birthday;
 
     /**
+     * @var \DateTime|null
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $updatedAt;
+
+    /**
      * @var CustomerGroupBasicStruct
      */
     protected $customerGroup;
@@ -492,6 +502,26 @@ class CustomerBasicStruct extends Struct
     public function setBirthday(?\DateTime $birthday): void
     {
         $this->birthday = $birthday;
+    }
+
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTime $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 
     public function getActiveBillingAddress(): CustomerAddressBasicStruct

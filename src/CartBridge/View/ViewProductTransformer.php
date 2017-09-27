@@ -34,7 +34,7 @@ use Shopware\ProductDetail\Repository\ProductDetailRepository;
 
 class ViewProductTransformer implements ViewLineItemTransformerInterface
 {
-//    /**
+    //    /**
 //     * @var MediaServiceInterface
 //     */
 //    private $mediaService;
@@ -67,7 +67,7 @@ class ViewProductTransformer implements ViewLineItemTransformerInterface
     ): void {
         $collection = $calculatedCart->getCalculatedLineItems()->filterInstance(CalculatedProduct::class);
 
-        if ($collection->count() === 0) {
+        if (0 === $collection->count()) {
             return;
         }
 
@@ -81,12 +81,10 @@ class ViewProductTransformer implements ViewLineItemTransformerInterface
             $context->getTranslationContext()
         );
 
-
 //        $covers = $this->mediaService->getVariantCovers($listProducts, $context);
 
         /** @var CalculatedLineItemCollection $collection */
         foreach ($collection as $calculated) {
-
             $variant = $variants->get($calculated->getIdentifier());
 
             $product = $products->get($variant->getProductUuid());

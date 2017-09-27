@@ -33,7 +33,7 @@ abstract class Controller extends SymfonyController
     protected function render($view, array $parameters = [], Response $response = null): Response
     {
         //remove static template inheritance prefix
-        if (strpos($view, '@') === 0) {
+        if (0 === strpos($view, '@')) {
             $view = explode('/', $view);
             array_shift($view);
             $view = implode('/', $view);

@@ -43,9 +43,9 @@ use Shopware\Cart\Price\CartPrice;
 use Shopware\Cart\Price\Price;
 use Shopware\Cart\Tax\CalculatedTaxCollection;
 use Shopware\Cart\Tax\TaxRuleCollection;
+use Shopware\Cart\Test\Common\DummyProduct;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
-use Shopware\Cart\Test\Common\DummyProduct;
 
 class CalculatedCartGeneratorTest extends TestCase
 {

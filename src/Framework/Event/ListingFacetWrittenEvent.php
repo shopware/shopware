@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class ListingFacetWrittenEvent extends NestedEvent
 {
     const NAME = 'listing_facet.written';
@@ -9,28 +11,39 @@ class ListingFacetWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $listingFacetUuids;
+    protected $listingFacetUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $listingFacetUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $listingFacetUuids, TranslationContext $context, array $errors = [])
     {
         $this->listingFacetUuids = $listingFacetUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

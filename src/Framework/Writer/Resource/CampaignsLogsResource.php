@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
@@ -32,14 +33,14 @@ class CampaignsLogsResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\CampaignsLogsWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CampaignsLogsWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\CampaignsLogsWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\CampaignsLogsWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\CampaignsLogsResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\CampaignsLogsResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\CampaignsLogsResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

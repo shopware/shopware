@@ -38,6 +38,7 @@ class NestedQuery extends Query
                 $fields[] = $field;
             }
         }
+
         return $fields;
     }
 }

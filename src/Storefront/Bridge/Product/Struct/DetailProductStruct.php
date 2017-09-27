@@ -4,5 +4,4 @@ namespace Shopware\Storefront\Bridge\Product\Struct;
 
 class DetailProductStruct extends ProductBasicStruct
 {
-
 }

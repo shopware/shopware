@@ -71,7 +71,7 @@ class ShopSubscriber implements EventSubscriberInterface
             ],
             KernelEvents::RESPONSE => [
                 ['setShopCookie', 10],
-            ]
+            ],
         ];
     }
 
@@ -160,7 +160,7 @@ class ShopSubscriber implements EventSubscriberInterface
     private function getActiveCategoryUuid(Request $request, ShopContext $context)
     {
         $route = $request->attributes->get('_route');
-        
+
         switch ($route) {
             case ListingPageUrlGenerator::ROUTE_NAME:
                 return $request->attributes->get('_route_params')['uuid'];

@@ -53,6 +53,17 @@ class PriceGroupBasicCollection extends Collection
         });
     }
 
+    public function merge(PriceGroupBasicCollection $collection)
+    {
+        /** @var PriceGroupBasicStruct $priceGroup */
+        foreach ($collection as $priceGroup) {
+            if ($this->has($this->getKey($priceGroup))) {
+                continue;
+            }
+            $this->add($priceGroup);
+        }
+    }
+
     protected function getKey(PriceGroupBasicStruct $element): string
     {
         return $element->getUuid();

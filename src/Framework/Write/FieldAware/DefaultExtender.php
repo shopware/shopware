@@ -25,12 +25,12 @@
 namespace Shopware\Framework\Write\FieldAware;
 
 use Shopware\Framework\Validation\ConstraintBuilder;
-use Shopware\Framework\Write\Filter\FilterRegistry;
-use Shopware\Framework\Write\ValueTransformer\ValueTransformerRegistry;
 use Shopware\Framework\Write\Field\Field;
+use Shopware\Framework\Write\Filter\FilterRegistry;
 use Shopware\Framework\Write\ResourceRegistry;
 use Shopware\Framework\Write\SqlGateway;
 use Shopware\Framework\Write\UuidGenerator\GeneratorRegistry;
+use Shopware\Framework\Write\ValueTransformer\ValueTransformerRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class DefaultExtender extends FieldExtender

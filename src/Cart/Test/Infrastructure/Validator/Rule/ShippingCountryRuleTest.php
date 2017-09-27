@@ -30,9 +30,9 @@ use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Delivery\ShippingLocation;
 use Shopware\Cart\Rule\Exception\UnsupportedOperatorException;
 use Shopware\CartBridge\Rule\ShippingCountryRule;
-use Shopware\Framework\Struct\StructCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Country\Struct\Country;
+use Shopware\Framework\Struct\StructCollection;
 
 class ShippingCountryRuleTest extends TestCase
 {

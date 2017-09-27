@@ -2,6 +2,7 @@
 
 namespace Shopware\Category\Event;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -12,28 +13,39 @@ class CategoryAvoidCustomerGroupWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $categoryAvoidCustomerGroupUuids;
+    protected $categoryAvoidCustomerGroupUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $categoryAvoidCustomerGroupUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $categoryAvoidCustomerGroupUuids, TranslationContext $context, array $errors = [])
     {
         $this->categoryAvoidCustomerGroupUuids = $categoryAvoidCustomerGroupUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

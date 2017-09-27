@@ -44,6 +44,7 @@ class QuerySelection
     public static function createFromNestedFields(array $fields, string $root): QuerySelection
     {
         $mapped = self::mapNestedFields($fields, $root);
+
         return new self($mapped, $root);
     }
 
@@ -71,7 +72,7 @@ class QuerySelection
             return true;
         }
 
-        if (strpos($field, '.') === false) {
+        if (false === strpos($field, '.')) {
             $field = $this->getRoot() . '.' . $field;
         }
 
@@ -85,13 +86,14 @@ class QuerySelection
 
     public function getField(string $field): string
     {
-        if (strpos($field, '.') === false) {
+        if (false === strpos($field, '.')) {
             $field = $this->getRoot() . '.' . $field;
         }
 
         if (array_key_exists($field, $this->fields)) {
             return $this->fields[$field];
         }
+
         return $field;
     }
 
@@ -109,11 +111,12 @@ class QuerySelection
     {
         $select = [];
         foreach ($this->getFields() as $name) {
-            if (strpos($name, '_sub_select_') !== false) {
+            if (false !== strpos($name, '_sub_select_')) {
                 continue;
             }
             $select[] = self::escapeFieldSelect($name);
         }
+
         return $select;
     }
 
@@ -122,6 +125,7 @@ class QuerySelection
         if ($this->hasField($field)) {
             return self::escapeField($this->getField($field));
         }
+
         return self::escapeField($field);
     }
 
@@ -130,11 +134,17 @@ class QuerySelection
         return  self::escapeField($field) . ' as ' . self::escape($field);
     }
 
+    public static function escape(string $string): string
+    {
+        return '`' . $string . '`';
+    }
+
     private static function escapeField(string $field): string
     {
         $table = explode('.', $field);
         $fieldName = array_pop($table);
         $table = self::implode($table);
+
         return self::escape($table) . '.' . self::escape($fieldName);
     }
 
@@ -148,13 +158,9 @@ class QuerySelection
         return implode('.', array_filter($parts));
     }
 
-    public static function escape(string $string): string
-    {
-        return '`' . $string . '`';
-    }
-
     /**
      * @param string $prefix
+     *
      * @return array|string[]
      */
     private function filterFields(string $prefix): array
@@ -162,7 +168,7 @@ class QuerySelection
         $affected = array_filter(
             $this->fields,
             function (string $field) use ($prefix) {
-                return strpos($field, $this->implodeRoot($prefix) . '.') === 0;
+                return 0 === strpos($field, $this->implodeRoot($prefix) . '.');
             }
         );
 
@@ -181,7 +187,6 @@ class QuerySelection
             $mappedKey = self::prefix($key, $root);
 
             if (is_array($value)) {
-
                 $nested = self::mapNestedFields(
                     $value,
                     self::implode([$root, $key])
@@ -195,6 +200,7 @@ class QuerySelection
 
             $mapping[$mappedKey] = self::prefix($value, $root);
         }
+
         return $mapping;
     }
 }

@@ -39,12 +39,9 @@ use Shopware\Customer\Struct\CustomerBasicStruct;
 use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
-use Shopware\PriceGroup\Struct\PriceGroupBasicCollection;
-use Shopware\PriceGroup\Struct\PriceGroupBasicStruct;
 use Shopware\PriceGroupDiscount\Struct\PriceGroupDiscountBasicCollection;
 use Shopware\PriceGroupDiscount\Struct\PriceGroupDiscountBasicStruct;
 use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
-use Shopware\Shop\Struct\ShopBasicStruct;
 use Shopware\Shop\Struct\ShopDetailStruct;
 use Shopware\Tax\Struct\TaxBasicCollection;
 use Shopware\Tax\Struct\TaxBasicStruct;
@@ -63,7 +60,7 @@ class Generator extends TestCase
         $state = null,
         $shipping = null
     ) {
-        if ($shop === null) {
+        if (null === $shop) {
             $shop = new ShopDetailStruct();
             $shop->setUuid('SWAG-SHOP-UUID-1');
             $shop->setIsDefault(true);

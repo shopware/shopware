@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class AttributeConfigurationTranslationWrittenEvent extends NestedEvent
 {
     const NAME = 'attribute_configuration_translation.written';
@@ -9,28 +11,39 @@ class AttributeConfigurationTranslationWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $attributeConfigurationTranslationUuids;
+    protected $attributeConfigurationTranslationUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $attributeConfigurationTranslationUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $attributeConfigurationTranslationUuids, TranslationContext $context, array $errors = [])
     {
         $this->attributeConfigurationTranslationUuids = $attributeConfigurationTranslationUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

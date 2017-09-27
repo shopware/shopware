@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class SchemaVersionWrittenEvent extends NestedEvent
 {
     const NAME = 'schema_version.written';
@@ -9,28 +11,39 @@ class SchemaVersionWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $schemaVersionUuids;
+    protected $schemaVersionUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $schemaVersionUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $schemaVersionUuids, TranslationContext $context, array $errors = [])
     {
         $this->schemaVersionUuids = $schemaVersionUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

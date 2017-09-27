@@ -53,6 +53,17 @@ class SeoUrlBasicCollection extends Collection
         });
     }
 
+    public function merge(SeoUrlBasicCollection $collection)
+    {
+        /** @var SeoUrlBasicStruct $seoUrl */
+        foreach ($collection as $seoUrl) {
+            if ($this->has($this->getKey($seoUrl))) {
+                continue;
+            }
+            $this->add($seoUrl);
+        }
+    }
+
     public function getShopUuids(): array
     {
         return $this->fmap(function (SeoUrlBasicStruct $seoUrl) {

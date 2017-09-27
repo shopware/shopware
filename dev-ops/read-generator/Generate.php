@@ -33,6 +33,7 @@ class Generate
     const ManyToOne = 'N:1';
     const ManyToMany = 'N:N';
     const OneToMany = '1:N';
+    const OneToOne = '1:1';
 
     public function execute()
     {
@@ -45,7 +46,7 @@ class Generate
             null
         );
 
-        $dir = __DIR__ . '/../../output';
+        $dir = __DIR__ . '/../../src';
 
         $generator = new DomainGenerator($dbalConnection, $dir);
 
@@ -89,20 +90,34 @@ class Generate
                 'seo_url_name' => 'detail_page',
                 'associations' => [
                     self::createAssociation('product_manufacturer', self::ManyToOne, true, false, 'manufacturer', 'product_manufacturer_uuid', '', '', false),
-                    self::createAssociation('product_detail', self::ManyToOne, true, false, 'mainDetail', 'main_detail_uuid', '', '', false),
+                    self::createAssociation('product_detail', self::OneToOne, true, true, 'mainDetail', 'main_detail_uuid', '', '', false),
                     self::createAssociation('tax', self::ManyToOne, true, false, 'tax', 'tax_uuid', '', '', false),
                     self::createAssociation('seo_url', self::ManyToOne, true, false, 'canonicalUrl', ''),
                     self::createAssociation('price_group', self::ManyToOne, true, false, 'priceGroup', 'price_group_uuid'),
                     self::createAssociation('customer_group', self::ManyToMany, true, true, 'blockedCustomerGroups', '', 'product_avoid_customer_group'),
-                    self::createAssociation('product_detail', self::OneToMany, false, true, 'detail', 'product_uuid', '', '', true, true),
-                    self::createAssociation('category', self::ManyToMany, false, true, 'category', 'product_uuid', 'product_category_ro'),
+                    self::createAssociation('product_detail', self::OneToMany, false, true, 'detail', 'product_uuid', '', '', true, false),
+                    self::createAssociation('category', self::ManyToMany, false, true, 'category', 'product_uuid', 'product_category', '', true, false),
+                    self::createAssociation('category', self::ManyToMany, false, true, 'categoryTree', 'product_uuid', 'product_category_ro'),
                     self::createAssociation('product_vote', self::OneToMany, false, true, 'vote', 'product_uuid'),
-//                    self::createAssociation('shop', self::ManyToMany, false, true, 'shop', '', 'shop_currency'),
+                    self::createAssociation('product_listing_price_ro', self::OneToMany, true, true, 'listingPrice', 'product_uuid')
+                ]
+            ],
+            'product_detail_price' => [
+                'associatons' => [
+                    self::createAssociation('customer_group', self::ManyToOne, true, false, 'customerGroup', 'customer_group_uuid', '', '', false)
                 ]
             ],
             'product_vote' => [
                 self::createAssociation('shop', self::ManyToOne, true, false, 'shop', 'shop_uuid'),
             ],
+            'product_detail' => [
+                'associations' => [
+                    self::createAssociation('unit', self::ManyToOne, true, false, 'unit', 'unit_uuid'),
+                    self::createAssociation('product_detail_price', self::OneToMany, true, true, 'price', 'product_detail_uuid'),
+                ],
+            ],
+            'product_manufacturer' => [],
+            'product_listing_price_ro' => [],
             'seo_url' => [
                 'collection_functions' => [
                     file_get_contents(__DIR__ . '/special_case/seo_url/collection_functions.txt')
@@ -114,18 +129,6 @@ class Generate
                 ]
             ],
             'tax' => [],
-            'product_detail_price' => [
-                'associatons' => [
-                    self::createAssociation('customer_group', self::ManyToOne, true, false, 'customerGroup', 'customer_group_uuid', '', '', false)
-                ]
-            ],
-            'product_detail' => [
-                'associations' => [
-                    self::createAssociation('unit', self::ManyToOne, true, false, 'unit', 'unit_uuid'),
-                    self::createAssociation('product_detail_price', self::OneToMany, false, true, 'price', 'product_detail_uuid'),
-                ],
-            ],
-            'product_manufacturer' => [],
             'shop' => [
                 'columns' => [
                     'base_url' => [
@@ -282,32 +285,27 @@ class Generate
 //        $context->createSearcher = false;
 //        $context->createRepository = false;
 //        $context->createServiceXml = false;
-        
+
         foreach ($tables as $table => $assocs) {
             $generator->generate($table, $assocs, $context);
         }
     }
 
-    /**
-     * @param $dir
-     */
-    protected function deleteDirectory($dir): void
-    {
-        $files = new \RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST
-        );
 
-        foreach ($files as $fileinfo) {
-            $todo = ($fileinfo->isDir() ? 'rmdir' : 'unlink');
-            $todo($fileinfo->getRealPath());
-        }
-
-        rmdir($dir);
-    }
-
-    private static function createAssociation(string $table, string $type, bool $inBasic, bool $loadByLoader, string $property, string $foreignKeyColumn, string $mappingTable = '', string $condition = '', $nullable = true, $hasDetailLoader = false)
-    {
+    private static function createAssociation(
+        string $table,
+        string $type,
+        bool $inBasic,
+        bool $loadByLoader,
+        string $property,
+        string $foreignKeyColumn,
+        string $mappingTable = '',
+        string $condition = '',
+        $nullable = true,
+        $hasDetailLoader = false,
+        $fetchTemplate = null,
+        $assignTemplate = null
+    ) {
         return [
             'in_basic' => $inBasic,                        //defines if it should be added to basic struct
             'load_by_association_loader' => $loadByLoader,      //true to fetch directly in query, false to fetch over associated basic loader
@@ -318,7 +316,9 @@ class Generate
             'property' => $property,
             'foreignKeyColumn' => $foreignKeyColumn,
             'nullable' => $nullable,
-            'has_detail_loader' => $hasDetailLoader
+            'has_detail_loader' => $hasDetailLoader,
+            'fetchTemplate' => $fetchTemplate,
+            'assignTemplate' => $assignTemplate
         ];
     }
 }

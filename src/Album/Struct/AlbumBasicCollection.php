@@ -53,6 +53,17 @@ class AlbumBasicCollection extends Collection
         });
     }
 
+    public function merge(AlbumBasicCollection $collection)
+    {
+        /** @var AlbumBasicStruct $album */
+        foreach ($collection as $album) {
+            if ($this->has($this->getKey($album))) {
+                continue;
+            }
+            $this->add($album);
+        }
+    }
+
     public function getParentUuids(): array
     {
         return $this->fmap(function (AlbumBasicStruct $album) {

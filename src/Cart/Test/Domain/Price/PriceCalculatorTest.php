@@ -36,8 +36,8 @@ use Shopware\Cart\Tax\TaxDetector;
 use Shopware\Cart\Tax\TaxRule;
 use Shopware\Cart\Tax\TaxRuleCalculator;
 use Shopware\Cart\Tax\TaxRuleCollection;
-use Shopware\Context\Struct\ShopContext;
 use Shopware\Cart\Test\Common\Generator;
+use Shopware\Context\Struct\ShopContext;
 
 /**
  * Class PriceCalculatorTest

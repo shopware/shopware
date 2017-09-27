@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
@@ -34,14 +35,14 @@ class EmarketingLastarticlesResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\EmarketingLastarticlesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\EmarketingLastarticlesWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\EmarketingLastarticlesWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\EmarketingLastarticlesWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\EmarketingLastarticlesResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\EmarketingLastarticlesResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\EmarketingLastarticlesResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

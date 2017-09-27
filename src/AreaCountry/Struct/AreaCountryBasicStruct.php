@@ -67,6 +67,16 @@ class AreaCountryBasicStruct extends Struct
     protected $forceStateInRegistration;
 
     /**
+     * @var \DateTime|null
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $updatedAt;
+
+    /**
      * @var string
      */
     protected $name;
@@ -189,6 +199,26 @@ class AreaCountryBasicStruct extends Struct
     public function setForceStateInRegistration(bool $forceStateInRegistration): void
     {
         $this->forceStateInRegistration = $forceStateInRegistration;
+    }
+
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTime $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 
     public function getName(): string

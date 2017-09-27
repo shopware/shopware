@@ -78,24 +78,28 @@ class Criteria
     public function addFilter(Query $query): Criteria
     {
         $this->filters[] = $query;
+
         return $this;
     }
 
     public function addSorting(FieldSorting $sorting): Criteria
     {
         $this->sortings[] = $sorting;
+
         return $this;
     }
 
     public function addAggregation(Aggregation $aggregation): Criteria
     {
         $this->aggregations[] = $aggregation;
+
         return $this;
     }
 
     public function addPostFilter(Query $query): Criteria
     {
         $this->postFilters[] = $query;
+
         return $this;
     }
 
@@ -107,6 +111,7 @@ class Criteria
                 $fields[] = $field;
             }
         }
+
         return $fields;
     }
 
@@ -118,6 +123,7 @@ class Criteria
                 $fields[] = $field;
             }
         }
+
         return $fields;
     }
 
@@ -129,6 +135,7 @@ class Criteria
                 $fields[] = $field;
             }
         }
+
         return $fields;
     }
 
@@ -140,6 +147,7 @@ class Criteria
                 $fields[] = $field;
             }
         }
+
         return $fields;
     }
 

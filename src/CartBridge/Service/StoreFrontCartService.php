@@ -100,6 +100,7 @@ class StoreFrontCartService
     public function createNew(): ViewCart
     {
         $this->createNewCart();
+
         return $this->getCart();
     }
 
@@ -152,7 +153,7 @@ class StoreFrontCartService
 
     private function getCartContainer(): CartContainer
     {
-        if ($this->getCartToken() === null) {
+        if (null === $this->getCartToken()) {
             //first access for frontend session
             return $this->createNewCart();
         }

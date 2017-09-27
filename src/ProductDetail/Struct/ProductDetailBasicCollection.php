@@ -3,6 +3,7 @@
 namespace Shopware\ProductDetail\Struct;
 
 use Shopware\Framework\Struct\Collection;
+use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicCollection;
 use Shopware\Unit\Struct\UnitBasicCollection;
 
 class ProductDetailBasicCollection extends Collection
@@ -54,6 +55,17 @@ class ProductDetailBasicCollection extends Collection
         });
     }
 
+    public function merge(ProductDetailBasicCollection $collection)
+    {
+        /** @var ProductDetailBasicStruct $productDetail */
+        foreach ($collection as $productDetail) {
+            if ($this->has($this->getKey($productDetail))) {
+                continue;
+            }
+            $this->add($productDetail);
+        }
+    }
+
     public function getProductUuids(): array
     {
         return $this->fmap(function (ProductDetailBasicStruct $productDetail) {
@@ -89,6 +101,28 @@ class ProductDetailBasicCollection extends Collection
                 return $productDetail->getUnit();
             })
         );
+    }
+
+    public function getPriceUuids(): array
+    {
+        $uuids = [];
+        foreach ($this->elements as $element) {
+            foreach ($element->getPrices()->getUuids() as $uuid) {
+                $uuids[] = $uuid;
+            }
+        }
+
+        return $uuids;
+    }
+
+    public function getPrices(): ProductDetailPriceBasicCollection
+    {
+        $collection = new ProductDetailPriceBasicCollection();
+        foreach ($this->elements as $element) {
+            $collection->fill($element->getPrices()->getIterator()->getArrayCopy());
+        }
+
+        return $collection;
     }
 
     protected function getKey(ProductDetailBasicStruct $element): string

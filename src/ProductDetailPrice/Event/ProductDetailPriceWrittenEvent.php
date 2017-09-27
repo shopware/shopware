@@ -2,6 +2,7 @@
 
 namespace Shopware\ProductDetailPrice\Event;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -12,28 +13,39 @@ class ProductDetailPriceWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $productDetailPriceUuids;
+    protected $productDetailPriceUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $productDetailPriceUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $productDetailPriceUuids, TranslationContext $context, array $errors = [])
     {
         $this->productDetailPriceUuids = $productDetailPriceUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

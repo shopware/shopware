@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
@@ -27,14 +28,14 @@ class CoreAclPrivilegesResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\CoreAclPrivilegesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CoreAclPrivilegesWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\CoreAclPrivilegesWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\CoreAclPrivilegesWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\CoreAclPrivilegesResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\CoreAclPrivilegesResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\CoreAclPrivilegesResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

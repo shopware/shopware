@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class EmarketingVoucherCodesWrittenEvent extends NestedEvent
 {
     const NAME = 'emarketing_voucher_codes.written';
@@ -9,28 +11,39 @@ class EmarketingVoucherCodesWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $emarketingVoucherCodesUuids;
+    protected $emarketingVoucherCodesUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $emarketingVoucherCodesUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $emarketingVoucherCodesUuids, TranslationContext $context, array $errors = [])
     {
         $this->emarketingVoucherCodesUuids = $emarketingVoucherCodesUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

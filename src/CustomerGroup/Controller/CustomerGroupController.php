@@ -69,12 +69,10 @@ class CustomerGroupController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $customerGroups,
-            'total' => $customerGroups->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $customerGroups, 'total' => $customerGroups->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -88,12 +86,12 @@ class CustomerGroupController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('customerGroupUuid');
-        $customerGroups = $this->customerGroupRepository->read(
+        $customerGroups = $this->customerGroupRepository->readDetail(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($customerGroups->get($uuid), $context);
+        return $this->createResponse(['data' => $customerGroups->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class CustomerGroupController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

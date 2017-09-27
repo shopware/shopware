@@ -69,12 +69,10 @@ class OrderStateController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $orderStates,
-            'total' => $orderStates->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $orderStates, 'total' => $orderStates->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -93,7 +91,7 @@ class OrderStateController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($orderStates->get($uuid), $context);
+        return $this->createResponse(['data' => $orderStates->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class OrderStateController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

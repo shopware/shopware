@@ -25,24 +25,15 @@
 namespace Shopware\Context\Struct;
 
 use Shopware\Cart\Delivery\ShippingLocation;
-use Shopware\Currency\Struct\Currency;
 use Shopware\Currency\Struct\CurrencyBasicStruct;
-use Shopware\Customer\Struct\Customer;
 use Shopware\Customer\Struct\CustomerBasicStruct;
-use Shopware\CustomerGroup\Struct\CustomerGroup;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
 use Shopware\Framework\Struct\Struct;
-use Shopware\PaymentMethod\Struct\PaymentMethod;
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
-use Shopware\PriceGroup\Struct\PriceGroupCollection;
 use Shopware\PriceGroupDiscount\Struct\PriceGroupDiscountBasicCollection;
-use Shopware\ShippingMethod\Struct\ShippingMethod;
 use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
-use Shopware\Shop\Struct\Shop;
 use Shopware\Shop\Struct\ShopDetailStruct;
-use Shopware\Tax\Struct\Tax;
 use Shopware\Tax\Struct\TaxBasicCollection;
-use Shopware\Tax\Struct\TaxCollection;
 
 /**
  * @category  Shopware

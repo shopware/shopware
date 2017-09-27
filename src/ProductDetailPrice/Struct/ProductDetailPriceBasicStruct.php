@@ -51,6 +51,16 @@ class ProductDetailPriceBasicStruct extends Struct
      */
     protected $percentage;
 
+    /**
+     * @var \DateTime|null
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $updatedAt;
+
     public function getUuid(): string
     {
         return $this->uuid;
@@ -139,5 +149,25 @@ class ProductDetailPriceBasicStruct extends Struct
     public function setPercentage(?float $percentage): void
     {
         $this->percentage = $percentage;
+    }
+
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTime $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 }

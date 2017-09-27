@@ -3,6 +3,7 @@
 namespace Shopware\ProductDetail\Struct;
 
 use Shopware\Framework\Struct\Struct;
+use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicCollection;
 use Shopware\Unit\Struct\UnitBasicStruct;
 
 class ProductDetailBasicStruct extends Struct
@@ -123,6 +124,16 @@ class ProductDetailBasicStruct extends Struct
     protected $purchasePrice;
 
     /**
+     * @var \DateTime|null
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $updatedAt;
+
+    /**
      * @var string|null
      */
     protected $additionalText;
@@ -136,6 +147,11 @@ class ProductDetailBasicStruct extends Struct
      * @var UnitBasicStruct|null
      */
     protected $unit;
+
+    /**
+     * @var ProductDetailPriceBasicCollection
+     */
+    protected $prices;
 
     public function getUuid(): string
     {
@@ -367,6 +383,26 @@ class ProductDetailBasicStruct extends Struct
         $this->purchasePrice = $purchasePrice;
     }
 
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTime $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
+    }
+
     public function getAdditionalText(): ?string
     {
         return $this->additionalText;
@@ -395,5 +431,15 @@ class ProductDetailBasicStruct extends Struct
     public function setUnit(?UnitBasicStruct $unit): void
     {
         $this->unit = $unit;
+    }
+
+    public function getPrices(): ProductDetailPriceBasicCollection
+    {
+        return $this->prices;
+    }
+
+    public function setPrices(ProductDetailPriceBasicCollection $prices): void
+    {
+        $this->prices = $prices;
     }
 }

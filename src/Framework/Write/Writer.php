@@ -127,8 +127,8 @@ class Writer
     {
         $changedIdentifiers = [];
 
-        /**
-         * @var string $resource
+        /*
+         * @var string
          * @var UpdateQuery[]|InsertQuery[] $query
          */
         foreach ($queue->getQueries() as $resource => $queries) {

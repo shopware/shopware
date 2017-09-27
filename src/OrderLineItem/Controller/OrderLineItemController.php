@@ -69,12 +69,10 @@ class OrderLineItemController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $orderLineItems,
-            'total' => $orderLineItems->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $orderLineItems, 'total' => $orderLineItems->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -93,7 +91,7 @@ class OrderLineItemController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($orderLineItems->get($uuid), $context);
+        return $this->createResponse(['data' => $orderLineItems->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class OrderLineItemController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

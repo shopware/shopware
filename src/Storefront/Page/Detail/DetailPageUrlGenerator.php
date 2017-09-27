@@ -35,10 +35,8 @@ use Shopware\Search\Query\TermQuery;
 use Shopware\Search\Query\TermsQuery;
 use Shopware\SeoUrl\Generator\SeoUrlGeneratorInterface;
 use Shopware\SeoUrl\Repository\SeoUrlRepository;
-use Shopware\SeoUrl\Struct\SeoUrl;
 use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
 use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
-use Shopware\SeoUrl\Struct\SeoUrlCollection;
 use Shopware\Shop\Struct\ShopBasicStruct;
 
 class DetailPageUrlGenerator implements SeoUrlGeneratorInterface

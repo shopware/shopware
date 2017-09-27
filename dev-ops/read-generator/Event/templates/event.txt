@@ -45,8 +45,8 @@ class #classUc#BasicLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection([
+        $events = [];
 #events#
-        ]);
+        return new NestedEventCollection($events);
     }
 }

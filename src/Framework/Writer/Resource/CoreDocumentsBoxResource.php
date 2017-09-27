@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\LongTextField;
 use Shopware\Framework\Write\Field\StringField;
@@ -32,14 +33,14 @@ class CoreDocumentsBoxResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\CoreDocumentsBoxWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CoreDocumentsBoxWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\CoreDocumentsBoxWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\CoreDocumentsBoxWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\CoreDocumentsBoxResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\CoreDocumentsBoxResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\CoreDocumentsBoxResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

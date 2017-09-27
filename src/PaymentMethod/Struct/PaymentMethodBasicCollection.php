@@ -53,6 +53,17 @@ class PaymentMethodBasicCollection extends Collection
         });
     }
 
+    public function merge(PaymentMethodBasicCollection $collection)
+    {
+        /** @var PaymentMethodBasicStruct $paymentMethod */
+        foreach ($collection as $paymentMethod) {
+            if ($this->has($this->getKey($paymentMethod))) {
+                continue;
+            }
+            $this->add($paymentMethod);
+        }
+    }
+
     public function getPluginUuids(): array
     {
         return $this->fmap(function (PaymentMethodBasicStruct $paymentMethod) {

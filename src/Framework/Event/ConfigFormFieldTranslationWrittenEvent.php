@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class ConfigFormFieldTranslationWrittenEvent extends NestedEvent
 {
     const NAME = 'config_form_field_translation.written';
@@ -9,28 +11,39 @@ class ConfigFormFieldTranslationWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $configFormFieldTranslationUuids;
+    protected $configFormFieldTranslationUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $configFormFieldTranslationUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $configFormFieldTranslationUuids, TranslationContext $context, array $errors = [])
     {
         $this->configFormFieldTranslationUuids = $configFormFieldTranslationUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

@@ -55,6 +55,17 @@ class ShopBasicCollection extends Collection
         });
     }
 
+    public function merge(ShopBasicCollection $collection)
+    {
+        /** @var ShopBasicStruct $shop */
+        foreach ($collection as $shop) {
+            if ($this->has($this->getKey($shop))) {
+                continue;
+            }
+            $this->add($shop);
+        }
+    }
+
     public function getParentUuids(): array
     {
         return $this->fmap(function (ShopBasicStruct $shop) {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\Resource;
@@ -26,14 +27,14 @@ class SessionResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\SessionWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\SessionWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\SessionWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\SessionWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\SessionResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\SessionResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\SessionResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

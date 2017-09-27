@@ -27,12 +27,12 @@ namespace Shopware\Framework\Write;
 class ResourceRegistry
 {
     /**
-     * @var Resource[]
+     * @var resource[]
      */
     private $resources = [];
 
     /**
-     * @param Resource[] ...$resources
+     * @param resource[] ...$resources
      */
     public function __construct(Resource ...$resources)
     {
@@ -42,7 +42,7 @@ class ResourceRegistry
     /**
      * @param string $className
      *
-     * @return Resource
+     * @return resource
      */
     public function get(string $className): Resource
     {

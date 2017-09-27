@@ -6,5 +6,4 @@ use Shopware\Search\CriteriaPartInterface;
 
 interface Aggregation extends CriteriaPartInterface
 {
-
 }

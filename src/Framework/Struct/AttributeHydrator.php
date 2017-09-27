@@ -55,7 +55,7 @@ class AttributeHydrator extends Hydrator
         $arrayKey = '__' . $arrayKey . '_';
         $attribute = $this->extractFields($arrayKey, $data);
 
-        if ($attributeKey === null) {
+        if (null === $attributeKey) {
             $attributeKey = 'core';
         }
 

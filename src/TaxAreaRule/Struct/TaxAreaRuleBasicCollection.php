@@ -53,6 +53,17 @@ class TaxAreaRuleBasicCollection extends Collection
         });
     }
 
+    public function merge(TaxAreaRuleBasicCollection $collection)
+    {
+        /** @var TaxAreaRuleBasicStruct $taxAreaRule */
+        foreach ($collection as $taxAreaRule) {
+            if ($this->has($this->getKey($taxAreaRule))) {
+                continue;
+            }
+            $this->add($taxAreaRule);
+        }
+    }
+
     public function getAreaUuids(): array
     {
         return $this->fmap(function (TaxAreaRuleBasicStruct $taxAreaRule) {

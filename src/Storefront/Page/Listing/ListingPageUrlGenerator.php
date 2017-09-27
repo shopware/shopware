@@ -39,7 +39,6 @@ use Shopware\SeoUrl\Generator\SeoUrlGeneratorInterface;
 use Shopware\SeoUrl\Repository\SeoUrlRepository;
 use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
 use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
-use Shopware\SeoUrl\Struct\SeoUrlCollection;
 use Shopware\Shop\Struct\ShopBasicStruct;
 
 class ListingPageUrlGenerator implements SeoUrlGeneratorInterface
@@ -87,7 +86,7 @@ class ListingPageUrlGenerator implements SeoUrlGeneratorInterface
         $criteria->addFilter(new MatchQuery('category.path', '|' . $shop->getCategoryUuid() . '|'));
         $criteria->addFilter(new TermQuery('category.active', 1));
         $categories = $this->categoryRepository->search($criteria, $context);
-        
+
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('seo_url.is_canonical', 1));
         $criteria->addFilter(new TermsQuery('seo_url.foreign_key', $categories->getUuids()));

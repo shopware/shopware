@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class PremiumProductWrittenEvent extends NestedEvent
 {
     const NAME = 'premium_product.written';
@@ -9,28 +11,39 @@ class PremiumProductWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $premiumProductUuids;
+    protected $premiumProductUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $premiumProductUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $premiumProductUuids, TranslationContext $context, array $errors = [])
     {
         $this->premiumProductUuids = $premiumProductUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

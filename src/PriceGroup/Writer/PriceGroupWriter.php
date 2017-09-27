@@ -61,13 +61,13 @@ class PriceGroupWriter
         }
 
         $affected = count($updated);
-        if ($affected === 1) {
+        if (1 === $affected) {
             $updated = array_shift($updated);
         } elseif ($affected > 1) {
             $updated = array_merge_recursive(...$updated);
         }
 
-        return PriceGroupResource::createWrittenEvent($updated, $errors);
+        return PriceGroupResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): PriceGroupWrittenEvent
@@ -93,13 +93,13 @@ class PriceGroupWriter
         }
 
         $affected = count($created);
-        if ($affected === 1) {
+        if (1 === $affected) {
             $created = array_shift($created);
         } elseif ($affected > 1) {
             $created = array_merge_recursive(...$created);
         }
 
-        return PriceGroupResource::createWrittenEvent($created, $errors);
+        return PriceGroupResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): PriceGroupWrittenEvent
@@ -125,13 +125,13 @@ class PriceGroupWriter
         }
 
         $affected = count($created);
-        if ($affected === 1) {
+        if (1 === $affected) {
             $created = array_shift($created);
         } elseif ($affected > 1) {
             $created = array_merge_recursive(...$created);
         }
 
-        return PriceGroupResource::createWrittenEvent($created, $errors);
+        return PriceGroupResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext

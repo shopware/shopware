@@ -34,4 +34,38 @@ trait JsonSerializableTrait
 
         return $data;
     }
+
+    public function jsonSerializeApi(): array
+    {
+        $data = json_decode(json_encode($this), true);
+
+        $vars = get_object_vars($this);
+        foreach ($vars as $property => $value) {
+            $data[$property] = $this->serializeJsonApi($value);
+        }
+
+        return $data;
+    }
+
+    private function serializeJsonApi($data)
+    {
+        if (is_array($data)) {
+            return array_map([$this, 'serializeJsonApi'], $data);
+        }
+
+        if ($data instanceof Struct) {
+            return $data->jsonSerializeApi();
+        }
+
+        if ($data instanceof \IteratorAggregate) {
+            $items = [];
+            foreach ($data as $item) {
+                $items[] = $this->serializeJsonApi($item);
+            }
+
+            return $items;
+        }
+
+        return json_decode(json_encode($data), true);
+    }
 }

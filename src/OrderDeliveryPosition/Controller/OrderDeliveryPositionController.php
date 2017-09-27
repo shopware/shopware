@@ -69,12 +69,10 @@ class OrderDeliveryPositionController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $orderDeliveryPositions,
-            'total' => $orderDeliveryPositions->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $orderDeliveryPositions, 'total' => $orderDeliveryPositions->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -93,7 +91,7 @@ class OrderDeliveryPositionController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($orderDeliveryPositions->get($uuid), $context);
+        return $this->createResponse(['data' => $orderDeliveryPositions->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class OrderDeliveryPositionController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

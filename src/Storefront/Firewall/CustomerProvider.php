@@ -7,10 +7,10 @@ use Shopware\Customer\Repository\CustomerRepository;
 use Shopware\Customer\Struct\CustomerBasicStruct;
 use Shopware\Search\Criteria;
 use Shopware\Search\Query\TermQuery;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class CustomerProvider implements UserProviderInterface
 {
@@ -29,7 +29,6 @@ class CustomerProvider implements UserProviderInterface
         $this->customerRepository = $customerRepository;
     }
 
-
     public function loadUserByUsername($email)
     {
         $criteria = new Criteria();
@@ -40,7 +39,7 @@ class CustomerProvider implements UserProviderInterface
         $customerResult = $this->customerRepository->search($criteria, $context);
 
         // pretend it returns an array on success, false if there is no user
-        if ($customerResult->getTotal() === 0) {
+        if (0 === $customerResult->getTotal()) {
             throw new UsernameNotFoundException(
                 sprintf('Customer with email address "%s" does not exist.', $email)
             );

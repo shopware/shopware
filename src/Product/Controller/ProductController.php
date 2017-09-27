@@ -69,12 +69,10 @@ class ProductController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $products,
-            'total' => $products->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $products, 'total' => $products->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -88,12 +86,12 @@ class ProductController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('productUuid');
-        $products = $this->productRepository->read(
+        $products = $this->productRepository->readDetail(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($products->get($uuid), $context);
+        return $this->createResponse(['data' => $products->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class ProductController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

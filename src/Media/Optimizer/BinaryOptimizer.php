@@ -84,7 +84,7 @@ abstract class BinaryOptimizer implements OptimizerInterface
      */
     public function isRunnable(): bool
     {
-        if ($this->isRunnable !== null) {
+        if (null !== $this->isRunnable) {
             return $this->isRunnable;
         }
 

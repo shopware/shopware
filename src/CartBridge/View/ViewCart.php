@@ -92,7 +92,7 @@ class ViewCart extends Struct
         $totalShippingCosts = new Price(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection());
 
         /** @var ViewDelivery $delivery */
-        foreach($deliveries as $delivery) {
+        foreach ($deliveries as $delivery) {
             $totalShippingCosts->add($delivery->getDelivery()->getShippingCosts());
         }
 

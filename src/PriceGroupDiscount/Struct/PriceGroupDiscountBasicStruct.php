@@ -31,6 +31,16 @@ class PriceGroupDiscountBasicStruct extends Struct
      */
     protected $productCount;
 
+    /**
+     * @var \DateTime|null
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $updatedAt;
+
     public function getUuid(): string
     {
         return $this->uuid;
@@ -79,5 +89,25 @@ class PriceGroupDiscountBasicStruct extends Struct
     public function setProductCount(float $productCount): void
     {
         $this->productCount = $productCount;
+    }
+
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTime $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 }

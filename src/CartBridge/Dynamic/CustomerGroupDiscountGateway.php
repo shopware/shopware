@@ -30,7 +30,6 @@ use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Cart\LineItem\Discount;
 use Shopware\Cart\Price\PercentagePriceCalculator;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\CustomerGroup\Struct\CustomerGroup;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
 
 class CustomerGroupDiscountGateway
@@ -70,7 +69,7 @@ class CustomerGroupDiscountGateway
             $prices->sum()->getTotalPrice()
         );
 
-        if ($discount === null) {
+        if (null === $discount) {
             return null;
         }
 
@@ -92,7 +91,7 @@ class CustomerGroupDiscountGateway
         $query->setMaxResults(1);
 
         $discount = $query->execute()->fetch(\PDO::FETCH_COLUMN);
-        if ($discount !== false) {
+        if (false !== $discount) {
             return (float) $discount * -1;
         }
 

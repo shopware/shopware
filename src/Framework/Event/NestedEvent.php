@@ -24,10 +24,13 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Framework\Struct\JsonSerializableTrait;
 use Symfony\Component\EventDispatcher\Event;
 
-abstract class NestedEvent extends Event
+abstract class NestedEvent extends Event implements \JsonSerializable
 {
+    use JsonSerializableTrait;
+
     abstract public function getName(): string;
 
     /**

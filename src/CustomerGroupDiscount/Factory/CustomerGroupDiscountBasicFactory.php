@@ -19,6 +19,8 @@ class CustomerGroupDiscountBasicFactory extends Factory
        'customer_group_uuid' => 'customer_group_uuid',
        'percentage_discount' => 'percentage_discount',
        'minimum_cart_amount' => 'minimum_cart_amount',
+       'created_at' => 'created_at',
+       'updated_at' => 'updated_at',
     ];
 
     public function hydrate(
@@ -31,6 +33,8 @@ class CustomerGroupDiscountBasicFactory extends Factory
         $customerGroupDiscount->setCustomerGroupUuid((string) $data[$selection->getField('customer_group_uuid')]);
         $customerGroupDiscount->setPercentageDiscount((float) $data[$selection->getField('percentage_discount')]);
         $customerGroupDiscount->setMinimumCartAmount((float) $data[$selection->getField('minimum_cart_amount')]);
+        $customerGroupDiscount->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
+        $customerGroupDiscount->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
 
         /** @var $extension CustomerGroupDiscountExtension */
         foreach ($this->getExtensions() as $extension) {

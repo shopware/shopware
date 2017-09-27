@@ -2,6 +2,7 @@
 
 namespace Shopware\ProductDetail\Writer\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
@@ -34,22 +35,22 @@ class ProductDetailTranslationResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\ProductDetail\Event\ProductDetailTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ProductDetail\Event\ProductDetailTranslationWrittenEvent
     {
-        $event = new \Shopware\ProductDetail\Event\ProductDetailTranslationWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\ProductDetail\Event\ProductDetailTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\ProductDetail\Writer\Resource\ProductDetailResource::class])) {
-            $event->addEvent(\Shopware\ProductDetail\Writer\Resource\ProductDetailResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\ProductDetail\Writer\Resource\ProductDetailResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\ProductDetail\Writer\Resource\ProductDetailTranslationResource::class])) {
-            $event->addEvent(\Shopware\ProductDetail\Writer\Resource\ProductDetailTranslationResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\ProductDetail\Writer\Resource\ProductDetailTranslationResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

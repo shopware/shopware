@@ -53,6 +53,8 @@ class CustomerBasicFactory extends Factory
        'default_billing_address_uuid' => 'default_billing_address_uuid',
        'default_shipping_address_uuid' => 'default_shipping_address_uuid',
        'birthday' => 'birthday',
+       'created_at' => 'created_at',
+       'updated_at' => 'updated_at',
     ];
 
     /**
@@ -119,6 +121,8 @@ class CustomerBasicFactory extends Factory
         $customer->setDefaultBillingAddressUuid(isset($data[$selection->getField('default_billing_address_uuid')]) ? (string) $data[$selection->getField('default_billing_address_uuid')] : null);
         $customer->setDefaultShippingAddressUuid(isset($data[$selection->getField('default_shipping_address_uuid')]) ? (string) $data[$selection->getField('default_shipping_address_uuid')] : null);
         $customer->setBirthday(isset($data[$selection->getField('birthday')]) ? new \DateTime($data[$selection->getField('birthday')]) : null);
+        $customer->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
+        $customer->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
         $customerGroup = $selection->filter('customerGroup');
         if ($customerGroup && !empty($data[$customerGroup->getField('uuid')])) {
             $customer->setCustomerGroup(

@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
@@ -32,14 +33,14 @@ class EmarketingTellafriendResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\EmarketingTellafriendWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\EmarketingTellafriendWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\EmarketingTellafriendWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\EmarketingTellafriendWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\EmarketingTellafriendResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\EmarketingTellafriendResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\EmarketingTellafriendResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

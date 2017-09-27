@@ -2,6 +2,7 @@
 
 namespace Shopware\ProductVote\Writer\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
@@ -25,6 +26,7 @@ class ProductVoteResource extends Resource
     protected const ANSWER_FIELD = 'answer';
     protected const ANSWERED_AT_FIELD = 'answeredAt';
     protected const CREATED_AT_FIELD = 'createdAt';
+    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -40,10 +42,11 @@ class ProductVoteResource extends Resource
         $this->fields[self::ANSWER_FIELD] = new LongTextField('answer');
         $this->fields[self::ANSWERED_AT_FIELD] = new DateField('answered_at');
         $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
+        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['product'] = new ReferenceField('productUuid', 'uuid', \Shopware\Product\Writer\Resource\ProductResource::class);
         $this->fields['productUuid'] = (new FkField('product_uuid', \Shopware\Product\Writer\Resource\ProductResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopResource::class);
-        $this->fields['shopUuid'] = new FkField('shop_uuid', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
+        $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid'));
     }
 
     public function getWriteOrder(): array
@@ -55,22 +58,22 @@ class ProductVoteResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\ProductVote\Event\ProductVoteWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ProductVote\Event\ProductVoteWrittenEvent
     {
-        $event = new \Shopware\ProductVote\Event\ProductVoteWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\ProductVote\Event\ProductVoteWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Product\Writer\Resource\ProductResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Product\Writer\Resource\ProductResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\ProductVote\Writer\Resource\ProductVoteResource::class])) {
-            $event->addEvent(\Shopware\ProductVote\Writer\Resource\ProductVoteResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\ProductVote\Writer\Resource\ProductVoteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

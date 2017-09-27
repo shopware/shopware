@@ -27,12 +27,11 @@ namespace Shopware\Cart\Test\Infrastructure\Validator\Rule;
 use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Price\CartPrice;
-use Shopware\Cart\Rule\Rule;
 use Shopware\Cart\Tax\CalculatedTaxCollection;
 use Shopware\Cart\Tax\TaxRuleCollection;
 use Shopware\CartBridge\Rule\OrderAmountRule;
-use Shopware\Framework\Struct\StructCollection;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Struct\StructCollection;
 
 class OrderAmountRuleTest extends TestCase
 {

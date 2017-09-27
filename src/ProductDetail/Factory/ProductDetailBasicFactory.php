@@ -42,6 +42,8 @@ class ProductDetailBasicFactory extends Factory
        'release_date' => 'release_date',
        'shipping_free' => 'shipping_free',
        'purchase_price' => 'purchase_price',
+       'created_at' => 'created_at',
+       'updated_at' => 'updated_at',
        'additional_text' => 'translation.additional_text',
        'pack_unit' => 'translation.pack_unit',
     ];
@@ -89,6 +91,8 @@ class ProductDetailBasicFactory extends Factory
         $productDetail->setReleaseDate(isset($data[$selection->getField('release_date')]) ? new \DateTime($data[$selection->getField('release_date')]) : null);
         $productDetail->setShippingFree((bool) $data[$selection->getField('shipping_free')]);
         $productDetail->setPurchasePrice((float) $data[$selection->getField('purchase_price')]);
+        $productDetail->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
+        $productDetail->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
         $productDetail->setAdditionalText(isset($data[$selection->getField('additional_text')]) ? (string) $data[$selection->getField('additional_text')] : null);
         $productDetail->setPackUnit(isset($data[$selection->getField('pack_unit')]) ? (string) $data[$selection->getField('pack_unit')] : null);
         $unit = $selection->filter('unit');

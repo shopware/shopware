@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class ExportSuppliersWrittenEvent extends NestedEvent
 {
     const NAME = 'export_suppliers.written';
@@ -9,28 +11,39 @@ class ExportSuppliersWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $exportSuppliersUuids;
+    protected $exportSuppliersUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $exportSuppliersUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $exportSuppliersUuids, TranslationContext $context, array $errors = [])
     {
         $this->exportSuppliersUuids = $exportSuppliersUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

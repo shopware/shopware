@@ -1,6 +1,5 @@
 <?php declare(strict_types=1);
 
-
 namespace Shopware\Api;
 
 use Shopware\Storefront\Session\ShopSubscriber;
@@ -44,7 +43,7 @@ class ApiContextValueResolver implements ArgumentValueResolverInterface
         switch ($format) {
             case 'json':
                 $payload = json_decode($request->getContent(), true);
-                if (json_last_error() !== JSON_ERROR_NONE) {
+                if (JSON_ERROR_NONE !== json_last_error()) {
                     $error = json_last_error_msg();
                 }
                 break;

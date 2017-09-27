@@ -51,7 +51,7 @@ class VoucherCollector implements CollectorInterface
     ): void {
         $vouchers = $cartContainer->getLineItems()->filterType(VoucherProcessor::TYPE_VOUCHER);
 
-        if ($vouchers->count() === 0) {
+        if (0 === $vouchers->count()) {
             return;
         }
 
@@ -66,7 +66,7 @@ class VoucherCollector implements CollectorInterface
     ): void {
         $definitions = $fetchCollection->filterInstance(VoucherFetchDefinition::class);
 
-        if ($definitions->count() === 0) {
+        if (0 === $definitions->count()) {
             return;
         }
 

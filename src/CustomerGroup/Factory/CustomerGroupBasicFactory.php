@@ -22,6 +22,8 @@ class CustomerGroupBasicFactory extends Factory
        'percentage_global_discount' => 'percentage_global_discount',
        'minimum_order_amount' => 'minimum_order_amount',
        'minimum_order_amount_surcharge' => 'minimum_order_amount_surcharge',
+       'created_at' => 'created_at',
+       'updated_at' => 'updated_at',
        'name' => 'translation.name',
     ];
 
@@ -38,6 +40,8 @@ class CustomerGroupBasicFactory extends Factory
         $customerGroup->setPercentageGlobalDiscount(isset($data[$selection->getField('percentage_global_discount')]) ? (float) $data[$selection->getField('percentage_global_discount')] : null);
         $customerGroup->setMinimumOrderAmount(isset($data[$selection->getField('minimum_order_amount')]) ? (float) $data[$selection->getField('minimum_order_amount')] : null);
         $customerGroup->setMinimumOrderAmountSurcharge(isset($data[$selection->getField('minimum_order_amount_surcharge')]) ? (float) $data[$selection->getField('minimum_order_amount_surcharge')] : null);
+        $customerGroup->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
+        $customerGroup->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
         $customerGroup->setName((string) $data[$selection->getField('name')]);
 
         /** @var $extension CustomerGroupExtension */

@@ -1,1 +1,1 @@
-        $#associationPlural# = $this->#classLc#BasicLoader->load($#plural#Collection->get#propertyUc#Uuids(), $context);
+        $#associationPlural# = $this->#classLc##type#Loader->load($#plural#Collection->get#propertyUc#Uuids(), $context);

@@ -13,9 +13,15 @@ class Util
     const MANY_TO_ONE = 'N:1';
     const ONE_TO_MANY = '1:N';
     const MANY_TO_MANY = 'N:N';
+    const ONE_TO_ONE = '1:1';
 
     public static function snakeCaseToCamelCase(string $string): string
     {
+        $last = substr($string, strlen($string) - 3);
+        if ($last === '_ro') {
+            $string = substr($string, 0, strlen($string) - 3);
+        }
+
         $explode = explode('_', $string);
         $explode = array_map('ucfirst', $explode);
 
@@ -70,6 +76,8 @@ class Util
         $name = ucfirst($name);
 
         switch (true) {
+            case ($name === 'CategoryTree'):
+                return 'CategoryTree';
             case ($name === 'Tax'):
                 return 'Taxes';
             case ($name === 'Album'):

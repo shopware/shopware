@@ -16,14 +16,34 @@ class Generator
         $this->directory = $directory;
     }
 
+
+    public function getFiles($table)
+    {
+        $class = Util::snakeCaseToCamelCase($table);
+        return [
+            $this->directory.'/'.ucfirst($class).'/Writer/'.ucfirst($class).'Writer.php',
+            $this->directory.'/'.ucfirst($class).'/Event/'.ucfirst($class). 'WriteExtenderEvent.php'
+        ];
+    }
+
     public function generate(string $table, array $config): string
     {
         $class = Util::snakeCaseToCamelCase($table);
 
+        $resourceUse = '';
+        if ($table !== 'shop') {
+            $resourceUse = 'use Shopware\#classUc#\Writer\Resource\#classUc#Resource;';
+        }
+        $content = str_replace(
+            ['#resourceUse#'],
+            [$resourceUse],
+            file_get_contents(__DIR__ . '/templates/writer.txt')
+        );
+
         $content = str_replace(
             ['#classUc#', '#classLc#'],
             [ucfirst($class), lcfirst($class)],
-            file_get_contents(__DIR__ . '/templates/writer.txt')
+            $content
         );
 
         $file = $this->directory.'/'.ucfirst($class).'/Writer/'.ucfirst($class).'Writer.php';

@@ -42,7 +42,7 @@ class AccountController extends FrontendController
 
         return $this->render('frontend/register/index.html.twig', [
             'last_email' => $lastEmail,
-            'error'         => $error,
+            'error' => $error,
         ]);
     }
 

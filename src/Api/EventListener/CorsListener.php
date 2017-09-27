@@ -14,7 +14,7 @@ class CorsListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            KernelEvents::REQUEST  => ['onKernelRequest', 9999],
+            KernelEvents::REQUEST => ['onKernelRequest', 9999],
             KernelEvents::RESPONSE => ['onKernelResponse', 9999],
         ];
     }
@@ -31,7 +31,7 @@ class CorsListener implements EventSubscriberInterface
             return;
         }
 
-        $method  = $request->getRealMethod();
+        $method = $request->getRealMethod();
 
         if ('OPTIONS' === $method) {
             $response = new Response();

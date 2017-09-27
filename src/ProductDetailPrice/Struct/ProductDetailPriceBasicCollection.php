@@ -53,6 +53,17 @@ class ProductDetailPriceBasicCollection extends Collection
         });
     }
 
+    public function merge(ProductDetailPriceBasicCollection $collection)
+    {
+        /** @var ProductDetailPriceBasicStruct $productDetailPrice */
+        foreach ($collection as $productDetailPrice) {
+            if ($this->has($this->getKey($productDetailPrice))) {
+                continue;
+            }
+            $this->add($productDetailPrice);
+        }
+    }
+
     public function getCustomerGroupUuids(): array
     {
         return $this->fmap(function (ProductDetailPriceBasicStruct $productDetailPrice) {

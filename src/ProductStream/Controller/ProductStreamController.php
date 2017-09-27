@@ -69,12 +69,10 @@ class ProductStreamController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $productStreams,
-            'total' => $productStreams->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $productStreams, 'total' => $productStreams->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -93,7 +91,7 @@ class ProductStreamController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($productStreams->get($uuid), $context);
+        return $this->createResponse(['data' => $productStreams->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class ProductStreamController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

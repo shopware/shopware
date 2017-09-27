@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-
 class ApiTest extends WebTestCase
 {
     /**
@@ -27,7 +26,7 @@ class ApiTest extends WebTestCase
         $this->connection->beginTransaction();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->connection->rollBack();
         parent::tearDown();
@@ -54,7 +53,7 @@ class ApiTest extends WebTestCase
                     'the_unknown_field' => 'do nothing?',
                     'taxUuid' => 'SWAG-CONFIG-TAX-UUID-1',
                     'productManufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2'],
-                ]
+                ],
             ]
         );
 

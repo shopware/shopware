@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
@@ -37,14 +38,14 @@ class EmotionElementResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\EmotionElementWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\EmotionElementWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\EmotionElementWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\EmotionElementWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\EmotionElementResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\EmotionElementResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\EmotionElementResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

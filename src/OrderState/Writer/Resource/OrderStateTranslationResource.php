@@ -2,6 +2,7 @@
 
 namespace Shopware\OrderState\Writer\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
@@ -32,22 +33,22 @@ class OrderStateTranslationResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\OrderState\Event\OrderStateTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\OrderState\Event\OrderStateTranslationWrittenEvent
     {
-        $event = new \Shopware\OrderState\Event\OrderStateTranslationWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\OrderState\Event\OrderStateTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\OrderState\Writer\Resource\OrderStateResource::class])) {
-            $event->addEvent(\Shopware\OrderState\Writer\Resource\OrderStateResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\OrderState\Writer\Resource\OrderStateResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\OrderState\Writer\Resource\OrderStateTranslationResource::class])) {
-            $event->addEvent(\Shopware\OrderState\Writer\Resource\OrderStateTranslationResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\OrderState\Writer\Resource\OrderStateTranslationResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

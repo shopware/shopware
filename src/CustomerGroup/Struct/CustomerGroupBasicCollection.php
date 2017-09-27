@@ -53,6 +53,17 @@ class CustomerGroupBasicCollection extends Collection
         });
     }
 
+    public function merge(CustomerGroupBasicCollection $collection)
+    {
+        /** @var CustomerGroupBasicStruct $customerGroup */
+        foreach ($collection as $customerGroup) {
+            if ($this->has($this->getKey($customerGroup))) {
+                continue;
+            }
+            $this->add($customerGroup);
+        }
+    }
+
     protected function getKey(CustomerGroupBasicStruct $element): string
     {
         return $element->getUuid();

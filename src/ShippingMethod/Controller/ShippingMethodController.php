@@ -69,12 +69,10 @@ class ShippingMethodController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $shippingMethods,
-            'total' => $shippingMethods->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $shippingMethods, 'total' => $shippingMethods->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -88,12 +86,12 @@ class ShippingMethodController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('shippingMethodUuid');
-        $shippingMethods = $this->shippingMethodRepository->read(
+        $shippingMethods = $this->shippingMethodRepository->readDetail(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($shippingMethods->get($uuid), $context);
+        return $this->createResponse(['data' => $shippingMethods->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class ShippingMethodController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

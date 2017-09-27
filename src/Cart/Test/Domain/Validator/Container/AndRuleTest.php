@@ -28,10 +28,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Rule\Container\AndRule;
 use Shopware\Cart\Rule\Match;
-use Shopware\Framework\Struct\StructCollection;
-use Shopware\Context\Struct\ShopContext;
 use Shopware\Cart\Test\Common\FalseRule;
 use Shopware\Cart\Test\Common\TrueRule;
+use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Struct\StructCollection;
 
 class AndRuleTest extends TestCase
 {

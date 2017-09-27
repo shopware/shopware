@@ -50,13 +50,26 @@ class OrderBasicLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection([
-            new CustomerBasicLoadedEvent($this->orders->getCustomers(), $this->context),
-            new OrderStateBasicLoadedEvent($this->orders->getStates(), $this->context),
-            new PaymentMethodBasicLoadedEvent($this->orders->getPaymentMethods(), $this->context),
-            new CurrencyBasicLoadedEvent($this->orders->getCurrencies(), $this->context),
-            new ShopBasicLoadedEvent($this->orders->getShops(), $this->context),
-            new OrderAddressBasicLoadedEvent($this->orders->getBillingAddresses(), $this->context),
-        ]);
+        $events = [];
+        if ($this->orders->getCustomers()->count() > 0) {
+            $events[] = new CustomerBasicLoadedEvent($this->orders->getCustomers(), $this->context);
+        }
+        if ($this->orders->getStates()->count() > 0) {
+            $events[] = new OrderStateBasicLoadedEvent($this->orders->getStates(), $this->context);
+        }
+        if ($this->orders->getPaymentMethods()->count() > 0) {
+            $events[] = new PaymentMethodBasicLoadedEvent($this->orders->getPaymentMethods(), $this->context);
+        }
+        if ($this->orders->getCurrencies()->count() > 0) {
+            $events[] = new CurrencyBasicLoadedEvent($this->orders->getCurrencies(), $this->context);
+        }
+        if ($this->orders->getShops()->count() > 0) {
+            $events[] = new ShopBasicLoadedEvent($this->orders->getShops(), $this->context);
+        }
+        if ($this->orders->getBillingAddresses()->count() > 0) {
+            $events[] = new OrderAddressBasicLoadedEvent($this->orders->getBillingAddresses(), $this->context);
+        }
+
+        return new NestedEventCollection($events);
     }
 }

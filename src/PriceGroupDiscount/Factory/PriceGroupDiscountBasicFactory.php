@@ -20,6 +20,8 @@ class PriceGroupDiscountBasicFactory extends Factory
        'customer_group_uuid' => 'customer_group_uuid',
        'percentage_discount' => 'percentage_discount',
        'product_count' => 'product_count',
+       'created_at' => 'created_at',
+       'updated_at' => 'updated_at',
     ];
 
     public function hydrate(
@@ -33,6 +35,8 @@ class PriceGroupDiscountBasicFactory extends Factory
         $priceGroupDiscount->setCustomerGroupUuid((string) $data[$selection->getField('customer_group_uuid')]);
         $priceGroupDiscount->setPercentageDiscount((float) $data[$selection->getField('percentage_discount')]);
         $priceGroupDiscount->setProductCount((float) $data[$selection->getField('product_count')]);
+        $priceGroupDiscount->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
+        $priceGroupDiscount->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
 
         /** @var $extension PriceGroupDiscountExtension */
         foreach ($this->getExtensions() as $extension) {

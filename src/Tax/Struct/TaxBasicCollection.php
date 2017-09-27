@@ -53,6 +53,17 @@ class TaxBasicCollection extends Collection
         });
     }
 
+    public function merge(TaxBasicCollection $collection)
+    {
+        /** @var TaxBasicStruct $tax */
+        foreach ($collection as $tax) {
+            if ($this->has($this->getKey($tax))) {
+                continue;
+            }
+            $this->add($tax);
+        }
+    }
+
     protected function getKey(TaxBasicStruct $element): string
     {
         return $element->getUuid();

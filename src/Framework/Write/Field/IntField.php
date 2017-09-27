@@ -25,13 +25,13 @@
 namespace Shopware\Framework\Write\Field;
 
 use Shopware\Framework\Validation\ConstraintBuilder;
-use Shopware\Framework\Write\Filter\FilterRegistry;
-use Shopware\Framework\Write\Resource;
 use Shopware\Framework\Write\FieldAware\ConstraintBuilderAware;
 use Shopware\Framework\Write\FieldAware\FilterRegistryAware;
 use Shopware\Framework\Write\FieldAware\PathAware;
 use Shopware\Framework\Write\FieldAware\ValidatorAware;
 use Shopware\Framework\Write\FieldException\InvalidFieldException;
+use Shopware\Framework\Write\Filter\FilterRegistry;
+use Shopware\Framework\Write\Resource;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;

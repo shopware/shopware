@@ -23,6 +23,16 @@ class Generator
         $this->directory = $directory;
     }
 
+    public function getFiles($table)
+    {
+        $class = Util::snakeCaseToCamelCase($table);
+        return [
+            $this->directory.'/'.ucfirst($class).'/Factory/'.ucfirst($class).'DetailFactory.php',
+            $this->directory.'/'.ucfirst($class).'/Factory/'.ucfirst($class).'BasicFactory.php'
+        ];
+    }
+
+
     public function generateDetail(string $table, array $config)
     {
         $basicAssociations = Util::getAssociationsForBasicQuery($table, $config);
@@ -226,6 +236,7 @@ class Generator
             $associationClass = Util::snakeCaseToCamelCase($association['table']);
 
             switch ($association['type']) {
+                case Util::ONE_TO_ONE:
                 case Util::MANY_TO_ONE:
                     $fields[] = str_replace(
                         ['#propertyLc#', '#classLc#'],
@@ -235,9 +246,9 @@ class Generator
                     break;
                 case Util::MANY_TO_MANY:
                     $fields[] = str_replace(
-                        ['#classLc#'],
-                        [lcfirst($associationClass)],
-                        '        $fields[\'_sub_select_#classLc#_uuids\'] = \'_sub_select_#classLc#_uuids\';'
+                        ['#propertyLc#'],
+                        [lcfirst($property)],
+                        '        $fields[\'_sub_select_#propertyLc#_uuids\'] = \'_sub_select_#propertyLc#_uuids\';'
                     );
                     break;
             }
@@ -341,6 +352,75 @@ class Generator
             $property = Util::getAssociationPropertyName($association);
 
             switch ($association['type']) {
+                case Util::ONE_TO_ONE:
+                    $associationClass = Util::snakeCaseToCamelCase($association['table']);
+                    if ($association['has_detail_loader']) {
+                        $type = 'Detail';
+                        $requiredFactories[] = 'shopware.' . $association['table'] . '.detail_factory';
+                    } else {
+                        $type = 'Basic';
+                        $requiredFactories[] = 'shopware.' . $association['table'] . '.basic_factory';
+                    }
+
+                    $join[] = str_replace(
+                        ['#associationClassLc#', '#propertyLc#', '#associationTable#', '#foreignKey#'],
+                        [
+                            lcfirst($associationClass),
+                            lcfirst($property),
+                            $association['table'],
+                            $association['foreignKeyColumn']
+                        ],
+                        file_get_contents(__DIR__.'/templates/many_to_one_join.txt')
+                    );
+                    $uses[] = str_replace(
+                        ['#classUc#', '#type#'],
+                        [ucfirst($associationClass), ucfirst($type)],
+                        'use Shopware\#classUc#\Factory\#classUc##type#Factory;'
+                    );
+                    $uses[] = str_replace(
+                        ['#classUc#', '#type#'],
+                        [ucfirst($associationClass), ucfirst($type)],
+                        'use Shopware\#classUc#\Struct\#classUc##type#Struct;'
+                    );
+
+                    $constructor[] = str_replace(
+                        ['#classUc#', '#classLc#', '#type#'],
+                        [ucfirst($associationClass), lcfirst($associationClass), ucfirst($type)],
+                        '        #classUc##type#Factory $#classLc#Factory'
+                    );
+                    $init[] = str_replace(
+                        ['#classLc#'],
+                        [lcfirst($associationClass)],
+                        '        $this->#classLc#Factory = $#classLc#Factory;'
+                    );
+                    $properties[] = str_replace(
+                        ['#classUc#', '#classLc#', '#type#'],
+                        [ucfirst($associationClass), lcfirst($associationClass), ucfirst($type)],
+                        '
+    /**
+     * @var #classUc##type#Factory
+     */
+    protected $#classLc#Factory;                        
+                        '
+                    );
+                    $associationAssignments[] = str_replace(
+                        ['#associationClassLc#', '#propertyLc#', '#classUc#', '#classLc#', '#propertyUc#', '#type#'],
+                        [
+                            lcfirst($associationClass),
+                            lcfirst($property),
+                            ucfirst($associationClass),
+                            lcfirst($class),
+                            ucfirst($property),
+                            ucfirst($type)
+                        ],
+                        file_get_contents(__DIR__.'/templates/many_to_one_assignment.txt')
+                    );
+                    $uses[] = str_replace(
+                        ['#classUc#', '#type#'],
+                        [ucfirst($associationClass), ucfirst($type)],
+                        'use Shopware\#classUc#\Factory\#classUc##type#Factory;'
+                    );
+                    break;
                 case Util::MANY_TO_ONE:
                     $associationClass = Util::snakeCaseToCamelCase($association['table']);
                     $requiredFactories[] = 'shopware.' . $association['table'] . '.basic_factory';
@@ -395,13 +475,14 @@ class Generator
                         '
                     );
                     $associationAssignments[] = str_replace(
-                        ['#associationClassLc#', '#propertyLc#', '#classUc#', '#classLc#', '#propertyUc#'],
+                        ['#associationClassLc#', '#propertyLc#', '#classUc#', '#classLc#', '#propertyUc#', '#type#'],
                         [
                             lcfirst($associationClass),
                             lcfirst($property),
                             ucfirst($associationClass),
                             lcfirst($class),
-                            ucfirst($property)
+                            ucfirst($property),
+                            'Basic'
                         ],
                         file_get_contents(__DIR__.'/templates/many_to_one_assignment.txt')
                     );
@@ -464,8 +545,8 @@ class Generator
                         'use Shopware\#classUc#\Factory\#classUc#BasicFactory;'
                     );
                     $associationAssignments[] = str_replace(
-                        ['#associationClassUc#', '#associationClassLc#', '#classLc#', '#propertyUc#'],
-                        [ucfirst($associationClass), lcfirst($associationClass), lcfirst($class), ucfirst($property)],
+                        ['#associationClassUc#', '#associationClassLc#', '#classLc#', '#propertyUc#', '#propertyLc#'],
+                        [ucfirst($associationClass), lcfirst($associationClass), lcfirst($class), ucfirst($property), lcfirst($property)],
                         file_get_contents(__DIR__.'/templates/many_to_many_assignment.txt')
                     );
                     $join[] = str_replace(
@@ -475,7 +556,7 @@ class Generator
                             '#associationTable#',
                             '#mappingTable#',
                             '#associationClassLc#',
-                            '#table#'
+                            '#table#',
                         ],
                         [
                             lcfirst($property),
@@ -532,6 +613,7 @@ class Generator
 
             switch ($association['type']) {
 
+                case Util::ONE_TO_ONE:
                 case Util::MANY_TO_ONE:
                     $fields[] = str_replace(
                         ['#propertyLc#', '#classLc#'],

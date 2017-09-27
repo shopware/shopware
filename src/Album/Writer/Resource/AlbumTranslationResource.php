@@ -2,6 +2,7 @@
 
 namespace Shopware\Album\Writer\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
@@ -32,22 +33,22 @@ class AlbumTranslationResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Album\Event\AlbumTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Album\Event\AlbumTranslationWrittenEvent
     {
-        $event = new \Shopware\Album\Event\AlbumTranslationWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Album\Event\AlbumTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Album\Writer\Resource\AlbumResource::class])) {
-            $event->addEvent(\Shopware\Album\Writer\Resource\AlbumResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Album\Writer\Resource\AlbumResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Album\Writer\Resource\AlbumTranslationResource::class])) {
-            $event->addEvent(\Shopware\Album\Writer\Resource\AlbumTranslationResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Album\Writer\Resource\AlbumTranslationResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

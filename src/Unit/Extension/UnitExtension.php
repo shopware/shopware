@@ -28,6 +28,11 @@ abstract class UnitExtension implements ExtensionInterface, EventSubscriberInter
     ): void {
     }
 
+    public function getDetailFields(): array
+    {
+        return [];
+    }
+
     public function getBasicFields(): array
     {
         return [];

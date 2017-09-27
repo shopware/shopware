@@ -16,6 +16,16 @@ class Generator
         $this->directory = $directory;
     }
 
+    public function getFiles($table)
+    {
+        $class = Util::snakeCaseToCamelCase($table);
+        return [
+            $this->directory.'/'.ucfirst($class).'/Loader/'.ucfirst($class).'BasicLoader.php',
+            $this->directory.'/'.ucfirst($class).'/Loader/'.ucfirst($class).'DetailLoader.php',
+        ];
+    }
+
+
     public function generate(string $table, array $config)
     {
         $associations = Util::getAssociationsForBasicLoader($table, $config);
@@ -142,17 +152,78 @@ class Generator
             $associationPlural = Util::getPlural($property);
 
             switch ($association['type']) {
+                case Util::ONE_TO_ONE:
+                    if ($association['has_detail_loader']) {
+                        $type = 'Detail';
+                    } else {
+                        $type = 'Basic';
+                    }
+
+                    if ($association['fetchTemplate'] !== null) {
+                        $fetches[] = $association['fetchTemplate'];
+                    } else {
+                        $fetches[] = str_replace(
+                            ['#associationPlural#', '#classLc#', '#plural#', '#propertyUc#', '#type#'],
+                            [lcfirst($associationPlural), lcfirst($associationClass), lcfirst($plural), ucfirst($property), ucfirst($type)],
+                            file_get_contents(__DIR__.'/templates/many_to_one_fetch.txt')
+                        );
+                    }
+                    if ($association['assignTemplate'] !== null) {
+                        $assignments[] = $association['assignTemplate'];
+                    } else {
+                        $assignments[] = str_replace(
+                            ['#classLc#', '#propertyUc#', '#associationPlural#'],
+                            [lcfirst($class), ucfirst($property), lcfirst($associationPlural)],
+                            file_get_contents(__DIR__.'/templates/many_to_one_assignment.txt')
+                        );
+                    }
+
+                    $constructor[] = str_replace(
+                        ['#classUc#', '#classLc#', '#type#'],
+                        [ucfirst($associationClass), lcfirst($associationClass), ucfirst($type)],
+                        '        #classUc##type#Loader $#classLc##type#Loader'
+                    );
+                    $uses[] = str_replace(
+                        ['#classUc#', '#type#'],
+                        [ucfirst($associationClass), ucfirst($type)],
+                        'use Shopware\#classUc#\Loader\#classUc##type#Loader;'
+                    );
+                    $init[] = str_replace(
+                        ['#associationClassLc#', '#type#'],
+                        [lcfirst($associationClass), ucfirst($type)],
+                        '$this->#associationClassLc##type#Loader = $#associationClassLc##type#Loader;'
+                    );
+                    $properties[] = str_replace(
+                        ['#classUc#', '#classLc#', '#type#'],
+                        [ucfirst($associationClass), lcfirst($associationClass), ucfirst($type)],
+                        '
+    /**
+     * @var #classUc##type#Loader
+     */
+    private $#classLc##type#Loader;
+                        '
+                    );
+                    break;
                 case Util::MANY_TO_ONE:
-                    $fetches[] = str_replace(
-                        ['#associationPlural#', '#classLc#', '#plural#', '#propertyUc#'],
-                        [lcfirst($associationPlural), lcfirst($associationClass), lcfirst($plural), ucfirst($property)],
-                        file_get_contents(__DIR__.'/templates/many_to_one_fetch.txt')
-                    );
-                    $assignments[] = str_replace(
-                        ['#classLc#', '#propertyUc#', '#associationPlural#'],
-                        [lcfirst($class), ucfirst($property), lcfirst($associationPlural)],
-                        file_get_contents(__DIR__.'/templates/many_to_one_assignment.txt')
-                    );
+                    if ($association['fetchTemplate'] !== null) {
+                        $fetches[] = $association['fetchTemplate'];
+                    } else {
+                        $fetches[] = str_replace(
+                            ['#associationPlural#', '#classLc#', '#plural#', '#propertyUc#', '#type#'],
+                            [lcfirst($associationPlural), lcfirst($associationClass), lcfirst($plural), ucfirst($property), 'Basic'],
+                            file_get_contents(__DIR__.'/templates/many_to_one_fetch.txt')
+                        );
+                    }
+                    if ($association['assignTemplate'] !== null) {
+                        $assignments[] = $association['assignTemplate'];
+                    } else {
+                        $assignments[] = str_replace(
+                            ['#classLc#', '#propertyUc#', '#associationPlural#'],
+                            [lcfirst($class), ucfirst($property), lcfirst($associationPlural)],
+                            file_get_contents(__DIR__.'/templates/many_to_one_assignment.txt')
+                        );
+                    }
+
                     $constructor[] = str_replace(
                         ['#classUc#', '#classLc#'],
                         [ucfirst($associationClass), lcfirst($associationClass)],
@@ -180,35 +251,46 @@ class Generator
                     );
                     break;
                 case Util::ONE_TO_MANY:
-                    if ($association['has_detail_loader']) {
-                        $fetches[] = str_replace(
-                            ['#associationPlural#', '#associationTable#', '#table#', '#classLc#', '#associationClassUc#'],
-                            [lcfirst($associationPlural), $association['table'], $table, lcfirst($associationClass), ucfirst($associationClass)],
-                            file_get_contents(__DIR__.'/templates/one_to_many_fetch_by_loader.txt')
-                        );
+                    if ($association['fetchTemplate'] !== null) {
+                        $fetches[] = $association['fetchTemplate'];
                     } else {
-                        $fetches[] = str_replace(
-                            ['#associationPlural#', '#associationTable#', '#table#', '#classLc#', '#associationClassUc#'],
-                            [lcfirst($associationPlural), $association['table'], $table, lcfirst($associationClass), ucfirst($associationClass)],
-                            file_get_contents(__DIR__.'/templates/one_to_many_fetch.txt')
-                        );
-                        $uses[] = str_replace(
-                            ['#classUc#'],
-                            [ucfirst($associationClass)],
-                            'use Shopware\#classUc#\Searcher\#classUc#SearchResult;'
+                        if ($association['has_detail_loader']) {
+                            $fetches[] = str_replace(
+                                ['#associationPlural#', '#associationTable#', '#table#', '#classLc#', '#associationClassUc#'],
+                                [lcfirst($associationPlural), $association['table'], $table, lcfirst($associationClass), ucfirst($associationClass)],
+                                file_get_contents(__DIR__.'/templates/one_to_many_fetch_by_loader.txt')
+                            );
+                        } else {
+                            $fetches[] = str_replace(
+                                ['#associationPlural#', '#associationTable#', '#table#', '#classLc#', '#associationClassUc#'],
+                                [lcfirst($associationPlural), $association['table'], $table, lcfirst($associationClass), ucfirst($associationClass)],
+                                file_get_contents(__DIR__.'/templates/one_to_many_fetch.txt')
+                            );
+
+                        }
+                    }
+                    if ($association['assignTemplate'] !== null) {
+                        $assignments[] = $association['assignTemplate'];
+                    } else {
+                        $assignments[] = str_replace(
+                            ['#classLc#', '#associationPluralUc#', '#associationPluralLc#', '#classUc#', '#classLc#'],
+                            [
+                                lcfirst($class),
+                                ucfirst($associationPlural),
+                                lcfirst($associationPlural),
+                                ucfirst($class),
+                                lcfirst($class)
+                            ],
+                            file_get_contents(__DIR__.'/templates/one_to_many_assignment.txt')
                         );
                     }
-                    $assignments[] = str_replace(
-                        ['#classLc#', '#associationPluralUc#', '#associationPluralLc#', '#classUc#', '#classLc#'],
-                        [
-                            lcfirst($class),
-                            ucfirst($associationPlural),
-                            lcfirst($associationPlural),
-                            ucfirst($class),
-                            lcfirst($class)
-                        ],
-                        file_get_contents(__DIR__.'/templates/one_to_many_assignment.txt')
+
+                    $uses[] = str_replace(
+                        ['#classUc#'],
+                        [ucfirst($associationClass)],
+                        'use Shopware\#classUc#\Searcher\#classUc#SearchResult;'
                     );
+
                     $constructor[] = str_replace(
                         ['#classUc#', '#classLc#'],
                         [ucfirst($associationClass), lcfirst($associationClass)],
@@ -265,24 +347,33 @@ class Generator
 
                     break;
                 case Util::MANY_TO_MANY:
-                    $fetches[] = str_replace(
-                        ['#associationPlural#', '#associationClassLc#', '#plural#', '#propertyUc#'],
-                        [lcfirst($associationPlural), lcfirst($associationClass), lcfirst($plural), ucfirst($property)],
-                        file_get_contents(__DIR__.'/templates/many_to_many_fetch.txt')
-                    );
-                    $assignments[] = str_replace(
-                        ['#classLc#', '#associationPluralUc#', '#associationPluralLc#', '#classLc#', '#classUc#', '#associationClassUc#', '#propertyUc#'],
-                        [
-                            lcfirst($class),
-                            ucfirst($associationPlural),
-                            lcfirst($associationPlural),
-                            lcfirst($class),
-                            ucfirst($class),
-                            ucfirst($associationClass),
-                            ucfirst($property)
-                        ],
-                        file_get_contents(__DIR__.'/templates/many_to_many_assignment.txt')
-                    );
+                    if ($association['fetchTemplate'] !== null) {
+                        $fetches[] = $association['fetchTemplate'];
+                    } else {
+                        $fetches[] = str_replace(
+                            ['#associationPlural#', '#associationClassLc#', '#plural#', '#propertyUc#'],
+                            [lcfirst($associationPlural), lcfirst($associationClass), lcfirst($plural), ucfirst($property)],
+                            file_get_contents(__DIR__.'/templates/many_to_many_fetch.txt')
+                        );
+                    }
+                    if ($association['assignTemplate'] !== null) {
+                        $assignments[] = $association['assignTemplate'];
+                    } else {
+                        $assignments[] = str_replace(
+                            ['#classLc#', '#associationPluralUc#', '#associationPluralLc#', '#classLc#', '#classUc#', '#associationClassUc#', '#propertyUc#'],
+                            [
+                                lcfirst($class),
+                                ucfirst($associationPlural),
+                                lcfirst($associationPlural),
+                                lcfirst($class),
+                                ucfirst($class),
+                                ucfirst($associationClass),
+                                ucfirst($property)
+                            ],
+                            file_get_contents(__DIR__.'/templates/many_to_many_assignment.txt')
+                        );
+                    }
+
                     $constructor[] = str_replace(
                         ['#classUc#', '#classLc#'],
                         [ucfirst($associationClass), lcfirst($associationClass)],
@@ -323,6 +414,13 @@ class Generator
         $arguments = [];
         foreach ($associations as $association) {
             switch($association['type']) {
+                case Util::ONE_TO_ONE:
+                    if ($association['has_detail_loader']) {
+                        $arguments[] = str_replace('#associationTable#', $association['table'], '            <argument id="shopware.#associationTable#.detail_loader" type="service"/>');
+                    } else {
+                        $arguments[] = str_replace('#associationTable#', $association['table'], '            <argument id="shopware.#associationTable#.basic_loader" type="service"/>');
+                    }
+                    break;
                 case Util::MANY_TO_ONE:
                     $arguments[] = str_replace('#associationTable#', $association['table'], '            <argument id="shopware.#associationTable#.basic_loader" type="service"/>');
                     break;

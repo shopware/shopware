@@ -53,6 +53,17 @@ class UnitBasicCollection extends Collection
         });
     }
 
+    public function merge(UnitBasicCollection $collection)
+    {
+        /** @var UnitBasicStruct $unit */
+        foreach ($collection as $unit) {
+            if ($this->has($this->getKey($unit))) {
+                continue;
+            }
+            $this->add($unit);
+        }
+    }
+
     protected function getKey(UnitBasicStruct $element): string
     {
         return $element->getUuid();

@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\LongTextField;
 use Shopware\Framework\Write\Field\StringField;
@@ -40,14 +41,14 @@ class BillingTemplateResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\BillingTemplateWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\BillingTemplateWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\BillingTemplateWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\BillingTemplateWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\BillingTemplateResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\BillingTemplateResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\BillingTemplateResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

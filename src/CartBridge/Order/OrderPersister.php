@@ -24,7 +24,6 @@
 
 namespace Shopware\CartBridge\Order;
 
-use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Delivery\Delivery;
@@ -35,7 +34,6 @@ use Shopware\Cart\Tax\TaxDetector;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Order\Repository\OrderRepository;
-use Shopware\Serializer\SerializerRegistry;
 
 class OrderPersister implements OrderPersisterInterface
 {
@@ -105,7 +103,7 @@ class OrderPersister implements OrderPersisterInterface
                 'unitPrice' => $lineItem->getPrice()->getUnitPrice(),
                 'totalPrice' => $lineItem->getPrice()->getTotalPrice(),
                 'type' => $lineItem->getType(),
-                'payload' => json_encode($lineItem)
+                'payload' => json_encode($lineItem),
             ];
         }
 
@@ -118,9 +116,9 @@ class OrderPersister implements OrderPersisterInterface
                 'shippingAddress' => $this->convertAddress($delivery->getLocation()->getAddress()),
                 'orderStateUuid' => 'SWAG-ORDER-STATE-UUID-0',
                 'positions' => [],
-                'payload' => json_encode($delivery)
+                'payload' => json_encode($delivery),
             ];
-            
+
             /** @var DeliveryPosition $position */
             foreach ($delivery->getPositions() as $position) {
                 $deliveryData['positions'][] = [
@@ -128,13 +126,13 @@ class OrderPersister implements OrderPersisterInterface
                     'totalPrice' => $position->getPrice()->getTotalPrice(),
                     'quantity' => $position->getQuantity(),
                     'payload' => json_encode($position),
-                    'orderLineItemUuid' => $lineItemMap[$position->getIdentifier()]
+                    'orderLineItemUuid' => $lineItemMap[$position->getIdentifier()],
                 ];
             }
 
             $data['deliveries'][] = $deliveryData;
         }
-        
+
         return $data;
     }
 
@@ -155,7 +153,7 @@ class OrderPersister implements OrderPersisterInterface
             'additionalAddressLine1' => $address->getAdditionalAddressLine1(),
             'additionalAddressLine2' => $address->getAdditionalAddressLine2(),
             'areaCountryUuid' => $address->getAreaCountryUuid(),
-            'areaCountryStateUuid' => $address->getAreaCountryStateUuid()
+            'areaCountryStateUuid' => $address->getAreaCountryStateUuid(),
         ]);
     }
 }

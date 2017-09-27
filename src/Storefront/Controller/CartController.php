@@ -47,10 +47,10 @@ class CartController extends FrontendController
         $quantity = $request->request->get('quantity', false);
         $target = $request->request->get('target', false);
 
-        if(!($identifier &&  $quantity)) {
+        if (!($identifier && $quantity)) {
             return new JsonResponse([
                 'success' => false,
-                'message' => 'Invalid identifier or quantity'
+                'message' => 'Invalid identifier or quantity',
             ]);
         }
         $cartService = $this->get('shopware.cart.storefront_service');
@@ -70,10 +70,10 @@ class CartController extends FrontendController
         $identifier = $request->request->get('identifier', false);
         $target = $request->request->get('target', false);
 
-        if(!$identifier) {
+        if (!$identifier) {
             return new JsonResponse([
                 'success' => false,
-                'message' => 'Invalid identifier'
+                'message' => 'Invalid identifier',
             ]);
         }
 
@@ -93,10 +93,10 @@ class CartController extends FrontendController
         $quantity = $request->request->get('quantity', false);
         $target = $request->request->get('target', false);
 
-        if(!($identifier &&  $quantity)) {
+        if (!($identifier && $quantity)) {
             return new JsonResponse([
                 'success' => false,
-                'message' => 'Invalid identifier or quantity'
+                'message' => 'Invalid identifier or quantity',
             ]);
         }
 
@@ -115,10 +115,10 @@ class CartController extends FrontendController
         $identifier = $request->request->get('identifier', false);
         $target = $request->request->get('target', false);
 
-        if(!$identifier) {
+        if (!$identifier) {
             return new JsonResponse([
                 'success' => false,
-                'message' => 'Invalid identifier'
+                'message' => 'Invalid identifier',
             ]);
         }
 
@@ -134,7 +134,8 @@ class CartController extends FrontendController
      * Serve response depending on target and current user state
      *
      * @param Request $request
-     * @param string $target
+     * @param string  $target
+     *
      * @return JsonResponse|RedirectResponse|Response
      */
     private function conditionalResponse(Request $request, string $target): Response
@@ -143,7 +144,7 @@ class CartController extends FrontendController
             return new JsonResponse(['success' => true]);
         }
 
-        if ($target == self::ROUTE_CHECKOUT_CART) {
+        if (self::ROUTE_CHECKOUT_CART == $target) {
             return $this->redirectToRoute(self::ROUTE_CHECKOUT_CART);
         }
 

@@ -79,19 +79,6 @@ class ResponseEnvelope implements \JsonSerializable
         ];
     }
 
-    private function transformExceptionToArray(?HttpException $exception): ?array
-    {
-        if (!$exception) {
-            return null;
-        }
-
-        return [
-            'type' => get_class($exception),
-            'message' => $exception->getMessage(),
-            'statusCode' => $exception->getStatusCode(),
-        ];
-    }
-
     /**
      * @param int $total
      */
@@ -129,5 +116,18 @@ class ResponseEnvelope implements \JsonSerializable
     public function setData($data)
     {
         $this->data = $data;
+    }
+
+    private function transformExceptionToArray(?HttpException $exception): ?array
+    {
+        if (!$exception) {
+            return null;
+        }
+
+        return [
+            'type' => get_class($exception),
+            'message' => $exception->getMessage(),
+            'statusCode' => $exception->getStatusCode(),
+        ];
     }
 }

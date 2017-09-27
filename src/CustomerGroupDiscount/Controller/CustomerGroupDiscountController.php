@@ -69,12 +69,10 @@ class CustomerGroupDiscountController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $customerGroupDiscounts,
-            'total' => $customerGroupDiscounts->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $customerGroupDiscounts, 'total' => $customerGroupDiscounts->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -93,7 +91,7 @@ class CustomerGroupDiscountController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($customerGroupDiscounts->get($uuid), $context);
+        return $this->createResponse(['data' => $customerGroupDiscounts->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class CustomerGroupDiscountController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

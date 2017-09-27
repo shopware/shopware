@@ -28,6 +28,11 @@ abstract class HolidayExtension implements ExtensionInterface, EventSubscriberIn
     ): void {
     }
 
+    public function getDetailFields(): array
+    {
+        return [];
+    }
+
     public function getBasicFields(): array
     {
         return [];

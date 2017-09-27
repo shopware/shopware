@@ -26,6 +26,16 @@ class CustomerGroupDiscountBasicStruct extends Struct
      */
     protected $minimumCartAmount;
 
+    /**
+     * @var \DateTime|null
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $updatedAt;
+
     public function getUuid(): string
     {
         return $this->uuid;
@@ -64,5 +74,25 @@ class CustomerGroupDiscountBasicStruct extends Struct
     public function setMinimumCartAmount(float $minimumCartAmount): void
     {
         $this->minimumCartAmount = $minimumCartAmount;
+    }
+
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTime $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 }

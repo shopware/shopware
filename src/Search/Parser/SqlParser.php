@@ -4,7 +4,6 @@ namespace Shopware\Search\Parser;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Search\QuerySelection;
 use Shopware\Search\Query\MatchQuery;
 use Shopware\Search\Query\NestedQuery;
 use Shopware\Search\Query\NotQuery;
@@ -12,28 +11,29 @@ use Shopware\Search\Query\Query;
 use Shopware\Search\Query\RangeQuery;
 use Shopware\Search\Query\TermQuery;
 use Shopware\Search\Query\TermsQuery;
+use Shopware\Search\QuerySelection;
 
 class SqlParser
 {
     public function parse(Query $query, QuerySelection $selection): ParseResult
     {
         switch (true) {
-            case ($query instanceof NotQuery):
+            case $query instanceof NotQuery:
                 return $this->parseNotQuery($query, $selection);
 
-            case ($query instanceof NestedQuery):
+            case $query instanceof NestedQuery:
                 return $this->parseNestedQuery($query, $selection);
 
-            case ($query instanceof TermQuery):
+            case $query instanceof TermQuery:
                 return $this->parseTermQuery($query, $selection);
 
-            case ($query instanceof TermsQuery):
+            case $query instanceof TermsQuery:
                 return $this->parseTermsQuery($query, $selection);
 
-            case ($query instanceof MatchQuery):
+            case $query instanceof MatchQuery:
                 return $this->parseMatchQuery($query, $selection);
 
-            case ($query instanceof RangeQuery):
+            case $query instanceof RangeQuery:
                 return $this->parseRangeQuery($query, $selection);
 
             default:
@@ -52,21 +52,20 @@ class SqlParser
         $where = [];
 
         if ($query->hasParameter(RangeQuery::GT)) {
-            $where[] = $field.' > :'.$key;
+            $where[] = $field . ' > :' . $key;
             $result->addParameter($key, $query->getParameter(RangeQuery::GT));
-        } else if ($query->hasParameter(RangeQuery::GTE)) {
-            $where[] = $field.' >= :'.$key;
+        } elseif ($query->hasParameter(RangeQuery::GTE)) {
+            $where[] = $field . ' >= :' . $key;
             $result->addParameter($key, $query->getParameter(RangeQuery::GTE));
         }
 
         $key = $this->getKey();
 
         if ($query->hasParameter(RangeQuery::LT)) {
-            $where[] = $field.' < :'.$key;
+            $where[] = $field . ' < :' . $key;
             $result->addParameter($key, $query->getParameter(RangeQuery::LT));
-
-        } else if ($query->hasParameter(RangeQuery::LTE)) {
-            $where[] = $field.' <= :'.$key;
+        } elseif ($query->hasParameter(RangeQuery::LTE)) {
+            $where[] = $field . ' <= :' . $key;
             $result->addParameter($key, $query->getParameter(RangeQuery::LTE));
         }
 
@@ -82,8 +81,8 @@ class SqlParser
         $field = $selection->getFieldEscaped($query->getField());
 
         $result = new ParseResult();
-        $result->addWhere($field.' LIKE :'.$key);
-        $result->addParameter($key, '%'.$query->getValue().'%');
+        $result->addWhere($field . ' LIKE :' . $key);
+        $result->addParameter($key, '%' . $query->getValue() . '%');
 
         return $result;
     }
@@ -94,7 +93,7 @@ class SqlParser
         $field = $selection->getFieldEscaped($query->getField());
 
         $result = new ParseResult();
-        $result->addWhere($field.' IN (:'.$key.')');
+        $result->addWhere($field . ' IN (:' . $key . ')');
         $result->addParameter($key, $query->getValue(), Connection::PARAM_STR_ARRAY);
 
         return $result;
@@ -106,7 +105,7 @@ class SqlParser
         $field = $selection->getFieldEscaped($query->getField());
 
         $result = new ParseResult();
-        $result->addWhere($field.' = :'.$key);
+        $result->addWhere($field . ' = :' . $key);
         $result->addParameter($key, $query->getValue());
 
         return $result;

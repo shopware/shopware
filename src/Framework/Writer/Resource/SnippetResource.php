@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
@@ -50,18 +51,18 @@ class SnippetResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\SnippetWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\SnippetWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\SnippetWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\SnippetWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\SnippetResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\SnippetResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\SnippetResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

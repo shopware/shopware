@@ -38,6 +38,8 @@ class CustomerAddressBasicFactory extends Factory
        'phone_number' => 'phone_number',
        'additional_address_line1' => 'additional_address_line1',
        'additional_address_line2' => 'additional_address_line2',
+       'created_at' => 'created_at',
+       'updated_at' => 'updated_at',
     ];
 
     /**
@@ -84,6 +86,8 @@ class CustomerAddressBasicFactory extends Factory
         $customerAddress->setPhoneNumber(isset($data[$selection->getField('phone_number')]) ? (string) $data[$selection->getField('phone_number')] : null);
         $customerAddress->setAdditionalAddressLine1(isset($data[$selection->getField('additional_address_line1')]) ? (string) $data[$selection->getField('additional_address_line1')] : null);
         $customerAddress->setAdditionalAddressLine2(isset($data[$selection->getField('additional_address_line2')]) ? (string) $data[$selection->getField('additional_address_line2')] : null);
+        $customerAddress->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
+        $customerAddress->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
         $areaCountry = $selection->filter('country');
         if ($areaCountry && !empty($data[$areaCountry->getField('uuid')])) {
             $customerAddress->setCountry(

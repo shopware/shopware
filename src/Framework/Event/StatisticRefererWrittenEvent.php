@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class StatisticRefererWrittenEvent extends NestedEvent
 {
     const NAME = 'statistic_referer.written';
@@ -9,28 +11,39 @@ class StatisticRefererWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $statisticRefererUuids;
+    protected $statisticRefererUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $statisticRefererUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $statisticRefererUuids, TranslationContext $context, array $errors = [])
     {
         $this->statisticRefererUuids = $statisticRefererUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

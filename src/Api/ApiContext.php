@@ -1,6 +1,5 @@
 <?php declare(strict_types=1);
 
-
 namespace Shopware\Api;
 
 use Shopware\Context\Struct\ShopContext;

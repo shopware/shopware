@@ -45,9 +45,14 @@ class CurrencyDetailLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection([
+        $events = [
             new CurrencyBasicLoadedEvent($this->currencies, $this->context),
-            new ShopBasicLoadedEvent($this->currencies->getShops(), $this->context),
-        ]);
+        ];
+
+        if ($this->currencies->getShops()->count() > 0) {
+            $events[] = new ShopBasicLoadedEvent($this->currencies->getShops(), $this->context);
+        }
+
+        return new NestedEventCollection($events);
     }
 }

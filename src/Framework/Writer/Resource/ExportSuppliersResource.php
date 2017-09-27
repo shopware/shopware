@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\Resource;
@@ -26,14 +27,14 @@ class ExportSuppliersResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\ExportSuppliersWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\ExportSuppliersWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\ExportSuppliersWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\ExportSuppliersWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\ExportSuppliersResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\ExportSuppliersResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\ExportSuppliersResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class StatisticSearchWrittenEvent extends NestedEvent
 {
     const NAME = 'statistic_search.written';
@@ -9,28 +11,39 @@ class StatisticSearchWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $statisticSearchUuids;
+    protected $statisticSearchUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $statisticSearchUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $statisticSearchUuids, TranslationContext $context, array $errors = [])
     {
         $this->statisticSearchUuids = $statisticSearchUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

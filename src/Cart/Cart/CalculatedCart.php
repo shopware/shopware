@@ -115,6 +115,7 @@ class CalculatedCart extends Struct
     {
         $data = parent::jsonSerialize();
         $data['shippingCosts'] = $this->getShippingCosts();
+
         return $data;
     }
 }

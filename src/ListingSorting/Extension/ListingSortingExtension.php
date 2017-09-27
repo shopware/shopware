@@ -28,6 +28,11 @@ abstract class ListingSortingExtension implements ExtensionInterface, EventSubsc
     ): void {
     }
 
+    public function getDetailFields(): array
+    {
+        return [];
+    }
+
     public function getBasicFields(): array
     {
         return [];

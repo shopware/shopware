@@ -44,7 +44,8 @@ class TaxAreaRuleBasicLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection([
-        ]);
+        $events = [];
+
+        return new NestedEventCollection($events);
     }
 }

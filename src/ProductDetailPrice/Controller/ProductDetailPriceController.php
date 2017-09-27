@@ -69,12 +69,10 @@ class ProductDetailPriceController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $productDetailPrices,
-            'total' => $productDetailPrices->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $productDetailPrices, 'total' => $productDetailPrices->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -93,7 +91,7 @@ class ProductDetailPriceController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($productDetailPrices->get($uuid), $context);
+        return $this->createResponse(['data' => $productDetailPrices->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class ProductDetailPriceController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

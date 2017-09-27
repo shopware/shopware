@@ -41,12 +41,11 @@ class ImportService implements ImportServiceInterface
     {
         $this->logger->debug('Starting translation import.', ['paths' => $paths, 'truncateBeforeImport' => true]);
 
-        if ($truncateBeforeImport === true) {
+        if (true === $truncateBeforeImport) {
             $this->truncateDatabase();
         } else {
             $this->deleteNonDirtyTranslations();
         }
-
 
         $finder = (new Finder())->files()->in($paths)->name('*.ini');
 
@@ -71,6 +70,7 @@ class ImportService implements ImportServiceInterface
 
         if (empty($content)) {
             $this->logger->debug('Skipped translation file because it is empty.', ['path' => $file->getPathname()]);
+
             return;
         }
 
@@ -88,7 +88,7 @@ class ImportService implements ImportServiceInterface
                         'locale' => $locale,
                         'name' => $name,
                         'value' => $value,
-                        'created_at' => $today
+                        'created_at' => $today,
                     ];
 
                     try {

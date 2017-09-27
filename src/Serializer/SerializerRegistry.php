@@ -31,6 +31,7 @@ class SerializerRegistry
     const FORMAT_JSON = 'json';
     const FORMAT_XML = 'xml';
     const FORMAT_ARRAY = 'array';
+    const FORMAT_API_JSON = 'api_json';
 
     private $serializers = [];
 

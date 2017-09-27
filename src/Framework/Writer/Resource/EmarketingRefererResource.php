@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\LongTextField;
@@ -30,14 +31,14 @@ class EmarketingRefererResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\EmarketingRefererWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\EmarketingRefererWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\EmarketingRefererWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\EmarketingRefererWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\EmarketingRefererResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\EmarketingRefererResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\EmarketingRefererResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

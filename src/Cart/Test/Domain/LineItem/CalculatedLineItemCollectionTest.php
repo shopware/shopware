@@ -33,10 +33,10 @@ use Shopware\Cart\Product\ProductProcessor;
 use Shopware\Cart\Rule\Container\AndRule;
 use Shopware\Cart\Tax\CalculatedTaxCollection;
 use Shopware\Cart\Tax\TaxRuleCollection;
-use Shopware\Cart\Voucher\CalculatedVoucher;
-use Shopware\Cart\Voucher\VoucherProcessor;
 use Shopware\Cart\Test\Common\ConfiguredGoodsItem;
 use Shopware\Cart\Test\Common\ConfiguredLineItem;
+use Shopware\Cart\Voucher\CalculatedVoucher;
+use Shopware\Cart\Voucher\VoucherProcessor;
 
 class CalculatedLineItemCollectionTest extends TestCase
 {

@@ -6,6 +6,7 @@ interface ExtensionRegistryInterface
 {
     /**
      * @param string $bundle
+     *
      * @return ExtensionInterface[]
      */
     public function getExtensions(string $bundle): array;

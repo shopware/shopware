@@ -129,6 +129,23 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         return $data;
     }
 
+    public function jsonSerializeApi(): array
+    {
+        $data = parent::jsonSerializeApi();
+
+        return array_values($data['elements']);
+    }
+
+    public function first()
+    {
+        return array_values($this->elements)[0];
+    }
+
+    public function last()
+    {
+        return array_values($this->elements)[count($this->elements) - 1];
+    }
+
     protected function doAdd($element): void
     {
         $this->elements[] = $element;
@@ -142,15 +159,5 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     protected function doMerge(Collection $collection)
     {
         return new static(array_merge($this->elements, $collection->getIterator()->getArrayCopy()));
-    }
-
-    public function first()
-    {
-        return array_values($this->elements)[0];
-    }
-
-    public function last()
-    {
-        return array_values($this->elements)[count($this->elements) - 1];
     }
 }

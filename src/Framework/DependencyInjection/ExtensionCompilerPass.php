@@ -34,7 +34,7 @@ class ExtensionCompilerPass implements CompilerPassInterface
         if (empty($taggedServices)) {
             return;
         }
-        
+
         $definition = $container->getDefinition($serviceName);
 
         $grouped = [];
@@ -66,15 +66,15 @@ class ExtensionCompilerPass implements CompilerPassInterface
                 $queue[] = [
                     'reference' => new Reference($serviceId),
                     'bundle' => $attributes['bundle'],
-                    'priority' => $priority
+                    'priority' => $priority,
                 ];
             }
         }
 
-        usort($queue, function(array $a, array $b) {
+        usort($queue, function (array $a, array $b) {
             return $a['priority'] <=> $b['priority'];
         });
+
         return $queue;
     }
-
 }

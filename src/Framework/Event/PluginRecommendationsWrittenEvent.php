@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class PluginRecommendationsWrittenEvent extends NestedEvent
 {
     const NAME = 'plugin_recommendations.written';
@@ -9,28 +11,39 @@ class PluginRecommendationsWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $pluginRecommendationsUuids;
+    protected $pluginRecommendationsUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $pluginRecommendationsUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $pluginRecommendationsUuids, TranslationContext $context, array $errors = [])
     {
         $this->pluginRecommendationsUuids = $pluginRecommendationsUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

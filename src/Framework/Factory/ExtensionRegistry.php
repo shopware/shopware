@@ -16,6 +16,7 @@ class ExtensionRegistry implements ExtensionRegistryInterface
 
     /**
      * @param string $bundle
+     *
      * @return ExtensionInterface[]
      */
     public function getExtensions(string $bundle): array
@@ -23,6 +24,7 @@ class ExtensionRegistry implements ExtensionRegistryInterface
         if (array_key_exists($bundle, $this->extensions)) {
             return $this->extensions[$bundle];
         }
+
         return [];
     }
 }

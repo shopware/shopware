@@ -4,14 +4,11 @@ namespace Shopware\ProductDetail\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\ProductDetail\Event\ProductDetailBasicLoadedEvent;
-use Shopware\ProductDetail\Event\ProductDetailDetailLoadedEvent;
 use Shopware\ProductDetail\Event\ProductDetailWrittenEvent;
 use Shopware\ProductDetail\Loader\ProductDetailBasicLoader;
-use Shopware\ProductDetail\Loader\ProductDetailDetailLoader;
 use Shopware\ProductDetail\Searcher\ProductDetailSearcher;
 use Shopware\ProductDetail\Searcher\ProductDetailSearchResult;
 use Shopware\ProductDetail\Struct\ProductDetailBasicCollection;
-use Shopware\ProductDetail\Struct\ProductDetailDetailCollection;
 use Shopware\ProductDetail\Writer\ProductDetailWriter;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
@@ -20,11 +17,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductDetailRepository
 {
-    /**
-     * @var ProductDetailDetailLoader
-     */
-    protected $detailLoader;
-
     /**
      * @var ProductDetailBasicLoader
      */
@@ -46,32 +38,15 @@ class ProductDetailRepository
     private $writer;
 
     public function __construct(
-        ProductDetailDetailLoader $detailLoader,
         ProductDetailBasicLoader $basicLoader,
         EventDispatcherInterface $eventDispatcher,
         ProductDetailSearcher $searcher,
         ProductDetailWriter $writer
     ) {
-        $this->detailLoader = $detailLoader;
         $this->basicLoader = $basicLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
-    }
-
-    public function readDetail(array $uuids, TranslationContext $context): ProductDetailDetailCollection
-    {
-        if (empty($uuids)) {
-            return new ProductDetailDetailCollection();
-        }
-        $collection = $this->detailLoader->load($uuids, $context);
-
-        $this->eventDispatcher->dispatch(
-            ProductDetailDetailLoadedEvent::NAME,
-            new ProductDetailDetailLoadedEvent($collection, $context)
-        );
-
-        return $collection;
     }
 
     public function read(array $uuids, TranslationContext $context): ProductDetailBasicCollection

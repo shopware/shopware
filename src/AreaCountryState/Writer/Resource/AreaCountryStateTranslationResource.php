@@ -2,6 +2,7 @@
 
 namespace Shopware\AreaCountryState\Writer\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
@@ -32,22 +33,22 @@ class AreaCountryStateTranslationResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\AreaCountryState\Event\AreaCountryStateTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\AreaCountryState\Event\AreaCountryStateTranslationWrittenEvent
     {
-        $event = new \Shopware\AreaCountryState\Event\AreaCountryStateTranslationWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\AreaCountryState\Event\AreaCountryStateTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\AreaCountryState\Writer\Resource\AreaCountryStateResource::class])) {
-            $event->addEvent(\Shopware\AreaCountryState\Writer\Resource\AreaCountryStateResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\AreaCountryState\Writer\Resource\AreaCountryStateResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\AreaCountryState\Writer\Resource\AreaCountryStateTranslationResource::class])) {
-            $event->addEvent(\Shopware\AreaCountryState\Writer\Resource\AreaCountryStateTranslationResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\AreaCountryState\Writer\Resource\AreaCountryStateTranslationResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

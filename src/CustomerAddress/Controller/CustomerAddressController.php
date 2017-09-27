@@ -69,12 +69,10 @@ class CustomerAddressController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $customerAddresses,
-            'total' => $customerAddresses->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $customerAddresses, 'total' => $customerAddresses->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -93,7 +91,7 @@ class CustomerAddressController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($customerAddresses->get($uuid), $context);
+        return $this->createResponse(['data' => $customerAddresses->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class CustomerAddressController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

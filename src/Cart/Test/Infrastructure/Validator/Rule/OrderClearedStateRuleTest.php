@@ -28,8 +28,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\CartBridge\Rule\Data\OrderClearedStateRuleData;
 use Shopware\CartBridge\Rule\OrderClearedStateRule;
-use Shopware\Framework\Struct\StructCollection;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Struct\StructCollection;
 
 class OrderClearedStateRuleTest extends TestCase
 {

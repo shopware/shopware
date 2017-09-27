@@ -21,6 +21,8 @@ class CurrencyBasicFactory extends Factory
        'symbol' => 'symbol',
        'symbol_position' => 'symbol_position',
        'position' => 'position',
+       'created_at' => 'created_at',
+       'updated_at' => 'updated_at',
        'short_name' => 'translation.short_name',
        'name' => 'translation.name',
     ];
@@ -37,6 +39,8 @@ class CurrencyBasicFactory extends Factory
         $currency->setSymbol((string) $data[$selection->getField('symbol')]);
         $currency->setSymbolPosition((int) $data[$selection->getField('symbol_position')]);
         $currency->setPosition((int) $data[$selection->getField('position')]);
+        $currency->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
+        $currency->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
         $currency->setShortName((string) $data[$selection->getField('short_name')]);
         $currency->setName((string) $data[$selection->getField('name')]);
 

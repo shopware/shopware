@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class EmarketingTellafriendWrittenEvent extends NestedEvent
 {
     const NAME = 'emarketing_tellafriend.written';
@@ -9,28 +11,39 @@ class EmarketingTellafriendWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $emarketingTellafriendUuids;
+    protected $emarketingTellafriendUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $emarketingTellafriendUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $emarketingTellafriendUuids, TranslationContext $context, array $errors = [])
     {
         $this->emarketingTellafriendUuids = $emarketingTellafriendUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

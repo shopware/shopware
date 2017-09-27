@@ -25,7 +25,6 @@
 namespace Shopware\Cart\Test\Domain\Cart;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Cart\CartContainer;
 use Shopware\Cart\Delivery\DeliveryCollection;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;

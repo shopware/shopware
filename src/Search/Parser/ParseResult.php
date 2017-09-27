@@ -38,12 +38,12 @@ class ParseResult
 
     public function getType(string $key)
     {
-        return $this->types[$key]?: null;
+        return $this->types[$key] ?: null;
     }
 
     public function merge(ParseResult $toMerge)
     {
-        $merged = new ParseResult();
+        $merged = new self();
         foreach ($this->parameters as $key => $parameter) {
             $merged->addParameter($key, $parameter, $this->types[$key]);
         }
@@ -57,6 +57,7 @@ class ParseResult
         foreach ($toMerge->getWheres() as $where) {
             $merged->addWhere($where);
         }
+
         return $merged;
     }
 

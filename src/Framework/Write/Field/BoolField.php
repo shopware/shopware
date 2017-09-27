@@ -25,16 +25,14 @@
 namespace Shopware\Framework\Write\Field;
 
 use Shopware\Framework\Validation\ConstraintBuilder;
-use Shopware\Framework\Write\FieldAware\ValueTransformerRegistryAware;
-use Shopware\Framework\Write\Filter\Filter;
-use Shopware\Framework\Write\Filter\FilterRegistry;
-use Shopware\Framework\Write\Filter\HtmlFilter;
-use Shopware\Framework\Write\Resource;
 use Shopware\Framework\Write\FieldAware\ConstraintBuilderAware;
 use Shopware\Framework\Write\FieldAware\FilterRegistryAware;
 use Shopware\Framework\Write\FieldAware\PathAware;
 use Shopware\Framework\Write\FieldAware\ValidatorAware;
+use Shopware\Framework\Write\FieldAware\ValueTransformerRegistryAware;
 use Shopware\Framework\Write\FieldException\InvalidFieldException;
+use Shopware\Framework\Write\Filter\FilterRegistry;
+use Shopware\Framework\Write\Resource;
 use Shopware\Framework\Write\ValueTransformer\ValueTransformerBoolean;
 use Shopware\Framework\Write\ValueTransformer\ValueTransformerRegistry;
 use Symfony\Component\Validator\ConstraintViolation;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\LongTextField;
 use Shopware\Framework\Write\Flag\Required;
@@ -27,14 +28,14 @@ class PluginWidgetsNotesResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\PluginWidgetsNotesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\PluginWidgetsNotesWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\PluginWidgetsNotesWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\PluginWidgetsNotesWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\PluginWidgetsNotesResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\PluginWidgetsNotesResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\PluginWidgetsNotesResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

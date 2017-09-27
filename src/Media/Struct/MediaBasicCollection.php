@@ -54,6 +54,17 @@ class MediaBasicCollection extends Collection
         });
     }
 
+    public function merge(MediaBasicCollection $collection)
+    {
+        /** @var MediaBasicStruct $media */
+        foreach ($collection as $media) {
+            if ($this->has($this->getKey($media))) {
+                continue;
+            }
+            $this->add($media);
+        }
+    }
+
     public function getAlbumUuids(): array
     {
         return $this->fmap(function (MediaBasicStruct $media) {

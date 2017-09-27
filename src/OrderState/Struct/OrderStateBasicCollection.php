@@ -53,6 +53,17 @@ class OrderStateBasicCollection extends Collection
         });
     }
 
+    public function merge(OrderStateBasicCollection $collection)
+    {
+        /** @var OrderStateBasicStruct $orderState */
+        foreach ($collection as $orderState) {
+            if ($this->has($this->getKey($orderState))) {
+                continue;
+            }
+            $this->add($orderState);
+        }
+    }
+
     protected function getKey(OrderStateBasicStruct $element): string
     {
         return $element->getUuid();

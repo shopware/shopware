@@ -53,6 +53,17 @@ class ShopTemplateBasicCollection extends Collection
         });
     }
 
+    public function merge(ShopTemplateBasicCollection $collection)
+    {
+        /** @var ShopTemplateBasicStruct $shopTemplate */
+        foreach ($collection as $shopTemplate) {
+            if ($this->has($this->getKey($shopTemplate))) {
+                continue;
+            }
+            $this->add($shopTemplate);
+        }
+    }
+
     public function getPluginUuids(): array
     {
         return $this->fmap(function (ShopTemplateBasicStruct $shopTemplate) {

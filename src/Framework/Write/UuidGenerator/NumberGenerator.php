@@ -60,14 +60,14 @@ abstract class NumberGenerator implements Generator
         try {
             $number = $this->connection->fetchColumn('SELECT number FROM s_order_number WHERE name = ? FOR UPDATE', [$this->name]);
 
-            if ($number === false) {
+            if (false === $number) {
                 throw new \RuntimeException(sprintf('Number range with name "%s" does not exist.', $this->name));
             }
 
             $number += 1000;
 
             $this->connection->executeUpdate('UPDATE s_order_number SET number = number + 1 WHERE name = ?', [$this->name]);
-            $number += 1;
+            ++$number;
             $this->connection->commit();
         } catch (\Exception $e) {
             $this->connection->rollBack();

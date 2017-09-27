@@ -69,12 +69,10 @@ class ProductVoteController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $productVotes,
-            'total' => $productVotes->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $productVotes, 'total' => $productVotes->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -93,7 +91,7 @@ class ProductVoteController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($productVotes->get($uuid), $context);
+        return $this->createResponse(['data' => $productVotes->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class ProductVoteController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

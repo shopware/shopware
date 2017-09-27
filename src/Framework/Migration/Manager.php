@@ -216,7 +216,7 @@ class Manager
 
         ksort($migrations);
 
-        if ($limit !== null) {
+        if (null !== $limit) {
             return array_slice($migrations, 0, $limit, true);
         }
 

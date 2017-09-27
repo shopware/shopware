@@ -24,6 +24,8 @@ class ProductDetailPriceBasicFactory extends Factory
        'pseudo_price' => 'pseudo_price',
        'base_price' => 'base_price',
        'percentage' => 'percentage',
+       'created_at' => 'created_at',
+       'updated_at' => 'updated_at',
     ];
 
     public function hydrate(
@@ -41,6 +43,8 @@ class ProductDetailPriceBasicFactory extends Factory
         $productDetailPrice->setPseudoPrice(isset($data[$selection->getField('pseudo_price')]) ? (float) $data[$selection->getField('pseudo_price')] : null);
         $productDetailPrice->setBasePrice(isset($data[$selection->getField('base_price')]) ? (float) $data[$selection->getField('base_price')] : null);
         $productDetailPrice->setPercentage(isset($data[$selection->getField('percentage')]) ? (float) $data[$selection->getField('percentage')] : null);
+        $productDetailPrice->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
+        $productDetailPrice->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
 
         /** @var $extension ProductDetailPriceExtension */
         foreach ($this->getExtensions() as $extension) {

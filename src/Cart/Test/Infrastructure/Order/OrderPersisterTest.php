@@ -24,7 +24,6 @@
 
 namespace Shopware\Cart\Test\Infrastructure\Cart;
 
-use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\CalculatedCart;
@@ -53,7 +52,6 @@ class OrderPersisterTest extends TestCase
         $billingAddress->setZipcode($faker->postcode);
         $billingAddress->setCity($faker->city);
         $billingAddress->setAreaCountryUuid('SWAG-AREA-COUNTRY-UUID-1');
-
 
         $customer = new CustomerBasicStruct();
         $customer->setUuid('SWAG-CUSTOMER-UUID-1');

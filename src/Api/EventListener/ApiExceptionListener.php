@@ -7,9 +7,9 @@ use Shopware\Api\ResponseEnvelope;
 use Shopware\Framework\Routing\Router;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\EventListener\ExceptionListener;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\HttpKernel\EventListener\ExceptionListener;
 
 class ApiExceptionListener extends ExceptionListener
 {
@@ -23,16 +23,15 @@ class ApiExceptionListener extends ExceptionListener
     {
         return [
             KernelEvents::EXCEPTION => [
-                ['onKernelException', -100]
-            ]
+                ['onKernelException', -100],
+            ],
         ];
     }
 
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
-        if ($event->getException() instanceof HttpException === false
+        if (false === $event->getException() instanceof HttpException
             || false === $event->getRequest()->attributes->get(Router::IS_API_REQUEST_ATTRIBUTE)) {
-
             return $event;
         }
 
@@ -50,5 +49,4 @@ class ApiExceptionListener extends ExceptionListener
 
         return $event;
     }
-
 }

@@ -28,6 +28,11 @@ abstract class OrderDeliveryPositionExtension implements ExtensionInterface, Eve
     ): void {
     }
 
+    public function getDetailFields(): array
+    {
+        return [];
+    }
+
     public function getBasicFields(): array
     {
         return [];

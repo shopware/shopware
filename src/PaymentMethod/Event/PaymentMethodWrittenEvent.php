@@ -2,6 +2,7 @@
 
 namespace Shopware\PaymentMethod\Event;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -12,28 +13,39 @@ class PaymentMethodWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $paymentMethodUuids;
+    protected $paymentMethodUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $paymentMethodUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $paymentMethodUuids, TranslationContext $context, array $errors = [])
     {
         $this->paymentMethodUuids = $paymentMethodUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

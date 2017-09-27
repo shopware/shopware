@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class CorePaymentDataWrittenEvent extends NestedEvent
 {
     const NAME = 'core_payment_data.written';
@@ -9,28 +11,39 @@ class CorePaymentDataWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $corePaymentDataUuids;
+    protected $corePaymentDataUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $corePaymentDataUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $corePaymentDataUuids, TranslationContext $context, array $errors = [])
     {
         $this->corePaymentDataUuids = $corePaymentDataUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

@@ -43,7 +43,7 @@ class Hydrator
         $len = strlen($prefix);
 
         foreach ($data as $field => $value) {
-            if (strpos($field, $prefix) === 0) {
+            if (0 === strpos($field, $prefix)) {
                 $key = substr($field, $len);
                 $result[$key] = $value;
             }
@@ -62,7 +62,7 @@ class Hydrator
     {
         $result = [];
         foreach ($data as $field => $value) {
-            if (strpos($field, $prefix) === 0) {
+            if (0 === strpos($field, $prefix)) {
                 $result[$field] = $value;
             }
         }
@@ -118,7 +118,7 @@ class Hydrator
      */
     protected function getTranslation(array $data, $prefix, array $mapping = [], $id = null, $addPrefix = true)
     {
-        if ($prefix === null) {
+        if (null === $prefix) {
             $key = 'translation';
         } else {
             $key = $prefix . '_translation';
@@ -150,7 +150,7 @@ class Hydrator
      */
     protected function cast($value, string $type)
     {
-        if ($value === null) {
+        if (null === $value) {
             return $value;
         }
         settype($value, $type);
@@ -176,7 +176,7 @@ class Hydrator
             return [];
         }
 
-        if ($id === null) {
+        if (null === $id) {
             return $translation;
         }
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Locale\Writer\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
@@ -34,22 +35,22 @@ class LocaleTranslationResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Locale\Event\LocaleTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Locale\Event\LocaleTranslationWrittenEvent
     {
-        $event = new \Shopware\Locale\Event\LocaleTranslationWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Locale\Event\LocaleTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Locale\Writer\Resource\LocaleResource::class])) {
-            $event->addEvent(\Shopware\Locale\Writer\Resource\LocaleResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Locale\Writer\Resource\LocaleResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Locale\Writer\Resource\LocaleTranslationResource::class])) {
-            $event->addEvent(\Shopware\Locale\Writer\Resource\LocaleTranslationResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Locale\Writer\Resource\LocaleTranslationResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

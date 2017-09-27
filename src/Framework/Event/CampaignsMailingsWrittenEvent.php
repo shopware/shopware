@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class CampaignsMailingsWrittenEvent extends NestedEvent
 {
     const NAME = 'campaigns_mailings.written';
@@ -9,28 +11,39 @@ class CampaignsMailingsWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $campaignsMailingsUuids;
+    protected $campaignsMailingsUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $campaignsMailingsUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $campaignsMailingsUuids, TranslationContext $context, array $errors = [])
     {
         $this->campaignsMailingsUuids = $campaignsMailingsUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

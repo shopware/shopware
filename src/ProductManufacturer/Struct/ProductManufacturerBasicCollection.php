@@ -53,6 +53,17 @@ class ProductManufacturerBasicCollection extends Collection
         });
     }
 
+    public function merge(ProductManufacturerBasicCollection $collection)
+    {
+        /** @var ProductManufacturerBasicStruct $productManufacturer */
+        foreach ($collection as $productManufacturer) {
+            if ($this->has($this->getKey($productManufacturer))) {
+                continue;
+            }
+            $this->add($productManufacturer);
+        }
+    }
+
     public function getMediaUuids(): array
     {
         return $this->fmap(function (ProductManufacturerBasicStruct $productManufacturer) {

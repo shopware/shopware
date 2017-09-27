@@ -51,7 +51,6 @@ export default function ProductRepository(client) {
     function create(proxy) {
         return ProductService.create([proxy.data]).then((response) => {
             if (response.errors.length) {
-                console.error(response.errors);
                 return Promise.reject(new Error('API error'));
             }
 
@@ -66,10 +65,9 @@ export default function ProductRepository(client) {
             uuid: null,
             taxUuid: 'SWAG-TAX-UUID-1',
             mainDetailUuid: uuid,
-            manufacturerUuid: null,
+            manufacturerUuid: 'SWAG-PRODUCT-MANUFACTURER-UUID-1',
             details: [{
-                uuid,
-                name: ''
+                uuid
             }]
         };
 

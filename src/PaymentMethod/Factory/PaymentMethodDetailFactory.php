@@ -39,7 +39,7 @@ class PaymentMethodDetailFactory extends PaymentMethodBasicFactory
     {
         $fields = array_merge(parent::getFields(), $this->getExtensionFields());
         $fields['_sub_select_shop_uuids'] = '_sub_select_shop_uuids';
-        $fields['_sub_select_areaCountry_uuids'] = '_sub_select_areaCountry_uuids';
+        $fields['_sub_select_country_uuids'] = '_sub_select_country_uuids';
 
         return $fields;
     }
@@ -57,8 +57,8 @@ class PaymentMethodDetailFactory extends PaymentMethodBasicFactory
             $paymentMethod->setShopUuids(array_values(array_filter($uuids)));
         }
 
-        if ($selection->hasField('_sub_select_areaCountry_uuids')) {
-            $uuids = explode('|', $data[$selection->getField('_sub_select_areaCountry_uuids')]);
+        if ($selection->hasField('_sub_select_country_uuids')) {
+            $uuids = explode('|', $data[$selection->getField('_sub_select_country_uuids')]);
             $paymentMethod->setCountryUuids(array_values(array_filter($uuids)));
         }
 
@@ -121,13 +121,13 @@ class PaymentMethodDetailFactory extends PaymentMethodBasicFactory
             $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
         }
 
-        if ($selection->hasField('_sub_select_areaCountry_uuids')) {
+        if ($selection->hasField('_sub_select_country_uuids')) {
             $query->addSelect('
                 (
                     SELECT GROUP_CONCAT(mapping.area_country_uuid SEPARATOR \'|\')
                     FROM payment_method_country mapping
                     WHERE mapping.payment_method_uuid = ' . $selection->getRootEscaped() . '.uuid
-                ) as ' . QuerySelection::escape($selection->getField('_sub_select_areaCountry_uuids'))
+                ) as ' . QuerySelection::escape($selection->getField('_sub_select_country_uuids'))
             );
         }
     }

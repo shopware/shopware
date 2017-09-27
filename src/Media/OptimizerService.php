@@ -41,7 +41,7 @@ class OptimizerService implements OptimizerServiceInterface
 
     /**
      * @param OptimizerInterface[] $optimizers
-     * @param StrategyFilesystem $filesystem
+     * @param StrategyFilesystem   $filesystem
      */
     public function __construct(array $optimizers, StrategyFilesystem $filesystem)
     {

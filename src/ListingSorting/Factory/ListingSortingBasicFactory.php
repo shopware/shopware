@@ -20,6 +20,8 @@ class ListingSortingBasicFactory extends Factory
        'display_in_categories' => 'display_in_categories',
        'position' => 'position',
        'payload' => 'payload',
+       'created_at' => 'created_at',
+       'updated_at' => 'updated_at',
        'label' => 'translation.label',
     ];
 
@@ -34,6 +36,8 @@ class ListingSortingBasicFactory extends Factory
         $listingSorting->setDisplayInCategories((bool) $data[$selection->getField('display_in_categories')]);
         $listingSorting->setPosition((int) $data[$selection->getField('position')]);
         $listingSorting->setPayload((string) $data[$selection->getField('payload')]);
+        $listingSorting->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
+        $listingSorting->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
         $listingSorting->setLabel((string) $data[$selection->getField('label')]);
 
         /** @var $extension ListingSortingExtension */

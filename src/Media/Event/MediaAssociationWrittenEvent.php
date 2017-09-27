@@ -2,6 +2,7 @@
 
 namespace Shopware\Media\Event;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -12,28 +13,39 @@ class MediaAssociationWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $mediaAssociationUuids;
+    protected $mediaAssociationUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $mediaAssociationUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $mediaAssociationUuids, TranslationContext $context, array $errors = [])
     {
         $this->mediaAssociationUuids = $mediaAssociationUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

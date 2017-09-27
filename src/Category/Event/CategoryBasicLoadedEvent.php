@@ -45,8 +45,11 @@ class CategoryBasicLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection([
-            new SeoUrlBasicLoadedEvent($this->categories->getCanonicalUrls(), $this->context),
-        ]);
+        $events = [];
+        if ($this->categories->getCanonicalUrls()->count() > 0) {
+            $events[] = new SeoUrlBasicLoadedEvent($this->categories->getCanonicalUrls(), $this->context);
+        }
+
+        return new NestedEventCollection($events);
     }
 }

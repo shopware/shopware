@@ -3,9 +3,8 @@
 namespace Shopware\Api;
 
 use Shopware\Api\Exception\FormatNotSupportedException;
-use Shopware\Framework\Struct\Collection;
-use Shopware\Framework\Struct\Struct;
 use Shopware\Product\Controller\XmlResponse;
+use Shopware\Serializer\SerializerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,15 +12,17 @@ use Symfony\Component\HttpFoundation\Response;
 abstract class ApiController extends Controller
 {
     abstract public function getXmlRootKey(): string;
+
     abstract public function getXmlChildKey(): string;
 
     /**
-     * @param mixed $responseData
+     * @param mixed      $responseData
      * @param ApiContext $context
-     * @param int $statusCode
+     * @param int        $statusCode
+     *
+     * @throws FormatNotSupportedException
      *
      * @return Response
-     * @throws FormatNotSupportedException
      */
     protected function createResponse($responseData, ApiContext $context, int $statusCode = 200): Response
     {
@@ -36,7 +37,7 @@ abstract class ApiController extends Controller
                 $response = XmlResponse::createXmlResponse($this->getXmlRootKey(), $this->getXmlChildKey(), $responseEnvelope, $statusCode);
                 break;
             case 'profile':
-                if ($this->container->getParameter('kernel.debug') !== true) {
+                if (true !== $this->container->getParameter('kernel.debug')) {
                     throw new \RuntimeException('Profiling is only allowed in debug mode.');
                 }
 
@@ -49,42 +50,24 @@ abstract class ApiController extends Controller
         return $response;
     }
 
-    private function createEnvelope($result): ResponseEnvelope
+    private function createEnvelope(array $result): ResponseEnvelope
     {
         $response = new ResponseEnvelope();
 
         // todo: should be changed to something better than convetion
-        if (is_array($result)) {
-            if (array_key_exists('total', $result)) {
-                $response->setTotal($result['total']);
-            }
-
-            if (array_key_exists('data', $result)) {
-                $response->setData($result['data']);
-            }
-
-            if (array_key_exists('errors', $result)) {
-                $response->setErrors($result['errors']);
-            }
+        if (array_key_exists('total', $result)) {
+            $response->setTotal($result['total']);
         }
 
-        switch (true) {
-            case $response->getData() instanceof Collection:
-                $data = array_values(json_decode(json_encode($response->getData()->getIterator()), true));
-
-                $response->setData($data);
-                break;
-            case $result instanceof Struct:
-                $data = json_decode(json_encode($result), true);
-
-                $response->setData($data);
-                break;
-            case $response->getData() instanceof Struct:
-                $data = json_decode(json_encode($response->getData()), true);
-
-                $response->setData($data);
-                break;
+        if (array_key_exists('errors', $result)) {
+            $response->setErrors($result['errors']);
         }
+
+        $registry = $this->get('shopware.serializer.serializer_registry');
+
+        $response->setData(
+            $registry->serialize($result['data'], SerializerRegistry::FORMAT_API_JSON)
+        );
 
         return $response;
     }

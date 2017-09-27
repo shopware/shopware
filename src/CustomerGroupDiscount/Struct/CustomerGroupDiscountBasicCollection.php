@@ -53,6 +53,17 @@ class CustomerGroupDiscountBasicCollection extends Collection
         });
     }
 
+    public function merge(CustomerGroupDiscountBasicCollection $collection)
+    {
+        /** @var CustomerGroupDiscountBasicStruct $customerGroupDiscount */
+        foreach ($collection as $customerGroupDiscount) {
+            if ($this->has($this->getKey($customerGroupDiscount))) {
+                continue;
+            }
+            $this->add($customerGroupDiscount);
+        }
+    }
+
     public function getCustomerGroupUuids(): array
     {
         return $this->fmap(function (CustomerGroupDiscountBasicStruct $customerGroupDiscount) {

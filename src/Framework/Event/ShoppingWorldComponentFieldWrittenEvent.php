@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class ShoppingWorldComponentFieldWrittenEvent extends NestedEvent
 {
     const NAME = 'shopping_world_component_field.written';
@@ -9,28 +11,39 @@ class ShoppingWorldComponentFieldWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $shoppingWorldComponentFieldUuids;
+    protected $shoppingWorldComponentFieldUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $shoppingWorldComponentFieldUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $shoppingWorldComponentFieldUuids, TranslationContext $context, array $errors = [])
     {
         $this->shoppingWorldComponentFieldUuids = $shoppingWorldComponentFieldUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

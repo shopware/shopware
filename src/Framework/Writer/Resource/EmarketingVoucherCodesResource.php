@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
@@ -31,14 +32,14 @@ class EmarketingVoucherCodesResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\EmarketingVoucherCodesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\EmarketingVoucherCodesWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\EmarketingVoucherCodesWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\EmarketingVoucherCodesWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\EmarketingVoucherCodesResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\EmarketingVoucherCodesResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\EmarketingVoucherCodesResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

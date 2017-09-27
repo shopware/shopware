@@ -9,6 +9,11 @@ use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\Product\Factory\ProductBasicFactory;
 use Shopware\Product\Struct\ProductBasicCollection;
 use Shopware\Product\Struct\ProductBasicStruct;
+use Shopware\ProductDetail\Loader\ProductDetailBasicLoader;
+use Shopware\ProductListingPrice\Searcher\ProductListingPriceSearcher;
+use Shopware\ProductListingPrice\Searcher\ProductListingPriceSearchResult;
+use Shopware\Search\Criteria;
+use Shopware\Search\Query\TermsQuery;
 
 class ProductBasicLoader
 {
@@ -20,16 +25,30 @@ class ProductBasicLoader
     private $factory;
 
     /**
+     * @var ProductDetailBasicLoader
+     */
+    private $productDetailBasicLoader;
+
+    /**
      * @var CustomerGroupBasicLoader
      */
     private $customerGroupBasicLoader;
 
+    /**
+     * @var ProductListingPriceSearcher
+     */
+    private $productListingPriceSearcher;
+
     public function __construct(
         ProductBasicFactory $factory,
-        CustomerGroupBasicLoader $customerGroupBasicLoader
+        ProductDetailBasicLoader $productDetailBasicLoader,
+        CustomerGroupBasicLoader $customerGroupBasicLoader,
+        ProductListingPriceSearcher $productListingPriceSearcher
     ) {
         $this->factory = $factory;
+        $this->productDetailBasicLoader = $productDetailBasicLoader;
         $this->customerGroupBasicLoader = $customerGroupBasicLoader;
+        $this->productListingPriceSearcher = $productListingPriceSearcher;
     }
 
     public function load(array $uuids, TranslationContext $context): ProductBasicCollection
@@ -40,11 +59,23 @@ class ProductBasicLoader
 
         $productsCollection = $this->read($uuids, $context);
 
+        $mainDetails = $this->productDetailBasicLoader->load($productsCollection->getMainDetailUuids(), $context);
+
         $blockedCustomerGroups = $this->customerGroupBasicLoader->load($productsCollection->getBlockedCustomerGroupsUuids(), $context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermsQuery('product_listing_price_ro.product_uuid', $uuids));
+        /** @var ProductListingPriceSearchResult $listingPrices */
+        $listingPrices = $this->productListingPriceSearcher->search($criteria, $context);
 
         /** @var ProductBasicStruct $product */
         foreach ($productsCollection as $product) {
+            if ($product->getMainDetailUuid()) {
+                $product->setMainDetail($mainDetails->get($product->getMainDetailUuid()));
+            }
+
             $product->setBlockedCustomerGroups($blockedCustomerGroups->getList($product->getBlockedCustomerGroupsUuids()));
+            $product->setListingPrices($listingPrices->filterByProductUuid($product->getUuid()));
         }
 
         return $productsCollection;

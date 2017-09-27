@@ -69,12 +69,10 @@ class CategoryController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $categories,
-            'total' => $categories->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $categories, 'total' => $categories->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -88,12 +86,12 @@ class CategoryController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('categoryUuid');
-        $categories = $this->categoryRepository->read(
+        $categories = $this->categoryRepository->readDetail(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($categories->get($uuid), $context);
+        return $this->createResponse(['data' => $categories->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class CategoryController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

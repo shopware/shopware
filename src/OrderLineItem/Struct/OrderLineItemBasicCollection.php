@@ -53,6 +53,17 @@ class OrderLineItemBasicCollection extends Collection
         });
     }
 
+    public function merge(OrderLineItemBasicCollection $collection)
+    {
+        /** @var OrderLineItemBasicStruct $orderLineItem */
+        foreach ($collection as $orderLineItem) {
+            if ($this->has($this->getKey($orderLineItem))) {
+                continue;
+            }
+            $this->add($orderLineItem);
+        }
+    }
+
     public function getOrderUuids(): array
     {
         return $this->fmap(function (OrderLineItemBasicStruct $orderLineItem) {

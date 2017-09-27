@@ -27,10 +27,9 @@ namespace Shopware\Cart\Test\Infrastructure\Validator\Rule;
 use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\CartBridge\Rule\IsNewCustomerRule;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Customer\Struct\CustomerBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
-use Shopware\Context\Struct\ShopContext;
-use Shopware\Customer\Struct\Customer;
 
 class IsNewCustomerRuleTest extends TestCase
 {

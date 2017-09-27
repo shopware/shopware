@@ -69,12 +69,10 @@ class PaymentMethodController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $paymentMethods,
-            'total' => $paymentMethods->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $paymentMethods, 'total' => $paymentMethods->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -88,12 +86,12 @@ class PaymentMethodController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('paymentMethodUuid');
-        $paymentMethods = $this->paymentMethodRepository->read(
+        $paymentMethods = $this->paymentMethodRepository->readDetail(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($paymentMethods->get($uuid), $context);
+        return $this->createResponse(['data' => $paymentMethods->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class PaymentMethodController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

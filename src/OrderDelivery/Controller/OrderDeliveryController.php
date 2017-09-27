@@ -69,12 +69,10 @@ class OrderDeliveryController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $orderDeliveries,
-            'total' => $orderDeliveries->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $orderDeliveries, 'total' => $orderDeliveries->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -88,12 +86,12 @@ class OrderDeliveryController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('orderDeliveryUuid');
-        $orderDeliveries = $this->orderDeliveryRepository->read(
+        $orderDeliveries = $this->orderDeliveryRepository->readDetail(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($orderDeliveries->get($uuid), $context);
+        return $this->createResponse(['data' => $orderDeliveries->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class OrderDeliveryController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

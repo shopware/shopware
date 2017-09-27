@@ -71,7 +71,7 @@ final class ExtendsTokenParser extends \Twig_TokenParser
     private function getTemplateName(string $template): string
     {
         //remove static template inheritance prefix
-        if (strpos($template, '@') !== 0) {
+        if (0 !== strpos($template, '@')) {
             return $template;
         }
 

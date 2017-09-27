@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\LongTextField;
 use Shopware\Framework\Write\Field\StringField;
@@ -30,14 +31,14 @@ class EsBacklogResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\EsBacklogWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\EsBacklogWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\EsBacklogWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\EsBacklogWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\EsBacklogResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\EsBacklogResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\EsBacklogResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

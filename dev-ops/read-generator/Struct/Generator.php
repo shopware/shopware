@@ -23,6 +23,15 @@ class Generator
         $this->connection = $connection;
     }
 
+    public function getFiles($table)
+    {
+        $class = Util::snakeCaseToCamelCase($table);
+        return [
+            $this->directory.'/'.ucfirst($class).'/Struct/'.ucfirst($class).'BasicStruct.php',
+            $this->directory.'/'.ucfirst($class).'/Struct/'.ucfirst($class).'DetailStruct.php',
+        ];
+    }
+
     public function generate(string $table, array $config)
     {
         $class = Util::snakeCaseToCamelCase($table);

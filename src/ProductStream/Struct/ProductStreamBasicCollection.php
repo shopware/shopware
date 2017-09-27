@@ -54,6 +54,17 @@ class ProductStreamBasicCollection extends Collection
         });
     }
 
+    public function merge(ProductStreamBasicCollection $collection)
+    {
+        /** @var ProductStreamBasicStruct $productStream */
+        foreach ($collection as $productStream) {
+            if ($this->has($this->getKey($productStream))) {
+                continue;
+            }
+            $this->add($productStream);
+        }
+    }
+
     public function getListingSortingUuids(): array
     {
         return $this->fmap(function (ProductStreamBasicStruct $productStream) {

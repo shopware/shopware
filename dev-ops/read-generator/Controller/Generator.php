@@ -16,14 +16,27 @@ class Generator
         $this->directory = $directory;
     }
 
+    public function getFiles($table)
+    {
+        $class = Util::snakeCaseToCamelCase($table);
+        return [
+            $this->directory.'/'.ucfirst($class).'/Controller/'.ucfirst($class).'Controller.php'
+        ];
+    }
+
     public function generate(string $table, array $config): string
     {
         $class = Util::snakeCaseToCamelCase($table);
         $plural = Util::getPlural($class);
 
+        $detailRead = 'read';
+        if (Util::getAssociationsForDetailStruct($table, $config)) {
+            $detailRead = 'readDetail';
+        }
+
         $content = str_replace(
-            ['#classUc#', '#classLc#', '#plural#', '#table#'],
-            [ucfirst($class), lcfirst($class), lcfirst($plural), $table],
+            ['#classUc#', '#classLc#', '#plural#', '#table#', '#detailRead#'],
+            [ucfirst($class), lcfirst($class), lcfirst($plural), $table, $detailRead],
             file_get_contents(__DIR__ . '/templates/controller.txt')
         );
 

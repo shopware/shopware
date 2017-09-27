@@ -147,7 +147,6 @@ ALTER TABLE s_articles_avoid_customergroups
     ADD product_uuid VARCHAR(42) NOT NULL AFTER product_id
 ;
 
-
 ALTER TABLE s_articles_categories
     RENAME TO product_category,
     CHANGE articleID product_id INT(11) unsigned NOT NULL,
@@ -157,7 +156,6 @@ ALTER TABLE s_articles_categories
     ADD category_uuid VARCHAR(42) NOT NULL AFTER category_id
 ;
 
-
 ALTER TABLE s_articles_categories_ro
     RENAME TO product_category_ro,
     CHANGE articleID product_id INT(11) unsigned NOT NULL,
@@ -165,10 +163,8 @@ ALTER TABLE s_articles_categories_ro
     CHANGE parentCategoryID parent_category_id INT(11) unsigned NOT NULL,
     ADD uuid VARCHAR(42) NOT NULL AFTER id,
     ADD product_uuid VARCHAR(42) NOT NULL AFTER product_id,
-    ADD category_uuid VARCHAR(42) NOT NULL AFTER category_id,
-    ADD parent_category_uuid VARCHAR(42) NOT NULL AFTER parent_category_id
+    ADD category_uuid VARCHAR(42) NOT NULL AFTER category_id
 ;
-
 
 ALTER TABLE s_articles_categories_seo
     RENAME TO product_category_seo,
@@ -177,7 +173,6 @@ ALTER TABLE s_articles_categories_seo
     ADD product_uuid VARCHAR(42) NOT NULL AFTER product_id,
     ADD category_uuid VARCHAR(42) NOT NULL AFTER category_id
 ;
-
 
 UPDATE s_articles_details SET kind = 0 WHERE kind != 1;
 
@@ -1750,8 +1745,7 @@ UPDATE product_category pc SET
 UPDATE product_category_ro pcr SET
     pcr.uuid = CONCAT('SWAG-PRODUCT-CATEGORY-RO-UUID-', pcr.id),
     pcr.product_uuid = CONCAT('SWAG-PRODUCT-UUID-', pcr.product_id),
-    pcr.category_uuid = CONCAT('SWAG-CATEGORY-UUID-', pcr.category_id),
-    pcr.parent_category_uuid = CONCAT('SWAG-CATEGORY-UUID-', pcr.parent_category_id)
+    pcr.category_uuid = CONCAT('SWAG-CATEGORY-UUID-', pcr.category_id)
 ;
 
 
@@ -2733,17 +2727,6 @@ FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE
 
     ADD CONSTRAINT `fk_product_category.category_uuid`
 FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-;
-
-ALTER TABLE product_category_ro
-    ADD CONSTRAINT `fk_product_category_ro.product_uuid`
-FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-
-    ADD CONSTRAINT `fk_product_category_ro.category_uuid`
-FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-
-    ADD CONSTRAINT `fk_product_category_ro.parent_category_uuid`
-FOREIGN KEY (parent_category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
 ALTER TABLE product_category_seo

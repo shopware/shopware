@@ -51,7 +51,7 @@ class Md5Strategy implements StrategyInterface
         if (empty($filename)) {
             throw new EmptyMediaFilenameException();
         }
-        
+
         if ($this->isEncoded($filename)) {
             return $filename;
         }
@@ -97,7 +97,7 @@ class Md5Strategy implements StrategyInterface
     private function hasBlacklistParts(string $path): bool
     {
         foreach ($this->blacklist as $key => $value) {
-            if (strpos($path, '/' . $key . '/') !== false) {
+            if (false !== strpos($path, '/' . $key . '/')) {
                 return true;
             }
         }

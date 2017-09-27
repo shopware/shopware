@@ -19,6 +19,7 @@ class ProductManufacturerBasicFactory extends Factory
        'link' => 'link',
        'media_uuid' => 'media_uuid',
        'updated_at' => 'updated_at',
+       'created_at' => 'created_at',
        'name' => 'translation.name',
        'description' => 'translation.description',
        'meta_title' => 'translation.meta_title',
@@ -36,6 +37,7 @@ class ProductManufacturerBasicFactory extends Factory
         $productManufacturer->setLink((string) $data[$selection->getField('link')]);
         $productManufacturer->setMediaUuid(isset($data[$selection->getField('media_uuid')]) ? (string) $data[$selection->getField('media_uuid')] : null);
         $productManufacturer->setUpdatedAt(new \DateTime($data[$selection->getField('updated_at')]));
+        $productManufacturer->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
         $productManufacturer->setName((string) $data[$selection->getField('name')]);
         $productManufacturer->setDescription(isset($data[$selection->getField('description')]) ? (string) $data[$selection->getField('description')] : null);
         $productManufacturer->setMetaTitle(isset($data[$selection->getField('meta_title')]) ? (string) $data[$selection->getField('meta_title')] : null);

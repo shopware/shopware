@@ -32,6 +32,16 @@ class OrderStateBasicStruct extends Struct
     protected $hasMail;
 
     /**
+     * @var \DateTime|null
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $updatedAt;
+
+    /**
      * @var string
      */
     protected $description;
@@ -84,6 +94,26 @@ class OrderStateBasicStruct extends Struct
     public function setHasMail(bool $hasMail): void
     {
         $this->hasMail = $hasMail;
+    }
+
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTime $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 
     public function getDescription(): string

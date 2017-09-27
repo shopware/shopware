@@ -36,7 +36,8 @@ abstract class Field
     /**
      * @param string $type
      * @param string $key
-     * @param null $value
+     * @param null   $value
+     *
      * @return \Generator
      */
     abstract public function __invoke(string $type, string $key, $value = null): \Generator;

@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class MultiEditBackupWrittenEvent extends NestedEvent
 {
     const NAME = 'multi_edit_backup.written';
@@ -9,28 +11,39 @@ class MultiEditBackupWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $multiEditBackupUuids;
+    protected $multiEditBackupUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $multiEditBackupUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $multiEditBackupUuids, TranslationContext $context, array $errors = [])
     {
         $this->multiEditBackupUuids = $multiEditBackupUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

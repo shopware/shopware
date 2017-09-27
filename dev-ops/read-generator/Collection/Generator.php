@@ -21,6 +21,15 @@ class Generator
         $this->connection = $connection;
     }
 
+    public function getFiles($table)
+    {
+        $class = Util::snakeCaseToCamelCase($table);
+        return [
+            $this->directory.'/'.ucfirst($class).'/Struct/'.ucfirst($class).'BasicCollection.php',
+            $this->directory.'/'.ucfirst($class).'/Struct/'.ucfirst($class).'DetailCollection.php'
+        ];
+    }
+
     public function generate(string $table, array $config)
     {
         $class = Util::snakeCaseToCamelCase($table);

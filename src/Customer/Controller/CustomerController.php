@@ -69,12 +69,10 @@ class CustomerController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $customers,
-            'total' => $customers->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $customers, 'total' => $customers->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -88,12 +86,12 @@ class CustomerController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('customerUuid');
-        $customers = $this->customerRepository->read(
+        $customers = $this->customerRepository->readDetail(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($customers->get($uuid), $context);
+        return $this->createResponse(['data' => $customers->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class CustomerController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

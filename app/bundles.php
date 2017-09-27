@@ -25,12 +25,12 @@ return [
     Shopware\Nexus\Nexus::class => ['all' => true],
     Shopware\Translation\Translation::class => ['all' => true],
     Shopware\Filesystem\Filesystem::class => ['all' => true],
-    \Shopware\Search\Search::class => ['all' => true],
-
+    Shopware\Search\Search::class => ['all' => true],
     Shopware\Album\Album::class => ['all' => true],
     Shopware\Area\Area::class => ['all' => true],
     Shopware\ProductVote\ProductVote::class => ['all' => true],
-
+    Shopware\ProductListingPrice\ProductListingPrice::class => ['all' => true],
+    Shopware\Denormalization\Denormalization::class => ['all' => true],
     Shopware\AreaCountry\AreaCountry::class => ['all' => true],
     Shopware\AreaCountryState\AreaCountryState::class => ['all' => true],
     Shopware\Category\Category::class => ['all' => true],

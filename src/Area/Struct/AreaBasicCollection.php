@@ -53,6 +53,17 @@ class AreaBasicCollection extends Collection
         });
     }
 
+    public function merge(AreaBasicCollection $collection)
+    {
+        /** @var AreaBasicStruct $area */
+        foreach ($collection as $area) {
+            if ($this->has($this->getKey($area))) {
+                continue;
+            }
+            $this->add($area);
+        }
+    }
+
     protected function getKey(AreaBasicStruct $element): string
     {
         return $element->getUuid();

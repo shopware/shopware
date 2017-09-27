@@ -14,6 +14,14 @@ class Generator
         $this->directory = $directory;
     }
 
+    public function getFiles($table)
+    {
+        $class = Util::snakeCaseToCamelCase($table);
+        return [
+            $this->directory.'/'.ucfirst($class).'/Event/'.ucfirst($class).'BasicLoadedEvent.php',
+            $this->directory.'/'.ucfirst($class).'/Event/'.ucfirst($class).'DetailLoadedEvent.php',
+        ];
+    }
 
     public function generate(string $table, array $config)
     {
@@ -24,7 +32,7 @@ class Generator
         $events = $this->getAssociatedBasicEvent($plural, $associations);
         $uses = $this->getAssociatedBasicEventUsages($associations);
 
-        $events = implode(",\n", $events);
+        $events = implode("\n", $events);
         $uses = implode("\n", array_unique($uses));
 
         $template = str_replace(
@@ -47,11 +55,11 @@ class Generator
         $events = $this->getAssociatedBasicEvent($plural, $associations);
         $uses = $this->getAssociatedBasicEventUsages($associations);
 
-        $events = implode(",\n", $events);
+        $events = implode("\n", $events);
         $uses = implode("\n", array_unique($uses));
 
         if (!empty($events)) {
-            $events = ",\n" . $events;
+            $events = "\n" . $events;
         }
 
         $template = str_replace(
@@ -63,7 +71,6 @@ class Generator
         $file = $this->directory.'/'.ucfirst($class).'/Event/'.ucfirst($class).'DetailLoadedEvent.php';
         file_put_contents($file, $template);
     }
-
 
     private function getAssociatedBasicEventUsages(array $associations): array
     {
@@ -91,7 +98,9 @@ class Generator
             $events[] = str_replace(
                 ['#pluralLc#', '#accociationClassUc#', '#associationPluralUc#'],
                 [lcfirst($plural), ucfirst($associationClass), ucfirst($associationPlural)],
-                '            new #accociationClassUc#BasicLoadedEvent($this->#pluralLc#->get#associationPluralUc#(), $this->context)'
+                '        if ($this->#pluralLc#->get#associationPluralUc#()->count() > 0) {
+            $events[] = new #accociationClassUc#BasicLoadedEvent($this->#pluralLc#->get#associationPluralUc#(), $this->context);
+        }'
             );
         }
         return $events;

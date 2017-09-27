@@ -15,5 +15,10 @@
             <argument id="shopware.shop.repository" type="service"/>
             <argument id="shopware.seo_url.writer" type="service"/>
         </service>
+
+        <service class="Shopware\SeoUrl\Extension\UrlGeneratorExtension" id="shopware.seo_url.extension.url_generator_extension">
+            <argument id="service_container" type="service"/>
+            <tag name="shopware.extension" bundle="seo_url"/>
+        </service>
     </services>
 </container>

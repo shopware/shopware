@@ -65,6 +65,11 @@ class Plugin extends Bundle
         $this->registerFilesystem($container, 'public');
     }
 
+    public function getContainerPrefix(): string
+    {
+        return $this->camelCaseToUnderscore($this->getName());
+    }
+
     /**
      * @param ContainerBuilder $container
      * @param string           $key
@@ -83,11 +88,6 @@ class Plugin extends Bundle
         );
 
         $container->setDefinition($serviceId, $filesystem);
-    }
-
-    public function getContainerPrefix(): string
-    {
-        return $this->camelCaseToUnderscore($this->getName());
     }
 
     private function camelCaseToUnderscore(string $string): string

@@ -71,19 +71,6 @@ class MediaMigrateCommand extends Command implements EventSubscriberInterface
         $this->event = $event;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
-    {
-        $this
-            ->setName('sw:media:migrate')
-            ->setDescription('Migrate images to another strategy')
-            ->addArgument('target-strategy', InputArgument::REQUIRED, 'Target strategy (e.g. md5, plain)')
-            ->addOption('skip-scan', null, InputOption::VALUE_NONE, 'Skips the initial filesystem scan and migrates the files immediately.')
-        ;
-    }
-
     public static function getSubscribedEvents()
     {
         return [
@@ -91,28 +78,6 @@ class MediaMigrateCommand extends Command implements EventSubscriberInterface
             MigrateStartEvent::EVENT_NAME => 'onStart',
             MigrateFinishEvent::EVENT_NAME => 'onFinish',
         ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
-        $this->io = new SymfonyStyle($input, $output);
-        $logger = new ConsoleLogger($output);
-
-        $to = $input->getArgument('target-strategy');
-        $skipScan = $input->getOption('skip-scan');
-
-        $mediaMigration = new MediaMigration(
-            $this->filesystem->getAdapter(),
-            $this->strategyFactory->factory($to),
-            $this->event,
-            $logger
-        );
-
-        $this->io->comment('Search for media files. This may take some time...');
-        $mediaMigration->run($skipScan);
     }
 
     public function onStart(MigrateStartEvent $event)
@@ -135,5 +100,40 @@ class MediaMigrateCommand extends Command implements EventSubscriberInterface
                 ['Skipped', $event->getSkipped()],
             ]
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function configure()
+    {
+        $this
+            ->setName('sw:media:migrate')
+            ->setDescription('Migrate images to another strategy')
+            ->addArgument('target-strategy', InputArgument::REQUIRED, 'Target strategy (e.g. md5, plain)')
+            ->addOption('skip-scan', null, InputOption::VALUE_NONE, 'Skips the initial filesystem scan and migrates the files immediately.')
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $this->io = new SymfonyStyle($input, $output);
+        $logger = new ConsoleLogger($output);
+
+        $to = $input->getArgument('target-strategy');
+        $skipScan = $input->getOption('skip-scan');
+
+        $mediaMigration = new MediaMigration(
+            $this->filesystem->getAdapter(),
+            $this->strategyFactory->factory($to),
+            $this->event,
+            $logger
+        );
+
+        $this->io->comment('Search for media files. This may take some time...');
+        $mediaMigration->run($skipScan);
     }
 }

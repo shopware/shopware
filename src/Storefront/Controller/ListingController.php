@@ -40,7 +40,7 @@ class ListingController extends FrontendController
         $listingPage = $listingPageLoader->load($uuid, $request, $context);
 
         return $this->render('frontend/listing/index.html.twig', [
-            'listing' => $listingPage
+            'listing' => $listingPage,
         ]);
     }
 }

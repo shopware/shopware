@@ -5,7 +5,6 @@ namespace Shopware\ProductDetail\Extension;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\ProductDetail\Event\ProductDetailBasicLoadedEvent;
-use Shopware\ProductDetail\Event\ProductDetailDetailLoadedEvent;
 use Shopware\ProductDetail\Event\ProductDetailWrittenEvent;
 use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
 use Shopware\Search\QueryBuilder;
@@ -18,7 +17,6 @@ abstract class ProductDetailExtension implements ExtensionInterface, EventSubscr
     {
         return [
             ProductDetailBasicLoadedEvent::NAME => 'productDetailBasicLoaded',
-            ProductDetailDetailLoadedEvent::NAME => 'productDetailDetailLoaded',
             ProductDetailWrittenEvent::NAME => 'productDetailWritten',
         ];
     }
@@ -49,10 +47,6 @@ abstract class ProductDetailExtension implements ExtensionInterface, EventSubscr
     }
 
     public function productDetailBasicLoaded(ProductDetailBasicLoadedEvent $event): void
-    {
-    }
-
-    public function productDetailDetailLoaded(ProductDetailDetailLoadedEvent $event): void
     {
     }
 

@@ -13,7 +13,7 @@ class Api extends Bundle
     {
         parent::build($container);
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/DependencyInjection/'));
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('services.xml');
     }
 }

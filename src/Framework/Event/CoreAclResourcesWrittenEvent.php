@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class CoreAclResourcesWrittenEvent extends NestedEvent
 {
     const NAME = 'core_acl_resources.written';
@@ -9,28 +11,39 @@ class CoreAclResourcesWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $coreAclResourcesUuids;
+    protected $coreAclResourcesUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $coreAclResourcesUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $coreAclResourcesUuids, TranslationContext $context, array $errors = [])
     {
         $this->coreAclResourcesUuids = $coreAclResourcesUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

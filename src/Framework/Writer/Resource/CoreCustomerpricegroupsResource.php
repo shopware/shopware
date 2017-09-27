@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
@@ -30,14 +31,14 @@ class CoreCustomerpricegroupsResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\CoreCustomerpricegroupsWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CoreCustomerpricegroupsWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\CoreCustomerpricegroupsWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\CoreCustomerpricegroupsWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\CoreCustomerpricegroupsResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\CoreCustomerpricegroupsResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\CoreCustomerpricegroupsResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Product\Event;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -12,28 +13,39 @@ class ProductConfiguratorSetWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $productConfiguratorSetUuids;
+    protected $productConfiguratorSetUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $productConfiguratorSetUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $productConfiguratorSetUuids, TranslationContext $context, array $errors = [])
     {
         $this->productConfiguratorSetUuids = $productConfiguratorSetUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

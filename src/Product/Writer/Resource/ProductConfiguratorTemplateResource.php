@@ -2,6 +2,7 @@
 
 namespace Shopware\Product\Writer\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FloatField;
@@ -40,6 +41,8 @@ class ProductConfiguratorTemplateResource extends Resource
     protected const SHIPPINGFREE_FIELD = 'shippingfree';
     protected const SHIPPINGTIME_FIELD = 'shippingtime';
     protected const PURCHASEPRICE_FIELD = 'purchaseprice';
+    protected const CREATED_AT_FIELD = 'createdAt';
+    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -72,6 +75,8 @@ class ProductConfiguratorTemplateResource extends Resource
         $this->fields[self::SHIPPINGFREE_FIELD] = new IntField('shippingfree');
         $this->fields[self::SHIPPINGTIME_FIELD] = new StringField('shippingtime');
         $this->fields[self::PURCHASEPRICE_FIELD] = new FloatField('purchaseprice');
+        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
+        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
     }
 
     public function getWriteOrder(): array
@@ -81,16 +86,34 @@ class ProductConfiguratorTemplateResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Product\Event\ProductConfiguratorTemplateWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductConfiguratorTemplateWrittenEvent
     {
-        $event = new \Shopware\Product\Event\ProductConfiguratorTemplateWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Product\Event\ProductConfiguratorTemplateWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Product\Writer\Resource\ProductConfiguratorTemplateResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductConfiguratorTemplateResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Product\Writer\Resource\ProductConfiguratorTemplateResource::createWrittenEvent($updates, $context));
         }
 
         return $event;
+    }
+
+    public function getDefaults(string $type): array
+    {
+        if (self::FOR_UPDATE === $type) {
+            return [
+                self::UPDATED_AT_FIELD => new \DateTime(),
+            ];
+        }
+
+        if (self::FOR_INSERT === $type) {
+            return [
+                self::UPDATED_AT_FIELD => new \DateTime(),
+                self::CREATED_AT_FIELD => new \DateTime(),
+            ];
+        }
+
+        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

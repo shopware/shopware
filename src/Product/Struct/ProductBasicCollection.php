@@ -6,6 +6,7 @@ use Shopware\CustomerGroup\Struct\CustomerGroupBasicCollection;
 use Shopware\Framework\Struct\Collection;
 use Shopware\PriceGroup\Struct\PriceGroupBasicCollection;
 use Shopware\ProductDetail\Struct\ProductDetailBasicCollection;
+use Shopware\ProductListingPrice\Struct\ProductListingPriceBasicCollection;
 use Shopware\ProductManufacturer\Struct\ProductManufacturerBasicCollection;
 use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
 use Shopware\Tax\Struct\TaxBasicCollection;
@@ -57,6 +58,17 @@ class ProductBasicCollection extends Collection
         return $this->fmap(function (ProductBasicStruct $product) {
             return $product->getUuid();
         });
+    }
+
+    public function merge(ProductBasicCollection $collection)
+    {
+        /** @var ProductBasicStruct $product */
+        foreach ($collection as $product) {
+            if ($this->has($this->getKey($product))) {
+                continue;
+            }
+            $this->add($product);
+        }
     }
 
     public function getTaxUuids(): array
@@ -191,6 +203,28 @@ class ProductBasicCollection extends Collection
         $collection = new CustomerGroupBasicCollection();
         foreach ($this->elements as $element) {
             $collection->fill($element->getBlockedCustomerGroups()->getIterator()->getArrayCopy());
+        }
+
+        return $collection;
+    }
+
+    public function getListingPriceUuids(): array
+    {
+        $uuids = [];
+        foreach ($this->elements as $element) {
+            foreach ($element->getListingPrices()->getUuids() as $uuid) {
+                $uuids[] = $uuid;
+            }
+        }
+
+        return $uuids;
+    }
+
+    public function getListingPrices(): ProductListingPriceBasicCollection
+    {
+        $collection = new ProductListingPriceBasicCollection();
+        foreach ($this->elements as $element) {
+            $collection->fill($element->getListingPrices()->getIterator()->getArrayCopy());
         }
 
         return $collection;

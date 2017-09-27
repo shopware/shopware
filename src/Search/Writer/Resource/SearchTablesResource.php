@@ -2,6 +2,7 @@
 
 namespace Shopware\Search\Writer\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\Resource;
@@ -30,14 +31,14 @@ class SearchTablesResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Search\Event\SearchTablesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Search\Event\SearchTablesWrittenEvent
     {
-        $event = new \Shopware\Search\Event\SearchTablesWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Search\Event\SearchTablesWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Search\Writer\Resource\SearchTablesResource::class])) {
-            $event->addEvent(\Shopware\Search\Writer\Resource\SearchTablesResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Search\Writer\Resource\SearchTablesResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

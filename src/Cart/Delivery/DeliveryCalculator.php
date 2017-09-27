@@ -36,7 +36,6 @@ use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
 
 class DeliveryCalculator
 {
-
     const CALCULATION_BY_WEIGHT = 0;
 
     const CALCULATION_BY_PRICE = 1;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
@@ -51,14 +52,14 @@ class UserShippingaddressResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\UserShippingaddressWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\UserShippingaddressWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\UserShippingaddressWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\UserShippingaddressWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\UserShippingaddressResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\UserShippingaddressResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\UserShippingaddressResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

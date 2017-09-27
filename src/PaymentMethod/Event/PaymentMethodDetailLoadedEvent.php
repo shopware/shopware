@@ -46,10 +46,17 @@ class PaymentMethodDetailLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection([
+        $events = [
             new PaymentMethodBasicLoadedEvent($this->paymentMethods, $this->context),
-            new ShopBasicLoadedEvent($this->paymentMethods->getShops(), $this->context),
-            new AreaCountryBasicLoadedEvent($this->paymentMethods->getCountries(), $this->context),
-        ]);
+        ];
+
+        if ($this->paymentMethods->getShops()->count() > 0) {
+            $events[] = new ShopBasicLoadedEvent($this->paymentMethods->getShops(), $this->context);
+        }
+        if ($this->paymentMethods->getCountries()->count() > 0) {
+            $events[] = new AreaCountryBasicLoadedEvent($this->paymentMethods->getCountries(), $this->context);
+        }
+
+        return new NestedEventCollection($events);
     }
 }

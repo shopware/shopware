@@ -41,6 +41,7 @@ class ValueTransformerRegistry
 
     /**
      * @param string $className
+     *
      * @return ValueTransformer
      */
     public function get(string $className): ValueTransformer

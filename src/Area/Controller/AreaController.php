@@ -69,12 +69,10 @@ class AreaController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $areas,
-            'total' => $areas->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $areas, 'total' => $areas->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -88,12 +86,12 @@ class AreaController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('areaUuid');
-        $areas = $this->areaRepository->read(
+        $areas = $this->areaRepository->readDetail(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($areas->get($uuid), $context);
+        return $this->createResponse(['data' => $areas->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class AreaController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

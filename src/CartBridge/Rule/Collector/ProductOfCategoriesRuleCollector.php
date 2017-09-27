@@ -72,7 +72,7 @@ class ProductOfCategoriesRuleCollector implements CollectorInterface
 
         $categoryRules = $rules->filterInstance(ProductOfCategoriesRule::class);
 
-        if ($categoryRules->count() === 0) {
+        if (0 === $categoryRules->count()) {
             return;
         }
 

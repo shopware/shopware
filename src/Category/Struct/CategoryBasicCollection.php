@@ -54,6 +54,17 @@ class CategoryBasicCollection extends Collection
         });
     }
 
+    public function merge(CategoryBasicCollection $collection)
+    {
+        /** @var CategoryBasicStruct $category */
+        foreach ($collection as $category) {
+            if ($this->has($this->getKey($category))) {
+                continue;
+            }
+            $this->add($category);
+        }
+    }
+
     public function getParentUuids(): array
     {
         return $this->fmap(function (CategoryBasicStruct $category) {
@@ -166,19 +177,5 @@ class CategoryBasicCollection extends Collection
     protected function getKey(CategoryBasicStruct $element): string
     {
         return $element->getUuid();
-    }
-
-    public function merge(CategoryBasicCollection $collection)
-    {
-        $new = clone $this;
-
-        /** @var CategoryBasicStruct $category */
-        foreach ($collection as $category) {
-            if ($new->has($category->getUuid())) {
-                continue;
-            }
-            $new->add($category);
-        }
-        return $new;
     }
 }

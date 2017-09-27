@@ -23,6 +23,8 @@ class OrderLineItemBasicFactory extends Factory
        'total_price' => 'total_price',
        'type' => 'type',
        'payload' => 'payload',
+       'created_at' => 'created_at',
+       'updated_at' => 'updated_at',
     ];
 
     public function hydrate(
@@ -39,6 +41,8 @@ class OrderLineItemBasicFactory extends Factory
         $orderLineItem->setTotalPrice((float) $data[$selection->getField('total_price')]);
         $orderLineItem->setType(isset($data[$selection->getField('type')]) ? (string) $data[$selection->getField('type')] : null);
         $orderLineItem->setPayload((string) $data[$selection->getField('payload')]);
+        $orderLineItem->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
+        $orderLineItem->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
 
         /** @var $extension OrderLineItemExtension */
         foreach ($this->getExtensions() as $extension) {

@@ -43,13 +43,13 @@ use Shopware\Cart\Rule\Container\AndRule;
 use Shopware\Cart\Tax\CalculatedTaxCollection;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Cart\Tax\TaxRuleCollection;
+use Shopware\Cart\Test\Common\DummyProduct;
 use Shopware\Cart\Voucher\AbsoluteVoucherData;
 use Shopware\Cart\Voucher\CalculatedVoucher;
 use Shopware\Cart\Voucher\PercentageVoucherData;
 use Shopware\Cart\Voucher\VoucherProcessor;
-use Shopware\Framework\Struct\StructCollection;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Cart\Test\Common\DummyProduct;
+use Shopware\Framework\Struct\StructCollection;
 
 class VoucherProcessorTest extends TestCase
 {

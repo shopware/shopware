@@ -46,9 +46,14 @@ class OrderAddressBasicLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection([
-            new AreaCountryBasicLoadedEvent($this->orderAddresses->getCountries(), $this->context),
-            new AreaCountryStateBasicLoadedEvent($this->orderAddresses->getStates(), $this->context),
-        ]);
+        $events = [];
+        if ($this->orderAddresses->getCountries()->count() > 0) {
+            $events[] = new AreaCountryBasicLoadedEvent($this->orderAddresses->getCountries(), $this->context);
+        }
+        if ($this->orderAddresses->getStates()->count() > 0) {
+            $events[] = new AreaCountryStateBasicLoadedEvent($this->orderAddresses->getStates(), $this->context);
+        }
+
+        return new NestedEventCollection($events);
     }
 }

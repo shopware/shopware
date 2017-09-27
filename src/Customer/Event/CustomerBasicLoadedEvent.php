@@ -47,12 +47,23 @@ class CustomerBasicLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection([
-            new CustomerGroupBasicLoadedEvent($this->customers->getCustomerGroups(), $this->context),
-            new CustomerAddressBasicLoadedEvent($this->customers->getDefaultShippingAddresss(), $this->context),
-            new CustomerAddressBasicLoadedEvent($this->customers->getDefaultBillingAddresss(), $this->context),
-            new PaymentMethodBasicLoadedEvent($this->customers->getLastPaymentMethods(), $this->context),
-            new PaymentMethodBasicLoadedEvent($this->customers->getDefaultPaymentMethods(), $this->context),
-        ]);
+        $events = [];
+        if ($this->customers->getCustomerGroups()->count() > 0) {
+            $events[] = new CustomerGroupBasicLoadedEvent($this->customers->getCustomerGroups(), $this->context);
+        }
+        if ($this->customers->getDefaultShippingAddresss()->count() > 0) {
+            $events[] = new CustomerAddressBasicLoadedEvent($this->customers->getDefaultShippingAddresss(), $this->context);
+        }
+        if ($this->customers->getDefaultBillingAddresss()->count() > 0) {
+            $events[] = new CustomerAddressBasicLoadedEvent($this->customers->getDefaultBillingAddresss(), $this->context);
+        }
+        if ($this->customers->getLastPaymentMethods()->count() > 0) {
+            $events[] = new PaymentMethodBasicLoadedEvent($this->customers->getLastPaymentMethods(), $this->context);
+        }
+        if ($this->customers->getDefaultPaymentMethods()->count() > 0) {
+            $events[] = new PaymentMethodBasicLoadedEvent($this->customers->getDefaultPaymentMethods(), $this->context);
+        }
+
+        return new NestedEventCollection($events);
     }
 }

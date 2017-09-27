@@ -45,6 +45,7 @@ class ApiRegistryCollector implements CompilerPassInterface
      * @param ContainerBuilder $container
      * @param $registryId
      * @param $tagName
+     *
      * @return Reference
      */
     protected function setUpRegistry(ContainerBuilder $container, string $registryId, string $tagName)

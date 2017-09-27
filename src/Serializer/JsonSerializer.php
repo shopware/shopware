@@ -41,7 +41,7 @@ class JsonSerializer implements SerializerInterface
 
     public function supportsFormat(string $format): bool
     {
-        return $format === 'json';
+        return 'json' === $format;
     }
 
     public function serialize($data)

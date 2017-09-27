@@ -30,7 +30,6 @@ use Shopware\Cart\Delivery\DeliveryInformation;
 use Shopware\Cart\LineItem\DeliverableLineItemInterface;
 use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Price\Price;
-use Shopware\Framework\Struct\Struct;
 
 class ConfiguredLineItem extends \Shopware\Framework\Struct\Struct implements DeliverableLineItemInterface
 {
@@ -82,7 +81,7 @@ class ConfiguredLineItem extends \Shopware\Framework\Struct\Struct implements De
         $this->quantity = $quantity;
         $this->price = $price;
         $this->lineItem = $lineItem;
-        if ($deliveryInformation === null) {
+        if (null === $deliveryInformation) {
             $deliveryInformation = new DeliveryInformation(
                 0,
                 0,

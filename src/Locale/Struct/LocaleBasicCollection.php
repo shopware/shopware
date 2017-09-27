@@ -53,6 +53,17 @@ class LocaleBasicCollection extends Collection
         });
     }
 
+    public function merge(LocaleBasicCollection $collection)
+    {
+        /** @var LocaleBasicStruct $locale */
+        foreach ($collection as $locale) {
+            if ($this->has($this->getKey($locale))) {
+                continue;
+            }
+            $this->add($locale);
+        }
+    }
+
     protected function getKey(LocaleBasicStruct $element): string
     {
         return $element->getUuid();

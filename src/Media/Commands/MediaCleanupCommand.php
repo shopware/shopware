@@ -75,7 +75,7 @@ class MediaCleanupCommand extends Command
         $total = $this->handleMove();
         $io->text(sprintf('%s unused item(s) found.', $total));
 
-        if ($total === 0) {
+        if (0 === $total) {
             return;
         }
 
@@ -120,7 +120,7 @@ class MediaCleanupCommand extends Command
             foreach ($iterableResult as $key => $row) {
                 $media = $row[0];
                 $modelManager->remove($media);
-                if ($key % 100 === 0) {
+                if (0 === $key % 100) {
                     $modelManager->flush();
                     $modelManager->clear();
                 }

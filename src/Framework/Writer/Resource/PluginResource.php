@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\IntField;
@@ -40,6 +41,7 @@ class PluginResource extends Resource
     protected const UPDATE_SOURCE_FIELD = 'updateSource';
     protected const UPDATE_VERSION_FIELD = 'updateVersion';
     protected const CAPABILITY_SECURE_UNINSTALL_FIELD = 'capabilitySecureUninstall';
+    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -70,6 +72,7 @@ class PluginResource extends Resource
         $this->fields[self::UPDATE_SOURCE_FIELD] = new StringField('update_source');
         $this->fields[self::UPDATE_VERSION_FIELD] = new StringField('update_version');
         $this->fields[self::CAPABILITY_SECURE_UNINSTALL_FIELD] = new IntField('capability_secure_uninstall');
+        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['configForms'] = new SubresourceField(\Shopware\Framework\Write\Resource\ConfigFormResource::class);
         $this->fields['paymentMethods'] = new SubresourceField(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::class);
         $this->fields['shopTemplates'] = new SubresourceField(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateResource::class);
@@ -87,30 +90,30 @@ class PluginResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\PluginWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\PluginWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\PluginWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\PluginWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\ConfigFormResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\ConfigFormResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\ConfigFormResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::class])) {
-            $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\PluginResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\PluginResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\PluginResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\ShopTemplate\Writer\Resource\ShopTemplateResource::class])) {
-            $event->addEvent(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\ShoppingWorldComponentResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\ShoppingWorldComponentResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\ShoppingWorldComponentResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

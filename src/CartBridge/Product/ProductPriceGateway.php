@@ -103,7 +103,7 @@ class ProductPriceGateway implements ProductPriceGatewayInterface
     private function filterCustomerGroupPrices(array $prices, string $key): array
     {
         return array_filter($prices, function ($price) use ($key) {
-            return $price['price_customer_group_key'] === $key;
+            return $price['customer_group_uuid'] === $key;
         });
     }
 

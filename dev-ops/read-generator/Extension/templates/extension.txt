@@ -29,6 +29,11 @@ abstract class #classUc#Extension implements ExtensionInterface, EventSubscriber
 
     }
 
+    public function getDetailFields(): array
+    {
+        return [];
+    }
+
     public function getBasicFields(): array
     {
         return [];

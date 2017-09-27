@@ -28,7 +28,6 @@ namespace Shopware\Filesystem\Adapter;
 
 use Google\Cloud\Storage\StorageClient;
 use League\Flysystem\AdapterInterface;
-use Shopware\Components\Filesystem\ResolveFilesystemConfigTrait;
 use Superbalist\Flysystem\GoogleStorage\GoogleStorageAdapter;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 

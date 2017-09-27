@@ -2,7 +2,9 @@
 
 namespace Shopware\Album\Writer\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\BoolField;
+use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\LongTextField;
@@ -24,6 +26,8 @@ class AlbumResource extends Resource
     protected const THUMBNAIL_HIGH_DPI_FIELD = 'thumbnailHighDpi';
     protected const THUMBNAIL_QUALITY_FIELD = 'thumbnailQuality';
     protected const THUMBNAIL_HIGH_DPI_QUALITY_FIELD = 'thumbnailHighDpiQuality';
+    protected const CREATED_AT_FIELD = 'createdAt';
+    protected const UPDATED_AT_FIELD = 'updatedAt';
     protected const NAME_FIELD = 'name';
 
     public function __construct()
@@ -38,8 +42,10 @@ class AlbumResource extends Resource
         $this->fields[self::THUMBNAIL_HIGH_DPI_FIELD] = new BoolField('thumbnail_high_dpi');
         $this->fields[self::THUMBNAIL_QUALITY_FIELD] = new IntField('thumbnail_quality');
         $this->fields[self::THUMBNAIL_HIGH_DPI_QUALITY_FIELD] = new IntField('thumbnail_high_dpi_quality');
+        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
+        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['parent'] = new ReferenceField('parentUuid', 'uuid', \Shopware\Album\Writer\Resource\AlbumResource::class);
-        $this->fields['parentUuid'] = new FkField('parent_uuid', \Shopware\Album\Writer\Resource\AlbumResource::class, 'uuid');
+        $this->fields['parentUuid'] = (new FkField('parent_uuid', \Shopware\Album\Writer\Resource\AlbumResource::class, 'uuid'));
         $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields['translations'] = (new SubresourceField(\Shopware\Album\Writer\Resource\AlbumTranslationResource::class, 'languageUuid'))->setFlags(new Required());
         $this->fields['parent'] = new SubresourceField(\Shopware\Album\Writer\Resource\AlbumResource::class);
@@ -55,32 +61,50 @@ class AlbumResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Album\Event\AlbumWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Album\Event\AlbumWrittenEvent
     {
-        $event = new \Shopware\Album\Event\AlbumWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Album\Event\AlbumWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Album\Writer\Resource\AlbumResource::class])) {
-            $event->addEvent(\Shopware\Album\Writer\Resource\AlbumResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Album\Writer\Resource\AlbumResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Album\Writer\Resource\AlbumResource::class])) {
-            $event->addEvent(\Shopware\Album\Writer\Resource\AlbumResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Album\Writer\Resource\AlbumResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Album\Writer\Resource\AlbumTranslationResource::class])) {
-            $event->addEvent(\Shopware\Album\Writer\Resource\AlbumTranslationResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Album\Writer\Resource\AlbumTranslationResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Album\Writer\Resource\AlbumResource::class])) {
-            $event->addEvent(\Shopware\Album\Writer\Resource\AlbumResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Album\Writer\Resource\AlbumResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Media\Writer\Resource\MediaResource::class])) {
-            $event->addEvent(\Shopware\Media\Writer\Resource\MediaResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Media\Writer\Resource\MediaResource::createWrittenEvent($updates, $context));
         }
 
         return $event;
+    }
+
+    public function getDefaults(string $type): array
+    {
+        if (self::FOR_UPDATE === $type) {
+            return [
+                self::UPDATED_AT_FIELD => new \DateTime(),
+            ];
+        }
+
+        if (self::FOR_INSERT === $type) {
+            return [
+                self::UPDATED_AT_FIELD => new \DateTime(),
+                self::CREATED_AT_FIELD => new \DateTime(),
+            ];
+        }
+
+        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

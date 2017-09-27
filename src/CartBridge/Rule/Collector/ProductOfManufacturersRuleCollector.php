@@ -68,7 +68,7 @@ class ProductOfManufacturersRuleCollector implements CollectorInterface
 
         $categoryRules = $rules->filterInstance(ProductOfManufacturerRule::class);
 
-        if ($categoryRules->count() === 0) {
+        if (0 === $categoryRules->count()) {
             return;
         }
 

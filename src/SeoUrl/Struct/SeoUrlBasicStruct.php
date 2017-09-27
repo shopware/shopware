@@ -52,7 +52,12 @@ class SeoUrlBasicStruct extends Struct
     protected $createdAt;
 
     /**
-     * @var string|null
+     * @var \DateTime|null
+     */
+    protected $updatedAt;
+
+    /**
+     * @var string
      */
     protected $url;
 
@@ -74,6 +79,16 @@ class SeoUrlBasicStruct extends Struct
     public function setSeoHash(string $seoHash): void
     {
         $this->seoHash = $seoHash;
+    }
+
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(string $url): void
+    {
+        $this->url = $url;
     }
 
     public function getShopUuid(): string
@@ -146,13 +161,13 @@ class SeoUrlBasicStruct extends Struct
         $this->createdAt = $createdAt;
     }
 
-    public function getUrl(): ?string
+    public function getUpdatedAt(): ?\DateTime
     {
-        return $this->url;
+        return $this->updatedAt;
     }
 
-    public function setUrl(?string $url): void
+    public function setUpdatedAt(?\DateTime $updatedAt): void
     {
-        $this->url = $url;
+        $this->updatedAt = $updatedAt;
     }
 }

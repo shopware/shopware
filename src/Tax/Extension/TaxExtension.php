@@ -28,6 +28,11 @@ abstract class TaxExtension implements ExtensionInterface, EventSubscriberInterf
     ): void {
     }
 
+    public function getDetailFields(): array
+    {
+        return [];
+    }
+
     public function getBasicFields(): array
     {
         return [];

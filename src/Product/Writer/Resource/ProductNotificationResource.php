@@ -2,6 +2,7 @@
 
 namespace Shopware\Product\Writer\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
@@ -18,6 +19,7 @@ class ProductNotificationResource extends Resource
     protected const SEND_FIELD = 'send';
     protected const LANGUAGE_FIELD = 'language';
     protected const SHOP_LINK_FIELD = 'shopLink';
+    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -30,6 +32,7 @@ class ProductNotificationResource extends Resource
         $this->fields[self::SEND_FIELD] = (new IntField('send'))->setFlags(new Required());
         $this->fields[self::LANGUAGE_FIELD] = (new StringField('language'))->setFlags(new Required());
         $this->fields[self::SHOP_LINK_FIELD] = (new StringField('shop_link'))->setFlags(new Required());
+        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
     }
 
     public function getWriteOrder(): array
@@ -39,14 +42,14 @@ class ProductNotificationResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Product\Event\ProductNotificationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductNotificationWrittenEvent
     {
-        $event = new \Shopware\Product\Event\ProductNotificationWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Product\Event\ProductNotificationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Product\Writer\Resource\ProductNotificationResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductNotificationResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Product\Writer\Resource\ProductNotificationResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

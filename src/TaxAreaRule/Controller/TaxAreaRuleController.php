@@ -69,12 +69,10 @@ class TaxAreaRuleController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $taxAreaRules,
-            'total' => $taxAreaRules->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $taxAreaRules, 'total' => $taxAreaRules->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -93,7 +91,7 @@ class TaxAreaRuleController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($taxAreaRules->get($uuid), $context);
+        return $this->createResponse(['data' => $taxAreaRules->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class TaxAreaRuleController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

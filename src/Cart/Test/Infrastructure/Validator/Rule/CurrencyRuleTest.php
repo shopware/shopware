@@ -27,9 +27,9 @@ namespace Shopware\Cart\Test\Infrastructure\Validator\Rule;
 use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\CartBridge\Rule\CurrencyRule;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
-use Shopware\Context\Struct\ShopContext;
 
 class CurrencyRuleTest extends TestCase
 {

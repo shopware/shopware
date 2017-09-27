@@ -2,6 +2,7 @@
 
 namespace Shopware\ShopTemplate\Event;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -12,28 +13,39 @@ class ShopTemplateWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $shopTemplateUuids;
+    protected $shopTemplateUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $shopTemplateUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $shopTemplateUuids, TranslationContext $context, array $errors = [])
     {
         $this->shopTemplateUuids = $shopTemplateUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

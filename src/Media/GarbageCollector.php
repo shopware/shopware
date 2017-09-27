@@ -26,8 +26,8 @@ namespace Shopware\Media;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Shopware\Media\Strategy\StrategyInterface;
 use Shopware\Media\GarbageCollector\MediaPosition;
+use Shopware\Media\Strategy\StrategyInterface;
 
 /**
  * Class GarbageCollector

@@ -26,7 +26,6 @@ namespace Shopware\Storefront\Navigation;
 
 use Shopware\Category\Repository\CategoryRepository;
 use Shopware\Category\Searcher\CategorySearchResult;
-use Shopware\Category\Struct\Category;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Search\Criteria;
 use Shopware\Search\Query\TermQuery;

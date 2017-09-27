@@ -59,6 +59,17 @@ class OrderBasicCollection extends Collection
         });
     }
 
+    public function merge(OrderBasicCollection $collection)
+    {
+        /** @var OrderBasicStruct $order */
+        foreach ($collection as $order) {
+            if ($this->has($this->getKey($order))) {
+                continue;
+            }
+            $this->add($order);
+        }
+    }
+
     public function getCustomerUuids(): array
     {
         return $this->fmap(function (OrderBasicStruct $order) {

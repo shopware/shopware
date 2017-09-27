@@ -53,6 +53,17 @@ class HolidayBasicCollection extends Collection
         });
     }
 
+    public function merge(HolidayBasicCollection $collection)
+    {
+        /** @var HolidayBasicStruct $holiday */
+        foreach ($collection as $holiday) {
+            if ($this->has($this->getKey($holiday))) {
+                continue;
+            }
+            $this->add($holiday);
+        }
+    }
+
     protected function getKey(HolidayBasicStruct $element): string
     {
         return $element->getUuid();

@@ -42,7 +42,7 @@ class ProductValidator implements ValidatorInterface
     ): bool {
         $products = $cart->getCartContainer()->getLineItems()->filterType(ProductProcessor::TYPE_PRODUCT);
 
-        if ($products->count() === 0) {
+        if (0 === $products->count()) {
             return true;
         }
 

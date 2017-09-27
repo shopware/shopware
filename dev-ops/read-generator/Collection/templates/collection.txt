@@ -59,5 +59,17 @@ class #classUc#BasicCollection extends Collection
         return $element->getUuid();
     }
 
+    public function merge(#classUc#BasicCollection $collection)
+    {
+        /** @var #classUc#BasicStruct $#classLc# */
+        foreach ($collection as $#classLc#) {
+            if ($this->has($this->getKey($#classLc#))) {
+                continue;
+            }
+            $this->add($#classLc#);
+        }
+    }
+
 #collectiveUuidGetters#
+
 }

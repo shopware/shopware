@@ -55,6 +55,17 @@ class OrderAddressBasicCollection extends Collection
         });
     }
 
+    public function merge(OrderAddressBasicCollection $collection)
+    {
+        /** @var OrderAddressBasicStruct $orderAddress */
+        foreach ($collection as $orderAddress) {
+            if ($this->has($this->getKey($orderAddress))) {
+                continue;
+            }
+            $this->add($orderAddress);
+        }
+    }
+
     public function getAreaCountryUuids(): array
     {
         return $this->fmap(function (OrderAddressBasicStruct $orderAddress) {

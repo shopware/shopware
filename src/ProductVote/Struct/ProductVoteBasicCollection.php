@@ -53,6 +53,17 @@ class ProductVoteBasicCollection extends Collection
         });
     }
 
+    public function merge(ProductVoteBasicCollection $collection)
+    {
+        /** @var ProductVoteBasicStruct $productVote */
+        foreach ($collection as $productVote) {
+            if ($this->has($this->getKey($productVote))) {
+                continue;
+            }
+            $this->add($productVote);
+        }
+    }
+
     public function getProductUuids(): array
     {
         return $this->fmap(function (ProductVoteBasicStruct $productVote) {

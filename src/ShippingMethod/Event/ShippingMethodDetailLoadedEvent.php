@@ -49,13 +49,26 @@ class ShippingMethodDetailLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection([
+        $events = [
             new ShippingMethodBasicLoadedEvent($this->shippingMethods, $this->context),
-            new CategoryBasicLoadedEvent($this->shippingMethods->getCategories(), $this->context),
-            new AreaCountryBasicLoadedEvent($this->shippingMethods->getCountries(), $this->context),
-            new HolidayBasicLoadedEvent($this->shippingMethods->getHolidays(), $this->context),
-            new PaymentMethodBasicLoadedEvent($this->shippingMethods->getPaymentMethods(), $this->context),
-            new ShippingMethodPriceBasicLoadedEvent($this->shippingMethods->getPrices(), $this->context),
-        ]);
+        ];
+
+        if ($this->shippingMethods->getCategories()->count() > 0) {
+            $events[] = new CategoryBasicLoadedEvent($this->shippingMethods->getCategories(), $this->context);
+        }
+        if ($this->shippingMethods->getCountries()->count() > 0) {
+            $events[] = new AreaCountryBasicLoadedEvent($this->shippingMethods->getCountries(), $this->context);
+        }
+        if ($this->shippingMethods->getHolidays()->count() > 0) {
+            $events[] = new HolidayBasicLoadedEvent($this->shippingMethods->getHolidays(), $this->context);
+        }
+        if ($this->shippingMethods->getPaymentMethods()->count() > 0) {
+            $events[] = new PaymentMethodBasicLoadedEvent($this->shippingMethods->getPaymentMethods(), $this->context);
+        }
+        if ($this->shippingMethods->getPrices()->count() > 0) {
+            $events[] = new ShippingMethodPriceBasicLoadedEvent($this->shippingMethods->getPrices(), $this->context);
+        }
+
+        return new NestedEventCollection($events);
     }
 }

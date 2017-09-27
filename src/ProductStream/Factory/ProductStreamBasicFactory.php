@@ -25,6 +25,8 @@ class ProductStreamBasicFactory extends Factory
        'type' => 'type',
        'description' => 'description',
        'listing_sorting_uuid' => 'listing_sorting_uuid',
+       'created_at' => 'created_at',
+       'updated_at' => 'updated_at',
     ];
 
     /**
@@ -53,6 +55,8 @@ class ProductStreamBasicFactory extends Factory
         $productStream->setType(isset($data[$selection->getField('type')]) ? (int) $data[$selection->getField('type')] : null);
         $productStream->setDescription(isset($data[$selection->getField('description')]) ? (string) $data[$selection->getField('description')] : null);
         $productStream->setListingSortingUuid(isset($data[$selection->getField('listing_sorting_uuid')]) ? (string) $data[$selection->getField('listing_sorting_uuid')] : null);
+        $productStream->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
+        $productStream->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
         $listingSorting = $selection->filter('sorting');
         if ($listingSorting && !empty($data[$listingSorting->getField('uuid')])) {
             $productStream->setSorting(

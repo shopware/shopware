@@ -9,6 +9,7 @@
             <argument type="collection">
                 <argument type="service" id="shopware.serializer.array_serializer" />
                 <argument type="service" id="shopware.serializer.json_serializer" />
+                <argument type="service" id="shopware.serializer.api_json_serializer" />
             </argument>
         </service>
 
@@ -21,6 +22,8 @@
         <service class="Shopware\Serializer\JsonSerializer" id="shopware.serializer.json_serializer">
             <argument id="shopware.serializer.object_deserializer" type="service"/>
         </service>
+
+        <service class="Shopware\Serializer\ApiJsonSerializer" id="shopware.serializer.api_json_serializer"/>
 
     </services>
 </container>

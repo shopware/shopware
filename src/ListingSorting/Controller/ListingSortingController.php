@@ -69,12 +69,10 @@ class ListingSortingController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $listingSortings,
-            'total' => $listingSortings->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $listingSortings, 'total' => $listingSortings->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -93,7 +91,7 @@ class ListingSortingController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($listingSortings->get($uuid), $context);
+        return $this->createResponse(['data' => $listingSortings->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class ListingSortingController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

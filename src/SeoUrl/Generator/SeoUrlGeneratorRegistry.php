@@ -71,8 +71,7 @@ class SeoUrlGeneratorRegistry
         Connection $connection,
         ShopRepository $shopRepository,
         SeoUrlWriter $writer
-    )
-    {
+    ) {
         $this->generators = $generators;
         $this->repository = $repository;
         $this->connection = $connection;
@@ -85,22 +84,21 @@ class SeoUrlGeneratorRegistry
         $shop = $this->shopRepository->read([$shopUuid], $context)->get($shopUuid);
 
         foreach ($this->generators as $generator) {
+            //            $this->connection->transactional(
+//                function () use ($shop, $generator, $context, $force) {
+            $offset = 0;
 
-            $this->connection->transactional(
-                function () use ($shop, $generator, $context, $force) {
-                    $offset = 0;
-
-                    while (count($urls = $generator->fetch($shop, $context, $offset, self::LIMIT))) {
-                        if (!$force) {
-                            $urls = $this->filterNoneExistingRoutes($shop, $context, $generator->getName(), $urls);
-                        }
-
-                        $this->writer->create($this->convert($urls), $context);
-
-                        $offset += self::LIMIT;
-                    }
+            while (count($urls = $generator->fetch($shop, $context, $offset, self::LIMIT))) {
+                if (!$force) {
+                    $urls = $this->filterNoneExistingRoutes($shop, $context, $generator->getName(), $urls);
                 }
-            );
+
+                $r = $this->writer->create($this->convert($urls), $context);
+
+                $offset += self::LIMIT;
+            }
+//                }
+//            );
         }
     }
 
@@ -133,10 +131,12 @@ class SeoUrlGeneratorRegistry
         /** @var SeoUrlBasicStruct $url */
         foreach ($urls as $url) {
             $row = json_decode(json_encode($url), true);
-            $row['createdAt'] = $url->getCreatedAt()->format('Y-m-d H:i:s');
             $row['seoHash'] = $url->getSeoHash();
+            unset($row['createdAt']);
+            unset($row['updatedAt']);
             $data[] = $row;
         }
+
         return $data;
     }
 }

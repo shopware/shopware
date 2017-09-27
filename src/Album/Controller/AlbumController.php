@@ -69,12 +69,10 @@ class AlbumController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $album,
-            'total' => $album->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $album, 'total' => $album->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -88,12 +86,12 @@ class AlbumController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('albumUuid');
-        $album = $this->albumRepository->read(
+        $album = $this->albumRepository->readDetail(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($album->get($uuid), $context);
+        return $this->createResponse(['data' => $album->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class AlbumController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

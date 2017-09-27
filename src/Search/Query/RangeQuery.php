@@ -35,7 +35,7 @@ class RangeQuery extends Query
      * ])
      *
      * @param string $field
-     * @param array $parameters
+     * @param array  $parameters
      */
     public function __construct(string $field, array $parameters = [])
     {

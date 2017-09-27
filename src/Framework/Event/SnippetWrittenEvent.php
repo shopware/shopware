@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class SnippetWrittenEvent extends NestedEvent
 {
     const NAME = 'snippet.written';
@@ -9,28 +11,39 @@ class SnippetWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $snippetUuids;
+    protected $snippetUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $snippetUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $snippetUuids, TranslationContext $context, array $errors = [])
     {
         $this->snippetUuids = $snippetUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

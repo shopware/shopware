@@ -100,7 +100,7 @@ class MediaOptimizeCommand extends Command
         foreach ($finder->getIterator() as $file) {
             $this->io->progressAdvance();
 
-            if ($output->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE) {
+            if (OutputInterface::VERBOSITY_VERBOSE === $output->getVerbosity()) {
                 $output->writeln(' - ' . $file->getRelativePathname());
             }
 

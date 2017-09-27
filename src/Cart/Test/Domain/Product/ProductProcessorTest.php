@@ -50,10 +50,10 @@ use Shopware\Cart\Tax\TaxDetector;
 use Shopware\Cart\Tax\TaxRule;
 use Shopware\Cart\Tax\TaxRuleCalculator;
 use Shopware\Cart\Tax\TaxRuleCollection;
-use Shopware\CartBridge\Product\ProductPriceGateway;
-use Shopware\Framework\Struct\StructCollection;
 use Shopware\Cart\Test\Common\Generator;
+use Shopware\CartBridge\Product\ProductPriceGateway;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Struct\StructCollection;
 
 class ProductProcessorTest extends TestCase
 {

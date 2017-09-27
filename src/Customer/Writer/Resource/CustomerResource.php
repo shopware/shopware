@@ -2,6 +2,7 @@
 
 namespace Shopware\Customer\Writer\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
@@ -39,6 +40,8 @@ class CustomerResource extends Resource
     protected const FAILED_LOGINS_FIELD = 'failedLogins';
     protected const LOCKED_UNTIL_FIELD = 'lockedUntil';
     protected const BIRTHDAY_FIELD = 'birthday';
+    protected const CREATED_AT_FIELD = 'createdAt';
+    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -67,6 +70,8 @@ class CustomerResource extends Resource
         $this->fields[self::FAILED_LOGINS_FIELD] = new IntField('failed_logins');
         $this->fields[self::LOCKED_UNTIL_FIELD] = new DateField('locked_until');
         $this->fields[self::BIRTHDAY_FIELD] = new DateField('birthday');
+        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
+        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['group'] = new ReferenceField('groupUuid', 'uuid', \Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::class);
         $this->fields['groupUuid'] = (new FkField('customer_group_uuid', \Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['defaultPaymentMethod'] = new ReferenceField('defaultPaymentMethodUuid', 'uuid', \Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::class);
@@ -76,11 +81,11 @@ class CustomerResource extends Resource
         $this->fields['mainShop'] = new ReferenceField('mainShopUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopResource::class);
         $this->fields['mainShopUuid'] = (new FkField('main_shop_uuid', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['lastPaymentMethod'] = new ReferenceField('lastPaymentMethodUuid', 'uuid', \Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::class);
-        $this->fields['lastPaymentMethodUuid'] = new FkField('last_payment_method_uuid', \Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::class, 'uuid');
+        $this->fields['lastPaymentMethodUuid'] = (new FkField('last_payment_method_uuid', \Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::class, 'uuid'));
         $this->fields['defaultBillingAddress'] = new ReferenceField('defaultBillingAddressUuid', 'uuid', \Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class);
-        $this->fields['defaultBillingAddressUuid'] = new FkField('default_billing_address_uuid', \Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class, 'uuid');
+        $this->fields['defaultBillingAddressUuid'] = (new FkField('default_billing_address_uuid', \Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class, 'uuid'));
         $this->fields['defaultShippingAddress'] = new ReferenceField('defaultShippingAddressUuid', 'uuid', \Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class);
-        $this->fields['defaultShippingAddressUuid'] = new FkField('default_shipping_address_uuid', \Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class, 'uuid');
+        $this->fields['defaultShippingAddressUuid'] = (new FkField('default_shipping_address_uuid', \Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class, 'uuid'));
         $this->fields['addresses'] = new SubresourceField(\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class);
         $this->fields['orders'] = new SubresourceField(\Shopware\Order\Writer\Resource\OrderResource::class);
         $this->fields['statisticCurrentCustomers'] = new SubresourceField(\Shopware\Framework\Write\Resource\StatisticCurrentCustomerResource::class);
@@ -99,56 +104,74 @@ class CustomerResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Customer\Event\CustomerWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Customer\Event\CustomerWrittenEvent
     {
-        $event = new \Shopware\Customer\Event\CustomerWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Customer\Event\CustomerWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::class])) {
-            $event->addEvent(\Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::class])) {
-            $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::class])) {
-            $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class])) {
-            $event->addEvent(\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class])) {
-            $event->addEvent(\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Customer\Writer\Resource\CustomerResource::class])) {
-            $event->addEvent(\Shopware\Customer\Writer\Resource\CustomerResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Customer\Writer\Resource\CustomerResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class])) {
-            $event->addEvent(\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Order\Writer\Resource\OrderResource::class])) {
-            $event->addEvent(\Shopware\Order\Writer\Resource\OrderResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Order\Writer\Resource\OrderResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\StatisticCurrentCustomerResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\StatisticCurrentCustomerResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\StatisticCurrentCustomerResource::createWrittenEvent($updates, $context));
         }
 
         return $event;
+    }
+
+    public function getDefaults(string $type): array
+    {
+        if (self::FOR_UPDATE === $type) {
+            return [
+                self::UPDATED_AT_FIELD => new \DateTime(),
+            ];
+        }
+
+        if (self::FOR_INSERT === $type) {
+            return [
+                self::UPDATED_AT_FIELD => new \DateTime(),
+                self::CREATED_AT_FIELD => new \DateTime(),
+            ];
+        }
+
+        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

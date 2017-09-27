@@ -129,6 +129,16 @@ class ShopBasicStruct extends Struct
     protected $areaCountryUuid;
 
     /**
+     * @var \DateTime|null
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $updatedAt;
+
+    /**
      * @var CurrencyBasicStruct
      */
     protected $currency;
@@ -376,6 +386,26 @@ class ShopBasicStruct extends Struct
     public function setAreaCountryUuid(?string $areaCountryUuid): void
     {
         $this->areaCountryUuid = $areaCountryUuid;
+    }
+
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTime $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 
     public function getCurrency(): CurrencyBasicStruct

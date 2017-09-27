@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class CoreRewriteUrlsWrittenEvent extends NestedEvent
 {
     const NAME = 'core_rewrite_urls.written';
@@ -9,28 +11,39 @@ class CoreRewriteUrlsWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $coreRewriteUrlsUuids;
+    protected $coreRewriteUrlsUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $coreRewriteUrlsUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $coreRewriteUrlsUuids, TranslationContext $context, array $errors = [])
     {
         $this->coreRewriteUrlsUuids = $coreRewriteUrlsUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

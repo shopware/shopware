@@ -28,6 +28,11 @@ abstract class ProductStreamExtension implements ExtensionInterface, EventSubscr
     ): void {
     }
 
+    public function getDetailFields(): array
+    {
+        return [];
+    }
+
     public function getBasicFields(): array
     {
         return [];

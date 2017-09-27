@@ -25,7 +25,7 @@ class ExtensionRegistrySubscriber implements EventSubscriberInterface
         return [
             KernelEvents::REQUEST => [
                 ['registerExtensionRegistry', 0],
-            ]
+            ],
         ];
     }
 
@@ -36,9 +36,9 @@ class ExtensionRegistrySubscriber implements EventSubscriberInterface
         if (!$request->attributes->has(Router::REQUEST_TYPE_ATTRIBUTE)) {
             return $event;
         }
-        
+
         $type = $request->attributes->get(Router::REQUEST_TYPE_ATTRIBUTE);
-        if ($type !== Router::REQUEST_TYPE_NEXUS) {
+        if (Router::REQUEST_TYPE_NEXUS !== $type) {
             return $event;
         }
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
@@ -33,14 +34,14 @@ class CampaignsBannerResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\CampaignsBannerWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CampaignsBannerWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\CampaignsBannerWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\CampaignsBannerWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\CampaignsBannerResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\CampaignsBannerResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\CampaignsBannerResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

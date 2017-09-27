@@ -55,6 +55,17 @@ class CustomerAddressBasicCollection extends Collection
         });
     }
 
+    public function merge(CustomerAddressBasicCollection $collection)
+    {
+        /** @var CustomerAddressBasicStruct $customerAddress */
+        foreach ($collection as $customerAddress) {
+            if ($this->has($this->getKey($customerAddress))) {
+                continue;
+            }
+            $this->add($customerAddress);
+        }
+    }
+
     public function getCustomerUuids(): array
     {
         return $this->fmap(function (CustomerAddressBasicStruct $customerAddress) {

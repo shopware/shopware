@@ -53,6 +53,17 @@ class AreaCountryBasicCollection extends Collection
         });
     }
 
+    public function merge(AreaCountryBasicCollection $collection)
+    {
+        /** @var AreaCountryBasicStruct $areaCountry */
+        foreach ($collection as $areaCountry) {
+            if ($this->has($this->getKey($areaCountry))) {
+                continue;
+            }
+            $this->add($areaCountry);
+        }
+    }
+
     public function getAreaUuids(): array
     {
         return $this->fmap(function (AreaCountryBasicStruct $areaCountry) {

@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Context\Struct\TranslationContext;
+
 class StatisticAddressPoolWrittenEvent extends NestedEvent
 {
     const NAME = 'statistic_address_pool.written';
@@ -9,28 +11,39 @@ class StatisticAddressPoolWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $statisticAddressPoolUuids;
+    protected $statisticAddressPoolUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $statisticAddressPoolUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $statisticAddressPoolUuids, TranslationContext $context, array $errors = [])
     {
         $this->statisticAddressPoolUuids = $statisticAddressPoolUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

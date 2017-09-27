@@ -100,7 +100,7 @@ class ShopDetailFactory extends ShopBasicFactory
         $fields['shippingMethod'] = $this->shippingMethodFactory->getFields();
         $fields['country'] = $this->areaCountryFactory->getFields();
         $fields['template'] = $this->shopTemplateFactory->getFields();
-        $fields['_sub_select_currency_uuids'] = '_sub_select_currency_uuids';
+        $fields['_sub_select_availableCurrency_uuids'] = '_sub_select_availableCurrency_uuids';
 
         return $fields;
     }
@@ -155,8 +155,8 @@ class ShopDetailFactory extends ShopBasicFactory
                 $this->shopTemplateFactory->hydrate($data, new ShopTemplateBasicStruct(), $shopTemplate, $context)
             );
         }
-        if ($selection->hasField('_sub_select_currency_uuids')) {
-            $uuids = explode('|', $data[$selection->getField('_sub_select_currency_uuids')]);
+        if ($selection->hasField('_sub_select_availableCurrency_uuids')) {
+            $uuids = explode('|', $data[$selection->getField('_sub_select_availableCurrency_uuids')]);
             $shop->setAvailableCurrencyUuids(array_values(array_filter($uuids)));
         }
 
@@ -258,13 +258,13 @@ class ShopDetailFactory extends ShopBasicFactory
             $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
         }
 
-        if ($selection->hasField('_sub_select_currency_uuids')) {
+        if ($selection->hasField('_sub_select_availableCurrency_uuids')) {
             $query->addSelect('
                 (
                     SELECT GROUP_CONCAT(mapping.currency_uuid SEPARATOR \'|\')
                     FROM shop_currency mapping
                     WHERE mapping.shop_uuid = ' . $selection->getRootEscaped() . '.uuid
-                ) as ' . QuerySelection::escape($selection->getField('_sub_select_currency_uuids'))
+                ) as ' . QuerySelection::escape($selection->getField('_sub_select_availableCurrency_uuids'))
             );
         }
     }

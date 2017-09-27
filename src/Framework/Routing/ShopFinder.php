@@ -26,7 +26,6 @@ namespace Shopware\Framework\Routing;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Shopware\Shop\ShopRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
 
@@ -45,12 +44,12 @@ class ShopFinder
     public function findShopByRequest(RequestContext $requestContext, Request $request): ?array
     {
         $shop = $this->getShopByPost($requestContext, $request);
-        if ($shop !== null) {
+        if (null !== $shop) {
             return $shop;
         }
 
         $shop = $this->getShopByCookie($request);
-        if ($shop !== null) {
+        if (null !== $shop) {
             return $shop;
         }
 
@@ -88,7 +87,7 @@ class ShopFinder
 
         // reduce shops to which base url is the beginning of the request
         $paths = array_filter($paths, function ($baseUrl) use ($url) {
-            return strpos($url, $baseUrl) === 0;
+            return 0 === strpos($url, $baseUrl);
         }, ARRAY_FILTER_USE_KEY);
 
         // determine most matching shop base url
@@ -103,6 +102,33 @@ class ShopFinder
         }
 
         return $bestMatch;
+    }
+
+    protected function createQuery(): QueryBuilder
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->select([
+            'shop.uuid',
+            'shop.parent_uuid',
+            'shop.base_url',
+            'shop.hosts',
+            'shop.category_uuid',
+            'shop.locale_uuid',
+            'shop.currency_uuid',
+            'shop.customer_group_uuid',
+            'shop.fallback_locale_uuid',
+            'shop.customer_scope',
+            'shop.is_default',
+            'shop.active',
+            'shop.host',
+            'shop.base_path',
+            'shop.is_secure',
+            'locale.code as locale_code',
+        ]);
+        $query->from('shop', 'shop');
+        $query->innerJoin('shop', 'locale', 'locale', 'locale.uuid = shop.locale_uuid');
+
+        return $query;
     }
 
     private function getShopByCookie(Request $request): ?array
@@ -125,33 +151,6 @@ class ShopFinder
         return null;
     }
 
-    protected function createQuery(): QueryBuilder
-    {
-        $query = $this->connection->createQueryBuilder();
-        $query->select([
-            'shop.uuid',
-            'shop.parent_uuid',
-            'shop.base_url',
-            'shop.hosts',
-            'shop.category_uuid',
-            'shop.locale_uuid',
-            'shop.currency_uuid',
-            'shop.customer_group_uuid',
-            'shop.fallback_locale_uuid',
-            'shop.customer_scope',
-            'shop.is_default',
-            'shop.active',
-            'shop.host',
-            'shop.base_path',
-            'shop.is_secure',
-            'locale.code as locale_code'
-        ]);
-        $query->from('shop', 'shop');
-        $query->innerJoin('shop', 'locale', 'locale', 'locale.uuid = shop.locale_uuid');
-
-        return $query;
-    }
-
     private function fixUrls(array $shop): array
     {
         $shop['base_url'] = rtrim($shop['base_url'], '/') . '/';
@@ -162,7 +161,7 @@ class ShopFinder
 
     private function getShopByPost(RequestContext $context, Request $request): ?array
     {
-        if ($context->getMethod() !== 'POST') {
+        if ('POST' !== $context->getMethod()) {
             return null;
         }
 
@@ -172,7 +171,7 @@ class ShopFinder
 
         $query = $this->createQuery();
         $query->andWhere('shop.uuid = :uuid');
-        $query->setParameter('uuid',  $request->get('__shop'));
+        $query->setParameter('uuid', $request->get('__shop'));
         $shop = $query->execute()->fetch(\PDO::FETCH_ASSOC);
 
         if ($shop) {

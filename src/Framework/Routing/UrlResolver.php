@@ -28,7 +28,6 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Search\Criteria;
 use Shopware\Search\Query\TermQuery;
 use Shopware\SeoUrl\Repository\SeoUrlRepository;
-use Shopware\SeoUrl\Struct\SeoUrl;
 use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
 
 class UrlResolver implements UrlResolverInterface

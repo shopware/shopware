@@ -52,6 +52,16 @@ class AlbumBasicStruct extends Struct
     protected $thumbnailHighDpiQuality;
 
     /**
+     * @var \DateTime|null
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $updatedAt;
+
+    /**
      * @var string
      */
     protected $name;
@@ -144,6 +154,26 @@ class AlbumBasicStruct extends Struct
     public function setThumbnailHighDpiQuality(?int $thumbnailHighDpiQuality): void
     {
         $this->thumbnailHighDpiQuality = $thumbnailHighDpiQuality;
+    }
+
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTime $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 
     public function getName(): string

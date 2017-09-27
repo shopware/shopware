@@ -53,6 +53,17 @@ class CurrencyBasicCollection extends Collection
         });
     }
 
+    public function merge(CurrencyBasicCollection $collection)
+    {
+        /** @var CurrencyBasicStruct $currency */
+        foreach ($collection as $currency) {
+            if ($this->has($this->getKey($currency))) {
+                continue;
+            }
+            $this->add($currency);
+        }
+    }
+
     public function sortByPosition(): CurrencyBasicCollection
     {
         $this->sort(function (CurrencyBasicStruct $a, CurrencyBasicStruct $b) {

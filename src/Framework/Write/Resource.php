@@ -24,6 +24,7 @@
 
 namespace Shopware\Framework\Write;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\DataStack\DataStack;
 use Shopware\Framework\Write\DataStack\ExceptionNoStackItemFound;
 use Shopware\Framework\Write\DataStack\KeyValuePair;
@@ -105,7 +106,7 @@ abstract class Resource
         return [];
     }
 
-    public static function createWrittenEvent(array $updates)
+    public static function createWrittenEvent(array $updates, TranslationContext $context)
     {
     }
 

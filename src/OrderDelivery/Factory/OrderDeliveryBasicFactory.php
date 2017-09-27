@@ -32,6 +32,8 @@ class OrderDeliveryBasicFactory extends Factory
        'shipping_date_earliest' => 'shipping_date_earliest',
        'shipping_date_latest' => 'shipping_date_latest',
        'payload' => 'payload',
+       'created_at' => 'created_at',
+       'updated_at' => 'updated_at',
     ];
 
     /**
@@ -77,6 +79,8 @@ class OrderDeliveryBasicFactory extends Factory
         $orderDelivery->setShippingDateEarliest(new \DateTime($data[$selection->getField('shipping_date_earliest')]));
         $orderDelivery->setShippingDateLatest(new \DateTime($data[$selection->getField('shipping_date_latest')]));
         $orderDelivery->setPayload((string) $data[$selection->getField('payload')]);
+        $orderDelivery->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
+        $orderDelivery->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
         $orderState = $selection->filter('state');
         if ($orderState && !empty($data[$orderState->getField('uuid')])) {
             $orderDelivery->setState(

@@ -2,6 +2,7 @@
 
 namespace Shopware\Product\Event;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -12,28 +13,39 @@ class ProductMediaMappingRuleWrittenEvent extends NestedEvent
     /**
      * @var string[]
      */
-    private $productMediaMappingRuleUuids;
+    protected $productMediaMappingRuleUuids;
 
     /**
      * @var NestedEventCollection
      */
-    private $events;
+    protected $events;
 
     /**
      * @var array
      */
-    private $errors;
+    protected $errors;
 
-    public function __construct(array $productMediaMappingRuleUuids, array $errors = [])
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    public function __construct(array $productMediaMappingRuleUuids, TranslationContext $context, array $errors = [])
     {
         $this->productMediaMappingRuleUuids = $productMediaMappingRuleUuids;
         $this->events = new NestedEventCollection();
+        $this->context = $context;
         $this->errors = $errors;
     }
 
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\ProductManufacturer\Writer\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\LongTextField;
 use Shopware\Framework\Write\Field\ReferenceField;
@@ -41,22 +42,22 @@ class ProductManufacturerTranslationResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\ProductManufacturer\Event\ProductManufacturerTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ProductManufacturer\Event\ProductManufacturerTranslationWrittenEvent
     {
-        $event = new \Shopware\ProductManufacturer\Event\ProductManufacturerTranslationWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\ProductManufacturer\Event\ProductManufacturerTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerResource::class])) {
-            $event->addEvent(\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerTranslationResource::class])) {
-            $event->addEvent(\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerTranslationResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerTranslationResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

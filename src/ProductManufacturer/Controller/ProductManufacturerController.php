@@ -69,12 +69,10 @@ class ProductManufacturerController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $productManufacturers,
-            'total' => $productManufacturers->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $productManufacturers, 'total' => $productManufacturers->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -93,7 +91,7 @@ class ProductManufacturerController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($productManufacturers->get($uuid), $context);
+        return $this->createResponse(['data' => $productManufacturers->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class ProductManufacturerController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

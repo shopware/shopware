@@ -69,12 +69,10 @@ class ShippingMethodPriceController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $response = [
-            'data' => $shippingMethodPrices,
-            'total' => $shippingMethodPrices->getTotal(),
-        ];
-
-        return $this->createResponse($response, $context);
+        return $this->createResponse(
+            ['data' => $shippingMethodPrices, 'total' => $shippingMethodPrices->getTotal()],
+            $context
+        );
     }
 
     /**
@@ -93,7 +91,7 @@ class ShippingMethodPriceController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        return $this->createResponse($shippingMethodPrices->get($uuid), $context);
+        return $this->createResponse(['data' => $shippingMethodPrices->get($uuid)], $context);
     }
 
     /**
@@ -222,7 +220,7 @@ class ShippingMethodPriceController extends ApiController
      */
     public function deleteAction(ApiContext $context): Response
     {
-        $result = [];
+        $result = ['data' => []];
 
         return $this->createResponse($result, $context);
     }

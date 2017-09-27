@@ -28,10 +28,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Rule\Container\OrRule;
 use Shopware\Cart\Rule\Match;
-use Shopware\Framework\Struct\StructCollection;
-use Shopware\Context\Struct\ShopContext;
 use Shopware\Cart\Test\Common\FalseRule;
 use Shopware\Cart\Test\Common\TrueRule;
+use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Struct\StructCollection;
 
 class OrRuleTest extends TestCase
 {

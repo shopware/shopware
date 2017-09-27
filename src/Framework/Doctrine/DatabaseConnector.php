@@ -13,7 +13,6 @@ class DatabaseConnector
             $conn = new \PDO('mysql:' . $connectionString, getenv('DATABASE_USER'), $password);
             $conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             $conn->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
-
         } catch (\PDOException $e) {
             $message = $e->getMessage();
             $message = str_replace(

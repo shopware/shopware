@@ -8,6 +8,10 @@ use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\ProductDetail\Factory\ProductDetailBasicFactory;
 use Shopware\ProductDetail\Struct\ProductDetailBasicCollection;
 use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
+use Shopware\ProductDetailPrice\Searcher\ProductDetailPriceSearcher;
+use Shopware\ProductDetailPrice\Searcher\ProductDetailPriceSearchResult;
+use Shopware\Search\Criteria;
+use Shopware\Search\Query\TermsQuery;
 
 class ProductDetailBasicLoader
 {
@@ -18,10 +22,17 @@ class ProductDetailBasicLoader
      */
     private $factory;
 
+    /**
+     * @var ProductDetailPriceSearcher
+     */
+    private $productDetailPriceSearcher;
+
     public function __construct(
-        ProductDetailBasicFactory $factory
+        ProductDetailBasicFactory $factory,
+        ProductDetailPriceSearcher $productDetailPriceSearcher
     ) {
         $this->factory = $factory;
+        $this->productDetailPriceSearcher = $productDetailPriceSearcher;
     }
 
     public function load(array $uuids, TranslationContext $context): ProductDetailBasicCollection
@@ -31,6 +42,16 @@ class ProductDetailBasicLoader
         }
 
         $productDetailsCollection = $this->read($uuids, $context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermsQuery('product_detail_price.product_detail_uuid', $uuids));
+        /** @var ProductDetailPriceSearchResult $prices */
+        $prices = $this->productDetailPriceSearcher->search($criteria, $context);
+
+        /** @var ProductDetailBasicStruct $productDetail */
+        foreach ($productDetailsCollection as $productDetail) {
+            $productDetail->setPrices($prices->filterByProductDetailUuid($productDetail->getUuid()));
+        }
 
         return $productDetailsCollection;
     }

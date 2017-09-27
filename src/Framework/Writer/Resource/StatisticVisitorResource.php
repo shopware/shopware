@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\IntField;
@@ -19,6 +20,7 @@ class StatisticVisitorResource extends Resource
     protected const PAGE_IMPRESSIONS_FIELD = 'pageImpressions';
     protected const UNIQUE_VISITS_FIELD = 'uniqueVisits';
     protected const DEVICE_TYPE_FIELD = 'deviceType';
+    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -30,6 +32,7 @@ class StatisticVisitorResource extends Resource
         $this->fields[self::PAGE_IMPRESSIONS_FIELD] = new IntField('page_impressions');
         $this->fields[self::UNIQUE_VISITS_FIELD] = new IntField('unique_visits');
         $this->fields[self::DEVICE_TYPE_FIELD] = new StringField('device_type');
+        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopResource::class);
         $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid'))->setFlags(new Required());
     }
@@ -42,18 +45,18 @@ class StatisticVisitorResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, array $errors = []): \Shopware\Framework\Event\StatisticVisitorWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\StatisticVisitorWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\StatisticVisitorWrittenEvent($updates[self::class] ?? [], $errors);
+        $event = new \Shopware\Framework\Event\StatisticVisitorWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
         if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Framework\Write\Resource\StatisticVisitorResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\StatisticVisitorResource::createWrittenEvent($updates));
+            $event->addEvent(\Shopware\Framework\Write\Resource\StatisticVisitorResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

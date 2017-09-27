@@ -28,13 +28,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\CartBridge\Rule\BillingCountryRule;
-use Shopware\Address\Struct\Address;
+use Shopware\Context\Struct\ShopContext;
+use Shopware\Country\Struct\Country;
 use Shopware\Customer\Struct\CustomerBasicStruct;
 use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
-use Shopware\Context\Struct\ShopContext;
-use Shopware\Country\Struct\Country;
-use Shopware\Customer\Struct\Customer;
 
 class BillingCountryRuleTest extends TestCase
 {

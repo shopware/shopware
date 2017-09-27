@@ -24,6 +24,8 @@ class AlbumBasicFactory extends Factory
        'thumbnail_high_dpi' => 'thumbnail_high_dpi',
        'thumbnail_quality' => 'thumbnail_quality',
        'thumbnail_high_dpi_quality' => 'thumbnail_high_dpi_quality',
+       'created_at' => 'created_at',
+       'updated_at' => 'updated_at',
        'name' => 'translation.name',
     ];
 
@@ -42,6 +44,8 @@ class AlbumBasicFactory extends Factory
         $album->setThumbnailHighDpi((bool) $data[$selection->getField('thumbnail_high_dpi')]);
         $album->setThumbnailQuality(isset($data[$selection->getField('thumbnail_quality')]) ? (int) $data[$selection->getField('thumbnail_quality')] : null);
         $album->setThumbnailHighDpiQuality(isset($data[$selection->getField('thumbnail_high_dpi_quality')]) ? (int) $data[$selection->getField('thumbnail_high_dpi_quality')] : null);
+        $album->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
+        $album->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
         $album->setName((string) $data[$selection->getField('name')]);
 
         /** @var $extension AlbumExtension */

@@ -45,8 +45,11 @@ class OrderDeliveryPositionBasicLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection([
-            new OrderLineItemBasicLoadedEvent($this->orderDeliveryPositions->getLineItems(), $this->context),
-        ]);
+        $events = [];
+        if ($this->orderDeliveryPositions->getLineItems()->count() > 0) {
+            $events[] = new OrderLineItemBasicLoadedEvent($this->orderDeliveryPositions->getLineItems(), $this->context);
+        }
+
+        return new NestedEventCollection($events);
     }
 }

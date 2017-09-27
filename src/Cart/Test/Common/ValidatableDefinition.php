@@ -26,7 +26,6 @@ namespace Shopware\Cart\Test\Common;
 
 use Shopware\Cart\Rule\Rule;
 use Shopware\Cart\Rule\Validatable;
-use Shopware\Framework\Struct\Struct;
 
 class ValidatableDefinition extends \Shopware\Framework\Struct\Struct implements Validatable
 {

@@ -61,13 +61,13 @@ class OrderAddressWriter
         }
 
         $affected = count($updated);
-        if ($affected === 1) {
+        if (1 === $affected) {
             $updated = array_shift($updated);
         } elseif ($affected > 1) {
             $updated = array_merge_recursive(...$updated);
         }
 
-        return OrderAddressResource::createWrittenEvent($updated, $errors);
+        return OrderAddressResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): OrderAddressWrittenEvent
@@ -93,13 +93,13 @@ class OrderAddressWriter
         }
 
         $affected = count($created);
-        if ($affected === 1) {
+        if (1 === $affected) {
             $created = array_shift($created);
         } elseif ($affected > 1) {
             $created = array_merge_recursive(...$created);
         }
 
-        return OrderAddressResource::createWrittenEvent($created, $errors);
+        return OrderAddressResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): OrderAddressWrittenEvent
@@ -125,13 +125,13 @@ class OrderAddressWriter
         }
 
         $affected = count($created);
-        if ($affected === 1) {
+        if (1 === $affected) {
             $created = array_shift($created);
         } elseif ($affected > 1) {
             $created = array_merge_recursive(...$created);
         }
 
-        return OrderAddressResource::createWrittenEvent($created, $errors);
+        return OrderAddressResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext

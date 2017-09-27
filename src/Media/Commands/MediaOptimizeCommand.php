@@ -65,7 +65,7 @@ class MediaOptimizeCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setName('sw:media:optimize')
+            ->setName('media:optimize')
             ->setHelp('The <info>%command.name%</info> optimizes your uploaded media using external tools. You can check the availability using the <info>--info</info> option.')
             ->setDescription('Optimize uploaded media without quality loss.')
             ->addArgument('path', InputArgument::OPTIONAL, 'Path to your media folder')

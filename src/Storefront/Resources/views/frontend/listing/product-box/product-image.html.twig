@@ -1,5 +1,10 @@
 {# Product image - uses the picture element for responsive retina images. #}
-<a href="{{ product.linkDetails }}"
+{% if product.canonicalUrl %}
+    {% set url = product.canonicalUrl.url %}
+{% else %}
+    {% set url = url('detail_page', { 'uuid': product.uuid }) %}
+{% endif %}
+<a href="{{ url }}"
    title="{{ product.name }}"
    class="product--image">
     {% block frontend_listing_box_article_image_element %}
@@ -9,14 +14,14 @@
 
                     {% set desc = product.name %}
 
-                    {% if product.image.thumbnails is defined %}
+                    {% if product.cover.media.thumbnails %}
 
                         {% if product.image.description %}
                             {% set desc = product.image.description %}
                         {% endif %}
 
                         {% block frontend_listing_box_article_image_picture_element %}
-                            <img srcset="{{ product.image.thumbnails[0].sourceSet }}"
+                            <img srcset="{{ product.cover.media.thumbnails[0].url }}"
                                  alt="{{ desc }}"
                                  title="{{ desc|truncate(160, true) }}" />
                         {% endblock %}

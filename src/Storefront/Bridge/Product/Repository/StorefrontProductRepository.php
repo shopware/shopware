@@ -11,9 +11,14 @@ use Shopware\Product\Repository\ProductRepository;
 use Shopware\Product\Searcher\ProductSearchResult;
 use Shopware\Product\Struct\ProductBasicCollection;
 use Shopware\Product\Struct\ProductBasicStruct;
+use Shopware\Product\Struct\ProductDetailCollection;
 use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicCollection;
 use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicStruct;
+use Shopware\ProductMedia\Repository\ProductMediaRepository;
+use Shopware\ProductMedia\Searcher\ProductMediaSearchResult;
+use Shopware\ProductMedia\Struct\ProductMediaBasicStruct;
 use Shopware\Search\Criteria;
+use Shopware\Search\Query\TermsQuery;
 use Shopware\Storefront\Bridge\Product\Struct\DetailProductStruct;
 use Shopware\Storefront\Bridge\Product\Struct\ListingPriceStruct;
 use Shopware\Storefront\Bridge\Product\Struct\ListingProductStruct;
@@ -30,26 +35,42 @@ class StorefrontProductRepository
      */
     private $priceCalculator;
 
+    /**
+     * @var ProductMediaRepository
+     */
+    private $productMediaRepository;
+
     public function __construct(
         ProductRepository $repository,
-        PriceCalculator $priceCalculator
+        PriceCalculator $priceCalculator,
+        ProductMediaRepository $productMediaRepository
     ) {
         $this->repository = $repository;
         $this->priceCalculator = $priceCalculator;
+        $this->productMediaRepository = $productMediaRepository;
     }
 
     public function readDetail(array $uuids, ShopContext $context): ProductBasicCollection
     {
-        $products = $this->repository->read($uuids, $context->getTranslationContext());
+        $products = $this->repository->readDetail($uuids, $context->getTranslationContext());
 
-        $detailProducts = new ProductBasicCollection();
+        $detailProducts = new ProductDetailCollection();
 
         foreach ($products as $product) {
             $detailProduct = DetailProductStruct::createFrom($product);
 
+            // price
             $calculated = $this->getCalculatedPrices($detailProduct, $context);
-
             $detailProduct->getMainDetail()->setPrices($calculated);
+
+            // media
+            $cover = $product->getMedia()->filterByProductUuid($product->getUuid())
+                ->filter(function (ProductMediaBasicStruct $productMedia) {
+                    return $productMedia->getIsCover() === true;
+                })
+                ->first();
+
+            $detailProduct->setCover($cover);
 
             $detailProducts->add($detailProduct);
         }
@@ -61,18 +82,36 @@ class StorefrontProductRepository
     {
         $products = $this->repository->read($uuids, $context->getTranslationContext());
 
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermsQuery('product_media.product_uuid', $uuids));
+        /** @var ProductMediaSearchResult $media */
+        $media = $this->productMediaRepository->search($criteria, $context->getTranslationContext());
+
         $listingProducts = new ProductBasicCollection();
 
         /** @var ProductBasicStruct $product */
         foreach ($products as $product) {
             $listingProduct = ListingProductStruct::createFrom($product);
 
-            $prices = $product->getMainDetail()->getPrices();
+            $listingPrice = $this->getListingPrice($listingProduct);
+            if (null === $listingPrice) {
+                continue;
+            }
 
+            // prices
             $listingProduct->getMainDetail()->setPrices(
                 $this->getCalculatedPrices($listingProduct, $context)
             );
-            $listingProduct->setListingPrice($this->getListingPrice($listingProduct));
+            $listingProduct->setListingPrice($listingPrice);
+
+            // media
+            $cover = $media->filterByProductUuid($product->getUuid())
+                ->filter(function (ProductMediaBasicStruct $productMedia) {
+                    return $productMedia->getIsCover() === true;
+                })
+                ->first();
+
+            $listingProduct->setCover($cover);
 
             $listingProducts->add($listingProduct);
         }
@@ -135,8 +174,12 @@ class StorefrontProductRepository
         return $prices;
     }
 
-    private function getListingPrice(ListingProductStruct $listingProduct): ListingPriceStruct
+    private function getListingPrice(ListingProductStruct $listingProduct): ?ListingPriceStruct
     {
+        if ($listingProduct->getMainDetail()->getPrices()->count() === 0) {
+            return null;
+        }
+
         $listingPrice = ListingPriceStruct::createFrom(
             $listingProduct->getMainDetail()->getPrices()->last()
         );

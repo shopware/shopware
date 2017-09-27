@@ -10,7 +10,7 @@ class #classUc#SearchResult extends #classUc#BasicCollection implements SearchRe
     /**
      * @var int
      */
-    protected $total;
+    protected $total = 0;
 
     public function getTotal(): int
     {

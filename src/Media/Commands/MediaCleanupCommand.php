@@ -58,7 +58,7 @@ class MediaCleanupCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setName('sw:media:cleanup')
+            ->setName('media:cleanup')
             ->setHelp('The <info>%command.name%</info> collects unused media and moves them to the recycle bin album.')
             ->setDescription('Collect unused media move them to trash.')
             ->addOption('delete', false, InputOption::VALUE_NONE, 'Delete unused media.');

@@ -41,6 +41,7 @@ class Media extends Bundle
         parent::build($container);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+        $loader->load('services.xml');
         $loader->load('read_services.xml');
         $loader->load('write-resources.xml');
 

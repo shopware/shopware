@@ -191,7 +191,10 @@ class Generate
             'media' => [
                 'associations' => [
                     self::createAssociation('album', self::ManyToOne, true, false, 'album', 'album_uuid'),
-                ]
+                ],
+                'struct_functions' => [
+                    file_get_contents(__DIR__ . '/special_case/media/mediabasicstruct.txt')
+                ],
             ],
             'category' => [
                 'seo_url_name' => 'listing_page',

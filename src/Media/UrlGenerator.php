@@ -38,7 +38,7 @@ class UrlGenerator implements UrlGeneratorInterface
     /**
      * @var string
      */
-    private $baseUrl;
+    private $baseUrl = null;
 
     /**
      * @var StrategyInterface
@@ -57,6 +57,10 @@ class UrlGenerator implements UrlGeneratorInterface
      */
     public function getUrl(string $filename): string
     {
+        if (!$this->baseUrl) {
+            $this->baseUrl = $this->createFallbackMediaUrl();
+        }
+
         if (empty($filename)) {
             throw new EmptyMediaFilenameException();
         }
@@ -66,15 +70,13 @@ class UrlGenerator implements UrlGeneratorInterface
         return $this->baseUrl . '/' . $filename;
     }
 
-    private function normalizeBaseUrl(string $mediaUrl = null): string
+    private function normalizeBaseUrl(string $mediaUrl = null): ?string
     {
-        if (empty($mediaUrl)) {
-            $mediaUrl = $this->createFallbackMediaUrl();
+        if (!$mediaUrl) {
+            return null;
         }
 
-        $mediaUrl = rtrim($mediaUrl, '/');
-
-        return $mediaUrl;
+        return rtrim($mediaUrl, '/');
     }
 
     /**
@@ -84,14 +86,16 @@ class UrlGenerator implements UrlGeneratorInterface
      *
      * @return string
      */
-    private function createFallbackMediaUrl(): string
+    private function createFallbackMediaUrl(): ?string
     {
-        $request = $this->requestStack->getCurrentRequest();
+        $request = $this->requestStack->getMasterRequest();
         if ($request) {
-            return $request->getSchemeAndHttpHost() . $request->getBasePath() . '/media';
+            return $this->normalizeBaseUrl(
+                $request->getSchemeAndHttpHost() . $request->getBasePath() . '/media'
+            );
         }
 
         //todo@next: resolve default shop path
-        return '';
+        return $this->normalizeBaseUrl('');
     }
 }

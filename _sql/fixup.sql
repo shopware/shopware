@@ -1546,7 +1546,7 @@ ALTER TABLE `product_manufacturer`
     CHANGE `link` `link` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `name`;
 
 ALTER TABLE `product_media`
-    CHANGE `main` `is_cover` int(1) NOT NULL AFTER `img`,
+    CHANGE `main` `is_cover` tinyint(1) NOT NULL AFTER `img`,
     CHANGE `description` `description` varchar(255) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `is_cover`,
     CHANGE `position` `position` int(11) NOT NULL DEFAULT '1' AFTER `description`,
     ADD `media_uuid` varchar(42) NOT NULL,
@@ -2004,7 +2004,7 @@ UPDATE album a, s_media_album_settings s
 
 UPDATE media
 SET uuid = CONCAT('SWAG-MEDIA-UUID-', uuid),
-    album_uuid = CONCAT('SWAG-ALBUM-UUID-1', album_uuid),
+    album_uuid = CONCAT('SWAG-ALBUM-UUID-', album_id),
     file_name = REPLACE(file_name, 'media/image/', ''),
     file_name = REPLACE(file_name, 'media/video/', ''),
     file_name = REPLACE(file_name, 'media/archive/', ''),

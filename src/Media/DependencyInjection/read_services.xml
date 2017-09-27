@@ -9,6 +9,7 @@
             <argument id="dbal_connection" type="service"/>
             <argument type="service" id="shopware.extension.registry" />
             <argument id="shopware.album.basic_factory" type="service"/>
+            <argument id="shopware.media.url_generator" type="service"/>
         </service>
 
 

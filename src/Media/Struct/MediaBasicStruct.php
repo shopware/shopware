@@ -63,6 +63,16 @@ class MediaBasicStruct extends Struct
     protected $description;
 
     /**
+     * @var string
+     */
+    protected $url;
+
+    /**
+     * @var ThumbnailStruct[]
+     */
+    protected $thumbnails = [];
+
+    /**
      * @var AlbumBasicStruct|null
      */
     protected $album;
@@ -185,5 +195,31 @@ class MediaBasicStruct extends Struct
     public function setAlbum(?AlbumBasicStruct $album): void
     {
         $this->album = $album;
+    }
+
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(string $url)
+    {
+        $this->url = $url;
+    }
+
+    /**
+     * @return ThumbnailStruct[]
+     */
+    public function getThumbnails(): array
+    {
+        return $this->thumbnails;
+    }
+
+    /**
+     * @param ThumbnailStruct[] $thumbnails
+     */
+    public function setThumbnails(array $thumbnails)
+    {
+        $this->thumbnails = $thumbnails;
     }
 }

@@ -108,7 +108,7 @@ class MediaMigrateCommand extends Command implements EventSubscriberInterface
     protected function configure()
     {
         $this
-            ->setName('sw:media:migrate')
+            ->setName('media:migrate')
             ->setDescription('Migrate images to another strategy')
             ->addArgument('target-strategy', InputArgument::REQUIRED, 'Target strategy (e.g. md5, plain)')
             ->addOption('skip-scan', null, InputOption::VALUE_NONE, 'Skips the initial filesystem scan and migrates the files immediately.')

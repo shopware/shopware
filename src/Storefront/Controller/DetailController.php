@@ -41,7 +41,7 @@ class DetailController extends StorefrontController
         /** @var ProductDetailStruct $productDetail */
         $productDetail = $loader->load($uuid, $context);
 
-        return $this->render('frontend/detail/index.html.twig', [
+        return $this->render('@Storefront/frontend/detail/index.html.twig', [
             'product' => $productDetail,
         ]);
     }

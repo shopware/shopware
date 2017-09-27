@@ -134,6 +134,7 @@
         <service class="Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository" id="shopware.storefront.product_repository">
             <argument id="shopware.product.repository" type="service"/>
             <argument id="cart.price.calculator" type="service"/>
+            <argument id="shopware.product_media.repository" type="service"/>
         </service>
 
     </services>

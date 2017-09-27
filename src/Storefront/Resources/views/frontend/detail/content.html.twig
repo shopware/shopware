@@ -24,14 +24,14 @@
         <div class="product--detail-upper block-group">
             {# Product image #}
             {% block frontend_detail_index_image_container %}
-                <div class="product--image-container image-slider{if $sArticle.image && {config name=sUSEZOOMPLUS}} product--image-zoom{/if}"
-                    {% if product.image %}
+                <div class="product--image-container image-slider{% if product.media.count and shopware.config.usezoomplus %} product--image-zoom{% endif %}"
+                    {% if product.media.count %}
                     data-image-slider="true"
                     data-image-gallery="true"
                     data-maxZoom="{{ theme.lightboxZoomFactor }}"
                     data-thumbnails=".image--thumbnails"
                     {% endif %}>
-                    {% sw_include '@Shopwarw/frontend/detail/image.html.twig' %}
+                    {% sw_include '@Storefront/frontend/detail/image.html.twig' %}
                 </div>
             {% endblock %}
 

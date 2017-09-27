@@ -2,6 +2,22 @@
 
 namespace Shopware\Storefront\Bridge\Product\Struct;
 
-class DetailProductStruct extends ProductBasicStruct
+use Shopware\ProductMedia\Struct\ProductMediaBasicStruct;
+
+class DetailProductStruct extends ProductDetailStruct
 {
+    /**
+     * @var ProductMediaBasicStruct
+     */
+    protected $cover;
+
+    public function getCover(): ?ProductMediaBasicStruct
+    {
+        return $this->cover;
+    }
+
+    public function setCover(?ProductMediaBasicStruct $cover)
+    {
+        $this->cover = $cover;
+    }
 }

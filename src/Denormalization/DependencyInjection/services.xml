@@ -19,6 +19,8 @@
         <service class="Shopware\Denormalization\Product\ProductIndexer" id="shopware.denormalization.product.product_indexer">
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.denormalization.product.listing_price_loader" type="service"/>
+            <argument id="shopware.customer_group.repository" type="service"/>
+            <argument type="service" id="logger" />
         </service>
 
         <service class="Shopware\Denormalization\Command\BuildCategoryPathCommand" id="shopware.denormalization.build_category_path_command">

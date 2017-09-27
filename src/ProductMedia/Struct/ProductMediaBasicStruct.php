@@ -53,11 +53,6 @@ class ProductMediaBasicStruct extends Struct
     protected $updatedAt;
 
     /**
-     * @var string
-     */
-    protected $description;
-
-    /**
      * @var MediaBasicStruct|null
      */
     protected $media;
@@ -150,16 +145,6 @@ class ProductMediaBasicStruct extends Struct
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-    }
-
-    public function getDescription(): string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(string $description): void
-    {
-        $this->description = $description;
     }
 
     public function getMedia(): ?MediaBasicStruct

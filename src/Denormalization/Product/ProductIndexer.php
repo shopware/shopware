@@ -89,43 +89,6 @@ class ProductIndexer
         });
     }
 
-    private function prepareProductPrices(
-        string $productUuid,
-        ProductListingPriceBasicCollection $listingPrices,
-        UuidSearchResult $customerGroups
-    ): ProductListingPriceBasicCollection {
-        $prices = $listingPrices->filterByProductUuid($productUuid);
-
-        $fallback = $prices->filterByCustomerGroupUuid(StorefrontContextService::FALLBACK_CUSTOMER_GROUP);
-
-        if ($fallback->count() <= 0) {
-            $this->logger->log(Logger::WARNING, sprintf('Product %s has no default customer group price', $productUuid));
-            return $prices;
-        }
-
-        $fallback = $fallback->first();
-
-        /** @var ProductListingPriceBasicStruct $fallback */
-        foreach ($customerGroups->getUuids() as $uuid) {
-            if ($uuid === StorefrontContextService::FALLBACK_CUSTOMER_GROUP) {
-                continue;
-            }
-
-            //check if customer prices exists
-            $customerPrice = $prices->filterByCustomerGroupUuid($uuid);
-            if ($customerPrice->count() > 0) {
-                continue;
-            }
-
-            $customerPrice = clone $fallback;
-            $customerPrice->setCustomerGroupUuid($uuid);
-            $customerPrice->setUuid(Uuid::uuid4()->toString());
-            $prices->add($customerPrice);
-        }
-
-        return $prices;
-    }
-
     public function refreshCategoryAssignment(array $uuids, $context): void
     {
         $this->connection->transactional(function () use ($uuids) {
@@ -157,6 +120,44 @@ class ProductIndexer
                 }
             }
         });
+    }
+
+    private function prepareProductPrices(
+        string $productUuid,
+        ProductListingPriceBasicCollection $listingPrices,
+        UuidSearchResult $customerGroups
+    ): ProductListingPriceBasicCollection {
+        $prices = $listingPrices->filterByProductUuid($productUuid);
+
+        $fallback = $prices->filterByCustomerGroupUuid(StorefrontContextService::FALLBACK_CUSTOMER_GROUP);
+
+        if ($fallback->count() <= 0) {
+            $this->logger->log(Logger::WARNING, sprintf('Product %s has no default customer group price', $productUuid));
+
+            return $prices;
+        }
+
+        $fallback = $fallback->first();
+
+        /* @var ProductListingPriceBasicStruct $fallback */
+        foreach ($customerGroups->getUuids() as $uuid) {
+            if (StorefrontContextService::FALLBACK_CUSTOMER_GROUP === $uuid) {
+                continue;
+            }
+
+            //check if customer prices exists
+            $customerPrice = $prices->filterByCustomerGroupUuid($uuid);
+            if ($customerPrice->count() > 0) {
+                continue;
+            }
+
+            $customerPrice = clone $fallback;
+            $customerPrice->setCustomerGroupUuid($uuid);
+            $customerPrice->setUuid(Uuid::uuid4()->toString());
+            $prices->add($customerPrice);
+        }
+
+        return $prices;
     }
 
     private function fetchCategories(array $uuids): array

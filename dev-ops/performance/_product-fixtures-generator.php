@@ -7,7 +7,7 @@ use Symfony\Component\Dotenv\Dotenv;
 
 (new Dotenv())->load(__DIR__.'/../../.env');
 
-const MAX_ROWS = 1000;
+const MAX_ROWS = 20000;
 
 $faker = Faker\Factory::create();
 
@@ -25,7 +25,10 @@ $genTpl = function(int $i) use($faker): array {
         'template' => $faker->text(),
         'active' => true,
         'categories' => [
-            ['categoryUuid' => 'SWAG-CATEGORY-UUID-' . $faker->randomElement([1,3,5,6,8,9,10,11,12,13,14,15,16,17,19,20,34,47,50,54])],
+            ['categoryUuid' => 'SWAG-CATEGORY-UUID-' . $faker->randomElement([34,47,50,54])],
+            ['categoryUuid' => 'SWAG-CATEGORY-UUID-' . $faker->randomElement([16,17,19,20])],
+            ['categoryUuid' => 'SWAG-CATEGORY-UUID-' . $faker->randomElement([13,14,15])],
+            ['categoryUuid' => 'SWAG-CATEGORY-UUID-' . $faker->randomElement([10,11,12])],
         ],
         'details' => []
     ];

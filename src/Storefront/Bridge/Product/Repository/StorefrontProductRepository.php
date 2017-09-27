@@ -11,11 +11,9 @@ use Shopware\Product\Repository\ProductRepository;
 use Shopware\Product\Searcher\ProductSearchResult;
 use Shopware\Product\Struct\ProductBasicCollection;
 use Shopware\Product\Struct\ProductBasicStruct;
-use Shopware\ProductDetailPrice\Searcher\ProductDetailPriceSearchResult;
 use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicCollection;
 use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicStruct;
 use Shopware\Search\Criteria;
-use Shopware\Search\Query\TermsQuery;
 use Shopware\Storefront\Bridge\Product\Struct\DetailProductStruct;
 use Shopware\Storefront\Bridge\Product\Struct\ListingPriceStruct;
 use Shopware\Storefront\Bridge\Product\Struct\ListingProductStruct;
@@ -94,18 +92,6 @@ class StorefrontProductRepository
         return $result;
     }
 
-    private function fetchPrices(ShopContext $context, ProductBasicCollection $products): ProductDetailPriceSearchResult
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('product_detail_price.product_detail_uuid', $products->getMainDetailUuids()));
-        $criteria->addFilter(new TermsQuery('product_detail_price.customer_group_uuid', [
-            $context->getCurrentCustomerGroup()->getUuid(),
-            $context->getFallbackCustomerGroup()->getUuid(),
-        ]));
-
-        return $this->priceRepository->search($criteria, $context->getTranslationContext());
-    }
-
     private function getCalculatedPrices(ProductBasicStruct $product, ShopContext $context): ProductDetailPriceBasicCollection
     {
         $productPrices = $this->filterCustomerPrices(
@@ -130,7 +116,11 @@ class StorefrontProductRepository
         );
     }
 
-    private function calculatePrices(ProductBasicStruct $product, ProductDetailPriceBasicCollection $prices, ShopContext $context): ProductDetailPriceBasicCollection
+    private function calculatePrices(
+        ProductBasicStruct $product,
+        ProductDetailPriceBasicCollection $prices,
+        ShopContext $context
+    ): ProductDetailPriceBasicCollection
     {
         $taxRules = new TaxRuleCollection([
             new PercentageTaxRule($product->getTax()->getRate(), 100),

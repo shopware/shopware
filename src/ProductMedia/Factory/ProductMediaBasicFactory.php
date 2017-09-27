@@ -28,7 +28,6 @@ class ProductMediaBasicFactory extends Factory
        'parent_uuid' => 'parent_uuid',
        'created_at' => 'created_at',
        'updated_at' => 'updated_at',
-       'description' => 'translation.description',
     ];
 
     /**
@@ -60,7 +59,6 @@ class ProductMediaBasicFactory extends Factory
         $productMedia->setParentUuid(isset($data[$selection->getField('parent_uuid')]) ? (string) $data[$selection->getField('parent_uuid')] : null);
         $productMedia->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
         $productMedia->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
-        $productMedia->setDescription((string) $data[$selection->getField('description')]);
         $media = $selection->filter('media');
         if ($media && !empty($data[$media->getField('uuid')])) {
             $productMedia->setMedia(

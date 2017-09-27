@@ -257,14 +257,6 @@ COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
 
-CREATE TABLE `product_media_translation` (
-  `product_media_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `description` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_unicode_ci'
-)
-COLLATE='utf8mb4_unicode_ci'
-ENGINE=InnoDB
-;
 
 CREATE table `product_translation` (
   `product_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
@@ -416,7 +408,6 @@ ALTER TABLE `product_attachment_translation` ADD FOREIGN KEY (`language_uuid`) R
 ALTER TABLE `product_detail_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
 ALTER TABLE `product_link_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
 ALTER TABLE `product_manufacturer_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
-ALTER TABLE `product_media_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
 ALTER TABLE `shipping_method_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
 ALTER TABLE `shop_form_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
 ALTER TABLE `shop_form_field_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
@@ -449,7 +440,6 @@ ALTER TABLE `product_attachment_translation` ADD INDEX `language_uuid` (`languag
 ALTER TABLE `product_detail_translation` ADD INDEX `language_uuid` (`language_uuid`);
 ALTER TABLE `product_link_translation` ADD INDEX `language_uuid` (`language_uuid`);
 ALTER TABLE `product_manufacturer_translation` ADD INDEX `language_uuid` (`language_uuid`);
-ALTER TABLE `product_media_translation` ADD INDEX `language_uuid` (`language_uuid`);
 ALTER TABLE `shipping_method_translation` ADD INDEX `language_uuid` (`language_uuid`);
 ALTER TABLE `shop_form_translation` ADD INDEX `language_uuid` (`language_uuid`);
 ALTER TABLE `shop_form_field_translation` ADD INDEX `language_uuid` (`language_uuid`);
@@ -482,7 +472,6 @@ ALTER TABLE `product_attachment_translation` ADD PRIMARY KEY `product_attachment
 ALTER TABLE `product_detail_translation` ADD PRIMARY KEY `product_detail_uuid_language_uuid` (`product_detail_uuid`, `language_uuid`);
 ALTER TABLE `product_link_translation` ADD PRIMARY KEY `product_link_uuid_language_uuid` (`product_link_uuid`, `language_uuid`);
 ALTER TABLE `product_manufacturer_translation` ADD PRIMARY KEY `product_manufacturer_uuid_language_uuid` (`product_manufacturer_uuid`, `language_uuid`);
-ALTER TABLE `product_media_translation` ADD PRIMARY KEY `product_media_uuid_language_uuid` (`product_media_uuid`, `language_uuid`);
 ALTER TABLE `shipping_method_translation` ADD PRIMARY KEY `shipping_method_uuid_language_uuid` (`shipping_method_uuid`, `language_uuid`);
 ALTER TABLE `shop_form_translation` ADD PRIMARY KEY `shop_form_uuid_language_uuid` (`shop_form_uuid`, `language_uuid`);
 ALTER TABLE `shop_form_field_translation` ADD PRIMARY KEY `shop_form_field_uuid_language_uuid` (`shop_form_field_uuid`, `language_uuid`);
@@ -514,7 +503,6 @@ ALTER TABLE `product_attachment_translation` ADD FOREIGN KEY (`product_attachmen
 ALTER TABLE `product_detail_translation` ADD FOREIGN KEY (`product_detail_uuid`) REFERENCES `product_detail` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `product_link_translation` ADD FOREIGN KEY (`product_link_uuid`) REFERENCES `product_link` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `product_manufacturer_translation` ADD FOREIGN KEY (`product_manufacturer_uuid`) REFERENCES `product_manufacturer` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE `product_media_translation` ADD FOREIGN KEY (`product_media_uuid`) REFERENCES `product_media` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `shipping_method_translation` ADD FOREIGN KEY (`shipping_method_uuid`) REFERENCES `shipping_method` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `shop_form_translation` ADD FOREIGN KEY (`shop_form_uuid`) REFERENCES `shop_form` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `shop_form_field_translation` ADD FOREIGN KEY (`shop_form_field_uuid`) REFERENCES `shop_form_field` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -874,18 +862,6 @@ INSERT INTO product_manufacturer_translation (language_uuid, product_manufacture
             p.meta_keywords                           AS meta_keywords
         FROM
             product_manufacturer p
-        JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
-    );
-
-INSERT INTO product_media_translation (language_uuid, product_media_uuid, description)
-    (
-        SELECT
-            s.uuid                                    AS language_uuid,
-            p.uuid                                    AS product_media_uuid,
-            p.description                             AS description
-        FROM
-            product_media p
         JOIN
             shop s ON s.fallback_locale_uuid IS NULL
     );

@@ -8,7 +8,6 @@ use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Field\SubresourceField;
-use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\Resource;
@@ -20,7 +19,6 @@ class ProductMediaResource extends Resource
     protected const POSITION_FIELD = 'position';
     protected const MEDIA_UUID_FIELD = 'mediaUuid';
     protected const PARENT_UUID_FIELD = 'parentUuid';
-    protected const DESCRIPTION_FIELD = 'description';
 
     public function __construct()
     {
@@ -35,8 +33,6 @@ class ProductMediaResource extends Resource
         $this->fields['productUuid'] = (new FkField('product_uuid', \Shopware\Product\Writer\Resource\ProductResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['productDetail'] = new ReferenceField('productDetailUuid', 'uuid', \Shopware\ProductDetail\Writer\Resource\ProductDetailResource::class);
         $this->fields['productDetailUuid'] = (new FkField('product_detail_uuid', \Shopware\ProductDetail\Writer\Resource\ProductDetailResource::class, 'uuid'));
-        $this->fields[self::DESCRIPTION_FIELD] = new TranslatedField('description', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
-        $this->fields['translations'] = (new SubresourceField(\Shopware\ProductMedia\Writer\Resource\ProductMediaTranslationResource::class, 'languageUuid'))->setFlags(new Required());
         $this->fields['mappings'] = new SubresourceField(\Shopware\ProductMedia\Writer\Resource\ProductMediaMappingResource::class);
     }
 
@@ -46,7 +42,6 @@ class ProductMediaResource extends Resource
             \Shopware\Product\Writer\Resource\ProductResource::class,
             \Shopware\ProductDetail\Writer\Resource\ProductDetailResource::class,
             \Shopware\ProductMedia\Writer\Resource\ProductMediaResource::class,
-            \Shopware\ProductMedia\Writer\Resource\ProductMediaTranslationResource::class,
             \Shopware\ProductMedia\Writer\Resource\ProductMediaMappingResource::class,
         ];
     }
@@ -67,10 +62,6 @@ class ProductMediaResource extends Resource
 
         if (!empty($updates[\Shopware\ProductMedia\Writer\Resource\ProductMediaResource::class])) {
             $event->addEvent(\Shopware\ProductMedia\Writer\Resource\ProductMediaResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\ProductMedia\Writer\Resource\ProductMediaTranslationResource::class])) {
-            $event->addEvent(\Shopware\ProductMedia\Writer\Resource\ProductMediaTranslationResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\ProductMedia\Writer\Resource\ProductMediaMappingResource::class])) {

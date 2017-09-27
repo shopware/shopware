@@ -40,8 +40,6 @@ class CustomerResource extends Resource
     protected const FAILED_LOGINS_FIELD = 'failedLogins';
     protected const LOCKED_UNTIL_FIELD = 'lockedUntil';
     protected const BIRTHDAY_FIELD = 'birthday';
-    protected const CREATED_AT_FIELD = 'createdAt';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -70,8 +68,6 @@ class CustomerResource extends Resource
         $this->fields[self::FAILED_LOGINS_FIELD] = new IntField('failed_logins');
         $this->fields[self::LOCKED_UNTIL_FIELD] = new DateField('locked_until');
         $this->fields[self::BIRTHDAY_FIELD] = new DateField('birthday');
-        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
-        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['group'] = new ReferenceField('groupUuid', 'uuid', \Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::class);
         $this->fields['groupUuid'] = (new FkField('customer_group_uuid', \Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['defaultPaymentMethod'] = new ReferenceField('defaultPaymentMethodUuid', 'uuid', \Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::class);
@@ -155,23 +151,5 @@ class CustomerResource extends Resource
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

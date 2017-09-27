@@ -3,7 +3,6 @@
 namespace Shopware\ShippingMethodPrice\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\FloatField;
 use Shopware\Framework\Write\Field\ReferenceField;
@@ -17,8 +16,6 @@ class ShippingMethodPriceResource extends Resource
     protected const QUANTITY_FROM_FIELD = 'quantityFrom';
     protected const PRICE_FIELD = 'price';
     protected const FACTOR_FIELD = 'factor';
-    protected const CREATED_AT_FIELD = 'createdAt';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -28,8 +25,6 @@ class ShippingMethodPriceResource extends Resource
         $this->fields[self::QUANTITY_FROM_FIELD] = (new FloatField('quantity_from'))->setFlags(new Required());
         $this->fields[self::PRICE_FIELD] = (new FloatField('price'))->setFlags(new Required());
         $this->fields[self::FACTOR_FIELD] = (new FloatField('factor'))->setFlags(new Required());
-        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
-        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['shippingMethod'] = new ReferenceField('shippingMethodUuid', 'uuid', \Shopware\ShippingMethod\Writer\Resource\ShippingMethodResource::class);
         $this->fields['shippingMethodUuid'] = (new FkField('shipping_method_uuid', \Shopware\ShippingMethod\Writer\Resource\ShippingMethodResource::class, 'uuid'))->setFlags(new Required());
     }
@@ -57,23 +52,5 @@ class ShippingMethodPriceResource extends Resource
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

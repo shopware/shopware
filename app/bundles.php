@@ -47,6 +47,7 @@ return [
     Shopware\PriceGroup\PriceGroup::class => ['all' => true],
     Shopware\PriceGroupDiscount\PriceGroupDiscount::class => ['all' => true],
     Shopware\Product\Product::class => ['all' => true],
+    Shopware\ProductMedia\ProductMedia::class => ['all' => true],
     Shopware\ProductDetail\ProductDetail::class => ['all' => true],
     Shopware\ProductManufacturer\ProductManufacturer::class => ['all' => true],
     Shopware\ProductDetailPrice\ProductDetailPrice::class => ['all' => true],

@@ -268,7 +268,7 @@ class PriceQueryRow
         $taxName = null
     ): array {
         return [
-            'price_customer_group_key' => $customerGroupKey,
+            'customer_group_uuid' => $customerGroupKey,
             'price_from_quantity' => $from,
             'price_to_quantity' => $to,
             'price_net' => $price,

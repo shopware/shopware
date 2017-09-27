@@ -3,7 +3,6 @@
 namespace Shopware\ProductStream\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\UuidField;
@@ -13,16 +12,12 @@ use Shopware\Framework\Write\Resource;
 class ProductStreamAssignmentResource extends Resource
 {
     protected const UUID_FIELD = 'uuid';
-    protected const CREATED_AT_FIELD = 'createdAt';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
         parent::__construct('product_stream_assignment');
 
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
-        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
-        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['productStream'] = new ReferenceField('productStreamUuid', 'uuid', \Shopware\ProductStream\Writer\Resource\ProductStreamResource::class);
         $this->fields['productStreamUuid'] = (new FkField('product_stream_uuid', \Shopware\ProductStream\Writer\Resource\ProductStreamResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['product'] = new ReferenceField('productUuid', 'uuid', \Shopware\Product\Writer\Resource\ProductResource::class);
@@ -57,23 +52,5 @@ class ProductStreamAssignmentResource extends Resource
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

@@ -84,21 +84,21 @@ class SeoUrlGeneratorRegistry
         $shop = $this->shopRepository->read([$shopUuid], $context)->get($shopUuid);
 
         foreach ($this->generators as $generator) {
-            //            $this->connection->transactional(
-//                function () use ($shop, $generator, $context, $force) {
-            $offset = 0;
+            $this->connection->transactional(
+                function () use ($shop, $generator, $context, $force) {
+                    $offset = 0;
 
-            while (count($urls = $generator->fetch($shop, $context, $offset, self::LIMIT))) {
-                if (!$force) {
-                    $urls = $this->filterNoneExistingRoutes($shop, $context, $generator->getName(), $urls);
+                    while (count($urls = $generator->fetch($shop, $context, $offset, self::LIMIT))) {
+                        if (!$force) {
+                            $urls = $this->filterNoneExistingRoutes($shop, $context, $generator->getName(), $urls);
+                        }
+
+                        $this->writer->create($this->convert($urls), $context);
+
+                        $offset += self::LIMIT;
+                    }
                 }
-
-                $r = $this->writer->create($this->convert($urls), $context);
-
-                $offset += self::LIMIT;
-            }
-//                }
-//            );
+            );
         }
     }
 

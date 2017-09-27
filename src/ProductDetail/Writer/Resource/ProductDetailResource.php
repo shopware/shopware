@@ -40,8 +40,6 @@ class ProductDetailResource extends Resource
     protected const RELEASE_DATE_FIELD = 'releaseDate';
     protected const SHIPPING_FREE_FIELD = 'shippingFree';
     protected const PURCHASE_PRICE_FIELD = 'purchasePrice';
-    protected const CREATED_AT_FIELD = 'createdAt';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
     protected const ADDITIONAL_TEXT_FIELD = 'additionalText';
     protected const PACK_UNIT_FIELD = 'packUnit';
 
@@ -71,8 +69,6 @@ class ProductDetailResource extends Resource
         $this->fields[self::RELEASE_DATE_FIELD] = new DateField('release_date');
         $this->fields[self::SHIPPING_FREE_FIELD] = new BoolField('shipping_free');
         $this->fields[self::PURCHASE_PRICE_FIELD] = new FloatField('purchase_price');
-        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
-        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['premiumProducts'] = new SubresourceField(\Shopware\Framework\Write\Resource\PremiumProductResource::class);
         $this->fields['product'] = new ReferenceField('productUuid', 'uuid', \Shopware\Product\Writer\Resource\ProductResource::class);
         $this->fields['productUuid'] = (new FkField('product_uuid', \Shopware\Product\Writer\Resource\ProductResource::class, 'uuid'))->setFlags(new Required());
@@ -80,7 +76,7 @@ class ProductDetailResource extends Resource
         $this->fields[self::PACK_UNIT_FIELD] = new TranslatedField('packUnit', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields['translations'] = new SubresourceField(\Shopware\ProductDetail\Writer\Resource\ProductDetailTranslationResource::class, 'languageUuid');
         $this->fields['prices'] = new SubresourceField(\Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceResource::class);
-        $this->fields['productMedias'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductMediaResource::class);
+        $this->fields['productMedias'] = new SubresourceField(\Shopware\ProductMedia\Writer\Resource\ProductMediaResource::class);
     }
 
     public function getWriteOrder(): array
@@ -91,7 +87,7 @@ class ProductDetailResource extends Resource
             \Shopware\ProductDetail\Writer\Resource\ProductDetailResource::class,
             \Shopware\ProductDetail\Writer\Resource\ProductDetailTranslationResource::class,
             \Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceResource::class,
-            \Shopware\Product\Writer\Resource\ProductMediaResource::class,
+            \Shopware\ProductMedia\Writer\Resource\ProductMediaResource::class,
         ];
     }
 
@@ -121,28 +117,10 @@ class ProductDetailResource extends Resource
             $event->addEvent(\Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceResource::createWrittenEvent($updates, $context));
         }
 
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductMediaResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductMediaResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\ProductMedia\Writer\Resource\ProductMediaResource::class])) {
+            $event->addEvent(\Shopware\ProductMedia\Writer\Resource\ProductMediaResource::createWrittenEvent($updates, $context));
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

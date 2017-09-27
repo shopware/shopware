@@ -4,7 +4,6 @@ namespace Shopware\Shop\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\BoolField;
-use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\LongTextField;
@@ -30,8 +29,6 @@ class ShopResource extends Resource
     protected const IS_DEFAULT_FIELD = 'isDefault';
     protected const ACTIVE_FIELD = 'active';
     protected const TAX_CALCULATION_TYPE_FIELD = 'taxCalculationType';
-    protected const CREATED_AT_FIELD = 'createdAt';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -50,8 +47,6 @@ class ShopResource extends Resource
         $this->fields[self::IS_DEFAULT_FIELD] = new BoolField('is_default');
         $this->fields[self::ACTIVE_FIELD] = new BoolField('active');
         $this->fields[self::TAX_CALCULATION_TYPE_FIELD] = new StringField('tax_calculation_type');
-        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
-        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['configFormFieldValues'] = new SubresourceField(\Shopware\Framework\Write\Resource\ConfigFormFieldValueResource::class);
         $this->fields['customers'] = new SubresourceField(\Shopware\Customer\Writer\Resource\CustomerResource::class);
         $this->fields['mailAttachments'] = new SubresourceField(\Shopware\Framework\Write\Resource\MailAttachmentResource::class);
@@ -250,23 +245,5 @@ class ShopResource extends Resource
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

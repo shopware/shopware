@@ -73,6 +73,8 @@ EOD;
         'attr18',
         'attr19',
         'attr20',
+        'created_at',
+        'updated_at',
     ];
 
     private $ignoreTables = [

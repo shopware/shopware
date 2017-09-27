@@ -2,7 +2,9 @@
 
 namespace Shopware\PriceGroup\Factory;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\PriceGroup\Extension\PriceGroupExtension;
 use Shopware\PriceGroup\Struct\PriceGroupBasicStruct;
@@ -20,6 +22,13 @@ class PriceGroupBasicFactory extends Factory
        'updated_at' => 'updated_at',
        'name' => 'translation.name',
     ];
+
+    public function __construct(
+        Connection $connection,
+        ExtensionRegistryInterface $registry
+    ) {
+        parent::__construct($connection, $registry);
+    }
 
     public function hydrate(
         array $data,

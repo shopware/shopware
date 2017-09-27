@@ -2,7 +2,9 @@
 
 namespace Shopware\PriceGroupDiscount\Factory;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\PriceGroupDiscount\Extension\PriceGroupDiscountExtension;
 use Shopware\PriceGroupDiscount\Struct\PriceGroupDiscountBasicStruct;
@@ -23,6 +25,13 @@ class PriceGroupDiscountBasicFactory extends Factory
        'created_at' => 'created_at',
        'updated_at' => 'updated_at',
     ];
+
+    public function __construct(
+        Connection $connection,
+        ExtensionRegistryInterface $registry
+    ) {
+        parent::__construct($connection, $registry);
+    }
 
     public function hydrate(
         array $data,

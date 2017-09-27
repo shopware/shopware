@@ -4,7 +4,6 @@ namespace Shopware\Category\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\BoolField;
-use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\LongTextField;
@@ -33,8 +32,6 @@ class CategoryResource extends Resource
     protected const HIDE_SORTINGS_FIELD = 'hideSortings';
     protected const SORTING_UUIDS_FIELD = 'sortingUuids';
     protected const FACET_UUIDS_FIELD = 'facetUuids';
-    protected const CREATED_AT_FIELD = 'createdAt';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
     protected const NAME_FIELD = 'name';
     protected const PATH_NAMES_FIELD = 'pathNames';
     protected const META_KEYWORDS_FIELD = 'metaKeywords';
@@ -62,8 +59,6 @@ class CategoryResource extends Resource
         $this->fields[self::HIDE_SORTINGS_FIELD] = new BoolField('hide_sortings');
         $this->fields[self::SORTING_UUIDS_FIELD] = new LongTextField('sorting_uuids');
         $this->fields[self::FACET_UUIDS_FIELD] = new LongTextField('facet_uuids');
-        $this->fields[self::CREATED_AT_FIELD] = (new DateField('created_at'))->setFlags(new Required());
-        $this->fields[self::UPDATED_AT_FIELD] = (new DateField('updated_at'))->setFlags(new Required());
         $this->fields['blogs'] = new SubresourceField(\Shopware\Framework\Write\Resource\BlogResource::class);
         $this->fields['parent'] = new ReferenceField('parentUuid', 'uuid', \Shopware\Category\Writer\Resource\CategoryResource::class);
         $this->fields['parentUuid'] = (new FkField('parent_uuid', \Shopware\Category\Writer\Resource\CategoryResource::class, 'uuid'));
@@ -151,23 +146,5 @@ class CategoryResource extends Resource
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

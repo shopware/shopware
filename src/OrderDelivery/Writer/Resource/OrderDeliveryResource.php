@@ -21,8 +21,6 @@ class OrderDeliveryResource extends Resource
     protected const SHIPPING_DATE_EARLIEST_FIELD = 'shippingDateEarliest';
     protected const SHIPPING_DATE_LATEST_FIELD = 'shippingDateLatest';
     protected const PAYLOAD_FIELD = 'payload';
-    protected const CREATED_AT_FIELD = 'createdAt';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -34,8 +32,6 @@ class OrderDeliveryResource extends Resource
         $this->fields[self::SHIPPING_DATE_EARLIEST_FIELD] = (new DateField('shipping_date_earliest'))->setFlags(new Required());
         $this->fields[self::SHIPPING_DATE_LATEST_FIELD] = (new DateField('shipping_date_latest'))->setFlags(new Required());
         $this->fields[self::PAYLOAD_FIELD] = (new LongTextField('payload'))->setFlags(new Required());
-        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
-        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['order'] = new ReferenceField('orderUuid', 'uuid', \Shopware\Order\Writer\Resource\OrderResource::class);
         $this->fields['orderUuid'] = (new FkField('order_uuid', \Shopware\Order\Writer\Resource\OrderResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['shippingAddress'] = new ReferenceField('shippingAddressUuid', 'uuid', \Shopware\OrderAddress\Writer\Resource\OrderAddressResource::class);
@@ -83,23 +79,5 @@ class OrderDeliveryResource extends Resource
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

@@ -47,7 +47,7 @@ class SeoUrlBasicStruct extends Struct
     protected $isCanonical;
 
     /**
-     * @var \DateTime
+     * @var \DateTime|null
      */
     protected $createdAt;
 
@@ -151,12 +151,12 @@ class SeoUrlBasicStruct extends Struct
         $this->isCanonical = $isCanonical;
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(?\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }

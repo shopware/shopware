@@ -4,7 +4,6 @@ namespace Shopware\PaymentMethod\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\BoolField;
-use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\FloatField;
 use Shopware\Framework\Write\Field\IntField;
@@ -37,8 +36,6 @@ class PaymentMethodResource extends Resource
     protected const SOURCE_FIELD = 'source';
     protected const MOBILE_INACTIVE_FIELD = 'mobileInactive';
     protected const RISK_RULES_FIELD = 'riskRules';
-    protected const CREATED_AT_FIELD = 'createdAt';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
     protected const NAME_FIELD = 'name';
     protected const ADDITIONAL_DESCRIPTION_FIELD = 'additionalDescription';
 
@@ -64,8 +61,6 @@ class PaymentMethodResource extends Resource
         $this->fields[self::SOURCE_FIELD] = new IntField('source');
         $this->fields[self::MOBILE_INACTIVE_FIELD] = new BoolField('mobile_inactive');
         $this->fields[self::RISK_RULES_FIELD] = new LongTextField('risk_rules');
-        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
-        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['customers'] = new SubresourceField(\Shopware\Customer\Writer\Resource\CustomerResource::class);
         $this->fields['orders'] = new SubresourceField(\Shopware\Order\Writer\Resource\OrderResource::class);
         $this->fields['plugin'] = new ReferenceField('pluginUuid', 'uuid', \Shopware\Framework\Write\Resource\PluginResource::class);
@@ -141,23 +136,5 @@ class PaymentMethodResource extends Resource
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

@@ -16,4 +16,5 @@ class Context
     public $createSearcher = true;
     public $createRepository = true;
     public $createServiceXml = true;
+    public $generateTests = true;
 }

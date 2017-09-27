@@ -3,7 +3,6 @@
 namespace Shopware\Locale\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\TranslatedField;
@@ -15,8 +14,6 @@ class LocaleResource extends Resource
 {
     protected const UUID_FIELD = 'uuid';
     protected const CODE_FIELD = 'code';
-    protected const CREATED_AT_FIELD = 'createdAt';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
     protected const LANGUAGE_FIELD = 'language';
     protected const TERRITORY_FIELD = 'territory';
 
@@ -26,8 +23,6 @@ class LocaleResource extends Resource
 
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
         $this->fields[self::CODE_FIELD] = (new StringField('code'))->setFlags(new Required());
-        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
-        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields[self::LANGUAGE_FIELD] = new TranslatedField('language', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields[self::TERRITORY_FIELD] = new TranslatedField('territory', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields['translations'] = (new SubresourceField(\Shopware\Locale\Writer\Resource\LocaleTranslationResource::class, 'languageUuid'))->setFlags(new Required());
@@ -72,23 +67,5 @@ class LocaleResource extends Resource
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

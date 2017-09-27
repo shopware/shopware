@@ -74,19 +74,19 @@ class ProductBasicStruct extends Struct
     protected $configuratorSetId;
 
     /**
-     * @var \DateTime
-     */
-    protected $createdAt;
-
-    /**
      * @var \DateTime|null
      */
-    protected $updatedAt;
+    protected $createdAt;
 
     /**
      * @var string
      */
     protected $mainDetailUuid;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $updatedAt;
 
     /**
      * @var string
@@ -273,24 +273,14 @@ class ProductBasicStruct extends Struct
         $this->configuratorSetId = $configuratorSetId;
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(?\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getMainDetailUuid(): string
@@ -301,6 +291,16 @@ class ProductBasicStruct extends Struct
     public function setMainDetailUuid(string $mainDetailUuid): void
     {
         $this->mainDetailUuid = $mainDetailUuid;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 
     public function getName(): string

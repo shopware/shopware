@@ -4,7 +4,6 @@ namespace Shopware\Shop\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\BoolField;
-use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Field\SubresourceField;
@@ -19,8 +18,6 @@ class ShopPageGroupResource extends Resource
     protected const KEY_FIELD = 'key';
     protected const ACTIVE_FIELD = 'active';
     protected const MAPPING_ID_FIELD = 'mappingId';
-    protected const CREATED_AT_FIELD = 'createdAt';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -31,8 +28,6 @@ class ShopPageGroupResource extends Resource
         $this->fields[self::KEY_FIELD] = (new StringField('key'))->setFlags(new Required());
         $this->fields[self::ACTIVE_FIELD] = (new BoolField('active'))->setFlags(new Required());
         $this->fields[self::MAPPING_ID_FIELD] = new IntField('mapping_id');
-        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
-        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['mappings'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopPageGroupMappingResource::class);
     }
 
@@ -59,23 +54,5 @@ class ShopPageGroupResource extends Resource
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

@@ -15,7 +15,8 @@ CREATE TABLE `seo_url` (
   `path_info` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `seo_path_info` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `is_canonical` tinyint(4) NOT NULL,
-  `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

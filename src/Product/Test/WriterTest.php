@@ -193,8 +193,6 @@ class WriterTest extends KernelTestCase
             'descriptionLong' => '<p>html</p>',
             'availableFrom' => new \DateTime('2011-01-01T15:03:01.012345Z'),
             'availableTo' => new \DateTime('2011-01-01T15:03:01.012345Z'),
-            'updatedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
-            'createdAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
             'manufacturer' => [
                 'uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-1',
                 'link' => 'http://www.shopware.com',
@@ -227,8 +225,6 @@ class WriterTest extends KernelTestCase
         self::assertSame('no html', $productTranslation['description']);
         self::assertSame('<p>html</p>', $productTranslation['description_long']);
         self::assertSame('SWAG-PRODUCT-MANUFACTURER-UUID-1', $product['product_manufacturer_uuid']);
-        self::assertEquals('2011-01-01 15:03:01', $product['updated_at']);
-        self::assertEquals('2011-01-01 15:03:01', $product['created_at']);
         self::assertSame('shopware AG', $productManufacturerTranslation['name']);
         self::assertSame('http://www.shopware.com', $productManufacturer['link']);
         self::assertCount(3, $productDetails, print_r($productDetails, true));

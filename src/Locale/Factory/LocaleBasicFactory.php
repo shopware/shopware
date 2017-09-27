@@ -2,7 +2,9 @@
 
 namespace Shopware\Locale\Factory;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Locale\Extension\LocaleExtension;
 use Shopware\Locale\Struct\LocaleBasicStruct;
@@ -22,6 +24,13 @@ class LocaleBasicFactory extends Factory
        'language' => 'translation.language',
        'territory' => 'translation.territory',
     ];
+
+    public function __construct(
+        Connection $connection,
+        ExtensionRegistryInterface $registry
+    ) {
+        parent::__construct($connection, $registry);
+    }
 
     public function hydrate(
         array $data,

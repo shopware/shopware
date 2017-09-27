@@ -20,8 +20,6 @@ class StatisticProductImpressionResource extends Resource
     protected const IMPRESSION_DATE_FIELD = 'impressionDate';
     protected const IMPRESSIONS_FIELD = 'impressions';
     protected const DEVICE_TYPE_FIELD = 'deviceType';
-    protected const CREATED_AT_FIELD = 'createdAt';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -33,8 +31,6 @@ class StatisticProductImpressionResource extends Resource
         $this->fields[self::IMPRESSION_DATE_FIELD] = new DateField('impression_date');
         $this->fields[self::IMPRESSIONS_FIELD] = (new IntField('impressions'))->setFlags(new Required());
         $this->fields[self::DEVICE_TYPE_FIELD] = new StringField('device_type');
-        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
-        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['product'] = new ReferenceField('productUuid', 'uuid', \Shopware\Product\Writer\Resource\ProductResource::class);
         $this->fields['productUuid'] = (new FkField('product_uuid', \Shopware\Product\Writer\Resource\ProductResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopResource::class);
@@ -69,23 +65,5 @@ class StatisticProductImpressionResource extends Resource
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

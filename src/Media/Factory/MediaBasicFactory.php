@@ -59,7 +59,7 @@ class MediaBasicFactory extends Factory
         $media->setFileSize((int) $data[$selection->getField('file_size')]);
         $media->setMetaData(isset($data[$selection->getField('meta_data')]) ? (string) $data[$selection->getField('meta_data')] : null);
         $media->setUserUuid(isset($data[$selection->getField('user_uuid')]) ? (string) $data[$selection->getField('user_uuid')] : null);
-        $media->setCreatedAt(new \DateTime($data[$selection->getField('created_at')]));
+        $media->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
         $media->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
         $media->setName((string) $data[$selection->getField('name')]);
         $media->setDescription(isset($data[$selection->getField('description')]) ? (string) $data[$selection->getField('description')] : null);

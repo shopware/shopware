@@ -2,7 +2,9 @@
 
 namespace Shopware\ProductManufacturer\Factory;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\ProductManufacturer\Extension\ProductManufacturerExtension;
 use Shopware\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
@@ -27,6 +29,13 @@ class ProductManufacturerBasicFactory extends Factory
        'meta_keywords' => 'translation.meta_keywords',
     ];
 
+    public function __construct(
+        Connection $connection,
+        ExtensionRegistryInterface $registry
+    ) {
+        parent::__construct($connection, $registry);
+    }
+
     public function hydrate(
         array $data,
         ProductManufacturerBasicStruct $productManufacturer,
@@ -36,7 +45,7 @@ class ProductManufacturerBasicFactory extends Factory
         $productManufacturer->setUuid((string) $data[$selection->getField('uuid')]);
         $productManufacturer->setLink((string) $data[$selection->getField('link')]);
         $productManufacturer->setMediaUuid(isset($data[$selection->getField('media_uuid')]) ? (string) $data[$selection->getField('media_uuid')] : null);
-        $productManufacturer->setUpdatedAt(new \DateTime($data[$selection->getField('updated_at')]));
+        $productManufacturer->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
         $productManufacturer->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
         $productManufacturer->setName((string) $data[$selection->getField('name')]);
         $productManufacturer->setDescription(isset($data[$selection->getField('description')]) ? (string) $data[$selection->getField('description')] : null);

@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+                <service id="shopware.productmedia.product-media.resource" class="Shopware\ProductMedia\Writer\Resource\ProductMediaResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.productmedia.product-media-mapping.resource" class="Shopware\ProductMedia\Writer\Resource\ProductMediaMappingResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.productmedia.product-media-mapping-rule.resource" class="Shopware\ProductMedia\Writer\Resource\ProductMediaMappingRuleResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.productmedia.product-media-translation.resource" class="Shopware\ProductMedia\Writer\Resource\ProductMediaTranslationResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+    </services>
+</container>

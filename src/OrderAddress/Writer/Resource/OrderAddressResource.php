@@ -3,7 +3,6 @@
 namespace Shopware\OrderAddress\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
@@ -28,8 +27,6 @@ class OrderAddressResource extends Resource
     protected const PHONE_NUMBER_FIELD = 'phoneNumber';
     protected const ADDITIONAL_ADDRESS_LINE1_FIELD = 'additionalAddressLine1';
     protected const ADDITIONAL_ADDRESS_LINE2_FIELD = 'additionalAddressLine2';
-    protected const CREATED_AT_FIELD = 'createdAt';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -49,8 +46,6 @@ class OrderAddressResource extends Resource
         $this->fields[self::PHONE_NUMBER_FIELD] = new StringField('phone_number');
         $this->fields[self::ADDITIONAL_ADDRESS_LINE1_FIELD] = new StringField('additional_address_line1');
         $this->fields[self::ADDITIONAL_ADDRESS_LINE2_FIELD] = new StringField('additional_address_line2');
-        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
-        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['orders'] = new SubresourceField(\Shopware\Order\Writer\Resource\OrderResource::class);
         $this->fields['areaCountry'] = new ReferenceField('areaCountryUuid', 'uuid', \Shopware\AreaCountry\Writer\Resource\AreaCountryResource::class);
         $this->fields['areaCountryUuid'] = (new FkField('area_country_uuid', \Shopware\AreaCountry\Writer\Resource\AreaCountryResource::class, 'uuid'))->setFlags(new Required());
@@ -97,23 +92,5 @@ class OrderAddressResource extends Resource
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

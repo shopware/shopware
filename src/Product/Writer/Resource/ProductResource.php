@@ -4,7 +4,6 @@ namespace Shopware\Product\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\BoolField;
-use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\ReferenceField;
@@ -26,8 +25,6 @@ class ProductResource extends Resource
     protected const ALLOW_NOTIFICATION_FIELD = 'allowNotification';
     protected const TEMPLATE_FIELD = 'template';
     protected const CONFIGURATOR_SET_ID_FIELD = 'configuratorSetId';
-    protected const CREATED_AT_FIELD = 'createdAt';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
     protected const MAIN_DETAIL_UUID_FIELD = 'mainDetailUuid';
     protected const NAME_FIELD = 'name';
     protected const KEYWORDS_FIELD = 'keywords';
@@ -48,8 +45,6 @@ class ProductResource extends Resource
         $this->fields[self::ALLOW_NOTIFICATION_FIELD] = new BoolField('allow_notification');
         $this->fields[self::TEMPLATE_FIELD] = new StringField('template');
         $this->fields[self::CONFIGURATOR_SET_ID_FIELD] = new IntField('configurator_set_id');
-        $this->fields[self::CREATED_AT_FIELD] = (new DateField('created_at'))->setFlags(new Required());
-        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields[self::MAIN_DETAIL_UUID_FIELD] = (new StringField('main_detail_uuid'))->setFlags(new Required());
         $this->fields['blogProducts'] = new SubresourceField(\Shopware\Framework\Write\Resource\BlogProductResource::class);
         $this->fields['filterProducts'] = new SubresourceField(\Shopware\Framework\Write\Resource\FilterProductResource::class);
@@ -73,7 +68,7 @@ class ProductResource extends Resource
         $this->fields['details'] = new SubresourceField(\Shopware\ProductDetail\Writer\Resource\ProductDetailResource::class);
         $this->fields['esds'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductEsdResource::class);
         $this->fields['links'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductLinkResource::class);
-        $this->fields['media'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductMediaResource::class);
+        $this->fields['media'] = new SubresourceField(\Shopware\ProductMedia\Writer\Resource\ProductMediaResource::class);
         $this->fields['similars'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductSimilarResource::class);
         $this->fields['streamAssignments'] = new SubresourceField(\Shopware\ProductStream\Writer\Resource\ProductStreamAssignmentResource::class);
         $this->fields['streamTabs'] = new SubresourceField(\Shopware\ProductStream\Writer\Resource\ProductStreamTabResource::class);
@@ -99,7 +94,7 @@ class ProductResource extends Resource
             \Shopware\ProductDetail\Writer\Resource\ProductDetailResource::class,
             \Shopware\Product\Writer\Resource\ProductEsdResource::class,
             \Shopware\Product\Writer\Resource\ProductLinkResource::class,
-            \Shopware\Product\Writer\Resource\ProductMediaResource::class,
+            \Shopware\ProductMedia\Writer\Resource\ProductMediaResource::class,
             \Shopware\Product\Writer\Resource\ProductSimilarResource::class,
             \Shopware\ProductStream\Writer\Resource\ProductStreamAssignmentResource::class,
             \Shopware\ProductStream\Writer\Resource\ProductStreamTabResource::class,
@@ -178,8 +173,8 @@ class ProductResource extends Resource
             $event->addEvent(\Shopware\Product\Writer\Resource\ProductLinkResource::createWrittenEvent($updates, $context));
         }
 
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductMediaResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductMediaResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\ProductMedia\Writer\Resource\ProductMediaResource::class])) {
+            $event->addEvent(\Shopware\ProductMedia\Writer\Resource\ProductMediaResource::createWrittenEvent($updates, $context));
         }
 
         if (!empty($updates[\Shopware\Product\Writer\Resource\ProductSimilarResource::class])) {
@@ -207,23 +202,5 @@ class ProductResource extends Resource
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

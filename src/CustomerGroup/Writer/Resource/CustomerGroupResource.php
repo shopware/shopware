@@ -4,7 +4,6 @@ namespace Shopware\CustomerGroup\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\BoolField;
-use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FloatField;
 use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\TranslatedField;
@@ -21,8 +20,6 @@ class CustomerGroupResource extends Resource
     protected const PERCENTAGE_GLOBAL_DISCOUNT_FIELD = 'percentageGlobalDiscount';
     protected const MINIMUM_ORDER_AMOUNT_FIELD = 'minimumOrderAmount';
     protected const MINIMUM_ORDER_AMOUNT_SURCHARGE_FIELD = 'minimumOrderAmountSurcharge';
-    protected const CREATED_AT_FIELD = 'createdAt';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
     protected const NAME_FIELD = 'name';
 
     public function __construct()
@@ -36,8 +33,6 @@ class CustomerGroupResource extends Resource
         $this->fields[self::PERCENTAGE_GLOBAL_DISCOUNT_FIELD] = new FloatField('percentage_global_discount');
         $this->fields[self::MINIMUM_ORDER_AMOUNT_FIELD] = new FloatField('minimum_order_amount');
         $this->fields[self::MINIMUM_ORDER_AMOUNT_SURCHARGE_FIELD] = new FloatField('minimum_order_amount_surcharge');
-        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
-        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['categoryAvoidCustomerGroups'] = new SubresourceField(\Shopware\Category\Writer\Resource\CategoryAvoidCustomerGroupResource::class);
         $this->fields['customers'] = new SubresourceField(\Shopware\Customer\Writer\Resource\CustomerResource::class);
         $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
@@ -119,23 +114,5 @@ class CustomerGroupResource extends Resource
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

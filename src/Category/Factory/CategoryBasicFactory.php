@@ -84,8 +84,8 @@ class CategoryBasicFactory extends Factory
         $category->setHideSortings((bool) $data[$selection->getField('hide_sortings')]);
         $category->setSortingUuids(isset($data[$selection->getField('sorting_uuids')]) ? (string) $data[$selection->getField('sorting_uuids')] : null);
         $category->setFacetUuids(isset($data[$selection->getField('facet_uuids')]) ? (string) $data[$selection->getField('facet_uuids')] : null);
-        $category->setCreatedAt(new \DateTime($data[$selection->getField('created_at')]));
-        $category->setUpdatedAt(new \DateTime($data[$selection->getField('updated_at')]));
+        $category->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
+        $category->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
         $category->setName((string) $data[$selection->getField('name')]);
         $category->setPathNames(array_values(array_filter(explode('|', (string) $data[$selection->getField('path_names')]))));
         $category->setMetaKeywords(isset($data[$selection->getField('meta_keywords')]) ? (string) $data[$selection->getField('meta_keywords')] : null);

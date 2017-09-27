@@ -2,7 +2,9 @@
 
 namespace Shopware\ShippingMethod\Factory;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -46,6 +48,13 @@ class ShippingMethodBasicFactory extends Factory
        'description' => 'translation.description',
        'comment' => 'translation.comment',
     ];
+
+    public function __construct(
+        Connection $connection,
+        ExtensionRegistryInterface $registry
+    ) {
+        parent::__construct($connection, $registry);
+    }
 
     public function hydrate(
         array $data,

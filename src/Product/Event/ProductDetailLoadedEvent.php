@@ -8,6 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 use Shopware\Product\Struct\ProductDetailCollection;
 use Shopware\ProductDetail\Event\ProductDetailBasicLoadedEvent;
+use Shopware\ProductMedia\Event\ProductMediaBasicLoadedEvent;
 use Shopware\ProductVote\Event\ProductVoteBasicLoadedEvent;
 
 class ProductDetailLoadedEvent extends NestedEvent
@@ -51,6 +52,9 @@ class ProductDetailLoadedEvent extends NestedEvent
             new ProductBasicLoadedEvent($this->products, $this->context),
         ];
 
+        if ($this->products->getMedia()->count() > 0) {
+            $events[] = new ProductMediaBasicLoadedEvent($this->products->getMedia(), $this->context);
+        }
         if ($this->products->getDetails()->count() > 0) {
             $events[] = new ProductDetailBasicLoadedEvent($this->products->getDetails(), $this->context);
         }

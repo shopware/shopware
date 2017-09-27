@@ -4,6 +4,7 @@ namespace Shopware\Product\Struct;
 
 use Shopware\Category\Struct\CategoryBasicCollection;
 use Shopware\ProductDetail\Struct\ProductDetailBasicCollection;
+use Shopware\ProductMedia\Struct\ProductMediaBasicCollection;
 use Shopware\ProductVote\Struct\ProductVoteBasicCollection;
 
 class ProductDetailCollection extends ProductBasicCollection
@@ -12,6 +13,28 @@ class ProductDetailCollection extends ProductBasicCollection
      * @var ProductDetailStruct[]
      */
     protected $elements = [];
+
+    public function getMediaUuids(): array
+    {
+        $uuids = [];
+        foreach ($this->elements as $element) {
+            foreach ($element->getMedia()->getUuids() as $uuid) {
+                $uuids[] = $uuid;
+            }
+        }
+
+        return $uuids;
+    }
+
+    public function getMedia(): ProductMediaBasicCollection
+    {
+        $collection = new ProductMediaBasicCollection();
+        foreach ($this->elements as $element) {
+            $collection->fill($element->getMedia()->getIterator()->getArrayCopy());
+        }
+
+        return $collection;
+    }
 
     public function getDetailUuids(): array
     {

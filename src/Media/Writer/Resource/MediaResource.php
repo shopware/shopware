@@ -3,7 +3,6 @@
 namespace Shopware\Media\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\LongTextField;
@@ -22,8 +21,6 @@ class MediaResource extends Resource
     protected const MIME_TYPE_FIELD = 'mimeType';
     protected const FILE_SIZE_FIELD = 'fileSize';
     protected const META_DATA_FIELD = 'metaData';
-    protected const CREATED_AT_FIELD = 'createdAt';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
     protected const NAME_FIELD = 'name';
     protected const DESCRIPTION_FIELD = 'description';
 
@@ -36,8 +33,6 @@ class MediaResource extends Resource
         $this->fields[self::MIME_TYPE_FIELD] = (new StringField('mime_type'))->setFlags(new Required());
         $this->fields[self::FILE_SIZE_FIELD] = (new IntField('file_size'))->setFlags(new Required());
         $this->fields[self::META_DATA_FIELD] = new LongTextField('meta_data');
-        $this->fields[self::CREATED_AT_FIELD] = (new DateField('created_at'))->setFlags(new Required());
-        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['blogMedias'] = new SubresourceField(\Shopware\Framework\Write\Resource\BlogMediaResource::class);
         $this->fields['categories'] = new SubresourceField(\Shopware\Category\Writer\Resource\CategoryResource::class);
         $this->fields['filterValues'] = new SubresourceField(\Shopware\Framework\Write\Resource\FilterValueResource::class);
@@ -104,23 +99,5 @@ class MediaResource extends Resource
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

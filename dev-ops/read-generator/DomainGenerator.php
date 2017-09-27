@@ -14,6 +14,7 @@ require_once __DIR__ . '/Repository/Generator.php';
 require_once __DIR__ . '/Extension/Generator.php';
 require_once __DIR__ . '/Controller/Generator.php';
 require_once __DIR__ . '/Writer/Generator.php';
+require_once __DIR__ . '/Test/Generator.php';
 
 class DomainGenerator
 {
@@ -129,6 +130,12 @@ class DomainGenerator
             $services[] = $generator->generate($table, $config);
         }
 
+        if ($context->generateTests) {
+            $generator = new \ReadGenerator\Test\Generator($this->directory);
+            $this->removeFiles($generator->getFiles($table));
+            $generator->generate($table);
+        }
+
         if ($context->createServiceXml) {
             $this->createSevicesXml($table, $services);
         }
@@ -152,6 +159,8 @@ class DomainGenerator
             $this->directory.'/'.ucfirst($class),
             $this->directory.'/'.ucfirst($class).'/DependencyInjection',
             $this->directory.'/'.ucfirst($class).'/Extension',
+            $this->directory.'/'.ucfirst($class).'/Test',
+            $this->directory.'/'.ucfirst($class).'/Test/Repository',
             $this->directory.'/'.ucfirst($class).'/Event',
             $this->directory.'/'.ucfirst($class).'/Repository',
             $this->directory.'/'.ucfirst($class).'/Loader',

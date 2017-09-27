@@ -4,7 +4,6 @@ namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\BoolField;
-use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\LongTextField;
@@ -27,8 +26,6 @@ class ConfigFormFieldResource extends Resource
     protected const REQUIRED_FIELD = 'required';
     protected const POSITION_FIELD = 'position';
     protected const SCOPE_FIELD = 'scope';
-    protected const CREATED_AT_FIELD = 'createdAt';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -43,8 +40,6 @@ class ConfigFormFieldResource extends Resource
         $this->fields[self::REQUIRED_FIELD] = new BoolField('required');
         $this->fields[self::POSITION_FIELD] = new IntField('position');
         $this->fields[self::SCOPE_FIELD] = new IntField('scope');
-        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
-        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['configForm'] = new ReferenceField('configFormUuid', 'uuid', \Shopware\Framework\Write\Resource\ConfigFormResource::class);
         $this->fields['configFormUuid'] = (new FkField('config_form_uuid', \Shopware\Framework\Write\Resource\ConfigFormResource::class, 'uuid'));
         $this->fields[self::LABEL_FIELD] = new TranslatedField('label', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
@@ -80,23 +75,5 @@ class ConfigFormFieldResource extends Resource
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

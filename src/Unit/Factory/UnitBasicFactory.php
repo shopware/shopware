@@ -2,7 +2,9 @@
 
 namespace Shopware\Unit\Factory;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -22,6 +24,13 @@ class UnitBasicFactory extends Factory
        'short_code' => 'translation.short_code',
        'name' => 'translation.name',
     ];
+
+    public function __construct(
+        Connection $connection,
+        ExtensionRegistryInterface $registry
+    ) {
+        parent::__construct($connection, $registry);
+    }
 
     public function hydrate(
         array $data,

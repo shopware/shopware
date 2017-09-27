@@ -2,7 +2,9 @@
 
 namespace Shopware\PaymentMethod\Factory;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\PaymentMethod\Extension\PaymentMethodExtension;
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
@@ -39,6 +41,13 @@ class PaymentMethodBasicFactory extends Factory
        'name' => 'translation.name',
        'additional_description' => 'translation.additional_description',
     ];
+
+    public function __construct(
+        Connection $connection,
+        ExtensionRegistryInterface $registry
+    ) {
+        parent::__construct($connection, $registry);
+    }
 
     public function hydrate(
         array $data,

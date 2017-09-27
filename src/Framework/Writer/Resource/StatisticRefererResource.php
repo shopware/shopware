@@ -14,8 +14,6 @@ class StatisticRefererResource extends Resource
     protected const UUID_FIELD = 'uuid';
     protected const CREATE_DATE_FIELD = 'createDate';
     protected const REFERER_FIELD = 'referer';
-    protected const CREATED_AT_FIELD = 'createdAt';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -24,8 +22,6 @@ class StatisticRefererResource extends Resource
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
         $this->fields[self::CREATE_DATE_FIELD] = new DateField('create_date');
         $this->fields[self::REFERER_FIELD] = (new LongTextField('referer'))->setFlags(new Required());
-        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
-        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
     }
 
     public function getWriteOrder(): array
@@ -46,23 +42,5 @@ class StatisticRefererResource extends Resource
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

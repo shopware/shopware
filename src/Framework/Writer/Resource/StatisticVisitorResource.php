@@ -3,7 +3,6 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\ReferenceField;
@@ -16,11 +15,9 @@ class StatisticVisitorResource extends Resource
 {
     protected const UUID_FIELD = 'uuid';
     protected const SHOP_ID_FIELD = 'shopId';
-    protected const CREATED_AT_FIELD = 'createdAt';
     protected const PAGE_IMPRESSIONS_FIELD = 'pageImpressions';
     protected const UNIQUE_VISITS_FIELD = 'uniqueVisits';
     protected const DEVICE_TYPE_FIELD = 'deviceType';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -28,11 +25,9 @@ class StatisticVisitorResource extends Resource
 
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
         $this->fields[self::SHOP_ID_FIELD] = (new IntField('shop_id'))->setFlags(new Required());
-        $this->fields[self::CREATED_AT_FIELD] = (new DateField('created_at'))->setFlags(new Required());
         $this->fields[self::PAGE_IMPRESSIONS_FIELD] = new IntField('page_impressions');
         $this->fields[self::UNIQUE_VISITS_FIELD] = new IntField('unique_visits');
         $this->fields[self::DEVICE_TYPE_FIELD] = new StringField('device_type');
-        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopResource::class);
         $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid'))->setFlags(new Required());
     }
@@ -60,23 +55,5 @@ class StatisticVisitorResource extends Resource
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

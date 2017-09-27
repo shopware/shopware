@@ -86,6 +86,12 @@ class Generate
                     self::createAssociation('order_line_item', self::ManyToOne, true, false, 'lineItem', 'order_line_item_uuid', '', '', false)
                 ]
             ],
+            'product_media' => [
+                'associations' => [
+                    self::createAssociation('media', self::OneToOne, true, false, 'media', 'media_uuid'),
+                ]
+            ],
+
             'product' => [
                 'seo_url_name' => 'detail_page',
                 'associations' => [
@@ -93,10 +99,11 @@ class Generate
                     self::createAssociation('product_detail', self::OneToOne, true, true, 'mainDetail', 'main_detail_uuid', '', '', false),
                     self::createAssociation('tax', self::ManyToOne, true, false, 'tax', 'tax_uuid', '', '', false),
                     self::createAssociation('seo_url', self::ManyToOne, true, false, 'canonicalUrl', ''),
+                    self::createAssociation('product_media', self::OneToMany, false, true, 'media', 'product_uuid'),
                     self::createAssociation('price_group', self::ManyToOne, true, false, 'priceGroup', 'price_group_uuid'),
                     self::createAssociation('customer_group', self::ManyToMany, true, true, 'blockedCustomerGroups', '', 'product_avoid_customer_group'),
                     self::createAssociation('product_detail', self::OneToMany, false, true, 'detail', 'product_uuid', '', '', true, false),
-                    self::createAssociation('category', self::ManyToMany, false, true, 'category', 'product_uuid', 'product_category', '', true, false),
+                    self::createAssociation('category', self::ManyToMany, false, true, 'category', 'product_uuid', 'product_category', '', true, false, '', file_get_contents(__DIR__ . '/special_case/product/category_association_assign.txt')),
                     self::createAssociation('category', self::ManyToMany, false, true, 'categoryTree', 'product_uuid', 'product_category_ro'),
                     self::createAssociation('product_vote', self::OneToMany, false, true, 'vote', 'product_uuid'),
                     self::createAssociation('product_listing_price_ro', self::OneToMany, true, true, 'listingPrice', 'product_uuid')
@@ -292,6 +299,21 @@ class Generate
     }
 
 
+    /**
+     * @param string $table defines the associated table (like product => "product_detail")
+     * @param string $type defines the association type 1:1, 1:N, ...
+     * @param bool $inBasic should be loaded with basic struct
+     * @param bool $loadByLoader defines if the entity can loaded in same query or lazy by loader
+     * @param string $property defines the property name
+     * @param string $foreignKeyColumn defines the foreign key column
+     * @param string $mappingTable only used for N:N (product_category)
+     * @param string $condition useless
+     * @param bool $nullable defines if the property can be null (only used for ToOne associations)
+     * @param bool $hasDetailLoader defines if the related table has an own detail loader
+     * @param null $fetchTemplate hack to override "association fetch"
+     * @param null $assignTemplate hack to override "association assignment"
+     * @return array
+     */
     private static function createAssociation(
         string $table,
         string $type,

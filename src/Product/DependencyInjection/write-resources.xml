@@ -73,18 +73,6 @@
         <service id="shopware.product.product-link-translation.resource" class="Shopware\Product\Writer\Resource\ProductLinkTranslationResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-media.resource" class="Shopware\Product\Writer\Resource\ProductMediaResource">
-            <tag name="shopware.framework.write.resource"/> 
-        </service>
-        <service id="shopware.product.product-media-mapping.resource" class="Shopware\Product\Writer\Resource\ProductMediaMappingResource">
-            <tag name="shopware.framework.write.resource"/> 
-        </service>
-        <service id="shopware.product.product-media-mapping-rule.resource" class="Shopware\Product\Writer\Resource\ProductMediaMappingRuleResource">
-            <tag name="shopware.framework.write.resource"/> 
-        </service>
-        <service id="shopware.product.product-media-translation.resource" class="Shopware\Product\Writer\Resource\ProductMediaTranslationResource">
-            <tag name="shopware.framework.write.resource"/> 
-        </service>
         <service id="shopware.product.product-notification.resource" class="Shopware\Product\Writer\Resource\ProductNotificationResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>

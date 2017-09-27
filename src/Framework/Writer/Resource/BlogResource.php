@@ -29,8 +29,6 @@ class BlogResource extends Resource
     protected const META_KEYWORDS_FIELD = 'metaKeywords';
     protected const META_DESCRIPTION_FIELD = 'metaDescription';
     protected const META_TITLE_FIELD = 'metaTitle';
-    protected const CREATED_AT_FIELD = 'createdAt';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -47,8 +45,6 @@ class BlogResource extends Resource
         $this->fields[self::META_KEYWORDS_FIELD] = new StringField('meta_keywords');
         $this->fields[self::META_DESCRIPTION_FIELD] = new StringField('meta_description');
         $this->fields[self::META_TITLE_FIELD] = new StringField('meta_title');
-        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
-        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['user'] = new ReferenceField('userUuid', 'uuid', \Shopware\Framework\Write\Resource\UserResource::class);
         $this->fields['userUuid'] = (new FkField('user_uuid', \Shopware\Framework\Write\Resource\UserResource::class, 'uuid'));
         $this->fields['category'] = new ReferenceField('categoryUuid', 'uuid', \Shopware\Category\Writer\Resource\CategoryResource::class);
@@ -119,23 +115,5 @@ class BlogResource extends Resource
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

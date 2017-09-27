@@ -2,9 +2,11 @@
 
 namespace Shopware\CustomerGroup\Factory;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Extension\CustomerGroupExtension;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -26,6 +28,13 @@ class CustomerGroupBasicFactory extends Factory
        'updated_at' => 'updated_at',
        'name' => 'translation.name',
     ];
+
+    public function __construct(
+        Connection $connection,
+        ExtensionRegistryInterface $registry
+    ) {
+        parent::__construct($connection, $registry);
+    }
 
     public function hydrate(
         array $data,

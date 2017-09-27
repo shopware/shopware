@@ -21,8 +21,6 @@ class LogResource extends Resource
     protected const IP_ADDRESS_FIELD = 'ipAddress';
     protected const USER_AGENT_FIELD = 'userAgent';
     protected const VALUE4_FIELD = 'value4';
-    protected const CREATED_AT_FIELD = 'createdAt';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -37,8 +35,6 @@ class LogResource extends Resource
         $this->fields[self::IP_ADDRESS_FIELD] = (new StringField('ip_address'))->setFlags(new Required());
         $this->fields[self::USER_AGENT_FIELD] = (new StringField('user_agent'))->setFlags(new Required());
         $this->fields[self::VALUE4_FIELD] = (new StringField('value4'))->setFlags(new Required());
-        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
-        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
     }
 
     public function getWriteOrder(): array
@@ -59,23 +55,5 @@ class LogResource extends Resource
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

@@ -2,7 +2,9 @@
 
 namespace Shopware\OrderState\Factory;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\OrderState\Extension\OrderStateExtension;
 use Shopware\OrderState\Struct\OrderStateBasicStruct;
@@ -24,6 +26,13 @@ class OrderStateBasicFactory extends Factory
        'updated_at' => 'updated_at',
        'description' => 'translation.description',
     ];
+
+    public function __construct(
+        Connection $connection,
+        ExtensionRegistryInterface $registry
+    ) {
+        parent::__construct($connection, $registry);
+    }
 
     public function hydrate(
         array $data,

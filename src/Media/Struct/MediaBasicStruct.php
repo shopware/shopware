@@ -43,7 +43,7 @@ class MediaBasicStruct extends Struct
     protected $userUuid;
 
     /**
-     * @var \DateTime
+     * @var \DateTime|null
      */
     protected $createdAt;
 
@@ -137,12 +137,12 @@ class MediaBasicStruct extends Struct
         $this->userUuid = $userUuid;
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(?\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }

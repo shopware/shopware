@@ -25,11 +25,11 @@ ALTER TABLE s_articles
     ADD uuid VARCHAR(42) NOT NULL AFTER id,
     CHANGE COLUMN supplierID manufacturer_id INT(11) unsigned,
     CHANGE COLUMN shippingtime shipping_time VARCHAR(11),
-    CHANGE COLUMN datum created_at DATETIME,
+    CHANGE COLUMN datum created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     CHANGE COLUMN taxID tax_id INT(11) unsigned,
     CHANGE COLUMN pseudosales pseudo_sales INT(11) NOT NULL DEFAULT '0',
     CHANGE COLUMN metaTitle meta_title VARCHAR(255),
-    CHANGE COLUMN changetime updated_at DATETIME NOT NULL,
+    CHANGE COLUMN changetime updated_at datetime NULL ON UPDATE CURRENT_TIMESTAMP,
     CHANGE COLUMN pricegroupID price_group_id INT(11) unsigned,
     CHANGE COLUMN filtergroupID filter_group_id INT(11) unsigned,
     CHANGE COLUMN laststock last_stock tinyint NOT NULL,
@@ -224,7 +224,7 @@ ALTER TABLE s_articles_esd
     CHANGE articledetailsID product_detail_id INT(11) NOT NULL DEFAULT '0',
     CHANGE articleID product_id INT(11) NOT NULL DEFAULT '0',
     CHANGE maxdownloads max_downloads INT(11) NOT NULL DEFAULT '0',
-    CHANGE datum created_at DATETIME NOT NULL,
+    CHANGE datum created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     ADD COLUMN product_uuid VARCHAR(42) NOT NULL AFTER product_id,
     ADD COLUMN product_detail_uuid VARCHAR(42) NOT NULL AFTER product_detail_id
 ;
@@ -295,7 +295,7 @@ ALTER TABLE s_articles_notification
     RENAME TO product_notification,
     ADD COLUMN uuid VARCHAR(42) NOT NULL AFTER id,
     CHANGE COLUMN ordernumber order_number VARCHAR(255) NOT NULL,
-    CHANGE COLUMN `date` created_at DATETIME NOT NULL,
+    CHANGE COLUMN `date` created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     CHANGE COLUMN shopLink shop_link VARCHAR(255) NOT NULL
 ;
 
@@ -347,7 +347,7 @@ ALTER TABLE s_articles_similar_shown_ro
     RENAME TO product_similar_shown_ro,
     CHANGE related_article_id related_product_id INT(11) NOT NULL,
     CHANGE article_id product_id INT(11) unsigned NOT NULL,
-    CHANGE init_date created_at DATETIME NOT NULL,
+    CHANGE init_date created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     ADD uuid VARCHAR(42) NOT NULL AFTER id,
     ADD product_uuid VARCHAR(42) NOT NULL AFTER product_id,
     ADD related_product_uuid VARCHAR(42) NOT NULL AFTER related_product_id
@@ -357,7 +357,7 @@ ALTER TABLE s_articles_similar_shown_ro
 ALTER TABLE s_articles_supplier
     RENAME TO product_manufacturer,
     ADD uuid VARCHAR(42) NOT NULL AFTER id,
-    CHANGE `changed` updated_at DATETIME NOT NULL
+    CHANGE `changed` updated_at datetime NULL ON UPDATE CURRENT_TIMESTAMP
 ;
 
 
@@ -380,7 +380,7 @@ ALTER TABLE s_articles_top_seller_ro
 ALTER TABLE s_articles_vote
     RENAME TO product_vote,
     CHANGE articleID product_id INT(11) NOT NULL,
-    CHANGE datum created_at DATETIME,
+    CHANGE datum created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     CHANGE answer_date answer_at DATETIME,
     ADD uuid VARCHAR(42) NOT NULL,
     ADD product_uuid VARCHAR(42) NOT NULL,
@@ -529,8 +529,8 @@ ALTER TABLE `s_media`
     CHANGE `type` `mime_type` varchar(50) NOT NULL AFTER `file_name`,
     CHANGE `file_size` `file_size` int(10) unsigned NOT NULL AFTER `mime_type`,
     ADD `meta_data` TEXT NULL DEFAULT NULL AFTER `file_size`,
-    CHANGE `created` `created_at` datetime NOT NULL,
-    ADD `updated_at` datetime NULL,
+    CHANGE `created` `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ADD `updated_at` datetime NULL ON UPDATE CURRENT_TIMESTAMP,
     CHANGE `albumID` `album_id` int NOT NULL AFTER `user_uuid`,
     CHANGE `userID` `user_id` int(11) NOT NULL AFTER `height`
 ;
@@ -803,7 +803,7 @@ ALTER TABLE `s_statistics_referer`
 
 ALTER TABLE `s_statistics_search`
     ADD `uuid` varchar(42) NOT NULL AFTER `id`,
-    CHANGE `datum` `created_at` datetime NOT NULL,
+    CHANGE `datum` `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     CHANGE `searchterm` `term` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `created_at`,
     CHANGE `results` `result_count` int(11) NOT NULL AFTER `term`,
     ADD `shop_uuid` varchar(42) NULL DEFAULT NULL,
@@ -814,7 +814,7 @@ ALTER TABLE `s_statistics_visitors`
     ADD `uuid` varchar(42) NOT NULL AFTER `id`,
     CHANGE `shopID` `shop_id` int NOT NULL AFTER `uuid`,
     ADD `shop_uuid` varchar(42) NOT NULL AFTER `shop_id`,
-    CHANGE `datum` `created_at` datetime NOT NULL,
+    CHANGE `datum` `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     CHANGE `pageimpressions` `page_impressions` int(11) NOT NULL DEFAULT '0' AFTER `created_at`,
     CHANGE `uniquevisits` `unique_visits` int(11) NOT NULL DEFAULT '0' AFTER `page_impressions`,
     CHANGE `deviceType` `device_type` varchar(50) COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'desktop' AFTER `unique_visits`,
@@ -918,7 +918,7 @@ ALTER TABLE `s_blog_attributes`
 ALTER TABLE `s_blog_comments`
     ADD `uuid` varchar(42) NOT NULL AFTER `id`,
     ADD `blog_uuid` varchar(42) NULL AFTER `blog_id`,
-    CHANGE `creation_date` `created_at` datetime NOT NULL,
+    CHANGE `creation_date` `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     CHANGE `active` `active` tinyint NOT NULL AFTER `created_at`,
     RENAME TO `blog_comment`;
 
@@ -981,7 +981,7 @@ ALTER TABLE `s_cms_support_fields`
     CHANGE `note` `note` varchar(255) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `name`,
     CHANGE `typ` `type` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `note`,
     CHANGE `required` `required` tinyint NOT NULL AFTER `type`,
-    CHANGE `added` `created_at` datetime NOT NULL,
+    CHANGE `added` `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     RENAME TO `shop_form_field`;
 
 ALTER TABLE `s_core_auth`
@@ -1167,7 +1167,7 @@ ALTER TABLE `s_core_paymentmeans_subshops`
 ALTER TABLE `s_core_plugins`
     ADD `uuid` varchar(42) NOT NULL AFTER `id`,
     CHANGE `active` `active` tinyint unsigned NOT NULL AFTER `description_long`,
-    CHANGE `added` `created_at` datetime NOT NULL,
+    CHANGE `added` `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     RENAME TO `plugin`;
 
 ALTER TABLE `s_core_plugin_categories`
@@ -1210,9 +1210,8 @@ ALTER TABLE `s_core_snippets`
     ADD `shop_uuid` varchar(42) NOT NULL AFTER `shop_id`,
     CHANGE `localeID` `locale_id` int(11) unsigned NOT NULL AFTER `shop_uuid`,
     ADD `locale` varchar(5) NOT NULL AFTER `locale_id`,
-    CHANGE `created` `created_at` datetime NOT NULL,
+    CHANGE `created` `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     CHANGE `updated` `updated_at` datetime NULL ON UPDATE CURRENT_TIMESTAMP,
-
     RENAME TO `snippet`;
 
 ALTER TABLE `s_core_states`
@@ -1336,8 +1335,8 @@ ALTER TABLE `category`
     CHANGE `hide_sortings` `hide_sortings` tinyint(4) NOT NULL DEFAULT '0' AFTER `product_stream_uuid`,
     CHANGE `sorting_ids` `sorting_uuids` longtext COLLATE 'utf8mb4_unicode_ci' NULL AFTER `hide_sortings`,
     CHANGE `facet_ids` `facet_uuids` longtext COLLATE 'utf8mb4_unicode_ci' NULL AFTER `sorting_uuids`,
-    CHANGE `added` `created_at` datetime NOT NULL AFTER `facet_uuids`,
-    CHANGE `changed_at` `updated_at` datetime NOT NULL AFTER `created_at`;
+    CHANGE `added` `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CHANGE `changed_at` `updated_at` datetime NULL ON UPDATE CURRENT_TIMESTAMP;
 
 ALTER TABLE `config_form`
     CHANGE `label` `label` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `name`,
@@ -1504,8 +1503,9 @@ ALTER TABLE `product`
     CHANGE `available_from` `available_from` datetime NULL AFTER `template`,
     CHANGE `available_to` `available_to` datetime NULL AFTER `available_from`,
     CHANGE `configurator_set_id` `configurator_set_id` int(11) unsigned NULL AFTER `available_to`,
-    CHANGE `created_at` `created_at` datetime NOT NULL,
-    CHANGE `updated_at` `updated_at` datetime NULL AFTER `created_at`;
+    CHANGE `created_at` `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CHANGE `updated_at` `updated_at` datetime NULL ON UPDATE CURRENT_TIMESTAMP
+;
 
 
 ALTER TABLE `product`
@@ -1573,7 +1573,8 @@ ALTER TABLE `product_vote`
     CHANGE `answer` `answer` text COLLATE 'utf8mb4_unicode_ci' NULL AFTER `email`,
     CHANGE `answer_at` `answered_at` datetime NULL AFTER `answer`,
     CHANGE `shop_uuid` `shop_uuid` varchar(42) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `answered_at`,
-    CHANGE `created_at` `created_at` datetime NULL AFTER `shop_uuid`;
+    CHANGE `created_at` `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP;
+
 
 ALTER TABLE `seo_url`
     CHANGE `is_canonical` `is_canonical` tinyint(4) NOT NULL DEFAULT '0' AFTER `seo_path_info`;

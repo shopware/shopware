@@ -36,8 +36,6 @@ class ShopPageResource extends Resource
     protected const CHANGED_FIELD = 'changed';
     protected const SHOP_IDS_FIELD = 'shopIds';
     protected const SHOP_UUIDS_FIELD = 'shopUuids';
-    protected const CREATED_AT_FIELD = 'createdAt';
-    protected const UPDATED_AT_FIELD = 'updatedAt';
 
     public function __construct()
     {
@@ -63,8 +61,6 @@ class ShopPageResource extends Resource
         $this->fields[self::CHANGED_FIELD] = new DateField('changed');
         $this->fields[self::SHOP_IDS_FIELD] = new StringField('shop_ids');
         $this->fields[self::SHOP_UUIDS_FIELD] = new LongTextField('shop_uuids');
-        $this->fields[self::CREATED_AT_FIELD] = new DateField('created_at');
-        $this->fields[self::UPDATED_AT_FIELD] = new DateField('updated_at');
         $this->fields['parent'] = new ReferenceField('parentUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopPageResource::class);
         $this->fields['parentUuid'] = (new FkField('parent_uuid', \Shopware\Shop\Writer\Resource\ShopPageResource::class, 'uuid'));
         $this->fields['parent'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopPageResource::class);
@@ -96,23 +92,5 @@ class ShopPageResource extends Resource
         }
 
         return $event;
-    }
-
-    public function getDefaults(string $type): array
-    {
-        if (self::FOR_UPDATE === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        if (self::FOR_INSERT === $type) {
-            return [
-                self::UPDATED_AT_FIELD => new \DateTime(),
-                self::CREATED_AT_FIELD => new \DateTime(),
-            ];
-        }
-
-        throw new \InvalidArgumentException('Unable to generate default values, wrong type submitted');
     }
 }

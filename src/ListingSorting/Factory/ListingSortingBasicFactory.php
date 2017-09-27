@@ -2,7 +2,9 @@
 
 namespace Shopware\ListingSorting\Factory;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\ListingSorting\Extension\ListingSortingExtension;
 use Shopware\ListingSorting\Struct\ListingSortingBasicStruct;
@@ -24,6 +26,13 @@ class ListingSortingBasicFactory extends Factory
        'updated_at' => 'updated_at',
        'label' => 'translation.label',
     ];
+
+    public function __construct(
+        Connection $connection,
+        ExtensionRegistryInterface $registry
+    ) {
+        parent::__construct($connection, $registry);
+    }
 
     public function hydrate(
         array $data,

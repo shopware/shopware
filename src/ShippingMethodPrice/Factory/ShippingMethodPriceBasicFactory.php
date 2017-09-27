@@ -2,7 +2,9 @@
 
 namespace Shopware\ShippingMethodPrice\Factory;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -23,6 +25,13 @@ class ShippingMethodPriceBasicFactory extends Factory
        'created_at' => 'created_at',
        'updated_at' => 'updated_at',
     ];
+
+    public function __construct(
+        Connection $connection,
+        ExtensionRegistryInterface $registry
+    ) {
+        parent::__construct($connection, $registry);
+    }
 
     public function hydrate(
         array $data,

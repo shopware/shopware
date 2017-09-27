@@ -12,6 +12,7 @@ use Shopware\Product\Struct\ProductBasicStruct;
 use Shopware\Product\Struct\ProductDetailStruct;
 use Shopware\ProductDetail\Factory\ProductDetailBasicFactory;
 use Shopware\ProductManufacturer\Factory\ProductManufacturerBasicFactory;
+use Shopware\ProductMedia\Factory\ProductMediaBasicFactory;
 use Shopware\ProductVote\Factory\ProductVoteBasicFactory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -20,6 +21,11 @@ use Shopware\Tax\Factory\TaxBasicFactory;
 
 class ProductDetailFactory extends ProductBasicFactory
 {
+    /**
+     * @var ProductMediaBasicFactory
+     */
+    protected $productMediaFactory;
+
     /**
      * @var ProductDetailBasicFactory
      */
@@ -38,6 +44,7 @@ class ProductDetailFactory extends ProductBasicFactory
     public function __construct(
         Connection $connection,
         ExtensionRegistryInterface $registry,
+        ProductMediaBasicFactory $productMediaFactory,
         ProductDetailBasicFactory $productDetailFactory,
         CategoryBasicFactory $categoryFactory,
         ProductVoteBasicFactory $productVoteFactory,
@@ -48,6 +55,7 @@ class ProductDetailFactory extends ProductBasicFactory
         CustomerGroupBasicFactory $customerGroupFactory
     ) {
         parent::__construct($connection, $registry, $productManufacturerFactory, $taxFactory, $seoUrlFactory, $priceGroupFactory, $customerGroupFactory);
+        $this->productMediaFactory = $productMediaFactory;
         $this->productDetailFactory = $productDetailFactory;
         $this->categoryFactory = $categoryFactory;
         $this->productVoteFactory = $productVoteFactory;
@@ -86,6 +94,19 @@ class ProductDetailFactory extends ProductBasicFactory
     public function joinDependencies(QuerySelection $selection, QueryBuilder $query, TranslationContext $context): void
     {
         parent::joinDependencies($selection, $query, $context);
+
+        if ($media = $selection->filter('media')) {
+            $query->leftJoin(
+                $selection->getRootEscaped(),
+                'product_media',
+                $media->getRootEscaped(),
+                sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $media->getRootEscaped())
+            );
+
+            $this->productMediaFactory->joinDependencies($media, $query, $context);
+
+            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+        }
 
         if ($details = $selection->filter('details')) {
             $query->leftJoin(
@@ -179,6 +200,7 @@ class ProductDetailFactory extends ProductBasicFactory
     public function getAllFields(): array
     {
         $fields = parent::getAllFields();
+        $fields['media'] = $this->productMediaFactory->getAllFields();
         $fields['details'] = $this->productDetailFactory->getAllFields();
         $fields['categories'] = $this->categoryFactory->getAllFields();
         $fields['categoryTree'] = $this->categoryFactory->getAllFields();

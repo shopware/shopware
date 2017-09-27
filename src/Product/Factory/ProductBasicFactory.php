@@ -39,8 +39,8 @@ class ProductBasicFactory extends Factory
        'template' => 'template',
        'configurator_set_id' => 'configurator_set_id',
        'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
        'main_detail_uuid' => 'main_detail_uuid',
+       'updated_at' => 'updated_at',
        'name' => 'translation.name',
        'keywords' => 'translation.keywords',
        'description' => 'translation.description',
@@ -108,9 +108,9 @@ class ProductBasicFactory extends Factory
         $product->setAllowNotification((bool) $data[$selection->getField('allow_notification')]);
         $product->setTemplate(isset($data[$selection->getField('template')]) ? (string) $data[$selection->getField('template')] : null);
         $product->setConfiguratorSetId(isset($data[$selection->getField('configurator_set_id')]) ? (int) $data[$selection->getField('configurator_set_id')] : null);
-        $product->setCreatedAt(new \DateTime($data[$selection->getField('created_at')]));
-        $product->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $product->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
         $product->setMainDetailUuid((string) $data[$selection->getField('main_detail_uuid')]);
+        $product->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
         $product->setName((string) $data[$selection->getField('name')]);
         $product->setKeywords(isset($data[$selection->getField('keywords')]) ? (string) $data[$selection->getField('keywords')] : null);
         $product->setDescription(isset($data[$selection->getField('description')]) ? (string) $data[$selection->getField('description')] : null);

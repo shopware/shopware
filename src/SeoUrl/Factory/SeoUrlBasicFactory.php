@@ -2,7 +2,9 @@
 
 namespace Shopware\SeoUrl\Factory;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
@@ -27,6 +29,13 @@ class SeoUrlBasicFactory extends Factory
        'updated_at' => 'updated_at',
     ];
 
+    public function __construct(
+        Connection $connection,
+        ExtensionRegistryInterface $registry
+    ) {
+        parent::__construct($connection, $registry);
+    }
+
     public function hydrate(
         array $data,
         SeoUrlBasicStruct $seoUrl,
@@ -41,7 +50,7 @@ class SeoUrlBasicFactory extends Factory
         $seoUrl->setPathInfo((string) $data[$selection->getField('path_info')]);
         $seoUrl->setSeoPathInfo((string) $data[$selection->getField('seo_path_info')]);
         $seoUrl->setIsCanonical((bool) $data[$selection->getField('is_canonical')]);
-        $seoUrl->setCreatedAt(new \DateTime($data[$selection->getField('created_at')]));
+        $seoUrl->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
         $seoUrl->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
 
         /** @var $extension SeoUrlExtension */

@@ -1687,6 +1687,8 @@ DELETE FROM product_attribute WHERE articleID IS NULL OR product_details_id IS N
 DELETE FROM product_media WHERE product_id IS NULL;
 DELETE FROM product_esd_serial WHERE esd_id = 1;
 
+UPDATE product_media SET `is_cover` = 0 WHERE `is_cover` = 2;
+
 
 
 

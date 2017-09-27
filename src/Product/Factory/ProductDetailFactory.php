@@ -11,6 +11,7 @@ use Shopware\PriceGroup\Factory\PriceGroupBasicFactory;
 use Shopware\Product\Struct\ProductBasicStruct;
 use Shopware\Product\Struct\ProductDetailStruct;
 use Shopware\ProductDetail\Factory\ProductDetailBasicFactory;
+use Shopware\ProductListingPrice\Factory\ProductListingPriceBasicFactory;
 use Shopware\ProductManufacturer\Factory\ProductManufacturerBasicFactory;
 use Shopware\ProductMedia\Factory\ProductMediaBasicFactory;
 use Shopware\ProductVote\Factory\ProductVoteBasicFactory;
@@ -52,9 +53,10 @@ class ProductDetailFactory extends ProductBasicFactory
         TaxBasicFactory $taxFactory,
         SeoUrlBasicFactory $seoUrlFactory,
         PriceGroupBasicFactory $priceGroupFactory,
-        CustomerGroupBasicFactory $customerGroupFactory
+        CustomerGroupBasicFactory $customerGroupFactory,
+        ProductListingPriceBasicFactory $productListingPriceFactory
     ) {
-        parent::__construct($connection, $registry, $productManufacturerFactory, $taxFactory, $seoUrlFactory, $priceGroupFactory, $customerGroupFactory);
+        parent::__construct($connection, $registry, $productManufacturerFactory, $productDetailFactory, $taxFactory, $seoUrlFactory, $priceGroupFactory, $customerGroupFactory, $productListingPriceFactory);
         $this->productMediaFactory = $productMediaFactory;
         $this->productDetailFactory = $productDetailFactory;
         $this->categoryFactory = $categoryFactory;

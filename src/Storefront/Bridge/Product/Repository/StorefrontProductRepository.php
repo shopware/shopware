@@ -120,8 +120,7 @@ class StorefrontProductRepository
         ProductBasicStruct $product,
         ProductDetailPriceBasicCollection $prices,
         ShopContext $context
-    ): ProductDetailPriceBasicCollection
-    {
+    ): ProductDetailPriceBasicCollection {
         $taxRules = new TaxRuleCollection([
             new PercentageTaxRule($product->getTax()->getRate(), 100),
         ]);

@@ -9,10 +9,12 @@
             <argument id="dbal_connection" type="service"/>
             <argument type="service" id="shopware.extension.registry" />
             <argument id="shopware.product_manufacturer.basic_factory" type="service"/>
+            <argument id="shopware.product_detail.basic_factory" type="service"/>
             <argument id="shopware.tax.basic_factory" type="service"/>
             <argument id="shopware.seo_url.basic_factory" type="service"/>
             <argument id="shopware.price_group.basic_factory" type="service"/>
             <argument id="shopware.customer_group.basic_factory" type="service"/>
+            <argument id="shopware.product_listing_price_ro.basic_factory" type="service"/>
         </service>
 
         <service class="Shopware\Product\Factory\ProductDetailFactory" id="shopware.product.detail_factory">
@@ -27,6 +29,7 @@
             <argument id="shopware.seo_url.basic_factory" type="service"/>
             <argument id="shopware.price_group.basic_factory" type="service"/>
             <argument id="shopware.customer_group.basic_factory" type="service"/>
+            <argument id="shopware.product_listing_price_ro.basic_factory" type="service"/>
         </service>
 
 

@@ -88,12 +88,14 @@ class SeoUrlGeneratorRegistry
                 function () use ($shop, $generator, $context, $force) {
                     $offset = 0;
 
+                    $urls = $generator->fetch($shop, $context, $offset, self::LIMIT);
                     while (count($urls = $generator->fetch($shop, $context, $offset, self::LIMIT))) {
                         if (!$force) {
                             $urls = $this->filterNoneExistingRoutes($shop, $context, $generator->getName(), $urls);
                         }
 
-                        $this->writer->create($this->convert($urls), $context);
+                        $f = $this->writer->create($this->convert($urls), $context);
+
 
                         $offset += self::LIMIT;
                     }

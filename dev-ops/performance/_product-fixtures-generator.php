@@ -7,7 +7,7 @@ use Symfony\Component\Dotenv\Dotenv;
 
 (new Dotenv())->load(__DIR__.'/../../.env');
 
-const MAX_ROWS = 20000;
+const MAX_ROWS = 1000;
 
 $faker = Faker\Factory::create();
 
@@ -18,17 +18,11 @@ $genTpl = function(int $i) use($faker): array {
         'descriptionLong' => $faker->randomHtml(2,3),
         'taxUuid' => 'SWAG-TAX-UUID-' . $faker->randomElement([1,4]),
         'manufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-' . $faker->randomElement(array_merge(range(1, 9), range(11, 17)))],
-        'mode' => 0,
-        'lastStock' => true,
-        'crossbundlelook' => 1,
-        'notification' => false,
-        'template' => $faker->text(),
         'active' => true,
         'categories' => [
             ['categoryUuid' => 'SWAG-CATEGORY-UUID-' . $faker->randomElement([34,47,50,54])],
             ['categoryUuid' => 'SWAG-CATEGORY-UUID-' . $faker->randomElement([16,17,19,20])],
-            ['categoryUuid' => 'SWAG-CATEGORY-UUID-' . $faker->randomElement([13,14,15])],
-            ['categoryUuid' => 'SWAG-CATEGORY-UUID-' . $faker->randomElement([10,11,12])],
+            ['categoryUuid' => 'SWAG-CATEGORY-UUID-' . $faker->randomElement([13,14,15])]
         ],
         'details' => []
     ];
@@ -40,9 +34,8 @@ $genTpl = function(int $i) use($faker): array {
         if ($main === null) $main = $uuid;
         $ret['details'][] = [
             'uuid' => $uuid,
-            'inStock' => $faker->randomNumber(),
-            'position' => 0,
-            'additionaltext' => $faker->text(),
+            'active' => true,
+            'stock' => $faker->randomNumber(),
             'prices' => [
                 [
                     'customerGroupUuid' => '3294e6f6-372b-415f-ac73-71cbc191548f',

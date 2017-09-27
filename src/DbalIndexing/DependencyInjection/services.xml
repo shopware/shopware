@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\DbalIndexing\Indexer\ShopIndexer" id="shopware.dbal_indexing.indexer.shop_indexer">
+            <argument type="collection">
+                <argument type="service" id="shopware.dbal_indexing.product_category_indexer" />
+                <argument type="service" id="shopware.dbal_indexing.listing_price_indexer" />
+            </argument>
+        </service>
+
+        <service class="Shopware\DbalIndexing\Indexer\ProductCategoryIndexer" id="shopware.dbal_indexing.product_category_indexer">
+            <argument id="shopware.product.repository" type="service"/>
+            <argument id="dbal_connection" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+        </service>
+
+        <service class="Shopware\DbalIndexing\Indexer\ListingPriceIndexer" id="shopware.dbal_indexing.listing_price_indexer">
+            <argument id="shopware.product.repository" type="service"/>
+            <argument id="shopware.customer_group.repository" type="service"/>
+            <argument id="shopware.dbal_indexing.listing_price_loader" type="service"/>
+            <argument id="dbal_connection" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="logger" type="service"/>
+        </service>
+
+        <service class="Shopware\DbalIndexing\Loader\ListingPriceLoader" id="shopware.dbal_indexing.listing_price_loader">
+            <argument id="dbal_connection" type="service"/>
+        </service>
+
+        <service class="Shopware\DbalIndexing\Command\RefreshIndexCommand" id="shopware.dbal_indexing.command.refresh_index_command">
+            <tag name="kernel.event_subscriber"/>
+            <tag name="console.command"/>
+        </service>
+
+    </services>
+</container>

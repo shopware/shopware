@@ -32,10 +32,10 @@ class Generator
         ];
     }
 
-
     public function generateDetail(string $table, array $config)
     {
-        $basicAssociations = Util::getAssociationsForBasicQuery($table, $config);
+        $basicAssociations = Util::getAssociationsForBasicStruct($table, $config);
+
         $template = __DIR__ . '/templates/factory_detail.txt';
         $detailAssociations = Util::getAssociationsForDetailStruct($table, $config);
 
@@ -153,7 +153,7 @@ class Generator
     public function generate(string $table, array $config)
     {
         $template = __DIR__ . '/templates/factory.txt';
-        $associations = Util::getAssociationsForBasicQuery($table, $config);
+        $associations = Util::getAssociationsForBasicStruct($table, $config);
 
         $columns = $this->connection->getSchemaManager()->listTableColumns($table);
         $assignments = $this->createColumnAssignments($table, $config, $columns);

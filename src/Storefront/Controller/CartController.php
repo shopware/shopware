@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class CartController extends FrontendController
+class CartController extends Controller
 {
     /**
      * Route name to cart index action
@@ -144,10 +144,10 @@ class CartController extends FrontendController
             return new JsonResponse(['success' => true]);
         }
 
-        if (self::ROUTE_CHECKOUT_CART == $target) {
-            return $this->redirectToRoute(self::ROUTE_CHECKOUT_CART);
+        if (self::ROUTE_CHECKOUT_CONFIRM == $target) {
+            return $this->redirectToRoute(self::ROUTE_CHECKOUT_CONFIRM);
         }
 
-        return $this->redirectToRoute(self::ROUTE_CHECKOUT_CONFIRM);
+        return $this->redirectToRoute(self::ROUTE_CHECKOUT_CART);
     }
 }

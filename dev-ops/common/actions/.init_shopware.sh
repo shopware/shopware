@@ -3,10 +3,10 @@
 
 bin/console translation:import --with-plugins
 
-bin/console denormalize:build:category:path
+bin/console category:build:path
 
-bin/console denormalize:index:products
+bin/console seo:url:generate -v
 
-bin/console seo:url:generate
+bin/console dbal:refresh:index -v
 
 bin/console plugin:refresh

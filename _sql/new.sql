@@ -4,7 +4,8 @@ CREATE TABLE `product_listing_price_ro` (
   `uuid` varchar(42) NOT NULL,
   `product_uuid` varchar(42) NOT NULL,
   `customer_group_uuid` varchar(42) NOT NULL,
-  `price` float NOT NULL
+  `price` float NOT NULL,
+  PRIMARY KEY (`uuid`)
 );
 
 DROP TABLE product_category_ro;

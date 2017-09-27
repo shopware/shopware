@@ -30,12 +30,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class IndexController extends FrontendController
 {
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @Route("/", name="homepage", options={"seo"="false"})
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function indexAction(Request $request)
     {

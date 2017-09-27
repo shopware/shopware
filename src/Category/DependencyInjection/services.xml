@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\Category\Extension\CategoryPathExtension" id="shopware.category.category_path_extension">
+            <argument id="shopware.category.path_builder" type="service"/>
+            <argument id="dbal_connection" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service class="Shopware\Category\Extension\CategoryPathBuilder" id="shopware.category.path_builder">
+            <argument id="shopware.category.repository" type="service"/>
+            <argument id="dbal_connection" type="service"/>
+        </service>
+
+        <service class="Shopware\Category\Command\BuildCategoryPathCommand" id="shopware.category.build_category_path_command">
+            <tag name="console.command"/>
+        </service>
+    </services>
+</container>

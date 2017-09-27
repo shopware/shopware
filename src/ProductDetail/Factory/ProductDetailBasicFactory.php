@@ -8,6 +8,7 @@ use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\ProductDetail\Extension\ProductDetailExtension;
 use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
+use Shopware\ProductDetailPrice\Factory\ProductDetailPriceBasicFactory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Shopware\Unit\Factory\UnitBasicFactory;
@@ -53,13 +54,20 @@ class ProductDetailBasicFactory extends Factory
      */
     protected $unitFactory;
 
+    /**
+     * @var ProductDetailPriceBasicFactory
+     */
+    protected $productDetailPriceFactory;
+
     public function __construct(
         Connection $connection,
         ExtensionRegistryInterface $registry,
-        UnitBasicFactory $unitFactory
+        UnitBasicFactory $unitFactory,
+        ProductDetailPriceBasicFactory $productDetailPriceFactory
     ) {
         parent::__construct($connection, $registry);
         $this->unitFactory = $unitFactory;
+        $this->productDetailPriceFactory = $productDetailPriceFactory;
     }
 
     public function hydrate(
@@ -131,6 +139,19 @@ class ProductDetailBasicFactory extends Factory
             $this->unitFactory->joinDependencies($unit, $query, $context);
         }
 
+        if ($prices = $selection->filter('prices')) {
+            $query->leftJoin(
+                $selection->getRootEscaped(),
+                'product_detail_price',
+                $prices->getRootEscaped(),
+                sprintf('%s.uuid = %s.product_detail_uuid', $selection->getRootEscaped(), $prices->getRootEscaped())
+            );
+
+            $this->productDetailPriceFactory->joinDependencies($prices, $query, $context);
+
+            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+        }
+
         if ($translation = $selection->filter('translation')) {
             $query->leftJoin(
                 $selection->getRootEscaped(),
@@ -153,6 +174,7 @@ class ProductDetailBasicFactory extends Factory
     {
         $fields = array_merge(self::FIELDS, $this->getExtensionFields());
         $fields['unit'] = $this->unitFactory->getAllFields();
+        $fields['prices'] = $this->productDetailPriceFactory->getAllFields();
 
         return $fields;
     }

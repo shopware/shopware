@@ -37,4 +37,17 @@ class NestedEventCollection extends Collection
     {
         $this->elements[] = $event;
     }
+
+    public function getFlatEventList(): NestedEventCollection
+    {
+        $events[] = $this->elements;
+
+        foreach ($this->elements as $event) {
+            foreach ($event->getFlatEventList() as $item) {
+                $events[] = $item;
+            }
+        }
+
+        return new self($events);
+    }
 }

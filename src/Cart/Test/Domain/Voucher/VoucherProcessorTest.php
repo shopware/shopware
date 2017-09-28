@@ -57,7 +57,7 @@ class VoucherProcessorTest extends TestCase
     {
         $cart = new CartContainer(
             'test',
-            Uuid::uuid4(),
+            Uuid::uuid4()->toString(),
             new LineItemCollection(),
             new ErrorCollection()
         );
@@ -100,7 +100,7 @@ class VoucherProcessorTest extends TestCase
 
         $cart = new CartContainer(
             'test',
-            Uuid::uuid4(),
+            Uuid::uuid4()->toString(),
             new LineItemCollection([
                 new LineItem('SW1', ProductProcessor::TYPE_PRODUCT, 1),
                 new LineItem('SW2', ProductProcessor::TYPE_PRODUCT, 1),
@@ -134,7 +134,7 @@ class VoucherProcessorTest extends TestCase
 
         $cart = new CartContainer(
             'test',
-            Uuid::uuid4(),
+            Uuid::uuid4()->toString(),
             new LineItemCollection([
                 new LineItem('voucher', VoucherProcessor::TYPE_VOUCHER, 1, ['code' => 'test']),
             ]),
@@ -160,7 +160,7 @@ class VoucherProcessorTest extends TestCase
 
         $cart = new CartContainer(
             'test',
-            Uuid::uuid4(),
+            Uuid::uuid4()->toString(),
             new LineItemCollection([
                 new LineItem('voucher', VoucherProcessor::TYPE_VOUCHER, 1, ['code' => 'test']),
                 new LineItem('SW1', ProductProcessor::TYPE_PRODUCT, 1),
@@ -206,7 +206,7 @@ class VoucherProcessorTest extends TestCase
 
         $cartContainer = new CartContainer(
             'test',
-            Uuid::uuid4(),
+            Uuid::uuid4()->toString(),
             new LineItemCollection([
                 $lineItem,
                 new LineItem('SW1', ProductProcessor::TYPE_PRODUCT, 1),
@@ -259,7 +259,7 @@ class VoucherProcessorTest extends TestCase
 
         $cartContainer = new CartContainer(
             'test',
-            Uuid::uuid4(),
+            Uuid::uuid4()->toString(),
             new LineItemCollection([
                 $lineItem,
                 new LineItem('SW1', ProductProcessor::TYPE_PRODUCT, 1),

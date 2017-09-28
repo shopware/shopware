@@ -41,12 +41,12 @@ class PriceCollection extends Collection
         parent::doAdd($price);
     }
 
-    public function remove(string $key): void
+    public function remove(int $key): void
     {
         parent::doRemoveByKey($key);
     }
 
-    public function get(string $key): ? Price
+    public function get(int $key): ? Price
     {
         if ($this->has($key)) {
             return $this->elements[$key];

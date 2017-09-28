@@ -79,13 +79,13 @@ class CalculatedLineItemCollectionTest extends TestCase
         $collection = new CalculatedLineItemCollection([
             new CalculatedVoucher(
                 'Code1',
-                new LineItem(1, ProductProcessor::TYPE_PRODUCT, 1),
+                new LineItem('1', ProductProcessor::TYPE_PRODUCT, 1),
                 new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
                 new AndRule()
             ),
             new CalculatedVoucher(
                 'Code1',
-                new LineItem(2, ProductProcessor::TYPE_PRODUCT, 1),
+                new LineItem('2', ProductProcessor::TYPE_PRODUCT, 1),
                 new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
                 new AndRule()
             ),
@@ -109,13 +109,13 @@ class CalculatedLineItemCollectionTest extends TestCase
             new CalculatedLineItemCollection([
                 new CalculatedVoucher(
                     'Code1',
-                    new LineItem(1, ProductProcessor::TYPE_PRODUCT, 1),
+                    new LineItem('1', ProductProcessor::TYPE_PRODUCT, 1),
                     new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
                     new AndRule()
                 ),
                 new CalculatedVoucher(
                     'Code1',
-                    new LineItem(2, ProductProcessor::TYPE_PRODUCT, 1),
+                    new LineItem('2', ProductProcessor::TYPE_PRODUCT, 1),
                     new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
                     new AndRule()
                 ),
@@ -276,13 +276,13 @@ class CalculatedLineItemCollectionTest extends TestCase
         $collection = new CalculatedLineItemCollection([
             new CalculatedVoucher(
                 'Code1',
-                new LineItem(1, VoucherProcessor::TYPE_VOUCHER, 1),
+                new LineItem('1', VoucherProcessor::TYPE_VOUCHER, 1),
                 new Price(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
                 new AndRule()
             ),
             new CalculatedVoucher(
                 'Code1',
-                new LineItem(2, VoucherProcessor::TYPE_VOUCHER, 1),
+                new LineItem('2', VoucherProcessor::TYPE_VOUCHER, 1),
                 new Price(300, 300, new CalculatedTaxCollection(), new TaxRuleCollection()),
                 new AndRule()
             ),

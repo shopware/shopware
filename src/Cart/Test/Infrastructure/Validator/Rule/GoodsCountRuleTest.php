@@ -77,7 +77,7 @@ class GoodsCountRuleTest extends TestCase
                     new DummyProduct('SW2'),
                     new CalculatedVoucher(
                         'Code1',
-                        new LineItem(1, VoucherProcessor::TYPE_VOUCHER, 1),
+                        new LineItem('1', VoucherProcessor::TYPE_VOUCHER, 1),
                         new Price(-1, -1, new CalculatedTaxCollection(), new TaxRuleCollection()),
                         new AndRule()
                     ),
@@ -148,7 +148,7 @@ class GoodsCountRuleTest extends TestCase
                     new DummyProduct('SW2'),
                     new CalculatedVoucher(
                         'Code1',
-                        new LineItem(1, VoucherProcessor::TYPE_VOUCHER, 1),
+                        new LineItem('1', VoucherProcessor::TYPE_VOUCHER, 1),
                         new Price(-1, -1, new CalculatedTaxCollection(), new TaxRuleCollection()),
                         new AndRule()
                     ),

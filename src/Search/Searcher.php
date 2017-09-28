@@ -98,7 +98,7 @@ abstract class Searcher
         $uuids = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
 
         if ($criteria->fetchCount()) {
-            $total = $this->connection->fetchColumn('SELECT FOUND_ROWS()');
+            $total = (int) $this->connection->fetchColumn('SELECT FOUND_ROWS()');
         } else {
             $total = count($uuids);
         }

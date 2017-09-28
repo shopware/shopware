@@ -39,7 +39,7 @@ class ConfiguredLineItem extends \Shopware\Framework\Struct\Struct implements De
     private $identifier;
 
     /**
-     * @var float
+     * @var int
      */
     private $quantity;
 

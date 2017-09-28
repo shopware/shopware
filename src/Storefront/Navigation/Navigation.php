@@ -44,6 +44,15 @@ class Navigation
         $this->activeCategory = $activeCategory;
     }
 
+    public function isCategorySelected(CategoryBasicStruct $category): bool
+    {
+        if ($category->getUuid() === $this->activeCategory->getUuid()) {
+            return true;
+        }
+
+        return in_array($category->getUuid(), $this->activeCategory->getPath(), true);
+    }
+
     public function getTree(): array
     {
         return $this->tree;

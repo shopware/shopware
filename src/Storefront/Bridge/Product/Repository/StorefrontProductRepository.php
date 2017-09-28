@@ -12,14 +12,12 @@ use Shopware\Product\Searcher\ProductSearchResult;
 use Shopware\Product\Struct\ProductBasicCollection;
 use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicCollection;
 use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicStruct;
+use Shopware\ProductListingPrice\Struct\ProductListingPriceBasicCollection;
 use Shopware\ProductMedia\Repository\ProductMediaRepository;
 use Shopware\ProductMedia\Searcher\ProductMediaSearchResult;
-use Shopware\ProductMedia\Struct\ProductMediaBasicStruct;
 use Shopware\Search\Criteria;
 use Shopware\Search\Query\TermsQuery;
-use Shopware\Storefront\Bridge\Product\Struct\DetailProductStruct;
-use Shopware\Storefront\Bridge\Product\Struct\ListingPriceStruct;
-use Shopware\Storefront\Bridge\Product\Struct\ListingProductStruct;
+use Shopware\Search\Sorting\FieldSorting;
 use Shopware\Storefront\Bridge\Product\Struct\ProductBasicStruct;
 
 class StorefrontProductRepository
@@ -49,62 +47,23 @@ class StorefrontProductRepository
         $this->productMediaRepository = $productMediaRepository;
     }
 
-    public function readDetail(array $uuids, ShopContext $context): ProductBasicCollection
-    {
-        $products = $this->repository->read($uuids, $context->getTranslationContext());
-
-        $detailProducts = new ProductBasicCollection();
-
-        foreach ($products as $product) {
-            $detailProduct = DetailProductStruct::createFrom($product);
-
-            $prices = $this->filterCustomerPrices($detailProduct->getMainDetail()->getPrices(), $context);
-            $detailProduct->getMainDetail()->setPrices(
-                $this->calculatePrices($detailProduct, $prices, $context)
-            );
-
-            // media
-            $cover = $product->getMedia()->filterByProductUuid($product->getUuid())
-                ->filter(function (ProductMediaBasicStruct $productMedia) {
-                    return $productMedia->getIsCover() === true;
-                })
-                ->first();
-
-            $detailProduct->setCover($cover);
-
-            $detailProducts->add($detailProduct);
-        }
-
-        return $detailProducts;
-    }
-
     public function read(array $uuids, ShopContext $context): ProductBasicCollection
     {
         $products = $this->repository->read($uuids, $context->getTranslationContext());
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('product_media.product_uuid', $uuids));
-        /** @var ProductMediaSearchResult $media */
-        $media = $this->productMediaRepository->search($criteria, $context->getTranslationContext());
+        $media = $this->fetchMedia($uuids, $context);
 
         $listingProducts = new ProductBasicCollection();
 
-        /** @var ProductBasicStruct $product */
-        foreach ($products as $product) {
-            $listingProduct = ListingProductStruct::createFrom($product);
+        /** @var ProductBasicStruct $base */
+        foreach ($products as $base) {
+            $product = ProductBasicStruct::createFrom($base);
 
-            $this->updatePrices($listingProduct, $context);
+            $this->updatePrices($product, $context);
 
-            // media
-            $cover = $media->filterByProductUuid($product->getUuid())
-                ->filter(function (ProductMediaBasicStruct $productMedia) {
-                    return $productMedia->getIsCover() === true;
-                })
-                ->first();
+            $product->setMedia($media->filterByProductUuid($product->getUuid()));
 
-            $listingProduct->setCover($cover);
-
-            $listingProducts->add($listingProduct);
+            $listingProducts->add($product);
         }
 
         return $listingProducts;
@@ -174,5 +133,21 @@ class StorefrontProductRepository
         $prices = $this->filterCustomerPrices($product->getListingPrices(), $context);
         $prices = $this->calculatePrices($product, $prices, $context);
         $product->setListingPrices($prices);
+    }
+
+    /**
+     * @param array $uuids
+     * @param ShopContext $context
+     * @return ProductMediaSearchResult
+     */
+    protected function fetchMedia(array $uuids, ShopContext $context): ProductMediaSearchResult
+    {
+        /** @var ProductMediaSearchResult $media */
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermsQuery('product_media.product_uuid', $uuids));
+        $criteria->addSorting(new FieldSorting('product_media.is_cover', FieldSorting::DESCENDING));
+        $criteria->addSorting(new FieldSorting('product_media.position'));
+
+        return $this->productMediaRepository->search($criteria, $context->getTranslationContext());
     }
 }

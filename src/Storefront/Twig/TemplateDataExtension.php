@@ -137,8 +137,9 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
 
         list($controllerName, $action) = explode(':', $controller);
 
-        $controllerNameParts = explode('.', $controllerName);
+        $controllerNameParts = explode('\\', $controllerName);
         $controllerName = array_pop($controllerNameParts);
+        $controllerName = substr($controllerName, 0, -10);
         $action = substr($action, 0, -6);
 
         return [$controllerName, $action];

@@ -79,6 +79,8 @@ class ShopSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
+        $this->router->getContext()->hasParameter(Router::SEO_REDIRECT_URL);
+
         if (!$request->attributes->has(Router::SEO_REDIRECT_URL)) {
             return;
         }

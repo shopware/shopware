@@ -86,31 +86,21 @@ class PluginResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\PluginWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\PluginWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Framework\Event\PluginWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\ConfigFormResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\ConfigFormResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::class])) {
-            $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Framework\Write\Resource\PluginResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\PluginResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\ShopTemplate\Writer\Resource\ShopTemplateResource::class])) {
-            $event->addEvent(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Framework\Write\Resource\ShoppingWorldComponentResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\ShoppingWorldComponentResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Framework\Write\Resource\ConfigFormResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Framework\Write\Resource\PluginResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Framework\Write\Resource\ShoppingWorldComponentResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

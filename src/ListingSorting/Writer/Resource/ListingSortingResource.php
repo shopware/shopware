@@ -44,23 +44,19 @@ class ListingSortingResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ListingSorting\Event\ListingSortingWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\ListingSorting\Event\ListingSortingWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\ListingSorting\Event\ListingSortingWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\ListingSorting\Writer\Resource\ListingSortingResource::class])) {
-            $event->addEvent(\Shopware\ListingSorting\Writer\Resource\ListingSortingResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\ListingSorting\Writer\Resource\ListingSortingTranslationResource::class])) {
-            $event->addEvent(\Shopware\ListingSorting\Writer\Resource\ListingSortingTranslationResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\ProductStream\Writer\Resource\ProductStreamResource::class])) {
-            $event->addEvent(\Shopware\ProductStream\Writer\Resource\ProductStreamResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\ListingSorting\Writer\Resource\ListingSortingResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\ListingSorting\Writer\Resource\ListingSortingTranslationResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\ProductStream\Writer\Resource\ProductStreamResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

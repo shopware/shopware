@@ -32,15 +32,17 @@ class SearchFieldsResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Search\Event\SearchFieldsWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Search\Event\SearchFieldsWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Search\Event\SearchFieldsWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Search\Writer\Resource\SearchFieldsResource::class])) {
-            $event->addEvent(\Shopware\Search\Writer\Resource\SearchFieldsResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Search\Writer\Resource\SearchFieldsResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

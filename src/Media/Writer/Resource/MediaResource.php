@@ -62,47 +62,25 @@ class MediaResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Media\Event\MediaWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Media\Event\MediaWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Media\Event\MediaWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\BlogMediaResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\BlogMediaResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Category\Writer\Resource\CategoryResource::class])) {
-            $event->addEvent(\Shopware\Category\Writer\Resource\CategoryResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Framework\Write\Resource\FilterValueResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\FilterValueResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Framework\Write\Resource\MailAttachmentResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\MailAttachmentResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Album\Writer\Resource\AlbumResource::class])) {
-            $event->addEvent(\Shopware\Album\Writer\Resource\AlbumResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Framework\Write\Resource\UserResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\UserResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Media\Writer\Resource\MediaResource::class])) {
-            $event->addEvent(\Shopware\Media\Writer\Resource\MediaResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Media\Writer\Resource\MediaTranslationResource::class])) {
-            $event->addEvent(\Shopware\Media\Writer\Resource\MediaTranslationResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\ProductMedia\Writer\Resource\ProductMediaResource::class])) {
-            $event->addEvent(\Shopware\ProductMedia\Writer\Resource\ProductMediaResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Framework\Write\Resource\BlogMediaResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Category\Writer\Resource\CategoryResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Framework\Write\Resource\FilterValueResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Framework\Write\Resource\MailAttachmentResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Album\Writer\Resource\AlbumResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Framework\Write\Resource\UserResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Media\Writer\Resource\MediaResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Media\Writer\Resource\MediaTranslationResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\ProductMedia\Writer\Resource\ProductMediaResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

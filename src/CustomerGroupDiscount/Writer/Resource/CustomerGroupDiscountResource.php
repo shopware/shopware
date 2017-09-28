@@ -35,19 +35,18 @@ class CustomerGroupDiscountResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\CustomerGroupDiscount\Event\CustomerGroupDiscountWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\CustomerGroupDiscount\Event\CustomerGroupDiscountWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\CustomerGroupDiscount\Event\CustomerGroupDiscountWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::class])) {
-            $event->addEvent(\Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\CustomerGroupDiscount\Writer\Resource\CustomerGroupDiscountResource::class])) {
-            $event->addEvent(\Shopware\CustomerGroupDiscount\Writer\Resource\CustomerGroupDiscountResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\CustomerGroupDiscount\Writer\Resource\CustomerGroupDiscountResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

@@ -36,19 +36,18 @@ class ConfigFormFieldValueResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\ConfigFormFieldValueWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\ConfigFormFieldValueWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Framework\Event\ConfigFormFieldValueWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Framework\Write\Resource\ConfigFormFieldValueResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\ConfigFormFieldValueResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Framework\Write\Resource\ConfigFormFieldValueResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

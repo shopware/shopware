@@ -27,15 +27,17 @@ class CampaignsTemplatesResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CampaignsTemplatesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\CampaignsTemplatesWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Framework\Event\CampaignsTemplatesWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\CampaignsTemplatesResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\CampaignsTemplatesResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Framework\Write\Resource\CampaignsTemplatesResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

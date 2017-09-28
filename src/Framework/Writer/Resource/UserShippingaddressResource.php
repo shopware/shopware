@@ -52,15 +52,17 @@ class UserShippingaddressResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\UserShippingaddressWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\UserShippingaddressWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Framework\Event\UserShippingaddressWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\UserShippingaddressResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\UserShippingaddressResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Framework\Write\Resource\UserShippingaddressResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

@@ -30,15 +30,17 @@ class CoreDetailStatesResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CoreDetailStatesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\CoreDetailStatesWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Framework\Event\CoreDetailStatesWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\CoreDetailStatesResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\CoreDetailStatesResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Framework\Write\Resource\CoreDetailStatesResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

@@ -35,23 +35,19 @@ class CurrencyTranslationResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Currency\Event\CurrencyTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Currency\Event\CurrencyTranslationWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Currency\Event\CurrencyTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Currency\Writer\Resource\CurrencyResource::class])) {
-            $event->addEvent(\Shopware\Currency\Writer\Resource\CurrencyResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Currency\Writer\Resource\CurrencyTranslationResource::class])) {
-            $event->addEvent(\Shopware\Currency\Writer\Resource\CurrencyTranslationResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Currency\Writer\Resource\CurrencyResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Currency\Writer\Resource\CurrencyTranslationResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

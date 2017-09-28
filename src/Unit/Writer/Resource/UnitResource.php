@@ -33,19 +33,18 @@ class UnitResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Unit\Event\UnitWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Unit\Event\UnitWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Unit\Event\UnitWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Unit\Writer\Resource\UnitResource::class])) {
-            $event->addEvent(\Shopware\Unit\Writer\Resource\UnitResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Unit\Writer\Resource\UnitTranslationResource::class])) {
-            $event->addEvent(\Shopware\Unit\Writer\Resource\UnitTranslationResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Unit\Writer\Resource\UnitResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Unit\Writer\Resource\UnitTranslationResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

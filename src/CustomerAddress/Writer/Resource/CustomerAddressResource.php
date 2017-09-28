@@ -65,35 +65,20 @@ class CustomerAddressResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\CustomerAddress\Event\CustomerAddressWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\CustomerAddress\Event\CustomerAddressWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\CustomerAddress\Event\CustomerAddressWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Customer\Writer\Resource\CustomerResource::class])) {
-            $event->addEvent(\Shopware\Customer\Writer\Resource\CustomerResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Customer\Writer\Resource\CustomerResource::class])) {
-            $event->addEvent(\Shopware\Customer\Writer\Resource\CustomerResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Customer\Writer\Resource\CustomerResource::class])) {
-            $event->addEvent(\Shopware\Customer\Writer\Resource\CustomerResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\AreaCountry\Writer\Resource\AreaCountryResource::class])) {
-            $event->addEvent(\Shopware\AreaCountry\Writer\Resource\AreaCountryResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\AreaCountryState\Writer\Resource\AreaCountryStateResource::class])) {
-            $event->addEvent(\Shopware\AreaCountryState\Writer\Resource\AreaCountryStateResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::class])) {
-            $event->addEvent(\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Customer\Writer\Resource\CustomerResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\AreaCountry\Writer\Resource\AreaCountryResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\AreaCountryState\Writer\Resource\AreaCountryStateResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

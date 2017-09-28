@@ -46,19 +46,18 @@ class SnippetResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\SnippetWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\SnippetWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Framework\Event\SnippetWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Framework\Write\Resource\SnippetResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\SnippetResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Framework\Write\Resource\SnippetResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

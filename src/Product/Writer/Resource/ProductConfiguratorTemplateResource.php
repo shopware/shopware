@@ -82,15 +82,17 @@ class ProductConfiguratorTemplateResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductConfiguratorTemplateWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Product\Event\ProductConfiguratorTemplateWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Product\Event\ProductConfiguratorTemplateWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductConfiguratorTemplateResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductConfiguratorTemplateResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Product\Writer\Resource\ProductConfiguratorTemplateResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

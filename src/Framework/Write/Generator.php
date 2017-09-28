@@ -545,7 +545,7 @@ class %s extends Resource
     
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\%s\Event\%sWrittenEvent
     {
-        if (empty($updates)) {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
             return null;
         }
         

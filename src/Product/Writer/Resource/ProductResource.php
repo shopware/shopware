@@ -103,103 +103,37 @@ class ProductResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Product\Event\ProductWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Product\Event\ProductWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\BlogProductResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\BlogProductResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Framework\Write\Resource\FilterProductResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\FilterProductResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Tax\Writer\Resource\TaxResource::class])) {
-            $event->addEvent(\Shopware\Tax\Writer\Resource\TaxResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerResource::class])) {
-            $event->addEvent(\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Framework\Write\Resource\FilterResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\FilterResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductTranslationResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductTranslationResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductAccessoryResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductAccessoryResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductAccessoryResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductAccessoryResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductAttachmentResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductAttachmentResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductCategoryResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductCategoryResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductCategorySeoResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductCategorySeoResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\ProductDetail\Writer\Resource\ProductDetailResource::class])) {
-            $event->addEvent(\Shopware\ProductDetail\Writer\Resource\ProductDetailResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductEsdResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductEsdResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductLinkResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductLinkResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\ProductMedia\Writer\Resource\ProductMediaResource::class])) {
-            $event->addEvent(\Shopware\ProductMedia\Writer\Resource\ProductMediaResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductSimilarResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductSimilarResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductSimilarResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductSimilarResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\ProductStream\Writer\Resource\ProductStreamAssignmentResource::class])) {
-            $event->addEvent(\Shopware\ProductStream\Writer\Resource\ProductStreamAssignmentResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\ProductStream\Writer\Resource\ProductStreamTabResource::class])) {
-            $event->addEvent(\Shopware\ProductStream\Writer\Resource\ProductStreamTabResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\ProductVote\Writer\Resource\ProductVoteResource::class])) {
-            $event->addEvent(\Shopware\ProductVote\Writer\Resource\ProductVoteResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Framework\Write\Resource\StatisticProductImpressionResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\StatisticProductImpressionResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Framework\Write\Resource\BlogProductResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Framework\Write\Resource\FilterProductResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Tax\Writer\Resource\TaxResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Framework\Write\Resource\FilterResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Product\Writer\Resource\ProductResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Product\Writer\Resource\ProductTranslationResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Product\Writer\Resource\ProductAccessoryResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Product\Writer\Resource\ProductAttachmentResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Product\Writer\Resource\ProductCategoryResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Product\Writer\Resource\ProductCategorySeoResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\ProductDetail\Writer\Resource\ProductDetailResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Product\Writer\Resource\ProductEsdResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Product\Writer\Resource\ProductLinkResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\ProductMedia\Writer\Resource\ProductMediaResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Product\Writer\Resource\ProductSimilarResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\ProductStream\Writer\Resource\ProductStreamAssignmentResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\ProductStream\Writer\Resource\ProductStreamTabResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\ProductVote\Writer\Resource\ProductVoteResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Framework\Write\Resource\StatisticProductImpressionResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

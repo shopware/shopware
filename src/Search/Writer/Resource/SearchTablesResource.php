@@ -31,15 +31,17 @@ class SearchTablesResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Search\Event\SearchTablesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Search\Event\SearchTablesWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Search\Event\SearchTablesWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Search\Writer\Resource\SearchTablesResource::class])) {
-            $event->addEvent(\Shopware\Search\Writer\Resource\SearchTablesResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Search\Writer\Resource\SearchTablesResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

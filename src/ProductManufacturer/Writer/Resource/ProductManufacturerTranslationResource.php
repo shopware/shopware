@@ -42,23 +42,19 @@ class ProductManufacturerTranslationResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ProductManufacturer\Event\ProductManufacturerTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\ProductManufacturer\Event\ProductManufacturerTranslationWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\ProductManufacturer\Event\ProductManufacturerTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerResource::class])) {
-            $event->addEvent(\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerTranslationResource::class])) {
-            $event->addEvent(\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerTranslationResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerTranslationResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

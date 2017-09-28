@@ -63,23 +63,19 @@ class ShopFormFieldResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Shop\Event\ShopFormFieldWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Shop\Event\ShopFormFieldWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Shop\Event\ShopFormFieldWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopFormResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopFormResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopFormFieldResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopFormFieldResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopFormFieldTranslationResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopFormFieldTranslationResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Shop\Writer\Resource\ShopFormResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Shop\Writer\Resource\ShopFormFieldResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Shop\Writer\Resource\ShopFormFieldTranslationResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

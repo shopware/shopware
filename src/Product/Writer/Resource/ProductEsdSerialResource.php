@@ -33,19 +33,18 @@ class ProductEsdSerialResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductEsdSerialWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Product\Event\ProductEsdSerialWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Product\Event\ProductEsdSerialWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductEsdResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductEsdResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductEsdSerialResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductEsdSerialResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Product\Writer\Resource\ProductEsdResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Product\Writer\Resource\ProductEsdSerialResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

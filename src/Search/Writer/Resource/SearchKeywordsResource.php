@@ -27,15 +27,17 @@ class SearchKeywordsResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Search\Event\SearchKeywordsWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Search\Event\SearchKeywordsWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Search\Event\SearchKeywordsWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Search\Writer\Resource\SearchKeywordsResource::class])) {
-            $event->addEvent(\Shopware\Search\Writer\Resource\SearchKeywordsResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Search\Writer\Resource\SearchKeywordsResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

@@ -49,23 +49,19 @@ class OrderLineItemResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\OrderLineItem\Event\OrderLineItemWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\OrderLineItem\Event\OrderLineItemWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\OrderLineItem\Event\OrderLineItemWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\OrderDeliveryPosition\Writer\Resource\OrderDeliveryPositionResource::class])) {
-            $event->addEvent(\Shopware\OrderDeliveryPosition\Writer\Resource\OrderDeliveryPositionResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Order\Writer\Resource\OrderResource::class])) {
-            $event->addEvent(\Shopware\Order\Writer\Resource\OrderResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\OrderLineItem\Writer\Resource\OrderLineItemResource::class])) {
-            $event->addEvent(\Shopware\OrderLineItem\Writer\Resource\OrderLineItemResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\OrderDeliveryPosition\Writer\Resource\OrderDeliveryPositionResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Order\Writer\Resource\OrderResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\OrderLineItem\Writer\Resource\OrderLineItemResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

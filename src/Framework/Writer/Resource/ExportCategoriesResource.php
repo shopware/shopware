@@ -27,15 +27,17 @@ class ExportCategoriesResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\ExportCategoriesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\ExportCategoriesWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Framework\Event\ExportCategoriesWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\ExportCategoriesResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\ExportCategoriesResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Framework\Write\Resource\ExportCategoriesResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

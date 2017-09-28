@@ -30,15 +30,17 @@ class ProductConfiguratorSetGroupRelationResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductConfiguratorSetGroupRelationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Product\Event\ProductConfiguratorSetGroupRelationWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Product\Event\ProductConfiguratorSetGroupRelationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductConfiguratorSetGroupRelationResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductConfiguratorSetGroupRelationResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Product\Writer\Resource\ProductConfiguratorSetGroupRelationResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

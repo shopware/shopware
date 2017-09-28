@@ -41,19 +41,18 @@ class ShopTemplateConfigPresetResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ShopTemplate\Event\ShopTemplateConfigPresetWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\ShopTemplate\Event\ShopTemplateConfigPresetWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\ShopTemplate\Event\ShopTemplateConfigPresetWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\ShopTemplate\Writer\Resource\ShopTemplateResource::class])) {
-            $event->addEvent(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigPresetResource::class])) {
-            $event->addEvent(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigPresetResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigPresetResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

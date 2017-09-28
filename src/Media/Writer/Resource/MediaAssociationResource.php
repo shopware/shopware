@@ -30,15 +30,17 @@ class MediaAssociationResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Media\Event\MediaAssociationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Media\Event\MediaAssociationWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Media\Event\MediaAssociationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Media\Writer\Resource\MediaAssociationResource::class])) {
-            $event->addEvent(\Shopware\Media\Writer\Resource\MediaAssociationResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Media\Writer\Resource\MediaAssociationResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

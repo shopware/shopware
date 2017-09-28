@@ -53,31 +53,21 @@ class CurrencyResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Currency\Event\CurrencyWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Currency\Event\CurrencyWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Currency\Event\CurrencyWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Currency\Writer\Resource\CurrencyResource::class])) {
-            $event->addEvent(\Shopware\Currency\Writer\Resource\CurrencyResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Currency\Writer\Resource\CurrencyTranslationResource::class])) {
-            $event->addEvent(\Shopware\Currency\Writer\Resource\CurrencyTranslationResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Order\Writer\Resource\OrderResource::class])) {
-            $event->addEvent(\Shopware\Order\Writer\Resource\OrderResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopCurrencyResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopCurrencyResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Currency\Writer\Resource\CurrencyResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Currency\Writer\Resource\CurrencyTranslationResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Order\Writer\Resource\OrderResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Shop\Writer\Resource\ShopCurrencyResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

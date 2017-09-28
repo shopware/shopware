@@ -46,23 +46,19 @@ class ProductEsdResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductEsdWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Product\Event\ProductEsdWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\Product\Event\ProductEsdWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductEsdResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductEsdResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductEsdSerialResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductEsdSerialResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Product\Writer\Resource\ProductResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Product\Writer\Resource\ProductEsdResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Product\Writer\Resource\ProductEsdSerialResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

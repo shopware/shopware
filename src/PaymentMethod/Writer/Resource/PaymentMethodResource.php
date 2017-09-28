@@ -89,51 +89,25 @@ class PaymentMethodResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\PaymentMethod\Event\PaymentMethodWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\PaymentMethod\Event\PaymentMethodWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\PaymentMethod\Event\PaymentMethodWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Customer\Writer\Resource\CustomerResource::class])) {
-            $event->addEvent(\Shopware\Customer\Writer\Resource\CustomerResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Customer\Writer\Resource\CustomerResource::class])) {
-            $event->addEvent(\Shopware\Customer\Writer\Resource\CustomerResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Order\Writer\Resource\OrderResource::class])) {
-            $event->addEvent(\Shopware\Order\Writer\Resource\OrderResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Framework\Write\Resource\PluginResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\PluginResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::class])) {
-            $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\PaymentMethod\Writer\Resource\PaymentMethodTranslationResource::class])) {
-            $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodTranslationResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\PaymentMethod\Writer\Resource\PaymentMethodCountryResource::class])) {
-            $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodCountryResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\PaymentMethod\Writer\Resource\PaymentMethodShopResource::class])) {
-            $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodShopResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\ShippingMethod\Writer\Resource\ShippingMethodPaymentMethodResource::class])) {
-            $event->addEvent(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodPaymentMethodResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\Customer\Writer\Resource\CustomerResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Order\Writer\Resource\OrderResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Framework\Write\Resource\PluginResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodTranslationResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodCountryResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodShopResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodPaymentMethodResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

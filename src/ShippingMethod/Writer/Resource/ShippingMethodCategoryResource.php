@@ -29,23 +29,19 @@ class ShippingMethodCategoryResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ShippingMethod\Event\ShippingMethodCategoryWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\ShippingMethod\Event\ShippingMethodCategoryWrittenEvent
     {
+        if (empty($updates) || !array_key_exists(self::class, $updates)) {
+            return null;
+        }
+
         $event = new \Shopware\ShippingMethod\Event\ShippingMethodCategoryWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\ShippingMethod\Writer\Resource\ShippingMethodResource::class])) {
-            $event->addEvent(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\Category\Writer\Resource\CategoryResource::class])) {
-            $event->addEvent(\Shopware\Category\Writer\Resource\CategoryResource::createWrittenEvent($updates, $context));
-        }
-
-        if (!empty($updates[\Shopware\ShippingMethod\Writer\Resource\ShippingMethodCategoryResource::class])) {
-            $event->addEvent(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodCategoryResource::createWrittenEvent($updates, $context));
-        }
+        $event->addEvent(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\Category\Writer\Resource\CategoryResource::createWrittenEvent($updates, $context));
+        $event->addEvent(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodCategoryResource::createWrittenEvent($updates, $context));
 
         return $event;
     }

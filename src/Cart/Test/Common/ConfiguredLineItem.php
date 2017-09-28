@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -81,7 +81,7 @@ class ConfiguredLineItem extends \Shopware\Framework\Struct\Struct implements De
         $this->quantity = $quantity;
         $this->price = $price;
         $this->lineItem = $lineItem;
-        if (null === $deliveryInformation) {
+        if ($deliveryInformation === null) {
             $deliveryInformation = new DeliveryInformation(
                 0,
                 0,

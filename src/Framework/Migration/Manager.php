@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -216,7 +216,7 @@ class Manager
 
         ksort($migrations);
 
-        if (null !== $limit) {
+        if ($limit !== null) {
             return array_slice($migrations, 0, $limit, true);
         }
 

@@ -3,7 +3,6 @@
 namespace Shopware\Framework\Struct;
 
 use DateTime;
-use Shopware\Framework\Struct\Struct;
 
 class Plugin extends Struct
 {
@@ -490,7 +489,7 @@ class Plugin extends Struct
     /**
      * @param null|string $updateSource
      */
-    public function setUpdateSource(?string$updateSource)
+    public function setUpdateSource(?string $updateSource)
     {
         $this->updateSource = $updateSource;
     }
@@ -511,4 +510,3 @@ class Plugin extends Struct
         $this->updateVersion = $updateVersion;
     }
 }
-

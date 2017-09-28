@@ -67,7 +67,7 @@ class ViewProductTransformer implements ViewLineItemTransformerInterface
     ): void {
         $collection = $calculatedCart->getCalculatedLineItems()->filterInstance(CalculatedProduct::class);
 
-        if (0 === $collection->count()) {
+        if ($collection->count() === 0) {
             return;
         }
 

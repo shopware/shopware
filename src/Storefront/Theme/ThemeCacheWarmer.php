@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -109,12 +109,12 @@ class ThemeCacheWarmer implements CacheWarmerInterface
             $target = VarUtils::resolve($target, $asset->getVars(), $asset->getValues());
 
             if (!is_dir($dir = dirname($target))) {
-                if (false === @mkdir($dir, 0777, true)) {
+                if (@mkdir($dir, 0777, true) === false) {
                     throw new \RuntimeException('Unable to create directory ' . $dir);
                 }
             }
 
-            if (false === @file_put_contents($target, $asset->dump())) {
+            if (@file_put_contents($target, $asset->dump()) === false) {
                 throw new \RuntimeException('Unable to write file ' . $target);
             }
         }

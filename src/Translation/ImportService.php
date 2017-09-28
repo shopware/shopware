@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Translation;
 
@@ -41,7 +41,7 @@ class ImportService implements ImportServiceInterface
     {
         $this->logger->debug('Starting translation import.', ['paths' => $paths, 'truncateBeforeImport' => true]);
 
-        if (true === $truncateBeforeImport) {
+        if ($truncateBeforeImport === true) {
             $this->truncateDatabase();
         } else {
             $this->deleteNonDirtyTranslations();

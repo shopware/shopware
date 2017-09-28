@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\DbalIndexing\Indexer;
 
@@ -135,7 +135,7 @@ class ProductCategoryIndexer implements IndexerInterface
 
     private function getIndexName(?\DateTime $timestamp): string
     {
-        if (null === $timestamp) {
+        if ($timestamp === null) {
             return self::TABLE;
         }
 

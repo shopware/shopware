@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\DbalIndexing\Common;
 
@@ -25,7 +25,7 @@ class RepositoryIterator
 
     public function __construct($repository, TranslationContext $context, Criteria $criteria = null)
     {
-        if (null === $criteria) {
+        if ($criteria === null) {
             $criteria = new Criteria();
             $criteria->setOffset(0);
             $criteria->setLimit(100);

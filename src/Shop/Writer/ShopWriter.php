@@ -60,7 +60,7 @@ class ShopWriter
         }
 
         $affected = count($updated);
-        if (1 === $affected) {
+        if ($affected === 1) {
             $updated = array_shift($updated);
         } elseif ($affected > 1) {
             $updated = array_merge_recursive(...$updated);
@@ -92,7 +92,7 @@ class ShopWriter
         }
 
         $affected = count($created);
-        if (1 === $affected) {
+        if ($affected === 1) {
             $created = array_shift($created);
         } elseif ($affected > 1) {
             $created = array_merge_recursive(...$created);
@@ -124,7 +124,7 @@ class ShopWriter
         }
 
         $affected = count($created);
-        if (1 === $affected) {
+        if ($affected === 1) {
             $created = array_shift($created);
         } elseif ($affected > 1) {
             $created = array_merge_recursive(...$created);
@@ -162,7 +162,7 @@ class ShopWriter
             }
         }
 
-        if (0 === count($malformedRows)) {
+        if (count($malformedRows) === 0) {
             return;
         }
 

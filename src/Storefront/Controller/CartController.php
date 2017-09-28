@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Controller;
 
@@ -144,7 +144,7 @@ class CartController extends Controller
             return new JsonResponse(['success' => true]);
         }
 
-        if (self::ROUTE_CHECKOUT_CONFIRM == $target) {
+        if ($target == self::ROUTE_CHECKOUT_CONFIRM) {
             return $this->redirectToRoute(self::ROUTE_CHECKOUT_CONFIRM);
         }
 

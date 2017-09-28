@@ -147,7 +147,7 @@ class Writer
                     $data = $query->getPrimaryKeyData();
                 }
 
-                if (false === array_key_exists('uuid', $data)) {
+                if (array_key_exists('uuid', $data) === false) {
                     continue;
                 }
 

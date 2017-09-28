@@ -37,7 +37,7 @@ abstract class ApiController extends Controller
                 $response = XmlResponse::createXmlResponse($this->getXmlRootKey(), $this->getXmlChildKey(), $responseEnvelope, $statusCode);
                 break;
             case 'profile':
-                if (true !== $this->container->getParameter('kernel.debug')) {
+                if ($this->container->getParameter('kernel.debug') !== true) {
                     throw new \RuntimeException('Profiling is only allowed in debug mode.');
                 }
 

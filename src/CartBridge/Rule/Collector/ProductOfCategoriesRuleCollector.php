@@ -72,7 +72,7 @@ class ProductOfCategoriesRuleCollector implements CollectorInterface
 
         $categoryRules = $rules->filterInstance(ProductOfCategoriesRule::class);
 
-        if (0 === $categoryRules->count()) {
+        if ($categoryRules->count() === 0) {
             return;
         }
 
@@ -99,7 +99,7 @@ class ProductOfCategoriesRuleCollector implements CollectorInterface
     private function getNumbers(StructCollection $fetchDefinition): array
     {
         $definitions = $fetchDefinition->filterInstance(ProductFetchDefinition::class);
-        if (0 === $definitions->count()) {
+        if ($definitions->count() === 0) {
             return [];
         }
 

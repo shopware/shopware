@@ -56,7 +56,7 @@ class CartPersister implements CartPersisterInterface
             [':token' => $token]
         );
 
-        if (false === $content) {
+        if ($content === false) {
             throw new CartTokenNotFoundException($token);
         }
 

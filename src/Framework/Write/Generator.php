@@ -111,7 +111,7 @@ EOD;
         $schemaManager = $connection->getSchemaManager();
 
         $tables = array_filter($schemaManager->listTableNames(), function ($name) {
-            return false === strpos($name, '_attribute') && false === strpos($name, '_ro');
+            return strpos($name, '_attribute') === false && strpos($name, '_ro') === false;
         });
         $tables = array_filter($tables, function ($name) {
             return !in_array($name, $this->ignoreTables, true);
@@ -267,7 +267,7 @@ EOD;
                     continue;
                 }
 
-                if (!$hasRequiredFields && $translationColumn->getNotnull() && null === $translationColumn->getDefault()) {
+                if (!$hasRequiredFields && $translationColumn->getNotnull() && $translationColumn->getDefault() === null) {
                     $hasRequiredFields = true;
                 }
 
@@ -293,7 +293,7 @@ EOD;
         foreach ($foreignKeys as $foreignData) {
             list($foreignTableName, $foreignFieldName) = $foreignData;
 
-            if (false !== strpos($table, '_translation')) {
+            if (strpos($table, '_translation') !== false) {
                 continue;
             }
 
@@ -324,7 +324,7 @@ EOD;
 
     private function isPrimary(Column $column, array $indexes): bool
     {
-        if ('uuid' === $column->getName()) {
+        if ($column->getName() === 'uuid') {
             return true;
         }
 
@@ -347,7 +347,7 @@ EOD;
 
     private function makeForeignKeyColumns(Column $column, string $tableName, string $foreignFieldName, string $foreignTableName, array $foreignResources, bool $isPrimary)
     {
-        if (false === strpos($column->getName(), '_uuid')) {
+        if (strpos($column->getName(), '_uuid') === false) {
             echo "Error at $tableName::{$column->getName()}\n ";
 
             return [];
@@ -368,7 +368,7 @@ EOD;
         }
 
         $required = false;
-        if ($column->getNotnull() && null === $column->getDefault()) {
+        if ($column->getNotnull() && $column->getDefault() === null) {
             $required = true;
         }
 
@@ -427,7 +427,7 @@ EOD;
 
         $stmt = "new $template('{$column->getName()}')";
 
-        if ($column->getNotnull() && null === $column->getDefault()) {
+        if ($column->getNotnull() && $column->getDefault() === null) {
             $stmt = "($stmt)->setFlags(new Required())";
         }
 
@@ -448,7 +448,7 @@ EOD;
 
         $columnName = $column->getName();
 
-        if (false !== strpos($columnName, 'uuid')) {
+        if (strpos($columnName, 'uuid') !== false) {
             return '';
         }
 
@@ -471,7 +471,7 @@ class FieldName
 {
     public static function getFieldName(string $rawName, string $onTableName): string
     {
-        if ($rawName !== $onTableName && 0 === strpos($rawName, $onTableName)) {
+        if ($rawName !== $onTableName && strpos($rawName, $onTableName) === 0) {
             $rawName = substr($rawName, strlen($onTableName) + 1);
         }
 
@@ -480,7 +480,7 @@ class FieldName
 
     public static function getConstName(string $rawName, string $onTableName): string
     {
-        if ($rawName !== $onTableName && 0 === strpos($rawName, $onTableName)) {
+        if ($rawName !== $onTableName && strpos($rawName, $onTableName) === 0) {
             $rawName = substr($rawName, strlen($onTableName) + 1);
         }
 
@@ -489,7 +489,7 @@ class FieldName
 
     public static function getConstDeclaration(string $rawName, string $onTableName): string
     {
-        if ($rawName !== $onTableName && 0 === strpos($rawName, $onTableName)) {
+        if ($rawName !== $onTableName && strpos($rawName, $onTableName) === 0) {
             $rawName = substr($rawName, strlen($onTableName) + 1);
         }
 
@@ -770,7 +770,7 @@ EOD;
     {
         $tableName = $this->table;
 
-        if (0 === strpos($tableName, 's_')) {
+        if (strpos($tableName, 's_') === 0) {
             $tableName = substr($tableName, 2);
         }
 
@@ -786,11 +786,11 @@ EOD;
     {
         $tableName = $this->table;
 
-        if (0 === strpos($tableName, $inRelationToTable)) {
+        if (strpos($tableName, $inRelationToTable) === 0) {
             $tableName = substr($tableName, strlen($inRelationToTable));
         }
 
-        if (0 === strpos($tableName, 's_')) {
+        if (strpos($tableName, 's_') === 0) {
             $tableName = substr($tableName, 2);
         }
 
@@ -801,7 +801,7 @@ EOD;
     {
         $tableName = $this->table;
 
-        if (0 === strpos($tableName, 's_')) {
+        if (strpos($tableName, 's_') === 0) {
             $tableName = substr($tableName, 2);
         }
 
@@ -812,7 +812,7 @@ EOD;
     {
         $tableName = $this->table;
 
-        if (0 === strpos($tableName, 's_')) {
+        if (strpos($tableName, 's_') === 0) {
             $tableName = substr($tableName, 2);
         }
 
@@ -842,11 +842,11 @@ EOD;
             $renderedOrder[] = $classRef . '::class';
         }
 
-        if ('order' === $table) {
+        if ($table === 'order') {
             $lineItemIndex = array_search('\Shopware\OrderLineItem\Writer\Resource\OrderLineItemResource::class', $renderedOrder, true);
             $deliveryIndex = array_search('\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource::class', $renderedOrder, true);
 
-            if (false !== $lineItemIndex && false !== $deliveryIndex && $lineItemIndex > $deliveryIndex) {
+            if ($lineItemIndex !== false && $deliveryIndex !== false && $lineItemIndex > $deliveryIndex) {
                 $tmp = $renderedOrder[$deliveryIndex];
                 $renderedOrder[$deliveryIndex] = $renderedOrder[$lineItemIndex];
                 $renderedOrder[$lineItemIndex] = $tmp;
@@ -907,7 +907,7 @@ EOD;
     public function hasARequiredField()
     {
         foreach ($this->fields as $field) {
-            if (false !== strpos($field, 'new Required()')) {
+            if (strpos($field, 'new Required()') !== false) {
                 return true;
             }
         }
@@ -920,7 +920,7 @@ EOD;
         $srcDir = __DIR__ . '/../../';
         $tableName = $this->table;
 
-        if (0 === strpos($tableName, 's_')) {
+        if (strpos($tableName, 's_') === 0) {
             $tableName = substr($tableName, 2);
         }
 
@@ -940,7 +940,7 @@ EOD;
     private function hasDates()
     {
         foreach ($this->consts as $const) {
-            if (false !== strpos($const, 'CREATED_AT_FIELD')) {
+            if (strpos($const, 'CREATED_AT_FIELD') !== false) {
                 return true;
             }
         }

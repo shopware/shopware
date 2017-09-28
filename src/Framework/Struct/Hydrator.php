@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -43,7 +43,7 @@ class Hydrator
         $len = strlen($prefix);
 
         foreach ($data as $field => $value) {
-            if (0 === strpos($field, $prefix)) {
+            if (strpos($field, $prefix) === 0) {
                 $key = substr($field, $len);
                 $result[$key] = $value;
             }
@@ -62,7 +62,7 @@ class Hydrator
     {
         $result = [];
         foreach ($data as $field => $value) {
-            if (0 === strpos($field, $prefix)) {
+            if (strpos($field, $prefix) === 0) {
                 $result[$field] = $value;
             }
         }
@@ -118,7 +118,7 @@ class Hydrator
      */
     protected function getTranslation(array $data, $prefix, array $mapping = [], $id = null, $addPrefix = true)
     {
-        if (null === $prefix) {
+        if ($prefix === null) {
             $key = 'translation';
         } else {
             $key = $prefix . '_translation';
@@ -150,7 +150,7 @@ class Hydrator
      */
     protected function cast($value, string $type)
     {
-        if (null === $value) {
+        if ($value === null) {
             return $value;
         }
         settype($value, $type);
@@ -176,7 +176,7 @@ class Hydrator
             return [];
         }
 
-        if (null === $id) {
+        if ($id === null) {
             return $translation;
         }
 

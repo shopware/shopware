@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -60,7 +60,7 @@ class Generator extends TestCase
         $state = null,
         $shipping = null
     ) {
-        if (null === $shop) {
+        if ($shop === null) {
             $shop = new ShopDetailStruct();
             $shop->setUuid('SWAG-SHOP-UUID-1');
             $shop->setIsDefault(true);

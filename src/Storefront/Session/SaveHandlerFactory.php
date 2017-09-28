@@ -48,7 +48,7 @@ class SaveHandlerFactory
 
     public function createSaveHandler(array $sessionOptions): ?\SessionHandlerInterface
     {
-        if (empty($sessionOptions['save_handler']) || 'db' !== $sessionOptions['save_handler']) {
+        if (empty($sessionOptions['save_handler']) || $sessionOptions['save_handler'] !== 'db') {
             $this->setPhpIniSettings($sessionOptions);
 
             return null;

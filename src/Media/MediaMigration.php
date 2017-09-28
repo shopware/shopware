@@ -96,12 +96,12 @@ class MediaMigration implements MediaMigrationInterface
         $cnt = 0;
 
         foreach ($contents as $item) {
-            if ('dir' === $item['type']) {
+            if ($item['type'] === 'dir') {
                 $cnt += $this->countFiles($item['path']);
             }
 
-            if ('file' === $item['type']) {
-                if (0 === strpos($item['basename'], '.')) {
+            if ($item['type'] === 'file') {
+                if (strpos($item['basename'], '.') === 0) {
                     continue;
                 }
 
@@ -139,13 +139,13 @@ class MediaMigration implements MediaMigrationInterface
         $contents = $this->filesystem->listContents($directory);
 
         foreach ($contents as $item) {
-            if ('dir' === $item['type']) {
+            if ($item['type'] === 'dir') {
                 $this->migrateFiles($item['path']);
                 continue;
             }
 
-            if ('file' === $item['type']) {
-                if (0 === strpos($item['basename'], '.')) {
+            if ($item['type'] === 'file') {
+                if (strpos($item['basename'], '.') === 0) {
                     continue;
                 }
 

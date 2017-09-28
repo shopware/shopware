@@ -34,7 +34,7 @@ class StructCollection extends Collection
 
     public function add(Struct $struct, $key = null): void
     {
-        if (null !== $key) {
+        if ($key !== null) {
             $this->elements[$key] = $struct;
         } else {
             $this->elements[] = $struct;

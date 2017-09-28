@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -47,10 +47,10 @@ class StorefrontContextSwitcher
 
     public function switchContext(?int $shippingMethodId, ?int $paymentMethodId): ShopContext
     {
-        if (null !== $shippingMethodId) {
+        if ($shippingMethodId !== null) {
             $this->session->set('shippingMethodId', $shippingMethodId);
         }
-        if (null !== $paymentMethodId) {
+        if ($paymentMethodId !== null) {
             $this->session->set('paymentMethodId', $paymentMethodId);
         }
 

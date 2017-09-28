@@ -132,7 +132,7 @@ abstract class Resource
             try {
                 $kvPair = $stack->pop($key);
             } catch (ExceptionNoStackItemFound $e) {
-                if (!$field->is(Required::class) || self::FOR_UPDATE === $type) {
+                if (!$field->is(Required::class) || $type === self::FOR_UPDATE) {
                     continue;
                 }
 
@@ -271,7 +271,7 @@ abstract class Resource
      */
     private function updateQueryStack(WriteQueryQueue $queryQueue, string $type, array $pkData, array $data): void
     {
-        if (self::FOR_UPDATE === $type) {
+        if ($type === self::FOR_UPDATE) {
             $queryQueue->add(get_class($this), new UpdateQuery($this->tableName, $pkData, $data));
         } else {
             $queryQueue->add(get_class($this), new InsertQuery($this->tableName, array_merge($pkData, $data)));

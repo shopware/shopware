@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -68,7 +68,7 @@ class ProductOfManufacturersRuleCollector implements CollectorInterface
 
         $categoryRules = $rules->filterInstance(ProductOfManufacturerRule::class);
 
-        if (0 === $categoryRules->count()) {
+        if ($categoryRules->count() === 0) {
             return;
         }
 
@@ -89,7 +89,7 @@ class ProductOfManufacturersRuleCollector implements CollectorInterface
     private function getNumbers(StructCollection $fetchDefinition): array
     {
         $definitions = $fetchDefinition->filterInstance(ProductFetchDefinition::class);
-        if (0 === $definitions->count()) {
+        if ($definitions->count() === 0) {
             return [];
         }
 

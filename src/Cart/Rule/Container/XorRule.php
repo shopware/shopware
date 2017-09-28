@@ -52,6 +52,6 @@ class XorRule extends Container
             ++$matches;
         }
 
-        return new Match(1 === $matches, $messages);
+        return new Match($matches === 1, $messages);
     }
 }

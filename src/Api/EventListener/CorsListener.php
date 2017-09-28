@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\EventListener;
 
@@ -27,13 +27,13 @@ class CorsListener implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
-        if (false === $event->getRequest()->attributes->get(Router::IS_API_REQUEST_ATTRIBUTE)) {
+        if ($event->getRequest()->attributes->get(Router::IS_API_REQUEST_ATTRIBUTE) === false) {
             return;
         }
 
         $method = $request->getRealMethod();
 
-        if ('OPTIONS' === $method) {
+        if ($method === 'OPTIONS') {
             $response = new Response();
             $event->setResponse($response);
         }
@@ -45,7 +45,7 @@ class CorsListener implements EventSubscriberInterface
             return;
         }
 
-        if (false === $event->getRequest()->attributes->get(Router::IS_API_REQUEST_ATTRIBUTE)) {
+        if ($event->getRequest()->attributes->get(Router::IS_API_REQUEST_ATTRIBUTE) === false) {
             return;
         }
 

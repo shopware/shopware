@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -75,7 +75,7 @@ class MediaCleanupCommand extends Command
         $total = $this->handleMove();
         $io->text(sprintf('%s unused item(s) found.', $total));
 
-        if (0 === $total) {
+        if ($total === 0) {
             return;
         }
 
@@ -120,7 +120,7 @@ class MediaCleanupCommand extends Command
             foreach ($iterableResult as $key => $row) {
                 $media = $row[0];
                 $modelManager->remove($media);
-                if (0 === $key % 100) {
+                if ($key % 100 === 0) {
                     $modelManager->flush();
                     $modelManager->clear();
                 }

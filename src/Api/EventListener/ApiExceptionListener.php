@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\EventListener;
 
@@ -30,8 +30,8 @@ class ApiExceptionListener extends ExceptionListener
 
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
-        if (false === $event->getException() instanceof HttpException
-            || false === $event->getRequest()->attributes->get(Router::IS_API_REQUEST_ATTRIBUTE)) {
+        if ($event->getException() instanceof HttpException === false
+            || $event->getRequest()->attributes->get(Router::IS_API_REQUEST_ATTRIBUTE) === false) {
             return $event;
         }
 

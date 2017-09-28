@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -71,7 +71,7 @@ class PaymentSurchargeGateway
         $goods = $cart->getCalculatedLineItems()->filterGoods();
 
         switch (true) {
-            case null !== $payment->getAbsoluteSurcharge():
+            case $payment->getAbsoluteSurcharge() !== null:
                 $rules = $this->percentageTaxRuleBuilder->buildRules(
                     $goods->getPrices()->sum()
                 );
@@ -81,7 +81,7 @@ class PaymentSurchargeGateway
                 );
 
                 break;
-            case null !== $payment->getPercentageSurcharge():
+            case $payment->getPercentageSurcharge() !== null:
                 $surcharge = $this->percentagePriceCalculator->calculate(
                     $payment->getPercentageSurcharge(),
                     $goods->getPrices(),

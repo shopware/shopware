@@ -82,7 +82,7 @@ class WriteQueryQueue
 
         $notAlreadyOrderedIdentifiers = [];
         foreach ($identifierOrder as $identifier) {
-            if ($identifier === $resource || false === array_search($identifier, $this->order)) {
+            if ($identifier === $resource || array_search($identifier, $this->order) === false) {
                 $notAlreadyOrderedIdentifiers[] = $identifier;
             }
         }

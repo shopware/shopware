@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Controller;
 
@@ -44,7 +44,7 @@ class CheckoutController extends StorefrontController
         if (!$context->getCustomer()) {
             return $this->redirectToRoute('account_login');
         }
-        if (0 === $cartService->getCart()->getCalculatedCart()->getCalculatedLineItems()->count()) {
+        if ($cartService->getCart()->getCalculatedCart()->getCalculatedLineItems()->count() === 0) {
             return $this->redirectToRoute('checkout_cart');
         }
 
@@ -69,7 +69,7 @@ class CheckoutController extends StorefrontController
         if (!$context->getCustomer()) {
             return $this->redirectToRoute('account_login');
         }
-        if (0 === $cartService->getCart()->getCalculatedCart()->getCalculatedLineItems()->count()) {
+        if ($cartService->getCart()->getCalculatedCart()->getCalculatedLineItems()->count() === 0) {
             return $this->redirectToRoute('checkout_cart');
         }
 

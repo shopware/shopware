@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -68,7 +68,7 @@ class MinimumOrderValueGateway
 
         $goods = $cart->getCalculatedLineItems()->filterGoods();
 
-        if (0 === $goods->count()) {
+        if ($goods->count() === 0) {
             return null;
         }
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -100,7 +100,7 @@ class MediaOptimizeCommand extends Command
         foreach ($finder->getIterator() as $file) {
             $this->io->progressAdvance();
 
-            if (OutputInterface::VERBOSITY_VERBOSE === $output->getVerbosity()) {
+            if ($output->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE) {
                 $output->writeln(' - ' . $file->getRelativePathname());
             }
 

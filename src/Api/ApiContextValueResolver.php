@@ -16,7 +16,7 @@ class ApiContextValueResolver implements ArgumentValueResolverInterface
 
     public function supports(Request $request, ArgumentMetadata $argument): bool
     {
-        return ApiContext::class === $argument->getType();
+        return $argument->getType() === ApiContext::class;
     }
 
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
@@ -43,7 +43,7 @@ class ApiContextValueResolver implements ArgumentValueResolverInterface
         switch ($format) {
             case 'json':
                 $payload = json_decode($request->getContent(), true);
-                if (JSON_ERROR_NONE !== json_last_error()) {
+                if (json_last_error() !== JSON_ERROR_NONE) {
                     $error = json_last_error_msg();
                 }
                 break;

@@ -93,7 +93,7 @@ class SqlGateway
             $uuid
         );
 
-        if (0 === $affectedRows) {
+        if ($affectedRows === 0) {
             throw new ExceptionNoUpdatedRecord(sprintf('Unable to update "%s"::"%s" - no rows updated with %s', $tableName, print_r($uuid, true), print_r($data, true)));
             //                throw new ExceptionNoUpdatedRecord(sprintf('Unable to update "%s" - no rows updated', $uuid));
         }

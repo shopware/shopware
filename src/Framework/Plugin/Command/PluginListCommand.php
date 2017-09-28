@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Framework\Plugin\Command;
 
@@ -47,7 +47,6 @@ class PluginListCommand extends Command
         $plugins = $this->pluginManager->getPlugins();
 
         if ($filter = $input->getOption('filter')) {
-
             $io->comment(sprintf('Filtering for: %s', $filter));
 
             $plugins = array_filter($plugins, function (Plugin $plugin) use ($filter) {
@@ -71,11 +70,11 @@ class PluginListCommand extends Command
             ];
 
             if ($plugin->isActive()) {
-                $active++;
+                ++$active;
             }
 
             if ($plugin->getInstallationDate()) {
-                $installed++;
+                ++$installed;
             }
         }
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -38,7 +38,7 @@ class ArraySerializer implements SerializerInterface
 
     public function supportsFormat(string $format): bool
     {
-        return 'array' === $format;
+        return $format === 'array';
     }
 
     public function serialize($data)

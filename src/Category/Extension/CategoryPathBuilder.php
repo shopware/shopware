@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Category\Extension;
 
@@ -67,7 +67,7 @@ class CategoryPathBuilder
 
             $names = $parents->map(
                 function (CategoryBasicStruct $parent) {
-                    if (0 === $parent->getLevel()) {
+                    if ($parent->getLevel() === 0) {
                         return null;
                     }
 
@@ -97,7 +97,7 @@ class CategoryPathBuilder
         $parents = $this->repository->read([$parentUuid], $context);
         $parent = $parents->get($parentUuid);
 
-        if (null !== $parent->getParentUuid()) {
+        if ($parent->getParentUuid() !== null) {
             $parents = $parents->merge(
                 $this->loadParents($parent->getParentUuid(), $context)
             );

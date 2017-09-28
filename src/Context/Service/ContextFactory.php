@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -173,7 +173,7 @@ class ContextFactory implements ContextFactoryInterface
 
         $customer = null;
 
-        if (null !== $customerScope->getCustomerUuid()) {
+        if ($customerScope->getCustomerUuid() !== null) {
             //load logged in customer and set active addresses
             $customer = $this->loadCustomer($customerScope, $translationContext);
 
@@ -224,7 +224,7 @@ class ContextFactory implements ContextFactoryInterface
 
     private function getCurrency(ShopDetailStruct $shop, ?string $currencyUuid, TranslationContext $context): CurrencyBasicStruct
     {
-        if (null === $currencyUuid) {
+        if ($currencyUuid === null) {
             return $shop->getCurrency();
         }
 

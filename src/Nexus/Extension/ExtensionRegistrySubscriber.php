@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Nexus\Extension;
 
@@ -38,7 +38,7 @@ class ExtensionRegistrySubscriber implements EventSubscriberInterface
         }
 
         $type = $request->attributes->get(Router::REQUEST_TYPE_ATTRIBUTE);
-        if (Router::REQUEST_TYPE_NEXUS !== $type) {
+        if ($type !== Router::REQUEST_TYPE_NEXUS) {
             return $event;
         }
 

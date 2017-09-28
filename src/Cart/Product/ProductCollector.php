@@ -45,7 +45,7 @@ class ProductCollector implements CollectorInterface
     public function prepare(StructCollection $fetchDefinition, CartContainer $cartContainer, ShopContext $context): void
     {
         $lineItems = $cartContainer->getLineItems()->filterType(ProductProcessor::TYPE_PRODUCT);
-        if (0 === $lineItems->count()) {
+        if ($lineItems->count() === 0) {
             return;
         }
 
@@ -55,7 +55,7 @@ class ProductCollector implements CollectorInterface
     public function fetch(StructCollection $dataCollection, StructCollection $fetchCollection, ShopContext $context): void
     {
         $definitions = $fetchCollection->filterInstance(ProductFetchDefinition::class);
-        if (0 === $definitions->count()) {
+        if ($definitions->count() === 0) {
             return;
         }
 

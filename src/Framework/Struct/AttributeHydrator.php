@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -55,7 +55,7 @@ class AttributeHydrator extends Hydrator
         $arrayKey = '__' . $arrayKey . '_';
         $attribute = $this->extractFields($arrayKey, $data);
 
-        if (null === $attributeKey) {
+        if ($attributeKey === null) {
             $attributeKey = 'core';
         }
 

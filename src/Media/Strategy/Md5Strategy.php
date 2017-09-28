@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -97,7 +97,7 @@ class Md5Strategy implements StrategyInterface
     private function hasBlacklistParts(string $path): bool
     {
         foreach ($this->blacklist as $key => $value) {
-            if (false !== strpos($path, '/' . $key . '/')) {
+            if (strpos($path, '/' . $key . '/') !== false) {
                 return true;
             }
         }

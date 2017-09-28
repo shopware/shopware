@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Firewall;
 
@@ -39,7 +39,7 @@ class CustomerProvider implements UserProviderInterface
         $customerResult = $this->customerRepository->search($criteria, $context);
 
         // pretend it returns an array on success, false if there is no user
-        if (0 === $customerResult->getTotal()) {
+        if ($customerResult->getTotal() === 0) {
             throw new UsernameNotFoundException(
                 sprintf('Customer with email address "%s" does not exist.', $email)
             );
@@ -67,6 +67,6 @@ class CustomerProvider implements UserProviderInterface
 
     public function supportsClass($class)
     {
-        return CustomerUser::class === $class;
+        return $class === CustomerUser::class;
     }
 }

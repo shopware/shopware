@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -135,7 +135,7 @@ class Router implements RouterInterface, RequestMatcherInterface
      */
     public function getRouteCollection(): RouteCollection
     {
-        if (null !== $this->routes) {
+        if ($this->routes !== null) {
             return $this->routes;
         }
 
@@ -146,7 +146,7 @@ class Router implements RouterInterface, RequestMatcherInterface
             return $this->routes;
         }
 
-        if (null === $this->routes) {
+        if ($this->routes === null) {
             $this->routes = $this->loadRoutes();
         }
 
@@ -176,13 +176,13 @@ class Router implements RouterInterface, RequestMatcherInterface
         $stripBaseUrl = $this->rewriteBaseUrl($shop['base_url'], $shop['base_path']);
 
         $route = $this->getRouteCollection()->get($name);
-        if ($route && true !== $route->getOption('seo')) {
+        if ($route && $route->getOption('seo') !== true) {
             return $generator->generate($name, $parameters, $referenceType);
         }
 
         //find seo url for path info
         $pathInfo = $generator->generate($name, $parameters, UrlGenerator::ABSOLUTE_PATH);
-        if ('/' !== $stripBaseUrl) {
+        if ($stripBaseUrl !== '/') {
             $pathInfo = str_replace($stripBaseUrl, '', $pathInfo);
         }
 
@@ -266,7 +266,7 @@ class Router implements RouterInterface, RequestMatcherInterface
             (string) $shop['fallback_locale_uuid']
         );
 
-        if (false !== strpos($pathInfo, '/widgets/')) {
+        if (strpos($pathInfo, '/widgets/') !== false) {
             return $this->match($pathInfo);
         }
 
@@ -301,7 +301,7 @@ class Router implements RouterInterface, RequestMatcherInterface
 
     protected function getCurrencyUuid(Request $request, string $fallback): string
     {
-        if ('POST' === $this->context->getMethod() && $request->get('__currency')) {
+        if ($this->context->getMethod() === 'POST' && $request->get('__currency')) {
             return (string) $request->get('__currency');
         }
 
@@ -353,7 +353,7 @@ class Router implements RouterInterface, RequestMatcherInterface
 
     private function getRequestType(Request $request): string
     {
-        $isApi = 0 === stripos($request->getPathInfo(), '/api/');
+        $isApi = stripos($request->getPathInfo(), '/api/') === 0;
 
         if ($isApi && $request->query->has('nexus')) {
             return self::REQUEST_TYPE_NEXUS;

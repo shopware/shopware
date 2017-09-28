@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -43,7 +43,7 @@ class ShopContextValueResolver implements ArgumentValueResolverInterface
 
     public function supports(Request $request, ArgumentMetadata $argument)
     {
-        return ShopContext::class === $argument->getType();
+        return $argument->getType() === ShopContext::class;
     }
 
     public function resolve(Request $request, ArgumentMetadata $argument)

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Framework\Plugin\Command;
 
@@ -24,7 +24,6 @@ class PluginInstallCommand extends Command
 
         $this->pluginManager = $pluginManager;
     }
-
 
     protected function configure()
     {

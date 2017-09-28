@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\DbalIndexing\Indexer;
 
@@ -172,7 +172,7 @@ class ListingPriceIndexer implements IndexerInterface
 
         /* @var ProductListingPriceBasicStruct $fallback */
         foreach ($customerGroupUuids as $customerGroupUuid) {
-            if (StorefrontContextService::FALLBACK_CUSTOMER_GROUP === $customerGroupUuid) {
+            if ($customerGroupUuid === StorefrontContextService::FALLBACK_CUSTOMER_GROUP) {
                 continue;
             }
 
@@ -193,7 +193,7 @@ class ListingPriceIndexer implements IndexerInterface
 
     private function getIndexName(?\DateTime $timestamp): string
     {
-        if (null === $timestamp) {
+        if ($timestamp === null) {
             return self::TABLE;
         }
 

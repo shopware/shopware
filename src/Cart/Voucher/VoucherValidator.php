@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -40,7 +40,7 @@ class VoucherValidator implements ValidatorInterface
     ): bool {
         $vouchers = $cart->getCalculatedLineItems()->filterInstance(CalculatedVoucher::class);
 
-        if (0 === $vouchers->count()) {
+        if ($vouchers->count() === 0) {
             return true;
         }
 

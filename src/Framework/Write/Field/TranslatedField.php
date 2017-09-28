@@ -79,7 +79,7 @@ class TranslatedField extends Field implements WriteContextAware
         }
 
         if (is_array($value)) {
-            $isNumeric = 0 === count(array_diff($value, range(0, count($value))));
+            $isNumeric = count(array_diff($value, range(0, count($value)))) === 0;
 
             if ($isNumeric) {
                 foreach ($value as $translationKey => $translationValue) {

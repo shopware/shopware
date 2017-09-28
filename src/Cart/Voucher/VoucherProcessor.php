@@ -74,12 +74,12 @@ class VoucherProcessor implements CartProcessorInterface
     ): void {
         $lineItems = $cartContainer->getLineItems()->filterType(self::TYPE_VOUCHER);
 
-        if (0 === $lineItems->count()) {
+        if ($lineItems->count() === 0) {
             return;
         }
 
         $prices = $processorCart->getCalculatedLineItems()->filterGoods()->getPrices();
-        if (0 === $prices->count()) {
+        if ($prices->count() === 0) {
             return;
         }
 

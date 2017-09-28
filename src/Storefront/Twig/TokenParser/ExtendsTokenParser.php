@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -71,7 +71,7 @@ final class ExtendsTokenParser extends \Twig_TokenParser
     private function getTemplateName(string $template): string
     {
         //remove static template inheritance prefix
-        if (0 !== strpos($template, '@')) {
+        if (strpos($template, '@') !== 0) {
             return $template;
         }
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -33,7 +33,7 @@ abstract class Controller extends SymfonyController
     protected function render($view, array $parameters = [], Response $response = null): Response
     {
         //remove static template inheritance prefix
-        if (0 === strpos($view, '@')) {
+        if (strpos($view, '@') === 0) {
             $view = explode('/', $view);
             array_shift($view);
             $view = implode('/', $view);

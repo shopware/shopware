@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -41,7 +41,7 @@ class JsonSerializer implements SerializerInterface
 
     public function supportsFormat(string $format): bool
     {
-        return 'json' === $format;
+        return $format === 'json';
     }
 
     public function serialize($data)

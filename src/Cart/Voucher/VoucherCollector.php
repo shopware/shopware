@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -51,7 +51,7 @@ class VoucherCollector implements CollectorInterface
     ): void {
         $vouchers = $cartContainer->getLineItems()->filterType(VoucherProcessor::TYPE_VOUCHER);
 
-        if (0 === $vouchers->count()) {
+        if ($vouchers->count() === 0) {
             return;
         }
 
@@ -66,7 +66,7 @@ class VoucherCollector implements CollectorInterface
     ): void {
         $definitions = $fetchCollection->filterInstance(VoucherFetchDefinition::class);
 
-        if (0 === $definitions->count()) {
+        if ($definitions->count() === 0) {
             return;
         }
 

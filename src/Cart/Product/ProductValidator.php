@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -42,7 +42,7 @@ class ProductValidator implements ValidatorInterface
     ): bool {
         $products = $cart->getCartContainer()->getLineItems()->filterType(ProductProcessor::TYPE_PRODUCT);
 
-        if (0 === $products->count()) {
+        if ($products->count() === 0) {
             return true;
         }
 

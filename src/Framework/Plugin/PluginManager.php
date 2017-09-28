@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Framework\Plugin;
 
@@ -54,9 +54,9 @@ class PluginManager
     /**
      * @param string $pluginName
      *
-     * @return \Shopware\Framework\Struct\Plugin
-     *
      * @throws PluginNotFoundException
+     *
+     * @return \Shopware\Framework\Struct\Plugin
      */
     public function getPluginByName(string $pluginName): \Shopware\Framework\Struct\Plugin
     {
@@ -121,11 +121,11 @@ class PluginManager
 
     /**
      * @param \Shopware\Framework\Struct\Plugin $plugin
-     * @param bool $removeUserData
-     *
-     * @return UninstallContext
+     * @param bool                              $removeUserData
      *
      * @throws PluginNotInstalledException
+     *
+     * @return UninstallContext
      */
     public function uninstallPlugin(\Shopware\Framework\Struct\Plugin $plugin, $removeUserData = true): Context\UninstallContext
     {
@@ -136,7 +136,7 @@ class PluginManager
 
         $context = new UninstallContext($pluginBootstrap, Framework::VERSION, $plugin->getVersion(), !$removeUserData);
 
-        if (null === $plugin->getInstallationDate()) {
+        if ($plugin->getInstallationDate() === null) {
             throw new PluginNotInstalledException($plugin->getName());
         }
 
@@ -151,7 +151,7 @@ class PluginManager
 
         $this->connection->update(
             'plugin',
-            ['active' =>  0, 'installation_date' => null],
+            ['active' => 0, 'installation_date' => null],
             ['name' => $plugin->getName()]
         );
 
@@ -189,7 +189,7 @@ class PluginManager
                 'version' => $context->getUpdateVersion(),
                 'update_version' => null,
                 'update_source' => null,
-                'update_date' => $plugin->getUpdateDate()->format('Y-m-d H:i:s')
+                'update_date' => $plugin->getUpdateDate()->format('Y-m-d H:i:s'),
             ];
 
             $connection->update('plugin', $updates, ['name' => $plugin->getName()]);
@@ -214,7 +214,7 @@ class PluginManager
             return $context;
         }
 
-        if (null === $plugin->getInstallationDate()) {
+        if ($plugin->getInstallationDate() === null) {
             throw new PluginNotInstalledException($plugin->getName());
         }
 
@@ -222,7 +222,7 @@ class PluginManager
 
         $this->connection->update(
             'plugin',
-            ['active' =>  1],
+            ['active' => 1],
             ['name' => $plugin->getName()]
         );
 
@@ -232,10 +232,10 @@ class PluginManager
     /**
      * @param Plugin|\Shopware\Framework\Struct\Plugin $plugin
      *
-     * @return DeactivateContext
-     *
      * @throws PluginNotActivatedException
      * @throws PluginNotInstalledException
+     *
+     * @return DeactivateContext
      */
     public function deactivatePlugin(\Shopware\Framework\Struct\Plugin $plugin): Context\DeactivateContext
     {
@@ -246,7 +246,7 @@ class PluginManager
             throw new PluginNotInstalledException($plugin->getName());
         }
 
-        if (false === $plugin->isActive()) {
+        if ($plugin->isActive() === false) {
             throw new PluginNotActivatedException($plugin->getName());
         }
 
@@ -256,7 +256,7 @@ class PluginManager
 
         $this->connection->update(
             'plugin',
-            ['active' =>  0],
+            ['active' => 0],
             ['name' => $plugin->getName()]
         );
 
@@ -309,28 +309,13 @@ class PluginManager
 
                 $data['refresh_date'] = $refreshDate->format('Y-m-d H:i:s');
                 $this->connection->update('plugin', $data, ['name' => $pluginName]);
-
             } else {
                 $data['uuid'] = $pluginName;
                 $data['created_at'] = $refreshDate->format('Y-m-d H:i:s');
 
                 $this->connection->insert('plugin', $data);
             }
-
         }
-    }
-
-    private function parsePluginInfo(string $pluginPath): array
-    {
-        $pluginInfoPath = $pluginPath . '/plugin.xml';
-        $info = [];
-
-        if (is_file($pluginInfoPath)) {
-            $xmlConfigReader = new XmlPluginInfoReader();
-            $info = $xmlConfigReader->read($pluginInfoPath);
-        }
-
-        return $info;
     }
 
     /**
@@ -348,6 +333,19 @@ class PluginManager
         }
 
         return $plugins;
+    }
+
+    private function parsePluginInfo(string $pluginPath): array
+    {
+        $pluginInfoPath = $pluginPath . '/plugin.xml';
+        $info = [];
+
+        if (is_file($pluginInfoPath)) {
+            $xmlConfigReader = new XmlPluginInfoReader();
+            $info = $xmlConfigReader->read($pluginInfoPath);
+        }
+
+        return $info;
     }
 
     /**
@@ -375,7 +373,7 @@ class PluginManager
         $plugin->setLabel($databasePlugin['label']);
         $plugin->setDescription($databasePlugin['description']);
         $plugin->setDescriptionLong($databasePlugin['description_long']);
-        $plugin->setActive((bool)$databasePlugin['active']);
+        $plugin->setActive((bool) $databasePlugin['active']);
         $plugin->setCreatedAt(new \DateTime($databasePlugin['created_at']));
         $plugin->setInstallationDate(
             $databasePlugin['installation_date'] ? new \DateTime($databasePlugin['installation_date']) : null
@@ -393,9 +391,9 @@ class PluginManager
         $plugin->setLink($databasePlugin['link']);
         $plugin->setStoreVersion($databasePlugin['store_version']);
         $plugin->setStoreDate($databasePlugin['store_date'] ? new \DateTime($databasePlugin['store_date']) : null);
-        $plugin->setCapabilityUpdate((bool)$databasePlugin['capability_update']);
-        $plugin->setCapabilityInstall((bool)$databasePlugin['capability_install']);
-        $plugin->setCapabilityEnable((bool)$databasePlugin['capability_enable']);
+        $plugin->setCapabilityUpdate((bool) $databasePlugin['capability_update']);
+        $plugin->setCapabilityInstall((bool) $databasePlugin['capability_install']);
+        $plugin->setCapabilityEnable((bool) $databasePlugin['capability_enable']);
         $plugin->setUpdateSource($databasePlugin['update_source']);
         $plugin->setUpdateVersion($databasePlugin['update_version']);
 

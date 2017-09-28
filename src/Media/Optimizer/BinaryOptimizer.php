@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -84,7 +84,7 @@ abstract class BinaryOptimizer implements OptimizerInterface
      */
     public function isRunnable(): bool
     {
-        if (null !== $this->isRunnable) {
+        if ($this->isRunnable !== null) {
             return $this->isRunnable;
         }
 

@@ -64,7 +64,7 @@ class TaxAmountCalculator implements TaxAmountCalculatorInterface
             return new CalculatedTaxCollection([]);
         }
 
-        if (self::CALCULATION_VERTICAL === $context->getShop()->getTaxCalculationType()) {
+        if ($context->getShop()->getTaxCalculationType() === self::CALCULATION_VERTICAL) {
             return $priceCollection->getCalculatedTaxes();
         }
 

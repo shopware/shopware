@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Framework\Plugin;
 
@@ -26,7 +26,9 @@ class XmlPluginInfoReader
     {
         $xpath = new \DOMXPath($xml);
 
-        if (false === $entries = $xpath->query('//plugin')) {
+        $entries = $xpath->query('//plugin');
+
+        if ($entries === false) {
             return;
         }
 

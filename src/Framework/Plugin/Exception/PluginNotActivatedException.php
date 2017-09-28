@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Framework\Plugin\Exception;
 
@@ -12,5 +12,4 @@ class PluginNotActivatedException extends \Exception
 
         parent::__construct($message, $code, $previous);
     }
-
 }

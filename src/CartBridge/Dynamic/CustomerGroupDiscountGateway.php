@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -58,7 +58,7 @@ class CustomerGroupDiscountGateway
 
         $goods = $cart->getCalculatedLineItems()->filterGoods();
 
-        if (0 === $goods->count()) {
+        if ($goods->count() === 0) {
             return null;
         }
 
@@ -69,7 +69,7 @@ class CustomerGroupDiscountGateway
             $prices->sum()->getTotalPrice()
         );
 
-        if (null === $discount) {
+        if ($discount === null) {
             return null;
         }
 
@@ -91,7 +91,7 @@ class CustomerGroupDiscountGateway
         $query->setMaxResults(1);
 
         $discount = $query->execute()->fetch(\PDO::FETCH_COLUMN);
-        if (false !== $discount) {
+        if ($discount !== false) {
             return (float) $discount * -1;
         }
 

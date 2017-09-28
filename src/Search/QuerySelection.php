@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Search;
 
@@ -72,7 +72,7 @@ class QuerySelection
             return true;
         }
 
-        if (false === strpos($field, '.')) {
+        if (strpos($field, '.') === false) {
             $field = $this->getRoot() . '.' . $field;
         }
 
@@ -86,7 +86,7 @@ class QuerySelection
 
     public function getField(string $field): string
     {
-        if (false === strpos($field, '.')) {
+        if (strpos($field, '.') === false) {
             $field = $this->getRoot() . '.' . $field;
         }
 
@@ -111,7 +111,7 @@ class QuerySelection
     {
         $select = [];
         foreach ($this->getFields() as $name) {
-            if (false !== strpos($name, '_sub_select_')) {
+            if (strpos($name, '_sub_select_') !== false) {
                 continue;
             }
             $select[] = self::escapeFieldSelect($name);
@@ -168,7 +168,7 @@ class QuerySelection
         $affected = array_filter(
             $this->fields,
             function (string $field) use ($prefix) {
-                return 0 === strpos($field, $this->implodeRoot($prefix) . '.');
+                return strpos($field, $this->implodeRoot($prefix) . '.') === 0;
             }
         );
 

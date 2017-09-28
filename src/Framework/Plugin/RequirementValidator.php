@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Framework\Plugin;
 
@@ -15,8 +15,8 @@ class RequirementValidator
     }
 
     /**
-     * @param string $pluginXmlFile   File path to the plugin.xml
-     * @param string $shopwareVersion current shopware version
+     * @param string   $pluginXmlFile    File path to the plugin.xml
+     * @param string   $shopwareVersion  current shopware version
      * @param Plugin[] $availablePlugins
      */
     public function validate(string $pluginXmlFile, string $shopwareVersion, array $availablePlugins): void
@@ -76,7 +76,7 @@ class RequirementValidator
     }
 
     /**
-     * @param array[] $requiredPlugins
+     * @param array[]                             $requiredPlugins
      * @param \Shopware\Framework\Struct\Plugin[] $availablePlugins
      *
      * @throws \Exception

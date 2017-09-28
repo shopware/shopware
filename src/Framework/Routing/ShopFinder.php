@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -44,12 +44,12 @@ class ShopFinder
     public function findShopByRequest(RequestContext $requestContext, Request $request): ?array
     {
         $shop = $this->getShopByPost($requestContext, $request);
-        if (null !== $shop) {
+        if ($shop !== null) {
             return $shop;
         }
 
         $shop = $this->getShopByCookie($request);
-        if (null !== $shop) {
+        if ($shop !== null) {
             return $shop;
         }
 
@@ -87,7 +87,7 @@ class ShopFinder
 
         // reduce shops to which base url is the beginning of the request
         $paths = array_filter($paths, function ($baseUrl) use ($url) {
-            return 0 === strpos($url, $baseUrl);
+            return strpos($url, $baseUrl) === 0;
         }, ARRAY_FILTER_USE_KEY);
 
         // determine most matching shop base url
@@ -161,7 +161,7 @@ class ShopFinder
 
     private function getShopByPost(RequestContext $context, Request $request): ?array
     {
-        if ('POST' !== $context->getMethod()) {
+        if ($context->getMethod() !== 'POST') {
             return null;
         }
 

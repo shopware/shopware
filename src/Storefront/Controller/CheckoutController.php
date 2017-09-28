@@ -8,7 +8,7 @@ use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-class CheckoutController extends FrontendController
+class CheckoutController extends StorefrontController
 {
     /**
      * @Route("/checkout", name="checkout_index", options={"seo"="false"})

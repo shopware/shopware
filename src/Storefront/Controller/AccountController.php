@@ -9,7 +9,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 /**
  * @Route(service="shopware.storefront.controller.account")
  */
-class AccountController extends FrontendController
+class AccountController extends StorefrontController
 {
     /**
      * @var AuthenticationUtils

@@ -28,7 +28,7 @@ use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class ListingController extends FrontendController
+class ListingController extends StorefrontController
 {
     /**
      * @Route("/listing/{uuid}", name="listing_page", options={"seo"=true})

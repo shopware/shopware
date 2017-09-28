@@ -7,7 +7,7 @@ use Symfony\Component\Dotenv\Dotenv;
 
 (new Dotenv())->load(__DIR__.'/../../.env');
 
-const MAX_ROWS = 1000;
+const MAX_ROWS = 10000;
 
 $faker = Faker\Factory::create();
 

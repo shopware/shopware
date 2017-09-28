@@ -26,7 +26,7 @@ namespace Shopware\Storefront\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
 
-abstract class FrontendController extends Controller
+abstract class StorefrontController extends Controller
 {
     protected function render($view, array $parameters = [], Response $response = null): Response
     {

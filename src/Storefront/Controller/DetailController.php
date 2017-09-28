@@ -29,7 +29,7 @@ use Shopware\Product\Struct\ProductDetailStruct;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class DetailController extends FrontendController
+class DetailController extends StorefrontController
 {
     /**
      * @Route("/detail/{uuid}", name="detail_page", options={"seo"="true"})

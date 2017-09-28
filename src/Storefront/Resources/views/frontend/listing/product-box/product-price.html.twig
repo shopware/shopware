@@ -3,7 +3,7 @@
 
     {% block frontend_listing_box_article_price_default %}
         <span class="price--default is--nowrap{% if product.listingPrice.pseudoPrice %} is--discount{% endif %}">
-            {% if product.listingPrice.hasDifferentPrices %}
+            {% if product.listingPrice.displayFromPrice %}
                 {% trans from 'frontend/listing/box_article' %}ListingBoxArticleStartsAt{% endtrans %}
             {% endif %}
             {{ product.listingPrice.price|localizedcurrency(context.currency.shortName) }}

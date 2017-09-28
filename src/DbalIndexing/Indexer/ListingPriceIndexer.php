@@ -134,8 +134,8 @@ class ListingPriceIndexer implements IndexerInterface
         $table = $this->getIndexName($timestamp);
 
         $insert = $this->connection->prepare('
-            INSERT INTO ' . $table . ' (uuid, product_uuid, customer_group_uuid, price)
-            VALUES (:uuid, :product_uuid, :customer_group_uuid, :price)
+            INSERT INTO ' . $table . ' (uuid, product_uuid, customer_group_uuid, price, display_from_price)
+            VALUES (:uuid, :product_uuid, :customer_group_uuid, :price, :display_from_price)
         ');
 
         foreach ($uuids as $productUuid) {
@@ -148,6 +148,7 @@ class ListingPriceIndexer implements IndexerInterface
                     'product_uuid' => $price->getProductUuid(),
                     'customer_group_uuid' => $price->getCustomerGroupUuid(),
                     'price' => $price->getPrice(),
+                    'display_from_price' => $price->getDisplayFromPrice() ? 1 : 0
                 ]);
             }
         }

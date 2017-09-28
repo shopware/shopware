@@ -26,7 +26,7 @@ class ListingPageLoader
         Request $request,
         ShopContext $context
     ): ListingPageStruct {
-        $criteria = $this->createCriteria($categoryUuid, $request);
+        $criteria = $this->createCriteria($categoryUuid, $request, $context);
 
         $products = $this->productRepository->search($criteria, $context);
 
@@ -44,8 +44,11 @@ class ListingPageLoader
      *
      * @return Criteria
      */
-    private function createCriteria(string $categoryUuid, Request $request): Criteria
-    {
+    private function createCriteria(
+        string $categoryUuid,
+        Request $request,
+        ShopContext $context
+    ): Criteria {
         $limit = 20;
         if ($request->get('limit')) {
             $limit = (int) $request->get('limit');

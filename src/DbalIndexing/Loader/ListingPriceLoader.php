@@ -26,6 +26,7 @@ class ListingPriceLoader
             'product.uuid',
             'product_detail_price.customer_group_uuid as customer_group_uuid',
             'MIN(product_detail_price.price) as price',
+            'COUNT(DISTINCT(product_detail_price.price)) as display_from_price',
         ]);
 
         $query->from('product');
@@ -44,6 +45,7 @@ class ListingPriceLoader
             $struct->setProductUuid($row['uuid']);
             $struct->setPrice((float) $row['price']);
             $struct->setCustomerGroupUuid($row['customer_group_uuid']);
+            $struct->setDisplayFromPrice(((int) $row['display_from_price']) > 1);
             $collection->add($struct);
         }
 

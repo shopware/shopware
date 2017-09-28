@@ -27,6 +27,11 @@ class ProductListingPriceBasicStruct extends Struct
     protected $price;
 
     /**
+     * @var bool
+     */
+    protected $displayFromPrice;
+
+    /**
      * @var \DateTime|null
      */
     protected $createdAt;
@@ -74,6 +79,16 @@ class ProductListingPriceBasicStruct extends Struct
     public function setPrice(float $price): void
     {
         $this->price = $price;
+    }
+
+    public function getDisplayFromPrice(): bool
+    {
+        return $this->displayFromPrice;
+    }
+
+    public function setDisplayFromPrice(bool $displayFromPrice): void
+    {
+        $this->displayFromPrice = $displayFromPrice;
     }
 
     public function getCreatedAt(): ?\DateTime

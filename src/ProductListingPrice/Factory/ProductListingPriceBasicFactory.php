@@ -21,6 +21,7 @@ class ProductListingPriceBasicFactory extends Factory
        'product_uuid' => 'product_uuid',
        'customer_group_uuid' => 'customer_group_uuid',
        'price' => 'price',
+       'display_from_price' => 'display_from_price',
        'created_at' => 'created_at',
        'updated_at' => 'updated_at',
     ];
@@ -42,6 +43,7 @@ class ProductListingPriceBasicFactory extends Factory
         $productListingPrice->setProductUuid((string) $data[$selection->getField('product_uuid')]);
         $productListingPrice->setCustomerGroupUuid((string) $data[$selection->getField('customer_group_uuid')]);
         $productListingPrice->setPrice((float) $data[$selection->getField('price')]);
+        $productListingPrice->setDisplayFromPrice((bool) $data[$selection->getField('display_from_price')]);
         $productListingPrice->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
         $productListingPrice->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
 

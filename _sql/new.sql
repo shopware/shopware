@@ -5,6 +5,7 @@ CREATE TABLE `product_listing_price_ro` (
   `product_uuid` varchar(42) NOT NULL,
   `customer_group_uuid` varchar(42) NOT NULL,
   `price` float NOT NULL,
+  `display_from_price` TINYINT(1) NOT NULL,
   PRIMARY KEY (`uuid`)
 );
 

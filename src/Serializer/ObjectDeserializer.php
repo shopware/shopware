@@ -84,11 +84,16 @@ class ObjectDeserializer
      * @param string $class
      * @param array  $arguments
      *
-     * @return object
+     * @return Object
      */
     private function createInstance(string $class, array $arguments)
     {
         $reflectionClass = $this->getReflectionClass($class);
+
+        $instance = $reflectionClass->newInstanceWithoutConstructor();
+        if (!($instance instanceof Struct)) {
+            throw new \RuntimeException(sprintf('Someone tried to unserialize an none struct %s', $reflectionClass->getName()));
+        }
 
         if (!$reflectionClass->getConstructor()) {
             $instance = $reflectionClass->newInstance();

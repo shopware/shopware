@@ -6,7 +6,7 @@ use Shopware\Category\Event\CategoryWriteExtenderEvent;
 use Shopware\Category\Event\CategoryWrittenEvent;
 use Shopware\Category\Writer\Resource\CategoryResource;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Event\NestedEventDispatcher;
+use Shopware\Framework\Event\NestedEventDispatcherInterface;
 use Shopware\Framework\Write\FieldAware\DefaultExtender;
 use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Framework\Write\FieldException\WriteStackException;
@@ -22,7 +22,7 @@ class CategoryWriter
     private $extender;
 
     /**
-     * @var NestedEventDispatcher
+     * @var NestedEventDispatcherInterface
      */
     private $eventDispatcher;
 
@@ -31,7 +31,7 @@ class CategoryWriter
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, NestedEventDispatcher $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcherInterface $eventDispatcher, Writer $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;

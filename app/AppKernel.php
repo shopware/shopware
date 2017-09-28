@@ -102,7 +102,7 @@ class AppKernel extends Kernel
             new \Shopware\OrderLineItem\OrderLineItem(),
             new \Shopware\OrderState\OrderState(),
             new \Shopware\ProductListingPrice\ProductListingPrice(),
-            new \Shopware\Denormalization\Denormalization(),
+            new \Shopware\DbalIndexing\DbalIndexing(),
             new \Shopware\ProductMedia\ProductMedia(),
         ];
 

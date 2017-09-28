@@ -138,7 +138,7 @@ class ListingPageUrlGenerator implements SeoUrlGeneratorInterface
         if ($category->getUuid() === $shop->getCategoryUuid()) {
             return null;
         }
-        if ($category->getParentUuid() !== null) {
+        if ($category->getParentUuid() === null) {
             return null;
         }
 

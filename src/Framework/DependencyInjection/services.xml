@@ -86,13 +86,6 @@
 
         <service class="Shopware\Framework\Struct\AttributeHydrator" id="shopware.framework.struct.attribute_hydrator"/>
 
-        <service id="shopware.framework.event.nested_event_dispatcher"
-                 class="Shopware\Framework\Event\NestedEventDispatcher"
-                 decorates="event_dispatcher"
-                 decoration-priority="-100">
-            <argument type="service" id="shopware.framework.event.nested_event_dispatcher.inner" />
-        </service>
-
         <service class="Shopware\Framework\Factory\ExtensionRegistry" id="shopware.extension.registry">
             <argument type="collection" />
         </service>

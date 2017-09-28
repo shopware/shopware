@@ -24,18 +24,18 @@
 
 namespace Shopware\Framework\Event;
 
+use Symfony\Component\EventDispatcher\Debug\TraceableEventDispatcherInterface;
 use Symfony\Component\EventDispatcher\Event;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class NestedEventDispatcher implements NestedEventDispatcherInterface
+class TraceableNestedEventDispatcher implements NestedEventDispatcherInterface, TraceableEventDispatcherInterface
 {
     /**
-     * @var EventDispatcherInterface
+     * @var TraceableEventDispatcherInterface
      */
     private $dispatcher;
 
-    public function __construct(EventDispatcherInterface $dispatcher)
+    public function __construct(TraceableEventDispatcherInterface $dispatcher)
     {
         $this->dispatcher = $dispatcher;
     }
@@ -86,5 +86,15 @@ class NestedEventDispatcher implements NestedEventDispatcherInterface
     public function hasListeners($eventName = null)
     {
         return $this->dispatcher->hasListeners($eventName);
+    }
+
+    public function getCalledListeners()
+    {
+        return $this->dispatcher->getCalledListeners();
+    }
+
+    public function getNotCalledListeners()
+    {
+        return $this->dispatcher->getNotCalledListeners();
     }
 }

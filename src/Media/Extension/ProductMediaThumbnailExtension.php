@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Media\Extension;
 
@@ -26,38 +26,13 @@ class ProductMediaThumbnailExtension extends CoreProductMediaExtension
         /** @var ProductMediaBasicStruct $productMedia */
         foreach ($event->getProductMedias() as $productMedia) {
             $media = $productMedia->getMedia();
-            
+
             if (!$media) {
                 continue;
             }
-            
+
             $this->addThumbnails($media);
         }
-    }
-
-    private function addThumbnails(MediaBasicStruct $media): void
-    {
-        if (false === $media->getAlbum()->getCreateThumbnails()) {
-            return;
-        }
-
-        $thumbnailSizes = explode(';', $media->getAlbum()->getThumbnailSize());
-        $thumbnails = [];
-
-        foreach ($thumbnailSizes as $size) {
-            list($width, $height) = explode('x', $size);
-
-            $width = (int) $width;
-            $height = (int) $height;
-
-            $thumbnails[] = $this->createThumbnailStruct($media->getFileName(), $width, $height);
-
-            if ($media->getAlbum()->getThumbnailHighDpi()) {
-                $thumbnails[] = $this->createThumbnailStruct($media->getFileName(), $width, $height, true);
-            }
-        }
-
-        $media->setThumbnails($thumbnails);
     }
 
     public function createThumbnailStruct(string $filename, int $width, int $height, bool $isHighDpi = false): ThumbnailStruct
@@ -82,5 +57,30 @@ class ProductMediaThumbnailExtension extends CoreProductMediaExtension
         );
 
         return $thumbnail;
+    }
+
+    private function addThumbnails(MediaBasicStruct $media): void
+    {
+        if ($media->getAlbum()->getCreateThumbnails() === false) {
+            return;
+        }
+
+        $thumbnailSizes = explode(';', $media->getAlbum()->getThumbnailSize());
+        $thumbnails = [];
+
+        foreach ($thumbnailSizes as $size) {
+            list($width, $height) = explode('x', $size);
+
+            $width = (int) $width;
+            $height = (int) $height;
+
+            $thumbnails[] = $this->createThumbnailStruct($media->getFileName(), $width, $height);
+
+            if ($media->getAlbum()->getThumbnailHighDpi()) {
+                $thumbnails[] = $this->createThumbnailStruct($media->getFileName(), $width, $height, true);
+            }
+        }
+
+        $media->setThumbnails($thumbnails);
     }
 }

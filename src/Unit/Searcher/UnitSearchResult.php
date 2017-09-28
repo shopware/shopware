@@ -10,7 +10,7 @@ class UnitSearchResult extends UnitBasicCollection implements SearchResultInterf
     /**
      * @var int
      */
-    protected $total;
+    protected $total = 0;
 
     public function getTotal(): int
     {

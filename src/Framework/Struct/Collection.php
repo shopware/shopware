@@ -146,21 +146,6 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         return array_values($this->elements)[count($this->elements) - 1] ?? null;
     }
 
-    protected function doAdd($element): void
-    {
-        $this->elements[] = $element;
-    }
-
-    protected function doRemoveByKey($key): void
-    {
-        unset($this->elements[$key]);
-    }
-
-    protected function doMerge(Collection $collection)
-    {
-        return new static(array_merge($this->elements, $collection->getIterator()->getArrayCopy()));
-    }
-
     public function offsetExists($offset)
     {
         return array_key_exists($offset, $this->elements);
@@ -179,5 +164,20 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     public function offsetUnset($offset)
     {
         unset($this->elements[$offset]);
+    }
+
+    protected function doAdd($element): void
+    {
+        $this->elements[] = $element;
+    }
+
+    protected function doRemoveByKey($key): void
+    {
+        unset($this->elements[$key]);
+    }
+
+    protected function doMerge(Collection $collection)
+    {
+        return new static(array_merge($this->elements, $collection->getIterator()->getArrayCopy()));
     }
 }

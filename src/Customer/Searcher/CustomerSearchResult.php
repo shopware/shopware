@@ -10,7 +10,7 @@ class CustomerSearchResult extends CustomerBasicCollection implements SearchResu
     /**
      * @var int
      */
-    protected $total;
+    protected $total = 0;
 
     public function getTotal(): int
     {

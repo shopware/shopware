@@ -63,6 +63,11 @@ class MediaBasicStruct extends Struct
     protected $description;
 
     /**
+     * @var AlbumBasicStruct|null
+     */
+    protected $album;
+
+    /**
      * @var string
      */
     protected $url;
@@ -71,11 +76,6 @@ class MediaBasicStruct extends Struct
      * @var ThumbnailStruct[]
      */
     protected $thumbnails = [];
-
-    /**
-     * @var AlbumBasicStruct|null
-     */
-    protected $album;
 
     public function getUuid(): string
     {
@@ -187,16 +187,6 @@ class MediaBasicStruct extends Struct
         $this->description = $description;
     }
 
-    public function getAlbum(): ?AlbumBasicStruct
-    {
-        return $this->album;
-    }
-
-    public function setAlbum(?AlbumBasicStruct $album): void
-    {
-        $this->album = $album;
-    }
-
     public function getUrl(): string
     {
         return $this->url;
@@ -221,5 +211,15 @@ class MediaBasicStruct extends Struct
     public function setThumbnails(array $thumbnails)
     {
         $this->thumbnails = $thumbnails;
+    }
+
+    public function getAlbum(): ?AlbumBasicStruct
+    {
+        return $this->album;
+    }
+
+    public function setAlbum(?AlbumBasicStruct $album): void
+    {
+        $this->album = $album;
     }
 }

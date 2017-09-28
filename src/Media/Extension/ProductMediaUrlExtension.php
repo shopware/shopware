@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Media\Extension;
 
@@ -24,11 +24,11 @@ class ProductMediaUrlExtension extends CoreProductMediaExtension
         /** @var ProductMediaBasicStruct $productMedia */
         foreach ($event->getProductMedias() as $productMedia) {
             $media = $productMedia->getMedia();
-            
+
             if (!$media) {
                 continue;
             }
-            
+
             $media->setUrl($this->urlGenerator->getUrl($media->getFileName()));
         }
     }

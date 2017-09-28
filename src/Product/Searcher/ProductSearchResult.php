@@ -10,7 +10,7 @@ class ProductSearchResult extends ProductBasicCollection implements SearchResult
     /**
      * @var int
      */
-    protected $total;
+    protected $total = 0;
 
     public function getTotal(): int
     {

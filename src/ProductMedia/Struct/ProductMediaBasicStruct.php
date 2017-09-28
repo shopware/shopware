@@ -18,7 +18,7 @@ class ProductMediaBasicStruct extends Struct
     protected $productUuid;
 
     /**
-     * @var int
+     * @var bool
      */
     protected $isCover;
 
@@ -77,12 +77,12 @@ class ProductMediaBasicStruct extends Struct
         $this->productUuid = $productUuid;
     }
 
-    public function getIsCover(): int
+    public function getIsCover(): bool
     {
         return $this->isCover;
     }
 
-    public function setIsCover(int $isCover): void
+    public function setIsCover(bool $isCover): void
     {
         $this->isCover = $isCover;
     }

@@ -52,7 +52,7 @@ class ProductMediaBasicFactory extends Factory
     ): ProductMediaBasicStruct {
         $productMedia->setUuid((string) $data[$selection->getField('uuid')]);
         $productMedia->setProductUuid((string) $data[$selection->getField('product_uuid')]);
-        $productMedia->setIsCover((int) $data[$selection->getField('is_cover')]);
+        $productMedia->setIsCover((bool) $data[$selection->getField('is_cover')]);
         $productMedia->setPosition((int) $data[$selection->getField('position')]);
         $productMedia->setProductDetailUuid(isset($data[$selection->getField('product_detail_uuid')]) ? (string) $data[$selection->getField('product_detail_uuid')] : null);
         $productMedia->setMediaUuid((string) $data[$selection->getField('media_uuid')]);

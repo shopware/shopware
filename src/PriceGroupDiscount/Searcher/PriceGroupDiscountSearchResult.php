@@ -10,7 +10,7 @@ class PriceGroupDiscountSearchResult extends PriceGroupDiscountBasicCollection i
     /**
      * @var int
      */
-    protected $total;
+    protected $total = 0;
 
     public function getTotal(): int
     {

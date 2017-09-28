@@ -10,7 +10,7 @@ class CurrencySearchResult extends CurrencyBasicCollection implements SearchResu
     /**
      * @var int
      */
-    protected $total;
+    protected $total = 0;
 
     public function getTotal(): int
     {

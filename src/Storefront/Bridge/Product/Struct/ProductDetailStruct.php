@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Bridge\Product\Struct;
 
@@ -13,7 +13,7 @@ class ProductDetailStruct extends \Shopware\Product\Struct\ProductDetailStruct
             if ($price->getQuantityStart() > $quantity) {
                 continue;
             }
-            if (null !== $price->getQuantityEnd() && $price->getQuantityEnd() < $quantity) {
+            if ($price->getQuantityEnd() !== null && $price->getQuantityEnd() < $quantity) {
                 continue;
             }
 

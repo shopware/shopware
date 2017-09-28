@@ -10,7 +10,7 @@ class SeoUrlSearchResult extends SeoUrlBasicCollection implements SearchResultIn
     /**
      * @var int
      */
-    protected $total;
+    protected $total = 0;
 
     public function getTotal(): int
     {

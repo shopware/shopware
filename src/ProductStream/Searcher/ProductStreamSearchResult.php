@@ -10,7 +10,7 @@ class ProductStreamSearchResult extends ProductStreamBasicCollection implements 
     /**
      * @var int
      */
-    protected $total;
+    protected $total = 0;
 
     public function getTotal(): int
     {

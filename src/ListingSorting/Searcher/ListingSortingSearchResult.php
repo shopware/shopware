@@ -10,7 +10,7 @@ class ListingSortingSearchResult extends ListingSortingBasicCollection implement
     /**
      * @var int
      */
-    protected $total;
+    protected $total = 0;
 
     public function getTotal(): int
     {

@@ -10,7 +10,7 @@ class HolidaySearchResult extends HolidayBasicCollection implements SearchResult
     /**
      * @var int
      */
-    protected $total;
+    protected $total = 0;
 
     public function getTotal(): int
     {

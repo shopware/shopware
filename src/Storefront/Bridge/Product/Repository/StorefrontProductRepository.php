@@ -94,7 +94,7 @@ class StorefrontProductRepository
             $listingProduct = ListingProductStruct::createFrom($product);
 
             $listingPrice = $this->getListingPrice($listingProduct);
-            if (null === $listingPrice) {
+            if ($listingPrice === null) {
                 continue;
             }
 

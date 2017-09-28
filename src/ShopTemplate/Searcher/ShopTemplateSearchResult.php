@@ -10,7 +10,7 @@ class ShopTemplateSearchResult extends ShopTemplateBasicCollection implements Se
     /**
      * @var int
      */
-    protected $total;
+    protected $total = 0;
 
     public function getTotal(): int
     {

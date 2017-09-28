@@ -3,6 +3,7 @@
 namespace Shopware\ProductMedia\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\ReferenceField;
@@ -25,7 +26,7 @@ class ProductMediaResource extends Resource
         parent::__construct('product_media');
 
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
-        $this->fields[self::IS_COVER_FIELD] = (new IntField('is_cover'))->setFlags(new Required());
+        $this->fields[self::IS_COVER_FIELD] = (new BoolField('is_cover'))->setFlags(new Required());
         $this->fields[self::POSITION_FIELD] = new IntField('position');
         $this->fields[self::MEDIA_UUID_FIELD] = (new StringField('media_uuid'))->setFlags(new Required());
         $this->fields[self::PARENT_UUID_FIELD] = new StringField('parent_uuid');

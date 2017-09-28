@@ -10,7 +10,7 @@ class ProductVoteSearchResult extends ProductVoteBasicCollection implements Sear
     /**
      * @var int
      */
-    protected $total;
+    protected $total = 0;
 
     public function getTotal(): int
     {

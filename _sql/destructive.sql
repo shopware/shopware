@@ -2,7 +2,11 @@
 UPDATE product_detail_price p SET p.pricegroup = 'EK' WHERE p.pricegroup NOT IN (SELECT group_key FROM customer_group);
 UPDATE product_detail_price p SET p.customer_group_uuid = (SELECT c.uuid FROM customer_group c WHERE c.group_key = p.pricegroup LIMIT 1);
 
+DELETE FROM product_media WHERE media_uuid NOT IN (SELECT uuid FROM media);
+DELETE FROM product_media WHERE product_uuid NOT IN (SELECT uuid FROM product);
 
+ALTER TABLE `product_media`
+    ADD FOREIGN KEY (`media_uuid`) REFERENCES `media` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `product_detail_price`
     ADD FOREIGN KEY (`customer_group_uuid`) REFERENCES `customer_group` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;

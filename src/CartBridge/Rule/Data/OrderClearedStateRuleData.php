@@ -35,7 +35,7 @@ class OrderClearedStateRuleData extends Struct
     protected $states;
 
     /**
-     * @param \int[] $states
+     * @param int[] $states
      */
     public function __construct(array $states)
     {

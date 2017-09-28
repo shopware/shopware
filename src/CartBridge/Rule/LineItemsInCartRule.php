@@ -37,7 +37,7 @@ class LineItemsInCartRule extends \Shopware\Cart\Rule\Rule
     private $identifiers;
 
     /**
-     * @param \string[] $identifiers
+     * @param string[] $identifiers
      */
     public function __construct(array $identifiers)
     {

@@ -279,7 +279,7 @@ class Router implements RouterInterface, RequestMatcherInterface
         $pathInfo = $seoUrl->getPathInfo();
         if (!$seoUrl->getIsCanonical()) {
             $redirectUrl = $this->urlResolver->getUrl($shop['uuid'], $seoUrl->getPathInfo(), $translationContext);
-            $this->getContext()->setParameter(self::SEO_REDIRECT_URL, $redirectUrl->getSeoPathInfo());
+            $request->attributes->set(self::SEO_REDIRECT_URL, $redirectUrl);
         }
 
         return $this->match($pathInfo);

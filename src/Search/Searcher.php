@@ -88,10 +88,10 @@ abstract class Searcher
             );
         }
 
-        if ($criteria->getOffset()) {
+        if ($criteria->getOffset() >= 0) {
             $query->setFirstResult($criteria->getOffset());
         }
-        if ($criteria->getLimit()) {
+        if ($criteria->getLimit() >= 0) {
             $query->setMaxResults($criteria->getLimit());
         }
 

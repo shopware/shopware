@@ -35,7 +35,7 @@ class ProductFetchDefinition extends Struct
     protected $numbers;
 
     /**
-     * @param \string[] $numbers
+     * @param string[] $numbers
      */
     public function __construct(array $numbers)
     {
@@ -43,7 +43,7 @@ class ProductFetchDefinition extends Struct
     }
 
     /**
-     * @return \string[]
+     * @return string[]
      */
     public function getNumbers(): array
     {

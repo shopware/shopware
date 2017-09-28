@@ -38,7 +38,7 @@ class LineItemInCartRule extends Rule
     private $identifiers;
 
     /**
-     * @param \string[] $identifiers
+     * @param string[] $identifiers
      */
     public function __construct(array $identifiers)
     {

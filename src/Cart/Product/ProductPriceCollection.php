@@ -63,16 +63,22 @@ class ProductPriceCollection extends Collection
         }
 
         $definitions = $this->get($number);
+        if (!$definitions) {
+            return null;
+        }
 
-        $definitions = usort(
-            $definitions->getIterator()->getArrayCopy(),
+        $definitions = $definitions->getIterator()->getArrayCopy();
+
+        usort(
+            $definitions,
             function (PriceDefinition $a, PriceDefinition $b) {
                 return $a->getQuantity() < $b->getQuantity();
             }
         );
 
-        /** @var PriceDefinition $definition */
+        /** @var PriceDefinitionCollection $definitions */
         foreach ($definitions as $definition) {
+            /** @var PriceDefinition $definition */
             if ($definition->getQuantity() > $quantity) {
                 continue;
             }

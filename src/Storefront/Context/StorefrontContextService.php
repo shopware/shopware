@@ -50,7 +50,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
     private $factory;
 
     /**
-     * @var \Shopware\Bundle\StoreFrontBundle\Common\CacheInterface
+     * @var CacheItemPoolInterface
      */
     private $cache;
 

@@ -27,6 +27,7 @@ namespace Shopware\Storefront\Session;
 
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Routing\Router;
+use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
 use Shopware\Storefront\Context\StorefrontContextServiceInterface;
 use Shopware\Storefront\Page\Detail\DetailPageUrlGenerator;
 use Shopware\Storefront\Page\Listing\ListingPageUrlGenerator;
@@ -77,20 +78,20 @@ class ShopSubscriber implements EventSubscriberInterface
 
     public function setSeoRedirect(GetResponseEvent $event): void
     {
-        if (!$context = $this->router->getContext()) {
+        $request = $event->getRequest();
+
+        if (!$request->attributes->has(Router::SEO_REDIRECT_URL)) {
             return;
         }
 
-        if (!$context->hasParameter(Router::SEO_REDIRECT_URL)) {
+        $url = $request->attributes->get(Router::SEO_REDIRECT_URL);
+
+        if (!$url instanceof SeoUrlBasicStruct) {
             return;
         }
 
         $event->stopPropagation();
-        $event->setResponse(
-            new RedirectResponse(
-                $context->getParameter(Router::SEO_REDIRECT_URL)
-            )
-        );
+        $event->setResponse(new RedirectResponse($url->getSeoPathInfo()));
     }
 
     public function startSession(GetResponseEvent $event): void

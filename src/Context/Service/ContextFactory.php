@@ -186,7 +186,7 @@ class ContextFactory implements ContextFactoryInterface
         }
 
         //customer group switched?
-        if ($customerScope->getCustomerGroupUuid()) {
+        if ($customerScope->getCustomerGroupUuid() !== null) {
             $customerGroup = $this->customerGroupRepository->read([$customerScope->getCustomerGroupUuid()], $translationContext)
                 ->get($customerScope->getCustomerGroupUuid());
         }
@@ -240,7 +240,7 @@ class ContextFactory implements ContextFactoryInterface
     private function getPaymentMethod(?CustomerBasicStruct $customer, ShopDetailStruct $shop, TranslationContext $context, CheckoutScope $checkoutScope): PaymentMethodBasicStruct
     {
         //payment switched in checkout?
-        if ($checkoutScope->getPaymentMethodUuid()) {
+        if ($checkoutScope->getPaymentMethodUuid() !== null) {
             return $this->paymentMethodRepository->read([$checkoutScope->getPaymentMethodUuid()], $context)
                 ->get($checkoutScope->getPaymentMethodUuid());
         }
@@ -261,7 +261,7 @@ class ContextFactory implements ContextFactoryInterface
 
     private function getShippingMethod(ShopDetailStruct $shop, TranslationContext $context, CheckoutScope $checkoutScope): ShippingMethodBasicStruct
     {
-        if ($checkoutScope->getShippingMethodUuid()) {
+        if ($checkoutScope->getShippingMethodUuid() !== null) {
             return $this->shippingMethodRepository->read([$checkoutScope->getShippingMethodUuid()], $context)
                 ->get($checkoutScope->getShippingMethodUuid());
         }
@@ -295,7 +295,7 @@ class ContextFactory implements ContextFactoryInterface
             return $customer;
         }
 
-        if (!$customerScope->getBillingAddressUuid() && !$customerScope->getShippingAddressUuid()) {
+        if ($customerScope->getBillingAddressUuid() === null && $customerScope->getShippingAddressUuid() === null) {
             return $customer;
         }
 
@@ -305,12 +305,12 @@ class ContextFactory implements ContextFactoryInterface
         );
 
         //billing address changed within checkout?
-        if ($customerScope->getBillingAddressUuid()) {
+        if ($customerScope->getBillingAddressUuid() !== null) {
             $customer->setActiveBillingAddress($addresses->get($customerScope->getBillingAddressUuid()));
         }
 
         //shipping address changed within checkout?
-        if ($customerScope->getShippingAddressUuid()) {
+        if ($customerScope->getShippingAddressUuid() !== null) {
             $customer->setActiveShippingAddress($addresses->get($customerScope->getShippingAddressUuid()));
         }
 
@@ -323,7 +323,7 @@ class ContextFactory implements ContextFactoryInterface
         CheckoutScope $checkoutScope
     ): ShippingLocation {
         //allows to preview cart calculation for a specify state for not logged in customers
-        if ($checkoutScope->getStateUuid()) {
+        if ($checkoutScope->getStateUuid() !== null) {
             $state = $this->countryStateRepository->read([$checkoutScope->getStateUuid()], $translationContext)
                 ->get($checkoutScope->getStateUuid());
 
@@ -334,7 +334,7 @@ class ContextFactory implements ContextFactoryInterface
         }
 
         //allows to preview cart calculation for a specify country for not logged in customers
-        if ($checkoutScope->getCountryUuid()) {
+        if ($checkoutScope->getCountryUuid() !== null) {
             $country = $this->countryRepository->read([$checkoutScope->getCountryUuid()], $translationContext)
                 ->get($checkoutScope->getCountryUuid());
 

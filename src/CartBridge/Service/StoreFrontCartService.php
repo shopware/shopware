@@ -36,7 +36,7 @@ use Shopware\Cart\Order\OrderPersisterInterface;
 use Shopware\CartBridge\View\ViewCart;
 use Shopware\CartBridge\View\ViewCartTransformer;
 use Shopware\Storefront\Context\StorefrontContextServiceInterface;
-use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class StoreFrontCartService
 {
@@ -60,7 +60,7 @@ class StoreFrontCartService
     private $contextService;
 
     /**
-     * @var \Enlight_Components_Session_Namespace
+     * @var SessionInterface
      */
     private $session;
 
@@ -83,7 +83,7 @@ class StoreFrontCartService
         CartCalculator $calculation,
         CartPersisterInterface $persister,
         StorefrontContextServiceInterface $contextService,
-        Session $session,
+        SessionInterface $session,
         ViewCartTransformer $viewCartTransformer,
         LoggerInterface $logger,
         OrderPersisterInterface $orderPersister
@@ -125,11 +125,11 @@ class StoreFrontCartService
     {
         $cart = $this->getCart()->getCalculatedCart()->getCartContainer();
 
-        if (!$cart->getLineItems()->has($identifier)) {
+        if (!$lineItem = $cart->getLineItems()->get($identifier)) {
             throw new LineItemNotFoundException($identifier);
         }
 
-        $cart->getLineItems()->get($identifier)->setQuantity($quantity);
+        $lineItem->setQuantity($quantity);
 
         $this->calculate($cart);
     }

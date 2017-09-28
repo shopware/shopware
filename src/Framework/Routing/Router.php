@@ -78,7 +78,7 @@ class Router implements RouterInterface, RequestMatcherInterface
     private $urlResolver;
 
     /**
-     * @var Loader
+     * @var LoaderInterface
      */
     private $routingLoader;
 
@@ -280,7 +280,7 @@ class Router implements RouterInterface, RequestMatcherInterface
         $pathInfo = $seoUrl->getPathInfo();
         if (!$seoUrl->getIsCanonical()) {
             $redirectUrl = $this->urlResolver->getUrl($shop['uuid'], $seoUrl->getPathInfo(), $translationContext);
-            $request->attributes->set(self::SEO_REDIRECT_URL, $redirectUrl->getSeoPathInfo());
+            $this->getContext()->setParameter(self::SEO_REDIRECT_URL, $redirectUrl->getSeoPathInfo());
         }
 
         return $this->match($pathInfo);

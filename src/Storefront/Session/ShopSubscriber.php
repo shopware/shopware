@@ -77,19 +77,18 @@ class ShopSubscriber implements EventSubscriberInterface
 
     public function setSeoRedirect(GetResponseEvent $event): void
     {
-        $request = $event->getRequest();
+        if (!$context = $this->router->getContext()) {
+            return;
+        }
 
-        $this->router->getContext()->hasParameter(Router::SEO_REDIRECT_URL);
-
-        if (!$request->attributes->has(Router::SEO_REDIRECT_URL)) {
+        if (!$context->hasParameter(Router::SEO_REDIRECT_URL)) {
             return;
         }
 
         $event->stopPropagation();
-
         $event->setResponse(
             new RedirectResponse(
-                $request->attributes->get(Router::SEO_REDIRECT_URL)
+                $context->getParameter(Router::SEO_REDIRECT_URL)
             )
         );
     }

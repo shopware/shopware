@@ -543,12 +543,8 @@ class %s extends Resource
         ];
     }
     
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\%s\Event\%sWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \%s\Event\%sWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-        
         $event = new \%s\Event\%sWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
@@ -561,7 +557,9 @@ class %s extends Resource
 EOD;
 
     private $eventBodyTemplate = <<<'EOD'
-        $event->addEvent(%s::createWrittenEvent($updates, $context));
+        if (!empty($updates[%s])) {
+            $event->addEvent(%s::createWrittenEvent($updates, $context));
+        }
 
 EOD;
 
@@ -643,11 +641,8 @@ class %sWrittenEvent extends NestedEvent
         return count($this->errors) > 0;
     }
 
-    public function addEvent(?NestedEvent $event): void
+    public function addEvent(NestedEvent $event): void
     {
-        if ($event === null) {
-            return;
-        }
         $this->events->add($event);
     }
     
@@ -890,6 +885,7 @@ EOD;
         foreach ($writeOrder as $resourceClass) {
             $calls[] = sprintf(
                 $this->eventBodyTemplate,
+                $resourceClass . '::class',
                 $resourceClass
             );
         }

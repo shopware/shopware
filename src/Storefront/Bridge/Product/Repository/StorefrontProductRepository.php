@@ -82,6 +82,23 @@ class StorefrontProductRepository
     }
 
     /**
+     * @param array       $uuids
+     * @param ShopContext $context
+     *
+     * @return ProductMediaSearchResult
+     */
+    protected function fetchMedia(array $uuids, ShopContext $context): ProductMediaSearchResult
+    {
+        /** @var ProductMediaSearchResult $media */
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermsQuery('product_media.product_uuid', $uuids));
+        $criteria->addSorting(new FieldSorting('product_media.is_cover', FieldSorting::DESCENDING));
+        $criteria->addSorting(new FieldSorting('product_media.position'));
+
+        return $this->productMediaRepository->search($criteria, $context->getTranslationContext());
+    }
+
+    /**
      * @param ProductDetailPriceBasicCollection|ProductListingPriceBasicCollection $prices
      * @param ShopContext                                                          $context
      *
@@ -133,21 +150,5 @@ class StorefrontProductRepository
         $prices = $this->filterCustomerPrices($product->getListingPrices(), $context);
         $prices = $this->calculatePrices($product, $prices, $context);
         $product->setListingPrices($prices);
-    }
-
-    /**
-     * @param array $uuids
-     * @param ShopContext $context
-     * @return ProductMediaSearchResult
-     */
-    protected function fetchMedia(array $uuids, ShopContext $context): ProductMediaSearchResult
-    {
-        /** @var ProductMediaSearchResult $media */
-        $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('product_media.product_uuid', $uuids));
-        $criteria->addSorting(new FieldSorting('product_media.is_cover', FieldSorting::DESCENDING));
-        $criteria->addSorting(new FieldSorting('product_media.position'));
-
-        return $this->productMediaRepository->search($criteria, $context->getTranslationContext());
     }
 }

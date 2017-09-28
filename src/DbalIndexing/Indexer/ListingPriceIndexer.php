@@ -148,7 +148,7 @@ class ListingPriceIndexer implements IndexerInterface
                     'product_uuid' => $price->getProductUuid(),
                     'customer_group_uuid' => $price->getCustomerGroupUuid(),
                     'price' => $price->getPrice(),
-                    'display_from_price' => $price->getDisplayFromPrice() ? 1 : 0
+                    'display_from_price' => $price->getDisplayFromPrice() ? 1 : 0,
                 ]);
             }
         }

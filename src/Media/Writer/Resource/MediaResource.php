@@ -44,6 +44,7 @@ class MediaResource extends Resource
         $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields[self::DESCRIPTION_FIELD] = new TranslatedField('description', \Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid');
         $this->fields['translations'] = (new SubresourceField(\Shopware\Media\Writer\Resource\MediaTranslationResource::class, 'languageUuid'))->setFlags(new Required());
+        $this->fields['productMedias'] = new SubresourceField(\Shopware\ProductMedia\Writer\Resource\ProductMediaResource::class);
     }
 
     public function getWriteOrder(): array
@@ -57,6 +58,7 @@ class MediaResource extends Resource
             \Shopware\Framework\Write\Resource\UserResource::class,
             \Shopware\Media\Writer\Resource\MediaResource::class,
             \Shopware\Media\Writer\Resource\MediaTranslationResource::class,
+            \Shopware\ProductMedia\Writer\Resource\ProductMediaResource::class,
         ];
     }
 
@@ -96,6 +98,10 @@ class MediaResource extends Resource
 
         if (!empty($updates[\Shopware\Media\Writer\Resource\MediaTranslationResource::class])) {
             $event->addEvent(\Shopware\Media\Writer\Resource\MediaTranslationResource::createWrittenEvent($updates, $context));
+        }
+
+        if (!empty($updates[\Shopware\ProductMedia\Writer\Resource\ProductMediaResource::class])) {
+            $event->addEvent(\Shopware\ProductMedia\Writer\Resource\ProductMediaResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

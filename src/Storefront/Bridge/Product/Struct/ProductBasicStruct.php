@@ -18,7 +18,7 @@ class ProductBasicStruct extends ApiBasicStruct
     public function getCover(): ?ProductMediaBasicStruct
     {
         return $this->media->filter(
-            function(ProductMediaBasicStruct $media) {
+            function (ProductMediaBasicStruct $media) {
                 return $media->getIsCover();
             }
         )->first();
@@ -50,6 +50,7 @@ class ProductBasicStruct extends ApiBasicStruct
         $price->setDisplayFromPrice(
             $this->mainDetail->getPrices()->count() > 1
         );
+
         return $price;
     }
 

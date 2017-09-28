@@ -45,17 +45,15 @@ class CoreMenuResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\CoreMenuWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CoreMenuWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\Framework\Event\CoreMenuWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\Framework\Write\Resource\CoreMenuResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\Framework\Write\Resource\CoreMenuResource::class])) {
+            $event->addEvent(\Shopware\Framework\Write\Resource\CoreMenuResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

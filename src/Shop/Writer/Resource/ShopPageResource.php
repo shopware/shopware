@@ -73,17 +73,15 @@ class ShopPageResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Shop\Event\ShopPageWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Shop\Event\ShopPageWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\Shop\Event\ShopPageWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\Shop\Writer\Resource\ShopPageResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopPageResource::class])) {
+            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopPageResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

@@ -33,17 +33,15 @@ class CoreDocumentsBoxResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\CoreDocumentsBoxWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CoreDocumentsBoxWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\Framework\Event\CoreDocumentsBoxWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\Framework\Write\Resource\CoreDocumentsBoxResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\Framework\Write\Resource\CoreDocumentsBoxResource::class])) {
+            $event->addEvent(\Shopware\Framework\Write\Resource\CoreDocumentsBoxResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

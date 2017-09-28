@@ -40,18 +40,18 @@ class ProductConfiguratorGroupResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Product\Event\ProductConfiguratorGroupWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductConfiguratorGroupWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\Product\Event\ProductConfiguratorGroupWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\Product\Writer\Resource\ProductConfiguratorGroupResource::createWrittenEvent($updates, $context));
-        $event->addEvent(\Shopware\Product\Writer\Resource\ProductConfiguratorGroupTranslationResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductConfiguratorGroupResource::class])) {
+            $event->addEvent(\Shopware\Product\Writer\Resource\ProductConfiguratorGroupResource::createWrittenEvent($updates, $context));
+        }
+        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductConfiguratorGroupTranslationResource::class])) {
+            $event->addEvent(\Shopware\Product\Writer\Resource\ProductConfiguratorGroupTranslationResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

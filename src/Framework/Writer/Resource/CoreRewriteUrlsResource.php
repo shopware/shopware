@@ -32,17 +32,15 @@ class CoreRewriteUrlsResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\CoreRewriteUrlsWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CoreRewriteUrlsWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\Framework\Event\CoreRewriteUrlsWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\Framework\Write\Resource\CoreRewriteUrlsResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\Framework\Write\Resource\CoreRewriteUrlsResource::class])) {
+            $event->addEvent(\Shopware\Framework\Write\Resource\CoreRewriteUrlsResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

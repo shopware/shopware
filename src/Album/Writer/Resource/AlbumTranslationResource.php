@@ -33,19 +33,21 @@ class AlbumTranslationResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Album\Event\AlbumTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Album\Event\AlbumTranslationWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\Album\Event\AlbumTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\Album\Writer\Resource\AlbumResource::createWrittenEvent($updates, $context));
-        $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
-        $event->addEvent(\Shopware\Album\Writer\Resource\AlbumTranslationResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\Album\Writer\Resource\AlbumResource::class])) {
+            $event->addEvent(\Shopware\Album\Writer\Resource\AlbumResource::createWrittenEvent($updates, $context));
+        }
+        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
+            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
+        }
+        if (!empty($updates[\Shopware\Album\Writer\Resource\AlbumTranslationResource::class])) {
+            $event->addEvent(\Shopware\Album\Writer\Resource\AlbumTranslationResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

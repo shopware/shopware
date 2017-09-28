@@ -33,19 +33,21 @@ class AreaCountryTranslationResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\AreaCountry\Event\AreaCountryTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\AreaCountry\Event\AreaCountryTranslationWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\AreaCountry\Event\AreaCountryTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\AreaCountry\Writer\Resource\AreaCountryResource::createWrittenEvent($updates, $context));
-        $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
-        $event->addEvent(\Shopware\AreaCountry\Writer\Resource\AreaCountryTranslationResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\AreaCountry\Writer\Resource\AreaCountryResource::class])) {
+            $event->addEvent(\Shopware\AreaCountry\Writer\Resource\AreaCountryResource::createWrittenEvent($updates, $context));
+        }
+        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopResource::class])) {
+            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopResource::createWrittenEvent($updates, $context));
+        }
+        if (!empty($updates[\Shopware\AreaCountry\Writer\Resource\AreaCountryTranslationResource::class])) {
+            $event->addEvent(\Shopware\AreaCountry\Writer\Resource\AreaCountryTranslationResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

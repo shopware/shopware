@@ -40,17 +40,15 @@ class ArticlesTranslationsResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\ArticlesTranslationsWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\ArticlesTranslationsWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\Framework\Event\ArticlesTranslationsWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\Framework\Write\Resource\ArticlesTranslationsResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\Framework\Write\Resource\ArticlesTranslationsResource::class])) {
+            $event->addEvent(\Shopware\Framework\Write\Resource\ArticlesTranslationsResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

@@ -31,17 +31,15 @@ class CoreWidgetViewsResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\CoreWidgetViewsWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CoreWidgetViewsWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\Framework\Event\CoreWidgetViewsWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\Framework\Write\Resource\CoreWidgetViewsResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\Framework\Write\Resource\CoreWidgetViewsResource::class])) {
+            $event->addEvent(\Shopware\Framework\Write\Resource\CoreWidgetViewsResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

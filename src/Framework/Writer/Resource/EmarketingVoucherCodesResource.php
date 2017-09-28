@@ -32,17 +32,15 @@ class EmarketingVoucherCodesResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\EmarketingVoucherCodesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\EmarketingVoucherCodesWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\Framework\Event\EmarketingVoucherCodesWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\Framework\Write\Resource\EmarketingVoucherCodesResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\Framework\Write\Resource\EmarketingVoucherCodesResource::class])) {
+            $event->addEvent(\Shopware\Framework\Write\Resource\EmarketingVoucherCodesResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

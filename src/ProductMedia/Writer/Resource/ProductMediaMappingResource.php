@@ -30,18 +30,18 @@ class ProductMediaMappingResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\ProductMedia\Event\ProductMediaMappingWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ProductMedia\Event\ProductMediaMappingWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\ProductMedia\Event\ProductMediaMappingWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\ProductMedia\Writer\Resource\ProductMediaResource::createWrittenEvent($updates, $context));
-        $event->addEvent(\Shopware\ProductMedia\Writer\Resource\ProductMediaMappingResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\ProductMedia\Writer\Resource\ProductMediaResource::class])) {
+            $event->addEvent(\Shopware\ProductMedia\Writer\Resource\ProductMediaResource::createWrittenEvent($updates, $context));
+        }
+        if (!empty($updates[\Shopware\ProductMedia\Writer\Resource\ProductMediaMappingResource::class])) {
+            $event->addEvent(\Shopware\ProductMedia\Writer\Resource\ProductMediaMappingResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

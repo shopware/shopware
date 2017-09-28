@@ -62,18 +62,18 @@ class AttributeConfigurationResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\AttributeConfigurationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\AttributeConfigurationWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\Framework\Event\AttributeConfigurationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\Framework\Write\Resource\AttributeConfigurationResource::createWrittenEvent($updates, $context));
-        $event->addEvent(\Shopware\Framework\Write\Resource\AttributeConfigurationTranslationResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\Framework\Write\Resource\AttributeConfigurationResource::class])) {
+            $event->addEvent(\Shopware\Framework\Write\Resource\AttributeConfigurationResource::createWrittenEvent($updates, $context));
+        }
+        if (!empty($updates[\Shopware\Framework\Write\Resource\AttributeConfigurationTranslationResource::class])) {
+            $event->addEvent(\Shopware\Framework\Write\Resource\AttributeConfigurationTranslationResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

@@ -37,17 +37,15 @@ class ProductNotificationResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Product\Event\ProductNotificationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductNotificationWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\Product\Event\ProductNotificationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\Product\Writer\Resource\ProductNotificationResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductNotificationResource::class])) {
+            $event->addEvent(\Shopware\Product\Writer\Resource\ProductNotificationResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

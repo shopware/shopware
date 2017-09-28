@@ -37,18 +37,18 @@ class ShippingMethodPriceResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\ShippingMethodPrice\Event\ShippingMethodPriceWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ShippingMethodPrice\Event\ShippingMethodPriceWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\ShippingMethodPrice\Event\ShippingMethodPriceWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodResource::createWrittenEvent($updates, $context));
-        $event->addEvent(\Shopware\ShippingMethodPrice\Writer\Resource\ShippingMethodPriceResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\ShippingMethod\Writer\Resource\ShippingMethodResource::class])) {
+            $event->addEvent(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodResource::createWrittenEvent($updates, $context));
+        }
+        if (!empty($updates[\Shopware\ShippingMethodPrice\Writer\Resource\ShippingMethodPriceResource::class])) {
+            $event->addEvent(\Shopware\ShippingMethodPrice\Writer\Resource\ShippingMethodPriceResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

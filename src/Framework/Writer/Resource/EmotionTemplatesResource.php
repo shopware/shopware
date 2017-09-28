@@ -27,17 +27,15 @@ class EmotionTemplatesResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\EmotionTemplatesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\EmotionTemplatesWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\Framework\Event\EmotionTemplatesWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\Framework\Write\Resource\EmotionTemplatesResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\Framework\Write\Resource\EmotionTemplatesResource::class])) {
+            $event->addEvent(\Shopware\Framework\Write\Resource\EmotionTemplatesResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

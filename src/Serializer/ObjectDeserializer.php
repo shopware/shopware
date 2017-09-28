@@ -84,7 +84,7 @@ class ObjectDeserializer
      * @param string $class
      * @param array  $arguments
      *
-     * @return Object
+     * @return object
      */
     private function createInstance(string $class, array $arguments)
     {

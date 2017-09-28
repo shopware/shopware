@@ -40,17 +40,15 @@ class EmotionElementViewportsResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\EmotionElementViewportsWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\EmotionElementViewportsWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\Framework\Event\EmotionElementViewportsWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\Framework\Write\Resource\EmotionElementViewportsResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\Framework\Write\Resource\EmotionElementViewportsResource::class])) {
+            $event->addEvent(\Shopware\Framework\Write\Resource\EmotionElementViewportsResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

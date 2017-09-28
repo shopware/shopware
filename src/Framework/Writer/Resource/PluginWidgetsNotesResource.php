@@ -28,17 +28,15 @@ class PluginWidgetsNotesResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\PluginWidgetsNotesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\PluginWidgetsNotesWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\Framework\Event\PluginWidgetsNotesWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\Framework\Write\Resource\PluginWidgetsNotesResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\Framework\Write\Resource\PluginWidgetsNotesResource::class])) {
+            $event->addEvent(\Shopware\Framework\Write\Resource\PluginWidgetsNotesResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

@@ -35,17 +35,15 @@ class EmarketingLastarticlesResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\EmarketingLastarticlesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\EmarketingLastarticlesWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\Framework\Event\EmarketingLastarticlesWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\Framework\Write\Resource\EmarketingLastarticlesResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\Framework\Write\Resource\EmarketingLastarticlesResource::class])) {
+            $event->addEvent(\Shopware\Framework\Write\Resource\EmarketingLastarticlesResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

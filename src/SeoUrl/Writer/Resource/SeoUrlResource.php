@@ -42,17 +42,15 @@ class SeoUrlResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\SeoUrl\Event\SeoUrlWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\SeoUrl\Event\SeoUrlWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\SeoUrl\Event\SeoUrlWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\SeoUrl\Writer\Resource\SeoUrlResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\SeoUrl\Writer\Resource\SeoUrlResource::class])) {
+            $event->addEvent(\Shopware\SeoUrl\Writer\Resource\SeoUrlResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

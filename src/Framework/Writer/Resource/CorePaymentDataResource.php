@@ -42,17 +42,15 @@ class CorePaymentDataResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\CorePaymentDataWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CorePaymentDataWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\Framework\Event\CorePaymentDataWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\Framework\Write\Resource\CorePaymentDataResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\Framework\Write\Resource\CorePaymentDataResource::class])) {
+            $event->addEvent(\Shopware\Framework\Write\Resource\CorePaymentDataResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

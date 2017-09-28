@@ -38,17 +38,15 @@ class MultiEditFilterResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\MultiEditFilterWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\MultiEditFilterWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\Framework\Event\MultiEditFilterWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\Framework\Write\Resource\MultiEditFilterResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\Framework\Write\Resource\MultiEditFilterResource::class])) {
+            $event->addEvent(\Shopware\Framework\Write\Resource\MultiEditFilterResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

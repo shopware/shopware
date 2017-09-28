@@ -30,17 +30,15 @@ class ProductConfiguratorOptionRelationResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Product\Event\ProductConfiguratorOptionRelationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductConfiguratorOptionRelationWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\Product\Event\ProductConfiguratorOptionRelationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\Product\Writer\Resource\ProductConfiguratorOptionRelationResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductConfiguratorOptionRelationResource::class])) {
+            $event->addEvent(\Shopware\Product\Writer\Resource\ProductConfiguratorOptionRelationResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

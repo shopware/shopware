@@ -32,17 +32,15 @@ class ProductConfiguratorDependencyResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Product\Event\ProductConfiguratorDependencyWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductConfiguratorDependencyWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\Product\Event\ProductConfiguratorDependencyWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\Product\Writer\Resource\ProductConfiguratorDependencyResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductConfiguratorDependencyResource::class])) {
+            $event->addEvent(\Shopware\Product\Writer\Resource\ProductConfiguratorDependencyResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

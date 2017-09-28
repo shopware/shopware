@@ -33,17 +33,15 @@ class PluginRecommendationsResource extends Resource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ?\Shopware\Framework\Event\PluginRecommendationsWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\PluginRecommendationsWrittenEvent
     {
-        if (empty($updates) || !array_key_exists(self::class, $updates)) {
-            return null;
-        }
-
         $event = new \Shopware\Framework\Event\PluginRecommendationsWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        $event->addEvent(\Shopware\Framework\Write\Resource\PluginRecommendationsResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[\Shopware\Framework\Write\Resource\PluginRecommendationsResource::class])) {
+            $event->addEvent(\Shopware\Framework\Write\Resource\PluginRecommendationsResource::createWrittenEvent($updates, $context));
+        }
 
         return $event;
     }

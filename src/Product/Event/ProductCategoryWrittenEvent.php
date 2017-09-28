@@ -66,11 +66,8 @@ class ProductCategoryWrittenEvent extends NestedEvent
         return count($this->errors) > 0;
     }
 
-    public function addEvent(?NestedEvent $event): void
+    public function addEvent(NestedEvent $event): void
     {
-        if ($event === null) {
-            return;
-        }
         $this->events->add($event);
     }
 

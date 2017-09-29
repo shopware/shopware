@@ -26,13 +26,6 @@ class ProductListingPriceBasicFactory extends Factory
        'updated_at' => 'updated_at',
     ];
 
-    public function __construct(
-        Connection $connection,
-        ExtensionRegistryInterface $registry
-    ) {
-        parent::__construct($connection, $registry);
-    }
-
     public function hydrate(
         array $data,
         ProductListingPriceBasicStruct $productListingPrice,

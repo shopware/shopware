@@ -20,14 +20,14 @@ class MediaBasicFactory extends Factory
 
     const FIELDS = [
        'uuid' => 'uuid',
-       'album_uuid' => 'album_uuid',
-       'file_name' => 'file_name',
-       'mime_type' => 'mime_type',
-       'file_size' => 'file_size',
-       'meta_data' => 'meta_data',
-       'user_uuid' => 'user_uuid',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'albumUuid' => 'album_uuid',
+       'fileName' => 'file_name',
+       'mimeType' => 'mime_type',
+       'fileSize' => 'file_size',
+       'metaData' => 'meta_data',
+       'userUuid' => 'user_uuid',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
        'name' => 'translation.name',
        'description' => 'translation.description',
     ];
@@ -53,14 +53,14 @@ class MediaBasicFactory extends Factory
         TranslationContext $context
     ): MediaBasicStruct {
         $media->setUuid((string) $data[$selection->getField('uuid')]);
-        $media->setAlbumUuid((string) $data[$selection->getField('album_uuid')]);
-        $media->setFileName((string) $data[$selection->getField('file_name')]);
-        $media->setMimeType((string) $data[$selection->getField('mime_type')]);
-        $media->setFileSize((int) $data[$selection->getField('file_size')]);
-        $media->setMetaData(isset($data[$selection->getField('meta_data')]) ? (string) $data[$selection->getField('meta_data')] : null);
-        $media->setUserUuid(isset($data[$selection->getField('user_uuid')]) ? (string) $data[$selection->getField('user_uuid')] : null);
-        $media->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $media->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $media->setAlbumUuid((string) $data[$selection->getField('albumUuid')]);
+        $media->setFileName((string) $data[$selection->getField('fileName')]);
+        $media->setMimeType((string) $data[$selection->getField('mimeType')]);
+        $media->setFileSize((int) $data[$selection->getField('fileSize')]);
+        $media->setMetaData(isset($data[$selection->getField('meta_data')]) ? (string) $data[$selection->getField('metaData')] : null);
+        $media->setUserUuid(isset($data[$selection->getField('user_uuid')]) ? (string) $data[$selection->getField('userUuid')] : null);
+        $media->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $media->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $media->setName((string) $data[$selection->getField('name')]);
         $media->setDescription(isset($data[$selection->getField('description')]) ? (string) $data[$selection->getField('description')] : null);
         $album = $selection->filter('album');

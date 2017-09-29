@@ -44,7 +44,7 @@ class AlbumDetailLoader
         $albumCollection = $this->read($uuids, $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('media.album_uuid', $uuids));
+        $criteria->addFilter(new TermsQuery('media.albumUuid', $uuids));
         /** @var MediaSearchResult $media */
         $media = $this->mediaSearcher->search($criteria, $context);
 

@@ -18,12 +18,12 @@ class ShippingMethodPriceBasicFactory extends Factory
 
     const FIELDS = [
        'uuid' => 'uuid',
-       'shipping_method_uuid' => 'shipping_method_uuid',
-       'quantity_from' => 'quantity_from',
+       'shippingMethodUuid' => 'shipping_method_uuid',
+       'quantityFrom' => 'quantity_from',
        'price' => 'price',
        'factor' => 'factor',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
     ];
 
     public function __construct(
@@ -40,12 +40,12 @@ class ShippingMethodPriceBasicFactory extends Factory
         TranslationContext $context
     ): ShippingMethodPriceBasicStruct {
         $shippingMethodPrice->setUuid((string) $data[$selection->getField('uuid')]);
-        $shippingMethodPrice->setShippingMethodUuid((string) $data[$selection->getField('shipping_method_uuid')]);
-        $shippingMethodPrice->setQuantityFrom((float) $data[$selection->getField('quantity_from')]);
+        $shippingMethodPrice->setShippingMethodUuid((string) $data[$selection->getField('shippingMethodUuid')]);
+        $shippingMethodPrice->setQuantityFrom((float) $data[$selection->getField('quantityFrom')]);
         $shippingMethodPrice->setPrice((float) $data[$selection->getField('price')]);
         $shippingMethodPrice->setFactor((float) $data[$selection->getField('factor')]);
-        $shippingMethodPrice->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $shippingMethodPrice->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $shippingMethodPrice->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $shippingMethodPrice->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
 
         /** @var $extension ShippingMethodPriceExtension */
         foreach ($this->getExtensions() as $extension) {

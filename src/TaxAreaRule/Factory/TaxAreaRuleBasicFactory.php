@@ -18,15 +18,15 @@ class TaxAreaRuleBasicFactory extends Factory
 
     const FIELDS = [
        'uuid' => 'uuid',
-       'area_uuid' => 'area_uuid',
-       'area_country_uuid' => 'area_country_uuid',
-       'area_country_state_uuid' => 'area_country_state_uuid',
-       'tax_uuid' => 'tax_uuid',
-       'customer_group_uuid' => 'customer_group_uuid',
-       'tax_rate' => 'tax_rate',
+       'areaUuid' => 'area_uuid',
+       'areaCountryUuid' => 'area_country_uuid',
+       'areaCountryStateUuid' => 'area_country_state_uuid',
+       'taxUuid' => 'tax_uuid',
+       'customerGroupUuid' => 'customer_group_uuid',
+       'taxRate' => 'tax_rate',
        'active' => 'active',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
        'name' => 'translation.name',
     ];
 
@@ -44,15 +44,15 @@ class TaxAreaRuleBasicFactory extends Factory
         TranslationContext $context
     ): TaxAreaRuleBasicStruct {
         $taxAreaRule->setUuid((string) $data[$selection->getField('uuid')]);
-        $taxAreaRule->setAreaUuid(isset($data[$selection->getField('area_uuid')]) ? (string) $data[$selection->getField('area_uuid')] : null);
-        $taxAreaRule->setAreaCountryUuid(isset($data[$selection->getField('area_country_uuid')]) ? (string) $data[$selection->getField('area_country_uuid')] : null);
-        $taxAreaRule->setAreaCountryStateUuid(isset($data[$selection->getField('area_country_state_uuid')]) ? (string) $data[$selection->getField('area_country_state_uuid')] : null);
-        $taxAreaRule->setTaxUuid((string) $data[$selection->getField('tax_uuid')]);
-        $taxAreaRule->setCustomerGroupUuid((string) $data[$selection->getField('customer_group_uuid')]);
-        $taxAreaRule->setTaxRate((float) $data[$selection->getField('tax_rate')]);
+        $taxAreaRule->setAreaUuid(isset($data[$selection->getField('area_uuid')]) ? (string) $data[$selection->getField('areaUuid')] : null);
+        $taxAreaRule->setAreaCountryUuid(isset($data[$selection->getField('area_country_uuid')]) ? (string) $data[$selection->getField('areaCountryUuid')] : null);
+        $taxAreaRule->setAreaCountryStateUuid(isset($data[$selection->getField('area_country_state_uuid')]) ? (string) $data[$selection->getField('areaCountryStateUuid')] : null);
+        $taxAreaRule->setTaxUuid((string) $data[$selection->getField('taxUuid')]);
+        $taxAreaRule->setCustomerGroupUuid((string) $data[$selection->getField('customerGroupUuid')]);
+        $taxAreaRule->setTaxRate((float) $data[$selection->getField('taxRate')]);
         $taxAreaRule->setActive((bool) $data[$selection->getField('active')]);
-        $taxAreaRule->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $taxAreaRule->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $taxAreaRule->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $taxAreaRule->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $taxAreaRule->setName((string) $data[$selection->getField('name')]);
 
         /** @var $extension TaxAreaRuleExtension */

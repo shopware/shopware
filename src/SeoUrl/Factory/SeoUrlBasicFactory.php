@@ -18,15 +18,15 @@ class SeoUrlBasicFactory extends Factory
 
     const FIELDS = [
        'uuid' => 'uuid',
-       'seo_hash' => 'seo_hash',
-       'shop_uuid' => 'shop_uuid',
+       'seoHash' => 'seo_hash',
+       'shopUuid' => 'shop_uuid',
        'name' => 'name',
-       'foreign_key' => 'foreign_key',
-       'path_info' => 'path_info',
-       'seo_path_info' => 'seo_path_info',
-       'is_canonical' => 'is_canonical',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'foreignKey' => 'foreign_key',
+       'pathInfo' => 'path_info',
+       'seoPathInfo' => 'seo_path_info',
+       'isCanonical' => 'is_canonical',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
     ];
 
     public function __construct(
@@ -43,15 +43,15 @@ class SeoUrlBasicFactory extends Factory
         TranslationContext $context
     ): SeoUrlBasicStruct {
         $seoUrl->setUuid((string) $data[$selection->getField('uuid')]);
-        $seoUrl->setSeoHash((string) $data[$selection->getField('seo_hash')]);
-        $seoUrl->setShopUuid((string) $data[$selection->getField('shop_uuid')]);
+        $seoUrl->setSeoHash((string) $data[$selection->getField('seoHash')]);
+        $seoUrl->setShopUuid((string) $data[$selection->getField('shopUuid')]);
         $seoUrl->setName((string) $data[$selection->getField('name')]);
-        $seoUrl->setForeignKey((string) $data[$selection->getField('foreign_key')]);
-        $seoUrl->setPathInfo((string) $data[$selection->getField('path_info')]);
-        $seoUrl->setSeoPathInfo((string) $data[$selection->getField('seo_path_info')]);
-        $seoUrl->setIsCanonical((bool) $data[$selection->getField('is_canonical')]);
-        $seoUrl->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $seoUrl->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $seoUrl->setForeignKey((string) $data[$selection->getField('foreignKey')]);
+        $seoUrl->setPathInfo((string) $data[$selection->getField('pathInfo')]);
+        $seoUrl->setSeoPathInfo((string) $data[$selection->getField('seoPathInfo')]);
+        $seoUrl->setIsCanonical((bool) $data[$selection->getField('isCanonical')]);
+        $seoUrl->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $seoUrl->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
 
         /** @var $extension SeoUrlExtension */
         foreach ($this->getExtensions() as $extension) {

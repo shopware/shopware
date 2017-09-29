@@ -161,7 +161,8 @@ class Generator
 
         $fields = [];
         foreach ($columns as $column) {
-            $fields[] = "       '" . $column->getName() . "' => '" . $column->getName() . "'";
+            $property = Util::getPropertyName($table, $column->getName());
+            $fields[] = "       '" . lcfirst($property) . "' => '" . $column->getName() . "'";
         }
 
         list($requiredFactories, $joins, $properties, $constructor, $uses, $init, $associationAssignments, $class, $functions) = $this->resolveDependencies(
@@ -188,7 +189,8 @@ class Generator
                 $this->createColumnAssignments($table, $config, $translation)
             );
             foreach ($translation as $column) {
-                $fields[] = "       '" . $column->getName() . "' => 'translation." . $column->getName() . "'";
+                $property = Util::getPropertyName($table, $column->getName());
+                $fields[] = "       '" . lcfirst($property) . "' => 'translation." . $column->getName() . "'";
             }
             $join = str_replace('#table#', $table, file_get_contents(__DIR__.'/templates/translation_join.txt'));
 
@@ -296,7 +298,7 @@ class Generator
 
             $casted = str_replace(
                 ['#type#', '#classLc#', '#column#'],
-                [$type, lcfirst($class), $columnName],
+                [$type, lcfirst($class), lcfirst($propertyName)],
                 file_get_contents($template)
             );
 

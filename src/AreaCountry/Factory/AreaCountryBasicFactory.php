@@ -19,18 +19,18 @@ class AreaCountryBasicFactory extends Factory
     const FIELDS = [
        'uuid' => 'uuid',
        'iso' => 'iso',
-       'area_uuid' => 'area_uuid',
+       'areaUuid' => 'area_uuid',
        'position' => 'position',
-       'shipping_free' => 'shipping_free',
-       'tax_free' => 'tax_free',
-       'taxfree_for_vat_id' => 'taxfree_for_vat_id',
-       'taxfree_vatid_checked' => 'taxfree_vatid_checked',
+       'shippingFree' => 'shipping_free',
+       'taxFree' => 'tax_free',
+       'taxfreeForVatId' => 'taxfree_for_vat_id',
+       'taxfreeVatidChecked' => 'taxfree_vatid_checked',
        'active' => 'active',
        'iso3' => 'iso3',
-       'display_state_in_registration' => 'display_state_in_registration',
-       'force_state_in_registration' => 'force_state_in_registration',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'displayStateInRegistration' => 'display_state_in_registration',
+       'forceStateInRegistration' => 'force_state_in_registration',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
        'name' => 'translation.name',
     ];
 
@@ -49,18 +49,18 @@ class AreaCountryBasicFactory extends Factory
     ): AreaCountryBasicStruct {
         $areaCountry->setUuid((string) $data[$selection->getField('uuid')]);
         $areaCountry->setIso(isset($data[$selection->getField('iso')]) ? (string) $data[$selection->getField('iso')] : null);
-        $areaCountry->setAreaUuid((string) $data[$selection->getField('area_uuid')]);
+        $areaCountry->setAreaUuid((string) $data[$selection->getField('areaUuid')]);
         $areaCountry->setPosition((int) $data[$selection->getField('position')]);
-        $areaCountry->setShippingFree((bool) $data[$selection->getField('shipping_free')]);
-        $areaCountry->setTaxFree((bool) $data[$selection->getField('tax_free')]);
-        $areaCountry->setTaxfreeForVatId((bool) $data[$selection->getField('taxfree_for_vat_id')]);
-        $areaCountry->setTaxfreeVatidChecked((bool) $data[$selection->getField('taxfree_vatid_checked')]);
+        $areaCountry->setShippingFree((bool) $data[$selection->getField('shippingFree')]);
+        $areaCountry->setTaxFree((bool) $data[$selection->getField('taxFree')]);
+        $areaCountry->setTaxfreeForVatId((bool) $data[$selection->getField('taxfreeForVatId')]);
+        $areaCountry->setTaxfreeVatidChecked((bool) $data[$selection->getField('taxfreeVatidChecked')]);
         $areaCountry->setActive((bool) $data[$selection->getField('active')]);
         $areaCountry->setIso3(isset($data[$selection->getField('iso3')]) ? (string) $data[$selection->getField('iso3')] : null);
-        $areaCountry->setDisplayStateInRegistration((bool) $data[$selection->getField('display_state_in_registration')]);
-        $areaCountry->setForceStateInRegistration((bool) $data[$selection->getField('force_state_in_registration')]);
-        $areaCountry->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $areaCountry->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $areaCountry->setDisplayStateInRegistration((bool) $data[$selection->getField('displayStateInRegistration')]);
+        $areaCountry->setForceStateInRegistration((bool) $data[$selection->getField('forceStateInRegistration')]);
+        $areaCountry->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $areaCountry->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $areaCountry->setName((string) $data[$selection->getField('name')]);
 
         /** @var $extension AreaCountryExtension */

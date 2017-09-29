@@ -18,16 +18,16 @@ class ProductDetailPriceBasicFactory extends Factory
 
     const FIELDS = [
        'uuid' => 'uuid',
-       'customer_group_uuid' => 'customer_group_uuid',
-       'quantity_start' => 'quantity_start',
-       'quantity_end' => 'quantity_end',
-       'product_detail_uuid' => 'product_detail_uuid',
+       'customerGroupUuid' => 'customer_group_uuid',
+       'quantityStart' => 'quantity_start',
+       'quantityEnd' => 'quantity_end',
+       'productDetailUuid' => 'product_detail_uuid',
        'price' => 'price',
-       'pseudo_price' => 'pseudo_price',
-       'base_price' => 'base_price',
+       'pseudoPrice' => 'pseudo_price',
+       'basePrice' => 'base_price',
        'percentage' => 'percentage',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
     ];
 
     public function __construct(
@@ -44,16 +44,16 @@ class ProductDetailPriceBasicFactory extends Factory
         TranslationContext $context
     ): ProductDetailPriceBasicStruct {
         $productDetailPrice->setUuid((string) $data[$selection->getField('uuid')]);
-        $productDetailPrice->setCustomerGroupUuid((string) $data[$selection->getField('customer_group_uuid')]);
-        $productDetailPrice->setQuantityStart((int) $data[$selection->getField('quantity_start')]);
-        $productDetailPrice->setQuantityEnd(isset($data[$selection->getField('quantity_end')]) ? (int) $data[$selection->getField('quantity_end')] : null);
-        $productDetailPrice->setProductDetailUuid((string) $data[$selection->getField('product_detail_uuid')]);
+        $productDetailPrice->setCustomerGroupUuid((string) $data[$selection->getField('customerGroupUuid')]);
+        $productDetailPrice->setQuantityStart((int) $data[$selection->getField('quantityStart')]);
+        $productDetailPrice->setQuantityEnd(isset($data[$selection->getField('quantity_end')]) ? (int) $data[$selection->getField('quantityEnd')] : null);
+        $productDetailPrice->setProductDetailUuid((string) $data[$selection->getField('productDetailUuid')]);
         $productDetailPrice->setPrice((float) $data[$selection->getField('price')]);
-        $productDetailPrice->setPseudoPrice(isset($data[$selection->getField('pseudo_price')]) ? (float) $data[$selection->getField('pseudo_price')] : null);
-        $productDetailPrice->setBasePrice(isset($data[$selection->getField('base_price')]) ? (float) $data[$selection->getField('base_price')] : null);
+        $productDetailPrice->setPseudoPrice(isset($data[$selection->getField('pseudo_price')]) ? (float) $data[$selection->getField('pseudoPrice')] : null);
+        $productDetailPrice->setBasePrice(isset($data[$selection->getField('base_price')]) ? (float) $data[$selection->getField('basePrice')] : null);
         $productDetailPrice->setPercentage(isset($data[$selection->getField('percentage')]) ? (float) $data[$selection->getField('percentage')] : null);
-        $productDetailPrice->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $productDetailPrice->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $productDetailPrice->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $productDetailPrice->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
 
         /** @var $extension ProductDetailPriceExtension */
         foreach ($this->getExtensions() as $extension) {

@@ -64,7 +64,7 @@ class ProductBasicLoader
         $blockedCustomerGroups = $this->customerGroupBasicLoader->load($productsCollection->getBlockedCustomerGroupsUuids(), $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('product_listing_price_ro.product_uuid', $uuids));
+        $criteria->addFilter(new TermsQuery('product_listing_price_ro.productUuid', $uuids));
         /** @var ProductListingPriceSearchResult $listingPrices */
         $listingPrices = $this->productListingPriceSearcher->search($criteria, $context);
 

@@ -18,12 +18,12 @@ class ProductListingPriceBasicFactory extends Factory
 
     const FIELDS = [
        'uuid' => 'uuid',
-       'product_uuid' => 'product_uuid',
-       'customer_group_uuid' => 'customer_group_uuid',
+       'productUuid' => 'product_uuid',
+       'customerGroupUuid' => 'customer_group_uuid',
        'price' => 'price',
-       'display_from_price' => 'display_from_price',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'displayFromPrice' => 'display_from_price',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
     ];
 
     public function __construct(
@@ -40,12 +40,12 @@ class ProductListingPriceBasicFactory extends Factory
         TranslationContext $context
     ): ProductListingPriceBasicStruct {
         $productListingPrice->setUuid((string) $data[$selection->getField('uuid')]);
-        $productListingPrice->setProductUuid((string) $data[$selection->getField('product_uuid')]);
-        $productListingPrice->setCustomerGroupUuid((string) $data[$selection->getField('customer_group_uuid')]);
+        $productListingPrice->setProductUuid((string) $data[$selection->getField('productUuid')]);
+        $productListingPrice->setCustomerGroupUuid((string) $data[$selection->getField('customerGroupUuid')]);
         $productListingPrice->setPrice((float) $data[$selection->getField('price')]);
-        $productListingPrice->setDisplayFromPrice((bool) $data[$selection->getField('display_from_price')]);
-        $productListingPrice->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $productListingPrice->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $productListingPrice->setDisplayFromPrice((bool) $data[$selection->getField('displayFromPrice')]);
+        $productListingPrice->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $productListingPrice->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
 
         /** @var $extension ProductListingPriceExtension */
         foreach ($this->getExtensions() as $extension) {

@@ -18,15 +18,15 @@ class OrderLineItemBasicFactory extends Factory
 
     const FIELDS = [
        'uuid' => 'uuid',
-       'order_uuid' => 'order_uuid',
+       'orderUuid' => 'order_uuid',
        'identifier' => 'identifier',
        'quantity' => 'quantity',
-       'unit_price' => 'unit_price',
-       'total_price' => 'total_price',
+       'unitPrice' => 'unit_price',
+       'totalPrice' => 'total_price',
        'type' => 'type',
        'payload' => 'payload',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
     ];
 
     public function __construct(
@@ -43,15 +43,15 @@ class OrderLineItemBasicFactory extends Factory
         TranslationContext $context
     ): OrderLineItemBasicStruct {
         $orderLineItem->setUuid((string) $data[$selection->getField('uuid')]);
-        $orderLineItem->setOrderUuid((string) $data[$selection->getField('order_uuid')]);
+        $orderLineItem->setOrderUuid((string) $data[$selection->getField('orderUuid')]);
         $orderLineItem->setIdentifier((string) $data[$selection->getField('identifier')]);
         $orderLineItem->setQuantity((int) $data[$selection->getField('quantity')]);
-        $orderLineItem->setUnitPrice((float) $data[$selection->getField('unit_price')]);
-        $orderLineItem->setTotalPrice((float) $data[$selection->getField('total_price')]);
+        $orderLineItem->setUnitPrice((float) $data[$selection->getField('unitPrice')]);
+        $orderLineItem->setTotalPrice((float) $data[$selection->getField('totalPrice')]);
         $orderLineItem->setType(isset($data[$selection->getField('type')]) ? (string) $data[$selection->getField('type')] : null);
         $orderLineItem->setPayload((string) $data[$selection->getField('payload')]);
-        $orderLineItem->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $orderLineItem->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $orderLineItem->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $orderLineItem->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
 
         /** @var $extension OrderLineItemExtension */
         foreach ($this->getExtensions() as $extension) {

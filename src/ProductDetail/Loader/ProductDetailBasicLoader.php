@@ -44,7 +44,7 @@ class ProductDetailBasicLoader
         $productDetailsCollection = $this->read($uuids, $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('product_detail_price.product_detail_uuid', $uuids));
+        $criteria->addFilter(new TermsQuery('product_detail_price.productDetailUuid', $uuids));
         /** @var ProductDetailPriceSearchResult $prices */
         $prices = $this->productDetailPriceSearcher->search($criteria, $context);
 

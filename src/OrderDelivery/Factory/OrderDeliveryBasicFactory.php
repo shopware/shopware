@@ -24,16 +24,16 @@ class OrderDeliveryBasicFactory extends Factory
 
     const FIELDS = [
        'uuid' => 'uuid',
-       'order_uuid' => 'order_uuid',
-       'shipping_address_uuid' => 'shipping_address_uuid',
-       'order_state_uuid' => 'order_state_uuid',
-       'tracking_code' => 'tracking_code',
-       'shipping_method_uuid' => 'shipping_method_uuid',
-       'shipping_date_earliest' => 'shipping_date_earliest',
-       'shipping_date_latest' => 'shipping_date_latest',
+       'orderUuid' => 'order_uuid',
+       'shippingAddressUuid' => 'shipping_address_uuid',
+       'orderStateUuid' => 'order_state_uuid',
+       'trackingCode' => 'tracking_code',
+       'shippingMethodUuid' => 'shipping_method_uuid',
+       'shippingDateEarliest' => 'shipping_date_earliest',
+       'shippingDateLatest' => 'shipping_date_latest',
        'payload' => 'payload',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
     ];
 
     /**
@@ -71,16 +71,16 @@ class OrderDeliveryBasicFactory extends Factory
         TranslationContext $context
     ): OrderDeliveryBasicStruct {
         $orderDelivery->setUuid((string) $data[$selection->getField('uuid')]);
-        $orderDelivery->setOrderUuid((string) $data[$selection->getField('order_uuid')]);
-        $orderDelivery->setShippingAddressUuid((string) $data[$selection->getField('shipping_address_uuid')]);
-        $orderDelivery->setOrderStateUuid((string) $data[$selection->getField('order_state_uuid')]);
-        $orderDelivery->setTrackingCode(isset($data[$selection->getField('tracking_code')]) ? (string) $data[$selection->getField('tracking_code')] : null);
-        $orderDelivery->setShippingMethodUuid((string) $data[$selection->getField('shipping_method_uuid')]);
-        $orderDelivery->setShippingDateEarliest(new \DateTime($data[$selection->getField('shipping_date_earliest')]));
-        $orderDelivery->setShippingDateLatest(new \DateTime($data[$selection->getField('shipping_date_latest')]));
+        $orderDelivery->setOrderUuid((string) $data[$selection->getField('orderUuid')]);
+        $orderDelivery->setShippingAddressUuid((string) $data[$selection->getField('shippingAddressUuid')]);
+        $orderDelivery->setOrderStateUuid((string) $data[$selection->getField('orderStateUuid')]);
+        $orderDelivery->setTrackingCode(isset($data[$selection->getField('tracking_code')]) ? (string) $data[$selection->getField('trackingCode')] : null);
+        $orderDelivery->setShippingMethodUuid((string) $data[$selection->getField('shippingMethodUuid')]);
+        $orderDelivery->setShippingDateEarliest(new \DateTime($data[$selection->getField('shippingDateEarliest')]));
+        $orderDelivery->setShippingDateLatest(new \DateTime($data[$selection->getField('shippingDateLatest')]));
         $orderDelivery->setPayload((string) $data[$selection->getField('payload')]);
-        $orderDelivery->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $orderDelivery->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $orderDelivery->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $orderDelivery->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $orderState = $selection->filter('state');
         if ($orderState && !empty($data[$orderState->getField('uuid')])) {
             $orderDelivery->setState(

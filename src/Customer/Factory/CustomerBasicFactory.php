@@ -24,37 +24,37 @@ class CustomerBasicFactory extends Factory
 
     const FIELDS = [
        'uuid' => 'uuid',
-       'customer_number' => 'customer_number',
+       'number' => 'customer_number',
        'salutation' => 'salutation',
-       'first_name' => 'first_name',
-       'last_name' => 'last_name',
+       'firstName' => 'first_name',
+       'lastName' => 'last_name',
        'password' => 'password',
        'email' => 'email',
-       'customer_group_uuid' => 'customer_group_uuid',
-       'default_payment_method_uuid' => 'default_payment_method_uuid',
-       'shop_uuid' => 'shop_uuid',
-       'main_shop_uuid' => 'main_shop_uuid',
+       'groupUuid' => 'customer_group_uuid',
+       'defaultPaymentMethodUuid' => 'default_payment_method_uuid',
+       'shopUuid' => 'shop_uuid',
+       'mainShopUuid' => 'main_shop_uuid',
        'title' => 'title',
        'encoder' => 'encoder',
        'active' => 'active',
-       'account_mode' => 'account_mode',
-       'confirmation_key' => 'confirmation_key',
-       'last_payment_method_uuid' => 'last_payment_method_uuid',
-       'first_login' => 'first_login',
-       'last_login' => 'last_login',
-       'session_id' => 'session_id',
+       'accountMode' => 'account_mode',
+       'confirmationKey' => 'confirmation_key',
+       'lastPaymentMethodUuid' => 'last_payment_method_uuid',
+       'firstLogin' => 'first_login',
+       'lastLogin' => 'last_login',
+       'sessionId' => 'session_id',
        'newsletter' => 'newsletter',
        'validation' => 'validation',
        'affiliate' => 'affiliate',
        'referer' => 'referer',
-       'internal_comment' => 'internal_comment',
-       'failed_logins' => 'failed_logins',
-       'locked_until' => 'locked_until',
-       'default_billing_address_uuid' => 'default_billing_address_uuid',
-       'default_shipping_address_uuid' => 'default_shipping_address_uuid',
+       'internalComment' => 'internal_comment',
+       'failedLogins' => 'failed_logins',
+       'lockedUntil' => 'locked_until',
+       'defaultBillingAddressUuid' => 'default_billing_address_uuid',
+       'defaultShippingAddressUuid' => 'default_shipping_address_uuid',
        'birthday' => 'birthday',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
     ];
 
     /**
@@ -92,37 +92,37 @@ class CustomerBasicFactory extends Factory
         TranslationContext $context
     ): CustomerBasicStruct {
         $customer->setUuid((string) $data[$selection->getField('uuid')]);
-        $customer->setNumber((string) $data[$selection->getField('customer_number')]);
+        $customer->setNumber((string) $data[$selection->getField('number')]);
         $customer->setSalutation((string) $data[$selection->getField('salutation')]);
-        $customer->setFirstName((string) $data[$selection->getField('first_name')]);
-        $customer->setLastName((string) $data[$selection->getField('last_name')]);
+        $customer->setFirstName((string) $data[$selection->getField('firstName')]);
+        $customer->setLastName((string) $data[$selection->getField('lastName')]);
         $customer->setPassword((string) $data[$selection->getField('password')]);
         $customer->setEmail((string) $data[$selection->getField('email')]);
-        $customer->setGroupUuid((string) $data[$selection->getField('customer_group_uuid')]);
-        $customer->setDefaultPaymentMethodUuid((string) $data[$selection->getField('default_payment_method_uuid')]);
-        $customer->setShopUuid((string) $data[$selection->getField('shop_uuid')]);
-        $customer->setMainShopUuid((string) $data[$selection->getField('main_shop_uuid')]);
+        $customer->setGroupUuid((string) $data[$selection->getField('groupUuid')]);
+        $customer->setDefaultPaymentMethodUuid((string) $data[$selection->getField('defaultPaymentMethodUuid')]);
+        $customer->setShopUuid((string) $data[$selection->getField('shopUuid')]);
+        $customer->setMainShopUuid((string) $data[$selection->getField('mainShopUuid')]);
         $customer->setTitle(isset($data[$selection->getField('title')]) ? (string) $data[$selection->getField('title')] : null);
         $customer->setEncoder((string) $data[$selection->getField('encoder')]);
         $customer->setActive((bool) $data[$selection->getField('active')]);
-        $customer->setAccountMode((int) $data[$selection->getField('account_mode')]);
-        $customer->setConfirmationKey(isset($data[$selection->getField('confirmation_key')]) ? (string) $data[$selection->getField('confirmation_key')] : null);
-        $customer->setLastPaymentMethodUuid(isset($data[$selection->getField('last_payment_method_uuid')]) ? (string) $data[$selection->getField('last_payment_method_uuid')] : null);
-        $customer->setFirstLogin(isset($data[$selection->getField('first_login')]) ? new \DateTime($data[$selection->getField('first_login')]) : null);
-        $customer->setLastLogin(isset($data[$selection->getField('last_login')]) ? new \DateTime($data[$selection->getField('last_login')]) : null);
-        $customer->setSessionId(isset($data[$selection->getField('session_id')]) ? (string) $data[$selection->getField('session_id')] : null);
+        $customer->setAccountMode((int) $data[$selection->getField('accountMode')]);
+        $customer->setConfirmationKey(isset($data[$selection->getField('confirmation_key')]) ? (string) $data[$selection->getField('confirmationKey')] : null);
+        $customer->setLastPaymentMethodUuid(isset($data[$selection->getField('last_payment_method_uuid')]) ? (string) $data[$selection->getField('lastPaymentMethodUuid')] : null);
+        $customer->setFirstLogin(isset($data[$selection->getField('first_login')]) ? new \DateTime($data[$selection->getField('firstLogin')]) : null);
+        $customer->setLastLogin(isset($data[$selection->getField('last_login')]) ? new \DateTime($data[$selection->getField('lastLogin')]) : null);
+        $customer->setSessionId(isset($data[$selection->getField('session_id')]) ? (string) $data[$selection->getField('sessionId')] : null);
         $customer->setNewsletter((bool) $data[$selection->getField('newsletter')]);
         $customer->setValidation(isset($data[$selection->getField('validation')]) ? (string) $data[$selection->getField('validation')] : null);
         $customer->setAffiliate(isset($data[$selection->getField('affiliate')]) ? (bool) $data[$selection->getField('affiliate')] : null);
         $customer->setReferer(isset($data[$selection->getField('referer')]) ? (string) $data[$selection->getField('referer')] : null);
-        $customer->setInternalComment(isset($data[$selection->getField('internal_comment')]) ? (string) $data[$selection->getField('internal_comment')] : null);
-        $customer->setFailedLogins((int) $data[$selection->getField('failed_logins')]);
-        $customer->setLockedUntil(isset($data[$selection->getField('locked_until')]) ? new \DateTime($data[$selection->getField('locked_until')]) : null);
-        $customer->setDefaultBillingAddressUuid(isset($data[$selection->getField('default_billing_address_uuid')]) ? (string) $data[$selection->getField('default_billing_address_uuid')] : null);
-        $customer->setDefaultShippingAddressUuid(isset($data[$selection->getField('default_shipping_address_uuid')]) ? (string) $data[$selection->getField('default_shipping_address_uuid')] : null);
+        $customer->setInternalComment(isset($data[$selection->getField('internal_comment')]) ? (string) $data[$selection->getField('internalComment')] : null);
+        $customer->setFailedLogins((int) $data[$selection->getField('failedLogins')]);
+        $customer->setLockedUntil(isset($data[$selection->getField('locked_until')]) ? new \DateTime($data[$selection->getField('lockedUntil')]) : null);
+        $customer->setDefaultBillingAddressUuid(isset($data[$selection->getField('default_billing_address_uuid')]) ? (string) $data[$selection->getField('defaultBillingAddressUuid')] : null);
+        $customer->setDefaultShippingAddressUuid(isset($data[$selection->getField('default_shipping_address_uuid')]) ? (string) $data[$selection->getField('defaultShippingAddressUuid')] : null);
         $customer->setBirthday(isset($data[$selection->getField('birthday')]) ? new \DateTime($data[$selection->getField('birthday')]) : null);
-        $customer->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $customer->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $customer->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $customer->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $customerGroup = $selection->filter('customerGroup');
         if ($customerGroup && !empty($data[$customerGroup->getField('uuid')])) {
             $customer->setCustomerGroup(

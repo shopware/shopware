@@ -257,13 +257,13 @@ class Generator
                         if ($association['has_detail_loader']) {
                             $fetches[] = str_replace(
                                 ['#associationPlural#', '#associationTable#', '#table#', '#classLc#', '#associationClassUc#'],
-                                [lcfirst($associationPlural), $association['table'], $table, lcfirst($associationClass), ucfirst($associationClass)],
+                                [lcfirst($associationPlural), $association['table'], lcfirst($class), lcfirst($associationClass), ucfirst($associationClass)],
                                 file_get_contents(__DIR__.'/templates/one_to_many_fetch_by_loader.txt')
                             );
                         } else {
                             $fetches[] = str_replace(
                                 ['#associationPlural#', '#associationTable#', '#table#', '#classLc#', '#associationClassUc#'],
-                                [lcfirst($associationPlural), $association['table'], $table, lcfirst($associationClass), ucfirst($associationClass)],
+                                [lcfirst($associationPlural), $association['table'], lcfirst($class), lcfirst($associationClass), ucfirst($associationClass)],
                                 file_get_contents(__DIR__.'/templates/one_to_many_fetch.txt')
                             );
 

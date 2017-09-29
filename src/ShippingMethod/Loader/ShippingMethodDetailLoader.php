@@ -84,7 +84,7 @@ class ShippingMethodDetailLoader
         $paymentMethods = $this->paymentMethodBasicLoader->load($shippingMethodsCollection->getPaymentMethodUuids(), $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('shipping_method_price.shipping_method_uuid', $uuids));
+        $criteria->addFilter(new TermsQuery('shipping_method_price.shippingMethodUuid', $uuids));
         /** @var ShippingMethodPriceSearchResult $prices */
         $prices = $this->shippingMethodPriceSearcher->search($criteria, $context);
 

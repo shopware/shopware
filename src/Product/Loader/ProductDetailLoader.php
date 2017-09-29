@@ -108,29 +108,29 @@ class ProductDetailLoader
         $blockedCustomerGroups = $this->customerGroupBasicLoader->load($productsCollection->getBlockedCustomerGroupsUuids(), $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('product_listing_price_ro.product_uuid', $uuids));
+        $criteria->addFilter(new TermsQuery('product_listing_price_ro.productUuid', $uuids));
         /** @var ProductListingPriceSearchResult $listingPrices */
         $listingPrices = $this->productListingPriceSearcher->search($criteria, $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('product_media.product_uuid', $uuids));
+        $criteria->addFilter(new TermsQuery('product_media.productUuid', $uuids));
         /** @var ProductMediaSearchResult $media */
         $media = $this->productMediaSearcher->search($criteria, $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('product_detail.product_uuid', $uuids));
+        $criteria->addFilter(new TermsQuery('product_detail.productUuid', $uuids));
         /** @var ProductDetailSearchResult $details */
         $details = $this->productDetailSearcher->search($criteria, $context);
 
         $categoryTree = $this->categoryBasicLoader->load($productsCollection->getCategoryTreeUuids(), $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('product_vote.product_uuid', $uuids));
+        $criteria->addFilter(new TermsQuery('product_vote.productUuid', $uuids));
         /** @var ProductVoteSearchResult $votes */
         $votes = $this->productVoteSearcher->search($criteria, $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('product_vote_average_ro.product_uuid', $uuids));
+        $criteria->addFilter(new TermsQuery('product_vote_average_ro.productUuid', $uuids));
         /** @var ProductVoteAverageSearchResult $voteAverages */
         $voteAverages = $this->productVoteAverageSearcher->search($criteria, $context);
 

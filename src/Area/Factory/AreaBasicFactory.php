@@ -19,8 +19,8 @@ class AreaBasicFactory extends Factory
     const FIELDS = [
        'uuid' => 'uuid',
        'active' => 'active',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
        'name' => 'translation.name',
     ];
 
@@ -39,8 +39,8 @@ class AreaBasicFactory extends Factory
     ): AreaBasicStruct {
         $area->setUuid((string) $data[$selection->getField('uuid')]);
         $area->setActive((bool) $data[$selection->getField('active')]);
-        $area->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $area->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $area->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $area->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $area->setName((string) $data[$selection->getField('name')]);
 
         /** @var $extension AreaExtension */

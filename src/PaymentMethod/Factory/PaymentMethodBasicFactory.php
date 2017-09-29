@@ -18,28 +18,28 @@ class PaymentMethodBasicFactory extends Factory
 
     const FIELDS = [
        'uuid' => 'uuid',
-       'technical_name' => 'technical_name',
+       'technicalName' => 'technical_name',
        'template' => 'template',
        'class' => 'class',
        'table' => 'table',
        'hide' => 'hide',
-       'percentage_surcharge' => 'percentage_surcharge',
-       'absolute_surcharge' => 'absolute_surcharge',
-       'surcharge_string' => 'surcharge_string',
+       'percentageSurcharge' => 'percentage_surcharge',
+       'absoluteSurcharge' => 'absolute_surcharge',
+       'surchargeString' => 'surcharge_string',
        'position' => 'position',
        'active' => 'active',
-       'allow_esd' => 'allow_esd',
-       'used_iframe' => 'used_iframe',
-       'hide_prospect' => 'hide_prospect',
+       'allowEsd' => 'allow_esd',
+       'usedIframe' => 'used_iframe',
+       'hideProspect' => 'hide_prospect',
        'action' => 'action',
-       'plugin_uuid' => 'plugin_uuid',
+       'pluginUuid' => 'plugin_uuid',
        'source' => 'source',
-       'mobile_inactive' => 'mobile_inactive',
-       'risk_rules' => 'risk_rules',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'mobileInactive' => 'mobile_inactive',
+       'riskRules' => 'risk_rules',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
        'name' => 'translation.name',
-       'additional_description' => 'translation.additional_description',
+       'additionalDescription' => 'translation.additional_description',
     ];
 
     public function __construct(
@@ -56,28 +56,28 @@ class PaymentMethodBasicFactory extends Factory
         TranslationContext $context
     ): PaymentMethodBasicStruct {
         $paymentMethod->setUuid((string) $data[$selection->getField('uuid')]);
-        $paymentMethod->setTechnicalName((string) $data[$selection->getField('technical_name')]);
+        $paymentMethod->setTechnicalName((string) $data[$selection->getField('technicalName')]);
         $paymentMethod->setTemplate(isset($data[$selection->getField('template')]) ? (string) $data[$selection->getField('template')] : null);
         $paymentMethod->setClass(isset($data[$selection->getField('class')]) ? (string) $data[$selection->getField('class')] : null);
         $paymentMethod->setTable(isset($data[$selection->getField('table')]) ? (string) $data[$selection->getField('table')] : null);
         $paymentMethod->setHide((bool) $data[$selection->getField('hide')]);
-        $paymentMethod->setPercentageSurcharge(isset($data[$selection->getField('percentage_surcharge')]) ? (float) $data[$selection->getField('percentage_surcharge')] : null);
-        $paymentMethod->setAbsoluteSurcharge(isset($data[$selection->getField('absolute_surcharge')]) ? (float) $data[$selection->getField('absolute_surcharge')] : null);
-        $paymentMethod->setSurchargeString(isset($data[$selection->getField('surcharge_string')]) ? (string) $data[$selection->getField('surcharge_string')] : null);
+        $paymentMethod->setPercentageSurcharge(isset($data[$selection->getField('percentage_surcharge')]) ? (float) $data[$selection->getField('percentageSurcharge')] : null);
+        $paymentMethod->setAbsoluteSurcharge(isset($data[$selection->getField('absolute_surcharge')]) ? (float) $data[$selection->getField('absoluteSurcharge')] : null);
+        $paymentMethod->setSurchargeString(isset($data[$selection->getField('surcharge_string')]) ? (string) $data[$selection->getField('surchargeString')] : null);
         $paymentMethod->setPosition((int) $data[$selection->getField('position')]);
         $paymentMethod->setActive((bool) $data[$selection->getField('active')]);
-        $paymentMethod->setAllowEsd((bool) $data[$selection->getField('allow_esd')]);
-        $paymentMethod->setUsedIframe(isset($data[$selection->getField('used_iframe')]) ? (string) $data[$selection->getField('used_iframe')] : null);
-        $paymentMethod->setHideProspect((bool) $data[$selection->getField('hide_prospect')]);
+        $paymentMethod->setAllowEsd((bool) $data[$selection->getField('allowEsd')]);
+        $paymentMethod->setUsedIframe(isset($data[$selection->getField('used_iframe')]) ? (string) $data[$selection->getField('usedIframe')] : null);
+        $paymentMethod->setHideProspect((bool) $data[$selection->getField('hideProspect')]);
         $paymentMethod->setAction(isset($data[$selection->getField('action')]) ? (string) $data[$selection->getField('action')] : null);
-        $paymentMethod->setPluginUuid(isset($data[$selection->getField('plugin_uuid')]) ? (string) $data[$selection->getField('plugin_uuid')] : null);
+        $paymentMethod->setPluginUuid(isset($data[$selection->getField('plugin_uuid')]) ? (string) $data[$selection->getField('pluginUuid')] : null);
         $paymentMethod->setSource(isset($data[$selection->getField('source')]) ? (int) $data[$selection->getField('source')] : null);
-        $paymentMethod->setMobileInactive((bool) $data[$selection->getField('mobile_inactive')]);
-        $paymentMethod->setRiskRules(isset($data[$selection->getField('risk_rules')]) ? (string) $data[$selection->getField('risk_rules')] : null);
-        $paymentMethod->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $paymentMethod->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $paymentMethod->setMobileInactive((bool) $data[$selection->getField('mobileInactive')]);
+        $paymentMethod->setRiskRules(isset($data[$selection->getField('risk_rules')]) ? (string) $data[$selection->getField('riskRules')] : null);
+        $paymentMethod->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $paymentMethod->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $paymentMethod->setName((string) $data[$selection->getField('name')]);
-        $paymentMethod->setAdditionalDescription((string) $data[$selection->getField('additional_description')]);
+        $paymentMethod->setAdditionalDescription((string) $data[$selection->getField('additionalDescription')]);
 
         /** @var $extension PaymentMethodExtension */
         foreach ($this->getExtensions() as $extension) {

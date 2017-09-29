@@ -21,9 +21,9 @@ class OrderStateBasicFactory extends Factory
        'name' => 'name',
        'position' => 'position',
        'type' => 'type',
-       'has_mail' => 'has_mail',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'hasMail' => 'has_mail',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
        'description' => 'translation.description',
     ];
 
@@ -44,9 +44,9 @@ class OrderStateBasicFactory extends Factory
         $orderState->setName((string) $data[$selection->getField('name')]);
         $orderState->setPosition((int) $data[$selection->getField('position')]);
         $orderState->setType((string) $data[$selection->getField('type')]);
-        $orderState->setHasMail((bool) $data[$selection->getField('has_mail')]);
-        $orderState->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $orderState->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $orderState->setHasMail((bool) $data[$selection->getField('hasMail')]);
+        $orderState->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $orderState->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $orderState->setDescription((string) $data[$selection->getField('description')]);
 
         /** @var $extension OrderStateExtension */

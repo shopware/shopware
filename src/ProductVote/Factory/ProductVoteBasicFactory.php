@@ -19,17 +19,17 @@ class ProductVoteBasicFactory extends Factory
     const FIELDS = [
        'uuid' => 'uuid',
        'name' => 'name',
-       'product_uuid' => 'product_uuid',
+       'productUuid' => 'product_uuid',
        'headline' => 'headline',
        'comment' => 'comment',
        'points' => 'points',
        'active' => 'active',
        'email' => 'email',
        'answer' => 'answer',
-       'answered_at' => 'answered_at',
-       'shop_uuid' => 'shop_uuid',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'answeredAt' => 'answered_at',
+       'shopUuid' => 'shop_uuid',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
     ];
 
     public function __construct(
@@ -47,17 +47,17 @@ class ProductVoteBasicFactory extends Factory
     ): ProductVoteBasicStruct {
         $productVote->setUuid((string) $data[$selection->getField('uuid')]);
         $productVote->setName((string) $data[$selection->getField('name')]);
-        $productVote->setProductUuid((string) $data[$selection->getField('product_uuid')]);
+        $productVote->setProductUuid((string) $data[$selection->getField('productUuid')]);
         $productVote->setHeadline((string) $data[$selection->getField('headline')]);
         $productVote->setComment((string) $data[$selection->getField('comment')]);
         $productVote->setPoints((float) $data[$selection->getField('points')]);
         $productVote->setActive((int) $data[$selection->getField('active')]);
         $productVote->setEmail((string) $data[$selection->getField('email')]);
         $productVote->setAnswer(isset($data[$selection->getField('answer')]) ? (string) $data[$selection->getField('answer')] : null);
-        $productVote->setAnsweredAt(isset($data[$selection->getField('answered_at')]) ? new \DateTime($data[$selection->getField('answered_at')]) : null);
-        $productVote->setShopUuid(isset($data[$selection->getField('shop_uuid')]) ? (string) $data[$selection->getField('shop_uuid')] : null);
-        $productVote->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $productVote->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $productVote->setAnsweredAt(isset($data[$selection->getField('answered_at')]) ? new \DateTime($data[$selection->getField('answeredAt')]) : null);
+        $productVote->setShopUuid(isset($data[$selection->getField('shop_uuid')]) ? (string) $data[$selection->getField('shopUuid')] : null);
+        $productVote->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $productVote->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
 
         /** @var $extension ProductVoteExtension */
         foreach ($this->getExtensions() as $extension) {

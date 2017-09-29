@@ -25,15 +25,15 @@ class ShopTemplateBasicFactory extends Factory
        'author' => 'author',
        'license' => 'license',
        'esi' => 'esi',
-       'style_support' => 'style_support',
+       'styleSupport' => 'style_support',
        'version' => 'version',
        'emotion' => 'emotion',
-       'plugin_id' => 'plugin_id',
-       'plugin_uuid' => 'plugin_uuid',
-       'parent_id' => 'parent_id',
-       'parent_uuid' => 'parent_uuid',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'pluginId' => 'plugin_id',
+       'pluginUuid' => 'plugin_uuid',
+       'parentId' => 'parent_id',
+       'parentUuid' => 'parent_uuid',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
     ];
 
     public function __construct(
@@ -57,15 +57,15 @@ class ShopTemplateBasicFactory extends Factory
         $shopTemplate->setAuthor(isset($data[$selection->getField('author')]) ? (string) $data[$selection->getField('author')] : null);
         $shopTemplate->setLicense(isset($data[$selection->getField('license')]) ? (string) $data[$selection->getField('license')] : null);
         $shopTemplate->setEsi((bool) $data[$selection->getField('esi')]);
-        $shopTemplate->setStyleSupport((bool) $data[$selection->getField('style_support')]);
+        $shopTemplate->setStyleSupport((bool) $data[$selection->getField('styleSupport')]);
         $shopTemplate->setVersion((int) $data[$selection->getField('version')]);
         $shopTemplate->setEmotion((bool) $data[$selection->getField('emotion')]);
-        $shopTemplate->setPluginId(isset($data[$selection->getField('plugin_id')]) ? (int) $data[$selection->getField('plugin_id')] : null);
-        $shopTemplate->setPluginUuid(isset($data[$selection->getField('plugin_uuid')]) ? (string) $data[$selection->getField('plugin_uuid')] : null);
-        $shopTemplate->setParentId(isset($data[$selection->getField('parent_id')]) ? (int) $data[$selection->getField('parent_id')] : null);
-        $shopTemplate->setParentUuid(isset($data[$selection->getField('parent_uuid')]) ? (string) $data[$selection->getField('parent_uuid')] : null);
-        $shopTemplate->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $shopTemplate->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $shopTemplate->setPluginId(isset($data[$selection->getField('plugin_id')]) ? (int) $data[$selection->getField('pluginId')] : null);
+        $shopTemplate->setPluginUuid(isset($data[$selection->getField('plugin_uuid')]) ? (string) $data[$selection->getField('pluginUuid')] : null);
+        $shopTemplate->setParentId(isset($data[$selection->getField('parent_id')]) ? (int) $data[$selection->getField('parentId')] : null);
+        $shopTemplate->setParentUuid(isset($data[$selection->getField('parent_uuid')]) ? (string) $data[$selection->getField('parentUuid')] : null);
+        $shopTemplate->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $shopTemplate->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
 
         /** @var $extension ShopTemplateExtension */
         foreach ($this->getExtensions() as $extension) {

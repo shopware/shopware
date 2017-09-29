@@ -22,24 +22,24 @@ class CustomerAddressBasicFactory extends Factory
 
     const FIELDS = [
        'uuid' => 'uuid',
-       'customer_uuid' => 'customer_uuid',
+       'customerUuid' => 'customer_uuid',
        'company' => 'company',
        'department' => 'department',
        'salutation' => 'salutation',
        'title' => 'title',
-       'first_name' => 'first_name',
-       'last_name' => 'last_name',
+       'firstName' => 'first_name',
+       'lastName' => 'last_name',
        'street' => 'street',
        'zipcode' => 'zipcode',
        'city' => 'city',
-       'area_country_uuid' => 'area_country_uuid',
-       'area_country_state_uuid' => 'area_country_state_uuid',
-       'vat_id' => 'vat_id',
-       'phone_number' => 'phone_number',
-       'additional_address_line1' => 'additional_address_line1',
-       'additional_address_line2' => 'additional_address_line2',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'areaCountryUuid' => 'area_country_uuid',
+       'areaCountryStateUuid' => 'area_country_state_uuid',
+       'vatId' => 'vat_id',
+       'phoneNumber' => 'phone_number',
+       'additionalAddressLine1' => 'additional_address_line1',
+       'additionalAddressLine2' => 'additional_address_line2',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
     ];
 
     /**
@@ -70,24 +70,24 @@ class CustomerAddressBasicFactory extends Factory
         TranslationContext $context
     ): CustomerAddressBasicStruct {
         $customerAddress->setUuid((string) $data[$selection->getField('uuid')]);
-        $customerAddress->setCustomerUuid((string) $data[$selection->getField('customer_uuid')]);
+        $customerAddress->setCustomerUuid((string) $data[$selection->getField('customerUuid')]);
         $customerAddress->setCompany(isset($data[$selection->getField('company')]) ? (string) $data[$selection->getField('company')] : null);
         $customerAddress->setDepartment(isset($data[$selection->getField('department')]) ? (string) $data[$selection->getField('department')] : null);
         $customerAddress->setSalutation((string) $data[$selection->getField('salutation')]);
         $customerAddress->setTitle(isset($data[$selection->getField('title')]) ? (string) $data[$selection->getField('title')] : null);
-        $customerAddress->setFirstName((string) $data[$selection->getField('first_name')]);
-        $customerAddress->setLastName((string) $data[$selection->getField('last_name')]);
+        $customerAddress->setFirstName((string) $data[$selection->getField('firstName')]);
+        $customerAddress->setLastName((string) $data[$selection->getField('lastName')]);
         $customerAddress->setStreet(isset($data[$selection->getField('street')]) ? (string) $data[$selection->getField('street')] : null);
         $customerAddress->setZipcode((string) $data[$selection->getField('zipcode')]);
         $customerAddress->setCity((string) $data[$selection->getField('city')]);
-        $customerAddress->setAreaCountryUuid((string) $data[$selection->getField('area_country_uuid')]);
-        $customerAddress->setAreaCountryStateUuid(isset($data[$selection->getField('area_country_state_uuid')]) ? (string) $data[$selection->getField('area_country_state_uuid')] : null);
-        $customerAddress->setVatId(isset($data[$selection->getField('vat_id')]) ? (string) $data[$selection->getField('vat_id')] : null);
-        $customerAddress->setPhoneNumber(isset($data[$selection->getField('phone_number')]) ? (string) $data[$selection->getField('phone_number')] : null);
-        $customerAddress->setAdditionalAddressLine1(isset($data[$selection->getField('additional_address_line1')]) ? (string) $data[$selection->getField('additional_address_line1')] : null);
-        $customerAddress->setAdditionalAddressLine2(isset($data[$selection->getField('additional_address_line2')]) ? (string) $data[$selection->getField('additional_address_line2')] : null);
-        $customerAddress->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $customerAddress->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $customerAddress->setAreaCountryUuid((string) $data[$selection->getField('areaCountryUuid')]);
+        $customerAddress->setAreaCountryStateUuid(isset($data[$selection->getField('area_country_state_uuid')]) ? (string) $data[$selection->getField('areaCountryStateUuid')] : null);
+        $customerAddress->setVatId(isset($data[$selection->getField('vat_id')]) ? (string) $data[$selection->getField('vatId')] : null);
+        $customerAddress->setPhoneNumber(isset($data[$selection->getField('phone_number')]) ? (string) $data[$selection->getField('phoneNumber')] : null);
+        $customerAddress->setAdditionalAddressLine1(isset($data[$selection->getField('additional_address_line1')]) ? (string) $data[$selection->getField('additionalAddressLine1')] : null);
+        $customerAddress->setAdditionalAddressLine2(isset($data[$selection->getField('additional_address_line2')]) ? (string) $data[$selection->getField('additionalAddressLine2')] : null);
+        $customerAddress->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $customerAddress->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $areaCountry = $selection->filter('country');
         if ($areaCountry && !empty($data[$areaCountry->getField('uuid')])) {
             $customerAddress->setCountry(

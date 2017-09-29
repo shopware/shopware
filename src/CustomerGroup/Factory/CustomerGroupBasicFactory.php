@@ -18,14 +18,14 @@ class CustomerGroupBasicFactory extends Factory
 
     const FIELDS = [
        'uuid' => 'uuid',
-       'display_gross' => 'display_gross',
-       'input_gross' => 'input_gross',
-       'has_global_discount' => 'has_global_discount',
-       'percentage_global_discount' => 'percentage_global_discount',
-       'minimum_order_amount' => 'minimum_order_amount',
-       'minimum_order_amount_surcharge' => 'minimum_order_amount_surcharge',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'displayGross' => 'display_gross',
+       'inputGross' => 'input_gross',
+       'hasGlobalDiscount' => 'has_global_discount',
+       'percentageGlobalDiscount' => 'percentage_global_discount',
+       'minimumOrderAmount' => 'minimum_order_amount',
+       'minimumOrderAmountSurcharge' => 'minimum_order_amount_surcharge',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
        'name' => 'translation.name',
     ];
 
@@ -43,14 +43,14 @@ class CustomerGroupBasicFactory extends Factory
         TranslationContext $context
     ): CustomerGroupBasicStruct {
         $customerGroup->setUuid((string) $data[$selection->getField('uuid')]);
-        $customerGroup->setDisplayGross((bool) $data[$selection->getField('display_gross')]);
-        $customerGroup->setInputGross((bool) $data[$selection->getField('input_gross')]);
-        $customerGroup->setHasGlobalDiscount((bool) $data[$selection->getField('has_global_discount')]);
-        $customerGroup->setPercentageGlobalDiscount(isset($data[$selection->getField('percentage_global_discount')]) ? (float) $data[$selection->getField('percentage_global_discount')] : null);
-        $customerGroup->setMinimumOrderAmount(isset($data[$selection->getField('minimum_order_amount')]) ? (float) $data[$selection->getField('minimum_order_amount')] : null);
-        $customerGroup->setMinimumOrderAmountSurcharge(isset($data[$selection->getField('minimum_order_amount_surcharge')]) ? (float) $data[$selection->getField('minimum_order_amount_surcharge')] : null);
-        $customerGroup->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $customerGroup->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $customerGroup->setDisplayGross((bool) $data[$selection->getField('displayGross')]);
+        $customerGroup->setInputGross((bool) $data[$selection->getField('inputGross')]);
+        $customerGroup->setHasGlobalDiscount((bool) $data[$selection->getField('hasGlobalDiscount')]);
+        $customerGroup->setPercentageGlobalDiscount(isset($data[$selection->getField('percentage_global_discount')]) ? (float) $data[$selection->getField('percentageGlobalDiscount')] : null);
+        $customerGroup->setMinimumOrderAmount(isset($data[$selection->getField('minimum_order_amount')]) ? (float) $data[$selection->getField('minimumOrderAmount')] : null);
+        $customerGroup->setMinimumOrderAmountSurcharge(isset($data[$selection->getField('minimum_order_amount_surcharge')]) ? (float) $data[$selection->getField('minimumOrderAmountSurcharge')] : null);
+        $customerGroup->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $customerGroup->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $customerGroup->setName((string) $data[$selection->getField('name')]);
 
         /** @var $extension CustomerGroupExtension */

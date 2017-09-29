@@ -44,7 +44,7 @@ class OrderDeliveryDetailLoader
         $orderDeliveriesCollection = $this->read($uuids, $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('order_delivery_position.order_delivery_uuid', $uuids));
+        $criteria->addFilter(new TermsQuery('order_delivery_position.orderDeliveryUuid', $uuids));
         /** @var OrderDeliveryPositionSearchResult $positions */
         $positions = $this->orderDeliveryPositionSearcher->search($criteria, $context);
 

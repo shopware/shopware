@@ -60,12 +60,12 @@ class OrderDetailLoader
         $ordersCollection = $this->read($uuids, $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('order_line_item.order_uuid', $uuids));
+        $criteria->addFilter(new TermsQuery('order_line_item.orderUuid', $uuids));
         /** @var OrderLineItemSearchResult $lineItems */
         $lineItems = $this->orderLineItemSearcher->search($criteria, $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('order_delivery.order_uuid', $uuids));
+        $criteria->addFilter(new TermsQuery('order_delivery.orderUuid', $uuids));
         $deliveriesUuids = $this->orderDeliverySearcher->searchUuids($criteria, $context);
         $deliveries = $this->orderDeliveryDetailLoader->load($deliveriesUuids->getUuids(), $context);
 

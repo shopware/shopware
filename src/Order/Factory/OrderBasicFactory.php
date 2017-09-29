@@ -30,22 +30,22 @@ class OrderBasicFactory extends Factory
 
     const FIELDS = [
        'uuid' => 'uuid',
-       'order_date' => 'order_date',
-       'customer_uuid' => 'customer_uuid',
-       'amount_total' => 'amount_total',
-       'position_price' => 'position_price',
-       'shipping_total' => 'shipping_total',
-       'order_state_uuid' => 'order_state_uuid',
-       'payment_method_uuid' => 'payment_method_uuid',
-       'is_net' => 'is_net',
-       'is_tax_free' => 'is_tax_free',
-       'currency_uuid' => 'currency_uuid',
-       'shop_uuid' => 'shop_uuid',
-       'billing_address_uuid' => 'billing_address_uuid',
+       'date' => 'order_date',
+       'customerUuid' => 'customer_uuid',
+       'amountTotal' => 'amount_total',
+       'positionPrice' => 'position_price',
+       'shippingTotal' => 'shipping_total',
+       'stateUuid' => 'order_state_uuid',
+       'paymentMethodUuid' => 'payment_method_uuid',
+       'isNet' => 'is_net',
+       'isTaxFree' => 'is_tax_free',
+       'currencyUuid' => 'currency_uuid',
+       'shopUuid' => 'shop_uuid',
+       'billingAddressUuid' => 'billing_address_uuid',
        'context' => 'context',
        'payload' => 'payload',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
     ];
 
     /**
@@ -104,22 +104,22 @@ class OrderBasicFactory extends Factory
         TranslationContext $context
     ): OrderBasicStruct {
         $order->setUuid((string) $data[$selection->getField('uuid')]);
-        $order->setDate(new \DateTime($data[$selection->getField('order_date')]));
-        $order->setCustomerUuid((string) $data[$selection->getField('customer_uuid')]);
-        $order->setAmountTotal((float) $data[$selection->getField('amount_total')]);
-        $order->setPositionPrice((float) $data[$selection->getField('position_price')]);
-        $order->setShippingTotal((float) $data[$selection->getField('shipping_total')]);
-        $order->setStateUuid((string) $data[$selection->getField('order_state_uuid')]);
-        $order->setPaymentMethodUuid((string) $data[$selection->getField('payment_method_uuid')]);
-        $order->setIsNet((bool) $data[$selection->getField('is_net')]);
-        $order->setIsTaxFree((bool) $data[$selection->getField('is_tax_free')]);
-        $order->setCurrencyUuid((string) $data[$selection->getField('currency_uuid')]);
-        $order->setShopUuid((string) $data[$selection->getField('shop_uuid')]);
-        $order->setBillingAddressUuid((string) $data[$selection->getField('billing_address_uuid')]);
+        $order->setDate(new \DateTime($data[$selection->getField('date')]));
+        $order->setCustomerUuid((string) $data[$selection->getField('customerUuid')]);
+        $order->setAmountTotal((float) $data[$selection->getField('amountTotal')]);
+        $order->setPositionPrice((float) $data[$selection->getField('positionPrice')]);
+        $order->setShippingTotal((float) $data[$selection->getField('shippingTotal')]);
+        $order->setStateUuid((string) $data[$selection->getField('stateUuid')]);
+        $order->setPaymentMethodUuid((string) $data[$selection->getField('paymentMethodUuid')]);
+        $order->setIsNet((bool) $data[$selection->getField('isNet')]);
+        $order->setIsTaxFree((bool) $data[$selection->getField('isTaxFree')]);
+        $order->setCurrencyUuid((string) $data[$selection->getField('currencyUuid')]);
+        $order->setShopUuid((string) $data[$selection->getField('shopUuid')]);
+        $order->setBillingAddressUuid((string) $data[$selection->getField('billingAddressUuid')]);
         $order->setContext((string) $data[$selection->getField('context')]);
         $order->setPayload((string) $data[$selection->getField('payload')]);
-        $order->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $order->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $order->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $order->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $customer = $selection->filter('customer');
         if ($customer && !empty($data[$customer->getField('uuid')])) {
             $order->setCustomer(

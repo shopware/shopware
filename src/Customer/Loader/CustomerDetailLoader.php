@@ -44,7 +44,7 @@ class CustomerDetailLoader
         $customersCollection = $this->read($uuids, $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('customer_address.customer_uuid', $uuids));
+        $criteria->addFilter(new TermsQuery('customer_address.customerUuid', $uuids));
         /** @var CustomerAddressSearchResult $addresses */
         $addresses = $this->customerAddressSearcher->search($criteria, $context);
 

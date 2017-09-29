@@ -44,7 +44,7 @@ class CustomerGroupDetailLoader
         $customerGroupsCollection = $this->read($uuids, $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('customer_group_discount.customer_group_uuid', $uuids));
+        $criteria->addFilter(new TermsQuery('customer_group_discount.customerGroupUuid', $uuids));
         /** @var CustomerGroupDiscountSearchResult $discounts */
         $discounts = $this->customerGroupDiscountSearcher->search($criteria, $context);
 

@@ -18,8 +18,8 @@ class PriceGroupBasicFactory extends Factory
 
     const FIELDS = [
        'uuid' => 'uuid',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
        'name' => 'translation.name',
     ];
 
@@ -37,8 +37,8 @@ class PriceGroupBasicFactory extends Factory
         TranslationContext $context
     ): PriceGroupBasicStruct {
         $priceGroup->setUuid((string) $data[$selection->getField('uuid')]);
-        $priceGroup->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $priceGroup->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $priceGroup->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $priceGroup->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $priceGroup->setName((string) $data[$selection->getField('name')]);
 
         /** @var $extension PriceGroupExtension */

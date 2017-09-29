@@ -20,14 +20,14 @@ class OrderDeliveryPositionBasicFactory extends Factory
 
     const FIELDS = [
        'uuid' => 'uuid',
-       'order_delivery_uuid' => 'order_delivery_uuid',
-       'order_line_item_uuid' => 'order_line_item_uuid',
-       'unit_price' => 'unit_price',
-       'total_price' => 'total_price',
+       'orderDeliveryUuid' => 'order_delivery_uuid',
+       'orderLineItemUuid' => 'order_line_item_uuid',
+       'unitPrice' => 'unit_price',
+       'totalPrice' => 'total_price',
        'quantity' => 'quantity',
        'payload' => 'payload',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
     ];
 
     /**
@@ -51,14 +51,14 @@ class OrderDeliveryPositionBasicFactory extends Factory
         TranslationContext $context
     ): OrderDeliveryPositionBasicStruct {
         $orderDeliveryPosition->setUuid((string) $data[$selection->getField('uuid')]);
-        $orderDeliveryPosition->setOrderDeliveryUuid((string) $data[$selection->getField('order_delivery_uuid')]);
-        $orderDeliveryPosition->setOrderLineItemUuid((string) $data[$selection->getField('order_line_item_uuid')]);
-        $orderDeliveryPosition->setUnitPrice((float) $data[$selection->getField('unit_price')]);
-        $orderDeliveryPosition->setTotalPrice((float) $data[$selection->getField('total_price')]);
+        $orderDeliveryPosition->setOrderDeliveryUuid((string) $data[$selection->getField('orderDeliveryUuid')]);
+        $orderDeliveryPosition->setOrderLineItemUuid((string) $data[$selection->getField('orderLineItemUuid')]);
+        $orderDeliveryPosition->setUnitPrice((float) $data[$selection->getField('unitPrice')]);
+        $orderDeliveryPosition->setTotalPrice((float) $data[$selection->getField('totalPrice')]);
         $orderDeliveryPosition->setQuantity((float) $data[$selection->getField('quantity')]);
         $orderDeliveryPosition->setPayload((string) $data[$selection->getField('payload')]);
-        $orderDeliveryPosition->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $orderDeliveryPosition->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $orderDeliveryPosition->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $orderDeliveryPosition->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $orderLineItem = $selection->filter('lineItem');
         if ($orderLineItem && !empty($data[$orderLineItem->getField('uuid')])) {
             $orderDeliveryPosition->setLineItem(

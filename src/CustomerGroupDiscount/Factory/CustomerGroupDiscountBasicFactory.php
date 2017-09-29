@@ -18,11 +18,11 @@ class CustomerGroupDiscountBasicFactory extends Factory
 
     const FIELDS = [
        'uuid' => 'uuid',
-       'customer_group_uuid' => 'customer_group_uuid',
-       'percentage_discount' => 'percentage_discount',
-       'minimum_cart_amount' => 'minimum_cart_amount',
-       'created_at' => 'created_at',
-       'updated_at' => 'updated_at',
+       'customerGroupUuid' => 'customer_group_uuid',
+       'percentageDiscount' => 'percentage_discount',
+       'minimumCartAmount' => 'minimum_cart_amount',
+       'createdAt' => 'created_at',
+       'updatedAt' => 'updated_at',
     ];
 
     public function __construct(
@@ -39,11 +39,11 @@ class CustomerGroupDiscountBasicFactory extends Factory
         TranslationContext $context
     ): CustomerGroupDiscountBasicStruct {
         $customerGroupDiscount->setUuid((string) $data[$selection->getField('uuid')]);
-        $customerGroupDiscount->setCustomerGroupUuid((string) $data[$selection->getField('customer_group_uuid')]);
-        $customerGroupDiscount->setPercentageDiscount((float) $data[$selection->getField('percentage_discount')]);
-        $customerGroupDiscount->setMinimumCartAmount((float) $data[$selection->getField('minimum_cart_amount')]);
-        $customerGroupDiscount->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('created_at')]) : null);
-        $customerGroupDiscount->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updated_at')]) : null);
+        $customerGroupDiscount->setCustomerGroupUuid((string) $data[$selection->getField('customerGroupUuid')]);
+        $customerGroupDiscount->setPercentageDiscount((float) $data[$selection->getField('percentageDiscount')]);
+        $customerGroupDiscount->setMinimumCartAmount((float) $data[$selection->getField('minimumCartAmount')]);
+        $customerGroupDiscount->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $customerGroupDiscount->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
 
         /** @var $extension CustomerGroupDiscountExtension */
         foreach ($this->getExtensions() as $extension) {

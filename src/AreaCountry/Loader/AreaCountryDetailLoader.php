@@ -44,7 +44,7 @@ class AreaCountryDetailLoader
         $areaCountriesCollection = $this->read($uuids, $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('area_country_state.area_country_uuid', $uuids));
+        $criteria->addFilter(new TermsQuery('area_country_state.areaCountryUuid', $uuids));
         /** @var AreaCountryStateSearchResult $states */
         $states = $this->areaCountryStateSearcher->search($criteria, $context);
 

@@ -44,7 +44,7 @@ class PriceGroupDetailLoader
         $priceGroupsCollection = $this->read($uuids, $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('price_group_discount.price_group_uuid', $uuids));
+        $criteria->addFilter(new TermsQuery('price_group_discount.priceGroupUuid', $uuids));
         /** @var PriceGroupDiscountSearchResult $discounts */
         $discounts = $this->priceGroupDiscountSearcher->search($criteria, $context);
 

@@ -24,6 +24,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -34,7 +35,7 @@ class IndexController extends StorefrontController
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function indexAction(Request $request)
+    public function indexAction(Request $request, ShopContext $context)
     {
         return $this->render('frontend/home/index.html.twig', []);
     }

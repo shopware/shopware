@@ -9,7 +9,7 @@ use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Framework\Write\FieldException\WriteStackException;
 use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Shopware\#classUc#\Event\#classUc#WriteExtenderEvent;
 use Shopware\#classUc#\Event\#classUc#WrittenEvent;
@@ -42,7 +42,7 @@ class #classUc#Writer
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }
@@ -70,7 +70,7 @@ class #classUc#Writer
         foreach ($data as $#classLc#) {
             try {
                 $updated[] = $this->writer->update(
-                    #classUc#Resource::class,
+                    #classUc#WriteResource::class,
                     $#classLc#,
                     $writeContext,
                     $extender
@@ -87,7 +87,7 @@ class #classUc#Writer
             $updated = array_merge_recursive(...$updated);
         }
 
-        return #classUc#Resource::createWrittenEvent($updated, $context, $errors);
+        return #classUc#WriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): #classUc#WrittenEvent
@@ -102,7 +102,7 @@ class #classUc#Writer
         foreach ($data as $#classLc#) {
             try {
                 $created[] = $this->writer->upsert(
-                    #classUc#Resource::class,
+                    #classUc#WriteResource::class,
                     $#classLc#,
                     $writeContext,
                     $extender
@@ -119,7 +119,7 @@ class #classUc#Writer
             $created = array_merge_recursive(...$created);
         }
 
-        return #classUc#Resource::createWrittenEvent($created, $context, $errors);
+        return #classUc#WriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): #classUc#WrittenEvent
@@ -134,7 +134,7 @@ class #classUc#Writer
         foreach ($data as $#classLc#) {
             try {
                 $created[] = $this->writer->insert(
-                    #classUc#Resource::class,
+                    #classUc#WriteResource::class,
                     $#classLc#,
                     $writeContext,
                     $extender
@@ -151,7 +151,7 @@ class #classUc#Writer
             $created = array_merge_recursive(...$created);
         }
 
-        return #classUc#Resource::createWrittenEvent($created, $context, $errors);
+        return #classUc#WriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function validateWriteInput(array $data): void

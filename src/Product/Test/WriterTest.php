@@ -8,8 +8,8 @@ use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Framework\Write\FieldException\WriteStackException;
 use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
-use Shopware\Product\Writer\Resource\ProductResource;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\Product\Writer\Resource\ProductWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 use Shopware\Storefront\Context\StorefrontContextService;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -43,9 +43,9 @@ class WriterTest extends KernelTestCase
         parent::tearDown();
     }
 
-    public function test_insert_with_uuid()
+    public function testInsertWithUuid()
     {
-        $this->getWriter()->insert(ProductResource::class, [
+        $this->getWriter()->insert(ProductWriteResource::class, [
                 'uuid' => self::UUID,
                 'name' => 'test',
                 'the_unknown_field' => 'do nothing?',
@@ -84,11 +84,11 @@ class WriterTest extends KernelTestCase
         self::assertSame(self::UUID, $product['uuid']);
     }
 
-    public function test_insert_without_uuid()
+    public function testInsertWithoutUuid()
     {
         $productCountBefore = (int) $this->connection->fetchColumn('SELECT COUNT(*) FROM product');
 
-        $this->getWriter()->insert(ProductResource::class, [
+        $this->getWriter()->insert(ProductWriteResource::class, [
             'the_unknown_field' => 'do nothing?',
             'taxUuid' => 'SWAG-TAX-UUID-1',
             'name' => 'foo',
@@ -108,11 +108,11 @@ class WriterTest extends KernelTestCase
         self::assertNotEmpty($product['uuid']);
     }
 
-    public function test_insert_from_docs()
+    public function testInsertFromDocs()
     {
         $firstDetailUuid = Uuid::uuid4()->toString();
 
-        $this->getWriter()->insert(ProductResource::class, [
+        $this->getWriter()->insert(ProductWriteResource::class, [
             'uuid' => self::UUID,
             'name' => 'ConfiguratorTest',
             'description' => 'A test article',
@@ -181,11 +181,11 @@ class WriterTest extends KernelTestCase
         self::assertSame(self::UUID, $product['uuid']);
     }
 
-    public function test_update()
+    public function testUpdate()
     {
         $this->insertEmptyProduct();
 
-        $this->getWriter()->update(ProductResource::class, [
+        $this->getWriter()->update(ProductWriteResource::class, [
             'uuid' => self::UUID,
             'name' => '_THE_TITLE_',
             'the_unknown_field' => 'do nothing?',
@@ -230,13 +230,13 @@ class WriterTest extends KernelTestCase
         self::assertCount(3, $productDetails, print_r($productDetails, true));
     }
 
-    public function test_update_writes_default_columns_if_ommitted()
+    public function testUpdateWritesDefaultColumnsIfOmmitted()
     {
         $this->insertEmptyProduct();
 
         $newProduct = $this->connection->fetchAssoc('SELECT * FROM product WHERE uuid=:uuid', ['uuid' => self::UUID]);
 
-        $this->getWriter()->update(ProductResource::class, [
+        $this->getWriter()->update(ProductWriteResource::class, [
             'uuid' => self::UUID,
             'template' => 'ABC',
         ], $this->createWriteContext(), $this->createExtender());
@@ -255,11 +255,11 @@ class WriterTest extends KernelTestCase
         self::assertNotEquals('2011-01-01 15:03:01', $newProduct['created_at']);
     }
 
-    public function test_update_writes_multiple_translations()
+    public function testUpdateWritesMultipleTranslations()
     {
         $this->insertEmptyProduct();
 
-        $this->getWriter()->update(ProductResource::class, [
+        $this->getWriter()->update(ProductWriteResource::class, [
             'uuid' => self::UUID,
             'name' => [
                 'SWAG-SHOP-UUID-1' => '1ABC',
@@ -326,7 +326,7 @@ class WriterTest extends KernelTestCase
         self::assertSame('fiz,baz', $productTranslations[1]['keywords']);
     }
 
-    public function test_update_invalid()
+    public function testUpdateInvalid()
     {
         $this->insertEmptyProduct();
 
@@ -336,7 +336,7 @@ class WriterTest extends KernelTestCase
         }
 
         $this->expectException(WriteStackException::class);
-        $this->getWriter()->update(ProductResource::class, [
+        $this->getWriter()->update(ProductWriteResource::class, [
             'uuid' => self::UUID,
             'name' => $tooLongValue,
         ], $this->createWriteContext(), $this->createExtender());
@@ -348,7 +348,7 @@ class WriterTest extends KernelTestCase
     protected function createWriteContext(): WriteContext
     {
         $context = new WriteContext();
-        $context->set(ShopResource::class, 'uuid', 'SWAG-SHOP-UUID-1');
+        $context->set(ShopWriteResource::class, 'uuid', 'SWAG-SHOP-UUID-1');
 
         return $context;
     }

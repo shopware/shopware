@@ -34,7 +34,7 @@ class ResourceRegistry
     /**
      * @param resource[] ...$resources
      */
-    public function __construct(Resource ...$resources)
+    public function __construct(WriteResource ...$resources)
     {
         $this->resources = $resources;
     }
@@ -44,7 +44,7 @@ class ResourceRegistry
      *
      * @return resource
      */
-    public function get(string $className): Resource
+    public function get(string $className): WriteResource
     {
         foreach ($this->resources as $resource) {
             if ($resource instanceof $className) {

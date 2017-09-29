@@ -101,7 +101,7 @@ class SubresourceField extends Field implements PathAware, FieldExtenderCollecti
     public function __invoke(string $type, string $key, $value = null): \Generator
     {
         if (!is_array($value)) {
-            throw new MalformatDataException($this->path, 'Resource Must be an array.');
+            throw new MalformatDataException($this->path, 'WriteResource Must be an array.');
         }
 
         $isNumeric = array_keys($value) === range(0, count($value) - 1);
@@ -111,7 +111,7 @@ class SubresourceField extends Field implements PathAware, FieldExtenderCollecti
 
         foreach ($value as $keyValue => $subresources) {
             if (!is_array($subresources)) {
-                throw new MalformatDataException($this->path, 'Resource Must be an array.');
+                throw new MalformatDataException($this->path, 'WriteResource Must be an array.');
             }
 
             if ($this->possibleKey && !$isNumeric) {

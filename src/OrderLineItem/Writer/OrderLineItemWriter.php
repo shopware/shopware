@@ -11,8 +11,8 @@ use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
 use Shopware\OrderLineItem\Event\OrderLineItemWriteExtenderEvent;
 use Shopware\OrderLineItem\Event\OrderLineItemWrittenEvent;
-use Shopware\OrderLineItem\Writer\Resource\OrderLineItemResource;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\OrderLineItem\Writer\Resource\OrderLineItemWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class OrderLineItemWriter
 {
@@ -50,7 +50,7 @@ class OrderLineItemWriter
         foreach ($data as $orderLineItem) {
             try {
                 $updated[] = $this->writer->update(
-                    OrderLineItemResource::class,
+                    OrderLineItemWriteResource::class,
                     $orderLineItem,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class OrderLineItemWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return OrderLineItemResource::createWrittenEvent($updated, $context, $errors);
+        return OrderLineItemWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): OrderLineItemWrittenEvent
@@ -82,7 +82,7 @@ class OrderLineItemWriter
         foreach ($data as $orderLineItem) {
             try {
                 $created[] = $this->writer->upsert(
-                    OrderLineItemResource::class,
+                    OrderLineItemWriteResource::class,
                     $orderLineItem,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class OrderLineItemWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return OrderLineItemResource::createWrittenEvent($created, $context, $errors);
+        return OrderLineItemWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): OrderLineItemWrittenEvent
@@ -114,7 +114,7 @@ class OrderLineItemWriter
         foreach ($data as $orderLineItem) {
             try {
                 $created[] = $this->writer->insert(
-                    OrderLineItemResource::class,
+                    OrderLineItemWriteResource::class,
                     $orderLineItem,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class OrderLineItemWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return OrderLineItemResource::createWrittenEvent($created, $context, $errors);
+        return OrderLineItemWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

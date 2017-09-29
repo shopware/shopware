@@ -9,10 +9,10 @@ use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Framework\Write\FieldException\WriteStackException;
 use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 use Shopware\ShopTemplate\Event\ShopTemplateWriteExtenderEvent;
 use Shopware\ShopTemplate\Event\ShopTemplateWrittenEvent;
-use Shopware\ShopTemplate\Writer\Resource\ShopTemplateResource;
+use Shopware\ShopTemplate\Writer\Resource\ShopTemplateWriteResource;
 
 class ShopTemplateWriter
 {
@@ -50,7 +50,7 @@ class ShopTemplateWriter
         foreach ($data as $shopTemplate) {
             try {
                 $updated[] = $this->writer->update(
-                    ShopTemplateResource::class,
+                    ShopTemplateWriteResource::class,
                     $shopTemplate,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class ShopTemplateWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return ShopTemplateResource::createWrittenEvent($updated, $context, $errors);
+        return ShopTemplateWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): ShopTemplateWrittenEvent
@@ -82,7 +82,7 @@ class ShopTemplateWriter
         foreach ($data as $shopTemplate) {
             try {
                 $created[] = $this->writer->upsert(
-                    ShopTemplateResource::class,
+                    ShopTemplateWriteResource::class,
                     $shopTemplate,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class ShopTemplateWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ShopTemplateResource::createWrittenEvent($created, $context, $errors);
+        return ShopTemplateWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): ShopTemplateWrittenEvent
@@ -114,7 +114,7 @@ class ShopTemplateWriter
         foreach ($data as $shopTemplate) {
             try {
                 $created[] = $this->writer->insert(
-                    ShopTemplateResource::class,
+                    ShopTemplateWriteResource::class,
                     $shopTemplate,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class ShopTemplateWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ShopTemplateResource::createWrittenEvent($created, $context, $errors);
+        return ShopTemplateWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

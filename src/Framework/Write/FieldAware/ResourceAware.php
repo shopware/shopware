@@ -24,9 +24,9 @@
 
 namespace Shopware\Framework\Write\FieldAware;
 
-use Shopware\Framework\Write\Resource;
+use Shopware\Framework\Write\WriteResource;
 
 interface ResourceAware
 {
-    public function setResource(Resource $resource): void;
+    public function setResource(WriteResource $resource): void;
 }

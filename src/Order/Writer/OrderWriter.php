@@ -11,8 +11,8 @@ use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
 use Shopware\Order\Event\OrderWriteExtenderEvent;
 use Shopware\Order\Event\OrderWrittenEvent;
-use Shopware\Order\Writer\Resource\OrderResource;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\Order\Writer\Resource\OrderWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class OrderWriter
 {
@@ -50,7 +50,7 @@ class OrderWriter
         foreach ($data as $order) {
             try {
                 $updated[] = $this->writer->update(
-                    OrderResource::class,
+                    OrderWriteResource::class,
                     $order,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class OrderWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return OrderResource::createWrittenEvent($updated, $context, $errors);
+        return OrderWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): OrderWrittenEvent
@@ -82,7 +82,7 @@ class OrderWriter
         foreach ($data as $order) {
             try {
                 $created[] = $this->writer->upsert(
-                    OrderResource::class,
+                    OrderWriteResource::class,
                     $order,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class OrderWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return OrderResource::createWrittenEvent($created, $context, $errors);
+        return OrderWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): OrderWrittenEvent
@@ -114,7 +114,7 @@ class OrderWriter
         foreach ($data as $order) {
             try {
                 $created[] = $this->writer->insert(
-                    OrderResource::class,
+                    OrderWriteResource::class,
                     $order,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class OrderWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return OrderResource::createWrittenEvent($created, $context, $errors);
+        return OrderWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

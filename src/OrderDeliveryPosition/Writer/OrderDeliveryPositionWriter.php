@@ -11,8 +11,8 @@ use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
 use Shopware\OrderDeliveryPosition\Event\OrderDeliveryPositionWriteExtenderEvent;
 use Shopware\OrderDeliveryPosition\Event\OrderDeliveryPositionWrittenEvent;
-use Shopware\OrderDeliveryPosition\Writer\Resource\OrderDeliveryPositionResource;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\OrderDeliveryPosition\Writer\Resource\OrderDeliveryPositionWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class OrderDeliveryPositionWriter
 {
@@ -50,7 +50,7 @@ class OrderDeliveryPositionWriter
         foreach ($data as $orderDeliveryPosition) {
             try {
                 $updated[] = $this->writer->update(
-                    OrderDeliveryPositionResource::class,
+                    OrderDeliveryPositionWriteResource::class,
                     $orderDeliveryPosition,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class OrderDeliveryPositionWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return OrderDeliveryPositionResource::createWrittenEvent($updated, $context, $errors);
+        return OrderDeliveryPositionWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): OrderDeliveryPositionWrittenEvent
@@ -82,7 +82,7 @@ class OrderDeliveryPositionWriter
         foreach ($data as $orderDeliveryPosition) {
             try {
                 $created[] = $this->writer->upsert(
-                    OrderDeliveryPositionResource::class,
+                    OrderDeliveryPositionWriteResource::class,
                     $orderDeliveryPosition,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class OrderDeliveryPositionWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return OrderDeliveryPositionResource::createWrittenEvent($created, $context, $errors);
+        return OrderDeliveryPositionWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): OrderDeliveryPositionWrittenEvent
@@ -114,7 +114,7 @@ class OrderDeliveryPositionWriter
         foreach ($data as $orderDeliveryPosition) {
             try {
                 $created[] = $this->writer->insert(
-                    OrderDeliveryPositionResource::class,
+                    OrderDeliveryPositionWriteResource::class,
                     $orderDeliveryPosition,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class OrderDeliveryPositionWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return OrderDeliveryPositionResource::createWrittenEvent($created, $context, $errors);
+        return OrderDeliveryPositionWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

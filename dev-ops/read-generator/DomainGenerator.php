@@ -182,9 +182,14 @@ class DomainGenerator
     {
         $class = Util::snakeCaseToCamelCase($table);
 
+        $this->removeFiles([
+            $this->directory.'/'.ucfirst($class).'/DependencyInjection/read-services.xml',
+            $this->directory.'/'.ucfirst($class).'/DependencyInjection/read_services.xml',
+        ]);
+
         $template = str_replace('#services#', implode("\n", $services), file_get_contents(__DIR__ . '/services.xml.txt'));
 
-        $file = $this->directory.'/'.ucfirst($class).'/DependencyInjection/read_services.xml';
+        $file = $this->directory.'/'.ucfirst($class).'/DependencyInjection/read-services.xml';
 
         file_put_contents($file, $template);
     }

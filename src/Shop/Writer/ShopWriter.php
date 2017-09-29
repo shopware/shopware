@@ -11,7 +11,7 @@ use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
 use Shopware\Shop\Event\ShopWriteExtenderEvent;
 use Shopware\Shop\Event\ShopWrittenEvent;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class ShopWriter
 {
@@ -49,7 +49,7 @@ class ShopWriter
         foreach ($data as $shop) {
             try {
                 $updated[] = $this->writer->update(
-                    ShopResource::class,
+                    ShopWriteResource::class,
                     $shop,
                     $writeContext,
                     $extender
@@ -66,7 +66,7 @@ class ShopWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return ShopResource::createWrittenEvent($updated, $context, $errors);
+        return ShopWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): ShopWrittenEvent
@@ -81,7 +81,7 @@ class ShopWriter
         foreach ($data as $shop) {
             try {
                 $created[] = $this->writer->upsert(
-                    ShopResource::class,
+                    ShopWriteResource::class,
                     $shop,
                     $writeContext,
                     $extender
@@ -98,7 +98,7 @@ class ShopWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ShopResource::createWrittenEvent($created, $context, $errors);
+        return ShopWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): ShopWrittenEvent
@@ -113,7 +113,7 @@ class ShopWriter
         foreach ($data as $shop) {
             try {
                 $created[] = $this->writer->insert(
-                    ShopResource::class,
+                    ShopWriteResource::class,
                     $shop,
                     $writeContext,
                     $extender
@@ -130,13 +130,13 @@ class ShopWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ShopResource::createWrittenEvent($created, $context, $errors);
+        return ShopWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

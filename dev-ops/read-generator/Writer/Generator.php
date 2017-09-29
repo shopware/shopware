@@ -32,7 +32,7 @@ class Generator
 
         $resourceUse = '';
         if ($table !== 'shop') {
-            $resourceUse = 'use Shopware\#classUc#\Writer\Resource\#classUc#Resource;';
+            $resourceUse = 'use Shopware\#classUc#\Writer\Resource\#classUc#WriteResource;';
         }
         $content = str_replace(
             ['#resourceUse#'],

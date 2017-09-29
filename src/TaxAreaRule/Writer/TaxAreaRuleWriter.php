@@ -9,10 +9,10 @@ use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Framework\Write\FieldException\WriteStackException;
 use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 use Shopware\TaxAreaRule\Event\TaxAreaRuleWriteExtenderEvent;
 use Shopware\TaxAreaRule\Event\TaxAreaRuleWrittenEvent;
-use Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleResource;
+use Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleWriteResource;
 
 class TaxAreaRuleWriter
 {
@@ -50,7 +50,7 @@ class TaxAreaRuleWriter
         foreach ($data as $taxAreaRule) {
             try {
                 $updated[] = $this->writer->update(
-                    TaxAreaRuleResource::class,
+                    TaxAreaRuleWriteResource::class,
                     $taxAreaRule,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class TaxAreaRuleWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return TaxAreaRuleResource::createWrittenEvent($updated, $context, $errors);
+        return TaxAreaRuleWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): TaxAreaRuleWrittenEvent
@@ -82,7 +82,7 @@ class TaxAreaRuleWriter
         foreach ($data as $taxAreaRule) {
             try {
                 $created[] = $this->writer->upsert(
-                    TaxAreaRuleResource::class,
+                    TaxAreaRuleWriteResource::class,
                     $taxAreaRule,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class TaxAreaRuleWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return TaxAreaRuleResource::createWrittenEvent($created, $context, $errors);
+        return TaxAreaRuleWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): TaxAreaRuleWrittenEvent
@@ -114,7 +114,7 @@ class TaxAreaRuleWriter
         foreach ($data as $taxAreaRule) {
             try {
                 $created[] = $this->writer->insert(
-                    TaxAreaRuleResource::class,
+                    TaxAreaRuleWriteResource::class,
                     $taxAreaRule,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class TaxAreaRuleWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return TaxAreaRuleResource::createWrittenEvent($created, $context, $errors);
+        return TaxAreaRuleWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

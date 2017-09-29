@@ -16,7 +16,7 @@ $kernel->boot();
 function createWriteContext(): \Shopware\Framework\Write\WriteContext
 {
     $context = new \Shopware\Framework\Write\WriteContext();
-    $context->set(\Shopware\Shop\Writer\Resource\ShopResource::class, 'uuid', 'SWAG-SHOP-UUID-1');
+    $context->set(\Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid', 'SWAG-SHOP-UUID-1');
     return $context;
 }
 
@@ -43,7 +43,7 @@ foreach ($products as $i => $product) {
 
     try {
         $writer->insert(
-            \Shopware\Product\Writer\Resource\ProductResource::class,
+            \Shopware\Product\Writer\Resource\ProductWriteResource::class,
             $product,
             createWriteContext(),
             $extender

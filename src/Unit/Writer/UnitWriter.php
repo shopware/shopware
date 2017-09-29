@@ -9,10 +9,10 @@ use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Framework\Write\FieldException\WriteStackException;
 use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 use Shopware\Unit\Event\UnitWriteExtenderEvent;
 use Shopware\Unit\Event\UnitWrittenEvent;
-use Shopware\Unit\Writer\Resource\UnitResource;
+use Shopware\Unit\Writer\Resource\UnitWriteResource;
 
 class UnitWriter
 {
@@ -50,7 +50,7 @@ class UnitWriter
         foreach ($data as $unit) {
             try {
                 $updated[] = $this->writer->update(
-                    UnitResource::class,
+                    UnitWriteResource::class,
                     $unit,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class UnitWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return UnitResource::createWrittenEvent($updated, $context, $errors);
+        return UnitWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): UnitWrittenEvent
@@ -82,7 +82,7 @@ class UnitWriter
         foreach ($data as $unit) {
             try {
                 $created[] = $this->writer->upsert(
-                    UnitResource::class,
+                    UnitWriteResource::class,
                     $unit,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class UnitWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return UnitResource::createWrittenEvent($created, $context, $errors);
+        return UnitWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): UnitWrittenEvent
@@ -114,7 +114,7 @@ class UnitWriter
         foreach ($data as $unit) {
             try {
                 $created[] = $this->writer->insert(
-                    UnitResource::class,
+                    UnitWriteResource::class,
                     $unit,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class UnitWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return UnitResource::createWrittenEvent($created, $context, $errors);
+        return UnitWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

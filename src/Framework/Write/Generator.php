@@ -100,12 +100,12 @@ EOD;
 
     public function generateAll()
     {
-        @exec('rm -R ' . __DIR__ . '/../../**/Gateway/Resource');
+        @exec('rm -R ' . __DIR__ . '/../../**/Gateway/WriteResource');
         @exec('rm -R ' . __DIR__ . '/../../**/Writer/ResourceDefinition');
-        @exec('rm -R ' . __DIR__ . '/../../**/Writer/Resource');
-        @exec('rm -R ' . __DIR__ . '/../../**/Writer/*Resource.php');
+        @exec('rm -R ' . __DIR__ . '/../../**/Writer/WriteResource');
+        @exec('rm -R ' . __DIR__ . '/../../**/Writer/*WriteResource.php');
         @exec('rm -R ' . __DIR__ . '/../../**/Event/*WrittenEvent.php');
-        @exec('rm -R ' . __DIR__ . '/Resource/*.php');
+        @exec('rm -R ' . __DIR__ . '/WriteResource/*.php');
 
         $connection = $this->connection;
         $schemaManager = $connection->getSchemaManager();
@@ -523,9 +523,9 @@ use Shopware\Framework\Write\Field\LongTextWithHtmlField;
 use Shopware\Framework\Write\Field\FloatField;
 use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
-use Shopware\Framework\Write\Resource;
+use Shopware\Framework\Write\WriteResource;
 
-class %s extends Resource
+class %s extends WriteResource
 {
     %s
 
@@ -778,7 +778,7 @@ EOD;
 
     public function getClassName(): string
     {
-        return $this->getName() . 'Resource';
+        return $this->getName() . 'WriteResource';
     }
 
     public function getResourceName(string $inRelationToTable = null): string

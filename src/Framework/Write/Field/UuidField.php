@@ -27,10 +27,10 @@ namespace Shopware\Framework\Write\Field;
 use Shopware\Framework\Write\FieldAware\ResourceAware;
 use Shopware\Framework\Write\FieldAware\UuidGeneratorRegistryAware;
 use Shopware\Framework\Write\FieldAware\WriteContextAware;
-use Shopware\Framework\Write\Resource;
 use Shopware\Framework\Write\UuidGenerator\GeneratorRegistry;
 use Shopware\Framework\Write\UuidGenerator\RamseyGenerator;
 use Shopware\Framework\Write\WriteContext;
+use Shopware\Framework\Write\WriteResource;
 
 class UuidField extends Field implements WriteContextAware, ResourceAware, UuidGeneratorRegistryAware
 {
@@ -96,7 +96,7 @@ class UuidField extends Field implements WriteContextAware, ResourceAware, UuidG
     /**
      * {@inheritdoc}
      */
-    public function setResource(Resource $resource): void
+    public function setResource(WriteResource $resource): void
     {
         $this->resource = $resource;
     }

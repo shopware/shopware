@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\ProductVoteAverage\Factory\ProductVoteAverageBasicFactory" id="shopware.product_vote_average_ro.basic_factory">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="service" id="shopware.extension.registry" />
+        </service>
+
+        <service class="Shopware\ProductVoteAverage\Controller\ProductVoteAverageController" id="shopware.product_vote_average_ro.api_controller">
+            <argument id="shopware.product_vote_average_ro.repository" type="service"/>
+        </service>
+        
+        <service class="Shopware\ProductVoteAverage\Loader\ProductVoteAverageBasicLoader" id="shopware.product_vote_average_ro.basic_loader">
+            <argument id="shopware.product_vote_average_ro.basic_factory" type="service"/>
+        </service>
+
+        <service class="Shopware\ProductVoteAverage\Searcher\ProductVoteAverageSearcher" id="shopware.product_vote_average_ro.searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.search.sql_parser" type="service"/>
+            <argument id="shopware.product_vote_average_ro.basic_factory" type="service"/>
+            <argument id="shopware.product_vote_average_ro.basic_loader" type="service"/>
+        </service>
+
+        <service class="Shopware\ProductVoteAverage\Repository\ProductVoteAverageRepository" id="shopware.product_vote_average_ro.repository">
+            <argument id="shopware.product_vote_average_ro.basic_loader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.product_vote_average_ro.searcher" type="service"/>
+        </service>
+
+    </services>
+</container>

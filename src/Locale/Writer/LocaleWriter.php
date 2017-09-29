@@ -11,8 +11,8 @@ use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
 use Shopware\Locale\Event\LocaleWriteExtenderEvent;
 use Shopware\Locale\Event\LocaleWrittenEvent;
-use Shopware\Locale\Writer\Resource\LocaleResource;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\Locale\Writer\Resource\LocaleWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class LocaleWriter
 {
@@ -50,7 +50,7 @@ class LocaleWriter
         foreach ($data as $locale) {
             try {
                 $updated[] = $this->writer->update(
-                    LocaleResource::class,
+                    LocaleWriteResource::class,
                     $locale,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class LocaleWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return LocaleResource::createWrittenEvent($updated, $context, $errors);
+        return LocaleWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): LocaleWrittenEvent
@@ -82,7 +82,7 @@ class LocaleWriter
         foreach ($data as $locale) {
             try {
                 $created[] = $this->writer->upsert(
-                    LocaleResource::class,
+                    LocaleWriteResource::class,
                     $locale,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class LocaleWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return LocaleResource::createWrittenEvent($created, $context, $errors);
+        return LocaleWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): LocaleWrittenEvent
@@ -114,7 +114,7 @@ class LocaleWriter
         foreach ($data as $locale) {
             try {
                 $created[] = $this->writer->insert(
-                    LocaleResource::class,
+                    LocaleWriteResource::class,
                     $locale,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class LocaleWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return LocaleResource::createWrittenEvent($created, $context, $errors);
+        return LocaleWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

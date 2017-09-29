@@ -11,8 +11,8 @@ use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
 use Shopware\ListingSorting\Event\ListingSortingWriteExtenderEvent;
 use Shopware\ListingSorting\Event\ListingSortingWrittenEvent;
-use Shopware\ListingSorting\Writer\Resource\ListingSortingResource;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\ListingSorting\Writer\Resource\ListingSortingWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class ListingSortingWriter
 {
@@ -50,7 +50,7 @@ class ListingSortingWriter
         foreach ($data as $listingSorting) {
             try {
                 $updated[] = $this->writer->update(
-                    ListingSortingResource::class,
+                    ListingSortingWriteResource::class,
                     $listingSorting,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class ListingSortingWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return ListingSortingResource::createWrittenEvent($updated, $context, $errors);
+        return ListingSortingWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): ListingSortingWrittenEvent
@@ -82,7 +82,7 @@ class ListingSortingWriter
         foreach ($data as $listingSorting) {
             try {
                 $created[] = $this->writer->upsert(
-                    ListingSortingResource::class,
+                    ListingSortingWriteResource::class,
                     $listingSorting,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class ListingSortingWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ListingSortingResource::createWrittenEvent($created, $context, $errors);
+        return ListingSortingWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): ListingSortingWrittenEvent
@@ -114,7 +114,7 @@ class ListingSortingWriter
         foreach ($data as $listingSorting) {
             try {
                 $created[] = $this->writer->insert(
-                    ListingSortingResource::class,
+                    ListingSortingWriteResource::class,
                     $listingSorting,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class ListingSortingWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ListingSortingResource::createWrittenEvent($created, $context, $errors);
+        return ListingSortingWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

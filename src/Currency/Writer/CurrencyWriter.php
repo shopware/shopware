@@ -5,14 +5,14 @@ namespace Shopware\Currency\Writer;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Currency\Event\CurrencyWriteExtenderEvent;
 use Shopware\Currency\Event\CurrencyWrittenEvent;
-use Shopware\Currency\Writer\Resource\CurrencyResource;
+use Shopware\Currency\Writer\Resource\CurrencyWriteResource;
 use Shopware\Framework\Event\NestedEventDispatcherInterface;
 use Shopware\Framework\Write\FieldAware\DefaultExtender;
 use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Framework\Write\FieldException\WriteStackException;
 use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class CurrencyWriter
 {
@@ -50,7 +50,7 @@ class CurrencyWriter
         foreach ($data as $currency) {
             try {
                 $updated[] = $this->writer->update(
-                    CurrencyResource::class,
+                    CurrencyWriteResource::class,
                     $currency,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class CurrencyWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return CurrencyResource::createWrittenEvent($updated, $context, $errors);
+        return CurrencyWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): CurrencyWrittenEvent
@@ -82,7 +82,7 @@ class CurrencyWriter
         foreach ($data as $currency) {
             try {
                 $created[] = $this->writer->upsert(
-                    CurrencyResource::class,
+                    CurrencyWriteResource::class,
                     $currency,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class CurrencyWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return CurrencyResource::createWrittenEvent($created, $context, $errors);
+        return CurrencyWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): CurrencyWrittenEvent
@@ -114,7 +114,7 @@ class CurrencyWriter
         foreach ($data as $currency) {
             try {
                 $created[] = $this->writer->insert(
-                    CurrencyResource::class,
+                    CurrencyWriteResource::class,
                     $currency,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class CurrencyWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return CurrencyResource::createWrittenEvent($created, $context, $errors);
+        return CurrencyWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

@@ -4,13 +4,13 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-                <service id="shopware.media.media.resource" class="Shopware\Media\Writer\Resource\MediaResource">
+                <service id="shopware.media.media.resource" class="Shopware\Media\Writer\Resource\MediaWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.media.media-translation.resource" class="Shopware\Media\Writer\Resource\MediaTranslationResource">
+        <service id="shopware.media.media-translation.resource" class="Shopware\Media\Writer\Resource\MediaTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.media.media-association.resource" class="Shopware\Media\Writer\Resource\MediaAssociationResource">
+        <service id="shopware.media.media-association.resource" class="Shopware\Media\Writer\Resource\MediaAssociationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
     </services>

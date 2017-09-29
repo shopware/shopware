@@ -5,14 +5,14 @@ namespace Shopware\CustomerAddress\Writer;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerAddress\Event\CustomerAddressWriteExtenderEvent;
 use Shopware\CustomerAddress\Event\CustomerAddressWrittenEvent;
-use Shopware\CustomerAddress\Writer\Resource\CustomerAddressResource;
+use Shopware\CustomerAddress\Writer\Resource\CustomerAddressWriteResource;
 use Shopware\Framework\Event\NestedEventDispatcherInterface;
 use Shopware\Framework\Write\FieldAware\DefaultExtender;
 use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Framework\Write\FieldException\WriteStackException;
 use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class CustomerAddressWriter
 {
@@ -50,7 +50,7 @@ class CustomerAddressWriter
         foreach ($data as $customerAddress) {
             try {
                 $updated[] = $this->writer->update(
-                    CustomerAddressResource::class,
+                    CustomerAddressWriteResource::class,
                     $customerAddress,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class CustomerAddressWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return CustomerAddressResource::createWrittenEvent($updated, $context, $errors);
+        return CustomerAddressWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): CustomerAddressWrittenEvent
@@ -82,7 +82,7 @@ class CustomerAddressWriter
         foreach ($data as $customerAddress) {
             try {
                 $created[] = $this->writer->upsert(
-                    CustomerAddressResource::class,
+                    CustomerAddressWriteResource::class,
                     $customerAddress,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class CustomerAddressWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return CustomerAddressResource::createWrittenEvent($created, $context, $errors);
+        return CustomerAddressWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): CustomerAddressWrittenEvent
@@ -114,7 +114,7 @@ class CustomerAddressWriter
         foreach ($data as $customerAddress) {
             try {
                 $created[] = $this->writer->insert(
-                    CustomerAddressResource::class,
+                    CustomerAddressWriteResource::class,
                     $customerAddress,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class CustomerAddressWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return CustomerAddressResource::createWrittenEvent($created, $context, $errors);
+        return CustomerAddressWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

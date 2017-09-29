@@ -32,7 +32,7 @@ class ApiTest extends WebTestCase
         parent::tearDown();
     }
 
-    public function test_product_list_route()
+    public function testProductListRoute()
     {
         $this->client->request('GET', '/api/product.json');
 
@@ -42,7 +42,7 @@ class ApiTest extends WebTestCase
         );
     }
 
-    public function test_product_insert_route()
+    public function testProductInsertRoute()
     {
         $this->client->request(
             'POST',

@@ -11,8 +11,8 @@ use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
 use Shopware\ShippingMethodPrice\Event\ShippingMethodPriceWriteExtenderEvent;
 use Shopware\ShippingMethodPrice\Event\ShippingMethodPriceWrittenEvent;
-use Shopware\ShippingMethodPrice\Writer\Resource\ShippingMethodPriceResource;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\ShippingMethodPrice\Writer\Resource\ShippingMethodPriceWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class ShippingMethodPriceWriter
 {
@@ -50,7 +50,7 @@ class ShippingMethodPriceWriter
         foreach ($data as $shippingMethodPrice) {
             try {
                 $updated[] = $this->writer->update(
-                    ShippingMethodPriceResource::class,
+                    ShippingMethodPriceWriteResource::class,
                     $shippingMethodPrice,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class ShippingMethodPriceWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return ShippingMethodPriceResource::createWrittenEvent($updated, $context, $errors);
+        return ShippingMethodPriceWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): ShippingMethodPriceWrittenEvent
@@ -82,7 +82,7 @@ class ShippingMethodPriceWriter
         foreach ($data as $shippingMethodPrice) {
             try {
                 $created[] = $this->writer->upsert(
-                    ShippingMethodPriceResource::class,
+                    ShippingMethodPriceWriteResource::class,
                     $shippingMethodPrice,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class ShippingMethodPriceWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ShippingMethodPriceResource::createWrittenEvent($created, $context, $errors);
+        return ShippingMethodPriceWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): ShippingMethodPriceWrittenEvent
@@ -114,7 +114,7 @@ class ShippingMethodPriceWriter
         foreach ($data as $shippingMethodPrice) {
             try {
                 $created[] = $this->writer->insert(
-                    ShippingMethodPriceResource::class,
+                    ShippingMethodPriceWriteResource::class,
                     $shippingMethodPrice,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class ShippingMethodPriceWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ShippingMethodPriceResource::createWrittenEvent($created, $context, $errors);
+        return ShippingMethodPriceWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

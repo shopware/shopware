@@ -11,8 +11,8 @@ use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
 use Shopware\PaymentMethod\Event\PaymentMethodWriteExtenderEvent;
 use Shopware\PaymentMethod\Event\PaymentMethodWrittenEvent;
-use Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class PaymentMethodWriter
 {
@@ -50,7 +50,7 @@ class PaymentMethodWriter
         foreach ($data as $paymentMethod) {
             try {
                 $updated[] = $this->writer->update(
-                    PaymentMethodResource::class,
+                    PaymentMethodWriteResource::class,
                     $paymentMethod,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class PaymentMethodWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return PaymentMethodResource::createWrittenEvent($updated, $context, $errors);
+        return PaymentMethodWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): PaymentMethodWrittenEvent
@@ -82,7 +82,7 @@ class PaymentMethodWriter
         foreach ($data as $paymentMethod) {
             try {
                 $created[] = $this->writer->upsert(
-                    PaymentMethodResource::class,
+                    PaymentMethodWriteResource::class,
                     $paymentMethod,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class PaymentMethodWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return PaymentMethodResource::createWrittenEvent($created, $context, $errors);
+        return PaymentMethodWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): PaymentMethodWrittenEvent
@@ -114,7 +114,7 @@ class PaymentMethodWriter
         foreach ($data as $paymentMethod) {
             try {
                 $created[] = $this->writer->insert(
-                    PaymentMethodResource::class,
+                    PaymentMethodWriteResource::class,
                     $paymentMethod,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class PaymentMethodWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return PaymentMethodResource::createWrittenEvent($created, $context, $errors);
+        return PaymentMethodWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

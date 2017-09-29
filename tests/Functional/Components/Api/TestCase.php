@@ -27,7 +27,7 @@ namespace Shopware\Tests\Functional\Components\Api;
 use Shopware\Components\Api\Resource\Resource as APIResource;
 
 /**
- * Abstract TestCase for Resource-Tests
+ * Abstract TestCase for WriteResource-Tests
  *
  * @category  Shopware
  *

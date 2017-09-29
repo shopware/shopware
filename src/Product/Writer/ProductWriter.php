@@ -11,8 +11,8 @@ use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
 use Shopware\Product\Event\ProductWriteExtenderEvent;
 use Shopware\Product\Event\ProductWrittenEvent;
-use Shopware\Product\Writer\Resource\ProductResource;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\Product\Writer\Resource\ProductWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class ProductWriter
 {
@@ -50,7 +50,7 @@ class ProductWriter
         foreach ($data as $product) {
             try {
                 $updated[] = $this->writer->update(
-                    ProductResource::class,
+                    ProductWriteResource::class,
                     $product,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class ProductWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return ProductResource::createWrittenEvent($updated, $context, $errors);
+        return ProductWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): ProductWrittenEvent
@@ -82,7 +82,7 @@ class ProductWriter
         foreach ($data as $product) {
             try {
                 $created[] = $this->writer->upsert(
-                    ProductResource::class,
+                    ProductWriteResource::class,
                     $product,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class ProductWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ProductResource::createWrittenEvent($created, $context, $errors);
+        return ProductWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): ProductWrittenEvent
@@ -114,7 +114,7 @@ class ProductWriter
         foreach ($data as $product) {
             try {
                 $created[] = $this->writer->insert(
-                    ProductResource::class,
+                    ProductWriteResource::class,
                     $product,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class ProductWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ProductResource::createWrittenEvent($created, $context, $errors);
+        return ProductWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

@@ -39,6 +39,6 @@ class AreaCountry extends Bundle
         parent::build($container);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
-        $loader->load('read_services.xml');
+        $loader->load('read-services.xml');
     }
 }

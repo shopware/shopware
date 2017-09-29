@@ -11,8 +11,8 @@ use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
 use Shopware\ProductStream\Event\ProductStreamWriteExtenderEvent;
 use Shopware\ProductStream\Event\ProductStreamWrittenEvent;
-use Shopware\ProductStream\Writer\Resource\ProductStreamResource;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\ProductStream\Writer\Resource\ProductStreamWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class ProductStreamWriter
 {
@@ -50,7 +50,7 @@ class ProductStreamWriter
         foreach ($data as $productStream) {
             try {
                 $updated[] = $this->writer->update(
-                    ProductStreamResource::class,
+                    ProductStreamWriteResource::class,
                     $productStream,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class ProductStreamWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return ProductStreamResource::createWrittenEvent($updated, $context, $errors);
+        return ProductStreamWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): ProductStreamWrittenEvent
@@ -82,7 +82,7 @@ class ProductStreamWriter
         foreach ($data as $productStream) {
             try {
                 $created[] = $this->writer->upsert(
-                    ProductStreamResource::class,
+                    ProductStreamWriteResource::class,
                     $productStream,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class ProductStreamWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ProductStreamResource::createWrittenEvent($created, $context, $errors);
+        return ProductStreamWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): ProductStreamWrittenEvent
@@ -114,7 +114,7 @@ class ProductStreamWriter
         foreach ($data as $productStream) {
             try {
                 $created[] = $this->writer->insert(
-                    ProductStreamResource::class,
+                    ProductStreamWriteResource::class,
                     $productStream,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class ProductStreamWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ProductStreamResource::createWrittenEvent($created, $context, $errors);
+        return ProductStreamWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

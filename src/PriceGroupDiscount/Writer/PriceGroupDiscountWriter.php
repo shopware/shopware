@@ -11,8 +11,8 @@ use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
 use Shopware\PriceGroupDiscount\Event\PriceGroupDiscountWriteExtenderEvent;
 use Shopware\PriceGroupDiscount\Event\PriceGroupDiscountWrittenEvent;
-use Shopware\PriceGroupDiscount\Writer\Resource\PriceGroupDiscountResource;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\PriceGroupDiscount\Writer\Resource\PriceGroupDiscountWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class PriceGroupDiscountWriter
 {
@@ -50,7 +50,7 @@ class PriceGroupDiscountWriter
         foreach ($data as $priceGroupDiscount) {
             try {
                 $updated[] = $this->writer->update(
-                    PriceGroupDiscountResource::class,
+                    PriceGroupDiscountWriteResource::class,
                     $priceGroupDiscount,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class PriceGroupDiscountWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return PriceGroupDiscountResource::createWrittenEvent($updated, $context, $errors);
+        return PriceGroupDiscountWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): PriceGroupDiscountWrittenEvent
@@ -82,7 +82,7 @@ class PriceGroupDiscountWriter
         foreach ($data as $priceGroupDiscount) {
             try {
                 $created[] = $this->writer->upsert(
-                    PriceGroupDiscountResource::class,
+                    PriceGroupDiscountWriteResource::class,
                     $priceGroupDiscount,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class PriceGroupDiscountWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return PriceGroupDiscountResource::createWrittenEvent($created, $context, $errors);
+        return PriceGroupDiscountWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): PriceGroupDiscountWrittenEvent
@@ -114,7 +114,7 @@ class PriceGroupDiscountWriter
         foreach ($data as $priceGroupDiscount) {
             try {
                 $created[] = $this->writer->insert(
-                    PriceGroupDiscountResource::class,
+                    PriceGroupDiscountWriteResource::class,
                     $priceGroupDiscount,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class PriceGroupDiscountWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return PriceGroupDiscountResource::createWrittenEvent($created, $context, $errors);
+        return PriceGroupDiscountWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

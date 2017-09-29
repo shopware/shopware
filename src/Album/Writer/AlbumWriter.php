@@ -4,7 +4,7 @@ namespace Shopware\Album\Writer;
 
 use Shopware\Album\Event\AlbumWriteExtenderEvent;
 use Shopware\Album\Event\AlbumWrittenEvent;
-use Shopware\Album\Writer\Resource\AlbumResource;
+use Shopware\Album\Writer\Resource\AlbumWriteResource;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEventDispatcherInterface;
 use Shopware\Framework\Write\FieldAware\DefaultExtender;
@@ -12,7 +12,7 @@ use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Framework\Write\FieldException\WriteStackException;
 use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class AlbumWriter
 {
@@ -50,7 +50,7 @@ class AlbumWriter
         foreach ($data as $album) {
             try {
                 $updated[] = $this->writer->update(
-                    AlbumResource::class,
+                    AlbumWriteResource::class,
                     $album,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class AlbumWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return AlbumResource::createWrittenEvent($updated, $context, $errors);
+        return AlbumWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): AlbumWrittenEvent
@@ -82,7 +82,7 @@ class AlbumWriter
         foreach ($data as $album) {
             try {
                 $created[] = $this->writer->upsert(
-                    AlbumResource::class,
+                    AlbumWriteResource::class,
                     $album,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class AlbumWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return AlbumResource::createWrittenEvent($created, $context, $errors);
+        return AlbumWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): AlbumWrittenEvent
@@ -114,7 +114,7 @@ class AlbumWriter
         foreach ($data as $album) {
             try {
                 $created[] = $this->writer->insert(
-                    AlbumResource::class,
+                    AlbumWriteResource::class,
                     $album,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class AlbumWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return AlbumResource::createWrittenEvent($created, $context, $errors);
+        return AlbumWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

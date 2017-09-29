@@ -11,8 +11,8 @@ use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
 use Shopware\Holiday\Event\HolidayWriteExtenderEvent;
 use Shopware\Holiday\Event\HolidayWrittenEvent;
-use Shopware\Holiday\Writer\Resource\HolidayResource;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\Holiday\Writer\Resource\HolidayWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class HolidayWriter
 {
@@ -50,7 +50,7 @@ class HolidayWriter
         foreach ($data as $holiday) {
             try {
                 $updated[] = $this->writer->update(
-                    HolidayResource::class,
+                    HolidayWriteResource::class,
                     $holiday,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class HolidayWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return HolidayResource::createWrittenEvent($updated, $context, $errors);
+        return HolidayWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): HolidayWrittenEvent
@@ -82,7 +82,7 @@ class HolidayWriter
         foreach ($data as $holiday) {
             try {
                 $created[] = $this->writer->upsert(
-                    HolidayResource::class,
+                    HolidayWriteResource::class,
                     $holiday,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class HolidayWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return HolidayResource::createWrittenEvent($created, $context, $errors);
+        return HolidayWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): HolidayWrittenEvent
@@ -114,7 +114,7 @@ class HolidayWriter
         foreach ($data as $holiday) {
             try {
                 $created[] = $this->writer->insert(
-                    HolidayResource::class,
+                    HolidayWriteResource::class,
                     $holiday,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class HolidayWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return HolidayResource::createWrittenEvent($created, $context, $errors);
+        return HolidayWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

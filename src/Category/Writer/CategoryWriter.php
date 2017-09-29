@@ -4,7 +4,7 @@ namespace Shopware\Category\Writer;
 
 use Shopware\Category\Event\CategoryWriteExtenderEvent;
 use Shopware\Category\Event\CategoryWrittenEvent;
-use Shopware\Category\Writer\Resource\CategoryResource;
+use Shopware\Category\Writer\Resource\CategoryWriteResource;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEventDispatcherInterface;
 use Shopware\Framework\Write\FieldAware\DefaultExtender;
@@ -12,7 +12,7 @@ use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Framework\Write\FieldException\WriteStackException;
 use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class CategoryWriter
 {
@@ -50,7 +50,7 @@ class CategoryWriter
         foreach ($data as $category) {
             try {
                 $updated[] = $this->writer->update(
-                    CategoryResource::class,
+                    CategoryWriteResource::class,
                     $category,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class CategoryWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return CategoryResource::createWrittenEvent($updated, $context, $errors);
+        return CategoryWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): CategoryWrittenEvent
@@ -82,7 +82,7 @@ class CategoryWriter
         foreach ($data as $category) {
             try {
                 $created[] = $this->writer->upsert(
-                    CategoryResource::class,
+                    CategoryWriteResource::class,
                     $category,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class CategoryWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return CategoryResource::createWrittenEvent($created, $context, $errors);
+        return CategoryWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): CategoryWrittenEvent
@@ -114,7 +114,7 @@ class CategoryWriter
         foreach ($data as $category) {
             try {
                 $created[] = $this->writer->insert(
-                    CategoryResource::class,
+                    CategoryWriteResource::class,
                     $category,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class CategoryWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return CategoryResource::createWrittenEvent($created, $context, $errors);
+        return CategoryWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

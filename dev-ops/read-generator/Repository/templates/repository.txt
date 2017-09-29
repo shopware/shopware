@@ -8,7 +8,7 @@ use Shopware\#classUc#\Loader\#classUc#BasicLoader;
 use Shopware\#classUc#\Searcher\#classUc#Searcher;
 use Shopware\#classUc#\Searcher\#classUc#SearchResult;
 use Shopware\#classUc#\Struct\#classUc#BasicCollection;
-use Shopware\#classUc#\Writer\#classUc#Resource;
+use Shopware\#classUc#\Writer\#classUc#WriteResource;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

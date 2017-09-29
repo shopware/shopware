@@ -11,8 +11,8 @@ use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
 use Shopware\ProductMedia\Event\ProductMediaWriteExtenderEvent;
 use Shopware\ProductMedia\Event\ProductMediaWrittenEvent;
-use Shopware\ProductMedia\Writer\Resource\ProductMediaResource;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\ProductMedia\Writer\Resource\ProductMediaWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class ProductMediaWriter
 {
@@ -50,7 +50,7 @@ class ProductMediaWriter
         foreach ($data as $productMedia) {
             try {
                 $updated[] = $this->writer->update(
-                    ProductMediaResource::class,
+                    ProductMediaWriteResource::class,
                     $productMedia,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class ProductMediaWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return ProductMediaResource::createWrittenEvent($updated, $context, $errors);
+        return ProductMediaWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): ProductMediaWrittenEvent
@@ -82,7 +82,7 @@ class ProductMediaWriter
         foreach ($data as $productMedia) {
             try {
                 $created[] = $this->writer->upsert(
-                    ProductMediaResource::class,
+                    ProductMediaWriteResource::class,
                     $productMedia,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class ProductMediaWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ProductMediaResource::createWrittenEvent($created, $context, $errors);
+        return ProductMediaWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): ProductMediaWrittenEvent
@@ -114,7 +114,7 @@ class ProductMediaWriter
         foreach ($data as $productMedia) {
             try {
                 $created[] = $this->writer->insert(
-                    ProductMediaResource::class,
+                    ProductMediaWriteResource::class,
                     $productMedia,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class ProductMediaWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ProductMediaResource::createWrittenEvent($created, $context, $errors);
+        return ProductMediaWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

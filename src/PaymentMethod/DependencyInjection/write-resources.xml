@@ -4,16 +4,16 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-                <service id="shopware.paymentmethod.payment-method.resource" class="Shopware\PaymentMethod\Writer\Resource\PaymentMethodResource">
+                <service id="shopware.paymentmethod.payment-method.resource" class="Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.paymentmethod.payment-method-country.resource" class="Shopware\PaymentMethod\Writer\Resource\PaymentMethodCountryResource">
+        <service id="shopware.paymentmethod.payment-method-country.resource" class="Shopware\PaymentMethod\Writer\Resource\PaymentMethodCountryWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.paymentmethod.payment-method-shop.resource" class="Shopware\PaymentMethod\Writer\Resource\PaymentMethodShopResource">
+        <service id="shopware.paymentmethod.payment-method-shop.resource" class="Shopware\PaymentMethod\Writer\Resource\PaymentMethodShopWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.paymentmethod.payment-method-translation.resource" class="Shopware\PaymentMethod\Writer\Resource\PaymentMethodTranslationResource">
+        <service id="shopware.paymentmethod.payment-method-translation.resource" class="Shopware\PaymentMethod\Writer\Resource\PaymentMethodTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
     </services>

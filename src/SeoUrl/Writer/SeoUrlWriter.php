@@ -11,8 +11,8 @@ use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
 use Shopware\SeoUrl\Event\SeoUrlWriteExtenderEvent;
 use Shopware\SeoUrl\Event\SeoUrlWrittenEvent;
-use Shopware\SeoUrl\Writer\Resource\SeoUrlResource;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\SeoUrl\Writer\Resource\SeoUrlWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class SeoUrlWriter
 {
@@ -50,7 +50,7 @@ class SeoUrlWriter
         foreach ($data as $seoUrl) {
             try {
                 $updated[] = $this->writer->update(
-                    SeoUrlResource::class,
+                    SeoUrlWriteResource::class,
                     $seoUrl,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class SeoUrlWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return SeoUrlResource::createWrittenEvent($updated, $context, $errors);
+        return SeoUrlWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): SeoUrlWrittenEvent
@@ -82,7 +82,7 @@ class SeoUrlWriter
         foreach ($data as $seoUrl) {
             try {
                 $created[] = $this->writer->upsert(
-                    SeoUrlResource::class,
+                    SeoUrlWriteResource::class,
                     $seoUrl,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class SeoUrlWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return SeoUrlResource::createWrittenEvent($created, $context, $errors);
+        return SeoUrlWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): SeoUrlWrittenEvent
@@ -114,7 +114,7 @@ class SeoUrlWriter
         foreach ($data as $seoUrl) {
             try {
                 $created[] = $this->writer->insert(
-                    SeoUrlResource::class,
+                    SeoUrlWriteResource::class,
                     $seoUrl,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class SeoUrlWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return SeoUrlResource::createWrittenEvent($created, $context, $errors);
+        return SeoUrlWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

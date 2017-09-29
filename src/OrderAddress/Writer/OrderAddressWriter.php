@@ -11,8 +11,8 @@ use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
 use Shopware\OrderAddress\Event\OrderAddressWriteExtenderEvent;
 use Shopware\OrderAddress\Event\OrderAddressWrittenEvent;
-use Shopware\OrderAddress\Writer\Resource\OrderAddressResource;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\OrderAddress\Writer\Resource\OrderAddressWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class OrderAddressWriter
 {
@@ -50,7 +50,7 @@ class OrderAddressWriter
         foreach ($data as $orderAddress) {
             try {
                 $updated[] = $this->writer->update(
-                    OrderAddressResource::class,
+                    OrderAddressWriteResource::class,
                     $orderAddress,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class OrderAddressWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return OrderAddressResource::createWrittenEvent($updated, $context, $errors);
+        return OrderAddressWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): OrderAddressWrittenEvent
@@ -82,7 +82,7 @@ class OrderAddressWriter
         foreach ($data as $orderAddress) {
             try {
                 $created[] = $this->writer->upsert(
-                    OrderAddressResource::class,
+                    OrderAddressWriteResource::class,
                     $orderAddress,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class OrderAddressWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return OrderAddressResource::createWrittenEvent($created, $context, $errors);
+        return OrderAddressWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): OrderAddressWrittenEvent
@@ -114,7 +114,7 @@ class OrderAddressWriter
         foreach ($data as $orderAddress) {
             try {
                 $created[] = $this->writer->insert(
-                    OrderAddressResource::class,
+                    OrderAddressWriteResource::class,
                     $orderAddress,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class OrderAddressWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return OrderAddressResource::createWrittenEvent($created, $context, $errors);
+        return OrderAddressWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

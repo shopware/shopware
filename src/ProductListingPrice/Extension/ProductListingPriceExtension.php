@@ -16,8 +16,7 @@ abstract class ProductListingPriceExtension implements ExtensionInterface, Event
     public static function getSubscribedEvents()
     {
         return [
-            ProductListingPriceBasicLoadedEvent::NAME => 'productListingPriceBasicLoaded',
-            ProductListingPriceWrittenEvent::NAME => 'productListingPriceWritten',
+            ProductListingPriceBasicLoadedEvent::NAME => 'productListingPriceBasicLoaded'
         ];
     }
 

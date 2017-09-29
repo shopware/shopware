@@ -5,14 +5,14 @@ namespace Shopware\CustomerGroup\Writer;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Event\CustomerGroupWriteExtenderEvent;
 use Shopware\CustomerGroup\Event\CustomerGroupWrittenEvent;
-use Shopware\CustomerGroup\Writer\Resource\CustomerGroupResource;
+use Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource;
 use Shopware\Framework\Event\NestedEventDispatcherInterface;
 use Shopware\Framework\Write\FieldAware\DefaultExtender;
 use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Framework\Write\FieldException\WriteStackException;
 use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class CustomerGroupWriter
 {
@@ -50,7 +50,7 @@ class CustomerGroupWriter
         foreach ($data as $customerGroup) {
             try {
                 $updated[] = $this->writer->update(
-                    CustomerGroupResource::class,
+                    CustomerGroupWriteResource::class,
                     $customerGroup,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class CustomerGroupWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return CustomerGroupResource::createWrittenEvent($updated, $context, $errors);
+        return CustomerGroupWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): CustomerGroupWrittenEvent
@@ -82,7 +82,7 @@ class CustomerGroupWriter
         foreach ($data as $customerGroup) {
             try {
                 $created[] = $this->writer->upsert(
-                    CustomerGroupResource::class,
+                    CustomerGroupWriteResource::class,
                     $customerGroup,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class CustomerGroupWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return CustomerGroupResource::createWrittenEvent($created, $context, $errors);
+        return CustomerGroupWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): CustomerGroupWrittenEvent
@@ -114,7 +114,7 @@ class CustomerGroupWriter
         foreach ($data as $customerGroup) {
             try {
                 $created[] = $this->writer->insert(
-                    CustomerGroupResource::class,
+                    CustomerGroupWriteResource::class,
                     $customerGroup,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class CustomerGroupWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return CustomerGroupResource::createWrittenEvent($created, $context, $errors);
+        return CustomerGroupWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

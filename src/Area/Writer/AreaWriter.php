@@ -4,7 +4,7 @@ namespace Shopware\Area\Writer;
 
 use Shopware\Area\Event\AreaWriteExtenderEvent;
 use Shopware\Area\Event\AreaWrittenEvent;
-use Shopware\Area\Writer\Resource\AreaResource;
+use Shopware\Area\Writer\Resource\AreaWriteResource;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEventDispatcherInterface;
 use Shopware\Framework\Write\FieldAware\DefaultExtender;
@@ -12,7 +12,7 @@ use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Framework\Write\FieldException\WriteStackException;
 use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class AreaWriter
 {
@@ -50,7 +50,7 @@ class AreaWriter
         foreach ($data as $area) {
             try {
                 $updated[] = $this->writer->update(
-                    AreaResource::class,
+                    AreaWriteResource::class,
                     $area,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class AreaWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return AreaResource::createWrittenEvent($updated, $context, $errors);
+        return AreaWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): AreaWrittenEvent
@@ -82,7 +82,7 @@ class AreaWriter
         foreach ($data as $area) {
             try {
                 $created[] = $this->writer->upsert(
-                    AreaResource::class,
+                    AreaWriteResource::class,
                     $area,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class AreaWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return AreaResource::createWrittenEvent($created, $context, $errors);
+        return AreaWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): AreaWrittenEvent
@@ -114,7 +114,7 @@ class AreaWriter
         foreach ($data as $area) {
             try {
                 $created[] = $this->writer->insert(
-                    AreaResource::class,
+                    AreaWriteResource::class,
                     $area,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class AreaWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return AreaResource::createWrittenEvent($created, $context, $errors);
+        return AreaWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

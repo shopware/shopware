@@ -11,8 +11,8 @@ use Shopware\Framework\Write\WriteContext;
 use Shopware\Framework\Write\Writer;
 use Shopware\ProductVote\Event\ProductVoteWriteExtenderEvent;
 use Shopware\ProductVote\Event\ProductVoteWrittenEvent;
-use Shopware\ProductVote\Writer\Resource\ProductVoteResource;
-use Shopware\Shop\Writer\Resource\ShopResource;
+use Shopware\ProductVote\Writer\Resource\ProductVoteWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class ProductVoteWriter
 {
@@ -50,7 +50,7 @@ class ProductVoteWriter
         foreach ($data as $productVote) {
             try {
                 $updated[] = $this->writer->update(
-                    ProductVoteResource::class,
+                    ProductVoteWriteResource::class,
                     $productVote,
                     $writeContext,
                     $extender
@@ -67,7 +67,7 @@ class ProductVoteWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return ProductVoteResource::createWrittenEvent($updated, $context, $errors);
+        return ProductVoteWriteResource::createWrittenEvent($updated, $context, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): ProductVoteWrittenEvent
@@ -82,7 +82,7 @@ class ProductVoteWriter
         foreach ($data as $productVote) {
             try {
                 $created[] = $this->writer->upsert(
-                    ProductVoteResource::class,
+                    ProductVoteWriteResource::class,
                     $productVote,
                     $writeContext,
                     $extender
@@ -99,7 +99,7 @@ class ProductVoteWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ProductVoteResource::createWrittenEvent($created, $context, $errors);
+        return ProductVoteWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     public function create(array $data, TranslationContext $context): ProductVoteWrittenEvent
@@ -114,7 +114,7 @@ class ProductVoteWriter
         foreach ($data as $productVote) {
             try {
                 $created[] = $this->writer->insert(
-                    ProductVoteResource::class,
+                    ProductVoteWriteResource::class,
                     $productVote,
                     $writeContext,
                     $extender
@@ -131,13 +131,13 @@ class ProductVoteWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ProductVoteResource::createWrittenEvent($created, $context, $errors);
+        return ProductVoteWriteResource::createWrittenEvent($created, $context, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext
     {
         $writeContext = new WriteContext();
-        $writeContext->set(ShopResource::class, 'uuid', $shopUuid);
+        $writeContext->set(ShopWriteResource::class, 'uuid', $shopUuid);
 
         return $writeContext;
     }

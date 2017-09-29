@@ -30,10 +30,10 @@ use Shopware\Framework\Write\FieldAware\PathAware;
 use Shopware\Framework\Write\FieldAware\ValidatorAware;
 use Shopware\Framework\Write\FieldAware\ValueTransformerRegistryAware;
 use Shopware\Framework\Write\FieldException\InvalidFieldException;
-use Shopware\Framework\Write\Resource;
 use Shopware\Framework\Write\ValueTransformer\ValueTransformer;
 use Shopware\Framework\Write\ValueTransformer\ValueTransformerDate;
 use Shopware\Framework\Write\ValueTransformer\ValueTransformerRegistry;
+use Shopware\Framework\Write\WriteResource;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -78,10 +78,10 @@ class DateField extends Field implements PathAware, ConstraintBuilderAware, Valu
     public function __invoke(string $type, string $key, $value = null): \Generator
     {
         switch ($type) {
-            case Resource::FOR_INSERT:
+            case WriteResource::FOR_INSERT:
                 $this->validate($this->getInsertConstraints(), $key, $value);
                 break;
-            case Resource::FOR_UPDATE:
+            case WriteResource::FOR_UPDATE:
                 $this->validate($this->getUpdateConstraints(), $key, $value);
                 break;
             default:

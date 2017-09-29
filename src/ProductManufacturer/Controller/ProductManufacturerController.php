@@ -26,16 +26,6 @@ class ProductManufacturerController extends ApiController
         $this->productManufacturerRepository = $productManufacturerRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'productManufacturers';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'productManufacturer';
-    }
-
     /**
      * @Route("/productManufacturer.{responseFormat}", name="api.productManufacturer.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class ProductManufacturerController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'productManufacturers';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'productManufacturer';
     }
 }

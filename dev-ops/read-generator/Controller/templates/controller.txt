@@ -26,12 +26,12 @@ class #classUc#Controller extends ApiController
         $this->#classLc#Repository = $#classLc#Repository;
     }
 
-    public function getXmlRootKey(): string
+    protected function getXmlRootKey(): string
     {
         return '#plural#';
     }
 
-    public function getXmlChildKey(): string
+    protected function getXmlChildKey(): string
     {
         return '#classLc#';
     }

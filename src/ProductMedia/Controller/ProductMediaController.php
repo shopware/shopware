@@ -26,16 +26,6 @@ class ProductMediaController extends ApiController
         $this->productMediaRepository = $productMediaRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'productMedias';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'productMedia';
-    }
-
     /**
      * @Route("/productMedia.{responseFormat}", name="api.productMedia.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class ProductMediaController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'productMedias';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'productMedia';
     }
 }

@@ -26,16 +26,6 @@ class OrderLineItemController extends ApiController
         $this->orderLineItemRepository = $orderLineItemRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'orderLineItems';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'orderLineItem';
-    }
-
     /**
      * @Route("/orderLineItem.{responseFormat}", name="api.orderLineItem.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class OrderLineItemController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'orderLineItems';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'orderLineItem';
     }
 }

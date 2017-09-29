@@ -26,16 +26,6 @@ class CustomerAddressController extends ApiController
         $this->customerAddressRepository = $customerAddressRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'customerAddresses';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'customerAddress';
-    }
-
     /**
      * @Route("/customerAddress.{responseFormat}", name="api.customerAddress.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class CustomerAddressController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'customerAddresses';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'customerAddress';
     }
 }

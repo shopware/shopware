@@ -26,16 +26,6 @@ class AlbumController extends ApiController
         $this->albumRepository = $albumRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'album';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'album';
-    }
-
     /**
      * @Route("/album.{responseFormat}", name="api.album.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class AlbumController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'album';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'album';
     }
 }

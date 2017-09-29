@@ -26,16 +26,6 @@ class ListingSortingController extends ApiController
         $this->listingSortingRepository = $listingSortingRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'listingSortings';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'listingSorting';
-    }
-
     /**
      * @Route("/listingSorting.{responseFormat}", name="api.listingSorting.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class ListingSortingController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'listingSortings';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'listingSorting';
     }
 }

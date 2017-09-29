@@ -26,16 +26,6 @@ class CategoryController extends ApiController
         $this->categoryRepository = $categoryRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'categories';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'category';
-    }
-
     /**
      * @Route("/category.{responseFormat}", name="api.category.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class CategoryController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'categories';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'category';
     }
 }

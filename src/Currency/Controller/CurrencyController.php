@@ -26,16 +26,6 @@ class CurrencyController extends ApiController
         $this->currencyRepository = $currencyRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'currencies';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'currency';
-    }
-
     /**
      * @Route("/currency.{responseFormat}", name="api.currency.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class CurrencyController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'currencies';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'currency';
     }
 }

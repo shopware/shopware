@@ -84,7 +84,7 @@ class CalculatedLineItemCollection extends Collection
 
     public function filterGoods(): CalculatedLineItemCollection
     {
-        return $this->filterInstance(Goods::class);
+        return $this->filterInstance(GoodsInterface::class);
     }
 
     protected function getKey(CalculatedLineItemInterface $element): string

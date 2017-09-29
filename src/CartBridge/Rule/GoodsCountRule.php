@@ -25,7 +25,7 @@
 namespace Shopware\CartBridge\Rule;
 
 use Shopware\Cart\Cart\CalculatedCart;
-use Shopware\Cart\LineItem\Goods;
+use Shopware\Cart\LineItem\GoodsInterface;
 use Shopware\Cart\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Cart\Rule\Match;
 use Shopware\Cart\Rule\Rule;
@@ -55,14 +55,14 @@ class GoodsCountRule extends Rule
         ShopContext $context,
         StructCollection $collection
     ): Match {
-        $goods = $calculatedCart->getCalculatedLineItems()->filterInstance(Goods::class);
+        $goods = $calculatedCart->getCalculatedLineItems()->filterInstance(GoodsInterface::class);
 
         switch ($this->operator) {
             case self::OPERATOR_GTE:
 
                 return new Match(
                     $goods->count() >= $this->count,
-                    ['Goods count to much']
+                    ['GoodsInterface count to much']
                 );
 
             case self::OPERATOR_LTE:

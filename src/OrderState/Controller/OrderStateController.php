@@ -26,16 +26,6 @@ class OrderStateController extends ApiController
         $this->orderStateRepository = $orderStateRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'orderStates';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'orderState';
-    }
-
     /**
      * @Route("/orderState.{responseFormat}", name="api.orderState.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class OrderStateController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'orderStates';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'orderState';
     }
 }

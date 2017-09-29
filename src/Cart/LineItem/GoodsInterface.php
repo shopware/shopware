@@ -25,6 +25,6 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\LineItem;
 
-interface Goods
+interface GoodsInterface
 {
 }

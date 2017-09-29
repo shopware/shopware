@@ -26,16 +26,6 @@ class ProductStreamController extends ApiController
         $this->productStreamRepository = $productStreamRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'productStreams';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'productStream';
-    }
-
     /**
      * @Route("/productStream.{responseFormat}", name="api.productStream.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class ProductStreamController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'productStreams';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'productStream';
     }
 }

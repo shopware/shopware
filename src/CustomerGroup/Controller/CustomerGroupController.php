@@ -26,16 +26,6 @@ class CustomerGroupController extends ApiController
         $this->customerGroupRepository = $customerGroupRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'customerGroups';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'customerGroup';
-    }
-
     /**
      * @Route("/customerGroup.{responseFormat}", name="api.customerGroup.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class CustomerGroupController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'customerGroups';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'customerGroup';
     }
 }

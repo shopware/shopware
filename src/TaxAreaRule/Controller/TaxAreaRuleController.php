@@ -26,16 +26,6 @@ class TaxAreaRuleController extends ApiController
         $this->taxAreaRuleRepository = $taxAreaRuleRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'taxAreaRules';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'taxAreaRule';
-    }
-
     /**
      * @Route("/taxAreaRule.{responseFormat}", name="api.taxAreaRule.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class TaxAreaRuleController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'taxAreaRules';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'taxAreaRule';
     }
 }

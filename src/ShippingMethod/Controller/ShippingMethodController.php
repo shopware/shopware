@@ -26,16 +26,6 @@ class ShippingMethodController extends ApiController
         $this->shippingMethodRepository = $shippingMethodRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'shippingMethods';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'shippingMethod';
-    }
-
     /**
      * @Route("/shippingMethod.{responseFormat}", name="api.shippingMethod.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class ShippingMethodController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'shippingMethods';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'shippingMethod';
     }
 }

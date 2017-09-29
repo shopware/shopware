@@ -26,16 +26,6 @@ class MediaController extends ApiController
         $this->mediaRepository = $mediaRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'media';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'media';
-    }
-
     /**
      * @Route("/media.{responseFormat}", name="api.media.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class MediaController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'media';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'media';
     }
 }

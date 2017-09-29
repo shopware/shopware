@@ -26,16 +26,6 @@ class PaymentMethodController extends ApiController
         $this->paymentMethodRepository = $paymentMethodRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'paymentMethods';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'paymentMethod';
-    }
-
     /**
      * @Route("/paymentMethod.{responseFormat}", name="api.paymentMethod.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class PaymentMethodController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'paymentMethods';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'paymentMethod';
     }
 }

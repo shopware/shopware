@@ -26,16 +26,6 @@ class ProductVoteController extends ApiController
         $this->productVoteRepository = $productVoteRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'productVotes';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'productVote';
-    }
-
     /**
      * @Route("/productVote.{responseFormat}", name="api.productVote.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class ProductVoteController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'productVotes';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'productVote';
     }
 }

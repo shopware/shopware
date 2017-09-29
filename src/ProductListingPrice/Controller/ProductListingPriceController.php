@@ -26,16 +26,6 @@ class ProductListingPriceController extends ApiController
         $this->productListingPriceRepository = $productListingPriceRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'productListingPrices';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'productListingPrice';
-    }
-
     /**
      * @Route("/productListingPrice.{responseFormat}", name="api.productListingPrice.list", methods={"GET"})
      *
@@ -92,5 +82,15 @@ class ProductListingPriceController extends ApiController
         );
 
         return $this->createResponse(['data' => $productListingPrices->get($uuid)], $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'productListingPrices';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'productListingPrice';
     }
 }

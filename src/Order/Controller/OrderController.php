@@ -26,16 +26,6 @@ class OrderController extends ApiController
         $this->orderRepository = $orderRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'orders';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'order';
-    }
-
     /**
      * @Route("/order.{responseFormat}", name="api.order.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class OrderController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'orders';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'order';
     }
 }

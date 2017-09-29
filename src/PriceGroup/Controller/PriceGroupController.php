@@ -26,16 +26,6 @@ class PriceGroupController extends ApiController
         $this->priceGroupRepository = $priceGroupRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'priceGroups';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'priceGroup';
-    }
-
     /**
      * @Route("/priceGroup.{responseFormat}", name="api.priceGroup.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class PriceGroupController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'priceGroups';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'priceGroup';
     }
 }

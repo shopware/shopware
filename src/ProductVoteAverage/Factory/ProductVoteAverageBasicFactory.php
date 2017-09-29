@@ -2,7 +2,9 @@
 
 namespace Shopware\ProductVoteAverage\Factory;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionRegistryInterface;
 use Shopware\Framework\Factory\Factory;
 use Shopware\ProductVoteAverage\Extension\ProductVoteAverageExtension;
 use Shopware\ProductVoteAverage\Struct\ProductVoteAverageBasicStruct;
@@ -26,6 +28,13 @@ class ProductVoteAverageBasicFactory extends Factory
        'two_point_count' => 'two_point_count',
        'one_point_count' => 'one_point_count',
     ];
+
+    public function __construct(
+        Connection $connection,
+        ExtensionRegistryInterface $registry
+    ) {
+        parent::__construct($connection, $registry);
+    }
 
     public function hydrate(
         array $data,

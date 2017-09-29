@@ -24,8 +24,8 @@
 
 namespace Shopware\Cart\Test\Common;
 
-use Shopware\Cart\LineItem\Goods;
+use Shopware\Cart\LineItem\GoodsInterface;
 
-class ConfiguredGoodsItem extends ConfiguredLineItem implements Goods
+class ConfiguredGoodsItem extends ConfiguredLineItem implements GoodsInterface
 {
 }

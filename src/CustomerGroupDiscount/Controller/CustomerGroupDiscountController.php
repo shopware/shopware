@@ -26,16 +26,6 @@ class CustomerGroupDiscountController extends ApiController
         $this->customerGroupDiscountRepository = $customerGroupDiscountRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'customerGroupDiscounts';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'customerGroupDiscount';
-    }
-
     /**
      * @Route("/customerGroupDiscount.{responseFormat}", name="api.customerGroupDiscount.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class CustomerGroupDiscountController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'customerGroupDiscounts';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'customerGroupDiscount';
     }
 }

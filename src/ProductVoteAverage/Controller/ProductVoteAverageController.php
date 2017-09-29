@@ -26,16 +26,6 @@ class ProductVoteAverageController extends ApiController
         $this->productVoteAverageRepository = $productVoteAverageRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'productVoteAverages';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'productVoteAverage';
-    }
-
     /**
      * @Route("/productVoteAverage.{responseFormat}", name="api.productVoteAverage.list", methods={"GET"})
      *
@@ -92,5 +82,15 @@ class ProductVoteAverageController extends ApiController
         );
 
         return $this->createResponse(['data' => $productVoteAverages->get($uuid)], $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'productVoteAverages';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'productVoteAverage';
     }
 }

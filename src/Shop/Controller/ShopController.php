@@ -26,16 +26,6 @@ class ShopController extends ApiController
         $this->shopRepository = $shopRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'shops';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'shop';
-    }
-
     /**
      * @Route("/shop.{responseFormat}", name="api.shop.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class ShopController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'shops';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'shop';
     }
 }

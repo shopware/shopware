@@ -26,16 +26,6 @@ class LocaleController extends ApiController
         $this->localeRepository = $localeRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'locales';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'locale';
-    }
-
     /**
      * @Route("/locale.{responseFormat}", name="api.locale.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class LocaleController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'locales';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'locale';
     }
 }

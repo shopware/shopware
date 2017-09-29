@@ -60,14 +60,14 @@ class GoodsPriceRule extends \Shopware\Cart\Rule\Rule
 
                 return new Match(
                     $goods->getPrices()->sum()->getTotalPrice() >= $this->amount,
-                    ['Goods price to low']
+                    ['GoodsInterface price to low']
                 );
 
             case self::OPERATOR_LTE:
 
                 return new Match(
                     $goods->getPrices()->sum()->getTotalPrice() <= $this->amount,
-                    ['Goods price to high']
+                    ['GoodsInterface price to high']
                 );
 
             default:

@@ -11,9 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 abstract class ApiController extends Controller
 {
-    abstract public function getXmlRootKey(): string;
+    abstract protected function getXmlRootKey(): string;
 
-    abstract public function getXmlChildKey(): string;
+    abstract protected function getXmlChildKey(): string;
 
     /**
      * @param mixed      $responseData

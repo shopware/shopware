@@ -26,16 +26,6 @@ class TaxController extends ApiController
         $this->taxRepository = $taxRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'taxes';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'tax';
-    }
-
     /**
      * @Route("/tax.{responseFormat}", name="api.tax.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class TaxController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'taxes';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'tax';
     }
 }

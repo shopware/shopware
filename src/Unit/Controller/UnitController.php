@@ -26,16 +26,6 @@ class UnitController extends ApiController
         $this->unitRepository = $unitRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'units';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'unit';
-    }
-
     /**
      * @Route("/unit.{responseFormat}", name="api.unit.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class UnitController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'units';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'unit';
     }
 }

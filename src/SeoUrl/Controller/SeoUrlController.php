@@ -26,16 +26,6 @@ class SeoUrlController extends ApiController
         $this->seoUrlRepository = $seoUrlRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'seoUrls';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'seoUrl';
-    }
-
     /**
      * @Route("/seoUrl.{responseFormat}", name="api.seoUrl.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class SeoUrlController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'seoUrls';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'seoUrl';
     }
 }

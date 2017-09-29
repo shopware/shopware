@@ -29,14 +29,14 @@ use Shopware\Cart\Delivery\Delivery;
 use Shopware\Cart\Delivery\DeliveryDate;
 use Shopware\Cart\Delivery\DeliveryInformation;
 use Shopware\Cart\LineItem\DeliverableLineItemInterface;
-use Shopware\Cart\LineItem\Goods;
+use Shopware\Cart\LineItem\GoodsInterface;
 use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Price\Price;
 use Shopware\Cart\Rule\Rule;
 use Shopware\Cart\Rule\Validatable;
 use Shopware\Framework\Struct\Struct;
 
-class CalculatedProduct extends Struct implements DeliverableLineItemInterface, Goods, Validatable
+class CalculatedProduct extends Struct implements DeliverableLineItemInterface, GoodsInterface, Validatable
 {
     /**
      * @var LineItemInterface

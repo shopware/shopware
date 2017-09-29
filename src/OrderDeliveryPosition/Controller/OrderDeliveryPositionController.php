@@ -26,16 +26,6 @@ class OrderDeliveryPositionController extends ApiController
         $this->orderDeliveryPositionRepository = $orderDeliveryPositionRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'orderDeliveryPositions';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'orderDeliveryPosition';
-    }
-
     /**
      * @Route("/orderDeliveryPosition.{responseFormat}", name="api.orderDeliveryPosition.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class OrderDeliveryPositionController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'orderDeliveryPositions';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'orderDeliveryPosition';
     }
 }

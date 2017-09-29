@@ -26,16 +26,6 @@ class HolidayController extends ApiController
         $this->holidayRepository = $holidayRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'holidays';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'holiday';
-    }
-
     /**
      * @Route("/holiday.{responseFormat}", name="api.holiday.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class HolidayController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'holidays';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'holiday';
     }
 }

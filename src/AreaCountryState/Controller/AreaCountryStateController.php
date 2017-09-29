@@ -26,16 +26,6 @@ class AreaCountryStateController extends ApiController
         $this->areaCountryStateRepository = $areaCountryStateRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'areaCountryStates';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'areaCountryState';
-    }
-
     /**
      * @Route("/areaCountryState.{responseFormat}", name="api.areaCountryState.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class AreaCountryStateController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'areaCountryStates';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'areaCountryState';
     }
 }

@@ -19,11 +19,6 @@
             <argument type="service" id="shopware.storefront.component.theme.config_reader" />
         </service>
 
-        <service id="shopware.storefront.component.site_page_menu" class="Shopware\Storefront\Component\SitePageMenu">
-            <argument type="service" id="dbal_connection" />
-            <argument type="service" id="shopware.router" />
-        </service>
-
         <!-- Twig / Theme -->
         <service id="shopware.storefront.component.theme.theme_cache_warmer" class="Shopware\Storefront\Theme\ThemeCacheWarmer" public="false">
             <tag name="kernel.cache_warmer" priority="15" />

@@ -26,16 +26,6 @@ class ProductDetailController extends ApiController
         $this->productDetailRepository = $productDetailRepository;
     }
 
-    public function getXmlRootKey(): string
-    {
-        return 'productDetails';
-    }
-
-    public function getXmlChildKey(): string
-    {
-        return 'productDetail';
-    }
-
     /**
      * @Route("/productDetail.{responseFormat}", name="api.productDetail.list", methods={"GET"})
      *
@@ -223,5 +213,15 @@ class ProductDetailController extends ApiController
         $result = ['data' => []];
 
         return $this->createResponse($result, $context);
+    }
+
+    protected function getXmlRootKey(): string
+    {
+        return 'productDetails';
+    }
+
+    protected function getXmlChildKey(): string
+    {
+        return 'productDetail';
     }
 }

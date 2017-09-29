@@ -36,11 +36,6 @@ use Shopware\Models\Media\Media;
 class GarbageCollectorFactory
 {
     /**
-     * @var \Enlight_Event_EventManager
-     */
-    private $events;
-
-    /**
      * @var Connection
      */
     private $connection;
@@ -57,7 +52,6 @@ class GarbageCollectorFactory
     public function __construct(Connection $connection, StrategyInterface $strategy)
     {
         $this->connection = $connection;
-//        $this->events = $events;
         $this->strategy = $strategy;
     }
 

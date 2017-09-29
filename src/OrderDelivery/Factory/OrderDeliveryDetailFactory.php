@@ -56,18 +56,7 @@ class OrderDeliveryDetailFactory extends OrderDeliveryBasicFactory
     {
         parent::joinDependencies($selection, $query, $context);
 
-        if ($positions = $selection->filter('positions')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'order_delivery_position',
-                $positions->getRootEscaped(),
-                sprintf('%s.uuid = %s.order_delivery_uuid', $selection->getRootEscaped(), $positions->getRootEscaped())
-            );
-
-            $this->orderDeliveryPositionFactory->joinDependencies($positions, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
+        $this->joinPositions($selection, $query, $context);
     }
 
     public function getAllFields(): array
@@ -90,5 +79,25 @@ class OrderDeliveryDetailFactory extends OrderDeliveryBasicFactory
         }
 
         return $fields;
+    }
+
+    private function joinPositions(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($positions = $selection->filter('positions'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'order_delivery_position',
+            $positions->getRootEscaped(),
+            sprintf('%s.uuid = %s.order_delivery_uuid', $selection->getRootEscaped(), $positions->getRootEscaped())
+        );
+
+        $this->orderDeliveryPositionFactory->joinDependencies($positions, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
     }
 }

@@ -70,4 +70,6 @@ class #classUc#DetailFactory extends #classUc#BasicFactory
 
         return $fields;
     }
+
+    #functions#
 }

@@ -181,80 +181,13 @@ class OrderBasicFactory extends Factory
 
     public function joinDependencies(QuerySelection $selection, QueryBuilder $query, TranslationContext $context): void
     {
-        if ($customer = $selection->filter('customer')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'customer',
-                $customer->getRootEscaped(),
-                sprintf('%s.uuid = %s.customer_uuid', $customer->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->customerFactory->joinDependencies($customer, $query, $context);
-        }
-
-        if ($orderState = $selection->filter('state')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'order_state',
-                $orderState->getRootEscaped(),
-                sprintf('%s.uuid = %s.order_state_uuid', $orderState->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->orderStateFactory->joinDependencies($orderState, $query, $context);
-        }
-
-        if ($paymentMethod = $selection->filter('paymentMethod')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'payment_method',
-                $paymentMethod->getRootEscaped(),
-                sprintf('%s.uuid = %s.payment_method_uuid', $paymentMethod->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->paymentMethodFactory->joinDependencies($paymentMethod, $query, $context);
-        }
-
-        if ($currency = $selection->filter('currency')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'currency',
-                $currency->getRootEscaped(),
-                sprintf('%s.uuid = %s.currency_uuid', $currency->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->currencyFactory->joinDependencies($currency, $query, $context);
-        }
-
-        if ($shop = $selection->filter('shop')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'shop',
-                $shop->getRootEscaped(),
-                sprintf('%s.uuid = %s.shop_uuid', $shop->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->shopFactory->joinDependencies($shop, $query, $context);
-        }
-
-        if ($orderAddress = $selection->filter('billingAddress')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'order_address',
-                $orderAddress->getRootEscaped(),
-                sprintf('%s.uuid = %s.billing_address_uuid', $orderAddress->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->orderAddressFactory->joinDependencies($orderAddress, $query, $context);
-        }
-
-        if ($translation = $selection->filter('translation')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'order_translation',
-                $translation->getRootEscaped(),
-                sprintf(
-                    '%s.order_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
-                    $translation->getRootEscaped(),
-                    $selection->getRootEscaped(),
-                    $translation->getRootEscaped()
-                )
-            );
-            $query->setParameter('languageUuid', $context->getShopUuid());
-        }
+        $this->joinCustomer($selection, $query, $context);
+        $this->joinState($selection, $query, $context);
+        $this->joinPaymentMethod($selection, $query, $context);
+        $this->joinCurrency($selection, $query, $context);
+        $this->joinShop($selection, $query, $context);
+        $this->joinBillingAddress($selection, $query, $context);
+        $this->joinTranslation($selection, $query, $context);
 
         $this->joinExtensionDependencies($selection, $query, $context);
     }
@@ -280,5 +213,129 @@ class OrderBasicFactory extends Factory
     protected function getExtensionNamespace(): string
     {
         return self::EXTENSION_NAMESPACE;
+    }
+
+    private function joinCustomer(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($customer = $selection->filter('customer'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'customer',
+            $customer->getRootEscaped(),
+            sprintf('%s.uuid = %s.customer_uuid', $customer->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->customerFactory->joinDependencies($customer, $query, $context);
+    }
+
+    private function joinState(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($orderState = $selection->filter('state'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'order_state',
+            $orderState->getRootEscaped(),
+            sprintf('%s.uuid = %s.order_state_uuid', $orderState->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->orderStateFactory->joinDependencies($orderState, $query, $context);
+    }
+
+    private function joinPaymentMethod(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($paymentMethod = $selection->filter('paymentMethod'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'payment_method',
+            $paymentMethod->getRootEscaped(),
+            sprintf('%s.uuid = %s.payment_method_uuid', $paymentMethod->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->paymentMethodFactory->joinDependencies($paymentMethod, $query, $context);
+    }
+
+    private function joinCurrency(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($currency = $selection->filter('currency'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'currency',
+            $currency->getRootEscaped(),
+            sprintf('%s.uuid = %s.currency_uuid', $currency->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->currencyFactory->joinDependencies($currency, $query, $context);
+    }
+
+    private function joinShop(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($shop = $selection->filter('shop'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'shop',
+            $shop->getRootEscaped(),
+            sprintf('%s.uuid = %s.shop_uuid', $shop->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->shopFactory->joinDependencies($shop, $query, $context);
+    }
+
+    private function joinBillingAddress(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($orderAddress = $selection->filter('billingAddress'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'order_address',
+            $orderAddress->getRootEscaped(),
+            sprintf('%s.uuid = %s.billing_address_uuid', $orderAddress->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->orderAddressFactory->joinDependencies($orderAddress, $query, $context);
+    }
+
+    private function joinTranslation(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($translation = $selection->filter('translation'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'order_translation',
+            $translation->getRootEscaped(),
+            sprintf(
+                '%s.order_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
+                $translation->getRootEscaped(),
+                $selection->getRootEscaped(),
+                $translation->getRootEscaped()
+            )
+        );
+        $query->setParameter('languageUuid', $context->getShopUuid());
     }
 }

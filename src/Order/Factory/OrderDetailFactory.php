@@ -70,31 +70,8 @@ class OrderDetailFactory extends OrderBasicFactory
     {
         parent::joinDependencies($selection, $query, $context);
 
-        if ($lineItems = $selection->filter('lineItems')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'order_line_item',
-                $lineItems->getRootEscaped(),
-                sprintf('%s.uuid = %s.order_uuid', $selection->getRootEscaped(), $lineItems->getRootEscaped())
-            );
-
-            $this->orderLineItemFactory->joinDependencies($lineItems, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
-
-        if ($deliveries = $selection->filter('deliveries')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'order_delivery',
-                $deliveries->getRootEscaped(),
-                sprintf('%s.uuid = %s.order_uuid', $selection->getRootEscaped(), $deliveries->getRootEscaped())
-            );
-
-            $this->orderDeliveryFactory->joinDependencies($deliveries, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
+        $this->joinLineItems($selection, $query, $context);
+        $this->joinDeliveries($selection, $query, $context);
     }
 
     public function getAllFields(): array
@@ -118,5 +95,45 @@ class OrderDetailFactory extends OrderBasicFactory
         }
 
         return $fields;
+    }
+
+    private function joinLineItems(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($lineItems = $selection->filter('lineItems'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'order_line_item',
+            $lineItems->getRootEscaped(),
+            sprintf('%s.uuid = %s.order_uuid', $selection->getRootEscaped(), $lineItems->getRootEscaped())
+        );
+
+        $this->orderLineItemFactory->joinDependencies($lineItems, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+    }
+
+    private function joinDeliveries(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($deliveries = $selection->filter('deliveries'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'order_delivery',
+            $deliveries->getRootEscaped(),
+            sprintf('%s.uuid = %s.order_uuid', $selection->getRootEscaped(), $deliveries->getRootEscaped())
+        );
+
+        $this->orderDeliveryFactory->joinDependencies($deliveries, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
     }
 }

@@ -51,7 +51,6 @@ class Generate
         $generator = new DomainGenerator($dbalConnection, $dir);
 
         $tables = [
-            'order_state' => [],
             'order' => [
                 'associations' => [
                     self::createAssociation('customer', self::ManyToOne, true, false, 'customer', 'customer_uuid', '', '', false, true),
@@ -64,6 +63,7 @@ class Generate
                     self::createAssociation('order_delivery', self::OneToMany, false, true, 'delivery', 'order_uuid', '', '', false, true),
                 ]
             ],
+            'order_state' => [],
             'order_line_item'  => [
                 'associations' => []
             ],

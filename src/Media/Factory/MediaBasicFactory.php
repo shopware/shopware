@@ -89,30 +89,8 @@ class MediaBasicFactory extends Factory
 
     public function joinDependencies(QuerySelection $selection, QueryBuilder $query, TranslationContext $context): void
     {
-        if ($album = $selection->filter('album')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'album',
-                $album->getRootEscaped(),
-                sprintf('%s.uuid = %s.album_uuid', $album->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->albumFactory->joinDependencies($album, $query, $context);
-        }
-
-        if ($translation = $selection->filter('translation')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'media_translation',
-                $translation->getRootEscaped(),
-                sprintf(
-                    '%s.media_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
-                    $translation->getRootEscaped(),
-                    $selection->getRootEscaped(),
-                    $translation->getRootEscaped()
-                )
-            );
-            $query->setParameter('languageUuid', $context->getShopUuid());
-        }
+        $this->joinAlbum($selection, $query, $context);
+        $this->joinTranslation($selection, $query, $context);
 
         $this->joinExtensionDependencies($selection, $query, $context);
     }
@@ -133,5 +111,44 @@ class MediaBasicFactory extends Factory
     protected function getExtensionNamespace(): string
     {
         return self::EXTENSION_NAMESPACE;
+    }
+
+    private function joinAlbum(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($album = $selection->filter('album'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'album',
+            $album->getRootEscaped(),
+            sprintf('%s.uuid = %s.album_uuid', $album->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->albumFactory->joinDependencies($album, $query, $context);
+    }
+
+    private function joinTranslation(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($translation = $selection->filter('translation'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'media_translation',
+            $translation->getRootEscaped(),
+            sprintf(
+                '%s.media_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
+                $translation->getRootEscaped(),
+                $selection->getRootEscaped(),
+                $translation->getRootEscaped()
+            )
+        );
+        $query->setParameter('languageUuid', $context->getShopUuid());
     }
 }

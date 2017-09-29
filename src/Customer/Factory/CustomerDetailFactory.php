@@ -70,28 +70,8 @@ class CustomerDetailFactory extends CustomerBasicFactory
     {
         parent::joinDependencies($selection, $query, $context);
 
-        if ($addresses = $selection->filter('addresses')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'customer_address',
-                $addresses->getRootEscaped(),
-                sprintf('%s.uuid = %s.customer_uuid', $selection->getRootEscaped(), $addresses->getRootEscaped())
-            );
-
-            $this->customerAddressFactory->joinDependencies($addresses, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
-
-        if ($shop = $selection->filter('shop')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'shop',
-                $shop->getRootEscaped(),
-                sprintf('%s.uuid = %s.shop_uuid', $shop->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->shopFactory->joinDependencies($shop, $query, $context);
-        }
+        $this->joinAddresses($selection, $query, $context);
+        $this->joinShop($selection, $query, $context);
     }
 
     public function getAllFields(): array
@@ -115,5 +95,42 @@ class CustomerDetailFactory extends CustomerBasicFactory
         }
 
         return $fields;
+    }
+
+    private function joinAddresses(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($addresses = $selection->filter('addresses'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'customer_address',
+            $addresses->getRootEscaped(),
+            sprintf('%s.uuid = %s.customer_uuid', $selection->getRootEscaped(), $addresses->getRootEscaped())
+        );
+
+        $this->customerAddressFactory->joinDependencies($addresses, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+    }
+
+    private function joinShop(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($shop = $selection->filter('shop'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'shop',
+            $shop->getRootEscaped(),
+            sprintf('%s.uuid = %s.shop_uuid', $shop->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->shopFactory->joinDependencies($shop, $query, $context);
     }
 }

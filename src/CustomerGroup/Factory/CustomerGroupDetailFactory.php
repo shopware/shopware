@@ -50,18 +50,7 @@ class CustomerGroupDetailFactory extends CustomerGroupBasicFactory
     {
         parent::joinDependencies($selection, $query, $context);
 
-        if ($discounts = $selection->filter('discounts')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'customer_group_discount',
-                $discounts->getRootEscaped(),
-                sprintf('%s.uuid = %s.customer_group_uuid', $selection->getRootEscaped(), $discounts->getRootEscaped())
-            );
-
-            $this->customerGroupDiscountFactory->joinDependencies($discounts, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
+        $this->joinDiscounts($selection, $query, $context);
     }
 
     public function getAllFields(): array
@@ -84,5 +73,25 @@ class CustomerGroupDetailFactory extends CustomerGroupBasicFactory
         }
 
         return $fields;
+    }
+
+    private function joinDiscounts(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($discounts = $selection->filter('discounts'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'customer_group_discount',
+            $discounts->getRootEscaped(),
+            sprintf('%s.uuid = %s.customer_group_uuid', $selection->getRootEscaped(), $discounts->getRootEscaped())
+        );
+
+        $this->customerGroupDiscountFactory->joinDependencies($discounts, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
     }
 }

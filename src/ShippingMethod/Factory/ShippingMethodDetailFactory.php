@@ -105,142 +105,11 @@ class ShippingMethodDetailFactory extends ShippingMethodBasicFactory
     {
         parent::joinDependencies($selection, $query, $context);
 
-        if ($categories = $selection->filter('categories')) {
-            $mapping = QuerySelection::escape($categories->getRoot() . '.mapping');
-
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'shipping_method_category',
-                $mapping,
-                sprintf('%s.uuid = %s.shipping_method_uuid', $selection->getRootEscaped(), $mapping)
-            );
-            $query->leftJoin(
-                $mapping,
-                'category',
-                $categories->getRootEscaped(),
-                sprintf('%s.category_uuid = %s.uuid', $mapping, $categories->getRootEscaped())
-            );
-
-            $this->categoryFactory->joinDependencies($categories, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
-
-        if ($selection->hasField('_sub_select_category_uuids')) {
-            $query->addSelect('
-                (
-                    SELECT GROUP_CONCAT(mapping.category_uuid SEPARATOR \'|\')
-                    FROM shipping_method_category mapping
-                    WHERE mapping.shipping_method_uuid = ' . $selection->getRootEscaped() . '.uuid
-                ) as ' . QuerySelection::escape($selection->getField('_sub_select_category_uuids'))
-            );
-        }
-
-        if ($countries = $selection->filter('countries')) {
-            $mapping = QuerySelection::escape($countries->getRoot() . '.mapping');
-
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'shipping_method_country',
-                $mapping,
-                sprintf('%s.uuid = %s.shipping_method_uuid', $selection->getRootEscaped(), $mapping)
-            );
-            $query->leftJoin(
-                $mapping,
-                'area_country',
-                $countries->getRootEscaped(),
-                sprintf('%s.area_country_uuid = %s.uuid', $mapping, $countries->getRootEscaped())
-            );
-
-            $this->areaCountryFactory->joinDependencies($countries, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
-
-        if ($selection->hasField('_sub_select_country_uuids')) {
-            $query->addSelect('
-                (
-                    SELECT GROUP_CONCAT(mapping.area_country_uuid SEPARATOR \'|\')
-                    FROM shipping_method_country mapping
-                    WHERE mapping.shipping_method_uuid = ' . $selection->getRootEscaped() . '.uuid
-                ) as ' . QuerySelection::escape($selection->getField('_sub_select_country_uuids'))
-            );
-        }
-
-        if ($holidays = $selection->filter('holidays')) {
-            $mapping = QuerySelection::escape($holidays->getRoot() . '.mapping');
-
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'shipping_method_holiday',
-                $mapping,
-                sprintf('%s.uuid = %s.shipping_method_uuid', $selection->getRootEscaped(), $mapping)
-            );
-            $query->leftJoin(
-                $mapping,
-                'holiday',
-                $holidays->getRootEscaped(),
-                sprintf('%s.holiday_uuid = %s.uuid', $mapping, $holidays->getRootEscaped())
-            );
-
-            $this->holidayFactory->joinDependencies($holidays, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
-
-        if ($selection->hasField('_sub_select_holiday_uuids')) {
-            $query->addSelect('
-                (
-                    SELECT GROUP_CONCAT(mapping.holiday_uuid SEPARATOR \'|\')
-                    FROM shipping_method_holiday mapping
-                    WHERE mapping.shipping_method_uuid = ' . $selection->getRootEscaped() . '.uuid
-                ) as ' . QuerySelection::escape($selection->getField('_sub_select_holiday_uuids'))
-            );
-        }
-
-        if ($paymentMethods = $selection->filter('paymentMethods')) {
-            $mapping = QuerySelection::escape($paymentMethods->getRoot() . '.mapping');
-
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'shipping_method_payment_method',
-                $mapping,
-                sprintf('%s.uuid = %s.shipping_method_uuid', $selection->getRootEscaped(), $mapping)
-            );
-            $query->leftJoin(
-                $mapping,
-                'payment_method',
-                $paymentMethods->getRootEscaped(),
-                sprintf('%s.payment_method_uuid = %s.uuid', $mapping, $paymentMethods->getRootEscaped())
-            );
-
-            $this->paymentMethodFactory->joinDependencies($paymentMethods, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
-
-        if ($selection->hasField('_sub_select_paymentMethod_uuids')) {
-            $query->addSelect('
-                (
-                    SELECT GROUP_CONCAT(mapping.payment_method_uuid SEPARATOR \'|\')
-                    FROM shipping_method_payment_method mapping
-                    WHERE mapping.shipping_method_uuid = ' . $selection->getRootEscaped() . '.uuid
-                ) as ' . QuerySelection::escape($selection->getField('_sub_select_paymentMethod_uuids'))
-            );
-        }
-
-        if ($prices = $selection->filter('prices')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'shipping_method_price',
-                $prices->getRootEscaped(),
-                sprintf('%s.uuid = %s.shipping_method_uuid', $selection->getRootEscaped(), $prices->getRootEscaped())
-            );
-
-            $this->shippingMethodPriceFactory->joinDependencies($prices, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
+        $this->joinCategories($selection, $query, $context);
+        $this->joinCountries($selection, $query, $context);
+        $this->joinHolidays($selection, $query, $context);
+        $this->joinPaymentMethods($selection, $query, $context);
+        $this->joinPrices($selection, $query, $context);
     }
 
     public function getAllFields(): array
@@ -267,5 +136,181 @@ class ShippingMethodDetailFactory extends ShippingMethodBasicFactory
         }
 
         return $fields;
+    }
+
+    private function joinCategories(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if ($selection->hasField('_sub_select_category_uuids')) {
+            $query->addSelect('
+                (
+                    SELECT GROUP_CONCAT(mapping.category_uuid SEPARATOR \'|\')
+                    FROM shipping_method_category mapping
+                    WHERE mapping.shipping_method_uuid = ' . $selection->getRootEscaped() . '.uuid
+                ) as ' . QuerySelection::escape($selection->getField('_sub_select_category_uuids'))
+            );
+        }
+
+        if (!($categories = $selection->filter('categories'))) {
+            return;
+        }
+
+        $mapping = QuerySelection::escape($categories->getRoot() . '.mapping');
+
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'shipping_method_category',
+            $mapping,
+            sprintf('%s.uuid = %s.shipping_method_uuid', $selection->getRootEscaped(), $mapping)
+        );
+        $query->leftJoin(
+            $mapping,
+            'category',
+            $categories->getRootEscaped(),
+            sprintf('%s.category_uuid = %s.uuid', $mapping, $categories->getRootEscaped())
+        );
+
+        $this->categoryFactory->joinDependencies($categories, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+    }
+
+    private function joinCountries(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if ($selection->hasField('_sub_select_country_uuids')) {
+            $query->addSelect('
+                (
+                    SELECT GROUP_CONCAT(mapping.area_country_uuid SEPARATOR \'|\')
+                    FROM shipping_method_country mapping
+                    WHERE mapping.shipping_method_uuid = ' . $selection->getRootEscaped() . '.uuid
+                ) as ' . QuerySelection::escape($selection->getField('_sub_select_country_uuids'))
+            );
+        }
+
+        if (!($countries = $selection->filter('countries'))) {
+            return;
+        }
+
+        $mapping = QuerySelection::escape($countries->getRoot() . '.mapping');
+
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'shipping_method_country',
+            $mapping,
+            sprintf('%s.uuid = %s.shipping_method_uuid', $selection->getRootEscaped(), $mapping)
+        );
+        $query->leftJoin(
+            $mapping,
+            'area_country',
+            $countries->getRootEscaped(),
+            sprintf('%s.area_country_uuid = %s.uuid', $mapping, $countries->getRootEscaped())
+        );
+
+        $this->areaCountryFactory->joinDependencies($countries, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+    }
+
+    private function joinHolidays(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if ($selection->hasField('_sub_select_holiday_uuids')) {
+            $query->addSelect('
+                (
+                    SELECT GROUP_CONCAT(mapping.holiday_uuid SEPARATOR \'|\')
+                    FROM shipping_method_holiday mapping
+                    WHERE mapping.shipping_method_uuid = ' . $selection->getRootEscaped() . '.uuid
+                ) as ' . QuerySelection::escape($selection->getField('_sub_select_holiday_uuids'))
+            );
+        }
+
+        if (!($holidays = $selection->filter('holidays'))) {
+            return;
+        }
+
+        $mapping = QuerySelection::escape($holidays->getRoot() . '.mapping');
+
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'shipping_method_holiday',
+            $mapping,
+            sprintf('%s.uuid = %s.shipping_method_uuid', $selection->getRootEscaped(), $mapping)
+        );
+        $query->leftJoin(
+            $mapping,
+            'holiday',
+            $holidays->getRootEscaped(),
+            sprintf('%s.holiday_uuid = %s.uuid', $mapping, $holidays->getRootEscaped())
+        );
+
+        $this->holidayFactory->joinDependencies($holidays, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+    }
+
+    private function joinPaymentMethods(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if ($selection->hasField('_sub_select_paymentMethod_uuids')) {
+            $query->addSelect('
+                (
+                    SELECT GROUP_CONCAT(mapping.payment_method_uuid SEPARATOR \'|\')
+                    FROM shipping_method_payment_method mapping
+                    WHERE mapping.shipping_method_uuid = ' . $selection->getRootEscaped() . '.uuid
+                ) as ' . QuerySelection::escape($selection->getField('_sub_select_paymentMethod_uuids'))
+            );
+        }
+
+        if (!($paymentMethods = $selection->filter('paymentMethods'))) {
+            return;
+        }
+
+        $mapping = QuerySelection::escape($paymentMethods->getRoot() . '.mapping');
+
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'shipping_method_payment_method',
+            $mapping,
+            sprintf('%s.uuid = %s.shipping_method_uuid', $selection->getRootEscaped(), $mapping)
+        );
+        $query->leftJoin(
+            $mapping,
+            'payment_method',
+            $paymentMethods->getRootEscaped(),
+            sprintf('%s.payment_method_uuid = %s.uuid', $mapping, $paymentMethods->getRootEscaped())
+        );
+
+        $this->paymentMethodFactory->joinDependencies($paymentMethods, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+    }
+
+    private function joinPrices(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($prices = $selection->filter('prices'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'shipping_method_price',
+            $prices->getRootEscaped(),
+            sprintf('%s.uuid = %s.shipping_method_uuid', $selection->getRootEscaped(), $prices->getRootEscaped())
+        );
+
+        $this->shippingMethodPriceFactory->joinDependencies($prices, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
     }
 }

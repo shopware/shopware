@@ -69,67 +69,8 @@ class PaymentMethodDetailFactory extends PaymentMethodBasicFactory
     {
         parent::joinDependencies($selection, $query, $context);
 
-        if ($shops = $selection->filter('shops')) {
-            $mapping = QuerySelection::escape($shops->getRoot() . '.mapping');
-
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'payment_method_shop',
-                $mapping,
-                sprintf('%s.uuid = %s.payment_method_uuid', $selection->getRootEscaped(), $mapping)
-            );
-            $query->leftJoin(
-                $mapping,
-                'shop',
-                $shops->getRootEscaped(),
-                sprintf('%s.shop_uuid = %s.uuid', $mapping, $shops->getRootEscaped())
-            );
-
-            $this->shopFactory->joinDependencies($shops, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
-
-        if ($selection->hasField('_sub_select_shop_uuids')) {
-            $query->addSelect('
-                (
-                    SELECT GROUP_CONCAT(mapping.shop_uuid SEPARATOR \'|\')
-                    FROM payment_method_shop mapping
-                    WHERE mapping.payment_method_uuid = ' . $selection->getRootEscaped() . '.uuid
-                ) as ' . QuerySelection::escape($selection->getField('_sub_select_shop_uuids'))
-            );
-        }
-
-        if ($countries = $selection->filter('countries')) {
-            $mapping = QuerySelection::escape($countries->getRoot() . '.mapping');
-
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'payment_method_country',
-                $mapping,
-                sprintf('%s.uuid = %s.payment_method_uuid', $selection->getRootEscaped(), $mapping)
-            );
-            $query->leftJoin(
-                $mapping,
-                'area_country',
-                $countries->getRootEscaped(),
-                sprintf('%s.area_country_uuid = %s.uuid', $mapping, $countries->getRootEscaped())
-            );
-
-            $this->areaCountryFactory->joinDependencies($countries, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
-
-        if ($selection->hasField('_sub_select_country_uuids')) {
-            $query->addSelect('
-                (
-                    SELECT GROUP_CONCAT(mapping.area_country_uuid SEPARATOR \'|\')
-                    FROM payment_method_country mapping
-                    WHERE mapping.payment_method_uuid = ' . $selection->getRootEscaped() . '.uuid
-                ) as ' . QuerySelection::escape($selection->getField('_sub_select_country_uuids'))
-            );
-        }
+        $this->joinShops($selection, $query, $context);
+        $this->joinCountries($selection, $query, $context);
     }
 
     public function getAllFields(): array
@@ -153,5 +94,83 @@ class PaymentMethodDetailFactory extends PaymentMethodBasicFactory
         }
 
         return $fields;
+    }
+
+    private function joinShops(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if ($selection->hasField('_sub_select_shop_uuids')) {
+            $query->addSelect('
+                (
+                    SELECT GROUP_CONCAT(mapping.shop_uuid SEPARATOR \'|\')
+                    FROM payment_method_shop mapping
+                    WHERE mapping.payment_method_uuid = ' . $selection->getRootEscaped() . '.uuid
+                ) as ' . QuerySelection::escape($selection->getField('_sub_select_shop_uuids'))
+            );
+        }
+
+        if (!($shops = $selection->filter('shops'))) {
+            return;
+        }
+
+        $mapping = QuerySelection::escape($shops->getRoot() . '.mapping');
+
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'payment_method_shop',
+            $mapping,
+            sprintf('%s.uuid = %s.payment_method_uuid', $selection->getRootEscaped(), $mapping)
+        );
+        $query->leftJoin(
+            $mapping,
+            'shop',
+            $shops->getRootEscaped(),
+            sprintf('%s.shop_uuid = %s.uuid', $mapping, $shops->getRootEscaped())
+        );
+
+        $this->shopFactory->joinDependencies($shops, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+    }
+
+    private function joinCountries(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if ($selection->hasField('_sub_select_country_uuids')) {
+            $query->addSelect('
+                (
+                    SELECT GROUP_CONCAT(mapping.area_country_uuid SEPARATOR \'|\')
+                    FROM payment_method_country mapping
+                    WHERE mapping.payment_method_uuid = ' . $selection->getRootEscaped() . '.uuid
+                ) as ' . QuerySelection::escape($selection->getField('_sub_select_country_uuids'))
+            );
+        }
+
+        if (!($countries = $selection->filter('countries'))) {
+            return;
+        }
+
+        $mapping = QuerySelection::escape($countries->getRoot() . '.mapping');
+
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'payment_method_country',
+            $mapping,
+            sprintf('%s.uuid = %s.payment_method_uuid', $selection->getRootEscaped(), $mapping)
+        );
+        $query->leftJoin(
+            $mapping,
+            'area_country',
+            $countries->getRootEscaped(),
+            sprintf('%s.area_country_uuid = %s.uuid', $mapping, $countries->getRootEscaped())
+        );
+
+        $this->areaCountryFactory->joinDependencies($countries, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
     }
 }

@@ -1,14 +1,15 @@
-        if ($translation = $selection->filter('translation')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                '#table#_translation',
-                $translation->getRootEscaped(),
-                sprintf(
-                    '%s.#table#_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
-                    $translation->getRootEscaped(),
-                    $selection->getRootEscaped(),
-                    $translation->getRootEscaped()
-                )
-            );
-            $query->setParameter('languageUuid', $context->getShopUuid());
+        if (!($translation = $selection->filter('translation'))) {
+            return;
         }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            '#table#_translation',
+            $translation->getRootEscaped(),
+            sprintf(
+                '%s.#table#_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
+                $translation->getRootEscaped(),
+                $selection->getRootEscaped(),
+                $translation->getRootEscaped()
+            )
+        );
+        $query->setParameter('languageUuid', $context->getShopUuid());

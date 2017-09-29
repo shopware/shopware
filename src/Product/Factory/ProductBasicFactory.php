@@ -192,115 +192,14 @@ class ProductBasicFactory extends Factory
 
     public function joinDependencies(QuerySelection $selection, QueryBuilder $query, TranslationContext $context): void
     {
-        if ($productManufacturer = $selection->filter('manufacturer')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'product_manufacturer',
-                $productManufacturer->getRootEscaped(),
-                sprintf('%s.uuid = %s.product_manufacturer_uuid', $productManufacturer->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->productManufacturerFactory->joinDependencies($productManufacturer, $query, $context);
-        }
-
-        if ($productDetail = $selection->filter('mainDetail')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'product_detail',
-                $productDetail->getRootEscaped(),
-                sprintf('%s.uuid = %s.main_detail_uuid', $productDetail->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->productDetailFactory->joinDependencies($productDetail, $query, $context);
-        }
-
-        if ($tax = $selection->filter('tax')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'tax',
-                $tax->getRootEscaped(),
-                sprintf('%s.uuid = %s.tax_uuid', $tax->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->taxFactory->joinDependencies($tax, $query, $context);
-        }
-
-        if ($canonical = $selection->filter('canonicalUrl')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'seo_url',
-                $canonical->getRootEscaped(),
-                sprintf('%1$s.uuid = %2$s.foreign_key AND %2$s.name = :productSeoName AND %2$s.is_canonical = 1 AND %2$s.shop_uuid = :shopUuid', $selection->getRootEscaped(), $canonical->getRootEscaped())
-            );
-            $query->setParameter('productSeoName', 'detail_page');
-            $query->setParameter('shopUuid', $context->getShopUuid());
-        }
-
-        if ($priceGroup = $selection->filter('priceGroup')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'price_group',
-                $priceGroup->getRootEscaped(),
-                sprintf('%s.uuid = %s.price_group_uuid', $priceGroup->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->priceGroupFactory->joinDependencies($priceGroup, $query, $context);
-        }
-
-        if ($blockedCustomerGroups = $selection->filter('blockedCustomerGroups')) {
-            $mapping = QuerySelection::escape($blockedCustomerGroups->getRoot() . '.mapping');
-
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'product_avoid_customer_group',
-                $mapping,
-                sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $mapping)
-            );
-            $query->leftJoin(
-                $mapping,
-                'customer_group',
-                $blockedCustomerGroups->getRootEscaped(),
-                sprintf('%s.customer_group_uuid = %s.uuid', $mapping, $blockedCustomerGroups->getRootEscaped())
-            );
-
-            $this->customerGroupFactory->joinDependencies($blockedCustomerGroups, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
-
-        if ($selection->hasField('_sub_select_blockedCustomerGroups_uuids')) {
-            $query->addSelect('
-                (
-                    SELECT GROUP_CONCAT(mapping.customer_group_uuid SEPARATOR \'|\')
-                    FROM product_avoid_customer_group mapping
-                    WHERE mapping.product_uuid = ' . $selection->getRootEscaped() . '.uuid
-                ) as ' . QuerySelection::escape($selection->getField('_sub_select_blockedCustomerGroups_uuids'))
-            );
-        }
-
-        if ($listingPrices = $selection->filter('listingPrices')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'product_listing_price_ro',
-                $listingPrices->getRootEscaped(),
-                sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $listingPrices->getRootEscaped())
-            );
-
-            $this->productListingPriceFactory->joinDependencies($listingPrices, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
-
-        if ($translation = $selection->filter('translation')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'product_translation',
-                $translation->getRootEscaped(),
-                sprintf(
-                    '%s.product_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
-                    $translation->getRootEscaped(),
-                    $selection->getRootEscaped(),
-                    $translation->getRootEscaped()
-                )
-            );
-            $query->setParameter('languageUuid', $context->getShopUuid());
-        }
+        $this->joinManufacturer($selection, $query, $context);
+        $this->joinMainDetail($selection, $query, $context);
+        $this->joinTax($selection, $query, $context);
+        $this->joinCanonicalUrl($selection, $query, $context);
+        $this->joinPriceGroup($selection, $query, $context);
+        $this->joinBlockedCustomerGroups($selection, $query, $context);
+        $this->joinListingPrices($selection, $query, $context);
+        $this->joinTranslation($selection, $query, $context);
 
         $this->joinExtensionDependencies($selection, $query, $context);
     }
@@ -327,5 +226,172 @@ class ProductBasicFactory extends Factory
     protected function getExtensionNamespace(): string
     {
         return self::EXTENSION_NAMESPACE;
+    }
+
+    private function joinManufacturer(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($productManufacturer = $selection->filter('manufacturer'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'product_manufacturer',
+            $productManufacturer->getRootEscaped(),
+            sprintf('%s.uuid = %s.product_manufacturer_uuid', $productManufacturer->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->productManufacturerFactory->joinDependencies($productManufacturer, $query, $context);
+    }
+
+    private function joinMainDetail(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($productDetail = $selection->filter('mainDetail'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'product_detail',
+            $productDetail->getRootEscaped(),
+            sprintf('%s.uuid = %s.main_detail_uuid', $productDetail->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->productDetailFactory->joinDependencies($productDetail, $query, $context);
+    }
+
+    private function joinTax(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($tax = $selection->filter('tax'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'tax',
+            $tax->getRootEscaped(),
+            sprintf('%s.uuid = %s.tax_uuid', $tax->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->taxFactory->joinDependencies($tax, $query, $context);
+    }
+
+    private function joinCanonicalUrl(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!$canonical = $selection->filter('canonicalUrl')) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'seo_url',
+            $canonical->getRootEscaped(),
+            sprintf('%1$s.uuid = %2$s.foreign_key AND %2$s.name = :productSeoName AND %2$s.is_canonical = 1 AND %2$s.shop_uuid = :shopUuid', $selection->getRootEscaped(), $canonical->getRootEscaped())
+        );
+        $query->setParameter('productSeoName', 'detail_page');
+        $query->setParameter('shopUuid', $context->getShopUuid());
+    }
+
+    private function joinPriceGroup(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($priceGroup = $selection->filter('priceGroup'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'price_group',
+            $priceGroup->getRootEscaped(),
+            sprintf('%s.uuid = %s.price_group_uuid', $priceGroup->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->priceGroupFactory->joinDependencies($priceGroup, $query, $context);
+    }
+
+    private function joinBlockedCustomerGroups(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if ($selection->hasField('_sub_select_blockedCustomerGroups_uuids')) {
+            $query->addSelect('
+                (
+                    SELECT GROUP_CONCAT(mapping.customer_group_uuid SEPARATOR \'|\')
+                    FROM product_avoid_customer_group mapping
+                    WHERE mapping.product_uuid = ' . $selection->getRootEscaped() . '.uuid
+                ) as ' . QuerySelection::escape($selection->getField('_sub_select_blockedCustomerGroups_uuids'))
+            );
+        }
+
+        if (!($blockedCustomerGroups = $selection->filter('blockedCustomerGroups'))) {
+            return;
+        }
+
+        $mapping = QuerySelection::escape($blockedCustomerGroups->getRoot() . '.mapping');
+
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'product_avoid_customer_group',
+            $mapping,
+            sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $mapping)
+        );
+        $query->leftJoin(
+            $mapping,
+            'customer_group',
+            $blockedCustomerGroups->getRootEscaped(),
+            sprintf('%s.customer_group_uuid = %s.uuid', $mapping, $blockedCustomerGroups->getRootEscaped())
+        );
+
+        $this->customerGroupFactory->joinDependencies($blockedCustomerGroups, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+    }
+
+    private function joinListingPrices(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($listingPrices = $selection->filter('listingPrices'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'product_listing_price_ro',
+            $listingPrices->getRootEscaped(),
+            sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $listingPrices->getRootEscaped())
+        );
+
+        $this->productListingPriceFactory->joinDependencies($listingPrices, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+    }
+
+    private function joinTranslation(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($translation = $selection->filter('translation'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'product_translation',
+            $translation->getRootEscaped(),
+            sprintf(
+                '%s.product_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
+                $translation->getRootEscaped(),
+                $selection->getRootEscaped(),
+                $translation->getRootEscaped()
+            )
+        );
+        $query->setParameter('languageUuid', $context->getShopUuid());
     }
 }

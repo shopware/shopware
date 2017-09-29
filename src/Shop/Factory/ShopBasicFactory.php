@@ -135,40 +135,9 @@ class ShopBasicFactory extends Factory
 
     public function joinDependencies(QuerySelection $selection, QueryBuilder $query, TranslationContext $context): void
     {
-        if ($currency = $selection->filter('currency')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'currency',
-                $currency->getRootEscaped(),
-                sprintf('%s.uuid = %s.currency_uuid', $currency->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->currencyFactory->joinDependencies($currency, $query, $context);
-        }
-
-        if ($locale = $selection->filter('locale')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'locale',
-                $locale->getRootEscaped(),
-                sprintf('%s.uuid = %s.locale_uuid', $locale->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->localeFactory->joinDependencies($locale, $query, $context);
-        }
-
-        if ($translation = $selection->filter('translation')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'shop_translation',
-                $translation->getRootEscaped(),
-                sprintf(
-                    '%s.shop_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
-                    $translation->getRootEscaped(),
-                    $selection->getRootEscaped(),
-                    $translation->getRootEscaped()
-                )
-            );
-            $query->setParameter('languageUuid', $context->getShopUuid());
-        }
+        $this->joinCurrency($selection, $query, $context);
+        $this->joinLocale($selection, $query, $context);
+        $this->joinTranslation($selection, $query, $context);
 
         $this->joinExtensionDependencies($selection, $query, $context);
     }
@@ -190,5 +159,61 @@ class ShopBasicFactory extends Factory
     protected function getExtensionNamespace(): string
     {
         return self::EXTENSION_NAMESPACE;
+    }
+
+    private function joinCurrency(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($currency = $selection->filter('currency'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'currency',
+            $currency->getRootEscaped(),
+            sprintf('%s.uuid = %s.currency_uuid', $currency->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->currencyFactory->joinDependencies($currency, $query, $context);
+    }
+
+    private function joinLocale(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($locale = $selection->filter('locale'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'locale',
+            $locale->getRootEscaped(),
+            sprintf('%s.uuid = %s.locale_uuid', $locale->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->localeFactory->joinDependencies($locale, $query, $context);
+    }
+
+    private function joinTranslation(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($translation = $selection->filter('translation'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'shop_translation',
+            $translation->getRootEscaped(),
+            sprintf(
+                '%s.shop_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
+                $translation->getRootEscaped(),
+                $selection->getRootEscaped(),
+                $translation->getRootEscaped()
+            )
+        );
+        $query->setParameter('languageUuid', $context->getShopUuid());
     }
 }

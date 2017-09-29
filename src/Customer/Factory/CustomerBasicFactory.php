@@ -177,70 +177,12 @@ class CustomerBasicFactory extends Factory
 
     public function joinDependencies(QuerySelection $selection, QueryBuilder $query, TranslationContext $context): void
     {
-        if ($customerGroup = $selection->filter('customerGroup')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'customer_group',
-                $customerGroup->getRootEscaped(),
-                sprintf('%s.uuid = %s.customer_group_uuid', $customerGroup->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->customerGroupFactory->joinDependencies($customerGroup, $query, $context);
-        }
-
-        if ($customerAddress = $selection->filter('defaultShippingAddress')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'customer_address',
-                $customerAddress->getRootEscaped(),
-                sprintf('%s.uuid = %s.default_shipping_address_uuid', $customerAddress->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->customerAddressFactory->joinDependencies($customerAddress, $query, $context);
-        }
-
-        if ($customerAddress = $selection->filter('defaultBillingAddress')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'customer_address',
-                $customerAddress->getRootEscaped(),
-                sprintf('%s.uuid = %s.default_billing_address_uuid', $customerAddress->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->customerAddressFactory->joinDependencies($customerAddress, $query, $context);
-        }
-
-        if ($paymentMethod = $selection->filter('lastPaymentMethod')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'payment_method',
-                $paymentMethod->getRootEscaped(),
-                sprintf('%s.uuid = %s.last_payment_method_uuid', $paymentMethod->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->paymentMethodFactory->joinDependencies($paymentMethod, $query, $context);
-        }
-
-        if ($paymentMethod = $selection->filter('defaultPaymentMethod')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'payment_method',
-                $paymentMethod->getRootEscaped(),
-                sprintf('%s.uuid = %s.default_payment_method_uuid', $paymentMethod->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->paymentMethodFactory->joinDependencies($paymentMethod, $query, $context);
-        }
-
-        if ($translation = $selection->filter('translation')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'customer_translation',
-                $translation->getRootEscaped(),
-                sprintf(
-                    '%s.customer_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
-                    $translation->getRootEscaped(),
-                    $selection->getRootEscaped(),
-                    $translation->getRootEscaped()
-                )
-            );
-            $query->setParameter('languageUuid', $context->getShopUuid());
-        }
+        $this->joinCustomerGroup($selection, $query, $context);
+        $this->joinDefaultShippingAddress($selection, $query, $context);
+        $this->joinDefaultBillingAddress($selection, $query, $context);
+        $this->joinLastPaymentMethod($selection, $query, $context);
+        $this->joinDefaultPaymentMethod($selection, $query, $context);
+        $this->joinTranslation($selection, $query, $context);
 
         $this->joinExtensionDependencies($selection, $query, $context);
     }
@@ -265,5 +207,112 @@ class CustomerBasicFactory extends Factory
     protected function getExtensionNamespace(): string
     {
         return self::EXTENSION_NAMESPACE;
+    }
+
+    private function joinCustomerGroup(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($customerGroup = $selection->filter('customerGroup'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'customer_group',
+            $customerGroup->getRootEscaped(),
+            sprintf('%s.uuid = %s.customer_group_uuid', $customerGroup->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->customerGroupFactory->joinDependencies($customerGroup, $query, $context);
+    }
+
+    private function joinDefaultShippingAddress(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($customerAddress = $selection->filter('defaultShippingAddress'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'customer_address',
+            $customerAddress->getRootEscaped(),
+            sprintf('%s.uuid = %s.default_shipping_address_uuid', $customerAddress->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->customerAddressFactory->joinDependencies($customerAddress, $query, $context);
+    }
+
+    private function joinDefaultBillingAddress(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($customerAddress = $selection->filter('defaultBillingAddress'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'customer_address',
+            $customerAddress->getRootEscaped(),
+            sprintf('%s.uuid = %s.default_billing_address_uuid', $customerAddress->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->customerAddressFactory->joinDependencies($customerAddress, $query, $context);
+    }
+
+    private function joinLastPaymentMethod(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($paymentMethod = $selection->filter('lastPaymentMethod'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'payment_method',
+            $paymentMethod->getRootEscaped(),
+            sprintf('%s.uuid = %s.last_payment_method_uuid', $paymentMethod->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->paymentMethodFactory->joinDependencies($paymentMethod, $query, $context);
+    }
+
+    private function joinDefaultPaymentMethod(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($paymentMethod = $selection->filter('defaultPaymentMethod'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'payment_method',
+            $paymentMethod->getRootEscaped(),
+            sprintf('%s.uuid = %s.default_payment_method_uuid', $paymentMethod->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->paymentMethodFactory->joinDependencies($paymentMethod, $query, $context);
+    }
+
+    private function joinTranslation(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($translation = $selection->filter('translation'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'customer_translation',
+            $translation->getRootEscaped(),
+            sprintf(
+                '%s.customer_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
+                $translation->getRootEscaped(),
+                $selection->getRootEscaped(),
+                $translation->getRootEscaped()
+            )
+        );
+        $query->setParameter('languageUuid', $context->getShopUuid());
     }
 }

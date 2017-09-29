@@ -105,119 +105,12 @@ class ProductDetailFactory extends ProductBasicFactory
     {
         parent::joinDependencies($selection, $query, $context);
 
-        if ($media = $selection->filter('media')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'product_media',
-                $media->getRootEscaped(),
-                sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $media->getRootEscaped())
-            );
-
-            $this->productMediaFactory->joinDependencies($media, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
-
-        if ($details = $selection->filter('details')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'product_detail',
-                $details->getRootEscaped(),
-                sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $details->getRootEscaped())
-            );
-
-            $this->productDetailFactory->joinDependencies($details, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
-
-        if ($categories = $selection->filter('categories')) {
-            $mapping = QuerySelection::escape($categories->getRoot() . '.mapping');
-
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'product_category',
-                $mapping,
-                sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $mapping)
-            );
-            $query->leftJoin(
-                $mapping,
-                'category',
-                $categories->getRootEscaped(),
-                sprintf('%s.category_uuid = %s.uuid', $mapping, $categories->getRootEscaped())
-            );
-
-            $this->categoryFactory->joinDependencies($categories, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
-
-        if ($selection->hasField('_sub_select_category_uuids')) {
-            $query->addSelect('
-                (
-                    SELECT GROUP_CONCAT(mapping.category_uuid SEPARATOR \'|\')
-                    FROM product_category mapping
-                    WHERE mapping.product_uuid = ' . $selection->getRootEscaped() . '.uuid
-                ) as ' . QuerySelection::escape($selection->getField('_sub_select_category_uuids'))
-            );
-        }
-
-        if ($categoryTree = $selection->filter('categoryTree')) {
-            $mapping = QuerySelection::escape($categoryTree->getRoot() . '.mapping');
-
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'product_category_ro',
-                $mapping,
-                sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $mapping)
-            );
-            $query->leftJoin(
-                $mapping,
-                'category',
-                $categoryTree->getRootEscaped(),
-                sprintf('%s.category_uuid = %s.uuid', $mapping, $categoryTree->getRootEscaped())
-            );
-
-            $this->categoryFactory->joinDependencies($categoryTree, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
-
-        if ($selection->hasField('_sub_select_categoryTree_uuids')) {
-            $query->addSelect('
-                (
-                    SELECT GROUP_CONCAT(mapping.category_uuid SEPARATOR \'|\')
-                    FROM product_category_ro mapping
-                    WHERE mapping.product_uuid = ' . $selection->getRootEscaped() . '.uuid
-                ) as ' . QuerySelection::escape($selection->getField('_sub_select_categoryTree_uuids'))
-            );
-        }
-
-        if ($votes = $selection->filter('votes')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'product_vote',
-                $votes->getRootEscaped(),
-                sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $votes->getRootEscaped())
-            );
-
-            $this->productVoteFactory->joinDependencies($votes, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
-
-        if ($voteAverages = $selection->filter('voteAverages')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'product_vote_average_ro',
-                $voteAverages->getRootEscaped(),
-                sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $voteAverages->getRootEscaped())
-            );
-
-            $this->productVoteAverageFactory->joinDependencies($voteAverages, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
+        $this->joinMedia($selection, $query, $context);
+        $this->joinDetails($selection, $query, $context);
+        $this->joinCategories($selection, $query, $context);
+        $this->joinCategoryTree($selection, $query, $context);
+        $this->joinVotes($selection, $query, $context);
+        $this->joinVoteAverages($selection, $query, $context);
     }
 
     public function getAllFields(): array
@@ -245,5 +138,163 @@ class ProductDetailFactory extends ProductBasicFactory
         }
 
         return $fields;
+    }
+
+    private function joinMedia(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($media = $selection->filter('media'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'product_media',
+            $media->getRootEscaped(),
+            sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $media->getRootEscaped())
+        );
+
+        $this->productMediaFactory->joinDependencies($media, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+    }
+
+    private function joinDetails(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($details = $selection->filter('details'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'product_detail',
+            $details->getRootEscaped(),
+            sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $details->getRootEscaped())
+        );
+
+        $this->productDetailFactory->joinDependencies($details, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+    }
+
+    private function joinCategories(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if ($selection->hasField('_sub_select_category_uuids')) {
+            $query->addSelect('
+                (
+                    SELECT GROUP_CONCAT(mapping.category_uuid SEPARATOR \'|\')
+                    FROM product_category mapping
+                    WHERE mapping.product_uuid = ' . $selection->getRootEscaped() . '.uuid
+                ) as ' . QuerySelection::escape($selection->getField('_sub_select_category_uuids'))
+            );
+        }
+
+        if (!($categories = $selection->filter('categories'))) {
+            return;
+        }
+
+        $mapping = QuerySelection::escape($categories->getRoot() . '.mapping');
+
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'product_category',
+            $mapping,
+            sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $mapping)
+        );
+        $query->leftJoin(
+            $mapping,
+            'category',
+            $categories->getRootEscaped(),
+            sprintf('%s.category_uuid = %s.uuid', $mapping, $categories->getRootEscaped())
+        );
+
+        $this->categoryFactory->joinDependencies($categories, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+    }
+
+    private function joinCategoryTree(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if ($selection->hasField('_sub_select_categoryTree_uuids')) {
+            $query->addSelect('
+                (
+                    SELECT GROUP_CONCAT(mapping.category_uuid SEPARATOR \'|\')
+                    FROM product_category_ro mapping
+                    WHERE mapping.product_uuid = ' . $selection->getRootEscaped() . '.uuid
+                ) as ' . QuerySelection::escape($selection->getField('_sub_select_categoryTree_uuids'))
+            );
+        }
+
+        if (!($categoryTree = $selection->filter('categoryTree'))) {
+            return;
+        }
+
+        $mapping = QuerySelection::escape($categoryTree->getRoot() . '.mapping');
+
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'product_category_ro',
+            $mapping,
+            sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $mapping)
+        );
+        $query->leftJoin(
+            $mapping,
+            'category',
+            $categoryTree->getRootEscaped(),
+            sprintf('%s.category_uuid = %s.uuid', $mapping, $categoryTree->getRootEscaped())
+        );
+
+        $this->categoryFactory->joinDependencies($categoryTree, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+    }
+
+    private function joinVotes(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($votes = $selection->filter('votes'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'product_vote',
+            $votes->getRootEscaped(),
+            sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $votes->getRootEscaped())
+        );
+
+        $this->productVoteFactory->joinDependencies($votes, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+    }
+
+    private function joinVoteAverages(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($voteAverages = $selection->filter('voteAverages'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'product_vote_average_ro',
+            $voteAverages->getRootEscaped(),
+            sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $voteAverages->getRootEscaped())
+        );
+
+        $this->productVoteAverageFactory->joinDependencies($voteAverages, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
     }
 }

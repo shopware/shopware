@@ -119,31 +119,8 @@ class CategoryBasicFactory extends Factory
 
     public function joinDependencies(QuerySelection $selection, QueryBuilder $query, TranslationContext $context): void
     {
-        if ($canonical = $selection->filter('canonicalUrl')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'seo_url',
-                $canonical->getRootEscaped(),
-                sprintf('%1$s.uuid = %2$s.foreign_key AND %2$s.name = :categorySeoName AND %2$s.is_canonical = 1 AND %2$s.shop_uuid = :shopUuid', $selection->getRootEscaped(), $canonical->getRootEscaped())
-            );
-            $query->setParameter('categorySeoName', 'listing_page');
-            $query->setParameter('shopUuid', $context->getShopUuid());
-        }
-
-        if ($translation = $selection->filter('translation')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'category_translation',
-                $translation->getRootEscaped(),
-                sprintf(
-                    '%s.category_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
-                    $translation->getRootEscaped(),
-                    $selection->getRootEscaped(),
-                    $translation->getRootEscaped()
-                )
-            );
-            $query->setParameter('languageUuid', $context->getShopUuid());
-        }
+        $this->joinCanonicalUrl($selection, $query, $context);
+        $this->joinTranslation($selection, $query, $context);
 
         $this->joinExtensionDependencies($selection, $query, $context);
     }
@@ -164,5 +141,45 @@ class CategoryBasicFactory extends Factory
     protected function getExtensionNamespace(): string
     {
         return self::EXTENSION_NAMESPACE;
+    }
+
+    private function joinCanonicalUrl(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!$canonical = $selection->filter('canonicalUrl')) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'seo_url',
+            $canonical->getRootEscaped(),
+            sprintf('%1$s.uuid = %2$s.foreign_key AND %2$s.name = :categorySeoName AND %2$s.is_canonical = 1 AND %2$s.shop_uuid = :shopUuid', $selection->getRootEscaped(), $canonical->getRootEscaped())
+        );
+        $query->setParameter('categorySeoName', 'listing_page');
+        $query->setParameter('shopUuid', $context->getShopUuid());
+    }
+
+    private function joinTranslation(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($translation = $selection->filter('translation'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'category_translation',
+            $translation->getRootEscaped(),
+            sprintf(
+                '%s.category_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
+                $translation->getRootEscaped(),
+                $selection->getRootEscaped(),
+                $translation->getRootEscaped()
+            )
+        );
+        $query->setParameter('languageUuid', $context->getShopUuid());
     }
 }

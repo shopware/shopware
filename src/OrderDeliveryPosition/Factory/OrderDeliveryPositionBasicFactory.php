@@ -85,30 +85,8 @@ class OrderDeliveryPositionBasicFactory extends Factory
 
     public function joinDependencies(QuerySelection $selection, QueryBuilder $query, TranslationContext $context): void
     {
-        if ($orderLineItem = $selection->filter('lineItem')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'order_line_item',
-                $orderLineItem->getRootEscaped(),
-                sprintf('%s.uuid = %s.order_line_item_uuid', $orderLineItem->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->orderLineItemFactory->joinDependencies($orderLineItem, $query, $context);
-        }
-
-        if ($translation = $selection->filter('translation')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'order_delivery_position_translation',
-                $translation->getRootEscaped(),
-                sprintf(
-                    '%s.order_delivery_position_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
-                    $translation->getRootEscaped(),
-                    $selection->getRootEscaped(),
-                    $translation->getRootEscaped()
-                )
-            );
-            $query->setParameter('languageUuid', $context->getShopUuid());
-        }
+        $this->joinLineItem($selection, $query, $context);
+        $this->joinTranslation($selection, $query, $context);
 
         $this->joinExtensionDependencies($selection, $query, $context);
     }
@@ -129,5 +107,44 @@ class OrderDeliveryPositionBasicFactory extends Factory
     protected function getExtensionNamespace(): string
     {
         return self::EXTENSION_NAMESPACE;
+    }
+
+    private function joinLineItem(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($orderLineItem = $selection->filter('lineItem'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'order_line_item',
+            $orderLineItem->getRootEscaped(),
+            sprintf('%s.uuid = %s.order_line_item_uuid', $orderLineItem->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->orderLineItemFactory->joinDependencies($orderLineItem, $query, $context);
+    }
+
+    private function joinTranslation(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($translation = $selection->filter('translation'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'order_delivery_position_translation',
+            $translation->getRootEscaped(),
+            sprintf(
+                '%s.order_delivery_position_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
+                $translation->getRootEscaped(),
+                $selection->getRootEscaped(),
+                $translation->getRootEscaped()
+            )
+        );
+        $query->setParameter('languageUuid', $context->getShopUuid());
     }
 }

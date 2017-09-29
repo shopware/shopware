@@ -121,40 +121,9 @@ class CustomerAddressBasicFactory extends Factory
 
     public function joinDependencies(QuerySelection $selection, QueryBuilder $query, TranslationContext $context): void
     {
-        if ($areaCountry = $selection->filter('country')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'area_country',
-                $areaCountry->getRootEscaped(),
-                sprintf('%s.uuid = %s.area_country_uuid', $areaCountry->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->areaCountryFactory->joinDependencies($areaCountry, $query, $context);
-        }
-
-        if ($areaCountryState = $selection->filter('state')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'area_country_state',
-                $areaCountryState->getRootEscaped(),
-                sprintf('%s.uuid = %s.area_country_state_uuid', $areaCountryState->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->areaCountryStateFactory->joinDependencies($areaCountryState, $query, $context);
-        }
-
-        if ($translation = $selection->filter('translation')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'customer_address_translation',
-                $translation->getRootEscaped(),
-                sprintf(
-                    '%s.customer_address_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
-                    $translation->getRootEscaped(),
-                    $selection->getRootEscaped(),
-                    $translation->getRootEscaped()
-                )
-            );
-            $query->setParameter('languageUuid', $context->getShopUuid());
-        }
+        $this->joinCountry($selection, $query, $context);
+        $this->joinState($selection, $query, $context);
+        $this->joinTranslation($selection, $query, $context);
 
         $this->joinExtensionDependencies($selection, $query, $context);
     }
@@ -176,5 +145,61 @@ class CustomerAddressBasicFactory extends Factory
     protected function getExtensionNamespace(): string
     {
         return self::EXTENSION_NAMESPACE;
+    }
+
+    private function joinCountry(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($areaCountry = $selection->filter('country'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'area_country',
+            $areaCountry->getRootEscaped(),
+            sprintf('%s.uuid = %s.area_country_uuid', $areaCountry->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->areaCountryFactory->joinDependencies($areaCountry, $query, $context);
+    }
+
+    private function joinState(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($areaCountryState = $selection->filter('state'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'area_country_state',
+            $areaCountryState->getRootEscaped(),
+            sprintf('%s.uuid = %s.area_country_state_uuid', $areaCountryState->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->areaCountryStateFactory->joinDependencies($areaCountryState, $query, $context);
+    }
+
+    private function joinTranslation(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($translation = $selection->filter('translation'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'customer_address_translation',
+            $translation->getRootEscaped(),
+            sprintf(
+                '%s.customer_address_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
+                $translation->getRootEscaped(),
+                $selection->getRootEscaped(),
+                $translation->getRootEscaped()
+            )
+        );
+        $query->setParameter('languageUuid', $context->getShopUuid());
     }
 }

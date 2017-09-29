@@ -50,18 +50,7 @@ class AlbumDetailFactory extends AlbumBasicFactory
     {
         parent::joinDependencies($selection, $query, $context);
 
-        if ($media = $selection->filter('media')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'media',
-                $media->getRootEscaped(),
-                sprintf('%s.uuid = %s.album_uuid', $selection->getRootEscaped(), $media->getRootEscaped())
-            );
-
-            $this->mediaFactory->joinDependencies($media, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
+        $this->joinMedia($selection, $query, $context);
     }
 
     public function getAllFields(): array
@@ -84,5 +73,25 @@ class AlbumDetailFactory extends AlbumBasicFactory
         }
 
         return $fields;
+    }
+
+    private function joinMedia(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($media = $selection->filter('media'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'media',
+            $media->getRootEscaped(),
+            sprintf('%s.uuid = %s.album_uuid', $selection->getRootEscaped(), $media->getRootEscaped())
+        );
+
+        $this->mediaFactory->joinDependencies($media, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
     }
 }

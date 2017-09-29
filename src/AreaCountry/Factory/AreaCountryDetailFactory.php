@@ -50,18 +50,7 @@ class AreaCountryDetailFactory extends AreaCountryBasicFactory
     {
         parent::joinDependencies($selection, $query, $context);
 
-        if ($states = $selection->filter('states')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'area_country_state',
-                $states->getRootEscaped(),
-                sprintf('%s.uuid = %s.area_country_uuid', $selection->getRootEscaped(), $states->getRootEscaped())
-            );
-
-            $this->areaCountryStateFactory->joinDependencies($states, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
+        $this->joinStates($selection, $query, $context);
     }
 
     public function getAllFields(): array
@@ -84,5 +73,25 @@ class AreaCountryDetailFactory extends AreaCountryBasicFactory
         }
 
         return $fields;
+    }
+
+    private function joinStates(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($states = $selection->filter('states'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'area_country_state',
+            $states->getRootEscaped(),
+            sprintf('%s.uuid = %s.area_country_uuid', $selection->getRootEscaped(), $states->getRootEscaped())
+        );
+
+        $this->areaCountryStateFactory->joinDependencies($states, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
     }
 }

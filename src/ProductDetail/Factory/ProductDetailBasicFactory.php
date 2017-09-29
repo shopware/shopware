@@ -129,43 +129,9 @@ class ProductDetailBasicFactory extends Factory
 
     public function joinDependencies(QuerySelection $selection, QueryBuilder $query, TranslationContext $context): void
     {
-        if ($unit = $selection->filter('unit')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'unit',
-                $unit->getRootEscaped(),
-                sprintf('%s.uuid = %s.unit_uuid', $unit->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->unitFactory->joinDependencies($unit, $query, $context);
-        }
-
-        if ($prices = $selection->filter('prices')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'product_detail_price',
-                $prices->getRootEscaped(),
-                sprintf('%s.uuid = %s.product_detail_uuid', $selection->getRootEscaped(), $prices->getRootEscaped())
-            );
-
-            $this->productDetailPriceFactory->joinDependencies($prices, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
-
-        if ($translation = $selection->filter('translation')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'product_detail_translation',
-                $translation->getRootEscaped(),
-                sprintf(
-                    '%s.product_detail_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
-                    $translation->getRootEscaped(),
-                    $selection->getRootEscaped(),
-                    $translation->getRootEscaped()
-                )
-            );
-            $query->setParameter('languageUuid', $context->getShopUuid());
-        }
+        $this->joinUnit($selection, $query, $context);
+        $this->joinPrices($selection, $query, $context);
+        $this->joinTranslation($selection, $query, $context);
 
         $this->joinExtensionDependencies($selection, $query, $context);
     }
@@ -187,5 +153,64 @@ class ProductDetailBasicFactory extends Factory
     protected function getExtensionNamespace(): string
     {
         return self::EXTENSION_NAMESPACE;
+    }
+
+    private function joinUnit(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($unit = $selection->filter('unit'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'unit',
+            $unit->getRootEscaped(),
+            sprintf('%s.uuid = %s.unit_uuid', $unit->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->unitFactory->joinDependencies($unit, $query, $context);
+    }
+
+    private function joinPrices(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($prices = $selection->filter('prices'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'product_detail_price',
+            $prices->getRootEscaped(),
+            sprintf('%s.uuid = %s.product_detail_uuid', $selection->getRootEscaped(), $prices->getRootEscaped())
+        );
+
+        $this->productDetailPriceFactory->joinDependencies($prices, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+    }
+
+    private function joinTranslation(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($translation = $selection->filter('translation'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'product_detail_translation',
+            $translation->getRootEscaped(),
+            sprintf(
+                '%s.product_detail_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
+                $translation->getRootEscaped(),
+                $selection->getRootEscaped(),
+                $translation->getRootEscaped()
+            )
+        );
+        $query->setParameter('languageUuid', $context->getShopUuid());
     }
 }

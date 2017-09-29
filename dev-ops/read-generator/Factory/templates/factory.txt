@@ -82,4 +82,6 @@ class #classUc#BasicFactory extends Factory
         #allFields#
         return $fields;
     }
+
+    #functions#
 }

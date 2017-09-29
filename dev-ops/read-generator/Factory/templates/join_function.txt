@@ -1,0 +1,7 @@
+    private function join#propertyUc#(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        #content#
+    }

@@ -167,106 +167,14 @@ class ShopDetailFactory extends ShopBasicFactory
     {
         parent::joinDependencies($selection, $query, $context);
 
-        if ($locale = $selection->filter('fallbackLocale')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'locale',
-                $locale->getRootEscaped(),
-                sprintf('%s.uuid = %s.fallback_locale_uuid', $locale->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->localeFactory->joinDependencies($locale, $query, $context);
-        }
-
-        if ($category = $selection->filter('category')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'category',
-                $category->getRootEscaped(),
-                sprintf('%s.uuid = %s.category_uuid', $category->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->categoryFactory->joinDependencies($category, $query, $context);
-        }
-
-        if ($customerGroup = $selection->filter('customerGroup')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'customer_group',
-                $customerGroup->getRootEscaped(),
-                sprintf('%s.uuid = %s.customer_group_uuid', $customerGroup->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->customerGroupFactory->joinDependencies($customerGroup, $query, $context);
-        }
-
-        if ($paymentMethod = $selection->filter('paymentMethod')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'payment_method',
-                $paymentMethod->getRootEscaped(),
-                sprintf('%s.uuid = %s.payment_method_uuid', $paymentMethod->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->paymentMethodFactory->joinDependencies($paymentMethod, $query, $context);
-        }
-
-        if ($shippingMethod = $selection->filter('shippingMethod')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'shipping_method',
-                $shippingMethod->getRootEscaped(),
-                sprintf('%s.uuid = %s.shipping_method_uuid', $shippingMethod->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->shippingMethodFactory->joinDependencies($shippingMethod, $query, $context);
-        }
-
-        if ($areaCountry = $selection->filter('country')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'area_country',
-                $areaCountry->getRootEscaped(),
-                sprintf('%s.uuid = %s.area_country_uuid', $areaCountry->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->areaCountryFactory->joinDependencies($areaCountry, $query, $context);
-        }
-
-        if ($shopTemplate = $selection->filter('template')) {
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'shop_template',
-                $shopTemplate->getRootEscaped(),
-                sprintf('%s.uuid = %s.shop_template_uuid', $shopTemplate->getRootEscaped(), $selection->getRootEscaped())
-            );
-            $this->shopTemplateFactory->joinDependencies($shopTemplate, $query, $context);
-        }
-
-        if ($availableCurrencies = $selection->filter('availableCurrencies')) {
-            $mapping = QuerySelection::escape($availableCurrencies->getRoot() . '.mapping');
-
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'shop_currency',
-                $mapping,
-                sprintf('%s.uuid = %s.shop_uuid', $selection->getRootEscaped(), $mapping)
-            );
-            $query->leftJoin(
-                $mapping,
-                'currency',
-                $availableCurrencies->getRootEscaped(),
-                sprintf('%s.currency_uuid = %s.uuid', $mapping, $availableCurrencies->getRootEscaped())
-            );
-
-            $this->currencyFactory->joinDependencies($availableCurrencies, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
-
-        if ($selection->hasField('_sub_select_availableCurrency_uuids')) {
-            $query->addSelect('
-                (
-                    SELECT GROUP_CONCAT(mapping.currency_uuid SEPARATOR \'|\')
-                    FROM shop_currency mapping
-                    WHERE mapping.shop_uuid = ' . $selection->getRootEscaped() . '.uuid
-                ) as ' . QuerySelection::escape($selection->getField('_sub_select_availableCurrency_uuids'))
-            );
-        }
+        $this->joinFallbackLocale($selection, $query, $context);
+        $this->joinCategory($selection, $query, $context);
+        $this->joinCustomerGroup($selection, $query, $context);
+        $this->joinPaymentMethod($selection, $query, $context);
+        $this->joinShippingMethod($selection, $query, $context);
+        $this->joinCountry($selection, $query, $context);
+        $this->joinTemplate($selection, $query, $context);
+        $this->joinAvailableCurrencies($selection, $query, $context);
     }
 
     public function getAllFields(): array
@@ -296,5 +204,163 @@ class ShopDetailFactory extends ShopBasicFactory
         }
 
         return $fields;
+    }
+
+    private function joinFallbackLocale(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($locale = $selection->filter('fallbackLocale'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'locale',
+            $locale->getRootEscaped(),
+            sprintf('%s.uuid = %s.fallback_locale_uuid', $locale->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->localeFactory->joinDependencies($locale, $query, $context);
+    }
+
+    private function joinCategory(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($category = $selection->filter('category'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'category',
+            $category->getRootEscaped(),
+            sprintf('%s.uuid = %s.category_uuid', $category->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->categoryFactory->joinDependencies($category, $query, $context);
+    }
+
+    private function joinCustomerGroup(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($customerGroup = $selection->filter('customerGroup'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'customer_group',
+            $customerGroup->getRootEscaped(),
+            sprintf('%s.uuid = %s.customer_group_uuid', $customerGroup->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->customerGroupFactory->joinDependencies($customerGroup, $query, $context);
+    }
+
+    private function joinPaymentMethod(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($paymentMethod = $selection->filter('paymentMethod'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'payment_method',
+            $paymentMethod->getRootEscaped(),
+            sprintf('%s.uuid = %s.payment_method_uuid', $paymentMethod->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->paymentMethodFactory->joinDependencies($paymentMethod, $query, $context);
+    }
+
+    private function joinShippingMethod(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($shippingMethod = $selection->filter('shippingMethod'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'shipping_method',
+            $shippingMethod->getRootEscaped(),
+            sprintf('%s.uuid = %s.shipping_method_uuid', $shippingMethod->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->shippingMethodFactory->joinDependencies($shippingMethod, $query, $context);
+    }
+
+    private function joinCountry(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($areaCountry = $selection->filter('country'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'area_country',
+            $areaCountry->getRootEscaped(),
+            sprintf('%s.uuid = %s.area_country_uuid', $areaCountry->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->areaCountryFactory->joinDependencies($areaCountry, $query, $context);
+    }
+
+    private function joinTemplate(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($shopTemplate = $selection->filter('template'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'shop_template',
+            $shopTemplate->getRootEscaped(),
+            sprintf('%s.uuid = %s.shop_template_uuid', $shopTemplate->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->shopTemplateFactory->joinDependencies($shopTemplate, $query, $context);
+    }
+
+    private function joinAvailableCurrencies(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if ($selection->hasField('_sub_select_availableCurrency_uuids')) {
+            $query->addSelect('
+                (
+                    SELECT GROUP_CONCAT(mapping.currency_uuid SEPARATOR \'|\')
+                    FROM shop_currency mapping
+                    WHERE mapping.shop_uuid = ' . $selection->getRootEscaped() . '.uuid
+                ) as ' . QuerySelection::escape($selection->getField('_sub_select_availableCurrency_uuids'))
+            );
+        }
+
+        if (!($availableCurrencies = $selection->filter('availableCurrencies'))) {
+            return;
+        }
+
+        $mapping = QuerySelection::escape($availableCurrencies->getRoot() . '.mapping');
+
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'shop_currency',
+            $mapping,
+            sprintf('%s.uuid = %s.shop_uuid', $selection->getRootEscaped(), $mapping)
+        );
+        $query->leftJoin(
+            $mapping,
+            'currency',
+            $availableCurrencies->getRootEscaped(),
+            sprintf('%s.currency_uuid = %s.uuid', $mapping, $availableCurrencies->getRootEscaped())
+        );
+
+        $this->currencyFactory->joinDependencies($availableCurrencies, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
     }
 }

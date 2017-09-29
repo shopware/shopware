@@ -55,36 +55,7 @@ class CurrencyDetailFactory extends CurrencyBasicFactory
     {
         parent::joinDependencies($selection, $query, $context);
 
-        if ($shops = $selection->filter('shops')) {
-            $mapping = QuerySelection::escape($shops->getRoot() . '.mapping');
-
-            $query->leftJoin(
-                $selection->getRootEscaped(),
-                'shop_currency',
-                $mapping,
-                sprintf('%s.uuid = %s.currency_uuid', $selection->getRootEscaped(), $mapping)
-            );
-            $query->leftJoin(
-                $mapping,
-                'shop',
-                $shops->getRootEscaped(),
-                sprintf('%s.shop_uuid = %s.uuid', $mapping, $shops->getRootEscaped())
-            );
-
-            $this->shopFactory->joinDependencies($shops, $query, $context);
-
-            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-        }
-
-        if ($selection->hasField('_sub_select_shop_uuids')) {
-            $query->addSelect('
-                (
-                    SELECT GROUP_CONCAT(mapping.shop_uuid SEPARATOR \'|\')
-                    FROM shop_currency mapping
-                    WHERE mapping.currency_uuid = ' . $selection->getRootEscaped() . '.uuid
-                ) as ' . QuerySelection::escape($selection->getField('_sub_select_shop_uuids'))
-            );
-        }
+        $this->joinShops($selection, $query, $context);
     }
 
     public function getAllFields(): array
@@ -107,5 +78,44 @@ class CurrencyDetailFactory extends CurrencyBasicFactory
         }
 
         return $fields;
+    }
+
+    private function joinShops(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if ($selection->hasField('_sub_select_shop_uuids')) {
+            $query->addSelect('
+                (
+                    SELECT GROUP_CONCAT(mapping.shop_uuid SEPARATOR \'|\')
+                    FROM shop_currency mapping
+                    WHERE mapping.currency_uuid = ' . $selection->getRootEscaped() . '.uuid
+                ) as ' . QuerySelection::escape($selection->getField('_sub_select_shop_uuids'))
+            );
+        }
+
+        if (!($shops = $selection->filter('shops'))) {
+            return;
+        }
+
+        $mapping = QuerySelection::escape($shops->getRoot() . '.mapping');
+
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'shop_currency',
+            $mapping,
+            sprintf('%s.uuid = %s.currency_uuid', $selection->getRootEscaped(), $mapping)
+        );
+        $query->leftJoin(
+            $mapping,
+            'shop',
+            $shops->getRootEscaped(),
+            sprintf('%s.shop_uuid = %s.uuid', $mapping, $shops->getRootEscaped())
+        );
+
+        $this->shopFactory->joinDependencies($shops, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
     }
 }

@@ -39,7 +39,7 @@ class Generator
         $template = __DIR__ . '/templates/factory_detail.txt';
         $detailAssociations = Util::getAssociationsForDetailStruct($table, $config);
 
-        list($requiredFactories, $join, $properties, $constructor, $uses, $init, $associationAssignments, $class) = $this->resolveDependencies(
+        list($requiredFactories, $join, $properties, $constructor, $uses, $init, $associationAssignments, $class, $functions) = $this->resolveDependencies(
             $table,
             $config,
             $detailAssociations
@@ -133,15 +133,16 @@ class Generator
         $join  = implode("\n", $join);
         $detailFields = implode("\n", $detailFields);
         $allFields = implode("\n", $allFields);
-
+        $functions = implode("\n", $functions);
+        
         $parentFactoryDependencyCall = implode(', ', array_unique($parentFactoryDependencyCall));
         if (!empty($parentFactoryDependencyCall)) {
             $parentFactoryDependencyCall = ',' . $parentFactoryDependencyCall;
         }
 
         $content = str_replace(
-            ['#uses#', '#classLc#', '#classUc#', '#dependencyFactories#', '#dependencyFactoriesConstructor#', '#dependencyFactoriesInit#', '#joinDepdencies#', '#depencyFields#', '#hydration#', '#parentFactoryDependencyCall#', '#allFields#'],
-            [$uses, lcfirst($class), ucfirst($class), $properties, $constructor, $init, $join, $detailFields, $assignments, $parentFactoryDependencyCall, $allFields],
+            ['#uses#', '#classLc#', '#classUc#', '#dependencyFactories#', '#dependencyFactoriesConstructor#', '#dependencyFactoriesInit#', '#joinDepdencies#', '#depencyFields#', '#hydration#', '#parentFactoryDependencyCall#', '#allFields#', '#functions#'],
+            [$uses, lcfirst($class), ucfirst($class), $properties, $constructor, $init, $join, $detailFields, $assignments, $parentFactoryDependencyCall, $allFields, $functions],
             file_get_contents($template)
         );
 
@@ -163,7 +164,7 @@ class Generator
             $fields[] = "       '" . $column->getName() . "' => '" . $column->getName() . "'";
         }
 
-        list($requiredFactories, $join, $properties, $constructor, $uses, $init, $associationAssignments, $class) = $this->resolveDependencies(
+        list($requiredFactories, $joins, $properties, $constructor, $uses, $init, $associationAssignments, $class, $functions) = $this->resolveDependencies(
             $table,
             $config,
             $associations
@@ -189,7 +190,10 @@ class Generator
             foreach ($translation as $column) {
                 $fields[] = "       '" . $column->getName() . "' => 'translation." . $column->getName() . "'";
             }
-            $join[] = str_replace('#table#', $table, file_get_contents(__DIR__.'/templates/translation_join.txt'));
+            $join = str_replace('#table#', $table, file_get_contents(__DIR__.'/templates/translation_join.txt'));
+
+            $functions[] = str_replace(['#propertyUc#', '#content#'], ['Translation', $join], file_get_contents(__DIR__ . '/templates/join_function.txt'));
+            $joins[] = '$this->joinTranslation($selection, $query, $context);';
 
         } catch (\Exception $e) {
         }
@@ -210,13 +214,14 @@ class Generator
         $allFields  = implode("\n", array_unique($allFields));
         $uses  = implode("\n", array_unique($uses));
         $assignments  = implode("\n", $assignments);
-        $join  = implode("\n", $join);
+        $joins  = implode("\n", $joins);
         $basicFields  = implode("\n", $basicFields);
         $fields = implode(",\n", $fields);
+        $functions = implode("\n", $functions);
 
         $content = str_replace(
-            ['#uses#', '#fields#', '#classUc#', '#classLc#', '#rootName#', '#dependencyFactories#', '#dependencyFactoriesConstructor#', '#dependencyFactoriesInit#', '#hydration#', '#joinDepdencies#', '#basicDepency#', '#allFields#'],
-            [$uses, $fields, ucfirst($class), lcfirst($class), $table, $properties, $constructor, $init, $assignments, $join, $basicFields, $allFields],
+            ['#uses#', '#fields#', '#classUc#', '#classLc#', '#rootName#', '#dependencyFactories#', '#dependencyFactoriesConstructor#', '#dependencyFactoriesInit#', '#hydration#', '#joinDepdencies#', '#basicDepency#', '#allFields#', '#functions#'],
+            [$uses, $fields, ucfirst($class), lcfirst($class), $table, $properties, $constructor, $init, $assignments, $joins, $basicFields, $allFields, $functions],
             file_get_contents($template)
         );
 
@@ -339,11 +344,12 @@ class Generator
     {
         $requiredFactories = [];
 
-        $join = [];
+        $joins = [];
         $properties = [];
         $constructor = [];
         $uses = [];
         $init = [];
+        $functions = [];
         $associationAssignments = [];
 
         $class = Util::snakeCaseToCamelCase($table);
@@ -362,7 +368,7 @@ class Generator
                         $requiredFactories[] = 'shopware.' . $association['table'] . '.basic_factory';
                     }
 
-                    $join[] = str_replace(
+                    $join = str_replace(
                         ['#associationClassLc#', '#propertyLc#', '#associationTable#', '#foreignKey#'],
                         [
                             lcfirst($associationClass),
@@ -372,6 +378,14 @@ class Generator
                         ],
                         file_get_contents(__DIR__.'/templates/many_to_one_join.txt')
                     );
+
+                    $functions[] = str_replace(['#propertyUc#', '#content#'], [ucfirst($property), $join], file_get_contents(__DIR__ . '/templates/join_function.txt'));
+                    $joins[] = str_replace(
+                        ['#propertyUc#'],
+                        [ucfirst($property)],
+                        '$this->join#propertyUc#($selection, $query, $context);'
+                    );
+
                     $uses[] = str_replace(
                         ['#classUc#', '#type#'],
                         [ucfirst($associationClass), ucfirst($type)],
@@ -426,13 +440,13 @@ class Generator
                     $requiredFactories[] = 'shopware.' . $association['table'] . '.basic_factory';
 
                     if ($association['property'] === 'canonicalUrl') {
-                        $join[] = str_replace(
+                        $join = str_replace(
                             ['#classLc#', '#seoUrlName#'],
                             [lcfirst($class), $config['seo_url_name']],
                             file_get_contents(__DIR__.'/templates/canonical_join.txt')
                         );
                     } else {
-                        $join[] = str_replace(
+                        $join = str_replace(
                             ['#associationClassLc#', '#propertyLc#', '#associationTable#', '#foreignKey#'],
                             [
                                 lcfirst($associationClass),
@@ -443,6 +457,14 @@ class Generator
                             file_get_contents(__DIR__.'/templates/many_to_one_join.txt')
                         );
                     }
+
+                    $functions[] = str_replace(['#propertyUc#', '#content#'], [ucfirst($property), $join], file_get_contents(__DIR__ . '/templates/join_function.txt'));
+                    $joins[] = str_replace(
+                        ['#propertyUc#'],
+                        [ucfirst($property)],
+                        '$this->join#propertyUc#($selection, $query, $context);'
+                    );
+
                     $uses[] = str_replace(
                         ['#classUc#'],
                         [ucfirst($associationClass)],
@@ -509,10 +531,16 @@ class Generator
                         [ucfirst($associationClass), $type],
                         'use Shopware\#classUc#\Factory\#classUc##type#Factory;'
                     );
-                    $join[] = str_replace(
+                    $join = str_replace(
                         ['#propertyLc#', '#pluralLc#', '#associationTable#', '#foreignKey#', '#associationClassLc#'],
                         [lcfirst($property), lcfirst($plural), $association['table'], $association['foreignKeyColumn'], lcfirst($associationClass)],
                         file_get_contents(__DIR__.'/templates/one_to_many_join.txt')
+                    );
+                    $functions[] = str_replace(['#propertyUc#', '#content#'], [ucfirst($plural), $join], file_get_contents(__DIR__ . '/templates/join_function.txt'));
+                    $joins[] = str_replace(
+                        ['#propertyUc#'],
+                        [ucfirst($plural)],
+                        '$this->join#propertyUc#($selection, $query, $context);'
                     );
                     $constructor[] = str_replace(
                         ['#classUc#', '#classLc#', '#type#'],
@@ -549,7 +577,7 @@ class Generator
                         [ucfirst($associationClass), lcfirst($associationClass), lcfirst($class), ucfirst($property), lcfirst($property)],
                         file_get_contents(__DIR__.'/templates/many_to_many_assignment.txt')
                     );
-                    $join[] = str_replace(
+                    $join = str_replace(
                         [
                             '#propertyLc#',
                             '#pluralLc#',
@@ -568,6 +596,13 @@ class Generator
                         ],
                         file_get_contents(__DIR__.'/templates/many_to_many_join.txt')
                     );
+                    $functions[] = str_replace(['#propertyUc#', '#content#'], [ucfirst($plural), $join], file_get_contents(__DIR__ . '/templates/join_function.txt'));
+                    $joins[] = str_replace(
+                        ['#propertyUc#'],
+                        [ucfirst($plural)],
+                        '$this->join#propertyUc#($selection, $query, $context);'
+                    );
+
                     $constructor[] = str_replace(
                         ['#classUc#', '#classLc#'],
                         [ucfirst($associationClass), lcfirst($associationClass)],
@@ -594,13 +629,14 @@ class Generator
 
         return array(
             $requiredFactories,
-            $join,
+            $joins,
             $properties,
             $constructor,
             $uses,
             $init,
             $associationAssignments,
-            $class
+            $class,
+            $functions
         );
     }
 

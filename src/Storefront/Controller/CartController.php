@@ -110,7 +110,7 @@ class CartController extends Controller
      * @Route("/cart/addVoucher", name="cart_add_voucher", options={"seo"="false"})
      * @Method({"POST"})
      */
-    public function addVoucher(Request $request)
+    public function addVoucherAction(Request $request)
     {
         $identifier = $request->request->get('identifier', false);
         $target = $request->request->get('target');

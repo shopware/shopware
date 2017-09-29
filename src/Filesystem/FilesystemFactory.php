@@ -27,7 +27,7 @@ declare(strict_types=1);
 namespace Shopware\Filesystem;
 
 use League\Flysystem\AdapterInterface;
-use League\Flysystem\Filesystem;
+use League\Flysystem\Filesystem as LeagueFilesystem;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Filesystem\Adapter\AdapterFactoryInterface;
 use Shopware\Filesystem\Exception\AdapterFactoryNotFoundException;
@@ -58,7 +58,7 @@ class FilesystemFactory implements FilesystemFactoryInterface
         $config = $this->resolveFilesystemConfig($config);
         $factory = $this->findAdapterFactory($config['type']);
 
-        return new Filesystem(
+        return new LeagueFilesystem(
             $factory->create($config['config']),
             ['visibility' => $config['visibility']]
         );

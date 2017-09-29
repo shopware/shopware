@@ -43,6 +43,7 @@ class Generator
         %s
     </services>
 </container>
+
 EOD;
 
     private $fieldTypeMap = [

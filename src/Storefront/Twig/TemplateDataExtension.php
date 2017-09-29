@@ -119,7 +119,7 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
                 'desktopLogo' => 'bundles/storefront/src/img/logos/logo--tablet.png',
                 'tabletLandscapeLogo' => 'bundles/storefront/src/img/logos/logo--tablet.png',
                 'tabletLogo' => 'bundles/storefront/src/img/logos/logo--tablet.png',
-                'mobileLogo' => 'bundles/storefront/src/img/logos/logo--mobile.png'
+                'mobileLogo' => 'bundles/storefront/src/img/logos/logo--mobile.png',
             ]
         );
 

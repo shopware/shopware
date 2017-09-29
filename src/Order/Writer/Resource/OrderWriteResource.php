@@ -65,8 +65,8 @@ class OrderWriteResource extends WriteResource
             \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
             \Shopware\OrderAddress\Writer\Resource\OrderAddressWriteResource::class,
             \Shopware\Order\Writer\Resource\OrderWriteResource::class,
-            \Shopware\OrderDelivery\Writer\Resource\OrderDeliveryWriteResource::class,
             \Shopware\OrderLineItem\Writer\Resource\OrderLineItemWriteResource::class,
+            \Shopware\OrderDelivery\Writer\Resource\OrderDeliveryWriteResource::class,
         ];
     }
 

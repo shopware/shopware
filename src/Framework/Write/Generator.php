@@ -842,8 +842,8 @@ EOD;
         }
 
         if ($table === 'order') {
-            $lineItemIndex = array_search('\Shopware\OrderLineItem\Writer\Resource\OrderLineItemResource::class', $renderedOrder, true);
-            $deliveryIndex = array_search('\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryResource::class', $renderedOrder, true);
+            $lineItemIndex = array_search('\Shopware\OrderLineItem\Writer\Resource\OrderLineItemWriteResource::class', $renderedOrder, true);
+            $deliveryIndex = array_search('\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryWriteResource::class', $renderedOrder, true);
 
             if ($lineItemIndex !== false && $deliveryIndex !== false && $lineItemIndex > $deliveryIndex) {
                 $tmp = $renderedOrder[$deliveryIndex];

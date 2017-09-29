@@ -28,7 +28,7 @@
             <argument id="logger" type="service"/>
         </service>
 
-        <service class="Shopware\DbalIndexing\Indexer\VoteAverageInder" id="shopware.dbal_indexing.vote_average_inder">
+        <service class="Shopware\DbalIndexing\Indexer\VoteAverageIndexer" id="shopware.dbal_indexing.vote_average_inder">
             <argument id="shopware.product.repository" type="service"/>
             <argument id="shopware.dbal_indexing.loader.vote_average_loader" type="service"/>
             <argument id="dbal_connection" type="service"/>

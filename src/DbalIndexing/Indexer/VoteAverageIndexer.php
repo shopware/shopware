@@ -3,7 +3,6 @@
 namespace Shopware\DbalIndexing\Indexer;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\DbalIndexing\Common\RepositoryIterator;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
@@ -16,7 +15,7 @@ use Shopware\Product\Repository\ProductRepository;
 use Shopware\ProductVoteAverage\Struct\ProductVoteAverageBasicStruct;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class VoteAverageInder implements IndexerInterface
+class VoteAverageIndexer implements IndexerInterface
 {
     const TABLE = 'product_vote_average_ro';
 

@@ -45,7 +45,7 @@ class UuidField extends Field implements WriteContextAware, ResourceAware, UuidG
     private $writeContext;
 
     /**
-     * @var resource
+     * @var WriterResource
      */
     private $resource;
 

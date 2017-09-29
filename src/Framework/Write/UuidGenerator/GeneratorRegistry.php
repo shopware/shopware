@@ -31,19 +31,11 @@ class GeneratorRegistry
      */
     private $valueTransformers;
 
-    /**
-     * @param Generator[] ...$valueTransformers
-     */
     public function __construct(Generator ...$valueTransformers)
     {
         $this->valueTransformers = $valueTransformers;
     }
 
-    /**
-     * @param string $className
-     *
-     * @return Generator
-     */
     public function get(string $className): Generator
     {
         foreach ($this->valueTransformers as $valueTransformer) {

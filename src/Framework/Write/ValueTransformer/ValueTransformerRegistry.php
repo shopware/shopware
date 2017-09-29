@@ -31,19 +31,11 @@ class ValueTransformerRegistry
      */
     private $valueTransformers;
 
-    /**
-     * @param ValueTransformer[] ...$valueTransformers
-     */
     public function __construct(ValueTransformer ...$valueTransformers)
     {
         $this->valueTransformers = $valueTransformers;
     }
 
-    /**
-     * @param string $className
-     *
-     * @return ValueTransformer
-     */
     public function get(string $className): ValueTransformer
     {
         foreach ($this->valueTransformers as $valueTransformer) {

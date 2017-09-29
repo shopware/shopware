@@ -27,23 +27,15 @@ namespace Shopware\Framework\Write;
 class ResourceRegistry
 {
     /**
-     * @var resource[]
+     * @var WriteResource[]
      */
     private $resources = [];
 
-    /**
-     * @param resource[] ...$resources
-     */
     public function __construct(WriteResource ...$resources)
     {
         $this->resources = $resources;
     }
 
-    /**
-     * @param string $className
-     *
-     * @return resource
-     */
     public function get(string $className): WriteResource
     {
         foreach ($this->resources as $resource) {

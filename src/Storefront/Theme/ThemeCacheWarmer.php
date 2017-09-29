@@ -41,16 +41,17 @@ class ThemeCacheWarmer implements CacheWarmerInterface
      * @var string
      */
     private $basePath;
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
 
-    public function __construct(ContainerInterface $container, AssetManager $am, string $basePath)
+    /**
+     * @var array
+     */
+    private $variables;
+
+    public function __construct(array $variables, AssetManager $am, string $basePath)
     {
-        $this->container = $container;
         $this->am = $am;
         $this->basePath = $basePath;
+        $this->variables = $variables;
     }
 
     public function warmUp($cacheDir): void
@@ -95,10 +96,7 @@ class ThemeCacheWarmer implements CacheWarmerInterface
 
     private function doDump(AssetInterface $asset)
     {
-        $combinations = VarUtils::getCombinations(
-            $asset->getVars(),
-            $this->container->getParameter('assetic.variables')
-        );
+        $combinations = VarUtils::getCombinations($asset->getVars(), $this->variables);
 
         foreach ($combinations as $combination) {
             $asset->setValues($combination);

@@ -17,7 +17,7 @@
         </service>
 
         <service class="Shopware\SeoUrl\Extension\UrlGeneratorExtension" id="shopware.seo_url.extension.url_generator_extension">
-            <argument id="service_container" type="service"/>
+            <argument id="router.request_context" type="service"/>
             <tag name="shopware.extension" bundle="seo_url"/>
         </service>
     </services>

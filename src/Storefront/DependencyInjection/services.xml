@@ -23,7 +23,7 @@
         <service id="shopware.storefront.component.theme.theme_cache_warmer" class="Shopware\Storefront\Theme\ThemeCacheWarmer" public="false">
             <tag name="kernel.cache_warmer" priority="15" />
 
-            <argument type="service" id="service_container" />
+            <argument>%assetic.variables%</argument>
             <argument type="service" id="assetic.asset_manager" />
             <argument>%assetic.write_to%</argument>
         </service>

@@ -3,42 +3,35 @@
 namespace Shopware\SeoUrl\Extension;
 
 use Shopware\SeoUrl\Event\SeoUrlBasicLoadedEvent;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Routing\RequestContext;
 
 class UrlGeneratorExtension extends SeoUrlExtension
 {
     /**
-     * @var ContainerInterface
+     * @var null|RequestContext
      */
-    private $container;
+    private $context;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(?RequestContext $context)
     {
-        $this->container = $container;
+        $this->context = $context;
     }
 
     public function seoUrlBasicLoaded(SeoUrlBasicLoadedEvent $event): void
     {
         parent::seoUrlBasicLoaded($event);
 
-        if (!$this->container->has('router')) {
+        if (!$this->context) {
             return;
         }
-
-        $router = $this->container->get('router');
-        if (!$router->getContext()) {
-            return;
-        }
-
-        $context = $router->getContext();
 
         foreach ($event->getSeoUrls() as $seoUrl) {
             $url = implode('/', array_filter([
-                trim($context->getBaseUrl(), '/'),
+                trim($this->context->getBaseUrl(), '/'),
                 trim($seoUrl->getSeoPathInfo(), '/'),
             ]));
 
-            $url = sprintf('%s://%s/%s', $context->getScheme(), $context->getHost(), $url);
+            $url = sprintf('%s://%s/%s', $this->context->getScheme(), $this->context->getHost(), $url);
             $seoUrl->setUrl($url);
         }
     }

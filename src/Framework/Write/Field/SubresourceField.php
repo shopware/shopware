@@ -128,6 +128,8 @@ class SubresourceField extends Field implements PathAware, FieldExtenderCollecti
                 $this->path . '/' . $key . '/' . $keyValue
             );
         }
+        return;
+        yield __CLASS__ => __METHOD__;
     }
 
     /**

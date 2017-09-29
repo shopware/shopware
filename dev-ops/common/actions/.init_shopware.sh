@@ -9,4 +9,4 @@ bin/console seo:url:generate -v
 
 bin/console dbal:refresh:index -v
 
-bin/console plugin:refresh
+bin/console plugin:update

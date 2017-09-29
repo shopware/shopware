@@ -107,7 +107,7 @@
         </service>
 
 
-        <service class="Shopware\Framework\Plugin\Command\PluginRefreshCommand" id="shopware.framework.commands.plugin_refresh_command">
+        <service class="Shopware\Framework\Plugin\Command\PluginUpdateCommand" id="shopware.framework.commands.plugin_update_command">
             <tag name="console.command" />
             <argument type="service" id="shopware.framework.plugin.manager" />
         </service>
@@ -132,7 +132,7 @@
             <argument type="service" id="shopware.framework.plugin.manager" />
         </service>
 
-        <service class="Shopware\Framework\Plugin\Command\PluginUpdateCommand" id="shopware.framework.commands.plugin_update_command">
+        <service class="Shopware\Framework\Plugin\Command\PluginUpgradeCommand" id="shopware.framework.commands.plugin_upgrade_command">
             <tag name="console.command" />
             <argument type="service" id="shopware.framework.plugin.manager" />
         </service>

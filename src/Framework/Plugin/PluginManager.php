@@ -101,8 +101,8 @@ class PluginManager
             $updates = [];
 
             // Makes sure the version is updated in the db after a re-installation
-            if ($this->hasInfoNewerVersion($plugin->getUpdateVersion(), $plugin->getVersion())) {
-                $plugin->setVersion($plugin->getUpdateVersion());
+            if ($this->hasInfoNewerVersion((string) $plugin->getUpdateVersion(), $plugin->getVersion())) {
+                $plugin->setVersion((string) $plugin->getUpdateVersion());
             }
 
             $pluginBootstrap->install($context);
@@ -263,7 +263,7 @@ class PluginManager
         return $context;
     }
 
-    public function refreshPlugins(): void
+    public function updatePlugins(): void
     {
         $refreshDate = new \DateTime();
 
@@ -278,11 +278,11 @@ class PluginManager
 
             $info = $this->parsePluginInfo($pluginPath);
 
-            $info['label'] = isset($info['label']['en']) ? $info['label']['en'] : $pluginName;
-            $info['description'] = isset($info['description']['en']) ? $info['description']['en'] : null;
-            $info['version'] = isset($info['version']) ? $info['version'] : '0.0.1';
-            $info['author'] = isset($info['author']) ? $info['author'] : null;
-            $info['link'] = isset($info['link']) ? $info['link'] : null;
+            $info['label'] = $info['label']['en'] ?? $pluginName;
+            $info['description'] = $info['description']['en'] ?? null;
+            $info['version'] = $info['version'] ?? '1.0.0';
+            $info['author'] = $info['author'] ?? null;
+            $info['link'] = $info['link'] ?? null;
 
             $data = [
                 'active' => 0,
@@ -354,7 +354,7 @@ class PluginManager
      *
      * @return bool
      */
-    private function hasInfoNewerVersion($updateVersion, $currentVersion): bool
+    private function hasInfoNewerVersion(string $updateVersion, string $currentVersion): bool
     {
         return version_compare($updateVersion, $currentVersion, '>');
     }

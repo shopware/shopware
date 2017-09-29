@@ -4,6 +4,7 @@ namespace Shopware\Framework\Plugin\Command;
 
 use Shopware\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Framework\Plugin\PluginManager;
+use Shopware\Framework\Struct\Plugin;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,6 +13,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class PluginUninstallCommand extends Command
 {
+    use PluginCommandTrait;
+
     /**
      * @var PluginManager
      */
@@ -24,12 +27,17 @@ class PluginUninstallCommand extends Command
         $this->pluginManager = $pluginManager;
     }
 
+    public function getPluginManager(): PluginManager
+    {
+        return $this->pluginManager;
+    }
+
     protected function configure()
     {
         $this
             ->setName('plugin:uninstall')
             ->setDescription('Uninstalls a plugin.')
-            ->addArgument('plugin', InputArgument::REQUIRED, 'Name of the plugin to be uninstalled.')
+            ->addArgument('plugins', InputArgument::REQUIRED | InputArgument::IS_ARRAY, 'Name of the plugins to be uninstalled.')
             ->setHelp(<<<'EOF'
 The <info>%command.name%</info> uninstalls a plugin.
 EOF
@@ -42,19 +50,32 @@ EOF
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
-
-        $pluginName = $input->getArgument('plugin');
+        $this->displayHeader($io);
 
         try {
-            $plugin = $this->pluginManager->getPluginByName($pluginName);
+            $plugins = $this->parsePluginArgument($input->getArgument('plugins'));
         } catch (PluginNotFoundException $e) {
             $io->error($e->getMessage());
 
             return 1;
         }
 
-        $this->pluginManager->uninstallPlugin($plugin);
+        $io->text(sprintf('Installing %d plugins:', count($plugins)));
+        $io->listing($this->formatPluginList($plugins));
 
-        $io->success(sprintf('Plugin "%s" has been uninstalled successfully.', $pluginName));
+        /** @var Plugin $plugin */
+        foreach ($plugins as $plugin) {
+            if ($plugin->getInstallationDate() === null) {
+                $io->note(sprintf('Plugin "%s" is not installed. Skipping.', $plugin->getLabel()));
+
+                continue;
+            }
+
+            $this->pluginManager->uninstallPlugin($plugin);
+
+            $io->text(sprintf('Plugin "%s" has been uninstalled successfully.', $plugin->getLabel()));
+        }
+
+        $io->success(sprintf('Uninstalled %d plugins.', count($plugins)));
     }
 }

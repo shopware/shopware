@@ -3,12 +3,14 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\BlogTranslationWrittenEvent;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\LongTextField;
 use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class BlogTranslationWriteResource extends WriteResource
 {
@@ -29,35 +31,35 @@ class BlogTranslationWriteResource extends WriteResource
         $this->fields[self::META_KEYWORDS_FIELD] = new StringField('meta_keywords');
         $this->fields[self::META_DESCRIPTION_FIELD] = new StringField('meta_description');
         $this->fields[self::META_TITLE_FIELD] = new StringField('meta_title');
-        $this->fields['blog'] = new ReferenceField('blogUuid', 'uuid', \Shopware\Framework\Write\Resource\BlogWriteResource::class);
-        $this->primaryKeyFields['blogUuid'] = (new FkField('blog_uuid', \Shopware\Framework\Write\Resource\BlogWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['blog'] = new ReferenceField('blogUuid', 'uuid', BlogWriteResource::class);
+        $this->primaryKeyFields['blogUuid'] = (new FkField('blog_uuid', BlogWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', ShopWriteResource::class);
+        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', ShopWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\BlogWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\Framework\Write\Resource\BlogTranslationWriteResource::class,
+            BlogWriteResource::class,
+            ShopWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\BlogTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): BlogTranslationWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\BlogTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new BlogTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\BlogWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\BlogWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[BlogWriteResource::class])) {
+            $event->addEvent(BlogWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\BlogTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\BlogTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

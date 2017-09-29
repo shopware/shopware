@@ -9,6 +9,8 @@ use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\ShippingMethod\Event\ShippingMethodTranslationWrittenEvent;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class ShippingMethodTranslationWriteResource extends WriteResource
 {
@@ -23,35 +25,35 @@ class ShippingMethodTranslationWriteResource extends WriteResource
         $this->fields[self::NAME_FIELD] = (new StringField('name'))->setFlags(new Required());
         $this->fields[self::DESCRIPTION_FIELD] = new LongTextField('description');
         $this->fields[self::COMMENT_FIELD] = new StringField('comment');
-        $this->fields['shippingMethod'] = new ReferenceField('shippingMethodUuid', 'uuid', \Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::class);
-        $this->primaryKeyFields['shippingMethodUuid'] = (new FkField('shipping_method_uuid', \Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['shippingMethod'] = new ReferenceField('shippingMethodUuid', 'uuid', ShippingMethodWriteResource::class);
+        $this->primaryKeyFields['shippingMethodUuid'] = (new FkField('shipping_method_uuid', ShippingMethodWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', ShopWriteResource::class);
+        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', ShopWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\ShippingMethod\Writer\Resource\ShippingMethodTranslationWriteResource::class,
+            ShippingMethodWriteResource::class,
+            ShopWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ShippingMethod\Event\ShippingMethodTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ShippingMethodTranslationWrittenEvent
     {
-        $event = new \Shopware\ShippingMethod\Event\ShippingMethodTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ShippingMethodTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::class])) {
-            $event->addEvent(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShippingMethodWriteResource::class])) {
+            $event->addEvent(ShippingMethodWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ShippingMethod\Writer\Resource\ShippingMethodTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

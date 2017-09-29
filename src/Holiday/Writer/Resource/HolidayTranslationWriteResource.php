@@ -8,6 +8,8 @@ use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Holiday\Event\HolidayTranslationWrittenEvent;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class HolidayTranslationWriteResource extends WriteResource
 {
@@ -18,35 +20,35 @@ class HolidayTranslationWriteResource extends WriteResource
         parent::__construct('holiday_translation');
 
         $this->fields[self::NAME_FIELD] = (new StringField('name'))->setFlags(new Required());
-        $this->fields['holiday'] = new ReferenceField('holidayUuid', 'uuid', \Shopware\Holiday\Writer\Resource\HolidayWriteResource::class);
-        $this->primaryKeyFields['holidayUuid'] = (new FkField('holiday_uuid', \Shopware\Holiday\Writer\Resource\HolidayWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['holiday'] = new ReferenceField('holidayUuid', 'uuid', HolidayWriteResource::class);
+        $this->primaryKeyFields['holidayUuid'] = (new FkField('holiday_uuid', HolidayWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', ShopWriteResource::class);
+        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', ShopWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Holiday\Writer\Resource\HolidayWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\Holiday\Writer\Resource\HolidayTranslationWriteResource::class,
+            HolidayWriteResource::class,
+            ShopWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Holiday\Event\HolidayTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): HolidayTranslationWrittenEvent
     {
-        $event = new \Shopware\Holiday\Event\HolidayTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new HolidayTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Holiday\Writer\Resource\HolidayWriteResource::class])) {
-            $event->addEvent(\Shopware\Holiday\Writer\Resource\HolidayWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[HolidayWriteResource::class])) {
+            $event->addEvent(HolidayWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Holiday\Writer\Resource\HolidayTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\Holiday\Writer\Resource\HolidayTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

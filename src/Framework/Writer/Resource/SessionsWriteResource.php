@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\SessionsWrittenEvent;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
@@ -26,18 +27,18 @@ class SessionsWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\SessionsWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\SessionsWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): SessionsWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\SessionsWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new SessionsWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\SessionsWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\SessionsWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

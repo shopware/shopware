@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\CoreTranslationsWrittenEvent;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\LongTextField;
 use Shopware\Framework\Write\Field\StringField;
@@ -31,18 +32,18 @@ class CoreTranslationsWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\CoreTranslationsWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CoreTranslationsWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): CoreTranslationsWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\CoreTranslationsWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new CoreTranslationsWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\CoreTranslationsWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\CoreTranslationsWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

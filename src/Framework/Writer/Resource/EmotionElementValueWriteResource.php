@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\EmotionElementValueWrittenEvent;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\LongTextField;
 use Shopware\Framework\Write\Flag\Required;
@@ -30,18 +31,18 @@ class EmotionElementValueWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\EmotionElementValueWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\EmotionElementValueWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): EmotionElementValueWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\EmotionElementValueWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new EmotionElementValueWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\EmotionElementValueWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\EmotionElementValueWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

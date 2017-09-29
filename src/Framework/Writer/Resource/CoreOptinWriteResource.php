@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\CoreOptinWrittenEvent;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\LongTextField;
 use Shopware\Framework\Write\Field\StringField;
@@ -29,18 +30,18 @@ class CoreOptinWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\CoreOptinWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CoreOptinWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): CoreOptinWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\CoreOptinWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new CoreOptinWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\CoreOptinWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\CoreOptinWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

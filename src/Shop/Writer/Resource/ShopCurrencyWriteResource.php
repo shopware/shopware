@@ -3,10 +3,12 @@
 namespace Shopware\Shop\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Currency\Writer\Resource\CurrencyWriteResource;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Shop\Event\ShopCurrencyWrittenEvent;
 
 class ShopCurrencyWriteResource extends WriteResource
 {
@@ -14,35 +16,35 @@ class ShopCurrencyWriteResource extends WriteResource
     {
         parent::__construct('shop_currency');
 
-        $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['currency'] = new ReferenceField('currencyUuid', 'uuid', \Shopware\Currency\Writer\Resource\CurrencyWriteResource::class);
-        $this->fields['currencyUuid'] = (new FkField('currency_uuid', \Shopware\Currency\Writer\Resource\CurrencyWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', ShopWriteResource::class);
+        $this->fields['shopUuid'] = (new FkField('shop_uuid', ShopWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['currency'] = new ReferenceField('currencyUuid', 'uuid', CurrencyWriteResource::class);
+        $this->fields['currencyUuid'] = (new FkField('currency_uuid', CurrencyWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\Currency\Writer\Resource\CurrencyWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopCurrencyWriteResource::class,
+            ShopWriteResource::class,
+            CurrencyWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Shop\Event\ShopCurrencyWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ShopCurrencyWrittenEvent
     {
-        $event = new \Shopware\Shop\Event\ShopCurrencyWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ShopCurrencyWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Currency\Writer\Resource\CurrencyWriteResource::class])) {
-            $event->addEvent(\Shopware\Currency\Writer\Resource\CurrencyWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[CurrencyWriteResource::class])) {
+            $event->addEvent(CurrencyWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopCurrencyWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopCurrencyWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

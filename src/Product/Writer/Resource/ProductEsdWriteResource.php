@@ -12,6 +12,7 @@ use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Product\Event\ProductEsdWrittenEvent;
 
 class ProductEsdWriteResource extends WriteResource
 {
@@ -32,34 +33,34 @@ class ProductEsdWriteResource extends WriteResource
         $this->fields[self::HAS_SERIALS_FIELD] = new BoolField('has_serials');
         $this->fields[self::ALLOW_NOTIFICATION_FIELD] = new IntField('allow_notification');
         $this->fields[self::MAX_DOWNLOADS_FIELD] = new IntField('max_downloads');
-        $this->fields['product'] = new ReferenceField('productUuid', 'uuid', \Shopware\Product\Writer\Resource\ProductWriteResource::class);
-        $this->fields['productUuid'] = (new FkField('product_uuid', \Shopware\Product\Writer\Resource\ProductWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['serials'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductEsdSerialWriteResource::class);
+        $this->fields['product'] = new ReferenceField('productUuid', 'uuid', ProductWriteResource::class);
+        $this->fields['productUuid'] = (new FkField('product_uuid', ProductWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['serials'] = new SubresourceField(ProductEsdSerialWriteResource::class);
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Product\Writer\Resource\ProductWriteResource::class,
-            \Shopware\Product\Writer\Resource\ProductEsdWriteResource::class,
-            \Shopware\Product\Writer\Resource\ProductEsdSerialWriteResource::class,
+            ProductWriteResource::class,
+            self::class,
+            ProductEsdSerialWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductEsdWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductEsdWrittenEvent
     {
-        $event = new \Shopware\Product\Event\ProductEsdWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductEsdWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductWriteResource::class])) {
+            $event->addEvent(ProductWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductEsdWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductEsdWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductEsdSerialWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductEsdSerialWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductEsdSerialWriteResource::class])) {
+            $event->addEvent(ProductEsdSerialWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

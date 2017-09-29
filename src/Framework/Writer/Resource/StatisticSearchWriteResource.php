@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\StatisticSearchWrittenEvent;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\ReferenceField;
@@ -10,6 +11,7 @@ use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class StatisticSearchWriteResource extends WriteResource
 {
@@ -26,29 +28,29 @@ class StatisticSearchWriteResource extends WriteResource
         $this->fields[self::TERM_FIELD] = (new StringField('term'))->setFlags(new Required());
         $this->fields[self::RESULT_COUNT_FIELD] = (new IntField('result_count'))->setFlags(new Required());
         $this->fields[self::SHOP_ID_FIELD] = new IntField('shop_id');
-        $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid'));
+        $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', ShopWriteResource::class);
+        $this->fields['shopUuid'] = (new FkField('shop_uuid', ShopWriteResource::class, 'uuid'));
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\Framework\Write\Resource\StatisticSearchWriteResource::class,
+            ShopWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\StatisticSearchWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): StatisticSearchWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\StatisticSearchWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new StatisticSearchWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\StatisticSearchWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\StatisticSearchWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

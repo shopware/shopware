@@ -9,6 +9,7 @@ use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Shop\Event\ShopFormTranslationWrittenEvent;
 
 class ShopFormTranslationWriteResource extends WriteResource
 {
@@ -35,35 +36,35 @@ class ShopFormTranslationWriteResource extends WriteResource
         $this->fields[self::META_TITLE_FIELD] = new StringField('meta_title');
         $this->fields[self::META_KEYWORDS_FIELD] = new StringField('meta_keywords');
         $this->fields[self::META_DESCRIPTION_FIELD] = new LongTextField('meta_description');
-        $this->fields['shopForm'] = new ReferenceField('shopFormUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopFormWriteResource::class);
-        $this->primaryKeyFields['shopFormUuid'] = (new FkField('shop_form_uuid', \Shopware\Shop\Writer\Resource\ShopFormWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['shopForm'] = new ReferenceField('shopFormUuid', 'uuid', ShopFormWriteResource::class);
+        $this->primaryKeyFields['shopFormUuid'] = (new FkField('shop_form_uuid', ShopFormWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', ShopWriteResource::class);
+        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', ShopWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Shop\Writer\Resource\ShopFormWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopFormTranslationWriteResource::class,
+            ShopFormWriteResource::class,
+            ShopWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Shop\Event\ShopFormTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ShopFormTranslationWrittenEvent
     {
-        $event = new \Shopware\Shop\Event\ShopFormTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ShopFormTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopFormWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopFormWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopFormWriteResource::class])) {
+            $event->addEvent(ShopFormWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopFormTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopFormTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

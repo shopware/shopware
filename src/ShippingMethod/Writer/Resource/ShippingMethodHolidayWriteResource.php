@@ -7,6 +7,8 @@ use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Holiday\Writer\Resource\HolidayWriteResource;
+use Shopware\ShippingMethod\Event\ShippingMethodHolidayWrittenEvent;
 
 class ShippingMethodHolidayWriteResource extends WriteResource
 {
@@ -14,35 +16,35 @@ class ShippingMethodHolidayWriteResource extends WriteResource
     {
         parent::__construct('shipping_method_holiday');
 
-        $this->fields['shippingMethod'] = new ReferenceField('shippingMethodUuid', 'uuid', \Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::class);
-        $this->fields['shippingMethodUuid'] = (new FkField('shipping_method_uuid', \Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['holiday'] = new ReferenceField('holidayUuid', 'uuid', \Shopware\Holiday\Writer\Resource\HolidayWriteResource::class);
-        $this->fields['holidayUuid'] = (new FkField('holiday_uuid', \Shopware\Holiday\Writer\Resource\HolidayWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['shippingMethod'] = new ReferenceField('shippingMethodUuid', 'uuid', ShippingMethodWriteResource::class);
+        $this->fields['shippingMethodUuid'] = (new FkField('shipping_method_uuid', ShippingMethodWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['holiday'] = new ReferenceField('holidayUuid', 'uuid', HolidayWriteResource::class);
+        $this->fields['holidayUuid'] = (new FkField('holiday_uuid', HolidayWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::class,
-            \Shopware\Holiday\Writer\Resource\HolidayWriteResource::class,
-            \Shopware\ShippingMethod\Writer\Resource\ShippingMethodHolidayWriteResource::class,
+            ShippingMethodWriteResource::class,
+            HolidayWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ShippingMethod\Event\ShippingMethodHolidayWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ShippingMethodHolidayWrittenEvent
     {
-        $event = new \Shopware\ShippingMethod\Event\ShippingMethodHolidayWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ShippingMethodHolidayWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::class])) {
-            $event->addEvent(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShippingMethodWriteResource::class])) {
+            $event->addEvent(ShippingMethodWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Holiday\Writer\Resource\HolidayWriteResource::class])) {
-            $event->addEvent(\Shopware\Holiday\Writer\Resource\HolidayWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[HolidayWriteResource::class])) {
+            $event->addEvent(HolidayWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ShippingMethod\Writer\Resource\ShippingMethodHolidayWriteResource::class])) {
-            $event->addEvent(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodHolidayWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

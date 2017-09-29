@@ -6,6 +6,7 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Search\Event\SearchIndexWrittenEvent;
 
 class SearchIndexWriteResource extends WriteResource
 {
@@ -25,18 +26,18 @@ class SearchIndexWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Search\Writer\Resource\SearchIndexWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Search\Event\SearchIndexWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): SearchIndexWrittenEvent
     {
-        $event = new \Shopware\Search\Event\SearchIndexWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new SearchIndexWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Search\Writer\Resource\SearchIndexWriteResource::class])) {
-            $event->addEvent(\Shopware\Search\Writer\Resource\SearchIndexWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

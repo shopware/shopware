@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\CoreEngineGroupsWrittenEvent;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
@@ -30,18 +31,18 @@ class CoreEngineGroupsWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\CoreEngineGroupsWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CoreEngineGroupsWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): CoreEngineGroupsWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\CoreEngineGroupsWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new CoreEngineGroupsWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\CoreEngineGroupsWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\CoreEngineGroupsWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

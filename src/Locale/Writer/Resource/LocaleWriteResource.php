@@ -8,7 +8,10 @@ use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
+use Shopware\Framework\Write\Resource\UserWriteResource;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Locale\Event\LocaleWrittenEvent;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class LocaleWriteResource extends WriteResource
 {
@@ -23,40 +26,40 @@ class LocaleWriteResource extends WriteResource
 
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
         $this->fields[self::CODE_FIELD] = (new StringField('code'))->setFlags(new Required());
-        $this->fields[self::LANGUAGE_FIELD] = new TranslatedField('language', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields[self::TERRITORY_FIELD] = new TranslatedField('territory', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields['translations'] = (new SubresourceField(\Shopware\Locale\Writer\Resource\LocaleTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
-        $this->fields['shops'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->fields['users'] = new SubresourceField(\Shopware\Framework\Write\Resource\UserWriteResource::class);
+        $this->fields[self::LANGUAGE_FIELD] = new TranslatedField('language', ShopWriteResource::class, 'uuid');
+        $this->fields[self::TERRITORY_FIELD] = new TranslatedField('territory', ShopWriteResource::class, 'uuid');
+        $this->fields['translations'] = (new SubresourceField(LocaleTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
+        $this->fields['shops'] = new SubresourceField(ShopWriteResource::class);
+        $this->fields['users'] = new SubresourceField(UserWriteResource::class);
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Locale\Writer\Resource\LocaleWriteResource::class,
-            \Shopware\Locale\Writer\Resource\LocaleTranslationWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\Framework\Write\Resource\UserWriteResource::class,
+            self::class,
+            LocaleTranslationWriteResource::class,
+            ShopWriteResource::class,
+            UserWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Locale\Event\LocaleWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): LocaleWrittenEvent
     {
-        $event = new \Shopware\Locale\Event\LocaleWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new LocaleWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Locale\Writer\Resource\LocaleWriteResource::class])) {
-            $event->addEvent(\Shopware\Locale\Writer\Resource\LocaleWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Locale\Writer\Resource\LocaleTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\Locale\Writer\Resource\LocaleTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[LocaleTranslationWriteResource::class])) {
+            $event->addEvent(LocaleTranslationWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\UserWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\UserWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[UserWriteResource::class])) {
+            $event->addEvent(UserWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\MultiEditBackupWrittenEvent;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\LongTextField;
@@ -36,18 +37,18 @@ class MultiEditBackupWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\MultiEditBackupWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\MultiEditBackupWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): MultiEditBackupWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\MultiEditBackupWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new MultiEditBackupWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\MultiEditBackupWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\MultiEditBackupWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

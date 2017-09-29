@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\CampaignsSenderWrittenEvent;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
@@ -23,18 +24,18 @@ class CampaignsSenderWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\CampaignsSenderWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CampaignsSenderWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): CampaignsSenderWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\CampaignsSenderWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new CampaignsSenderWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\CampaignsSenderWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\CampaignsSenderWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

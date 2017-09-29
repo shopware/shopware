@@ -9,6 +9,8 @@ use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource;
+use Shopware\ShippingMethodPrice\Event\ShippingMethodPriceWrittenEvent;
 
 class ShippingMethodPriceWriteResource extends WriteResource
 {
@@ -25,29 +27,29 @@ class ShippingMethodPriceWriteResource extends WriteResource
         $this->fields[self::QUANTITY_FROM_FIELD] = (new FloatField('quantity_from'))->setFlags(new Required());
         $this->fields[self::PRICE_FIELD] = (new FloatField('price'))->setFlags(new Required());
         $this->fields[self::FACTOR_FIELD] = (new FloatField('factor'))->setFlags(new Required());
-        $this->fields['shippingMethod'] = new ReferenceField('shippingMethodUuid', 'uuid', \Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::class);
-        $this->fields['shippingMethodUuid'] = (new FkField('shipping_method_uuid', \Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['shippingMethod'] = new ReferenceField('shippingMethodUuid', 'uuid', ShippingMethodWriteResource::class);
+        $this->fields['shippingMethodUuid'] = (new FkField('shipping_method_uuid', ShippingMethodWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::class,
-            \Shopware\ShippingMethodPrice\Writer\Resource\ShippingMethodPriceWriteResource::class,
+            ShippingMethodWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ShippingMethodPrice\Event\ShippingMethodPriceWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ShippingMethodPriceWrittenEvent
     {
-        $event = new \Shopware\ShippingMethodPrice\Event\ShippingMethodPriceWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ShippingMethodPriceWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::class])) {
-            $event->addEvent(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShippingMethodWriteResource::class])) {
+            $event->addEvent(ShippingMethodWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ShippingMethodPrice\Writer\Resource\ShippingMethodPriceWriteResource::class])) {
-            $event->addEvent(\Shopware\ShippingMethodPrice\Writer\Resource\ShippingMethodPriceWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

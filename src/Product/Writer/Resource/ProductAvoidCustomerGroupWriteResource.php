@@ -3,10 +3,12 @@
 namespace Shopware\Product\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Product\Event\ProductAvoidCustomerGroupWrittenEvent;
 
 class ProductAvoidCustomerGroupWriteResource extends WriteResource
 {
@@ -14,35 +16,35 @@ class ProductAvoidCustomerGroupWriteResource extends WriteResource
     {
         parent::__construct('product_avoid_customer_group');
 
-        $this->fields['product'] = new ReferenceField('productUuid', 'uuid', \Shopware\Product\Writer\Resource\ProductWriteResource::class);
-        $this->fields['productUuid'] = (new FkField('product_uuid', \Shopware\Product\Writer\Resource\ProductWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['customerGroup'] = new ReferenceField('customerGroupUuid', 'uuid', \Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource::class);
-        $this->fields['customerGroupUuid'] = (new FkField('customer_group_uuid', \Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['product'] = new ReferenceField('productUuid', 'uuid', ProductWriteResource::class);
+        $this->fields['productUuid'] = (new FkField('product_uuid', ProductWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['customerGroup'] = new ReferenceField('customerGroupUuid', 'uuid', CustomerGroupWriteResource::class);
+        $this->fields['customerGroupUuid'] = (new FkField('customer_group_uuid', CustomerGroupWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Product\Writer\Resource\ProductWriteResource::class,
-            \Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource::class,
-            \Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupWriteResource::class,
+            ProductWriteResource::class,
+            CustomerGroupWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductAvoidCustomerGroupWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductAvoidCustomerGroupWrittenEvent
     {
-        $event = new \Shopware\Product\Event\ProductAvoidCustomerGroupWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductAvoidCustomerGroupWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductWriteResource::class])) {
+            $event->addEvent(ProductWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource::class])) {
-            $event->addEvent(\Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[CustomerGroupWriteResource::class])) {
+            $event->addEvent(CustomerGroupWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

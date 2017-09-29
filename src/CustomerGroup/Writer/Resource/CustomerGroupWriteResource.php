@@ -2,7 +2,11 @@
 
 namespace Shopware\CustomerGroup\Writer\Resource;
 
+use Shopware\Category\Writer\Resource\CategoryAvoidCustomerGroupWriteResource;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Customer\Writer\Resource\CustomerWriteResource;
+use Shopware\CustomerGroup\Event\CustomerGroupWrittenEvent;
+use Shopware\CustomerGroupDiscount\Writer\Resource\CustomerGroupDiscountWriteResource;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\FloatField;
 use Shopware\Framework\Write\Field\SubresourceField;
@@ -10,6 +14,12 @@ use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\PriceGroupDiscount\Writer\Resource\PriceGroupDiscountWriteResource;
+use Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupWriteResource;
+use Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceWriteResource;
+use Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
+use Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleWriteResource;
 
 class CustomerGroupWriteResource extends WriteResource
 {
@@ -33,74 +43,74 @@ class CustomerGroupWriteResource extends WriteResource
         $this->fields[self::PERCENTAGE_GLOBAL_DISCOUNT_FIELD] = new FloatField('percentage_global_discount');
         $this->fields[self::MINIMUM_ORDER_AMOUNT_FIELD] = new FloatField('minimum_order_amount');
         $this->fields[self::MINIMUM_ORDER_AMOUNT_SURCHARGE_FIELD] = new FloatField('minimum_order_amount_surcharge');
-        $this->fields['categoryAvoidCustomerGroups'] = new SubresourceField(\Shopware\Category\Writer\Resource\CategoryAvoidCustomerGroupWriteResource::class);
-        $this->fields['customers'] = new SubresourceField(\Shopware\Customer\Writer\Resource\CustomerWriteResource::class);
-        $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields['translations'] = (new SubresourceField(\Shopware\CustomerGroup\Writer\Resource\CustomerGroupTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
-        $this->fields['discounts'] = new SubresourceField(\Shopware\CustomerGroupDiscount\Writer\Resource\CustomerGroupDiscountWriteResource::class);
-        $this->fields['priceGroupDiscounts'] = new SubresourceField(\Shopware\PriceGroupDiscount\Writer\Resource\PriceGroupDiscountWriteResource::class);
-        $this->fields['productAvoidCustomerGroups'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupWriteResource::class);
-        $this->fields['productDetailPrices'] = new SubresourceField(\Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceWriteResource::class);
-        $this->fields['shippingMethods'] = new SubresourceField(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::class);
-        $this->fields['shops'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->fields['taxAreaRules'] = new SubresourceField(\Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleWriteResource::class);
+        $this->fields['categoryAvoidCustomerGroups'] = new SubresourceField(CategoryAvoidCustomerGroupWriteResource::class);
+        $this->fields['customers'] = new SubresourceField(CustomerWriteResource::class);
+        $this->fields[self::NAME_FIELD] = new TranslatedField('name', ShopWriteResource::class, 'uuid');
+        $this->fields['translations'] = (new SubresourceField(CustomerGroupTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
+        $this->fields['discounts'] = new SubresourceField(CustomerGroupDiscountWriteResource::class);
+        $this->fields['priceGroupDiscounts'] = new SubresourceField(PriceGroupDiscountWriteResource::class);
+        $this->fields['productAvoidCustomerGroups'] = new SubresourceField(ProductAvoidCustomerGroupWriteResource::class);
+        $this->fields['productDetailPrices'] = new SubresourceField(ProductDetailPriceWriteResource::class);
+        $this->fields['shippingMethods'] = new SubresourceField(ShippingMethodWriteResource::class);
+        $this->fields['shops'] = new SubresourceField(ShopWriteResource::class);
+        $this->fields['taxAreaRules'] = new SubresourceField(TaxAreaRuleWriteResource::class);
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Category\Writer\Resource\CategoryAvoidCustomerGroupWriteResource::class,
-            \Shopware\Customer\Writer\Resource\CustomerWriteResource::class,
-            \Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource::class,
-            \Shopware\CustomerGroup\Writer\Resource\CustomerGroupTranslationWriteResource::class,
-            \Shopware\CustomerGroupDiscount\Writer\Resource\CustomerGroupDiscountWriteResource::class,
-            \Shopware\PriceGroupDiscount\Writer\Resource\PriceGroupDiscountWriteResource::class,
-            \Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupWriteResource::class,
-            \Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceWriteResource::class,
-            \Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleWriteResource::class,
+            CategoryAvoidCustomerGroupWriteResource::class,
+            CustomerWriteResource::class,
+            self::class,
+            CustomerGroupTranslationWriteResource::class,
+            CustomerGroupDiscountWriteResource::class,
+            PriceGroupDiscountWriteResource::class,
+            ProductAvoidCustomerGroupWriteResource::class,
+            ProductDetailPriceWriteResource::class,
+            ShippingMethodWriteResource::class,
+            ShopWriteResource::class,
+            TaxAreaRuleWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\CustomerGroup\Event\CustomerGroupWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): CustomerGroupWrittenEvent
     {
-        $event = new \Shopware\CustomerGroup\Event\CustomerGroupWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new CustomerGroupWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Category\Writer\Resource\CategoryAvoidCustomerGroupWriteResource::class])) {
-            $event->addEvent(\Shopware\Category\Writer\Resource\CategoryAvoidCustomerGroupWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[CategoryAvoidCustomerGroupWriteResource::class])) {
+            $event->addEvent(CategoryAvoidCustomerGroupWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Customer\Writer\Resource\CustomerWriteResource::class])) {
-            $event->addEvent(\Shopware\Customer\Writer\Resource\CustomerWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[CustomerWriteResource::class])) {
+            $event->addEvent(CustomerWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource::class])) {
-            $event->addEvent(\Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\CustomerGroup\Writer\Resource\CustomerGroupTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\CustomerGroup\Writer\Resource\CustomerGroupTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[CustomerGroupTranslationWriteResource::class])) {
+            $event->addEvent(CustomerGroupTranslationWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\CustomerGroupDiscount\Writer\Resource\CustomerGroupDiscountWriteResource::class])) {
-            $event->addEvent(\Shopware\CustomerGroupDiscount\Writer\Resource\CustomerGroupDiscountWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[CustomerGroupDiscountWriteResource::class])) {
+            $event->addEvent(CustomerGroupDiscountWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\PriceGroupDiscount\Writer\Resource\PriceGroupDiscountWriteResource::class])) {
-            $event->addEvent(\Shopware\PriceGroupDiscount\Writer\Resource\PriceGroupDiscountWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[PriceGroupDiscountWriteResource::class])) {
+            $event->addEvent(PriceGroupDiscountWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductAvoidCustomerGroupWriteResource::class])) {
+            $event->addEvent(ProductAvoidCustomerGroupWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductDetailPriceWriteResource::class])) {
+            $event->addEvent(ProductDetailPriceWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::class])) {
-            $event->addEvent(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShippingMethodWriteResource::class])) {
+            $event->addEvent(ShippingMethodWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleWriteResource::class])) {
-            $event->addEvent(\Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[TaxAreaRuleWriteResource::class])) {
+            $event->addEvent(TaxAreaRuleWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\ShoppingWorldComponentFieldWrittenEvent;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\IntField;
@@ -52,29 +53,29 @@ class ShoppingWorldComponentFieldWriteResource extends WriteResource
         $this->fields[self::ALLOW_BLANK_FIELD] = (new BoolField('allow_blank'))->setFlags(new Required());
         $this->fields[self::TRANSLATABLE_FIELD] = new BoolField('translatable');
         $this->fields[self::POSITION_FIELD] = new IntField('position');
-        $this->fields['shoppingWorldComponent'] = new ReferenceField('shoppingWorldComponentUuid', 'uuid', \Shopware\Framework\Write\Resource\ShoppingWorldComponentWriteResource::class);
-        $this->fields['shoppingWorldComponentUuid'] = (new FkField('shopping_world_component_uuid', \Shopware\Framework\Write\Resource\ShoppingWorldComponentWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['shoppingWorldComponent'] = new ReferenceField('shoppingWorldComponentUuid', 'uuid', ShoppingWorldComponentWriteResource::class);
+        $this->fields['shoppingWorldComponentUuid'] = (new FkField('shopping_world_component_uuid', ShoppingWorldComponentWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\ShoppingWorldComponentWriteResource::class,
-            \Shopware\Framework\Write\Resource\ShoppingWorldComponentFieldWriteResource::class,
+            ShoppingWorldComponentWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\ShoppingWorldComponentFieldWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ShoppingWorldComponentFieldWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\ShoppingWorldComponentFieldWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ShoppingWorldComponentFieldWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\ShoppingWorldComponentWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\ShoppingWorldComponentWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShoppingWorldComponentWriteResource::class])) {
+            $event->addEvent(ShoppingWorldComponentWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\ShoppingWorldComponentFieldWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\ShoppingWorldComponentFieldWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

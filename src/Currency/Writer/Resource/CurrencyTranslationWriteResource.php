@@ -3,11 +3,13 @@
 namespace Shopware\Currency\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Currency\Event\CurrencyTranslationWrittenEvent;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class CurrencyTranslationWriteResource extends WriteResource
 {
@@ -20,35 +22,35 @@ class CurrencyTranslationWriteResource extends WriteResource
 
         $this->fields[self::SHORT_NAME_FIELD] = (new StringField('short_name'))->setFlags(new Required());
         $this->fields[self::NAME_FIELD] = (new StringField('name'))->setFlags(new Required());
-        $this->fields['currency'] = new ReferenceField('currencyUuid', 'uuid', \Shopware\Currency\Writer\Resource\CurrencyWriteResource::class);
-        $this->primaryKeyFields['currencyUuid'] = (new FkField('currency_uuid', \Shopware\Currency\Writer\Resource\CurrencyWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['currency'] = new ReferenceField('currencyUuid', 'uuid', CurrencyWriteResource::class);
+        $this->primaryKeyFields['currencyUuid'] = (new FkField('currency_uuid', CurrencyWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', ShopWriteResource::class);
+        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', ShopWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Currency\Writer\Resource\CurrencyWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\Currency\Writer\Resource\CurrencyTranslationWriteResource::class,
+            CurrencyWriteResource::class,
+            ShopWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Currency\Event\CurrencyTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): CurrencyTranslationWrittenEvent
     {
-        $event = new \Shopware\Currency\Event\CurrencyTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new CurrencyTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Currency\Writer\Resource\CurrencyWriteResource::class])) {
-            $event->addEvent(\Shopware\Currency\Writer\Resource\CurrencyWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[CurrencyWriteResource::class])) {
+            $event->addEvent(CurrencyWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Currency\Writer\Resource\CurrencyTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\Currency\Writer\Resource\CurrencyTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

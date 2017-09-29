@@ -3,11 +3,13 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\BlogTagTranslationWrittenEvent;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class BlogTagTranslationWriteResource extends WriteResource
 {
@@ -18,35 +20,35 @@ class BlogTagTranslationWriteResource extends WriteResource
         parent::__construct('blog_tag_translation');
 
         $this->fields[self::NAME_FIELD] = (new StringField('name'))->setFlags(new Required());
-        $this->fields['blogTag'] = new ReferenceField('blogTagUuid', 'uuid', \Shopware\Framework\Write\Resource\BlogTagWriteResource::class);
-        $this->primaryKeyFields['blogTagUuid'] = (new FkField('blog_tag_uuid', \Shopware\Framework\Write\Resource\BlogTagWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['blogTag'] = new ReferenceField('blogTagUuid', 'uuid', BlogTagWriteResource::class);
+        $this->primaryKeyFields['blogTagUuid'] = (new FkField('blog_tag_uuid', BlogTagWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', ShopWriteResource::class);
+        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', ShopWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\BlogTagWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\Framework\Write\Resource\BlogTagTranslationWriteResource::class,
+            BlogTagWriteResource::class,
+            ShopWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\BlogTagTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): BlogTagTranslationWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\BlogTagTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new BlogTagTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\BlogTagWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\BlogTagWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[BlogTagWriteResource::class])) {
+            $event->addEvent(BlogTagWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\BlogTagTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\BlogTagTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

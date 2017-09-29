@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\AttributeConfigurationWrittenEvent;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\LongTextField;
@@ -12,6 +13,7 @@ use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class AttributeConfigurationWriteResource extends WriteResource
 {
@@ -48,31 +50,31 @@ class AttributeConfigurationWriteResource extends WriteResource
         $this->fields[self::LABEL_FIELD] = new StringField('label');
         $this->fields[self::ENTITY_FIELD] = new StringField('entity');
         $this->fields[self::ARRAY_STORE_FIELD] = new LongTextField('array_store');
-        $this->fields[self::HELP_TEXT_FIELD] = new TranslatedField('helpText', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields[self::SUPPORT_TEXT_FIELD] = new TranslatedField('supportText', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields[self::LABEL_FIELD] = new TranslatedField('label', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields['translations'] = new SubresourceField(\Shopware\Framework\Write\Resource\AttributeConfigurationTranslationWriteResource::class, 'languageUuid');
+        $this->fields[self::HELP_TEXT_FIELD] = new TranslatedField('helpText', ShopWriteResource::class, 'uuid');
+        $this->fields[self::SUPPORT_TEXT_FIELD] = new TranslatedField('supportText', ShopWriteResource::class, 'uuid');
+        $this->fields[self::LABEL_FIELD] = new TranslatedField('label', ShopWriteResource::class, 'uuid');
+        $this->fields['translations'] = new SubresourceField(AttributeConfigurationTranslationWriteResource::class, 'languageUuid');
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\AttributeConfigurationWriteResource::class,
-            \Shopware\Framework\Write\Resource\AttributeConfigurationTranslationWriteResource::class,
+            self::class,
+            AttributeConfigurationTranslationWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\AttributeConfigurationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): AttributeConfigurationWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\AttributeConfigurationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new AttributeConfigurationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\AttributeConfigurationWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\AttributeConfigurationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\AttributeConfigurationTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\AttributeConfigurationTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[AttributeConfigurationTranslationWriteResource::class])) {
+            $event->addEvent(AttributeConfigurationTranslationWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

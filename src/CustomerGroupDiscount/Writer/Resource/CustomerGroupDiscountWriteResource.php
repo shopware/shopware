@@ -3,6 +3,8 @@
 namespace Shopware\CustomerGroupDiscount\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource;
+use Shopware\CustomerGroupDiscount\Event\CustomerGroupDiscountWrittenEvent;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\FloatField;
 use Shopware\Framework\Write\Field\ReferenceField;
@@ -23,29 +25,29 @@ class CustomerGroupDiscountWriteResource extends WriteResource
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
         $this->fields[self::PERCENTAGE_DISCOUNT_FIELD] = (new FloatField('percentage_discount'))->setFlags(new Required());
         $this->fields[self::MINIMUM_CART_AMOUNT_FIELD] = (new FloatField('minimum_cart_amount'))->setFlags(new Required());
-        $this->fields['customerGroup'] = new ReferenceField('customerGroupUuid', 'uuid', \Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource::class);
-        $this->fields['customerGroupUuid'] = (new FkField('customer_group_uuid', \Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['customerGroup'] = new ReferenceField('customerGroupUuid', 'uuid', CustomerGroupWriteResource::class);
+        $this->fields['customerGroupUuid'] = (new FkField('customer_group_uuid', CustomerGroupWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource::class,
-            \Shopware\CustomerGroupDiscount\Writer\Resource\CustomerGroupDiscountWriteResource::class,
+            CustomerGroupWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\CustomerGroupDiscount\Event\CustomerGroupDiscountWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): CustomerGroupDiscountWrittenEvent
     {
-        $event = new \Shopware\CustomerGroupDiscount\Event\CustomerGroupDiscountWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new CustomerGroupDiscountWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource::class])) {
-            $event->addEvent(\Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[CustomerGroupWriteResource::class])) {
+            $event->addEvent(CustomerGroupWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\CustomerGroupDiscount\Writer\Resource\CustomerGroupDiscountWriteResource::class])) {
-            $event->addEvent(\Shopware\CustomerGroupDiscount\Writer\Resource\CustomerGroupDiscountWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\EmarketingVouchersWrittenEvent;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FloatField;
 use Shopware\Framework\Write\Field\IntField;
@@ -59,18 +60,18 @@ class EmarketingVouchersWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\EmarketingVouchersWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\EmarketingVouchersWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): EmarketingVouchersWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\EmarketingVouchersWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new EmarketingVouchersWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\EmarketingVouchersWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\EmarketingVouchersWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

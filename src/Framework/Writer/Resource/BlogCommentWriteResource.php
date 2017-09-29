@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\BlogCommentWrittenEvent;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\FloatField;
@@ -34,29 +35,29 @@ class BlogCommentWriteResource extends WriteResource
         $this->fields[self::ACTIVE_FIELD] = (new BoolField('active'))->setFlags(new Required());
         $this->fields[self::EMAIL_FIELD] = (new StringField('email'))->setFlags(new Required());
         $this->fields[self::POINTS_FIELD] = (new FloatField('points'))->setFlags(new Required());
-        $this->fields['blog'] = new ReferenceField('blogUuid', 'uuid', \Shopware\Framework\Write\Resource\BlogWriteResource::class);
-        $this->fields['blogUuid'] = (new FkField('blog_uuid', \Shopware\Framework\Write\Resource\BlogWriteResource::class, 'uuid'));
+        $this->fields['blog'] = new ReferenceField('blogUuid', 'uuid', BlogWriteResource::class);
+        $this->fields['blogUuid'] = (new FkField('blog_uuid', BlogWriteResource::class, 'uuid'));
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\BlogWriteResource::class,
-            \Shopware\Framework\Write\Resource\BlogCommentWriteResource::class,
+            BlogWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\BlogCommentWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): BlogCommentWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\BlogCommentWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new BlogCommentWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\BlogWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\BlogWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[BlogWriteResource::class])) {
+            $event->addEvent(BlogWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\BlogCommentWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\BlogCommentWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

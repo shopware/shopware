@@ -2,7 +2,12 @@
 
 namespace Shopware\Shop\Writer\Resource;
 
+use Shopware\AreaCountry\Writer\Resource\AreaCountryWriteResource;
+use Shopware\Category\Writer\Resource\CategoryWriteResource;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Currency\Writer\Resource\CurrencyWriteResource;
+use Shopware\Customer\Writer\Resource\CustomerWriteResource;
+use Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\IntField;
@@ -12,7 +17,23 @@ use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
+use Shopware\Framework\Write\Resource\ConfigFormFieldValueWriteResource;
+use Shopware\Framework\Write\Resource\MailAttachmentWriteResource;
+use Shopware\Framework\Write\Resource\PremiumProductWriteResource;
+use Shopware\Framework\Write\Resource\SnippetWriteResource;
+use Shopware\Framework\Write\Resource\StatisticProductImpressionWriteResource;
+use Shopware\Framework\Write\Resource\StatisticSearchWriteResource;
+use Shopware\Framework\Write\Resource\StatisticVisitorWriteResource;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Locale\Writer\Resource\LocaleWriteResource;
+use Shopware\Order\Writer\Resource\OrderWriteResource;
+use Shopware\PaymentMethod\Writer\Resource\PaymentMethodShopWriteResource;
+use Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource;
+use Shopware\Product\Writer\Resource\ProductCategorySeoWriteResource;
+use Shopware\ProductVote\Writer\Resource\ProductVoteWriteResource;
+use Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource;
+use Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigFormFieldValueWriteResource;
+use Shopware\ShopTemplate\Writer\Resource\ShopTemplateWriteResource;
 
 class ShopWriteResource extends WriteResource
 {
@@ -47,154 +68,154 @@ class ShopWriteResource extends WriteResource
         $this->fields[self::IS_DEFAULT_FIELD] = new BoolField('is_default');
         $this->fields[self::ACTIVE_FIELD] = new BoolField('active');
         $this->fields[self::TAX_CALCULATION_TYPE_FIELD] = new StringField('tax_calculation_type');
-        $this->fields['configFormFieldValues'] = new SubresourceField(\Shopware\Framework\Write\Resource\ConfigFormFieldValueWriteResource::class);
-        $this->fields['customers'] = new SubresourceField(\Shopware\Customer\Writer\Resource\CustomerWriteResource::class);
-        $this->fields['mailAttachments'] = new SubresourceField(\Shopware\Framework\Write\Resource\MailAttachmentWriteResource::class);
-        $this->fields['orders'] = new SubresourceField(\Shopware\Order\Writer\Resource\OrderWriteResource::class);
-        $this->fields['paymentMethodShops'] = new SubresourceField(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodShopWriteResource::class);
-        $this->fields['premiumProducts'] = new SubresourceField(\Shopware\Framework\Write\Resource\PremiumProductWriteResource::class);
-        $this->fields['productCategorySeos'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductCategorySeoWriteResource::class);
-        $this->fields['productVotes'] = new SubresourceField(\Shopware\ProductVote\Writer\Resource\ProductVoteWriteResource::class);
-        $this->fields['shippingMethods'] = new SubresourceField(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::class);
-        $this->fields['parent'] = new ReferenceField('parentUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->fields['parentUuid'] = (new FkField('parent_uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid'));
-        $this->fields['template'] = new ReferenceField('templateUuid', 'uuid', \Shopware\ShopTemplate\Writer\Resource\ShopTemplateWriteResource::class);
-        $this->fields['templateUuid'] = (new FkField('shop_template_uuid', \Shopware\ShopTemplate\Writer\Resource\ShopTemplateWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['documentTemplate'] = new ReferenceField('documentTemplateUuid', 'uuid', \Shopware\ShopTemplate\Writer\Resource\ShopTemplateWriteResource::class);
-        $this->fields['documentTemplateUuid'] = (new FkField('document_template_uuid', \Shopware\ShopTemplate\Writer\Resource\ShopTemplateWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['category'] = new ReferenceField('categoryUuid', 'uuid', \Shopware\Category\Writer\Resource\CategoryWriteResource::class);
-        $this->fields['categoryUuid'] = (new FkField('category_uuid', \Shopware\Category\Writer\Resource\CategoryWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['locale'] = new ReferenceField('localeUuid', 'uuid', \Shopware\Locale\Writer\Resource\LocaleWriteResource::class);
-        $this->fields['localeUuid'] = (new FkField('locale_uuid', \Shopware\Locale\Writer\Resource\LocaleWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['currency'] = new ReferenceField('currencyUuid', 'uuid', \Shopware\Currency\Writer\Resource\CurrencyWriteResource::class);
-        $this->fields['currencyUuid'] = (new FkField('currency_uuid', \Shopware\Currency\Writer\Resource\CurrencyWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['customerGroup'] = new ReferenceField('customerGroupUuid', 'uuid', \Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource::class);
-        $this->fields['customerGroupUuid'] = (new FkField('customer_group_uuid', \Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['fallbackLocale'] = new ReferenceField('fallbackLocaleUuid', 'uuid', \Shopware\Locale\Writer\Resource\LocaleWriteResource::class);
-        $this->fields['fallbackLocaleUuid'] = (new FkField('fallback_locale_uuid', \Shopware\Locale\Writer\Resource\LocaleWriteResource::class, 'uuid'));
-        $this->fields['paymentMethod'] = new ReferenceField('paymentMethodUuid', 'uuid', \Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource::class);
-        $this->fields['paymentMethodUuid'] = (new FkField('payment_method_uuid', \Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource::class, 'uuid'));
-        $this->fields['shippingMethod'] = new ReferenceField('shippingMethodUuid', 'uuid', \Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::class);
-        $this->fields['shippingMethodUuid'] = (new FkField('shipping_method_uuid', \Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::class, 'uuid'));
-        $this->fields['areaCountry'] = new ReferenceField('areaCountryUuid', 'uuid', \Shopware\AreaCountry\Writer\Resource\AreaCountryWriteResource::class);
-        $this->fields['areaCountryUuid'] = (new FkField('area_country_uuid', \Shopware\AreaCountry\Writer\Resource\AreaCountryWriteResource::class, 'uuid'));
-        $this->fields['parent'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->fields['currencies'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopCurrencyWriteResource::class);
-        $this->fields['pageGroupMappings'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopPageGroupMappingWriteResource::class);
-        $this->fields['templateConfigFormFieldValues'] = new SubresourceField(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigFormFieldValueWriteResource::class);
-        $this->fields['snippets'] = new SubresourceField(\Shopware\Framework\Write\Resource\SnippetWriteResource::class);
-        $this->fields['statisticProductImpressions'] = new SubresourceField(\Shopware\Framework\Write\Resource\StatisticProductImpressionWriteResource::class);
-        $this->fields['statisticSearchs'] = new SubresourceField(\Shopware\Framework\Write\Resource\StatisticSearchWriteResource::class);
-        $this->fields['statisticVisitors'] = new SubresourceField(\Shopware\Framework\Write\Resource\StatisticVisitorWriteResource::class);
+        $this->fields['configFormFieldValues'] = new SubresourceField(ConfigFormFieldValueWriteResource::class);
+        $this->fields['customers'] = new SubresourceField(CustomerWriteResource::class);
+        $this->fields['mailAttachments'] = new SubresourceField(MailAttachmentWriteResource::class);
+        $this->fields['orders'] = new SubresourceField(OrderWriteResource::class);
+        $this->fields['paymentMethodShops'] = new SubresourceField(PaymentMethodShopWriteResource::class);
+        $this->fields['premiumProducts'] = new SubresourceField(PremiumProductWriteResource::class);
+        $this->fields['productCategorySeos'] = new SubresourceField(ProductCategorySeoWriteResource::class);
+        $this->fields['productVotes'] = new SubresourceField(ProductVoteWriteResource::class);
+        $this->fields['shippingMethods'] = new SubresourceField(ShippingMethodWriteResource::class);
+        $this->fields['parent'] = new ReferenceField('parentUuid', 'uuid', self::class);
+        $this->fields['parentUuid'] = (new FkField('parent_uuid', self::class, 'uuid'));
+        $this->fields['template'] = new ReferenceField('templateUuid', 'uuid', ShopTemplateWriteResource::class);
+        $this->fields['templateUuid'] = (new FkField('shop_template_uuid', ShopTemplateWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['documentTemplate'] = new ReferenceField('documentTemplateUuid', 'uuid', ShopTemplateWriteResource::class);
+        $this->fields['documentTemplateUuid'] = (new FkField('document_template_uuid', ShopTemplateWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['category'] = new ReferenceField('categoryUuid', 'uuid', CategoryWriteResource::class);
+        $this->fields['categoryUuid'] = (new FkField('category_uuid', CategoryWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['locale'] = new ReferenceField('localeUuid', 'uuid', LocaleWriteResource::class);
+        $this->fields['localeUuid'] = (new FkField('locale_uuid', LocaleWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['currency'] = new ReferenceField('currencyUuid', 'uuid', CurrencyWriteResource::class);
+        $this->fields['currencyUuid'] = (new FkField('currency_uuid', CurrencyWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['customerGroup'] = new ReferenceField('customerGroupUuid', 'uuid', CustomerGroupWriteResource::class);
+        $this->fields['customerGroupUuid'] = (new FkField('customer_group_uuid', CustomerGroupWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['fallbackLocale'] = new ReferenceField('fallbackLocaleUuid', 'uuid', LocaleWriteResource::class);
+        $this->fields['fallbackLocaleUuid'] = (new FkField('fallback_locale_uuid', LocaleWriteResource::class, 'uuid'));
+        $this->fields['paymentMethod'] = new ReferenceField('paymentMethodUuid', 'uuid', PaymentMethodWriteResource::class);
+        $this->fields['paymentMethodUuid'] = (new FkField('payment_method_uuid', PaymentMethodWriteResource::class, 'uuid'));
+        $this->fields['shippingMethod'] = new ReferenceField('shippingMethodUuid', 'uuid', ShippingMethodWriteResource::class);
+        $this->fields['shippingMethodUuid'] = (new FkField('shipping_method_uuid', ShippingMethodWriteResource::class, 'uuid'));
+        $this->fields['areaCountry'] = new ReferenceField('areaCountryUuid', 'uuid', AreaCountryWriteResource::class);
+        $this->fields['areaCountryUuid'] = (new FkField('area_country_uuid', AreaCountryWriteResource::class, 'uuid'));
+        $this->fields['parent'] = new SubresourceField(self::class);
+        $this->fields['currencies'] = new SubresourceField(ShopCurrencyWriteResource::class);
+        $this->fields['pageGroupMappings'] = new SubresourceField(ShopPageGroupMappingWriteResource::class);
+        $this->fields['templateConfigFormFieldValues'] = new SubresourceField(ShopTemplateConfigFormFieldValueWriteResource::class);
+        $this->fields['snippets'] = new SubresourceField(SnippetWriteResource::class);
+        $this->fields['statisticProductImpressions'] = new SubresourceField(StatisticProductImpressionWriteResource::class);
+        $this->fields['statisticSearchs'] = new SubresourceField(StatisticSearchWriteResource::class);
+        $this->fields['statisticVisitors'] = new SubresourceField(StatisticVisitorWriteResource::class);
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\ConfigFormFieldValueWriteResource::class,
-            \Shopware\Customer\Writer\Resource\CustomerWriteResource::class,
-            \Shopware\Framework\Write\Resource\MailAttachmentWriteResource::class,
-            \Shopware\Order\Writer\Resource\OrderWriteResource::class,
-            \Shopware\PaymentMethod\Writer\Resource\PaymentMethodShopWriteResource::class,
-            \Shopware\Framework\Write\Resource\PremiumProductWriteResource::class,
-            \Shopware\Product\Writer\Resource\ProductCategorySeoWriteResource::class,
-            \Shopware\ProductVote\Writer\Resource\ProductVoteWriteResource::class,
-            \Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\ShopTemplate\Writer\Resource\ShopTemplateWriteResource::class,
-            \Shopware\Category\Writer\Resource\CategoryWriteResource::class,
-            \Shopware\Locale\Writer\Resource\LocaleWriteResource::class,
-            \Shopware\Currency\Writer\Resource\CurrencyWriteResource::class,
-            \Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource::class,
-            \Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource::class,
-            \Shopware\AreaCountry\Writer\Resource\AreaCountryWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopCurrencyWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopPageGroupMappingWriteResource::class,
-            \Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigFormFieldValueWriteResource::class,
-            \Shopware\Framework\Write\Resource\SnippetWriteResource::class,
-            \Shopware\Framework\Write\Resource\StatisticProductImpressionWriteResource::class,
-            \Shopware\Framework\Write\Resource\StatisticSearchWriteResource::class,
-            \Shopware\Framework\Write\Resource\StatisticVisitorWriteResource::class,
+            ConfigFormFieldValueWriteResource::class,
+            CustomerWriteResource::class,
+            MailAttachmentWriteResource::class,
+            OrderWriteResource::class,
+            PaymentMethodShopWriteResource::class,
+            PremiumProductWriteResource::class,
+            ProductCategorySeoWriteResource::class,
+            ProductVoteWriteResource::class,
+            ShippingMethodWriteResource::class,
+            self::class,
+            ShopTemplateWriteResource::class,
+            CategoryWriteResource::class,
+            LocaleWriteResource::class,
+            CurrencyWriteResource::class,
+            CustomerGroupWriteResource::class,
+            PaymentMethodWriteResource::class,
+            AreaCountryWriteResource::class,
+            ShopCurrencyWriteResource::class,
+            ShopPageGroupMappingWriteResource::class,
+            ShopTemplateConfigFormFieldValueWriteResource::class,
+            SnippetWriteResource::class,
+            StatisticProductImpressionWriteResource::class,
+            StatisticSearchWriteResource::class,
+            StatisticVisitorWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Shop\Event\ShopWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ShopWrittenEvent
     {
-        $event = new \Shopware\Shop\Event\ShopWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ShopWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\ConfigFormFieldValueWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\ConfigFormFieldValueWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ConfigFormFieldValueWriteResource::class])) {
+            $event->addEvent(ConfigFormFieldValueWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Customer\Writer\Resource\CustomerWriteResource::class])) {
-            $event->addEvent(\Shopware\Customer\Writer\Resource\CustomerWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[CustomerWriteResource::class])) {
+            $event->addEvent(CustomerWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\MailAttachmentWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\MailAttachmentWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[MailAttachmentWriteResource::class])) {
+            $event->addEvent(MailAttachmentWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Order\Writer\Resource\OrderWriteResource::class])) {
-            $event->addEvent(\Shopware\Order\Writer\Resource\OrderWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[OrderWriteResource::class])) {
+            $event->addEvent(OrderWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\PaymentMethod\Writer\Resource\PaymentMethodShopWriteResource::class])) {
-            $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[PaymentMethodShopWriteResource::class])) {
+            $event->addEvent(PaymentMethodShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\PremiumProductWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\PremiumProductWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[PremiumProductWriteResource::class])) {
+            $event->addEvent(PremiumProductWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductCategorySeoWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductCategorySeoWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductCategorySeoWriteResource::class])) {
+            $event->addEvent(ProductCategorySeoWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductVote\Writer\Resource\ProductVoteWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductVote\Writer\Resource\ProductVoteWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductVoteWriteResource::class])) {
+            $event->addEvent(ProductVoteWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::class])) {
-            $event->addEvent(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShippingMethodWriteResource::class])) {
+            $event->addEvent(ShippingMethodWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ShopTemplate\Writer\Resource\ShopTemplateWriteResource::class])) {
-            $event->addEvent(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopTemplateWriteResource::class])) {
+            $event->addEvent(ShopTemplateWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Category\Writer\Resource\CategoryWriteResource::class])) {
-            $event->addEvent(\Shopware\Category\Writer\Resource\CategoryWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[CategoryWriteResource::class])) {
+            $event->addEvent(CategoryWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Locale\Writer\Resource\LocaleWriteResource::class])) {
-            $event->addEvent(\Shopware\Locale\Writer\Resource\LocaleWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[LocaleWriteResource::class])) {
+            $event->addEvent(LocaleWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Currency\Writer\Resource\CurrencyWriteResource::class])) {
-            $event->addEvent(\Shopware\Currency\Writer\Resource\CurrencyWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[CurrencyWriteResource::class])) {
+            $event->addEvent(CurrencyWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource::class])) {
-            $event->addEvent(\Shopware\CustomerGroup\Writer\Resource\CustomerGroupWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[CustomerGroupWriteResource::class])) {
+            $event->addEvent(CustomerGroupWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource::class])) {
-            $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[PaymentMethodWriteResource::class])) {
+            $event->addEvent(PaymentMethodWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\AreaCountry\Writer\Resource\AreaCountryWriteResource::class])) {
-            $event->addEvent(\Shopware\AreaCountry\Writer\Resource\AreaCountryWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[AreaCountryWriteResource::class])) {
+            $event->addEvent(AreaCountryWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopCurrencyWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopCurrencyWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopCurrencyWriteResource::class])) {
+            $event->addEvent(ShopCurrencyWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopPageGroupMappingWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopPageGroupMappingWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopPageGroupMappingWriteResource::class])) {
+            $event->addEvent(ShopPageGroupMappingWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigFormFieldValueWriteResource::class])) {
-            $event->addEvent(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigFormFieldValueWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopTemplateConfigFormFieldValueWriteResource::class])) {
+            $event->addEvent(ShopTemplateConfigFormFieldValueWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\SnippetWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\SnippetWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[SnippetWriteResource::class])) {
+            $event->addEvent(SnippetWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\StatisticProductImpressionWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\StatisticProductImpressionWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[StatisticProductImpressionWriteResource::class])) {
+            $event->addEvent(StatisticProductImpressionWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\StatisticSearchWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\StatisticSearchWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[StatisticSearchWriteResource::class])) {
+            $event->addEvent(StatisticSearchWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\StatisticVisitorWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\StatisticVisitorWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[StatisticVisitorWriteResource::class])) {
+            $event->addEvent(StatisticVisitorWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

@@ -7,6 +7,7 @@ use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Media\Event\MediaAssociationWrittenEvent;
 
 class MediaAssociationWriteResource extends WriteResource
 {
@@ -26,18 +27,18 @@ class MediaAssociationWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Media\Writer\Resource\MediaAssociationWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Media\Event\MediaAssociationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): MediaAssociationWrittenEvent
     {
-        $event = new \Shopware\Media\Event\MediaAssociationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new MediaAssociationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Media\Writer\Resource\MediaAssociationWriteResource::class])) {
-            $event->addEvent(\Shopware\Media\Writer\Resource\MediaAssociationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

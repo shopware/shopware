@@ -2,11 +2,13 @@
 
 namespace Shopware\Product\Writer\Resource;
 
+use Shopware\Category\Writer\Resource\CategoryWriteResource;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Product\Event\ProductCategoryWrittenEvent;
 
 class ProductCategoryWriteResource extends WriteResource
 {
@@ -14,35 +16,35 @@ class ProductCategoryWriteResource extends WriteResource
     {
         parent::__construct('product_category');
 
-        $this->fields['product'] = new ReferenceField('productUuid', 'uuid', \Shopware\Product\Writer\Resource\ProductWriteResource::class);
-        $this->primaryKeyFields['productUuid'] = (new FkField('product_uuid', \Shopware\Product\Writer\Resource\ProductWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['category'] = new ReferenceField('categoryUuid', 'uuid', \Shopware\Category\Writer\Resource\CategoryWriteResource::class);
-        $this->primaryKeyFields['categoryUuid'] = (new FkField('category_uuid', \Shopware\Category\Writer\Resource\CategoryWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['product'] = new ReferenceField('productUuid', 'uuid', ProductWriteResource::class);
+        $this->primaryKeyFields['productUuid'] = (new FkField('product_uuid', ProductWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['category'] = new ReferenceField('categoryUuid', 'uuid', CategoryWriteResource::class);
+        $this->primaryKeyFields['categoryUuid'] = (new FkField('category_uuid', CategoryWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Product\Writer\Resource\ProductWriteResource::class,
-            \Shopware\Category\Writer\Resource\CategoryWriteResource::class,
-            \Shopware\Product\Writer\Resource\ProductCategoryWriteResource::class,
+            ProductWriteResource::class,
+            CategoryWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductCategoryWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductCategoryWrittenEvent
     {
-        $event = new \Shopware\Product\Event\ProductCategoryWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductCategoryWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductWriteResource::class])) {
+            $event->addEvent(ProductWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Category\Writer\Resource\CategoryWriteResource::class])) {
-            $event->addEvent(\Shopware\Category\Writer\Resource\CategoryWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[CategoryWriteResource::class])) {
+            $event->addEvent(CategoryWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductCategoryWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductCategoryWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

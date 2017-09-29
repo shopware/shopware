@@ -9,6 +9,7 @@ use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\SeoUrl\Event\SeoUrlWrittenEvent;
 
 class SeoUrlWriteResource extends WriteResource
 {
@@ -38,18 +39,18 @@ class SeoUrlWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\SeoUrl\Writer\Resource\SeoUrlWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\SeoUrl\Event\SeoUrlWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): SeoUrlWrittenEvent
     {
-        $event = new \Shopware\SeoUrl\Event\SeoUrlWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new SeoUrlWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\SeoUrl\Writer\Resource\SeoUrlWriteResource::class])) {
-            $event->addEvent(\Shopware\SeoUrl\Writer\Resource\SeoUrlWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

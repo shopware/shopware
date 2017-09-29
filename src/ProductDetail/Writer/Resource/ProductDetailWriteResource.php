@@ -14,7 +14,13 @@ use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
+use Shopware\Framework\Write\Resource\PremiumProductWriteResource;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Product\Writer\Resource\ProductWriteResource;
+use Shopware\ProductDetail\Event\ProductDetailWrittenEvent;
+use Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceWriteResource;
+use Shopware\ProductMedia\Writer\Resource\ProductMediaWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class ProductDetailWriteResource extends WriteResource
 {
@@ -69,51 +75,51 @@ class ProductDetailWriteResource extends WriteResource
         $this->fields[self::RELEASE_DATE_FIELD] = new DateField('release_date');
         $this->fields[self::SHIPPING_FREE_FIELD] = new BoolField('shipping_free');
         $this->fields[self::PURCHASE_PRICE_FIELD] = new FloatField('purchase_price');
-        $this->fields['premiumProducts'] = new SubresourceField(\Shopware\Framework\Write\Resource\PremiumProductWriteResource::class);
-        $this->fields['product'] = new ReferenceField('productUuid', 'uuid', \Shopware\Product\Writer\Resource\ProductWriteResource::class);
-        $this->fields['productUuid'] = (new FkField('product_uuid', \Shopware\Product\Writer\Resource\ProductWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields[self::ADDITIONAL_TEXT_FIELD] = new TranslatedField('additionalText', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields[self::PACK_UNIT_FIELD] = new TranslatedField('packUnit', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields['translations'] = new SubresourceField(\Shopware\ProductDetail\Writer\Resource\ProductDetailTranslationWriteResource::class, 'languageUuid');
-        $this->fields['prices'] = new SubresourceField(\Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceWriteResource::class);
-        $this->fields['productMedias'] = new SubresourceField(\Shopware\ProductMedia\Writer\Resource\ProductMediaWriteResource::class);
+        $this->fields['premiumProducts'] = new SubresourceField(PremiumProductWriteResource::class);
+        $this->fields['product'] = new ReferenceField('productUuid', 'uuid', ProductWriteResource::class);
+        $this->fields['productUuid'] = (new FkField('product_uuid', ProductWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields[self::ADDITIONAL_TEXT_FIELD] = new TranslatedField('additionalText', ShopWriteResource::class, 'uuid');
+        $this->fields[self::PACK_UNIT_FIELD] = new TranslatedField('packUnit', ShopWriteResource::class, 'uuid');
+        $this->fields['translations'] = new SubresourceField(ProductDetailTranslationWriteResource::class, 'languageUuid');
+        $this->fields['prices'] = new SubresourceField(ProductDetailPriceWriteResource::class);
+        $this->fields['productMedias'] = new SubresourceField(ProductMediaWriteResource::class);
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\PremiumProductWriteResource::class,
-            \Shopware\Product\Writer\Resource\ProductWriteResource::class,
-            \Shopware\ProductDetail\Writer\Resource\ProductDetailWriteResource::class,
-            \Shopware\ProductDetail\Writer\Resource\ProductDetailTranslationWriteResource::class,
-            \Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceWriteResource::class,
-            \Shopware\ProductMedia\Writer\Resource\ProductMediaWriteResource::class,
+            PremiumProductWriteResource::class,
+            ProductWriteResource::class,
+            self::class,
+            ProductDetailTranslationWriteResource::class,
+            ProductDetailPriceWriteResource::class,
+            ProductMediaWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ProductDetail\Event\ProductDetailWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductDetailWrittenEvent
     {
-        $event = new \Shopware\ProductDetail\Event\ProductDetailWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductDetailWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\PremiumProductWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\PremiumProductWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[PremiumProductWriteResource::class])) {
+            $event->addEvent(PremiumProductWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductWriteResource::class])) {
+            $event->addEvent(ProductWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductDetail\Writer\Resource\ProductDetailWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductDetail\Writer\Resource\ProductDetailWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductDetail\Writer\Resource\ProductDetailTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductDetail\Writer\Resource\ProductDetailTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductDetailTranslationWriteResource::class])) {
+            $event->addEvent(ProductDetailTranslationWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductDetailPriceWriteResource::class])) {
+            $event->addEvent(ProductDetailPriceWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductMedia\Writer\Resource\ProductMediaWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductMedia\Writer\Resource\ProductMediaWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductMediaWriteResource::class])) {
+            $event->addEvent(ProductMediaWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

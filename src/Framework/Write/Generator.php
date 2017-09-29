@@ -129,6 +129,17 @@ EOD;
 
         $services = [];
 
+        $uses = [];
+        /** @var ResourceTemplate $resource */
+        foreach ($resources as $resource) {
+            if ($resource->getFullClassName() === 'Shopware\Shop\Writer\Resource\ShopWriteResource') {
+                continue;
+            }
+            $uses[] = 'use ' . $resource->getFullClassName() . ';';
+            $uses[] = 'use ' . $resource->getFullEventName() . ';';
+        }
+        $uses = array_unique($uses);
+
         /** @var ResourceTemplate $resource */
         foreach ($resources as $table => $resource) {
             @mkdir($resource->getPath(), 0777, true);
@@ -136,7 +147,7 @@ EOD;
 
             file_put_contents(
                 $resource->getPath() . '/' . $resource->getClassName() . '.php',
-                $resource->renderClass($table)
+                $resource->renderClass($table, $uses)
             );
 
             file_put_contents(
@@ -242,10 +253,10 @@ EOD;
             }
 
             $foreignResource = $resourceTemplates[$foreignTableName];
-            $resourceTemplate->addOrder('\\' . $foreignResource->getNamespace() . '\\' . $foreignResource->getClassName());
+            $resourceTemplate->addOrder($foreignResource->getClassName());
         }
 
-        $resourceTemplate->addOrder('\\' . $resourceTemplate->getNamespace() . '\\' . $resourceTemplate->getClassName());
+        $resourceTemplate->addOrder($resourceTemplate->getClassName());
 
         $shopResourceTemplate = $resourceTemplates['shop'];
         /** @var ResourceTemplate $translationTableResourceTemplate */
@@ -279,16 +290,16 @@ EOD;
             if ($hasRequiredFields) {
                 $resourceTemplate->addField(sprintf(
                         '$this->fields[\'translations\'] = (new SubresourceField(%s::class, \'languageUuid\'))->setFlags(new Required());',
-                        '\\' . $translationTableResourceTemplate->getNamespace() . '\\' . $translationTableResourceTemplate->getClassName()
+                        $translationTableResourceTemplate->getClassName()
                 ));
             } else {
                 $resourceTemplate->addField(sprintf(
                     '$this->fields[\'translations\'] = new SubresourceField(%s::class, \'languageUuid\');',
-                    '\\' . $translationTableResourceTemplate->getNamespace() . '\\' . $translationTableResourceTemplate->getClassName()
+                    $translationTableResourceTemplate->getClassName()
                 ));
             }
 
-            $resourceTemplate->addOrder('\\' . $translationTableResourceTemplate->getNamespace() . '\\' . $translationTableResourceTemplate->getClassName());
+            $resourceTemplate->addOrder($translationTableResourceTemplate->getClassName());
         }
 
         foreach ($foreignKeys as $foreignData) {
@@ -314,10 +325,10 @@ EOD;
             $otherResourceTemplate->addField(sprintf(
                 '$this->fields[\'%s\'] = new SubresourceField(%s::class);',
                 lcfirst($plural),
-                '\\' . $resourceTemplate->getNamespace() . '\\' . $resourceTemplate->getClassName()
+                $resourceTemplate->getClassName()
             ));
 
-            $otherResourceTemplate->addOrder('\\' . $resourceTemplate->getNamespace() . '\\' . $resourceTemplate->getClassName());
+            $otherResourceTemplate->addOrder($resourceTemplate->getClassName());
         }
 
         return $resourceTemplate;
@@ -378,13 +389,13 @@ EOD;
                 FieldName::getFieldName($withoutUuid, $tableName),
                 FieldName::getFieldName($column->getName(), $tableName),
                 $this->toCammelCase($foreignFieldName),
-                '\\' . $foreignResource->getNamespace() . '\\' . $foreignResource->getClassName()
+                $foreignResource->getClassName()
             ),
             sprintf('$this->%s[\'%s\'] = (new FkField(\'%s\', %s::class, \'%s\'))%s;',
                 $fieldProperty,
                 FieldName::getFieldName($column->getName(), $tableName),
                 $column->getName(),
-                '\\' . $foreignResource->getNamespace() . '\\' . $foreignResource->getClassName(),
+                $foreignResource->getClassName(),
                 $this->toCammelCase($foreignFieldName),
                 $required ? '->setFlags(new Required())' : ''
             ),
@@ -458,7 +469,7 @@ EOD;
         return sprintf('$this->fields[%s] = new TranslatedField(\'%s\', %s::class, \'uuid\');',
                 FieldName::getConstName($column->getName(), $tableName),
                 $camelCaseName,
-                '\\' . $translationResource->getNamespace() . '\\' . $translationResource->getClassName()
+                $translationResource->getClassName()
             );
     }
 
@@ -525,6 +536,9 @@ use Shopware\Framework\Write\Field\FloatField;
 use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
+
+#uses#
 
 class %s extends WriteResource
 {
@@ -544,9 +558,9 @@ class %s extends WriteResource
         ];
     }
     
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \%s\Event\%sWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): %sWrittenEvent
     {
-        $event = new \%s\Event\%sWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new %sWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
@@ -744,6 +758,22 @@ EOD;
         return strtolower($bundleName);
     }
 
+    public function getFullEventName()
+    {
+        try {
+            $bundleName = $this->getBundleName();
+        } catch (\InvalidArgumentException $e) {
+            return 'Shopware\\Framework\\Event\\' . $this->getName() . 'WrittenEvent';
+        }
+
+        return 'Shopware\\' . $bundleName . '\\Event\\' . $this->getName() . 'WrittenEvent';
+    }
+
+    public function getFullClassName()
+    {
+        return $this->getNamespace() . '\\' . $this->getClassName();
+    }
+
     public function getNamespace(): string
     {
         try {
@@ -835,7 +865,7 @@ EOD;
         );
     }
 
-    public function renderClass($table): string
+    public function renderClass($table, array $uses): string
     {
         $renderedOrder = [];
         foreach (array_unique($this->order) as $classRef) {
@@ -843,8 +873,8 @@ EOD;
         }
 
         if ($table === 'order') {
-            $lineItemIndex = array_search('\Shopware\OrderLineItem\Writer\Resource\OrderLineItemWriteResource::class', $renderedOrder, true);
-            $deliveryIndex = array_search('\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryWriteResource::class', $renderedOrder, true);
+            $lineItemIndex = array_search('OrderLineItemWriteResource::class', $renderedOrder, true);
+            $deliveryIndex = array_search('OrderDeliveryWriteResource::class', $renderedOrder, true);
 
             if ($lineItemIndex !== false && $deliveryIndex !== false && $lineItemIndex > $deliveryIndex) {
                 $tmp = $renderedOrder[$deliveryIndex];
@@ -862,7 +892,7 @@ EOD;
             $clearedFields[] = $field;
         }
 
-        return sprintf(
+        $content = sprintf(
             $this->baseClassTemplate,
             $this->getNamespace(),
             $this->getClassName(),
@@ -870,13 +900,15 @@ EOD;
             $this->table,
             implode("\n        ", $clearedFields),
             implode(",\n            ", $renderedOrder),
-            $this->getBundleNamespace(),
             $this->getName(),
-            $this->getBundleNamespace(),
             $this->getName(),
             $this->getEventBody(array_unique($this->order)),
             $this->hasDates() ? $this->defaultDateMethod : ''
         );
+
+        $uses = implode("\n", $uses);
+
+        return str_replace('#uses#', $uses, $content);
     }
 
     public function getEventBody($writeOrder): string

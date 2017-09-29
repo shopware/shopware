@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\CampaignsMailaddressesWrittenEvent;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
@@ -33,18 +34,18 @@ class CampaignsMailaddressesWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\CampaignsMailaddressesWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CampaignsMailaddressesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): CampaignsMailaddressesWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\CampaignsMailaddressesWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new CampaignsMailaddressesWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\CampaignsMailaddressesWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\CampaignsMailaddressesWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

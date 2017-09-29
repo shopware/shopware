@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\CoreCustomerpricegroupsWrittenEvent;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
@@ -27,18 +28,18 @@ class CoreCustomerpricegroupsWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\CoreCustomerpricegroupsWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CoreCustomerpricegroupsWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): CoreCustomerpricegroupsWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\CoreCustomerpricegroupsWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new CoreCustomerpricegroupsWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\CoreCustomerpricegroupsWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\CoreCustomerpricegroupsWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

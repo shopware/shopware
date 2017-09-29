@@ -3,6 +3,7 @@
 namespace Shopware\Currency\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Currency\Event\CurrencyWrittenEvent;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\FloatField;
 use Shopware\Framework\Write\Field\IntField;
@@ -12,6 +13,9 @@ use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Order\Writer\Resource\OrderWriteResource;
+use Shopware\Shop\Writer\Resource\ShopCurrencyWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class CurrencyWriteResource extends WriteResource
 {
@@ -34,45 +38,45 @@ class CurrencyWriteResource extends WriteResource
         $this->fields[self::SYMBOL_FIELD] = (new StringField('symbol'))->setFlags(new Required());
         $this->fields[self::SYMBOL_POSITION_FIELD] = new IntField('symbol_position');
         $this->fields[self::POSITION_FIELD] = new IntField('position');
-        $this->fields[self::SHORT_NAME_FIELD] = new TranslatedField('shortName', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields['translations'] = (new SubresourceField(\Shopware\Currency\Writer\Resource\CurrencyTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
-        $this->fields['orders'] = new SubresourceField(\Shopware\Order\Writer\Resource\OrderWriteResource::class);
-        $this->fields['shops'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->fields['shopCurrencies'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopCurrencyWriteResource::class);
+        $this->fields[self::SHORT_NAME_FIELD] = new TranslatedField('shortName', ShopWriteResource::class, 'uuid');
+        $this->fields[self::NAME_FIELD] = new TranslatedField('name', ShopWriteResource::class, 'uuid');
+        $this->fields['translations'] = (new SubresourceField(CurrencyTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
+        $this->fields['orders'] = new SubresourceField(OrderWriteResource::class);
+        $this->fields['shops'] = new SubresourceField(ShopWriteResource::class);
+        $this->fields['shopCurrencies'] = new SubresourceField(ShopCurrencyWriteResource::class);
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Currency\Writer\Resource\CurrencyWriteResource::class,
-            \Shopware\Currency\Writer\Resource\CurrencyTranslationWriteResource::class,
-            \Shopware\Order\Writer\Resource\OrderWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopCurrencyWriteResource::class,
+            self::class,
+            CurrencyTranslationWriteResource::class,
+            OrderWriteResource::class,
+            ShopWriteResource::class,
+            ShopCurrencyWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Currency\Event\CurrencyWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): CurrencyWrittenEvent
     {
-        $event = new \Shopware\Currency\Event\CurrencyWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new CurrencyWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Currency\Writer\Resource\CurrencyWriteResource::class])) {
-            $event->addEvent(\Shopware\Currency\Writer\Resource\CurrencyWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Currency\Writer\Resource\CurrencyTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\Currency\Writer\Resource\CurrencyTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[CurrencyTranslationWriteResource::class])) {
+            $event->addEvent(CurrencyTranslationWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Order\Writer\Resource\OrderWriteResource::class])) {
-            $event->addEvent(\Shopware\Order\Writer\Resource\OrderWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[OrderWriteResource::class])) {
+            $event->addEvent(OrderWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopCurrencyWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopCurrencyWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopCurrencyWriteResource::class])) {
+            $event->addEvent(ShopCurrencyWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

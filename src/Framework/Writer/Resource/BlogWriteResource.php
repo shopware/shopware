@@ -2,7 +2,9 @@
 
 namespace Shopware\Framework\Write\Resource;
 
+use Shopware\Category\Writer\Resource\CategoryWriteResource;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\BlogWrittenEvent;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
@@ -15,6 +17,7 @@ use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class BlogWriteResource extends WriteResource
 {
@@ -45,66 +48,66 @@ class BlogWriteResource extends WriteResource
         $this->fields[self::META_KEYWORDS_FIELD] = new StringField('meta_keywords');
         $this->fields[self::META_DESCRIPTION_FIELD] = new StringField('meta_description');
         $this->fields[self::META_TITLE_FIELD] = new StringField('meta_title');
-        $this->fields['user'] = new ReferenceField('userUuid', 'uuid', \Shopware\Framework\Write\Resource\UserWriteResource::class);
-        $this->fields['userUuid'] = (new FkField('user_uuid', \Shopware\Framework\Write\Resource\UserWriteResource::class, 'uuid'));
-        $this->fields['category'] = new ReferenceField('categoryUuid', 'uuid', \Shopware\Category\Writer\Resource\CategoryWriteResource::class);
-        $this->fields['categoryUuid'] = (new FkField('category_uuid', \Shopware\Category\Writer\Resource\CategoryWriteResource::class, 'uuid'));
-        $this->fields[self::TITLE_FIELD] = new TranslatedField('title', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields[self::SHORT_DESCRIPTION_FIELD] = new TranslatedField('shortDescription', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields[self::DESCRIPTION_FIELD] = new TranslatedField('description', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields[self::META_KEYWORDS_FIELD] = new TranslatedField('metaKeywords', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields[self::META_DESCRIPTION_FIELD] = new TranslatedField('metaDescription', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields[self::META_TITLE_FIELD] = new TranslatedField('metaTitle', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields['translations'] = (new SubresourceField(\Shopware\Framework\Write\Resource\BlogTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
-        $this->fields['comments'] = new SubresourceField(\Shopware\Framework\Write\Resource\BlogCommentWriteResource::class);
-        $this->fields['media'] = new SubresourceField(\Shopware\Framework\Write\Resource\BlogMediaWriteResource::class);
-        $this->fields['products'] = new SubresourceField(\Shopware\Framework\Write\Resource\BlogProductWriteResource::class);
-        $this->fields['tags'] = new SubresourceField(\Shopware\Framework\Write\Resource\BlogTagWriteResource::class);
+        $this->fields['user'] = new ReferenceField('userUuid', 'uuid', UserWriteResource::class);
+        $this->fields['userUuid'] = (new FkField('user_uuid', UserWriteResource::class, 'uuid'));
+        $this->fields['category'] = new ReferenceField('categoryUuid', 'uuid', CategoryWriteResource::class);
+        $this->fields['categoryUuid'] = (new FkField('category_uuid', CategoryWriteResource::class, 'uuid'));
+        $this->fields[self::TITLE_FIELD] = new TranslatedField('title', ShopWriteResource::class, 'uuid');
+        $this->fields[self::SHORT_DESCRIPTION_FIELD] = new TranslatedField('shortDescription', ShopWriteResource::class, 'uuid');
+        $this->fields[self::DESCRIPTION_FIELD] = new TranslatedField('description', ShopWriteResource::class, 'uuid');
+        $this->fields[self::META_KEYWORDS_FIELD] = new TranslatedField('metaKeywords', ShopWriteResource::class, 'uuid');
+        $this->fields[self::META_DESCRIPTION_FIELD] = new TranslatedField('metaDescription', ShopWriteResource::class, 'uuid');
+        $this->fields[self::META_TITLE_FIELD] = new TranslatedField('metaTitle', ShopWriteResource::class, 'uuid');
+        $this->fields['translations'] = (new SubresourceField(BlogTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
+        $this->fields['comments'] = new SubresourceField(BlogCommentWriteResource::class);
+        $this->fields['media'] = new SubresourceField(BlogMediaWriteResource::class);
+        $this->fields['products'] = new SubresourceField(BlogProductWriteResource::class);
+        $this->fields['tags'] = new SubresourceField(BlogTagWriteResource::class);
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\UserWriteResource::class,
-            \Shopware\Category\Writer\Resource\CategoryWriteResource::class,
-            \Shopware\Framework\Write\Resource\BlogWriteResource::class,
-            \Shopware\Framework\Write\Resource\BlogTranslationWriteResource::class,
-            \Shopware\Framework\Write\Resource\BlogCommentWriteResource::class,
-            \Shopware\Framework\Write\Resource\BlogMediaWriteResource::class,
-            \Shopware\Framework\Write\Resource\BlogProductWriteResource::class,
-            \Shopware\Framework\Write\Resource\BlogTagWriteResource::class,
+            UserWriteResource::class,
+            CategoryWriteResource::class,
+            self::class,
+            BlogTranslationWriteResource::class,
+            BlogCommentWriteResource::class,
+            BlogMediaWriteResource::class,
+            BlogProductWriteResource::class,
+            BlogTagWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\BlogWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): BlogWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\BlogWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new BlogWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\UserWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\UserWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[UserWriteResource::class])) {
+            $event->addEvent(UserWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Category\Writer\Resource\CategoryWriteResource::class])) {
-            $event->addEvent(\Shopware\Category\Writer\Resource\CategoryWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[CategoryWriteResource::class])) {
+            $event->addEvent(CategoryWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\BlogWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\BlogWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\BlogTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\BlogTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[BlogTranslationWriteResource::class])) {
+            $event->addEvent(BlogTranslationWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\BlogCommentWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\BlogCommentWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[BlogCommentWriteResource::class])) {
+            $event->addEvent(BlogCommentWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\BlogMediaWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\BlogMediaWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[BlogMediaWriteResource::class])) {
+            $event->addEvent(BlogMediaWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\BlogProductWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\BlogProductWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[BlogProductWriteResource::class])) {
+            $event->addEvent(BlogProductWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\BlogTagWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\BlogTagWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[BlogTagWriteResource::class])) {
+            $event->addEvent(BlogTagWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

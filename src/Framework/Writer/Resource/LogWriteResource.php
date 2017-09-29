@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\LogWrittenEvent;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\LongTextField;
 use Shopware\Framework\Write\Field\StringField;
@@ -40,18 +41,18 @@ class LogWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\LogWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\LogWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): LogWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\LogWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new LogWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\LogWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\LogWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

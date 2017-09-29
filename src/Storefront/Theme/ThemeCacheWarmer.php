@@ -27,7 +27,6 @@ namespace Shopware\Storefront\Theme;
 use Assetic\Asset\AssetInterface;
 use Assetic\AssetManager;
 use Assetic\Util\VarUtils;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 
 class ThemeCacheWarmer implements CacheWarmerInterface

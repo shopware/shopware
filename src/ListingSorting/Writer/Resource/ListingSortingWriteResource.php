@@ -11,6 +11,9 @@ use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\ListingSorting\Event\ListingSortingWrittenEvent;
+use Shopware\ProductStream\Writer\Resource\ProductStreamWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class ListingSortingWriteResource extends WriteResource
 {
@@ -30,34 +33,34 @@ class ListingSortingWriteResource extends WriteResource
         $this->fields[self::DISPLAY_IN_CATEGORIES_FIELD] = new BoolField('display_in_categories');
         $this->fields[self::POSITION_FIELD] = new IntField('position');
         $this->fields[self::PAYLOAD_FIELD] = (new LongTextField('payload'))->setFlags(new Required());
-        $this->fields[self::LABEL_FIELD] = new TranslatedField('label', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields['translations'] = (new SubresourceField(\Shopware\ListingSorting\Writer\Resource\ListingSortingTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
-        $this->fields['productStreams'] = new SubresourceField(\Shopware\ProductStream\Writer\Resource\ProductStreamWriteResource::class);
+        $this->fields[self::LABEL_FIELD] = new TranslatedField('label', ShopWriteResource::class, 'uuid');
+        $this->fields['translations'] = (new SubresourceField(ListingSortingTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
+        $this->fields['productStreams'] = new SubresourceField(ProductStreamWriteResource::class);
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\ListingSorting\Writer\Resource\ListingSortingWriteResource::class,
-            \Shopware\ListingSorting\Writer\Resource\ListingSortingTranslationWriteResource::class,
-            \Shopware\ProductStream\Writer\Resource\ProductStreamWriteResource::class,
+            self::class,
+            ListingSortingTranslationWriteResource::class,
+            ProductStreamWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ListingSorting\Event\ListingSortingWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ListingSortingWrittenEvent
     {
-        $event = new \Shopware\ListingSorting\Event\ListingSortingWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ListingSortingWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\ListingSorting\Writer\Resource\ListingSortingWriteResource::class])) {
-            $event->addEvent(\Shopware\ListingSorting\Writer\Resource\ListingSortingWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ListingSorting\Writer\Resource\ListingSortingTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\ListingSorting\Writer\Resource\ListingSortingTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ListingSortingTranslationWriteResource::class])) {
+            $event->addEvent(ListingSortingTranslationWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductStream\Writer\Resource\ProductStreamWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductStream\Writer\Resource\ProductStreamWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductStreamWriteResource::class])) {
+            $event->addEvent(ProductStreamWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

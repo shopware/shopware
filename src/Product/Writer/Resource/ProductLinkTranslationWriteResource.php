@@ -8,6 +8,8 @@ use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Product\Event\ProductLinkTranslationWrittenEvent;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class ProductLinkTranslationWriteResource extends WriteResource
 {
@@ -20,35 +22,35 @@ class ProductLinkTranslationWriteResource extends WriteResource
 
         $this->fields[self::DESCRIPTION_FIELD] = (new StringField('description'))->setFlags(new Required());
         $this->fields[self::LINK_FIELD] = (new StringField('link'))->setFlags(new Required());
-        $this->fields['productLink'] = new ReferenceField('productLinkUuid', 'uuid', \Shopware\Product\Writer\Resource\ProductLinkWriteResource::class);
-        $this->primaryKeyFields['productLinkUuid'] = (new FkField('product_link_uuid', \Shopware\Product\Writer\Resource\ProductLinkWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['productLink'] = new ReferenceField('productLinkUuid', 'uuid', ProductLinkWriteResource::class);
+        $this->primaryKeyFields['productLinkUuid'] = (new FkField('product_link_uuid', ProductLinkWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', ShopWriteResource::class);
+        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', ShopWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Product\Writer\Resource\ProductLinkWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\Product\Writer\Resource\ProductLinkTranslationWriteResource::class,
+            ProductLinkWriteResource::class,
+            ShopWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductLinkTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductLinkTranslationWrittenEvent
     {
-        $event = new \Shopware\Product\Event\ProductLinkTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductLinkTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductLinkWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductLinkWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductLinkWriteResource::class])) {
+            $event->addEvent(ProductLinkWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductLinkTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductLinkTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

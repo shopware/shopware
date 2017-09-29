@@ -8,6 +8,8 @@ use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Product\Writer\Resource\ProductWriteResource;
+use Shopware\ProductStream\Event\ProductStreamAssignmentWrittenEvent;
 
 class ProductStreamAssignmentWriteResource extends WriteResource
 {
@@ -18,35 +20,35 @@ class ProductStreamAssignmentWriteResource extends WriteResource
         parent::__construct('product_stream_assignment');
 
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
-        $this->fields['productStream'] = new ReferenceField('productStreamUuid', 'uuid', \Shopware\ProductStream\Writer\Resource\ProductStreamWriteResource::class);
-        $this->fields['productStreamUuid'] = (new FkField('product_stream_uuid', \Shopware\ProductStream\Writer\Resource\ProductStreamWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['product'] = new ReferenceField('productUuid', 'uuid', \Shopware\Product\Writer\Resource\ProductWriteResource::class);
-        $this->fields['productUuid'] = (new FkField('product_uuid', \Shopware\Product\Writer\Resource\ProductWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['productStream'] = new ReferenceField('productStreamUuid', 'uuid', ProductStreamWriteResource::class);
+        $this->fields['productStreamUuid'] = (new FkField('product_stream_uuid', ProductStreamWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['product'] = new ReferenceField('productUuid', 'uuid', ProductWriteResource::class);
+        $this->fields['productUuid'] = (new FkField('product_uuid', ProductWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\ProductStream\Writer\Resource\ProductStreamWriteResource::class,
-            \Shopware\Product\Writer\Resource\ProductWriteResource::class,
-            \Shopware\ProductStream\Writer\Resource\ProductStreamAssignmentWriteResource::class,
+            ProductStreamWriteResource::class,
+            ProductWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ProductStream\Event\ProductStreamAssignmentWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductStreamAssignmentWrittenEvent
     {
-        $event = new \Shopware\ProductStream\Event\ProductStreamAssignmentWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductStreamAssignmentWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\ProductStream\Writer\Resource\ProductStreamWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductStream\Writer\Resource\ProductStreamWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductStreamWriteResource::class])) {
+            $event->addEvent(ProductStreamWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductWriteResource::class])) {
+            $event->addEvent(ProductWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductStream\Writer\Resource\ProductStreamAssignmentWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductStream\Writer\Resource\ProductStreamAssignmentWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

@@ -8,6 +8,7 @@ use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\ProductMedia\Event\ProductMediaMappingRuleWrittenEvent;
 
 class ProductMediaMappingRuleWriteResource extends WriteResource
 {
@@ -27,18 +28,18 @@ class ProductMediaMappingRuleWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\ProductMedia\Writer\Resource\ProductMediaMappingRuleWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ProductMedia\Event\ProductMediaMappingRuleWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductMediaMappingRuleWrittenEvent
     {
-        $event = new \Shopware\ProductMedia\Event\ProductMediaMappingRuleWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductMediaMappingRuleWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\ProductMedia\Writer\Resource\ProductMediaMappingRuleWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductMedia\Writer\Resource\ProductMediaMappingRuleWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

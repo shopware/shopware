@@ -2,6 +2,8 @@
 
 namespace Shopware\OrderAddress\Writer\Resource;
 
+use Shopware\AreaCountry\Writer\Resource\AreaCountryWriteResource;
+use Shopware\AreaCountryState\Writer\Resource\AreaCountryStateWriteResource;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\ReferenceField;
@@ -10,6 +12,9 @@ use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Order\Writer\Resource\OrderWriteResource;
+use Shopware\OrderAddress\Event\OrderAddressWrittenEvent;
+use Shopware\OrderDelivery\Writer\Resource\OrderDeliveryWriteResource;
 
 class OrderAddressWriteResource extends WriteResource
 {
@@ -46,45 +51,45 @@ class OrderAddressWriteResource extends WriteResource
         $this->fields[self::PHONE_NUMBER_FIELD] = new StringField('phone_number');
         $this->fields[self::ADDITIONAL_ADDRESS_LINE1_FIELD] = new StringField('additional_address_line1');
         $this->fields[self::ADDITIONAL_ADDRESS_LINE2_FIELD] = new StringField('additional_address_line2');
-        $this->fields['orders'] = new SubresourceField(\Shopware\Order\Writer\Resource\OrderWriteResource::class);
-        $this->fields['areaCountry'] = new ReferenceField('areaCountryUuid', 'uuid', \Shopware\AreaCountry\Writer\Resource\AreaCountryWriteResource::class);
-        $this->fields['areaCountryUuid'] = (new FkField('area_country_uuid', \Shopware\AreaCountry\Writer\Resource\AreaCountryWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['areaCountryState'] = new ReferenceField('areaCountryStateUuid', 'uuid', \Shopware\AreaCountryState\Writer\Resource\AreaCountryStateWriteResource::class);
-        $this->fields['areaCountryStateUuid'] = (new FkField('area_country_state_uuid', \Shopware\AreaCountryState\Writer\Resource\AreaCountryStateWriteResource::class, 'uuid'));
-        $this->fields['orderDeliveries'] = new SubresourceField(\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryWriteResource::class);
+        $this->fields['orders'] = new SubresourceField(OrderWriteResource::class);
+        $this->fields['areaCountry'] = new ReferenceField('areaCountryUuid', 'uuid', AreaCountryWriteResource::class);
+        $this->fields['areaCountryUuid'] = (new FkField('area_country_uuid', AreaCountryWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['areaCountryState'] = new ReferenceField('areaCountryStateUuid', 'uuid', AreaCountryStateWriteResource::class);
+        $this->fields['areaCountryStateUuid'] = (new FkField('area_country_state_uuid', AreaCountryStateWriteResource::class, 'uuid'));
+        $this->fields['orderDeliveries'] = new SubresourceField(OrderDeliveryWriteResource::class);
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Order\Writer\Resource\OrderWriteResource::class,
-            \Shopware\AreaCountry\Writer\Resource\AreaCountryWriteResource::class,
-            \Shopware\AreaCountryState\Writer\Resource\AreaCountryStateWriteResource::class,
-            \Shopware\OrderAddress\Writer\Resource\OrderAddressWriteResource::class,
-            \Shopware\OrderDelivery\Writer\Resource\OrderDeliveryWriteResource::class,
+            OrderWriteResource::class,
+            AreaCountryWriteResource::class,
+            AreaCountryStateWriteResource::class,
+            self::class,
+            OrderDeliveryWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\OrderAddress\Event\OrderAddressWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): OrderAddressWrittenEvent
     {
-        $event = new \Shopware\OrderAddress\Event\OrderAddressWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new OrderAddressWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Order\Writer\Resource\OrderWriteResource::class])) {
-            $event->addEvent(\Shopware\Order\Writer\Resource\OrderWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[OrderWriteResource::class])) {
+            $event->addEvent(OrderWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\AreaCountry\Writer\Resource\AreaCountryWriteResource::class])) {
-            $event->addEvent(\Shopware\AreaCountry\Writer\Resource\AreaCountryWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[AreaCountryWriteResource::class])) {
+            $event->addEvent(AreaCountryWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\AreaCountryState\Writer\Resource\AreaCountryStateWriteResource::class])) {
-            $event->addEvent(\Shopware\AreaCountryState\Writer\Resource\AreaCountryStateWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[AreaCountryStateWriteResource::class])) {
+            $event->addEvent(AreaCountryStateWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\OrderAddress\Writer\Resource\OrderAddressWriteResource::class])) {
-            $event->addEvent(\Shopware\OrderAddress\Writer\Resource\OrderAddressWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryWriteResource::class])) {
-            $event->addEvent(\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[OrderDeliveryWriteResource::class])) {
+            $event->addEvent(OrderDeliveryWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

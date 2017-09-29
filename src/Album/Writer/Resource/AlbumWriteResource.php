@@ -2,6 +2,7 @@
 
 namespace Shopware\Album\Writer\Resource;
 
+use Shopware\Album\Event\AlbumWrittenEvent;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\FkField;
@@ -14,6 +15,8 @@ use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Media\Writer\Resource\MediaWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class AlbumWriteResource extends WriteResource
 {
@@ -39,37 +42,37 @@ class AlbumWriteResource extends WriteResource
         $this->fields[self::THUMBNAIL_HIGH_DPI_FIELD] = new BoolField('thumbnail_high_dpi');
         $this->fields[self::THUMBNAIL_QUALITY_FIELD] = new IntField('thumbnail_quality');
         $this->fields[self::THUMBNAIL_HIGH_DPI_QUALITY_FIELD] = new IntField('thumbnail_high_dpi_quality');
-        $this->fields['parent'] = new ReferenceField('parentUuid', 'uuid', \Shopware\Album\Writer\Resource\AlbumWriteResource::class);
-        $this->fields['parentUuid'] = (new FkField('parent_uuid', \Shopware\Album\Writer\Resource\AlbumWriteResource::class, 'uuid'));
-        $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields['translations'] = (new SubresourceField(\Shopware\Album\Writer\Resource\AlbumTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
-        $this->fields['parent'] = new SubresourceField(\Shopware\Album\Writer\Resource\AlbumWriteResource::class);
-        $this->fields['media'] = new SubresourceField(\Shopware\Media\Writer\Resource\MediaWriteResource::class);
+        $this->fields['parent'] = new ReferenceField('parentUuid', 'uuid', self::class);
+        $this->fields['parentUuid'] = (new FkField('parent_uuid', self::class, 'uuid'));
+        $this->fields[self::NAME_FIELD] = new TranslatedField('name', ShopWriteResource::class, 'uuid');
+        $this->fields['translations'] = (new SubresourceField(AlbumTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
+        $this->fields['parent'] = new SubresourceField(self::class);
+        $this->fields['media'] = new SubresourceField(MediaWriteResource::class);
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Album\Writer\Resource\AlbumWriteResource::class,
-            \Shopware\Album\Writer\Resource\AlbumTranslationWriteResource::class,
-            \Shopware\Media\Writer\Resource\MediaWriteResource::class,
+            self::class,
+            AlbumTranslationWriteResource::class,
+            MediaWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Album\Event\AlbumWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): AlbumWrittenEvent
     {
-        $event = new \Shopware\Album\Event\AlbumWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new AlbumWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Album\Writer\Resource\AlbumWriteResource::class])) {
-            $event->addEvent(\Shopware\Album\Writer\Resource\AlbumWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Album\Writer\Resource\AlbumTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\Album\Writer\Resource\AlbumTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[AlbumTranslationWriteResource::class])) {
+            $event->addEvent(AlbumTranslationWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Media\Writer\Resource\MediaWriteResource::class])) {
-            $event->addEvent(\Shopware\Media\Writer\Resource\MediaWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[MediaWriteResource::class])) {
+            $event->addEvent(MediaWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

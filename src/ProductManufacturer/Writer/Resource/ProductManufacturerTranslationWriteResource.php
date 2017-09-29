@@ -9,6 +9,8 @@ use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\ProductManufacturer\Event\ProductManufacturerTranslationWrittenEvent;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class ProductManufacturerTranslationWriteResource extends WriteResource
 {
@@ -27,35 +29,35 @@ class ProductManufacturerTranslationWriteResource extends WriteResource
         $this->fields[self::META_TITLE_FIELD] = new StringField('meta_title');
         $this->fields[self::META_DESCRIPTION_FIELD] = new StringField('meta_description');
         $this->fields[self::META_KEYWORDS_FIELD] = new StringField('meta_keywords');
-        $this->fields['productManufacturer'] = new ReferenceField('productManufacturerUuid', 'uuid', \Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerWriteResource::class);
-        $this->primaryKeyFields['productManufacturerUuid'] = (new FkField('product_manufacturer_uuid', \Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['productManufacturer'] = new ReferenceField('productManufacturerUuid', 'uuid', ProductManufacturerWriteResource::class);
+        $this->primaryKeyFields['productManufacturerUuid'] = (new FkField('product_manufacturer_uuid', ProductManufacturerWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', ShopWriteResource::class);
+        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', ShopWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerTranslationWriteResource::class,
+            ProductManufacturerWriteResource::class,
+            ShopWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ProductManufacturer\Event\ProductManufacturerTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductManufacturerTranslationWrittenEvent
     {
-        $event = new \Shopware\ProductManufacturer\Event\ProductManufacturerTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductManufacturerTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductManufacturerWriteResource::class])) {
+            $event->addEvent(ProductManufacturerWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

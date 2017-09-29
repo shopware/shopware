@@ -2,12 +2,14 @@
 
 namespace Shopware\Album\Writer\Resource;
 
+use Shopware\Album\Event\AlbumTranslationWrittenEvent;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class AlbumTranslationWriteResource extends WriteResource
 {
@@ -18,35 +20,35 @@ class AlbumTranslationWriteResource extends WriteResource
         parent::__construct('album_translation');
 
         $this->fields[self::NAME_FIELD] = (new StringField('name'))->setFlags(new Required());
-        $this->fields['album'] = new ReferenceField('albumUuid', 'uuid', \Shopware\Album\Writer\Resource\AlbumWriteResource::class);
-        $this->primaryKeyFields['albumUuid'] = (new FkField('album_uuid', \Shopware\Album\Writer\Resource\AlbumWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['album'] = new ReferenceField('albumUuid', 'uuid', AlbumWriteResource::class);
+        $this->primaryKeyFields['albumUuid'] = (new FkField('album_uuid', AlbumWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', ShopWriteResource::class);
+        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', ShopWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Album\Writer\Resource\AlbumWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\Album\Writer\Resource\AlbumTranslationWriteResource::class,
+            AlbumWriteResource::class,
+            ShopWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Album\Event\AlbumTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): AlbumTranslationWrittenEvent
     {
-        $event = new \Shopware\Album\Event\AlbumTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new AlbumTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Album\Writer\Resource\AlbumWriteResource::class])) {
-            $event->addEvent(\Shopware\Album\Writer\Resource\AlbumWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[AlbumWriteResource::class])) {
+            $event->addEvent(AlbumWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Album\Writer\Resource\AlbumTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\Album\Writer\Resource\AlbumTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

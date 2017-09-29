@@ -3,12 +3,14 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\MailTranslationWrittenEvent;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\LongTextField;
 use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class MailTranslationWriteResource extends WriteResource
 {
@@ -27,35 +29,35 @@ class MailTranslationWriteResource extends WriteResource
         $this->fields[self::SUBJECT_FIELD] = (new StringField('subject'))->setFlags(new Required());
         $this->fields[self::CONTENT_FIELD] = (new LongTextField('content'))->setFlags(new Required());
         $this->fields[self::CONTENT_HTML_FIELD] = (new LongTextField('content_html'))->setFlags(new Required());
-        $this->fields['mail'] = new ReferenceField('mailUuid', 'uuid', \Shopware\Framework\Write\Resource\MailWriteResource::class);
-        $this->primaryKeyFields['mailUuid'] = (new FkField('mail_uuid', \Shopware\Framework\Write\Resource\MailWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['mail'] = new ReferenceField('mailUuid', 'uuid', MailWriteResource::class);
+        $this->primaryKeyFields['mailUuid'] = (new FkField('mail_uuid', MailWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', ShopWriteResource::class);
+        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', ShopWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\MailWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\Framework\Write\Resource\MailTranslationWriteResource::class,
+            MailWriteResource::class,
+            ShopWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\MailTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): MailTranslationWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\MailTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new MailTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\MailWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\MailWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[MailWriteResource::class])) {
+            $event->addEvent(MailWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\MailTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\MailTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

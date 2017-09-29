@@ -12,7 +12,20 @@ use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
+use Shopware\Framework\Write\Resource\BlogProductWriteResource;
+use Shopware\Framework\Write\Resource\FilterProductWriteResource;
+use Shopware\Framework\Write\Resource\FilterWriteResource;
+use Shopware\Framework\Write\Resource\StatisticProductImpressionWriteResource;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Product\Event\ProductWrittenEvent;
+use Shopware\ProductDetail\Writer\Resource\ProductDetailWriteResource;
+use Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerWriteResource;
+use Shopware\ProductMedia\Writer\Resource\ProductMediaWriteResource;
+use Shopware\ProductStream\Writer\Resource\ProductStreamAssignmentWriteResource;
+use Shopware\ProductStream\Writer\Resource\ProductStreamTabWriteResource;
+use Shopware\ProductVote\Writer\Resource\ProductVoteWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
+use Shopware\Tax\Writer\Resource\TaxWriteResource;
 
 class ProductWriteResource extends WriteResource
 {
@@ -46,131 +59,131 @@ class ProductWriteResource extends WriteResource
         $this->fields[self::TEMPLATE_FIELD] = new StringField('template');
         $this->fields[self::CONFIGURATOR_SET_ID_FIELD] = new IntField('configurator_set_id');
         $this->fields[self::MAIN_DETAIL_UUID_FIELD] = (new StringField('main_detail_uuid'))->setFlags(new Required());
-        $this->fields['blogProducts'] = new SubresourceField(\Shopware\Framework\Write\Resource\BlogProductWriteResource::class);
-        $this->fields['filterProducts'] = new SubresourceField(\Shopware\Framework\Write\Resource\FilterProductWriteResource::class);
-        $this->fields['tax'] = new ReferenceField('taxUuid', 'uuid', \Shopware\Tax\Writer\Resource\TaxWriteResource::class);
-        $this->fields['taxUuid'] = (new FkField('tax_uuid', \Shopware\Tax\Writer\Resource\TaxWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['manufacturer'] = new ReferenceField('manufacturerUuid', 'uuid', \Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerWriteResource::class);
-        $this->fields['manufacturerUuid'] = (new FkField('product_manufacturer_uuid', \Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['filterGroup'] = new ReferenceField('filterGroupUuid', 'uuid', \Shopware\Framework\Write\Resource\FilterWriteResource::class);
-        $this->fields['filterGroupUuid'] = (new FkField('filter_group_uuid', \Shopware\Framework\Write\Resource\FilterWriteResource::class, 'uuid'));
-        $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields[self::KEYWORDS_FIELD] = new TranslatedField('keywords', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields[self::DESCRIPTION_FIELD] = new TranslatedField('description', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields[self::DESCRIPTION_LONG_FIELD] = new TranslatedField('descriptionLong', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields[self::META_TITLE_FIELD] = new TranslatedField('metaTitle', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields['translations'] = (new SubresourceField(\Shopware\Product\Writer\Resource\ProductTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
-        $this->fields['accessories'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductAccessoryWriteResource::class);
-        $this->fields['attachments'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductAttachmentWriteResource::class);
-        $this->fields['avoidCustomerGroups'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupWriteResource::class);
-        $this->fields['categories'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductCategoryWriteResource::class);
-        $this->fields['categorySeos'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductCategorySeoWriteResource::class);
-        $this->fields['details'] = new SubresourceField(\Shopware\ProductDetail\Writer\Resource\ProductDetailWriteResource::class);
-        $this->fields['esds'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductEsdWriteResource::class);
-        $this->fields['links'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductLinkWriteResource::class);
-        $this->fields['media'] = new SubresourceField(\Shopware\ProductMedia\Writer\Resource\ProductMediaWriteResource::class);
-        $this->fields['similars'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductSimilarWriteResource::class);
-        $this->fields['streamAssignments'] = new SubresourceField(\Shopware\ProductStream\Writer\Resource\ProductStreamAssignmentWriteResource::class);
-        $this->fields['streamTabs'] = new SubresourceField(\Shopware\ProductStream\Writer\Resource\ProductStreamTabWriteResource::class);
-        $this->fields['votes'] = new SubresourceField(\Shopware\ProductVote\Writer\Resource\ProductVoteWriteResource::class);
-        $this->fields['statisticProductImpressions'] = new SubresourceField(\Shopware\Framework\Write\Resource\StatisticProductImpressionWriteResource::class);
+        $this->fields['blogProducts'] = new SubresourceField(BlogProductWriteResource::class);
+        $this->fields['filterProducts'] = new SubresourceField(FilterProductWriteResource::class);
+        $this->fields['tax'] = new ReferenceField('taxUuid', 'uuid', TaxWriteResource::class);
+        $this->fields['taxUuid'] = (new FkField('tax_uuid', TaxWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['manufacturer'] = new ReferenceField('manufacturerUuid', 'uuid', ProductManufacturerWriteResource::class);
+        $this->fields['manufacturerUuid'] = (new FkField('product_manufacturer_uuid', ProductManufacturerWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['filterGroup'] = new ReferenceField('filterGroupUuid', 'uuid', FilterWriteResource::class);
+        $this->fields['filterGroupUuid'] = (new FkField('filter_group_uuid', FilterWriteResource::class, 'uuid'));
+        $this->fields[self::NAME_FIELD] = new TranslatedField('name', ShopWriteResource::class, 'uuid');
+        $this->fields[self::KEYWORDS_FIELD] = new TranslatedField('keywords', ShopWriteResource::class, 'uuid');
+        $this->fields[self::DESCRIPTION_FIELD] = new TranslatedField('description', ShopWriteResource::class, 'uuid');
+        $this->fields[self::DESCRIPTION_LONG_FIELD] = new TranslatedField('descriptionLong', ShopWriteResource::class, 'uuid');
+        $this->fields[self::META_TITLE_FIELD] = new TranslatedField('metaTitle', ShopWriteResource::class, 'uuid');
+        $this->fields['translations'] = (new SubresourceField(ProductTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
+        $this->fields['accessories'] = new SubresourceField(ProductAccessoryWriteResource::class);
+        $this->fields['attachments'] = new SubresourceField(ProductAttachmentWriteResource::class);
+        $this->fields['avoidCustomerGroups'] = new SubresourceField(ProductAvoidCustomerGroupWriteResource::class);
+        $this->fields['categories'] = new SubresourceField(ProductCategoryWriteResource::class);
+        $this->fields['categorySeos'] = new SubresourceField(ProductCategorySeoWriteResource::class);
+        $this->fields['details'] = new SubresourceField(ProductDetailWriteResource::class);
+        $this->fields['esds'] = new SubresourceField(ProductEsdWriteResource::class);
+        $this->fields['links'] = new SubresourceField(ProductLinkWriteResource::class);
+        $this->fields['media'] = new SubresourceField(ProductMediaWriteResource::class);
+        $this->fields['similars'] = new SubresourceField(ProductSimilarWriteResource::class);
+        $this->fields['streamAssignments'] = new SubresourceField(ProductStreamAssignmentWriteResource::class);
+        $this->fields['streamTabs'] = new SubresourceField(ProductStreamTabWriteResource::class);
+        $this->fields['votes'] = new SubresourceField(ProductVoteWriteResource::class);
+        $this->fields['statisticProductImpressions'] = new SubresourceField(StatisticProductImpressionWriteResource::class);
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\BlogProductWriteResource::class,
-            \Shopware\Framework\Write\Resource\FilterProductWriteResource::class,
-            \Shopware\Tax\Writer\Resource\TaxWriteResource::class,
-            \Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerWriteResource::class,
-            \Shopware\Framework\Write\Resource\FilterWriteResource::class,
-            \Shopware\Product\Writer\Resource\ProductWriteResource::class,
-            \Shopware\Product\Writer\Resource\ProductTranslationWriteResource::class,
-            \Shopware\Product\Writer\Resource\ProductAccessoryWriteResource::class,
-            \Shopware\Product\Writer\Resource\ProductAttachmentWriteResource::class,
-            \Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupWriteResource::class,
-            \Shopware\Product\Writer\Resource\ProductCategoryWriteResource::class,
-            \Shopware\Product\Writer\Resource\ProductCategorySeoWriteResource::class,
-            \Shopware\ProductDetail\Writer\Resource\ProductDetailWriteResource::class,
-            \Shopware\Product\Writer\Resource\ProductEsdWriteResource::class,
-            \Shopware\Product\Writer\Resource\ProductLinkWriteResource::class,
-            \Shopware\ProductMedia\Writer\Resource\ProductMediaWriteResource::class,
-            \Shopware\Product\Writer\Resource\ProductSimilarWriteResource::class,
-            \Shopware\ProductStream\Writer\Resource\ProductStreamAssignmentWriteResource::class,
-            \Shopware\ProductStream\Writer\Resource\ProductStreamTabWriteResource::class,
-            \Shopware\ProductVote\Writer\Resource\ProductVoteWriteResource::class,
-            \Shopware\Framework\Write\Resource\StatisticProductImpressionWriteResource::class,
+            BlogProductWriteResource::class,
+            FilterProductWriteResource::class,
+            TaxWriteResource::class,
+            ProductManufacturerWriteResource::class,
+            FilterWriteResource::class,
+            self::class,
+            ProductTranslationWriteResource::class,
+            ProductAccessoryWriteResource::class,
+            ProductAttachmentWriteResource::class,
+            ProductAvoidCustomerGroupWriteResource::class,
+            ProductCategoryWriteResource::class,
+            ProductCategorySeoWriteResource::class,
+            ProductDetailWriteResource::class,
+            ProductEsdWriteResource::class,
+            ProductLinkWriteResource::class,
+            ProductMediaWriteResource::class,
+            ProductSimilarWriteResource::class,
+            ProductStreamAssignmentWriteResource::class,
+            ProductStreamTabWriteResource::class,
+            ProductVoteWriteResource::class,
+            StatisticProductImpressionWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductWrittenEvent
     {
-        $event = new \Shopware\Product\Event\ProductWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\BlogProductWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\BlogProductWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[BlogProductWriteResource::class])) {
+            $event->addEvent(BlogProductWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\FilterProductWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\FilterProductWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[FilterProductWriteResource::class])) {
+            $event->addEvent(FilterProductWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Tax\Writer\Resource\TaxWriteResource::class])) {
-            $event->addEvent(\Shopware\Tax\Writer\Resource\TaxWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[TaxWriteResource::class])) {
+            $event->addEvent(TaxWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductManufacturerWriteResource::class])) {
+            $event->addEvent(ProductManufacturerWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\FilterWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\FilterWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[FilterWriteResource::class])) {
+            $event->addEvent(FilterWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductTranslationWriteResource::class])) {
+            $event->addEvent(ProductTranslationWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductAccessoryWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductAccessoryWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductAccessoryWriteResource::class])) {
+            $event->addEvent(ProductAccessoryWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductAttachmentWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductAttachmentWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductAttachmentWriteResource::class])) {
+            $event->addEvent(ProductAttachmentWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductAvoidCustomerGroupWriteResource::class])) {
+            $event->addEvent(ProductAvoidCustomerGroupWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductCategoryWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductCategoryWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductCategoryWriteResource::class])) {
+            $event->addEvent(ProductCategoryWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductCategorySeoWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductCategorySeoWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductCategorySeoWriteResource::class])) {
+            $event->addEvent(ProductCategorySeoWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductDetail\Writer\Resource\ProductDetailWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductDetail\Writer\Resource\ProductDetailWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductDetailWriteResource::class])) {
+            $event->addEvent(ProductDetailWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductEsdWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductEsdWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductEsdWriteResource::class])) {
+            $event->addEvent(ProductEsdWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductLinkWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductLinkWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductLinkWriteResource::class])) {
+            $event->addEvent(ProductLinkWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductMedia\Writer\Resource\ProductMediaWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductMedia\Writer\Resource\ProductMediaWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductMediaWriteResource::class])) {
+            $event->addEvent(ProductMediaWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductSimilarWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductSimilarWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductSimilarWriteResource::class])) {
+            $event->addEvent(ProductSimilarWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductStream\Writer\Resource\ProductStreamAssignmentWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductStream\Writer\Resource\ProductStreamAssignmentWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductStreamAssignmentWriteResource::class])) {
+            $event->addEvent(ProductStreamAssignmentWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductStream\Writer\Resource\ProductStreamTabWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductStream\Writer\Resource\ProductStreamTabWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductStreamTabWriteResource::class])) {
+            $event->addEvent(ProductStreamTabWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductVote\Writer\Resource\ProductVoteWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductVote\Writer\Resource\ProductVoteWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductVoteWriteResource::class])) {
+            $event->addEvent(ProductVoteWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\StatisticProductImpressionWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\StatisticProductImpressionWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[StatisticProductImpressionWriteResource::class])) {
+            $event->addEvent(StatisticProductImpressionWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

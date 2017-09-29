@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\StatisticRefererWrittenEvent;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\LongTextField;
 use Shopware\Framework\Write\Field\UuidField;
@@ -27,18 +28,18 @@ class StatisticRefererWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\StatisticRefererWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\StatisticRefererWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): StatisticRefererWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\StatisticRefererWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new StatisticRefererWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\StatisticRefererWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\StatisticRefererWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

@@ -5,6 +5,7 @@ namespace Shopware\Product\Writer\Resource;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Product\Event\ProductConfiguratorSetOptionRelationWrittenEvent;
 
 class ProductConfiguratorSetOptionRelationWriteResource extends WriteResource
 {
@@ -22,18 +23,18 @@ class ProductConfiguratorSetOptionRelationWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Product\Writer\Resource\ProductConfiguratorSetOptionRelationWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductConfiguratorSetOptionRelationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductConfiguratorSetOptionRelationWrittenEvent
     {
-        $event = new \Shopware\Product\Event\ProductConfiguratorSetOptionRelationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductConfiguratorSetOptionRelationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductConfiguratorSetOptionRelationWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductConfiguratorSetOptionRelationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

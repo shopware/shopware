@@ -11,6 +11,8 @@ use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Product\Event\ProductConfiguratorGroupWrittenEvent;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class ProductConfiguratorGroupWriteResource extends WriteResource
 {
@@ -27,30 +29,30 @@ class ProductConfiguratorGroupWriteResource extends WriteResource
         $this->fields[self::NAME_FIELD] = (new StringField('name'))->setFlags(new Required());
         $this->fields[self::DESCRIPTION_FIELD] = new LongTextField('description');
         $this->fields[self::POSITION_FIELD] = (new IntField('position'))->setFlags(new Required());
-        $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields[self::DESCRIPTION_FIELD] = new TranslatedField('description', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields['translations'] = (new SubresourceField(\Shopware\Product\Writer\Resource\ProductConfiguratorGroupTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
+        $this->fields[self::NAME_FIELD] = new TranslatedField('name', ShopWriteResource::class, 'uuid');
+        $this->fields[self::DESCRIPTION_FIELD] = new TranslatedField('description', ShopWriteResource::class, 'uuid');
+        $this->fields['translations'] = (new SubresourceField(ProductConfiguratorGroupTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Product\Writer\Resource\ProductConfiguratorGroupWriteResource::class,
-            \Shopware\Product\Writer\Resource\ProductConfiguratorGroupTranslationWriteResource::class,
+            self::class,
+            ProductConfiguratorGroupTranslationWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductConfiguratorGroupWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductConfiguratorGroupWrittenEvent
     {
-        $event = new \Shopware\Product\Event\ProductConfiguratorGroupWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductConfiguratorGroupWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductConfiguratorGroupWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductConfiguratorGroupWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductConfiguratorGroupTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductConfiguratorGroupTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductConfiguratorGroupTranslationWriteResource::class])) {
+            $event->addEvent(ProductConfiguratorGroupTranslationWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

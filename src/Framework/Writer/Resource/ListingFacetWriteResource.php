@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\ListingFacetWrittenEvent;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\LongTextField;
@@ -12,6 +13,7 @@ use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class ListingFacetWriteResource extends WriteResource
 {
@@ -35,29 +37,29 @@ class ListingFacetWriteResource extends WriteResource
         $this->fields[self::DELETABLE_FIELD] = new BoolField('deletable');
         $this->fields[self::POSITION_FIELD] = new IntField('position');
         $this->fields[self::PAYLOAD_FIELD] = (new LongTextField('payload'))->setFlags(new Required());
-        $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields['translations'] = (new SubresourceField(\Shopware\Framework\Write\Resource\ListingFacetTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
+        $this->fields[self::NAME_FIELD] = new TranslatedField('name', ShopWriteResource::class, 'uuid');
+        $this->fields['translations'] = (new SubresourceField(ListingFacetTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\ListingFacetWriteResource::class,
-            \Shopware\Framework\Write\Resource\ListingFacetTranslationWriteResource::class,
+            self::class,
+            ListingFacetTranslationWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\ListingFacetWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ListingFacetWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\ListingFacetWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ListingFacetWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\ListingFacetWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\ListingFacetWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\ListingFacetTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\ListingFacetTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ListingFacetTranslationWriteResource::class])) {
+            $event->addEvent(ListingFacetTranslationWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

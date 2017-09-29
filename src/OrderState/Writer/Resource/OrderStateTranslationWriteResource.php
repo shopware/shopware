@@ -8,6 +8,8 @@ use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\OrderState\Event\OrderStateTranslationWrittenEvent;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class OrderStateTranslationWriteResource extends WriteResource
 {
@@ -18,35 +20,35 @@ class OrderStateTranslationWriteResource extends WriteResource
         parent::__construct('order_state_translation');
 
         $this->fields[self::DESCRIPTION_FIELD] = (new StringField('description'))->setFlags(new Required());
-        $this->fields['orderState'] = new ReferenceField('orderStateUuid', 'uuid', \Shopware\OrderState\Writer\Resource\OrderStateWriteResource::class);
-        $this->primaryKeyFields['orderStateUuid'] = (new FkField('order_state_uuid', \Shopware\OrderState\Writer\Resource\OrderStateWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['orderState'] = new ReferenceField('orderStateUuid', 'uuid', OrderStateWriteResource::class);
+        $this->primaryKeyFields['orderStateUuid'] = (new FkField('order_state_uuid', OrderStateWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', ShopWriteResource::class);
+        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', ShopWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\OrderState\Writer\Resource\OrderStateWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\OrderState\Writer\Resource\OrderStateTranslationWriteResource::class,
+            OrderStateWriteResource::class,
+            ShopWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\OrderState\Event\OrderStateTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): OrderStateTranslationWrittenEvent
     {
-        $event = new \Shopware\OrderState\Event\OrderStateTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new OrderStateTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\OrderState\Writer\Resource\OrderStateWriteResource::class])) {
-            $event->addEvent(\Shopware\OrderState\Writer\Resource\OrderStateWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[OrderStateWriteResource::class])) {
+            $event->addEvent(OrderStateWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\OrderState\Writer\Resource\OrderStateTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\OrderState\Writer\Resource\OrderStateTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\EmarketingLastarticlesWrittenEvent;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
@@ -31,18 +32,18 @@ class EmarketingLastarticlesWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\EmarketingLastarticlesWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\EmarketingLastarticlesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): EmarketingLastarticlesWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\EmarketingLastarticlesWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new EmarketingLastarticlesWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\EmarketingLastarticlesWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\EmarketingLastarticlesWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\CorePaymentInstanceWrittenEvent;
 use Shopware\Framework\Write\Field\FloatField;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\StringField;
@@ -50,18 +51,18 @@ class CorePaymentInstanceWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\CorePaymentInstanceWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\CorePaymentInstanceWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): CorePaymentInstanceWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\CorePaymentInstanceWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new CorePaymentInstanceWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\CorePaymentInstanceWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\CorePaymentInstanceWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

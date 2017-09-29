@@ -12,6 +12,10 @@ use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Media\Writer\Resource\MediaWriteResource;
+use Shopware\Product\Writer\Resource\ProductWriteResource;
+use Shopware\ProductDetail\Writer\Resource\ProductDetailWriteResource;
+use Shopware\ProductMedia\Event\ProductMediaWrittenEvent;
 
 class ProductMediaWriteResource extends WriteResource
 {
@@ -28,46 +32,46 @@ class ProductMediaWriteResource extends WriteResource
         $this->fields[self::IS_COVER_FIELD] = (new BoolField('is_cover'))->setFlags(new Required());
         $this->fields[self::POSITION_FIELD] = new IntField('position');
         $this->fields[self::PARENT_UUID_FIELD] = new StringField('parent_uuid');
-        $this->fields['product'] = new ReferenceField('productUuid', 'uuid', \Shopware\Product\Writer\Resource\ProductWriteResource::class);
-        $this->fields['productUuid'] = (new FkField('product_uuid', \Shopware\Product\Writer\Resource\ProductWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['productDetail'] = new ReferenceField('productDetailUuid', 'uuid', \Shopware\ProductDetail\Writer\Resource\ProductDetailWriteResource::class);
-        $this->fields['productDetailUuid'] = (new FkField('product_detail_uuid', \Shopware\ProductDetail\Writer\Resource\ProductDetailWriteResource::class, 'uuid'));
-        $this->fields['media'] = new ReferenceField('mediaUuid', 'uuid', \Shopware\Media\Writer\Resource\MediaWriteResource::class);
-        $this->fields['mediaUuid'] = (new FkField('media_uuid', \Shopware\Media\Writer\Resource\MediaWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['mappings'] = new SubresourceField(\Shopware\ProductMedia\Writer\Resource\ProductMediaMappingWriteResource::class);
+        $this->fields['product'] = new ReferenceField('productUuid', 'uuid', ProductWriteResource::class);
+        $this->fields['productUuid'] = (new FkField('product_uuid', ProductWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['productDetail'] = new ReferenceField('productDetailUuid', 'uuid', ProductDetailWriteResource::class);
+        $this->fields['productDetailUuid'] = (new FkField('product_detail_uuid', ProductDetailWriteResource::class, 'uuid'));
+        $this->fields['media'] = new ReferenceField('mediaUuid', 'uuid', MediaWriteResource::class);
+        $this->fields['mediaUuid'] = (new FkField('media_uuid', MediaWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['mappings'] = new SubresourceField(ProductMediaMappingWriteResource::class);
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Product\Writer\Resource\ProductWriteResource::class,
-            \Shopware\ProductDetail\Writer\Resource\ProductDetailWriteResource::class,
-            \Shopware\Media\Writer\Resource\MediaWriteResource::class,
-            \Shopware\ProductMedia\Writer\Resource\ProductMediaWriteResource::class,
-            \Shopware\ProductMedia\Writer\Resource\ProductMediaMappingWriteResource::class,
+            ProductWriteResource::class,
+            ProductDetailWriteResource::class,
+            MediaWriteResource::class,
+            self::class,
+            ProductMediaMappingWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ProductMedia\Event\ProductMediaWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductMediaWrittenEvent
     {
-        $event = new \Shopware\ProductMedia\Event\ProductMediaWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductMediaWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductWriteResource::class])) {
+            $event->addEvent(ProductWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductDetail\Writer\Resource\ProductDetailWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductDetail\Writer\Resource\ProductDetailWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductDetailWriteResource::class])) {
+            $event->addEvent(ProductDetailWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Media\Writer\Resource\MediaWriteResource::class])) {
-            $event->addEvent(\Shopware\Media\Writer\Resource\MediaWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[MediaWriteResource::class])) {
+            $event->addEvent(MediaWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductMedia\Writer\Resource\ProductMediaWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductMedia\Writer\Resource\ProductMediaWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductMedia\Writer\Resource\ProductMediaMappingWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductMedia\Writer\Resource\ProductMediaMappingWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductMediaMappingWriteResource::class])) {
+            $event->addEvent(ProductMediaMappingWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

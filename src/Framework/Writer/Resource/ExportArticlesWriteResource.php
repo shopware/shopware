@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\ExportArticlesWrittenEvent;
 use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
@@ -23,18 +24,18 @@ class ExportArticlesWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\ExportArticlesWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\ExportArticlesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ExportArticlesWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\ExportArticlesWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ExportArticlesWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\ExportArticlesWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\ExportArticlesWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

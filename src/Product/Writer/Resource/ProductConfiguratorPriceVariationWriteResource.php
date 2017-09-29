@@ -9,6 +9,7 @@ use Shopware\Framework\Write\Field\LongTextField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Product\Event\ProductConfiguratorPriceVariationWrittenEvent;
 
 class ProductConfiguratorPriceVariationWriteResource extends WriteResource
 {
@@ -32,18 +33,18 @@ class ProductConfiguratorPriceVariationWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Product\Writer\Resource\ProductConfiguratorPriceVariationWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductConfiguratorPriceVariationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductConfiguratorPriceVariationWrittenEvent
     {
-        $event = new \Shopware\Product\Event\ProductConfiguratorPriceVariationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductConfiguratorPriceVariationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductConfiguratorPriceVariationWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductConfiguratorPriceVariationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

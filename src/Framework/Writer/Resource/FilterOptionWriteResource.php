@@ -3,12 +3,14 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\FilterOptionWrittenEvent;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class FilterOptionWriteResource extends WriteResource
 {
@@ -22,39 +24,39 @@ class FilterOptionWriteResource extends WriteResource
 
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
         $this->fields[self::FILTERABLE_FIELD] = new BoolField('filterable');
-        $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields['translations'] = (new SubresourceField(\Shopware\Framework\Write\Resource\FilterOptionTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
-        $this->fields['filterRelations'] = new SubresourceField(\Shopware\Framework\Write\Resource\FilterRelationWriteResource::class);
-        $this->fields['filterValues'] = new SubresourceField(\Shopware\Framework\Write\Resource\FilterValueWriteResource::class);
+        $this->fields[self::NAME_FIELD] = new TranslatedField('name', ShopWriteResource::class, 'uuid');
+        $this->fields['translations'] = (new SubresourceField(FilterOptionTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
+        $this->fields['filterRelations'] = new SubresourceField(FilterRelationWriteResource::class);
+        $this->fields['filterValues'] = new SubresourceField(FilterValueWriteResource::class);
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\FilterOptionWriteResource::class,
-            \Shopware\Framework\Write\Resource\FilterOptionTranslationWriteResource::class,
-            \Shopware\Framework\Write\Resource\FilterRelationWriteResource::class,
-            \Shopware\Framework\Write\Resource\FilterValueWriteResource::class,
+            self::class,
+            FilterOptionTranslationWriteResource::class,
+            FilterRelationWriteResource::class,
+            FilterValueWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\FilterOptionWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): FilterOptionWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\FilterOptionWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new FilterOptionWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\FilterOptionWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\FilterOptionWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\FilterOptionTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\FilterOptionTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[FilterOptionTranslationWriteResource::class])) {
+            $event->addEvent(FilterOptionTranslationWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\FilterRelationWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\FilterRelationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[FilterRelationWriteResource::class])) {
+            $event->addEvent(FilterRelationWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\FilterValueWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\FilterValueWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[FilterValueWriteResource::class])) {
+            $event->addEvent(FilterValueWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

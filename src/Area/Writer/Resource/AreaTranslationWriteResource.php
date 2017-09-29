@@ -2,12 +2,14 @@
 
 namespace Shopware\Area\Writer\Resource;
 
+use Shopware\Area\Event\AreaTranslationWrittenEvent;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class AreaTranslationWriteResource extends WriteResource
 {
@@ -18,35 +20,35 @@ class AreaTranslationWriteResource extends WriteResource
         parent::__construct('area_translation');
 
         $this->fields[self::NAME_FIELD] = (new StringField('name'))->setFlags(new Required());
-        $this->fields['area'] = new ReferenceField('areaUuid', 'uuid', \Shopware\Area\Writer\Resource\AreaWriteResource::class);
-        $this->primaryKeyFields['areaUuid'] = (new FkField('area_uuid', \Shopware\Area\Writer\Resource\AreaWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['area'] = new ReferenceField('areaUuid', 'uuid', AreaWriteResource::class);
+        $this->primaryKeyFields['areaUuid'] = (new FkField('area_uuid', AreaWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', ShopWriteResource::class);
+        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', ShopWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Area\Writer\Resource\AreaWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\Area\Writer\Resource\AreaTranslationWriteResource::class,
+            AreaWriteResource::class,
+            ShopWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Area\Event\AreaTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): AreaTranslationWrittenEvent
     {
-        $event = new \Shopware\Area\Event\AreaTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new AreaTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Area\Writer\Resource\AreaWriteResource::class])) {
-            $event->addEvent(\Shopware\Area\Writer\Resource\AreaWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[AreaWriteResource::class])) {
+            $event->addEvent(AreaWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Area\Writer\Resource\AreaTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\Area\Writer\Resource\AreaTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

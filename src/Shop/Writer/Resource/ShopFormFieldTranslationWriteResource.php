@@ -8,6 +8,7 @@ use Shopware\Framework\Write\Field\ReferenceField;
 use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Shop\Event\ShopFormFieldTranslationWrittenEvent;
 
 class ShopFormFieldTranslationWriteResource extends WriteResource
 {
@@ -24,35 +25,35 @@ class ShopFormFieldTranslationWriteResource extends WriteResource
         $this->fields[self::NOTE_FIELD] = new StringField('note');
         $this->fields[self::LABEL_FIELD] = (new StringField('label'))->setFlags(new Required());
         $this->fields[self::VALUE_FIELD] = (new StringField('value'))->setFlags(new Required());
-        $this->fields['shopFormField'] = new ReferenceField('shopFormFieldUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopFormFieldWriteResource::class);
-        $this->primaryKeyFields['shopFormFieldUuid'] = (new FkField('shop_form_field_uuid', \Shopware\Shop\Writer\Resource\ShopFormFieldWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['shopFormField'] = new ReferenceField('shopFormFieldUuid', 'uuid', ShopFormFieldWriteResource::class);
+        $this->primaryKeyFields['shopFormFieldUuid'] = (new FkField('shop_form_field_uuid', ShopFormFieldWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['language'] = new ReferenceField('languageUuid', 'uuid', ShopWriteResource::class);
+        $this->primaryKeyFields['languageUuid'] = (new FkField('language_uuid', ShopWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Shop\Writer\Resource\ShopFormFieldWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopFormFieldTranslationWriteResource::class,
+            ShopFormFieldWriteResource::class,
+            ShopWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Shop\Event\ShopFormFieldTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ShopFormFieldTranslationWrittenEvent
     {
-        $event = new \Shopware\Shop\Event\ShopFormFieldTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ShopFormFieldTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopFormFieldWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopFormFieldWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopFormFieldWriteResource::class])) {
+            $event->addEvent(ShopFormFieldWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopFormFieldTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopFormFieldTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

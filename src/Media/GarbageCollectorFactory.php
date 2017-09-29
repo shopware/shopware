@@ -28,7 +28,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
 use Shopware\Media\GarbageCollector\MediaPosition;
 use Shopware\Media\Strategy\StrategyInterface;
-use Shopware\Models\Media\Media;
 
 /**
  * Class GarbageCollectorFactory

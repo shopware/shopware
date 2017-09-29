@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\MailWrittenEvent;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\IntField;
@@ -14,6 +15,8 @@ use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\OrderState\Writer\Resource\OrderStateWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class MailWriteResource extends WriteResource
 {
@@ -46,44 +49,44 @@ class MailWriteResource extends WriteResource
         $this->fields[self::TYPE_FIELD] = new IntField('mail_type');
         $this->fields[self::CONTEXT_FIELD] = new LongTextField('context');
         $this->fields[self::DIRTY_FIELD] = new BoolField('dirty');
-        $this->fields['orderState'] = new ReferenceField('orderStateUuid', 'uuid', \Shopware\OrderState\Writer\Resource\OrderStateWriteResource::class);
-        $this->fields['orderStateUuid'] = (new FkField('order_state_uuid', \Shopware\OrderState\Writer\Resource\OrderStateWriteResource::class, 'uuid'));
-        $this->fields[self::FROM_MAIL_FIELD] = new TranslatedField('fromMail', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields[self::FROM_NAME_FIELD] = new TranslatedField('fromName', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields[self::SUBJECT_FIELD] = new TranslatedField('subject', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields[self::CONTENT_FIELD] = new TranslatedField('content', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields[self::CONTENT_HTML_FIELD] = new TranslatedField('contentHtml', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields['translations'] = (new SubresourceField(\Shopware\Framework\Write\Resource\MailTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
-        $this->fields['attachments'] = new SubresourceField(\Shopware\Framework\Write\Resource\MailAttachmentWriteResource::class);
+        $this->fields['orderState'] = new ReferenceField('orderStateUuid', 'uuid', OrderStateWriteResource::class);
+        $this->fields['orderStateUuid'] = (new FkField('order_state_uuid', OrderStateWriteResource::class, 'uuid'));
+        $this->fields[self::FROM_MAIL_FIELD] = new TranslatedField('fromMail', ShopWriteResource::class, 'uuid');
+        $this->fields[self::FROM_NAME_FIELD] = new TranslatedField('fromName', ShopWriteResource::class, 'uuid');
+        $this->fields[self::SUBJECT_FIELD] = new TranslatedField('subject', ShopWriteResource::class, 'uuid');
+        $this->fields[self::CONTENT_FIELD] = new TranslatedField('content', ShopWriteResource::class, 'uuid');
+        $this->fields[self::CONTENT_HTML_FIELD] = new TranslatedField('contentHtml', ShopWriteResource::class, 'uuid');
+        $this->fields['translations'] = (new SubresourceField(MailTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
+        $this->fields['attachments'] = new SubresourceField(MailAttachmentWriteResource::class);
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\OrderState\Writer\Resource\OrderStateWriteResource::class,
-            \Shopware\Framework\Write\Resource\MailWriteResource::class,
-            \Shopware\Framework\Write\Resource\MailTranslationWriteResource::class,
-            \Shopware\Framework\Write\Resource\MailAttachmentWriteResource::class,
+            OrderStateWriteResource::class,
+            self::class,
+            MailTranslationWriteResource::class,
+            MailAttachmentWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\MailWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): MailWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\MailWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new MailWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\OrderState\Writer\Resource\OrderStateWriteResource::class])) {
-            $event->addEvent(\Shopware\OrderState\Writer\Resource\OrderStateWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[OrderStateWriteResource::class])) {
+            $event->addEvent(OrderStateWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\MailWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\MailWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\MailTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\MailTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[MailTranslationWriteResource::class])) {
+            $event->addEvent(MailTranslationWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\MailAttachmentWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\MailAttachmentWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[MailAttachmentWriteResource::class])) {
+            $event->addEvent(MailAttachmentWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

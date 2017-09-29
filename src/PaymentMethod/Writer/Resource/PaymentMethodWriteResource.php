@@ -3,6 +3,7 @@
 namespace Shopware\PaymentMethod\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Customer\Writer\Resource\CustomerWriteResource;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\FloatField;
@@ -14,7 +15,12 @@ use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
+use Shopware\Framework\Write\Resource\PluginWriteResource;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Order\Writer\Resource\OrderWriteResource;
+use Shopware\PaymentMethod\Event\PaymentMethodWrittenEvent;
+use Shopware\ShippingMethod\Writer\Resource\ShippingMethodPaymentMethodWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class PaymentMethodWriteResource extends WriteResource
 {
@@ -61,66 +67,66 @@ class PaymentMethodWriteResource extends WriteResource
         $this->fields[self::SOURCE_FIELD] = new IntField('source');
         $this->fields[self::MOBILE_INACTIVE_FIELD] = new BoolField('mobile_inactive');
         $this->fields[self::RISK_RULES_FIELD] = new LongTextField('risk_rules');
-        $this->fields['customers'] = new SubresourceField(\Shopware\Customer\Writer\Resource\CustomerWriteResource::class);
-        $this->fields['orders'] = new SubresourceField(\Shopware\Order\Writer\Resource\OrderWriteResource::class);
-        $this->fields['plugin'] = new ReferenceField('pluginUuid', 'uuid', \Shopware\Framework\Write\Resource\PluginWriteResource::class);
-        $this->fields['pluginUuid'] = (new FkField('plugin_uuid', \Shopware\Framework\Write\Resource\PluginWriteResource::class, 'uuid'));
-        $this->fields[self::NAME_FIELD] = new TranslatedField('name', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields[self::ADDITIONAL_DESCRIPTION_FIELD] = new TranslatedField('additionalDescription', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid');
-        $this->fields['translations'] = (new SubresourceField(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
-        $this->fields['countries'] = new SubresourceField(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodCountryWriteResource::class);
-        $this->fields['shops'] = new SubresourceField(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodShopWriteResource::class);
-        $this->fields['shippingMethodPaymentMethods'] = new SubresourceField(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodPaymentMethodWriteResource::class);
-        $this->fields['shops'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopWriteResource::class);
+        $this->fields['customers'] = new SubresourceField(CustomerWriteResource::class);
+        $this->fields['orders'] = new SubresourceField(OrderWriteResource::class);
+        $this->fields['plugin'] = new ReferenceField('pluginUuid', 'uuid', PluginWriteResource::class);
+        $this->fields['pluginUuid'] = (new FkField('plugin_uuid', PluginWriteResource::class, 'uuid'));
+        $this->fields[self::NAME_FIELD] = new TranslatedField('name', ShopWriteResource::class, 'uuid');
+        $this->fields[self::ADDITIONAL_DESCRIPTION_FIELD] = new TranslatedField('additionalDescription', ShopWriteResource::class, 'uuid');
+        $this->fields['translations'] = (new SubresourceField(PaymentMethodTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
+        $this->fields['countries'] = new SubresourceField(PaymentMethodCountryWriteResource::class);
+        $this->fields['shops'] = new SubresourceField(PaymentMethodShopWriteResource::class);
+        $this->fields['shippingMethodPaymentMethods'] = new SubresourceField(ShippingMethodPaymentMethodWriteResource::class);
+        $this->fields['shops'] = new SubresourceField(ShopWriteResource::class);
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Customer\Writer\Resource\CustomerWriteResource::class,
-            \Shopware\Order\Writer\Resource\OrderWriteResource::class,
-            \Shopware\Framework\Write\Resource\PluginWriteResource::class,
-            \Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource::class,
-            \Shopware\PaymentMethod\Writer\Resource\PaymentMethodTranslationWriteResource::class,
-            \Shopware\PaymentMethod\Writer\Resource\PaymentMethodCountryWriteResource::class,
-            \Shopware\PaymentMethod\Writer\Resource\PaymentMethodShopWriteResource::class,
-            \Shopware\ShippingMethod\Writer\Resource\ShippingMethodPaymentMethodWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
+            CustomerWriteResource::class,
+            OrderWriteResource::class,
+            PluginWriteResource::class,
+            self::class,
+            PaymentMethodTranslationWriteResource::class,
+            PaymentMethodCountryWriteResource::class,
+            PaymentMethodShopWriteResource::class,
+            ShippingMethodPaymentMethodWriteResource::class,
+            ShopWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\PaymentMethod\Event\PaymentMethodWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): PaymentMethodWrittenEvent
     {
-        $event = new \Shopware\PaymentMethod\Event\PaymentMethodWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new PaymentMethodWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Customer\Writer\Resource\CustomerWriteResource::class])) {
-            $event->addEvent(\Shopware\Customer\Writer\Resource\CustomerWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[CustomerWriteResource::class])) {
+            $event->addEvent(CustomerWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Order\Writer\Resource\OrderWriteResource::class])) {
-            $event->addEvent(\Shopware\Order\Writer\Resource\OrderWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[OrderWriteResource::class])) {
+            $event->addEvent(OrderWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\PluginWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\PluginWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[PluginWriteResource::class])) {
+            $event->addEvent(PluginWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource::class])) {
-            $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\PaymentMethod\Writer\Resource\PaymentMethodTranslationWriteResource::class])) {
-            $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodTranslationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[PaymentMethodTranslationWriteResource::class])) {
+            $event->addEvent(PaymentMethodTranslationWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\PaymentMethod\Writer\Resource\PaymentMethodCountryWriteResource::class])) {
-            $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodCountryWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[PaymentMethodCountryWriteResource::class])) {
+            $event->addEvent(PaymentMethodCountryWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\PaymentMethod\Writer\Resource\PaymentMethodShopWriteResource::class])) {
-            $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[PaymentMethodShopWriteResource::class])) {
+            $event->addEvent(PaymentMethodShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ShippingMethod\Writer\Resource\ShippingMethodPaymentMethodWriteResource::class])) {
-            $event->addEvent(\Shopware\ShippingMethod\Writer\Resource\ShippingMethodPaymentMethodWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShippingMethodPaymentMethodWriteResource::class])) {
+            $event->addEvent(ShippingMethodPaymentMethodWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

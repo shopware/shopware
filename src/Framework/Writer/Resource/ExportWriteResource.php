@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\ExportWrittenEvent;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FloatField;
@@ -86,18 +87,18 @@ class ExportWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\ExportWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\ExportWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ExportWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\ExportWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ExportWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\ExportWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\ExportWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

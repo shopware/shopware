@@ -9,6 +9,9 @@ use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Product\Writer\Resource\ProductWriteResource;
+use Shopware\Tax\Event\TaxWrittenEvent;
+use Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleWriteResource;
 
 class TaxWriteResource extends WriteResource
 {
@@ -23,33 +26,33 @@ class TaxWriteResource extends WriteResource
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
         $this->fields[self::RATE_FIELD] = (new FloatField('tax_rate'))->setFlags(new Required());
         $this->fields[self::NAME_FIELD] = (new StringField('name'))->setFlags(new Required());
-        $this->fields['products'] = new SubresourceField(\Shopware\Product\Writer\Resource\ProductWriteResource::class);
-        $this->fields['areaRules'] = new SubresourceField(\Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleWriteResource::class);
+        $this->fields['products'] = new SubresourceField(ProductWriteResource::class);
+        $this->fields['areaRules'] = new SubresourceField(TaxAreaRuleWriteResource::class);
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Product\Writer\Resource\ProductWriteResource::class,
-            \Shopware\Tax\Writer\Resource\TaxWriteResource::class,
-            \Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleWriteResource::class,
+            ProductWriteResource::class,
+            self::class,
+            TaxAreaRuleWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Tax\Event\TaxWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): TaxWrittenEvent
     {
-        $event = new \Shopware\Tax\Event\TaxWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new TaxWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductWriteResource::class])) {
+            $event->addEvent(ProductWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Tax\Writer\Resource\TaxWriteResource::class])) {
-            $event->addEvent(\Shopware\Tax\Writer\Resource\TaxWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleWriteResource::class])) {
-            $event->addEvent(\Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[TaxAreaRuleWriteResource::class])) {
+            $event->addEvent(TaxAreaRuleWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

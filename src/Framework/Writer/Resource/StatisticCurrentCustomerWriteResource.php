@@ -3,6 +3,8 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Customer\Writer\Resource\CustomerWriteResource;
+use Shopware\Framework\Event\StatisticCurrentCustomerWrittenEvent;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
 use Shopware\Framework\Write\Field\IntField;
@@ -31,29 +33,29 @@ class StatisticCurrentCustomerWriteResource extends WriteResource
         $this->fields[self::TRACKING_TIME_FIELD] = new DateField('tracking_time');
         $this->fields[self::CUSTOMER_ID_FIELD] = new IntField('customer_id');
         $this->fields[self::DEVICE_TYPE_FIELD] = new StringField('device_type');
-        $this->fields['customer'] = new ReferenceField('customerUuid', 'uuid', \Shopware\Customer\Writer\Resource\CustomerWriteResource::class);
-        $this->fields['customerUuid'] = (new FkField('customer_uuid', \Shopware\Customer\Writer\Resource\CustomerWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['customer'] = new ReferenceField('customerUuid', 'uuid', CustomerWriteResource::class);
+        $this->fields['customerUuid'] = (new FkField('customer_uuid', CustomerWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Customer\Writer\Resource\CustomerWriteResource::class,
-            \Shopware\Framework\Write\Resource\StatisticCurrentCustomerWriteResource::class,
+            CustomerWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\StatisticCurrentCustomerWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): StatisticCurrentCustomerWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\StatisticCurrentCustomerWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new StatisticCurrentCustomerWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Customer\Writer\Resource\CustomerWriteResource::class])) {
-            $event->addEvent(\Shopware\Customer\Writer\Resource\CustomerWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[CustomerWriteResource::class])) {
+            $event->addEvent(CustomerWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\StatisticCurrentCustomerWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\StatisticCurrentCustomerWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

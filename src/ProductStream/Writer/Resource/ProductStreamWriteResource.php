@@ -12,6 +12,8 @@ use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\ListingSorting\Writer\Resource\ListingSortingWriteResource;
+use Shopware\ProductStream\Event\ProductStreamWrittenEvent;
 
 class ProductStreamWriteResource extends WriteResource
 {
@@ -30,39 +32,39 @@ class ProductStreamWriteResource extends WriteResource
         $this->fields[self::CONDITIONS_FIELD] = new LongTextField('conditions');
         $this->fields[self::TYPE_FIELD] = new IntField('type');
         $this->fields[self::DESCRIPTION_FIELD] = new LongTextField('description');
-        $this->fields['listingSorting'] = new ReferenceField('listingSortingUuid', 'uuid', \Shopware\ListingSorting\Writer\Resource\ListingSortingWriteResource::class);
-        $this->fields['listingSortingUuid'] = (new FkField('listing_sorting_uuid', \Shopware\ListingSorting\Writer\Resource\ListingSortingWriteResource::class, 'uuid'));
-        $this->fields['assignments'] = new SubresourceField(\Shopware\ProductStream\Writer\Resource\ProductStreamAssignmentWriteResource::class);
-        $this->fields['tabs'] = new SubresourceField(\Shopware\ProductStream\Writer\Resource\ProductStreamTabWriteResource::class);
+        $this->fields['listingSorting'] = new ReferenceField('listingSortingUuid', 'uuid', ListingSortingWriteResource::class);
+        $this->fields['listingSortingUuid'] = (new FkField('listing_sorting_uuid', ListingSortingWriteResource::class, 'uuid'));
+        $this->fields['assignments'] = new SubresourceField(ProductStreamAssignmentWriteResource::class);
+        $this->fields['tabs'] = new SubresourceField(ProductStreamTabWriteResource::class);
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\ListingSorting\Writer\Resource\ListingSortingWriteResource::class,
-            \Shopware\ProductStream\Writer\Resource\ProductStreamWriteResource::class,
-            \Shopware\ProductStream\Writer\Resource\ProductStreamAssignmentWriteResource::class,
-            \Shopware\ProductStream\Writer\Resource\ProductStreamTabWriteResource::class,
+            ListingSortingWriteResource::class,
+            self::class,
+            ProductStreamAssignmentWriteResource::class,
+            ProductStreamTabWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ProductStream\Event\ProductStreamWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductStreamWrittenEvent
     {
-        $event = new \Shopware\ProductStream\Event\ProductStreamWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductStreamWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\ListingSorting\Writer\Resource\ListingSortingWriteResource::class])) {
-            $event->addEvent(\Shopware\ListingSorting\Writer\Resource\ListingSortingWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ListingSortingWriteResource::class])) {
+            $event->addEvent(ListingSortingWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductStream\Writer\Resource\ProductStreamWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductStream\Writer\Resource\ProductStreamWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductStream\Writer\Resource\ProductStreamAssignmentWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductStream\Writer\Resource\ProductStreamAssignmentWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductStreamAssignmentWriteResource::class])) {
+            $event->addEvent(ProductStreamAssignmentWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ProductStream\Writer\Resource\ProductStreamTabWriteResource::class])) {
-            $event->addEvent(\Shopware\ProductStream\Writer\Resource\ProductStreamTabWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ProductStreamTabWriteResource::class])) {
+            $event->addEvent(ProductStreamTabWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

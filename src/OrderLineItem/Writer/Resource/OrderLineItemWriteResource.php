@@ -13,6 +13,9 @@ use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Order\Writer\Resource\OrderWriteResource;
+use Shopware\OrderDeliveryPosition\Writer\Resource\OrderDeliveryPositionWriteResource;
+use Shopware\OrderLineItem\Event\OrderLineItemWrittenEvent;
 
 class OrderLineItemWriteResource extends WriteResource
 {
@@ -35,34 +38,34 @@ class OrderLineItemWriteResource extends WriteResource
         $this->fields[self::TOTAL_PRICE_FIELD] = (new FloatField('total_price'))->setFlags(new Required());
         $this->fields[self::TYPE_FIELD] = new StringField('type');
         $this->fields[self::PAYLOAD_FIELD] = (new LongTextField('payload'))->setFlags(new Required());
-        $this->fields['orderDeliveryPositions'] = new SubresourceField(\Shopware\OrderDeliveryPosition\Writer\Resource\OrderDeliveryPositionWriteResource::class);
-        $this->fields['order'] = new ReferenceField('orderUuid', 'uuid', \Shopware\Order\Writer\Resource\OrderWriteResource::class);
-        $this->fields['orderUuid'] = (new FkField('order_uuid', \Shopware\Order\Writer\Resource\OrderWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['orderDeliveryPositions'] = new SubresourceField(OrderDeliveryPositionWriteResource::class);
+        $this->fields['order'] = new ReferenceField('orderUuid', 'uuid', OrderWriteResource::class);
+        $this->fields['orderUuid'] = (new FkField('order_uuid', OrderWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\OrderDeliveryPosition\Writer\Resource\OrderDeliveryPositionWriteResource::class,
-            \Shopware\Order\Writer\Resource\OrderWriteResource::class,
-            \Shopware\OrderLineItem\Writer\Resource\OrderLineItemWriteResource::class,
+            OrderDeliveryPositionWriteResource::class,
+            OrderWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\OrderLineItem\Event\OrderLineItemWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): OrderLineItemWrittenEvent
     {
-        $event = new \Shopware\OrderLineItem\Event\OrderLineItemWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new OrderLineItemWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\OrderDeliveryPosition\Writer\Resource\OrderDeliveryPositionWriteResource::class])) {
-            $event->addEvent(\Shopware\OrderDeliveryPosition\Writer\Resource\OrderDeliveryPositionWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[OrderDeliveryPositionWriteResource::class])) {
+            $event->addEvent(OrderDeliveryPositionWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Order\Writer\Resource\OrderWriteResource::class])) {
-            $event->addEvent(\Shopware\Order\Writer\Resource\OrderWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[OrderWriteResource::class])) {
+            $event->addEvent(OrderWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\OrderLineItem\Writer\Resource\OrderLineItemWriteResource::class])) {
-            $event->addEvent(\Shopware\OrderLineItem\Writer\Resource\OrderLineItemWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

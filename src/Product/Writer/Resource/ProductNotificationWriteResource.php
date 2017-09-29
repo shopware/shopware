@@ -8,6 +8,7 @@ use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Product\Event\ProductNotificationWrittenEvent;
 
 class ProductNotificationWriteResource extends WriteResource
 {
@@ -33,18 +34,18 @@ class ProductNotificationWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Product\Writer\Resource\ProductNotificationWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductNotificationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductNotificationWrittenEvent
     {
-        $event = new \Shopware\Product\Event\ProductNotificationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductNotificationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductNotificationWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductNotificationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

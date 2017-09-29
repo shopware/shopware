@@ -7,6 +7,7 @@ use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Product\Event\ProductConfiguratorSetGroupRelationWrittenEvent;
 
 class ProductConfiguratorSetGroupRelationWriteResource extends WriteResource
 {
@@ -26,18 +27,18 @@ class ProductConfiguratorSetGroupRelationWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Product\Writer\Resource\ProductConfiguratorSetGroupRelationWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductConfiguratorSetGroupRelationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductConfiguratorSetGroupRelationWrittenEvent
     {
-        $event = new \Shopware\Product\Event\ProductConfiguratorSetGroupRelationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductConfiguratorSetGroupRelationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductConfiguratorSetGroupRelationWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductConfiguratorSetGroupRelationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

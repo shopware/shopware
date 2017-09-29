@@ -7,6 +7,7 @@ use Shopware\Framework\Write\Field\IntField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Product\Event\ProductConfiguratorOptionRelationWrittenEvent;
 
 class ProductConfiguratorOptionRelationWriteResource extends WriteResource
 {
@@ -26,18 +27,18 @@ class ProductConfiguratorOptionRelationWriteResource extends WriteResource
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Product\Writer\Resource\ProductConfiguratorOptionRelationWriteResource::class,
+            self::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Product\Event\ProductConfiguratorOptionRelationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductConfiguratorOptionRelationWrittenEvent
     {
-        $event = new \Shopware\Product\Event\ProductConfiguratorOptionRelationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductConfiguratorOptionRelationWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Product\Writer\Resource\ProductConfiguratorOptionRelationWriteResource::class])) {
-            $event->addEvent(\Shopware\Product\Writer\Resource\ProductConfiguratorOptionRelationWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
 
         return $event;

@@ -11,7 +11,10 @@ use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
+use Shopware\Framework\Write\Resource\PluginWriteResource;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
+use Shopware\ShopTemplate\Event\ShopTemplateWrittenEvent;
 
 class ShopTemplateWriteResource extends WriteResource
 {
@@ -44,52 +47,52 @@ class ShopTemplateWriteResource extends WriteResource
         $this->fields[self::EMOTION_FIELD] = (new BoolField('emotion'))->setFlags(new Required());
         $this->fields[self::PLUGIN_ID_FIELD] = new IntField('plugin_id');
         $this->fields[self::PARENT_ID_FIELD] = new IntField('parent_id');
-        $this->fields['shops'] = new SubresourceField(\Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->fields['plugin'] = new ReferenceField('pluginUuid', 'uuid', \Shopware\Framework\Write\Resource\PluginWriteResource::class);
-        $this->fields['pluginUuid'] = (new FkField('plugin_uuid', \Shopware\Framework\Write\Resource\PluginWriteResource::class, 'uuid'));
-        $this->fields['parent'] = new ReferenceField('parentUuid', 'uuid', \Shopware\ShopTemplate\Writer\Resource\ShopTemplateWriteResource::class);
-        $this->fields['parentUuid'] = (new FkField('parent_uuid', \Shopware\ShopTemplate\Writer\Resource\ShopTemplateWriteResource::class, 'uuid'));
-        $this->fields['parent'] = new SubresourceField(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateWriteResource::class);
-        $this->fields['configForms'] = new SubresourceField(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigFormWriteResource::class);
-        $this->fields['configFormFields'] = new SubresourceField(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigFormFieldWriteResource::class);
-        $this->fields['configPresets'] = new SubresourceField(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigPresetWriteResource::class);
+        $this->fields['shops'] = new SubresourceField(ShopWriteResource::class);
+        $this->fields['plugin'] = new ReferenceField('pluginUuid', 'uuid', PluginWriteResource::class);
+        $this->fields['pluginUuid'] = (new FkField('plugin_uuid', PluginWriteResource::class, 'uuid'));
+        $this->fields['parent'] = new ReferenceField('parentUuid', 'uuid', self::class);
+        $this->fields['parentUuid'] = (new FkField('parent_uuid', self::class, 'uuid'));
+        $this->fields['parent'] = new SubresourceField(self::class);
+        $this->fields['configForms'] = new SubresourceField(ShopTemplateConfigFormWriteResource::class);
+        $this->fields['configFormFields'] = new SubresourceField(ShopTemplateConfigFormFieldWriteResource::class);
+        $this->fields['configPresets'] = new SubresourceField(ShopTemplateConfigPresetWriteResource::class);
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\Framework\Write\Resource\PluginWriteResource::class,
-            \Shopware\ShopTemplate\Writer\Resource\ShopTemplateWriteResource::class,
-            \Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigFormWriteResource::class,
-            \Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigFormFieldWriteResource::class,
-            \Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigPresetWriteResource::class,
+            ShopWriteResource::class,
+            PluginWriteResource::class,
+            self::class,
+            ShopTemplateConfigFormWriteResource::class,
+            ShopTemplateConfigFormFieldWriteResource::class,
+            ShopTemplateConfigPresetWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\ShopTemplate\Event\ShopTemplateWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ShopTemplateWrittenEvent
     {
-        $event = new \Shopware\ShopTemplate\Event\ShopTemplateWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ShopTemplateWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\PluginWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\PluginWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[PluginWriteResource::class])) {
+            $event->addEvent(PluginWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ShopTemplate\Writer\Resource\ShopTemplateWriteResource::class])) {
-            $event->addEvent(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigFormWriteResource::class])) {
-            $event->addEvent(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigFormWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopTemplateConfigFormWriteResource::class])) {
+            $event->addEvent(ShopTemplateConfigFormWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigFormFieldWriteResource::class])) {
-            $event->addEvent(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigFormFieldWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopTemplateConfigFormFieldWriteResource::class])) {
+            $event->addEvent(ShopTemplateConfigFormFieldWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigPresetWriteResource::class])) {
-            $event->addEvent(\Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigPresetWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopTemplateConfigPresetWriteResource::class])) {
+            $event->addEvent(ShopTemplateConfigPresetWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

@@ -3,6 +3,7 @@
 namespace Shopware\Framework\Write\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\MultiEditQueueWrittenEvent;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\IntField;
@@ -31,28 +32,28 @@ class MultiEditQueueWriteResource extends WriteResource
         $this->fields[self::ITEMS_FIELD] = (new IntField('items'))->setFlags(new Required());
         $this->fields[self::ACTIVE_FIELD] = new BoolField('active');
         $this->fields[self::CREATED_FIELD] = new DateField('created');
-        $this->fields['articless'] = new SubresourceField(\Shopware\Framework\Write\Resource\MultiEditQueueArticlesWriteResource::class);
+        $this->fields['articless'] = new SubresourceField(MultiEditQueueArticlesWriteResource::class);
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Framework\Write\Resource\MultiEditQueueWriteResource::class,
-            \Shopware\Framework\Write\Resource\MultiEditQueueArticlesWriteResource::class,
+            self::class,
+            MultiEditQueueArticlesWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Framework\Event\MultiEditQueueWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): MultiEditQueueWrittenEvent
     {
-        $event = new \Shopware\Framework\Event\MultiEditQueueWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new MultiEditQueueWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Framework\Write\Resource\MultiEditQueueWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\MultiEditQueueWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Framework\Write\Resource\MultiEditQueueArticlesWriteResource::class])) {
-            $event->addEvent(\Shopware\Framework\Write\Resource\MultiEditQueueArticlesWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[MultiEditQueueArticlesWriteResource::class])) {
+            $event->addEvent(MultiEditQueueArticlesWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

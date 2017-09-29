@@ -145,7 +145,7 @@ class StoreFrontCartService
     {
         $this->orderPersister->persist(
             $this->getCart()->getCalculatedCart(),
-            $context = $this->contextService->getShopContext()
+            $this->contextService->getShopContext()
         );
 
         $this->createNewCart();

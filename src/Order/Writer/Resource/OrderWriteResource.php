@@ -3,6 +3,8 @@
 namespace Shopware\Order\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Currency\Writer\Resource\CurrencyWriteResource;
+use Shopware\Customer\Writer\Resource\CustomerWriteResource;
 use Shopware\Framework\Write\Field\BoolField;
 use Shopware\Framework\Write\Field\DateField;
 use Shopware\Framework\Write\Field\FkField;
@@ -13,6 +15,13 @@ use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Order\Event\OrderWrittenEvent;
+use Shopware\OrderAddress\Writer\Resource\OrderAddressWriteResource;
+use Shopware\OrderDelivery\Writer\Resource\OrderDeliveryWriteResource;
+use Shopware\OrderLineItem\Writer\Resource\OrderLineItemWriteResource;
+use Shopware\OrderState\Writer\Resource\OrderStateWriteResource;
+use Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource;
+use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class OrderWriteResource extends WriteResource
 {
@@ -39,69 +48,69 @@ class OrderWriteResource extends WriteResource
         $this->fields[self::IS_TAX_FREE_FIELD] = (new BoolField('is_tax_free'))->setFlags(new Required());
         $this->fields[self::CONTEXT_FIELD] = (new LongTextField('context'))->setFlags(new Required());
         $this->fields[self::PAYLOAD_FIELD] = (new LongTextField('payload'))->setFlags(new Required());
-        $this->fields['customer'] = new ReferenceField('customerUuid', 'uuid', \Shopware\Customer\Writer\Resource\CustomerWriteResource::class);
-        $this->fields['customerUuid'] = (new FkField('customer_uuid', \Shopware\Customer\Writer\Resource\CustomerWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['state'] = new ReferenceField('stateUuid', 'uuid', \Shopware\OrderState\Writer\Resource\OrderStateWriteResource::class);
-        $this->fields['stateUuid'] = (new FkField('order_state_uuid', \Shopware\OrderState\Writer\Resource\OrderStateWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['paymentMethod'] = new ReferenceField('paymentMethodUuid', 'uuid', \Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource::class);
-        $this->fields['paymentMethodUuid'] = (new FkField('payment_method_uuid', \Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['currency'] = new ReferenceField('currencyUuid', 'uuid', \Shopware\Currency\Writer\Resource\CurrencyWriteResource::class);
-        $this->fields['currencyUuid'] = (new FkField('currency_uuid', \Shopware\Currency\Writer\Resource\CurrencyWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class);
-        $this->fields['shopUuid'] = (new FkField('shop_uuid', \Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['billingAddress'] = new ReferenceField('billingAddressUuid', 'uuid', \Shopware\OrderAddress\Writer\Resource\OrderAddressWriteResource::class);
-        $this->fields['billingAddressUuid'] = (new FkField('billing_address_uuid', \Shopware\OrderAddress\Writer\Resource\OrderAddressWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['deliveries'] = new SubresourceField(\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryWriteResource::class);
-        $this->fields['lineItems'] = new SubresourceField(\Shopware\OrderLineItem\Writer\Resource\OrderLineItemWriteResource::class);
+        $this->fields['customer'] = new ReferenceField('customerUuid', 'uuid', CustomerWriteResource::class);
+        $this->fields['customerUuid'] = (new FkField('customer_uuid', CustomerWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['state'] = new ReferenceField('stateUuid', 'uuid', OrderStateWriteResource::class);
+        $this->fields['stateUuid'] = (new FkField('order_state_uuid', OrderStateWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['paymentMethod'] = new ReferenceField('paymentMethodUuid', 'uuid', PaymentMethodWriteResource::class);
+        $this->fields['paymentMethodUuid'] = (new FkField('payment_method_uuid', PaymentMethodWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['currency'] = new ReferenceField('currencyUuid', 'uuid', CurrencyWriteResource::class);
+        $this->fields['currencyUuid'] = (new FkField('currency_uuid', CurrencyWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', ShopWriteResource::class);
+        $this->fields['shopUuid'] = (new FkField('shop_uuid', ShopWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['billingAddress'] = new ReferenceField('billingAddressUuid', 'uuid', OrderAddressWriteResource::class);
+        $this->fields['billingAddressUuid'] = (new FkField('billing_address_uuid', OrderAddressWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->fields['deliveries'] = new SubresourceField(OrderDeliveryWriteResource::class);
+        $this->fields['lineItems'] = new SubresourceField(OrderLineItemWriteResource::class);
     }
 
     public function getWriteOrder(): array
     {
         return [
-            \Shopware\Customer\Writer\Resource\CustomerWriteResource::class,
-            \Shopware\OrderState\Writer\Resource\OrderStateWriteResource::class,
-            \Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource::class,
-            \Shopware\Currency\Writer\Resource\CurrencyWriteResource::class,
-            \Shopware\Shop\Writer\Resource\ShopWriteResource::class,
-            \Shopware\OrderAddress\Writer\Resource\OrderAddressWriteResource::class,
-            \Shopware\Order\Writer\Resource\OrderWriteResource::class,
-            \Shopware\OrderLineItem\Writer\Resource\OrderLineItemWriteResource::class,
-            \Shopware\OrderDelivery\Writer\Resource\OrderDeliveryWriteResource::class,
+            CustomerWriteResource::class,
+            OrderStateWriteResource::class,
+            PaymentMethodWriteResource::class,
+            CurrencyWriteResource::class,
+            ShopWriteResource::class,
+            OrderAddressWriteResource::class,
+            self::class,
+            OrderLineItemWriteResource::class,
+            OrderDeliveryWriteResource::class,
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): \Shopware\Order\Event\OrderWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): OrderWrittenEvent
     {
-        $event = new \Shopware\Order\Event\OrderWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new OrderWrittenEvent($updates[self::class] ?? [], $context, $errors);
 
         unset($updates[self::class]);
 
-        if (!empty($updates[\Shopware\Customer\Writer\Resource\CustomerWriteResource::class])) {
-            $event->addEvent(\Shopware\Customer\Writer\Resource\CustomerWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[CustomerWriteResource::class])) {
+            $event->addEvent(CustomerWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\OrderState\Writer\Resource\OrderStateWriteResource::class])) {
-            $event->addEvent(\Shopware\OrderState\Writer\Resource\OrderStateWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[OrderStateWriteResource::class])) {
+            $event->addEvent(OrderStateWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource::class])) {
-            $event->addEvent(\Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[PaymentMethodWriteResource::class])) {
+            $event->addEvent(PaymentMethodWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Currency\Writer\Resource\CurrencyWriteResource::class])) {
-            $event->addEvent(\Shopware\Currency\Writer\Resource\CurrencyWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[CurrencyWriteResource::class])) {
+            $event->addEvent(CurrencyWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Shop\Writer\Resource\ShopWriteResource::class])) {
-            $event->addEvent(\Shopware\Shop\Writer\Resource\ShopWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[ShopWriteResource::class])) {
+            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\OrderAddress\Writer\Resource\OrderAddressWriteResource::class])) {
-            $event->addEvent(\Shopware\OrderAddress\Writer\Resource\OrderAddressWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[OrderAddressWriteResource::class])) {
+            $event->addEvent(OrderAddressWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\Order\Writer\Resource\OrderWriteResource::class])) {
-            $event->addEvent(\Shopware\Order\Writer\Resource\OrderWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[self::class])) {
+            $event->addEvent(self::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryWriteResource::class])) {
-            $event->addEvent(\Shopware\OrderDelivery\Writer\Resource\OrderDeliveryWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[OrderDeliveryWriteResource::class])) {
+            $event->addEvent(OrderDeliveryWriteResource::createWrittenEvent($updates, $context));
         }
-        if (!empty($updates[\Shopware\OrderLineItem\Writer\Resource\OrderLineItemWriteResource::class])) {
-            $event->addEvent(\Shopware\OrderLineItem\Writer\Resource\OrderLineItemWriteResource::createWrittenEvent($updates, $context));
+        if (!empty($updates[OrderLineItemWriteResource::class])) {
+            $event->addEvent(OrderLineItemWriteResource::createWrittenEvent($updates, $context));
         }
 
         return $event;

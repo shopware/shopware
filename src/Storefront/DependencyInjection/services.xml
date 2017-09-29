@@ -60,19 +60,6 @@
             <argument type="service" id="dbal_connection" />
         </service>
 
-        <!-- Session -->
-        <service id="shopware.storefront.session" alias="session" />
-
-        <service id="shopware.storefront.session.save_handler_factory" class="Shopware\Storefront\Session\SaveHandlerFactory">
-            <argument type="service" id="dbal_connection" />
-            <argument>s_core_sessions</argument>
-        </service>
-
-        <service id="shopware.storefront.session.save_handler" class="SessionHandlerInterface">
-            <factory service="shopware.storefront.session.save_handler_factory" method="createSaveHandler" />
-            <argument>%shopware.session%</argument>
-        </service>
-
         <service id="shopware.session.shop_subscriber" class="Shopware\Storefront\Session\ShopSubscriber">
             <argument type="service" id="shopware.storefront.context.storefront_context_service" />
             <argument type="service" id="shopware.router" />

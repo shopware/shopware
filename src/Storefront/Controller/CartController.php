@@ -43,9 +43,9 @@ class CartController extends Controller
      */
     public function addProductAction(Request $request)
     {
-        $identifier = $request->request->get('identifier', false);
-        $quantity = $request->request->get('quantity', false);
-        $target = $request->request->get('target', false);
+        $identifier = $request->request->get('identifier');
+        $quantity = $request->request->get('quantity');
+        $target = $request->request->get('target');
 
         if (!($identifier && $quantity)) {
             return new JsonResponse([
@@ -55,7 +55,7 @@ class CartController extends Controller
         }
         $cartService = $this->get('shopware.cart.storefront_service');
         $cartService->add(
-            new LineItem($identifier, ProductProcessor::TYPE_PRODUCT, $quantity)
+            new LineItem($identifier, ProductProcessor::TYPE_PRODUCT, (int) $quantity)
         );
 
         return $this->conditionalResponse($request, $target);
@@ -67,8 +67,8 @@ class CartController extends Controller
      */
     public function removeLineItemAction(Request $request)
     {
-        $identifier = $request->request->get('identifier', false);
-        $target = $request->request->get('target', false);
+        $identifier = $request->request->get('identifier');
+        $target = $request->request->get('target');
 
         if (!$identifier) {
             return new JsonResponse([
@@ -89,9 +89,9 @@ class CartController extends Controller
      */
     public function setLineItemQuantityAction(Request $request)
     {
-        $identifier = $request->request->get('identifier', false);
-        $quantity = $request->request->get('quantity', false);
-        $target = $request->request->get('target', false);
+        $identifier = $request->request->get('identifier');
+        $quantity = $request->request->get('quantity');
+        $target = $request->request->get('target');
 
         if (!($identifier && $quantity)) {
             return new JsonResponse([
@@ -113,7 +113,7 @@ class CartController extends Controller
     public function addVoucher(Request $request)
     {
         $identifier = $request->request->get('identifier', false);
-        $target = $request->request->get('target', false);
+        $target = $request->request->get('target');
 
         if (!$identifier) {
             return new JsonResponse([
@@ -138,7 +138,7 @@ class CartController extends Controller
      *
      * @return JsonResponse|RedirectResponse|Response
      */
-    private function conditionalResponse(Request $request, string $target): Response
+    private function conditionalResponse(Request $request, ?string $target): Response
     {
         if ($request->isXmlHttpRequest()) {
             return new JsonResponse(['success' => true]);

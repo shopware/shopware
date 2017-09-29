@@ -9,6 +9,7 @@
             <argument type="collection">
                 <argument type="service" id="shopware.dbal_indexing.product_category_indexer" />
                 <argument type="service" id="shopware.dbal_indexing.listing_price_indexer" />
+                <argument type="service" id="shopware.dbal_indexing.vote_average_inder" />
             </argument>
         </service>
 
@@ -27,6 +28,14 @@
             <argument id="logger" type="service"/>
         </service>
 
+        <service class="Shopware\DbalIndexing\Indexer\VoteAverageInder" id="shopware.dbal_indexing.vote_average_inder">
+            <argument id="shopware.product.repository" type="service"/>
+            <argument id="shopware.dbal_indexing.loader.vote_average_loader" type="service"/>
+            <argument id="dbal_connection" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+        </service>
+
+
         <service class="Shopware\DbalIndexing\Loader\ListingPriceLoader" id="shopware.dbal_indexing.listing_price_loader">
             <argument id="dbal_connection" type="service"/>
         </service>
@@ -34,6 +43,10 @@
         <service class="Shopware\DbalIndexing\Command\RefreshIndexCommand" id="shopware.dbal_indexing.command.refresh_index_command">
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
+        </service>
+
+        <service class="Shopware\DbalIndexing\Loader\VoteAverageLoader" id="shopware.dbal_indexing.loader.vote_average_loader">
+            <argument id="dbal_connection" type="service"/>
         </service>
 
     </services>

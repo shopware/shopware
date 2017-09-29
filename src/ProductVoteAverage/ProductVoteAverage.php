@@ -22,14 +22,14 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\ProductVote;
+namespace Shopware\ProductVoteAverage;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class ProductVote extends Bundle
+class ProductVoteAverage extends Bundle
 {
     /**
      * {@inheritdoc}
@@ -40,6 +40,5 @@ class ProductVote extends Bundle
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('read_services.xml');
-        $loader->load('write-resources.xml');
     }
 }

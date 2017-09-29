@@ -9,6 +9,21 @@ CREATE TABLE `product_listing_price_ro` (
   PRIMARY KEY (`uuid`)
 );
 
+CREATE TABLE `product_vote_average_ro` (
+  `uuid` varchar(42) NOT NULL,
+  `product_uuid` varchar(42) NOT NULL,
+  `shop_uuid` varchar(42) NOT NULL,
+  `average` float NOT NULL,
+  `total` int(11) NOT NULL,
+  `five_point_count` int NOT NULL,
+  `four_point_count` int NOT NULL,
+  `three_point_count` int NOT NULL,
+  `two_point_count` int NOT NULL,
+  `one_point_count` int NOT NULL
+);
+ALTER TABLE `product_vote_average_ro`
+  ADD FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
 DROP TABLE product_category_ro;
 CREATE TABLE `product_category_ro` (
   `product_uuid` varchar(42) NOT NULL,

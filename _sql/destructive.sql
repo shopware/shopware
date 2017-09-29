@@ -1,15 +1,24 @@
 # cleanup data
-UPDATE product_detail_price p SET p.pricegroup = 'EK' WHERE p.pricegroup NOT IN (SELECT group_key FROM customer_group);
-UPDATE product_detail_price p SET p.customer_group_uuid = (SELECT c.uuid FROM customer_group c WHERE c.group_key = p.pricegroup LIMIT 1);
 
+## fix product media relations which product or media entity no more exists
 DELETE FROM product_media WHERE media_uuid NOT IN (SELECT uuid FROM media);
 DELETE FROM product_media WHERE product_uuid NOT IN (SELECT uuid FROM product);
+ALTER TABLE `product_media` ADD FOREIGN KEY (`media_uuid`) REFERENCES `media` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE `product_media`
-    ADD FOREIGN KEY (`media_uuid`) REFERENCES `media` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
+## fix product votes without associated shop
+UPDATE product_vote SET shop_uuid = CONCAT('SWAG-SHOP-UUID-1') WHERE shop_id IS NULL;
+ALTER TABLE `product_vote_average_ro`
+    ADD FOREIGN KEY (`shop_uuid`) REFERENCES `shop` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+## fixes prices without existing customer group association
+UPDATE product_detail_price p SET p.pricegroup = 'EK' WHERE p.pricegroup NOT IN (SELECT group_key FROM customer_group);
+UPDATE product_detail_price p SET p.customer_group_uuid = (SELECT c.uuid FROM customer_group c WHERE c.group_key = p.pricegroup LIMIT 1);
 ALTER TABLE `product_detail_price`
     ADD FOREIGN KEY (`customer_group_uuid`) REFERENCES `customer_group` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
 
 -- DROP FOREIGN KEYS BEFORE DROPPING IDs
 ALTER TABLE area_country_attribute

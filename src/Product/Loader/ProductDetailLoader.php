@@ -19,6 +19,8 @@ use Shopware\ProductMedia\Searcher\ProductMediaSearcher;
 use Shopware\ProductMedia\Searcher\ProductMediaSearchResult;
 use Shopware\ProductVote\Searcher\ProductVoteSearcher;
 use Shopware\ProductVote\Searcher\ProductVoteSearchResult;
+use Shopware\ProductVoteAverage\Searcher\ProductVoteAverageSearcher;
+use Shopware\ProductVoteAverage\Searcher\ProductVoteAverageSearchResult;
 use Shopware\Search\Criteria;
 use Shopware\Search\Query\TermsQuery;
 
@@ -66,6 +68,11 @@ class ProductDetailLoader
      */
     private $productVoteSearcher;
 
+    /**
+     * @var ProductVoteAverageSearcher
+     */
+    private $productVoteAverageSearcher;
+
     public function __construct(
         ProductDetailFactory $factory,
         ProductDetailBasicLoader $productDetailBasicLoader,
@@ -74,7 +81,8 @@ class ProductDetailLoader
         ProductMediaSearcher $productMediaSearcher,
         ProductDetailSearcher $productDetailSearcher,
         CategoryBasicLoader $categoryBasicLoader,
-        ProductVoteSearcher $productVoteSearcher
+        ProductVoteSearcher $productVoteSearcher,
+        ProductVoteAverageSearcher $productVoteAverageSearcher
     ) {
         $this->factory = $factory;
         $this->productDetailBasicLoader = $productDetailBasicLoader;
@@ -84,6 +92,7 @@ class ProductDetailLoader
         $this->productDetailSearcher = $productDetailSearcher;
         $this->categoryBasicLoader = $categoryBasicLoader;
         $this->productVoteSearcher = $productVoteSearcher;
+        $this->productVoteAverageSearcher = $productVoteAverageSearcher;
     }
 
     public function load(array $uuids, TranslationContext $context): ProductDetailCollection
@@ -120,6 +129,11 @@ class ProductDetailLoader
         /** @var ProductVoteSearchResult $votes */
         $votes = $this->productVoteSearcher->search($criteria, $context);
 
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermsQuery('product_vote_average_ro.product_uuid', $uuids));
+        /** @var ProductVoteAverageSearchResult $voteAverages */
+        $voteAverages = $this->productVoteAverageSearcher->search($criteria, $context);
+
         /** @var ProductDetailStruct $product */
         foreach ($productsCollection as $product) {
             if ($product->getMainDetailUuid()) {
@@ -136,6 +150,8 @@ class ProductDetailLoader
             $product->setCategories($categoryTree->getList($product->getCategoryUuids()));
             $product->setCategoryTree($categoryTree->getList($product->getCategoryTreeUuids()));
             $product->setVotes($votes->filterByProductUuid($product->getUuid()));
+
+            $product->setVoteAverages($voteAverages->filterByProductUuid($product->getUuid()));
         }
 
         return $productsCollection;

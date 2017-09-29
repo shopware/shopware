@@ -91,7 +91,6 @@ class Generate
                     self::createAssociation('media', self::OneToOne, true, false, 'media', 'media_uuid'),
                 ]
             ],
-
             'product' => [
                 'seo_url_name' => 'detail_page',
                 'associations' => [
@@ -106,7 +105,8 @@ class Generate
                     self::createAssociation('category', self::ManyToMany, false, true, 'category', 'product_uuid', 'product_category', '', true, false, '', file_get_contents(__DIR__ . '/special_case/product/category_association_assign.txt')),
                     self::createAssociation('category', self::ManyToMany, false, true, 'categoryTree', 'product_uuid', 'product_category_ro'),
                     self::createAssociation('product_vote', self::OneToMany, false, true, 'vote', 'product_uuid'),
-                    self::createAssociation('product_listing_price_ro', self::OneToMany, true, true, 'listingPrice', 'product_uuid')
+                    self::createAssociation('product_listing_price_ro', self::OneToMany, true, true, 'listingPrice', 'product_uuid'),
+                    self::createAssociation('product_vote_average_ro', self::OneToMany, false, true, 'voteAverage', 'product_uuid')
                 ]
             ],
             'product_detail_price' => [
@@ -124,6 +124,7 @@ class Generate
                 ],
             ],
             'product_manufacturer' => [],
+            'product_vote_average_ro' => [],
             'product_listing_price_ro' => [],
             'seo_url' => [
                 'collection_functions' => [

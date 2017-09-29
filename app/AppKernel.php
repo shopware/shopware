@@ -66,6 +66,7 @@ class AppKernel extends Kernel
             new \Shopware\Album\Album(),
             new \Shopware\Area\Area(),
             new \Shopware\ProductVote\ProductVote(),
+            new \Shopware\ProductVoteAverage\ProductVoteAverage(),
             new \Shopware\AreaCountry\AreaCountry(),
             new \Shopware\AreaCountryState\AreaCountryState(),
             new \Shopware\Category\Category(),

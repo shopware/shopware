@@ -15,6 +15,7 @@ use Shopware\ProductListingPrice\Factory\ProductListingPriceBasicFactory;
 use Shopware\ProductManufacturer\Factory\ProductManufacturerBasicFactory;
 use Shopware\ProductMedia\Factory\ProductMediaBasicFactory;
 use Shopware\ProductVote\Factory\ProductVoteBasicFactory;
+use Shopware\ProductVoteAverage\Factory\ProductVoteAverageBasicFactory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Shopware\SeoUrl\Factory\SeoUrlBasicFactory;
@@ -42,6 +43,11 @@ class ProductDetailFactory extends ProductBasicFactory
      */
     protected $productVoteFactory;
 
+    /**
+     * @var ProductVoteAverageBasicFactory
+     */
+    protected $productVoteAverageFactory;
+
     public function __construct(
         Connection $connection,
         ExtensionRegistryInterface $registry,
@@ -49,6 +55,7 @@ class ProductDetailFactory extends ProductBasicFactory
         ProductDetailBasicFactory $productDetailFactory,
         CategoryBasicFactory $categoryFactory,
         ProductVoteBasicFactory $productVoteFactory,
+        ProductVoteAverageBasicFactory $productVoteAverageFactory,
         ProductManufacturerBasicFactory $productManufacturerFactory,
         TaxBasicFactory $taxFactory,
         SeoUrlBasicFactory $seoUrlFactory,
@@ -61,6 +68,7 @@ class ProductDetailFactory extends ProductBasicFactory
         $this->productDetailFactory = $productDetailFactory;
         $this->categoryFactory = $categoryFactory;
         $this->productVoteFactory = $productVoteFactory;
+        $this->productVoteAverageFactory = $productVoteAverageFactory;
     }
 
     public function getFields(): array
@@ -197,6 +205,19 @@ class ProductDetailFactory extends ProductBasicFactory
 
             $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
         }
+
+        if ($voteAverages = $selection->filter('voteAverages')) {
+            $query->leftJoin(
+                $selection->getRootEscaped(),
+                'product_vote_average_ro',
+                $voteAverages->getRootEscaped(),
+                sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $voteAverages->getRootEscaped())
+            );
+
+            $this->productVoteAverageFactory->joinDependencies($voteAverages, $query, $context);
+
+            $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+        }
     }
 
     public function getAllFields(): array
@@ -207,6 +228,7 @@ class ProductDetailFactory extends ProductBasicFactory
         $fields['categories'] = $this->categoryFactory->getAllFields();
         $fields['categoryTree'] = $this->categoryFactory->getAllFields();
         $fields['votes'] = $this->productVoteFactory->getAllFields();
+        $fields['voteAverages'] = $this->productVoteAverageFactory->getAllFields();
 
         return $fields;
     }

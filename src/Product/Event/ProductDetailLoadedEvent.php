@@ -10,6 +10,7 @@ use Shopware\Product\Struct\ProductDetailCollection;
 use Shopware\ProductDetail\Event\ProductDetailBasicLoadedEvent;
 use Shopware\ProductMedia\Event\ProductMediaBasicLoadedEvent;
 use Shopware\ProductVote\Event\ProductVoteBasicLoadedEvent;
+use Shopware\ProductVoteAverage\Event\ProductVoteAverageBasicLoadedEvent;
 
 class ProductDetailLoadedEvent extends NestedEvent
 {
@@ -66,6 +67,9 @@ class ProductDetailLoadedEvent extends NestedEvent
         }
         if ($this->products->getVotes()->count() > 0) {
             $events[] = new ProductVoteBasicLoadedEvent($this->products->getVotes(), $this->context);
+        }
+        if ($this->products->getVoteAverages()->count() > 0) {
+            $events[] = new ProductVoteAverageBasicLoadedEvent($this->products->getVoteAverages(), $this->context);
         }
 
         return new NestedEventCollection($events);

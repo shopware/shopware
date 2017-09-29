@@ -6,6 +6,7 @@ use Shopware\Category\Struct\CategoryBasicCollection;
 use Shopware\ProductDetail\Struct\ProductDetailBasicCollection;
 use Shopware\ProductMedia\Struct\ProductMediaBasicCollection;
 use Shopware\ProductVote\Struct\ProductVoteBasicCollection;
+use Shopware\ProductVoteAverage\Struct\ProductVoteAverageBasicCollection;
 
 class ProductDetailCollection extends ProductBasicCollection
 {
@@ -119,6 +120,28 @@ class ProductDetailCollection extends ProductBasicCollection
         $collection = new ProductVoteBasicCollection();
         foreach ($this->elements as $element) {
             $collection->fill($element->getVotes()->getIterator()->getArrayCopy());
+        }
+
+        return $collection;
+    }
+
+    public function getVoteAverageUuids(): array
+    {
+        $uuids = [];
+        foreach ($this->elements as $element) {
+            foreach ($element->getVoteAverages()->getUuids() as $uuid) {
+                $uuids[] = $uuid;
+            }
+        }
+
+        return $uuids;
+    }
+
+    public function getVoteAverages(): ProductVoteAverageBasicCollection
+    {
+        $collection = new ProductVoteAverageBasicCollection();
+        foreach ($this->elements as $element) {
+            $collection->fill($element->getVoteAverages()->getIterator()->getArrayCopy());
         }
 
         return $collection;

@@ -2242,14 +2242,6 @@ UPDATE product_vote SET product_uuid = CONCAT('SWAG-PRODUCT-UUID-', product_id) 
 UPDATE product_vote SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
 
 
-
-
-
-
-
-
-
-
 -- cleanup again
 
 UPDATE media SET user_uuid = NULL;

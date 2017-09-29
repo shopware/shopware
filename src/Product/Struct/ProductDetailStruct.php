@@ -6,6 +6,7 @@ use Shopware\Category\Struct\CategoryBasicCollection;
 use Shopware\ProductDetail\Struct\ProductDetailBasicCollection;
 use Shopware\ProductMedia\Struct\ProductMediaBasicCollection;
 use Shopware\ProductVote\Struct\ProductVoteBasicCollection;
+use Shopware\ProductVoteAverage\Struct\ProductVoteAverageBasicCollection;
 
 class ProductDetailStruct extends ProductBasicStruct
 {
@@ -44,6 +45,11 @@ class ProductDetailStruct extends ProductBasicStruct
      */
     protected $votes;
 
+    /**
+     * @var ProductVoteAverageBasicCollection
+     */
+    protected $voteAverages;
+
     public function __construct()
     {
         $this->media = new ProductMediaBasicCollection();
@@ -51,6 +57,7 @@ class ProductDetailStruct extends ProductBasicStruct
         $this->categories = new CategoryBasicCollection();
         $this->categoryTree = new CategoryBasicCollection();
         $this->votes = new ProductVoteBasicCollection();
+        $this->voteAverages = new ProductVoteAverageBasicCollection();
     }
 
     public function getMedia(): ProductMediaBasicCollection
@@ -121,5 +128,15 @@ class ProductDetailStruct extends ProductBasicStruct
     public function setVotes(ProductVoteBasicCollection $votes): void
     {
         $this->votes = $votes;
+    }
+
+    public function getVoteAverages(): ProductVoteAverageBasicCollection
+    {
+        return $this->voteAverages;
+    }
+
+    public function setVoteAverages(ProductVoteAverageBasicCollection $voteAverages): void
+    {
+        $this->voteAverages = $voteAverages;
     }
 }

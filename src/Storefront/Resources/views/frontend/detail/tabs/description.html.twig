@@ -24,8 +24,9 @@
 
     {# Product description #}
     {% block frontend_detail_description_text %}
+        {# @var product \Shopware\Storefront\Bridge\Product\Struct\ProductBasicStruct #}
         <div class="product--description" itemprop="description">
-            {{ product.description_long }}
+            {{ product.descriptionLong | raw }}
         </div>
     {% endblock %}
 
@@ -131,23 +132,6 @@
                         {% endblock %}
                     {% endfor %}
                 </ul>
-            {% endblock %}
-        {% endif %}
-    {% endblock %}
-
-    {# Comment - Item open text fields attr3 #}
-    {% block frontend_detail_description_our_comment %}
-        {% if product.attr3 %}
-
-            {# Comment title  #}
-            {% block frontend_detail_description_our_comment_title %}
-                <div class="content--title">
-                    {s name='DetailDescriptionComment'}{/s} "{{ product.name }}"
-                </div>
-            {% endblock %}
-
-            {% block frontend_detail_description_our_comment_title_content %}
-                <blockquote class="content--quote">{{ product.attr3 }}</blockquote>
             {% endblock %}
         {% endif %}
     {% endblock %}

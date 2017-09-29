@@ -24,6 +24,7 @@
             <argument id="shopware.product_detail.basic_factory" type="service"/>
             <argument id="shopware.category.basic_factory" type="service"/>
             <argument id="shopware.product_vote.basic_factory" type="service"/>
+            <argument id="shopware.product_vote_average_ro.basic_factory" type="service"/>
             <argument id="shopware.product_manufacturer.basic_factory" type="service"/>
             <argument id="shopware.tax.basic_factory" type="service"/>
             <argument id="shopware.seo_url.basic_factory" type="service"/>
@@ -60,6 +61,7 @@
             <argument id="shopware.product_detail.searcher" type="service"/>
             <argument id="shopware.category.basic_loader" type="service"/>
             <argument id="shopware.product_vote.searcher" type="service"/>
+            <argument id="shopware.product_vote_average_ro.searcher" type="service"/>
         </service>
 
         <service class="Shopware\Product\Searcher\ProductSearcher" id="shopware.product.searcher">

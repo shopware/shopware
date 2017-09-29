@@ -107,8 +107,8 @@ class SeoUrlGeneratorRegistry
         $criteria = new Criteria();
 
         $criteria->addFilter(new TermQuery('seo_url.name', $name));
-        $criteria->addFilter(new TermsQuery('seo_url.foreign_key', $urls->getForeignKeys()));
-        $criteria->addFilter(new TermQuery('seo_url.shop_uuid', $shop->getUuid()));
+        $criteria->addFilter(new TermsQuery('seo_url.foreignKey', $urls->getForeignKeys()));
+        $criteria->addFilter(new TermQuery('seo_url.shopUuid', $shop->getUuid()));
 
         $existing = $this->repository->search($criteria, $context);
 

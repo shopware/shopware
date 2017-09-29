@@ -88,10 +88,10 @@ class ListingPageUrlGenerator implements SeoUrlGeneratorInterface
         $categories = $this->categoryRepository->search($criteria, $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('seo_url.is_canonical', 1));
-        $criteria->addFilter(new TermsQuery('seo_url.foreign_key', $categories->getUuids()));
+        $criteria->addFilter(new TermQuery('seo_url.isCanonical', 1));
+        $criteria->addFilter(new TermsQuery('seo_url.foreignKey', $categories->getUuids()));
         $criteria->addFilter(new TermQuery('seo_url.name', self::ROUTE_NAME));
-        $criteria->addFilter(new TermQuery('seo_url.shop_uuid', $shop->getUuid()));
+        $criteria->addFilter(new TermQuery('seo_url.shopUuid', $shop->getUuid()));
 
         $existingCanonicals = $this->seoUrlRepository->search($criteria, $context);
 

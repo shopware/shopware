@@ -53,8 +53,8 @@ class NavigationService
         $uuids = array_merge($activeCategory->getPath(), [$activeCategory->getUuid()]);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('parent_uuid', $uuids));
-        $criteria->addFilter(new TermQuery('active', 1));
+        $criteria->addFilter(new TermsQuery('category.parentUuid', $uuids));
+        $criteria->addFilter(new TermQuery('category.active', 1));
 
         /** @var CategorySearchResult $categories */
         $categories = $this->repository->search($criteria, $context->getTranslationContext());

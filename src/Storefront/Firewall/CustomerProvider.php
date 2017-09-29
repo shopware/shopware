@@ -32,7 +32,7 @@ class CustomerProvider implements UserProviderInterface
     public function loadUserByUsername($email)
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('email', $email));
+        $criteria->addFilter(new TermQuery('customer.email', $email));
         $criteria->setLimit(1);
 
         $context = new TranslationContext('SWAG-SHOP-UUID-1', true, null);

@@ -122,11 +122,9 @@ class QuerySelection
 
     public function getFieldEscaped(string $field): string
     {
-        if ($this->hasField($field)) {
-            return self::escapeField($this->getField($field));
-        }
-
-        return self::escapeField($field);
+        return self::escapeField(
+            $this->getField($field)
+        );
     }
 
     public static function escapeFieldSelect(string $field): string

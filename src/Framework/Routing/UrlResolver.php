@@ -47,8 +47,8 @@ class UrlResolver implements UrlResolverInterface
         $url = ltrim($url, '/');
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('shop_uuid', $shopUuid));
-        $criteria->addFilter(new TermQuery('seo_url.seo_hash', sha1($url)));
+        $criteria->addFilter(new TermQuery('seo_url.shopUuid', $shopUuid));
+        $criteria->addFilter(new TermQuery('seo_url.seoHash', sha1($url)));
         $urls = $this->seoUrlRepository->search($criteria, $context);
 
         return $urls->getBySeoPathInfo($url);
@@ -57,9 +57,9 @@ class UrlResolver implements UrlResolverInterface
     public function getUrl(string $shopUuid, string $pathInfo, TranslationContext $context): ?SeoUrlBasicStruct
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('shop_uuid', $shopUuid));
-        $criteria->addFilter(new TermQuery('path_info', $pathInfo));
-        $criteria->addFilter(new TermQuery('is_canonical', true));
+        $criteria->addFilter(new TermQuery('seo_url.shopUuid', $shopUuid));
+        $criteria->addFilter(new TermQuery('seo_url.pathInfo', $pathInfo));
+        $criteria->addFilter(new TermQuery('seo_url.isCanonical', true));
 
         $urls = $this->seoUrlRepository->search($criteria, $context);
 

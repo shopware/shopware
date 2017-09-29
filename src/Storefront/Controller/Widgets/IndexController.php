@@ -59,7 +59,7 @@ class IndexController extends Controller
         $criteria = new Criteria();
 
         $uuids = [$context->getShop()->getParentUuid(), $context->getShop()->getUuid()];
-        $criteria->addFilter(new TermsQuery('shop.parent_uuid', $uuids));
+        $criteria->addFilter(new TermsQuery('shop.parentUuid', $uuids));
         $criteria->addFilter(new TermQuery('shop.active', 1));
 
         $repo = $this->get('shopware.shop.repository');

@@ -54,7 +54,7 @@ class CategoryPathBuilder
         TranslationContext $context
     ): CategoryBasicCollection {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('category.parent_uuid', $parent->getUuid()));
+        $criteria->addFilter(new TermQuery('category.parentUuid', $parent->getUuid()));
         $categories = $this->repository->search($criteria, $context);
 
         $pathUpdate = $this->connection->prepare('UPDATE category SET path = :path, level = :level WHERE uuid = :uuid');

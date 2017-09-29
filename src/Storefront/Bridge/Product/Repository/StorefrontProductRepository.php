@@ -91,8 +91,8 @@ class StorefrontProductRepository
     {
         /** @var ProductMediaSearchResult $media */
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('product_media.product_uuid', $uuids));
-        $criteria->addSorting(new FieldSorting('product_media.is_cover', FieldSorting::DESCENDING));
+        $criteria->addFilter(new TermsQuery('product_media.productUuid', $uuids));
+        $criteria->addSorting(new FieldSorting('product_media.isCover', FieldSorting::DESCENDING));
         $criteria->addSorting(new FieldSorting('product_media.position'));
 
         return $this->productMediaRepository->search($criteria, $context->getTranslationContext());

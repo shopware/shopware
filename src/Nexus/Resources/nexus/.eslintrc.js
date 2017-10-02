@@ -64,6 +64,8 @@ module.exports = {
         // Allow both types of linebreak because of multiple contributors with different systems.
         'linebreak-style': 0,
 
+        'no-prototype-builtins': 0,
+
         // allow optionalDependencies
         'import/no-extraneous-dependencies': ['error', {
             'optionalDependencies': ['test/unit/index.js']

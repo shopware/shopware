@@ -1,11 +1,12 @@
 import PaginationMixin from 'src/app/component/mixin/pagination.mixin';
+import ProductListRepository from 'src/core/repository/product.list.repository';
 import utils from 'src/core/service/util.service';
 import './core-product-list.less';
 import template from './core-product-list.twig';
 
 export default Shopware.ComponentFactory.register('core-product-list', {
-    inject: ['productRepository'],
-    mixins: [PaginationMixin],
+    inject: ['productService'],
+    mixins: [ProductListRepository, PaginationMixin],
 
     data() {
         return {
@@ -19,26 +20,12 @@ export default Shopware.ComponentFactory.register('core-product-list', {
     },
 
     created() {
-        this.getData();
+        this.initProductList();
     },
 
     filters: {
         currency: utils.currency
     },
 
-    methods: {
-        getData() {
-            this.isWorking = true;
-            this.productRepository
-                .getList(this.limit, this.offset)
-                .then((listData) => {
-                    this.productListProxy = listData.listProxy;
-                    this.productList = listData.listProxy.data;
-                    this.total = listData.total;
-                    this.errors = listData.errors;
-                    this.isWorking = false;
-                });
-        }
-    },
     template
 });

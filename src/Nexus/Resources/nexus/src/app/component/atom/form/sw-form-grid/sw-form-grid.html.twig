@@ -1,0 +1,17 @@
+<div class="sw-form-grid">
+    <div class="grid--header">
+        <slot name="header">
+            <div class="grid--cell" v-for="column in columns">{{ column.label }}</div>
+        </slot>
+    </div>
+    <div class="grid--body">
+        <slot name="body">
+            <div class="grid--item" v-for="item in items">
+                <div class="grid--cell" v-for="column in columns">
+                    <sw-field v-if="column.type === 'select'" v-model="item[column.field]" type="select" :options="column.options" :value="item[column.field]"></sw-field>
+                    <input v-if="column.type === 'number'" v-model.number="item[column.field]" type="number" :value="item[column.field]">
+                </div>
+            </div>
+        </slot>
+    </div>
+</div>

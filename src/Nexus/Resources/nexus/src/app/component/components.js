@@ -5,12 +5,13 @@ import './atom/grid/sw-grid-col/sw-grid-col';
 import './atom/grid/sw-grid-header/sw-grid-header';
 import './atom/grid/sw-grid-row/sw-grid-row';
 import './atom/grid/sw-pagination/sw-pagination';
-import './atom/sw-form';
-import './atom/sw-field';
+import './atom/form/sw-form';
+import './atom/form/sw-field';
+import './atom/form/sw-form-grid';
+import './atom/form/sw-multi-select';
 import './atom/utils/sw-loader/sw-loader';
 import './atom/sw-card';
 import './atom/sw-button';
-import './atom/form/sw-multi-select';
 
 // Molecules
 

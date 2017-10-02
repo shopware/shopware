@@ -3,21 +3,22 @@ import template from './sw-field.html.twig';
 
 export default Shopware.ComponentFactory.register('sw-field', {
     props: {
-        id: {
-            type: String,
-            required: true
-        },
         type: {
             type: String,
             default: 'text'
         },
+        id: {
+            type: String,
+            required: false
+        },
         name: {
             type: String,
-            required: true
+            required: false
         },
         placeholder: {
             type: String,
-            default: ''
+            default: '',
+            required: false
         },
         value: {
             type: [String, Boolean, Number, Date],

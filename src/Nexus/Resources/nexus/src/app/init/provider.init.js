@@ -1,8 +1,8 @@
 import EventEmitter from 'src/core/factory/event-emitter.factory';
 import ProductService from 'src/core/service/api/product/product.service';
-import ProductRepository from 'src/core/service/repository/product.repository';
 import OrderService from 'src/core/service/api/order/order.service';
 import CustomerService from 'src/core/service/api/customer/customer.service';
+import CustomerGroupService from 'src/core/service/api/customer_group/customer_group.service';
 import PaymentMethodService from 'src/core/service/api/payment_method/payment_method.service';
 import OrderLineItemService from 'src/core/service/api/order_line_item/order_line_item.service';
 import ShippingMethodService from 'src/core/service/api/shipping_method/shipping_method.service';
@@ -16,7 +16,6 @@ import TaxService from 'src/core/service/api/tax/tax.service';
 import CategoryService from 'src/core/service/api/category/category.service';
 import MediaService from 'src/core/service/api/media/media.service';
 import LoginService from 'src/core/service/api/login/login.service';
-import ConvenientProductService from 'src/core/service/convenient/product.convenient.service';
 import MenuService from 'src/app/service/menu.service';
 
 export default function initializeProviders(app, configuration, done) {
@@ -30,7 +29,6 @@ export default function initializeProviders(app, configuration, done) {
         .addProvider('eventEmitter', EventEmitter(eventSystem))
         .addProvider('stateContainer', stateContainer)
         .addProvider('productService', ProductService(httpClient))
-        .addProvider('productRepository', ProductRepository(httpClient))
         .addProvider('orderService', OrderService(httpClient))
         .addProvider('currencyService', CurrencyService(httpClient))
         .addProvider('shopService', ShopService(httpClient))
@@ -41,20 +39,14 @@ export default function initializeProviders(app, configuration, done) {
         .addProvider('shippingMethodService', ShippingMethodService(httpClient))
         .addProvider('paymentMethodService', PaymentMethodService(httpClient))
         .addProvider('customerService', CustomerService(httpClient))
+        .addProvider('customerGroupService', CustomerGroupService(httpClient))
         .addProvider('productManufacturerService', ProductManufacturerService(httpClient))
         .addProvider('taxService', TaxService(httpClient))
         .addProvider('categoryService', CategoryService(httpClient))
         .addProvider('mediaService', MediaService(httpClient))
         .addProvider('loginService', LoginService(httpClient))
         .addProvider('applicationState', applicationState)
-        .addProvider('menuService', MenuService)
-        .addProvider('convenientProductService',
-            ConvenientProductService(
-                ProductService(httpClient),
-                ProductManufacturerService(httpClient),
-                MediaService(httpClient)
-            )
-        );
+        .addProvider('menuService', MenuService);
 
     done(configuration);
 }

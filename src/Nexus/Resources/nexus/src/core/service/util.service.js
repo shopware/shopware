@@ -1,4 +1,3 @@
-import { updatedDiff } from 'deep-object-diff';
 import uuidv4 from 'uuid/v4';
 
 export default {
@@ -7,8 +6,12 @@ export default {
     warn,
     currency,
     date,
-    compareObjects: updatedDiff,
-    createUuid: uuidv4
+    getObjectChangeSet,
+    createUuid: uuidv4,
+    isObject,
+    isEmpty,
+    isArray,
+    isDate
 };
 
 // Todo: This has an issue when you want to copy into a new object
@@ -74,4 +77,122 @@ function currency(val, sign) {
 
 function date(val) {
     return val.toLocaleString('de-DE');
+}
+
+function isObject(object) {
+    return object !== null && typeof object === 'object';
+}
+
+function isEmpty(object) {
+    return Object.keys(object).length === 0;
+}
+
+function isArray(array) {
+    return Array.isArray(array);
+}
+
+function isDate(dateObject) {
+    return dateObject instanceof Date;
+}
+
+function getObjectChangeSet(baseObject, compareObject) {
+    if (baseObject === compareObject) {
+        return {};
+    }
+
+    if (!isObject(baseObject) || !isObject(compareObject)) {
+        return compareObject;
+    }
+
+    if (isDate(baseObject) || isDate(compareObject)) {
+        if (baseObject.valueOf() === compareObject.valueOf()) {
+            return {};
+        }
+
+        return compareObject;
+    }
+
+    const b = { ...baseObject };
+    const c = { ...compareObject };
+
+    return Object.keys(c).reduce((acc, key) => {
+        if (b.hasOwnProperty(key)) {
+            if (isArray(b[key])) {
+                const arrayDiff = getArrayChangeSet(b[key], c[key]);
+
+                if (isArray(arrayDiff) && arrayDiff.length === 0) {
+                    return acc;
+                }
+
+                return { ...acc, [key]: arrayDiff };
+            }
+
+            const diff = getObjectChangeSet(b[key], c[key]);
+
+            if (isObject(diff) && isEmpty(diff) && !isDate(diff)) {
+                return acc;
+            }
+
+            if (isObject(b[key]) && b[key].uuid) {
+                diff.uuid = b[key].uuid;
+            }
+
+            return { ...acc, [key]: diff };
+        }
+
+        return acc;
+    }, {});
+}
+
+function getArrayChangeSet(baseArray, compareArray) {
+    if (baseArray === compareArray) {
+        return [];
+    }
+
+    if (!isArray(baseArray) || !isArray(compareArray)) {
+        return compareArray;
+    }
+
+    if (baseArray.length === 0) {
+        return compareArray;
+    }
+
+    if (compareArray.length === 0) {
+        return baseArray;
+    }
+
+    const b = [...baseArray];
+    const c = [...compareArray];
+
+    if (!isObject(b[0]) || !isObject(c[0])) {
+        return c.filter(value => b.indexOf(value) < 0);
+    }
+
+    const diff = [];
+
+    c.forEach((item, index) => {
+        if (!item.uuid) {
+            const diffObject = getObjectChangeSet(b[index], c[index]);
+
+            if (isObject(diffObject) && !isEmpty(diffObject)) {
+                diff.push(diffObject);
+            }
+        } else {
+            const compareObject = b.find((compareItem) => {
+                return item.uuid === compareItem.uuid;
+            });
+
+            if (!compareObject) {
+                diff.push(item);
+            } else {
+                const diffObject = getObjectChangeSet(compareObject, item);
+
+                if (isObject(diffObject) && !isEmpty(diffObject)) {
+                    diff.push({ ...diffObject, uuid: item.uuid });
+                }
+            }
+        }
+    });
+
+    return diff;
 }

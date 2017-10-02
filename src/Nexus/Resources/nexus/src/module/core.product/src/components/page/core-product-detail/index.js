@@ -1,8 +1,11 @@
+import ProductDetailRepository from 'src/core/repository/product.detail.repository';
 import template from './core-product-detail.html.twig';
 import './core-product-detail.less';
 
 export default Shopware.ComponentFactory.register('core-product-detail', {
-    inject: ['productRepository', 'categoryService', 'productManufacturerService', 'taxService'],
+    inject: ['productService', 'categoryService', 'productManufacturerService', 'taxService', 'customerGroupService'],
+
+    mixins: [ProductDetailRepository],
 
     data() {
         return {
@@ -11,26 +14,45 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
                 attribute: {},
                 mainDetail: {},
                 categories: [],
-                extensions: {
-                    nexus: {
-                        voteAverage: 10.5,
-                        listingPrice: 1.50
-                    }
-                }
+                details: []
             },
             taxRates: [],
             manufacturers: [],
-            notModifiedProduct: {}
+            customerGroups: []
         };
     },
 
     computed: {
         categoryService() {
             return this.categoryService;
+        },
+
+        customerGroupOptions() {
+            const options = [];
+
+            this.customerGroups.forEach((item) => {
+                options.push({
+                    value: item.uuid,
+                    label: item.name
+                });
+            });
+
+            return options;
+        },
+
+        priceColumns() {
+            return [
+                { field: 'quantityStart', label: 'Von', type: 'number' },
+                { field: 'quantityEnd', label: 'Bis', type: 'number' },
+                { field: 'price', label: 'Preis', type: 'number' },
+                { field: 'pseudoPrice', label: 'Pseudo Preis', type: 'number' },
+                { field: 'customerGroupUuid', label: 'Kundengruppe', type: 'select', options: this.customerGroupOptions }
+            ];
         }
     },
 
     created() {
+        this.initProduct(this.$route.params.uuid);
         this.getData();
     },
 
@@ -40,33 +62,9 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
 
     methods: {
         getData() {
-            this.getProductData();
             this.getManufacturerData();
+            this.getCustomerGroupData();
             this.getTaxData();
-        },
-
-        getProductData() {
-            const uuid = this.$route.params.uuid;
-
-            if (!uuid) {
-                this.createNewProduct();
-                return;
-            }
-
-            this.isWorking = true;
-
-            this.productRepository.getByUuid(uuid).then((productProxy) => {
-                this.productProxy = productProxy;
-                this.product = productProxy.data;
-                this.isWorking = false;
-            });
-        },
-
-        createNewProduct() {
-            const productProxy = this.productRepository.getNew();
-
-            this.productProxy = productProxy;
-            this.product = productProxy.data;
         },
 
         getManufacturerData() {
@@ -81,21 +79,21 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
             });
         },
 
+        getCustomerGroupData() {
+            this.customerGroupService.getList().then((response) => {
+                this.customerGroups = response.data;
+            });
+        },
+
         onSave() {
-            const uuid = this.$route.params.uuid;
-
-            if (!uuid) {
-                this.isWorking = true;
-                this.productRepository.create(this.productProxy).then((data) => {
-                    if (data.uuid) {
-                        this.$router.push({ path: `/core/product/detail/${data.uuid}` });
-                    }
-                });
-                return;
-            }
-
             this.isWorking = true;
-            this.productRepository.updateByUuid(uuid, this.productProxy).then(() => {
+            this.saveProduct().then((data) => {
+                this.isWorking = false;
+
+                if (!this.$route.params.uuid && data.uuid) {
+                    this.$router.push({ path: `/core/product/detail/${data.uuid}` });
+                }
+            }).catch(() => {
                 this.isWorking = false;
             });
         }

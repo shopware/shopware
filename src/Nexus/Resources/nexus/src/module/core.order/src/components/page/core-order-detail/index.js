@@ -106,7 +106,7 @@ export default Shopware.ComponentFactory.register('core-order-detail', {
 
         onSaveForm() {
             const uuid = this.$route.params.uuid;
-            const changeSet = utils.compareObjects(this.notModifiedOrder, this.order);
+            const changeSet = utils.getObjectChangeSet(this.notModifiedOrder, this.order);
 
             // Check if we're having categories and apply them to the change set
             // if (this.order.lineItems.length) {

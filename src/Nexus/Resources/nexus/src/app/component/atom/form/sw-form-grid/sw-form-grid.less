@@ -1,0 +1,114 @@
+.sw-form-grid {
+    display: block;
+    width: 100%;
+    border: 1px solid #d2dee6;
+    border-radius: 3px;
+    font-size: 12px;
+    line-height: 14px;
+
+    .grid--header,
+    .grid--item {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(50px, 200px);
+        grid-column-gap: 1px;
+        grid-row-gap: 1px;
+        align-items: stretch;
+        align-content: stretch;
+        justify-items: stretch;
+        justify-content: stretch;
+    }
+
+    .grid--header {
+        background: #f3f6f8;
+        color: #484E56;
+        font-weight: bold;
+
+        .grid--cell {
+            padding: 8px 12px;
+        }
+    }
+
+    .grid--item {
+        background: #ffffff;
+
+        &:nth-child(even) {
+            background: #F5F8FA;
+        }
+
+        &:hover {
+            background: #A4BCCD;
+            color: #ffffff;
+            border-color: #D2DEE6;
+        }
+    }
+
+    .grid--cell {
+        border-right: 1px solid #d2dee6;
+        position: relative;
+
+        &:last-child {
+            border-right: 0 none;
+        }
+
+        input {
+            display: block;
+            width: 100%;
+            height: 100%;
+            padding: 8px 12px;
+            background: none;
+            border: 0 none;
+            outline: none;
+
+            &:focus {
+                width: 104%;
+                height: 104%;
+                position: absolute;
+                top: -2%;
+                left: -2%;
+                background: #ffffff;
+                border: 1px solid #189EFF;
+                box-shadow: 0 0 4px 0 rgba(24, 158, 255, 0.3);
+                border-radius: 3px;
+            }
+        }
+
+        .sw-field {
+            margin: 0;
+
+            .sw-field-select {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+
+                &:after {
+                    top: 8px;
+                }
+
+                select {
+                    display: block;
+                    width: 100%;
+                    height: 100%;
+                    padding: 8px 12px;
+                    font-size: 12px;
+                    line-height: 14px;
+                    background: none;
+                    border: 0 none;
+                    outline: none;
+
+                    &:focus {
+                        width: 104%;
+                        height: 104%;
+                        position: absolute;
+                        top: -2%;
+                        left: -2%;
+                        background: #ffffff;
+                        border: 1px solid #189EFF;
+                        box-shadow: 0 0 4px 0 rgba(24, 158, 255, 0.3);
+                        border-radius: 3px;
+                    }
+                }
+            }
+        }
+    }
+}

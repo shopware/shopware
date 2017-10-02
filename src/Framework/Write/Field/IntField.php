@@ -164,7 +164,6 @@ class IntField extends Field implements PathAware, ConstraintBuilderAware, Filte
     private function getInsertConstraints(): array
     {
         return $this->constraintBuilder
-            ->isNotBlank()
             ->isInt()
             ->getConstraints();
     }

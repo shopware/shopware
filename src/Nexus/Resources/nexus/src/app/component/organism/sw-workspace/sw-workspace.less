@@ -1,12 +1,20 @@
 .workspace-container {
-    height: 100%;
-    position: relative;
+    position: absolute;
+    top: 80px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
 
     .workspace--toolbar {
         height: 70px;
         border-bottom: 1px solid;
         background: #fff;
         opacity: 0.7;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
     }
 
     .workspace--headline {
@@ -62,5 +70,12 @@
 
     .workspace--content {
         background: #f5f6fa;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
     }
 }

@@ -6,13 +6,8 @@ export default {
 
 class DataProxy {
     constructor(data) {
-        this.originalData = data;
-
-        if (data.constructor === Array) {
-            this.processedData = [...data];
-        } else if (data.constructor === Object) {
-            this.processedData = { ...data };
-        }
+        this.originalData = deepCopy(data);
+        this.processedData = deepCopy(data);
 
         this.versions = [];
     }
@@ -23,14 +18,10 @@ class DataProxy {
 
     set data(data) {
         // Save the old version for version control.
-        if (this.originalData.constructor === Array) {
-            this.versions.push([...this.originalData]);
-        } else if (this.originalData.constructor === Object) {
-            this.versions.push({ ...this.originalData });
-        }
+        this.versions.push(deepCopy(this.originalData));
 
         // Set the changed data as new original data set to track new changes.
-        this.originalData = data;
+        this.originalData = deepCopy(data);
 
         /**
          * ToDo: Add support for updatedAt!
@@ -44,18 +35,18 @@ class DataProxy {
         }
 
         // Update the exposed data object. The original reference to the data object has to be kept for the data binding.
-        if (data.constructor === Array) {
-            this.processedData = [...data];
-        } else if (data.constructor === Object) {
-            Object.apply(this.processedData, data);
-        }
+        this.processedData = Object.assign(this.processedData, data);
     }
 
     get changeSet() {
-        return utils.compareObjects(this.originalData, this.processedData);
+        return utils.getObjectChangeSet(this.originalData, this.processedData);
     }
 }
 
 function createProxy(data) {
     return new DataProxy(data);
+}
+
+function deepCopy(data) {
+    return JSON.parse(JSON.stringify(data));
 }

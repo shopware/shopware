@@ -6,8 +6,8 @@ export default function ProductService(client) {
     let returnFormat = 'json';
 
     return {
-        readAll,
-        readByUuid,
+        getList,
+        getByUuid,
         updateByUuid,
         create,
         getReturnFormat,
@@ -21,7 +21,7 @@ export default function ProductService(client) {
      * @param {Number} offset - Offset of the products you want to receive
      * @returns {Promise}
      */
-    function readAll(limit = 25, offset = 0) {
+    function getList(limit = 25, offset = 0) {
         return client.get(`/product.${returnFormat}?limit=${limit}&offset=${offset}`).then((response) => {
             return response.data;
         });
@@ -33,7 +33,7 @@ export default function ProductService(client) {
      * @param {String} uuid - Product UUID
      * @returns {Promise}
      */
-    function readByUuid(uuid) {
+    function getByUuid(uuid) {
         if (!uuid) {
             return Promise.reject(new Error('"uuid" argument needs to be provided'));
         }

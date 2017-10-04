@@ -38,9 +38,14 @@ trait JsonSerializableTrait
     public function jsonSerializeApi(): array
     {
         $data = json_decode(json_encode($this), true);
+        unset($data['_class']);
 
         $vars = get_object_vars($this);
         foreach ($vars as $property => $value) {
+            if ($value instanceof \DateTime) {
+                $value = $value->format(\DateTime::ATOM);
+            }
+
             $data[$property] = $this->serializeJsonApi($value);
         }
 

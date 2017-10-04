@@ -55,9 +55,16 @@ class TemplateFinder
         $this->loader = $loader;
 
         array_map([$this, 'addBundle'], $kernel::getPlugins()->getActivePlugins());
-        array_map([$this, 'addTheme'], $kernel->getThemes());
 
+        // todo: remove hard nexus dependency
+        $nexusBundle = $kernel->getBundle('Nexus');
+        $this->loader->addPath($nexusBundle->getPath() . '/Resources/views/', $nexusBundle->getName());
+        $this->directories[] = '@' . $nexusBundle->getName();
+
+        // todo: remove hard api dependency
         $this->loader->addPath($kernel->getRootDir() . '/../src/Api/Resources/views', 'Api');
+
+        array_map([$this, 'addTheme'], $kernel->getThemes());
     }
 
     public function addBundle(BundleInterface $bundle): void

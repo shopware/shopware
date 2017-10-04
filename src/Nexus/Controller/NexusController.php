@@ -12,6 +12,8 @@ class NexusController extends Controller
      */
     public function indexAction()
     {
-        return $this->render('@Nexus/index.html.twig');
+        $template = $this->get('shopware.storefront.twig.template_finder')->find('nexus/index.html.twig', true);
+
+        return $this->render($template);
     }
 }

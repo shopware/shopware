@@ -32,6 +32,7 @@ use Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource;
 use Shopware\Product\Writer\Resource\ProductCategorySeoWriteResource;
 use Shopware\ProductVote\Writer\Resource\ProductVoteWriteResource;
 use Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource;
+use Shopware\Shop\Event\ShopWrittenEvent;
 use Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigFormFieldValueWriteResource;
 use Shopware\ShopTemplate\Writer\Resource\ShopTemplateWriteResource;
 

@@ -2,14 +2,12 @@
 
 namespace Shopware\Media\Extension;
 
+use Shopware\Media\Event\MediaBasicLoadedEvent;
 use Shopware\Media\Struct\MediaBasicStruct;
 use Shopware\Media\Struct\ThumbnailStruct;
 use Shopware\Media\UrlGeneratorInterface;
-use Shopware\ProductMedia\Event\ProductMediaBasicLoadedEvent;
-use Shopware\ProductMedia\Extension\ProductMediaExtension as CoreProductMediaExtension;
-use Shopware\ProductMedia\Struct\ProductMediaBasicStruct;
 
-class ProductMediaThumbnailExtension extends CoreProductMediaExtension
+class ThumbnailExtension extends MediaExtension
 {
     /**
      * @var UrlGeneratorInterface
@@ -21,16 +19,9 @@ class ProductMediaThumbnailExtension extends CoreProductMediaExtension
         $this->urlGenerator = $urlGenerator;
     }
 
-    public function productMediaBasicLoaded(ProductMediaBasicLoadedEvent $event): void
+    public function mediaBasicLoaded(MediaBasicLoadedEvent $event): void
     {
-        /** @var ProductMediaBasicStruct $productMedia */
-        foreach ($event->getProductMedias() as $productMedia) {
-            $media = $productMedia->getMedia();
-
-            if (!$media) {
-                continue;
-            }
-
+        foreach ($event->getMedia() as $media) {
             $this->addThumbnails($media);
         }
     }

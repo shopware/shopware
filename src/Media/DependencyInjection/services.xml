@@ -7,13 +7,13 @@
     <services>
 
         <!-- ProductMedia Extension -->
-        <service id="shopware.media.extension.url" class="Shopware\Media\Extension\ProductMediaUrlExtension">
-            <tag name="shopware.extension" bundle="productMedia" />
+        <service id="shopware.media.extension.url" class="Shopware\Media\Extension\UrlExtension">
+            <tag name="shopware.extension" bundle="media" />
             <argument type="service" id="shopware.media.url_generator" />
         </service>
 
-        <service id="shopware.media.extension.thumbnail" class="Shopware\Media\Extension\ProductMediaThumbnailExtension">
-            <tag name="shopware.extension" bundle="productMedia" />
+        <service id="shopware.media.extension.thumbnail" class="Shopware\Media\Extension\ThumbnailExtension">
+            <tag name="shopware.extension" bundle="media" />
             <argument type="service" id="shopware.media.url_generator" />
         </service>
 

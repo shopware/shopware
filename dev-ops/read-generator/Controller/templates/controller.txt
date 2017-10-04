@@ -188,7 +188,7 @@ class #classUc#Controller extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $#plural# = $this->#classLc#Repository->read(
+        $#plural# = $this->#classLc#Repository->readDetail(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

@@ -190,7 +190,7 @@ class PriceGroupController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $priceGroups = $this->priceGroupRepository->read(
+        $priceGroups = $this->priceGroupRepository->readDetail(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

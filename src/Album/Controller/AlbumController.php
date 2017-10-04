@@ -190,7 +190,7 @@ class AlbumController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $album = $this->albumRepository->read(
+        $album = $this->albumRepository->readDetail(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

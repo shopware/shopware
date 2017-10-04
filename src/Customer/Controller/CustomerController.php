@@ -190,7 +190,7 @@ class CustomerController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $customers = $this->customerRepository->read(
+        $customers = $this->customerRepository->readDetail(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

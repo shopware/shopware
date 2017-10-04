@@ -190,7 +190,7 @@ class CurrencyController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $currencies = $this->currencyRepository->read(
+        $currencies = $this->currencyRepository->readDetail(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

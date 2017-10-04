@@ -190,7 +190,7 @@ class ProductVoteController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $productVotes = $this->productVoteRepository->read(
+        $productVotes = $this->productVoteRepository->readDetail(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

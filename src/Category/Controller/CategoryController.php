@@ -190,7 +190,7 @@ class CategoryController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $categories = $this->categoryRepository->read(
+        $categories = $this->categoryRepository->readDetail(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

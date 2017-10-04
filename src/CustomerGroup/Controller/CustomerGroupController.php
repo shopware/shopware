@@ -190,7 +190,7 @@ class CustomerGroupController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $customerGroups = $this->customerGroupRepository->read(
+        $customerGroups = $this->customerGroupRepository->readDetail(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

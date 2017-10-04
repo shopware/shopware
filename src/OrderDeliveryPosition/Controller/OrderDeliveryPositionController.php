@@ -190,7 +190,7 @@ class OrderDeliveryPositionController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $orderDeliveryPositions = $this->orderDeliveryPositionRepository->read(
+        $orderDeliveryPositions = $this->orderDeliveryPositionRepository->readDetail(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

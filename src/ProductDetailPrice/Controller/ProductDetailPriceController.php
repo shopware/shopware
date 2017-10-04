@@ -190,7 +190,7 @@ class ProductDetailPriceController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $productDetailPrices = $this->productDetailPriceRepository->read(
+        $productDetailPrices = $this->productDetailPriceRepository->readDetail(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

@@ -190,7 +190,7 @@ class ShopController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $shops = $this->shopRepository->read(
+        $shops = $this->shopRepository->readDetail(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

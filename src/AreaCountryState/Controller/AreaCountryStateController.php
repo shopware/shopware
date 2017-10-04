@@ -190,7 +190,7 @@ class AreaCountryStateController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $areaCountryStates = $this->areaCountryStateRepository->read(
+        $areaCountryStates = $this->areaCountryStateRepository->readDetail(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

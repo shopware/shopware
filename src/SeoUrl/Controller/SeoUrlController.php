@@ -190,7 +190,7 @@ class SeoUrlController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $seoUrls = $this->seoUrlRepository->read(
+        $seoUrls = $this->seoUrlRepository->readDetail(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

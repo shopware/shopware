@@ -190,7 +190,7 @@ class PriceGroupDiscountController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $priceGroupDiscounts = $this->priceGroupDiscountRepository->read(
+        $priceGroupDiscounts = $this->priceGroupDiscountRepository->readDetail(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

@@ -190,7 +190,7 @@ class OrderLineItemController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $orderLineItems = $this->orderLineItemRepository->read(
+        $orderLineItems = $this->orderLineItemRepository->readDetail(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

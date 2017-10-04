@@ -190,7 +190,7 @@ class HolidayController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $holidays = $this->holidayRepository->read(
+        $holidays = $this->holidayRepository->readDetail(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

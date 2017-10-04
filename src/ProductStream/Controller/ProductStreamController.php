@@ -190,7 +190,7 @@ class ProductStreamController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $productStreams = $this->productStreamRepository->read(
+        $productStreams = $this->productStreamRepository->readDetail(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

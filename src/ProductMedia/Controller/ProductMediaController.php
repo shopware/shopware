@@ -190,7 +190,7 @@ class ProductMediaController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $productMedias = $this->productMediaRepository->read(
+        $productMedias = $this->productMediaRepository->readDetail(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

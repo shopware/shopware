@@ -190,7 +190,7 @@ class PaymentMethodController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $paymentMethods = $this->paymentMethodRepository->read(
+        $paymentMethods = $this->paymentMethodRepository->readDetail(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

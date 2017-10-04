@@ -44,7 +44,7 @@ class CartController extends Controller
     public function addProductAction(Request $request)
     {
         $identifier = $request->request->get('identifier');
-        $quantity = $request->request->get('quantity');
+        $quantity = $request->request->getInt('quantity');
         $target = $request->request->get('target');
 
         if (!($identifier && $quantity)) {
@@ -90,7 +90,7 @@ class CartController extends Controller
     public function setLineItemQuantityAction(Request $request)
     {
         $identifier = $request->request->get('identifier');
-        $quantity = $request->request->get('quantity');
+        $quantity = $request->request->getInt('quantity');
         $target = $request->request->get('target');
 
         if (!($identifier && $quantity)) {

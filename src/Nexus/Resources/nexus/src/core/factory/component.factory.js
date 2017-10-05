@@ -105,7 +105,7 @@ function extend(componentName, extendComponentName, componentConfiguration) {
         name: componentName
     });
 
-    config = Object.assign({}, extendedComponent, config);
+    config = mergeConfig({}, extendedComponent, config);
 
     componentRegistry.set(componentName, config);
 
@@ -146,7 +146,7 @@ function override(componentName, componentConfiguration, overrideIndex = null) {
         delete config.template;
     }
 
-    config = Object.assign({}, componentRegistry.get(componentName), config);
+    config = mergeConfig(componentRegistry.get(componentName), config);
     componentRegistry.set(componentName, config);
 
     return config;
@@ -160,4 +160,47 @@ function override(componentName, componentConfiguration, overrideIndex = null) {
  */
 function getComponentTemplate(componentName) {
     return TemplateFactory.getRenderedTemplate(componentName);
+}
+
+function mergeConfig(target, source, ...additionalSources) {
+    if (!utils.isObject(target) || !utils.isObject(source)) {
+        return source;
+    }
+
+    const parent = Object.assign({}, target);
+    const config = Object.assign({}, target);
+
+    Object.keys(source).forEach((key) => {
+        if (config.hasOwnProperty(key) && config[key] !== null) {
+            // Merge the special data function used for data binding
+            if (utils.isFunction(config[key]) && key === 'data') {
+                const mergedData = mergeConfig(config[key](), source[key]());
+
+                config[key] = function data() {
+                    return mergedData;
+                };
+            // Merge arrays
+            } else if (utils.isArray(config[key])) {
+                config[key] = [...config[key], ...source[key]];
+            // Deep merge objects
+            } else if (utils.isObject(source[key])) {
+                config[key] = mergeConfig(config[key], source[key]);
+            } else {
+                config[key] = source[key];
+            }
+        } else if (key !== 'parent') {
+            config[key] = source[key];
+        }
+    });
+
+    // Keep reference to original config
+    if (!utils.isEmpty(parent)) {
+        config.parent = parent;
+    }
+
+    if (additionalSources.length > 0) {
+        return mergeConfig(config, ...additionalSources);
+    }
+
+    return config;
 }

@@ -3,6 +3,8 @@ import utils from './../service/util.service';
 
 export default {
 
+    inject: ['productService'],
+
     computed: {
         productMainDetails() {
             const product = this[this.productDataKey];

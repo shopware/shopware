@@ -3,7 +3,7 @@ import template from './core-product-detail.html.twig';
 import './core-product-detail.less';
 
 export default Shopware.ComponentFactory.register('core-product-detail', {
-    inject: ['productService', 'categoryService', 'productManufacturerService', 'taxService', 'customerGroupService'],
+    inject: ['categoryService', 'productManufacturerService', 'taxService', 'customerGroupService'],
 
     mixins: [ProductDetailRepository],
 

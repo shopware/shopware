@@ -5,7 +5,6 @@ import './core-product-list.less';
 import template from './core-product-list.twig';
 
 export default Shopware.ComponentFactory.register('core-product-list', {
-    inject: ['productService'],
     mixins: [ProductListRepository, PaginationMixin],
 
     data() {

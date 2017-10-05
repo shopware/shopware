@@ -11,6 +11,7 @@ export default {
     isObject,
     isEmpty,
     isArray,
+    isFunction,
     isDate
 };
 
@@ -89,6 +90,10 @@ function isEmpty(object) {
 
 function isArray(array) {
     return Array.isArray(array);
+}
+
+function isFunction(func) {
+    return func !== null && typeof func === 'function';
 }
 
 function isDate(dateObject) {

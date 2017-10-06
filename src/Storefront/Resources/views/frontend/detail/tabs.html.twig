@@ -51,7 +51,7 @@
                                     {% block frontend_detail_tabs_description_preview %}
                                         <div class="tab--preview">
                                             {% block frontend_detail_tabs_content_description_preview_inner %}
-                                                {{ product.description_long|striptags|slice(0, 100) }}...<a href="#" class="tab--link" title="{% trans from 'frontend/detail/tabs' %}PreviewTextMore{% endtrans %}">{% trans from 'frontend/detail/tabs' %}PreviewTextMore{% endtrans %}</a>
+                                                {{ product.descriptionLong|striptags|slice(0, 100) }}...<a href="#" class="tab--link" title="{% trans from 'frontend/detail/tabs' %}PreviewTextMore{% endtrans %}">{% trans from 'frontend/detail/tabs' %}PreviewTextMore{% endtrans %}</a>
                                             {% endblock %}
                                         </div>
                                     {% endblock %}

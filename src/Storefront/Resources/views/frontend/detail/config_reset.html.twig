@@ -1,0 +1,14 @@
+{% block frontend_detail_configurator_reset %}
+    {% set break = false %}
+    {%  for configurator in product.configurators if not break %}
+        {% if configurator.user_selected %}
+            {% block frontend_detail_configurator_reset_button %}
+                <a class="btn is--icon-left reset--configuration" href="{url sArticle=$sArticle.articleID sCategory=$sArticle.categoryID}">
+                    <i class="icon--cross"></i>
+                    {% trans from 'frontend/detail/index' %}DetailConfiguratorReset{% endtrans %}
+                </a>
+            {% endblock %}
+            {% set break = true %}
+        {% endif %}
+    {% endfor %}
+{% endblock %}

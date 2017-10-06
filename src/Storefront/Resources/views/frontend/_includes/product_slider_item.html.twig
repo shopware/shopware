@@ -1,0 +1,12 @@
+{% set productBoxLayout %}
+    {% if productBoxLayout is defined %}{{ productBoxLayout }}{% else %}""{% endif %}
+{% endset %}
+{% set fixedImageSize %}
+    {% if fixedImageSize is defined %}{{ fixedImageSize }}{% else %}""{% endif %}
+{% endset %}
+
+{% block frontend_common_product_slider_item %}
+    <div class="product-slider--item">
+        {% sw_include '@Storefront/frontend/listing/box_product.html.twig' %}
+    </div>
+{% endblock %}

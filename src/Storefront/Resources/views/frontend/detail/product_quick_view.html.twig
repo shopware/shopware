@@ -1,0 +1,69 @@
+{% block frontend_detail_product_quick_view %}
+    <div class="product--quick-view">
+        {% block frontend_detail_product_quick_view_inner %}
+
+            {% block frontend_detail_product_quick_view_image_link %}
+                <a class="quick-view--image-link" href="{{ product.linkDetails }}" title="{% if product.image.res.description %}{{ product.image.res.descriptione }}{% else %}{{ product.name }}{% endif %}">
+                    {% block frontend_detail_product_quick_view_image %}
+
+                        {% set alt = product.name %}
+
+                        {% if product.image.description %}
+                            {% set alt = product.image.description %}
+                        {% endif %}
+
+                        <span class="quick-view--image">
+                            {% block frontend_detail_product_quick_view_image_inner %}
+                                {% if product.image.thumbnails %}
+                                    <img srcset="{{ product.image.thumbnails[1].sourceSet }}" alt="{{ alt }}" />
+                                {% else %}
+                                    {% block product_quick_view_image_fallback %}
+                                        <img src="{{ asset('bundles/storefront/src/img/no-picture.jpg') }}" alt="{{ alt }}">
+                                    {% endblock %}
+                                {% endif %}
+                            {% endblock %}
+                        </span>
+                    {% endblock %}
+                </a>
+            {% endblock %}
+
+            {% block frontend_detail_product_quick_view_header %}
+                <div class="quick-view--header">
+                    {% block frontend_detail_product_quick_view_header_inner %}
+                        {% block frontend_detail_product_quick_view_title %}
+                            <a href="{{ product.linkDetails }}" class="quick-view--title" title="{{ product.name }}">
+                                {% block frontend_detail_product_quick_view_title_inner %}
+                                    {{ product.name }}
+                                {% endblock %}
+                            </a>
+                        {% endblock %}
+
+                        {% block frontend_detail_product_quick_view_supplier %}
+                            <div class="quick-view--supplier">
+                                {% block frontend_detail_product_quick_view_supplier_inner %}
+                                    {{ product.supplierName }}
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block frontend_detail_product_quick_view_description_title %}
+                <div class="quick-view--description-title">
+                    {% block frontend_detail_product_quick_view_description_title_inner %}
+                        {% trans from 'frontend/detail/description' %}DetailDescriptionHeader{% endtrans %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block frontend_detail_product_quick_view_description %}
+                <div class="quick-view--description">
+                    {% block frontend_detail_product_quick_view_description_inner %}
+                        {{ product.descriptionLong }}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -1,0 +1,10 @@
+{# Product-Streams slider #}
+{% block frontend_detail_index_streams_slider %}
+    <div class="product-streams--content">
+        {% set sliderMode = 'ajax' %}
+        {% set sliderInitOnEvent = 'onShowContent-productStreamSliderId-' ~ relatedProductStream.id %}
+        {% set sliderAjaxCtrlUrl = '{url module=widgets controller=emotion action=productStreamArticleSlider streamId=$relatedProductStream.id productBoxLayout="slider"}' %}
+        {% set sliderAjaxMaxShow = 40 %}
+        {% sw_include '@Storefront/frontend/_includes/product_slider.html.twig' %}
+    </div>
+{% endblock %}

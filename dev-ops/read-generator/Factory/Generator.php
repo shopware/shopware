@@ -309,7 +309,7 @@ class Generator
 
             $assignments[] = str_replace(
                 ['#classLc#', '#propertyUc#', '#column#', '#casted#'],
-                [lcfirst($class), ucfirst($propertyName), $columnName, $casted],
+                [lcfirst($class), ucfirst($propertyName), lcfirst($propertyName), $casted],
                 file_get_contents($template)
             );
         }

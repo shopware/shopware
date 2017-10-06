@@ -73,18 +73,11 @@ export default function VueAdapter(context) {
      * @returns {*}
      */
     function createComponent(componentName) {
-        const componentRegistry = Shopware.ComponentFactory.getComponentRegistry();
+        const componentConfig = Shopware.ComponentFactory.build(componentName);
 
-        if (!componentRegistry.has(componentName)) {
+        if (!componentConfig) {
             return false;
         }
-
-        const componentConfig = componentRegistry.get(componentName);
-
-        /**
-         * Get the final template result including all overrides.
-         */
-        componentConfig.template = ComponentFactory.getComponentTemplate(componentName);
 
         const vueComponent = Vue.component(componentName, componentConfig);
 

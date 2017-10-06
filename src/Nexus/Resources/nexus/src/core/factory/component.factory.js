@@ -5,12 +5,16 @@ export {
     register,
     extend,
     override,
+    build,
     getComponentTemplate,
     getComponentRegistry
 };
 
 /** @type Map componentRegistry - Registry which holds all component registry */
 const componentRegistry = new Map();
+
+/** @type Map overrideRegistry - Registry which holds all component overrides */
+const overrideRegistry = new Map();
 
 /**
  * Returns the map with all registered components.
@@ -29,11 +33,20 @@ function getComponentRegistry() {
  * @returns {*}
  */
 function register(componentName, componentConfiguration = {}) {
-    let config = componentConfiguration;
+    const config = componentConfiguration;
 
-    config = utils.merge(config, {
-        name: componentName
-    });
+    config.name = componentName;
+
+    if (componentRegistry.has(componentName)) {
+        utils.warn(
+            'ComponentFactory',
+            `The component "${componentName}" is already registered. Please select a unique name for your component.`,
+            config
+        );
+        return config;
+    }
+
+    config.name = componentName;
 
     if (config.template) {
         /**
@@ -70,21 +83,7 @@ function register(componentName, componentConfiguration = {}) {
  * @returns {Object} config
  */
 function extend(componentName, extendComponentName, componentConfiguration) {
-    let config = componentConfiguration;
-
-    if (!componentRegistry.has(extendComponentName)) {
-        utils.warn(
-            'ComponentFactory',
-            `The component ${extendComponentName} doesn't exists,`,
-            `we're registering a new component named ${componentName} instead.`,
-            componentConfiguration
-        );
-
-        return register(componentName, config);
-    }
-
-    const name = componentName;
-    const extendedComponent = componentRegistry.get(extendComponentName);
+    const config = componentConfiguration;
 
     if (config.template) {
         /**
@@ -101,11 +100,8 @@ function extend(componentName, extendComponentName, componentConfiguration) {
         TemplateFactory.extendComponentTemplate(componentName, extendComponentName);
     }
 
-    config = Object.assign(config, {
-        name: componentName
-    });
-
-    config = mergeConfig({}, extendedComponent, config);
+    config.name = componentName;
+    config.extends = extendComponentName;
 
     componentRegistry.set(componentName, config);
 
@@ -115,7 +111,7 @@ function extend(componentName, extendComponentName, componentConfiguration) {
 /**
  * Override an existing component including its config and template.
  *
- * ToDo@All: Keep reference to original config object.
+ * ToDo: Keep reference to original config object.
  *
  * @param componentName
  * @param componentConfiguration
@@ -123,15 +119,9 @@ function extend(componentName, extendComponentName, componentConfiguration) {
  * @returns {*}
  */
 function override(componentName, componentConfiguration, overrideIndex = null) {
-    let config = componentConfiguration;
+    const config = componentConfiguration;
 
-    if (!componentRegistry.has(componentName)) {
-        return register(componentName, config);
-    }
-
-    config = Object.assign(config, {
-        name: componentName
-    });
+    config.name = componentName;
 
     if (config.template) {
         /**
@@ -146,8 +136,15 @@ function override(componentName, componentConfiguration, overrideIndex = null) {
         delete config.template;
     }
 
-    config = mergeConfig(componentRegistry.get(componentName), config);
-    componentRegistry.set(componentName, config);
+    const overrides = overrideRegistry.get(componentName) || [];
+
+    if (overrideIndex !== null && overrideIndex >= 0 && overrides.length > 0) {
+        overrides.splice(overrideIndex, 0, config);
+    } else {
+        overrides.push(config);
+    }
+
+    overrideRegistry.set(componentName, overrides);
 
     return config;
 }
@@ -160,6 +157,66 @@ function override(componentName, componentConfiguration, overrideIndex = null) {
  */
 function getComponentTemplate(componentName) {
     return TemplateFactory.getRenderedTemplate(componentName);
+}
+
+/**
+ * Returns the complete component including extension and overrides.
+ *
+ * ToDo: Implement overrides for recursive extended components including the template.
+ *
+ * @param componentName
+ * @returns {*}
+ */
+function build(componentName) {
+    if (!componentRegistry.has(componentName)) {
+        return false;
+    }
+
+    let config = componentRegistry.get(componentName);
+
+    if (config.extends) {
+        config = getExtendedComponent(componentName);
+    }
+
+    if (overrideRegistry.has(componentName)) {
+        const overrides = overrideRegistry.get(componentName);
+
+        overrides.forEach((overrideComp) => {
+            config = mergeConfig(config, overrideComp);
+        });
+    }
+
+    /**
+     * Get the final template result including all overrides.
+     */
+    config.template = getComponentTemplate(componentName);
+
+    return config;
+}
+
+/**
+ * Get the final version of an extended component.
+ * Called recursively for multiple extended components.
+ *
+ * @param componentName
+ * @returns {*}
+ */
+function getExtendedComponent(componentName) {
+    if (!componentRegistry.has(componentName)) {
+        return {};
+    }
+
+    let config = componentRegistry.get(componentName);
+
+    if (!config.extends || !componentRegistry.has(config.extends)) {
+        return config;
+    }
+
+    const extendComponent = getExtendedComponent(componentRegistry.get(config.extends));
+
+    config = mergeConfig({}, extendComponent, config);
+
+    return config;
 }
 
 function mergeConfig(target, source, ...additionalSources) {

@@ -44,8 +44,8 @@ class ProductListingPriceBasicFactory extends Factory
         $productListingPrice->setCustomerGroupUuid((string) $data[$selection->getField('customerGroupUuid')]);
         $productListingPrice->setPrice((float) $data[$selection->getField('price')]);
         $productListingPrice->setDisplayFromPrice((bool) $data[$selection->getField('displayFromPrice')]);
-        $productListingPrice->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $productListingPrice->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $productListingPrice->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $productListingPrice->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
 
         /** @var $extension ProductListingPriceExtension */
         foreach ($this->getExtensions() as $extension) {

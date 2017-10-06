@@ -41,8 +41,8 @@ class HolidayBasicFactory extends Factory
         $holiday->setUuid((string) $data[$selection->getField('uuid')]);
         $holiday->setCalculation((string) $data[$selection->getField('calculation')]);
         $holiday->setEventDate(new \DateTime($data[$selection->getField('eventDate')]));
-        $holiday->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $holiday->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $holiday->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $holiday->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $holiday->setName((string) $data[$selection->getField('name')]);
 
         /** @var $extension HolidayExtension */

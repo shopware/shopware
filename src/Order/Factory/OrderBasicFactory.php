@@ -118,8 +118,8 @@ class OrderBasicFactory extends Factory
         $order->setBillingAddressUuid((string) $data[$selection->getField('billingAddressUuid')]);
         $order->setContext((string) $data[$selection->getField('context')]);
         $order->setPayload((string) $data[$selection->getField('payload')]);
-        $order->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $order->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $order->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $order->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $customer = $selection->filter('customer');
         if ($customer && !empty($data[$customer->getField('uuid')])) {
             $order->setCustomer(

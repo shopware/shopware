@@ -40,8 +40,8 @@ class LocaleBasicFactory extends Factory
     ): LocaleBasicStruct {
         $locale->setUuid((string) $data[$selection->getField('uuid')]);
         $locale->setCode((string) $data[$selection->getField('code')]);
-        $locale->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $locale->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $locale->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $locale->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $locale->setLanguage((string) $data[$selection->getField('language')]);
         $locale->setTerritory((string) $data[$selection->getField('territory')]);
 

@@ -79,13 +79,13 @@ class OrderAddressBasicFactory extends Factory
         $orderAddress->setZipcode((string) $data[$selection->getField('zipcode')]);
         $orderAddress->setCity((string) $data[$selection->getField('city')]);
         $orderAddress->setAreaCountryUuid((string) $data[$selection->getField('areaCountryUuid')]);
-        $orderAddress->setAreaCountryStateUuid(isset($data[$selection->getField('area_country_state_uuid')]) ? (string) $data[$selection->getField('areaCountryStateUuid')] : null);
-        $orderAddress->setVatId(isset($data[$selection->getField('vat_id')]) ? (string) $data[$selection->getField('vatId')] : null);
-        $orderAddress->setPhoneNumber(isset($data[$selection->getField('phone_number')]) ? (string) $data[$selection->getField('phoneNumber')] : null);
-        $orderAddress->setAdditionalAddressLine1(isset($data[$selection->getField('additional_address_line1')]) ? (string) $data[$selection->getField('additionalAddressLine1')] : null);
-        $orderAddress->setAdditionalAddressLine2(isset($data[$selection->getField('additional_address_line2')]) ? (string) $data[$selection->getField('additionalAddressLine2')] : null);
-        $orderAddress->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $orderAddress->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $orderAddress->setAreaCountryStateUuid(isset($data[$selection->getField('areaCountryStateUuid')]) ? (string) $data[$selection->getField('areaCountryStateUuid')] : null);
+        $orderAddress->setVatId(isset($data[$selection->getField('vatId')]) ? (string) $data[$selection->getField('vatId')] : null);
+        $orderAddress->setPhoneNumber(isset($data[$selection->getField('phoneNumber')]) ? (string) $data[$selection->getField('phoneNumber')] : null);
+        $orderAddress->setAdditionalAddressLine1(isset($data[$selection->getField('additionalAddressLine1')]) ? (string) $data[$selection->getField('additionalAddressLine1')] : null);
+        $orderAddress->setAdditionalAddressLine2(isset($data[$selection->getField('additionalAddressLine2')]) ? (string) $data[$selection->getField('additionalAddressLine2')] : null);
+        $orderAddress->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $orderAddress->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $areaCountry = $selection->filter('country');
         if ($areaCountry && !empty($data[$areaCountry->getField('uuid')])) {
             $orderAddress->setCountry(

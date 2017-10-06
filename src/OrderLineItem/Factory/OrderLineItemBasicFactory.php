@@ -50,8 +50,8 @@ class OrderLineItemBasicFactory extends Factory
         $orderLineItem->setTotalPrice((float) $data[$selection->getField('totalPrice')]);
         $orderLineItem->setType(isset($data[$selection->getField('type')]) ? (string) $data[$selection->getField('type')] : null);
         $orderLineItem->setPayload((string) $data[$selection->getField('payload')]);
-        $orderLineItem->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $orderLineItem->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $orderLineItem->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $orderLineItem->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
 
         /** @var $extension OrderLineItemExtension */
         foreach ($this->getExtensions() as $extension) {

@@ -119,20 +119,20 @@ class ProductBasicFactory extends Factory
         $product->setActive((bool) $data[$selection->getField('active')]);
         $product->setPseudoSales((int) $data[$selection->getField('pseudoSales')]);
         $product->setMarkAsTopseller((bool) $data[$selection->getField('markAsTopseller')]);
-        $product->setPriceGroupUuid(isset($data[$selection->getField('price_group_uuid')]) ? (string) $data[$selection->getField('priceGroupUuid')] : null);
-        $product->setFilterGroupUuid(isset($data[$selection->getField('filter_group_uuid')]) ? (string) $data[$selection->getField('filterGroupUuid')] : null);
+        $product->setPriceGroupUuid(isset($data[$selection->getField('priceGroupUuid')]) ? (string) $data[$selection->getField('priceGroupUuid')] : null);
+        $product->setFilterGroupUuid(isset($data[$selection->getField('filterGroupUuid')]) ? (string) $data[$selection->getField('filterGroupUuid')] : null);
         $product->setIsCloseout((bool) $data[$selection->getField('isCloseout')]);
         $product->setAllowNotification((bool) $data[$selection->getField('allowNotification')]);
         $product->setTemplate(isset($data[$selection->getField('template')]) ? (string) $data[$selection->getField('template')] : null);
-        $product->setConfiguratorSetId(isset($data[$selection->getField('configurator_set_id')]) ? (int) $data[$selection->getField('configuratorSetId')] : null);
-        $product->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $product->setConfiguratorSetId(isset($data[$selection->getField('configuratorSetId')]) ? (int) $data[$selection->getField('configuratorSetId')] : null);
+        $product->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
         $product->setMainDetailUuid((string) $data[$selection->getField('mainDetailUuid')]);
-        $product->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $product->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $product->setName((string) $data[$selection->getField('name')]);
         $product->setKeywords(isset($data[$selection->getField('keywords')]) ? (string) $data[$selection->getField('keywords')] : null);
         $product->setDescription(isset($data[$selection->getField('description')]) ? (string) $data[$selection->getField('description')] : null);
-        $product->setDescriptionLong(isset($data[$selection->getField('description_long')]) ? (string) $data[$selection->getField('descriptionLong')] : null);
-        $product->setMetaTitle(isset($data[$selection->getField('meta_title')]) ? (string) $data[$selection->getField('metaTitle')] : null);
+        $product->setDescriptionLong(isset($data[$selection->getField('descriptionLong')]) ? (string) $data[$selection->getField('descriptionLong')] : null);
+        $product->setMetaTitle(isset($data[$selection->getField('metaTitle')]) ? (string) $data[$selection->getField('metaTitle')] : null);
         $productManufacturer = $selection->filter('manufacturer');
         if ($productManufacturer && !empty($data[$productManufacturer->getField('uuid')])) {
             $product->setManufacturer(

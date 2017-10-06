@@ -42,8 +42,8 @@ class CustomerGroupDiscountBasicFactory extends Factory
         $customerGroupDiscount->setCustomerGroupUuid((string) $data[$selection->getField('customerGroupUuid')]);
         $customerGroupDiscount->setPercentageDiscount((float) $data[$selection->getField('percentageDiscount')]);
         $customerGroupDiscount->setMinimumCartAmount((float) $data[$selection->getField('minimumCartAmount')]);
-        $customerGroupDiscount->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $customerGroupDiscount->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $customerGroupDiscount->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $customerGroupDiscount->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
 
         /** @var $extension CustomerGroupDiscountExtension */
         foreach ($this->getExtensions() as $extension) {

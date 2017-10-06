@@ -39,8 +39,8 @@ class AreaBasicFactory extends Factory
     ): AreaBasicStruct {
         $area->setUuid((string) $data[$selection->getField('uuid')]);
         $area->setActive((bool) $data[$selection->getField('active')]);
-        $area->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $area->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $area->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $area->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $area->setName((string) $data[$selection->getField('name')]);
 
         /** @var $extension AreaExtension */

@@ -57,8 +57,8 @@ class OrderDeliveryPositionBasicFactory extends Factory
         $orderDeliveryPosition->setTotalPrice((float) $data[$selection->getField('totalPrice')]);
         $orderDeliveryPosition->setQuantity((float) $data[$selection->getField('quantity')]);
         $orderDeliveryPosition->setPayload((string) $data[$selection->getField('payload')]);
-        $orderDeliveryPosition->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $orderDeliveryPosition->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $orderDeliveryPosition->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $orderDeliveryPosition->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $orderLineItem = $selection->filter('lineItem');
         if ($orderLineItem && !empty($data[$orderLineItem->getField('uuid')])) {
             $orderDeliveryPosition->setLineItem(

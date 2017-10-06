@@ -106,23 +106,23 @@ class CustomerBasicFactory extends Factory
         $customer->setEncoder((string) $data[$selection->getField('encoder')]);
         $customer->setActive((bool) $data[$selection->getField('active')]);
         $customer->setAccountMode((int) $data[$selection->getField('accountMode')]);
-        $customer->setConfirmationKey(isset($data[$selection->getField('confirmation_key')]) ? (string) $data[$selection->getField('confirmationKey')] : null);
-        $customer->setLastPaymentMethodUuid(isset($data[$selection->getField('last_payment_method_uuid')]) ? (string) $data[$selection->getField('lastPaymentMethodUuid')] : null);
-        $customer->setFirstLogin(isset($data[$selection->getField('first_login')]) ? new \DateTime($data[$selection->getField('firstLogin')]) : null);
-        $customer->setLastLogin(isset($data[$selection->getField('last_login')]) ? new \DateTime($data[$selection->getField('lastLogin')]) : null);
-        $customer->setSessionId(isset($data[$selection->getField('session_id')]) ? (string) $data[$selection->getField('sessionId')] : null);
+        $customer->setConfirmationKey(isset($data[$selection->getField('confirmationKey')]) ? (string) $data[$selection->getField('confirmationKey')] : null);
+        $customer->setLastPaymentMethodUuid(isset($data[$selection->getField('lastPaymentMethodUuid')]) ? (string) $data[$selection->getField('lastPaymentMethodUuid')] : null);
+        $customer->setFirstLogin(isset($data[$selection->getField('firstLogin')]) ? new \DateTime($data[$selection->getField('firstLogin')]) : null);
+        $customer->setLastLogin(isset($data[$selection->getField('lastLogin')]) ? new \DateTime($data[$selection->getField('lastLogin')]) : null);
+        $customer->setSessionId(isset($data[$selection->getField('sessionId')]) ? (string) $data[$selection->getField('sessionId')] : null);
         $customer->setNewsletter((bool) $data[$selection->getField('newsletter')]);
         $customer->setValidation(isset($data[$selection->getField('validation')]) ? (string) $data[$selection->getField('validation')] : null);
         $customer->setAffiliate(isset($data[$selection->getField('affiliate')]) ? (bool) $data[$selection->getField('affiliate')] : null);
         $customer->setReferer(isset($data[$selection->getField('referer')]) ? (string) $data[$selection->getField('referer')] : null);
-        $customer->setInternalComment(isset($data[$selection->getField('internal_comment')]) ? (string) $data[$selection->getField('internalComment')] : null);
+        $customer->setInternalComment(isset($data[$selection->getField('internalComment')]) ? (string) $data[$selection->getField('internalComment')] : null);
         $customer->setFailedLogins((int) $data[$selection->getField('failedLogins')]);
-        $customer->setLockedUntil(isset($data[$selection->getField('locked_until')]) ? new \DateTime($data[$selection->getField('lockedUntil')]) : null);
-        $customer->setDefaultBillingAddressUuid(isset($data[$selection->getField('default_billing_address_uuid')]) ? (string) $data[$selection->getField('defaultBillingAddressUuid')] : null);
-        $customer->setDefaultShippingAddressUuid(isset($data[$selection->getField('default_shipping_address_uuid')]) ? (string) $data[$selection->getField('defaultShippingAddressUuid')] : null);
+        $customer->setLockedUntil(isset($data[$selection->getField('lockedUntil')]) ? new \DateTime($data[$selection->getField('lockedUntil')]) : null);
+        $customer->setDefaultBillingAddressUuid(isset($data[$selection->getField('defaultBillingAddressUuid')]) ? (string) $data[$selection->getField('defaultBillingAddressUuid')] : null);
+        $customer->setDefaultShippingAddressUuid(isset($data[$selection->getField('defaultShippingAddressUuid')]) ? (string) $data[$selection->getField('defaultShippingAddressUuid')] : null);
         $customer->setBirthday(isset($data[$selection->getField('birthday')]) ? new \DateTime($data[$selection->getField('birthday')]) : null);
-        $customer->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $customer->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $customer->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $customer->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $customerGroup = $selection->filter('customerGroup');
         if ($customerGroup && !empty($data[$customerGroup->getField('uuid')])) {
             $customer->setCustomerGroup(

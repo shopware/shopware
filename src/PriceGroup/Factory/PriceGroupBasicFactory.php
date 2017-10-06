@@ -37,8 +37,8 @@ class PriceGroupBasicFactory extends Factory
         TranslationContext $context
     ): PriceGroupBasicStruct {
         $priceGroup->setUuid((string) $data[$selection->getField('uuid')]);
-        $priceGroup->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $priceGroup->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $priceGroup->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $priceGroup->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $priceGroup->setName((string) $data[$selection->getField('name')]);
 
         /** @var $extension PriceGroupExtension */

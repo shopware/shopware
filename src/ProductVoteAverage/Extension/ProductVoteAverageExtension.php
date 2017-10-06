@@ -17,6 +17,7 @@ abstract class ProductVoteAverageExtension implements ExtensionInterface, EventS
     {
         return [
             ProductVoteAverageBasicLoadedEvent::NAME => 'productVoteAverageBasicLoaded',
+            ProductVoteAverageWrittenEvent::NAME => 'productVoteAverageWritten',
         ];
     }
 

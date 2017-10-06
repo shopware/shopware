@@ -45,8 +45,8 @@ class OrderStateBasicFactory extends Factory
         $orderState->setPosition((int) $data[$selection->getField('position')]);
         $orderState->setType((string) $data[$selection->getField('type')]);
         $orderState->setHasMail((bool) $data[$selection->getField('hasMail')]);
-        $orderState->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $orderState->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $orderState->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $orderState->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $orderState->setDescription((string) $data[$selection->getField('description')]);
 
         /** @var $extension OrderStateExtension */

@@ -44,8 +44,8 @@ class PriceGroupDiscountBasicFactory extends Factory
         $priceGroupDiscount->setCustomerGroupUuid((string) $data[$selection->getField('customerGroupUuid')]);
         $priceGroupDiscount->setPercentageDiscount((float) $data[$selection->getField('percentageDiscount')]);
         $priceGroupDiscount->setProductCount((float) $data[$selection->getField('productCount')]);
-        $priceGroupDiscount->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $priceGroupDiscount->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $priceGroupDiscount->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $priceGroupDiscount->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
 
         /** @var $extension PriceGroupDiscountExtension */
         foreach ($this->getExtensions() as $extension) {

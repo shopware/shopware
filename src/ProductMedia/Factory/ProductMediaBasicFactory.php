@@ -54,11 +54,11 @@ class ProductMediaBasicFactory extends Factory
         $productMedia->setProductUuid((string) $data[$selection->getField('productUuid')]);
         $productMedia->setIsCover((bool) $data[$selection->getField('isCover')]);
         $productMedia->setPosition((int) $data[$selection->getField('position')]);
-        $productMedia->setProductDetailUuid(isset($data[$selection->getField('product_detail_uuid')]) ? (string) $data[$selection->getField('productDetailUuid')] : null);
+        $productMedia->setProductDetailUuid(isset($data[$selection->getField('productDetailUuid')]) ? (string) $data[$selection->getField('productDetailUuid')] : null);
         $productMedia->setMediaUuid((string) $data[$selection->getField('mediaUuid')]);
-        $productMedia->setParentUuid(isset($data[$selection->getField('parent_uuid')]) ? (string) $data[$selection->getField('parentUuid')] : null);
-        $productMedia->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $productMedia->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $productMedia->setParentUuid(isset($data[$selection->getField('parentUuid')]) ? (string) $data[$selection->getField('parentUuid')] : null);
+        $productMedia->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $productMedia->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $media = $selection->filter('media');
         if ($media && !empty($data[$media->getField('uuid')])) {
             $productMedia->setMedia(

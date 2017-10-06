@@ -54,9 +54,9 @@ class ProductStreamBasicFactory extends Factory
         $productStream->setConditions(isset($data[$selection->getField('conditions')]) ? (string) $data[$selection->getField('conditions')] : null);
         $productStream->setType(isset($data[$selection->getField('type')]) ? (int) $data[$selection->getField('type')] : null);
         $productStream->setDescription(isset($data[$selection->getField('description')]) ? (string) $data[$selection->getField('description')] : null);
-        $productStream->setListingSortingUuid(isset($data[$selection->getField('listing_sorting_uuid')]) ? (string) $data[$selection->getField('listingSortingUuid')] : null);
-        $productStream->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $productStream->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $productStream->setListingSortingUuid(isset($data[$selection->getField('listingSortingUuid')]) ? (string) $data[$selection->getField('listingSortingUuid')] : null);
+        $productStream->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $productStream->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $listingSorting = $selection->filter('sorting');
         if ($listingSorting && !empty($data[$listingSorting->getField('uuid')])) {
             $productStream->setSorting(

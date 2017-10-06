@@ -45,8 +45,8 @@ class ListingSortingBasicFactory extends Factory
         $listingSorting->setDisplayInCategories((bool) $data[$selection->getField('displayInCategories')]);
         $listingSorting->setPosition((int) $data[$selection->getField('position')]);
         $listingSorting->setPayload((string) $data[$selection->getField('payload')]);
-        $listingSorting->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $listingSorting->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $listingSorting->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $listingSorting->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $listingSorting->setLabel((string) $data[$selection->getField('label')]);
 
         /** @var $extension ListingSortingExtension */

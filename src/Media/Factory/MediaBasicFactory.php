@@ -57,10 +57,10 @@ class MediaBasicFactory extends Factory
         $media->setFileName((string) $data[$selection->getField('fileName')]);
         $media->setMimeType((string) $data[$selection->getField('mimeType')]);
         $media->setFileSize((int) $data[$selection->getField('fileSize')]);
-        $media->setMetaData(isset($data[$selection->getField('meta_data')]) ? (string) $data[$selection->getField('metaData')] : null);
-        $media->setUserUuid(isset($data[$selection->getField('user_uuid')]) ? (string) $data[$selection->getField('userUuid')] : null);
-        $media->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $media->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $media->setMetaData(isset($data[$selection->getField('metaData')]) ? (string) $data[$selection->getField('metaData')] : null);
+        $media->setUserUuid(isset($data[$selection->getField('userUuid')]) ? (string) $data[$selection->getField('userUuid')] : null);
+        $media->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $media->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $media->setName((string) $data[$selection->getField('name')]);
         $media->setDescription(isset($data[$selection->getField('description')]) ? (string) $data[$selection->getField('description')] : null);
         $album = $selection->filter('album');

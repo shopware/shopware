@@ -44,15 +44,15 @@ class TaxAreaRuleBasicFactory extends Factory
         TranslationContext $context
     ): TaxAreaRuleBasicStruct {
         $taxAreaRule->setUuid((string) $data[$selection->getField('uuid')]);
-        $taxAreaRule->setAreaUuid(isset($data[$selection->getField('area_uuid')]) ? (string) $data[$selection->getField('areaUuid')] : null);
-        $taxAreaRule->setAreaCountryUuid(isset($data[$selection->getField('area_country_uuid')]) ? (string) $data[$selection->getField('areaCountryUuid')] : null);
-        $taxAreaRule->setAreaCountryStateUuid(isset($data[$selection->getField('area_country_state_uuid')]) ? (string) $data[$selection->getField('areaCountryStateUuid')] : null);
+        $taxAreaRule->setAreaUuid(isset($data[$selection->getField('areaUuid')]) ? (string) $data[$selection->getField('areaUuid')] : null);
+        $taxAreaRule->setAreaCountryUuid(isset($data[$selection->getField('areaCountryUuid')]) ? (string) $data[$selection->getField('areaCountryUuid')] : null);
+        $taxAreaRule->setAreaCountryStateUuid(isset($data[$selection->getField('areaCountryStateUuid')]) ? (string) $data[$selection->getField('areaCountryStateUuid')] : null);
         $taxAreaRule->setTaxUuid((string) $data[$selection->getField('taxUuid')]);
         $taxAreaRule->setCustomerGroupUuid((string) $data[$selection->getField('customerGroupUuid')]);
         $taxAreaRule->setTaxRate((float) $data[$selection->getField('taxRate')]);
         $taxAreaRule->setActive((bool) $data[$selection->getField('active')]);
-        $taxAreaRule->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $taxAreaRule->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $taxAreaRule->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $taxAreaRule->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $taxAreaRule->setName((string) $data[$selection->getField('name')]);
 
         /** @var $extension TaxAreaRuleExtension */

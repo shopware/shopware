@@ -89,19 +89,19 @@ class ShopBasicFactory extends Factory
         $shop->setIsDefault((bool) $data[$selection->getField('isDefault')]);
         $shop->setActive((bool) $data[$selection->getField('active')]);
         $shop->setTaxCalculationType((string) $data[$selection->getField('taxCalculationType')]);
-        $shop->setParentUuid(isset($data[$selection->getField('parent_uuid')]) ? (string) $data[$selection->getField('parentUuid')] : null);
+        $shop->setParentUuid(isset($data[$selection->getField('parentUuid')]) ? (string) $data[$selection->getField('parentUuid')] : null);
         $shop->setTemplateUuid((string) $data[$selection->getField('templateUuid')]);
         $shop->setDocumentTemplateUuid((string) $data[$selection->getField('documentTemplateUuid')]);
         $shop->setCategoryUuid((string) $data[$selection->getField('categoryUuid')]);
         $shop->setLocaleUuid((string) $data[$selection->getField('localeUuid')]);
         $shop->setCurrencyUuid((string) $data[$selection->getField('currencyUuid')]);
         $shop->setCustomerGroupUuid((string) $data[$selection->getField('customerGroupUuid')]);
-        $shop->setFallbackLocaleUuid(isset($data[$selection->getField('fallback_locale_uuid')]) ? (string) $data[$selection->getField('fallbackLocaleUuid')] : null);
-        $shop->setPaymentMethodUuid(isset($data[$selection->getField('payment_method_uuid')]) ? (string) $data[$selection->getField('paymentMethodUuid')] : null);
-        $shop->setShippingMethodUuid(isset($data[$selection->getField('shipping_method_uuid')]) ? (string) $data[$selection->getField('shippingMethodUuid')] : null);
-        $shop->setAreaCountryUuid(isset($data[$selection->getField('area_country_uuid')]) ? (string) $data[$selection->getField('areaCountryUuid')] : null);
-        $shop->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $shop->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $shop->setFallbackLocaleUuid(isset($data[$selection->getField('fallbackLocaleUuid')]) ? (string) $data[$selection->getField('fallbackLocaleUuid')] : null);
+        $shop->setPaymentMethodUuid(isset($data[$selection->getField('paymentMethodUuid')]) ? (string) $data[$selection->getField('paymentMethodUuid')] : null);
+        $shop->setShippingMethodUuid(isset($data[$selection->getField('shippingMethodUuid')]) ? (string) $data[$selection->getField('shippingMethodUuid')] : null);
+        $shop->setAreaCountryUuid(isset($data[$selection->getField('areaCountryUuid')]) ? (string) $data[$selection->getField('areaCountryUuid')] : null);
+        $shop->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $shop->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $currency = $selection->filter('currency');
         if ($currency && !empty($data[$currency->getField('uuid')])) {
             $shop->setCurrency(

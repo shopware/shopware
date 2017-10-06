@@ -46,11 +46,11 @@ class CustomerGroupBasicFactory extends Factory
         $customerGroup->setDisplayGross((bool) $data[$selection->getField('displayGross')]);
         $customerGroup->setInputGross((bool) $data[$selection->getField('inputGross')]);
         $customerGroup->setHasGlobalDiscount((bool) $data[$selection->getField('hasGlobalDiscount')]);
-        $customerGroup->setPercentageGlobalDiscount(isset($data[$selection->getField('percentage_global_discount')]) ? (float) $data[$selection->getField('percentageGlobalDiscount')] : null);
-        $customerGroup->setMinimumOrderAmount(isset($data[$selection->getField('minimum_order_amount')]) ? (float) $data[$selection->getField('minimumOrderAmount')] : null);
-        $customerGroup->setMinimumOrderAmountSurcharge(isset($data[$selection->getField('minimum_order_amount_surcharge')]) ? (float) $data[$selection->getField('minimumOrderAmountSurcharge')] : null);
-        $customerGroup->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $customerGroup->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $customerGroup->setPercentageGlobalDiscount(isset($data[$selection->getField('percentageGlobalDiscount')]) ? (float) $data[$selection->getField('percentageGlobalDiscount')] : null);
+        $customerGroup->setMinimumOrderAmount(isset($data[$selection->getField('minimumOrderAmount')]) ? (float) $data[$selection->getField('minimumOrderAmount')] : null);
+        $customerGroup->setMinimumOrderAmountSurcharge(isset($data[$selection->getField('minimumOrderAmountSurcharge')]) ? (float) $data[$selection->getField('minimumOrderAmountSurcharge')] : null);
+        $customerGroup->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $customerGroup->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $customerGroup->setName((string) $data[$selection->getField('name')]);
 
         /** @var $extension CustomerGroupExtension */

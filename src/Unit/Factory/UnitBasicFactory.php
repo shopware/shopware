@@ -40,8 +40,8 @@ class UnitBasicFactory extends Factory
     ): UnitBasicStruct {
         $unit->setId((int) $data[$selection->getField('id')]);
         $unit->setUuid((string) $data[$selection->getField('uuid')]);
-        $unit->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $unit->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $unit->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $unit->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $unit->setShortCode((string) $data[$selection->getField('shortCode')]);
         $unit->setName((string) $data[$selection->getField('name')]);
 

@@ -46,14 +46,14 @@ class ProductDetailPriceBasicFactory extends Factory
         $productDetailPrice->setUuid((string) $data[$selection->getField('uuid')]);
         $productDetailPrice->setCustomerGroupUuid((string) $data[$selection->getField('customerGroupUuid')]);
         $productDetailPrice->setQuantityStart((int) $data[$selection->getField('quantityStart')]);
-        $productDetailPrice->setQuantityEnd(isset($data[$selection->getField('quantity_end')]) ? (int) $data[$selection->getField('quantityEnd')] : null);
+        $productDetailPrice->setQuantityEnd(isset($data[$selection->getField('quantityEnd')]) ? (int) $data[$selection->getField('quantityEnd')] : null);
         $productDetailPrice->setProductDetailUuid((string) $data[$selection->getField('productDetailUuid')]);
         $productDetailPrice->setPrice((float) $data[$selection->getField('price')]);
-        $productDetailPrice->setPseudoPrice(isset($data[$selection->getField('pseudo_price')]) ? (float) $data[$selection->getField('pseudoPrice')] : null);
-        $productDetailPrice->setBasePrice(isset($data[$selection->getField('base_price')]) ? (float) $data[$selection->getField('basePrice')] : null);
+        $productDetailPrice->setPseudoPrice(isset($data[$selection->getField('pseudoPrice')]) ? (float) $data[$selection->getField('pseudoPrice')] : null);
+        $productDetailPrice->setBasePrice(isset($data[$selection->getField('basePrice')]) ? (float) $data[$selection->getField('basePrice')] : null);
         $productDetailPrice->setPercentage(isset($data[$selection->getField('percentage')]) ? (float) $data[$selection->getField('percentage')] : null);
-        $productDetailPrice->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $productDetailPrice->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $productDetailPrice->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $productDetailPrice->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
 
         /** @var $extension ProductDetailPriceExtension */
         foreach ($this->getExtensions() as $extension) {

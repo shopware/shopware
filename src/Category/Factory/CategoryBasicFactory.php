@@ -68,7 +68,7 @@ class CategoryBasicFactory extends Factory
         TranslationContext $context
     ): CategoryBasicStruct {
         $category->setUuid((string) $data[$selection->getField('uuid')]);
-        $category->setParentUuid(isset($data[$selection->getField('parent_uuid')]) ? (string) $data[$selection->getField('parentUuid')] : null);
+        $category->setParentUuid(isset($data[$selection->getField('parentUuid')]) ? (string) $data[$selection->getField('parentUuid')] : null);
         $category->setPath(array_values(array_filter(explode('|', (string) $data[$selection->getField('path')]))));
         $category->setPosition((int) $data[$selection->getField('position')]);
         $category->setLevel((int) $data[$selection->getField('level')]);
@@ -78,21 +78,21 @@ class CategoryBasicFactory extends Factory
         $category->setExternal(isset($data[$selection->getField('external')]) ? (string) $data[$selection->getField('external')] : null);
         $category->setHideFilter((bool) $data[$selection->getField('hideFilter')]);
         $category->setHideTop((bool) $data[$selection->getField('hideTop')]);
-        $category->setMediaUuid(isset($data[$selection->getField('media_uuid')]) ? (string) $data[$selection->getField('mediaUuid')] : null);
-        $category->setProductBoxLayout(isset($data[$selection->getField('product_box_layout')]) ? (string) $data[$selection->getField('productBoxLayout')] : null);
-        $category->setProductStreamUuid(isset($data[$selection->getField('product_stream_uuid')]) ? (string) $data[$selection->getField('productStreamUuid')] : null);
+        $category->setMediaUuid(isset($data[$selection->getField('mediaUuid')]) ? (string) $data[$selection->getField('mediaUuid')] : null);
+        $category->setProductBoxLayout(isset($data[$selection->getField('productBoxLayout')]) ? (string) $data[$selection->getField('productBoxLayout')] : null);
+        $category->setProductStreamUuid(isset($data[$selection->getField('productStreamUuid')]) ? (string) $data[$selection->getField('productStreamUuid')] : null);
         $category->setHideSortings((bool) $data[$selection->getField('hideSortings')]);
-        $category->setSortingUuids(isset($data[$selection->getField('sorting_uuids')]) ? (string) $data[$selection->getField('sortingUuids')] : null);
-        $category->setFacetUuids(isset($data[$selection->getField('facet_uuids')]) ? (string) $data[$selection->getField('facetUuids')] : null);
-        $category->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $category->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $category->setSortingUuids(isset($data[$selection->getField('sortingUuids')]) ? (string) $data[$selection->getField('sortingUuids')] : null);
+        $category->setFacetUuids(isset($data[$selection->getField('facetUuids')]) ? (string) $data[$selection->getField('facetUuids')] : null);
+        $category->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $category->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $category->setName((string) $data[$selection->getField('name')]);
         $category->setPathNames(array_values(array_filter(explode('|', (string) $data[$selection->getField('pathNames')]))));
-        $category->setMetaKeywords(isset($data[$selection->getField('meta_keywords')]) ? (string) $data[$selection->getField('metaKeywords')] : null);
-        $category->setMetaTitle(isset($data[$selection->getField('meta_title')]) ? (string) $data[$selection->getField('metaTitle')] : null);
-        $category->setMetaDescription(isset($data[$selection->getField('meta_description')]) ? (string) $data[$selection->getField('metaDescription')] : null);
-        $category->setCmsHeadline(isset($data[$selection->getField('cms_headline')]) ? (string) $data[$selection->getField('cmsHeadline')] : null);
-        $category->setCmsDescription(isset($data[$selection->getField('cms_description')]) ? (string) $data[$selection->getField('cmsDescription')] : null);
+        $category->setMetaKeywords(isset($data[$selection->getField('metaKeywords')]) ? (string) $data[$selection->getField('metaKeywords')] : null);
+        $category->setMetaTitle(isset($data[$selection->getField('metaTitle')]) ? (string) $data[$selection->getField('metaTitle')] : null);
+        $category->setMetaDescription(isset($data[$selection->getField('metaDescription')]) ? (string) $data[$selection->getField('metaDescription')] : null);
+        $category->setCmsHeadline(isset($data[$selection->getField('cmsHeadline')]) ? (string) $data[$selection->getField('cmsHeadline')] : null);
+        $category->setCmsDescription(isset($data[$selection->getField('cmsDescription')]) ? (string) $data[$selection->getField('cmsDescription')] : null);
         $seoUrl = $selection->filter('canonicalUrl');
         if ($seoUrl && !empty($data[$seoUrl->getField('uuid')])) {
             $category->setCanonicalUrl(

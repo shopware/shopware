@@ -45,8 +45,8 @@ class AreaCountryStateBasicFactory extends Factory
         $areaCountryState->setShortCode((string) $data[$selection->getField('shortCode')]);
         $areaCountryState->setPosition((int) $data[$selection->getField('position')]);
         $areaCountryState->setActive((bool) $data[$selection->getField('active')]);
-        $areaCountryState->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $areaCountryState->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $areaCountryState->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $areaCountryState->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $areaCountryState->setName((string) $data[$selection->getField('name')]);
 
         /** @var $extension AreaCountryStateExtension */

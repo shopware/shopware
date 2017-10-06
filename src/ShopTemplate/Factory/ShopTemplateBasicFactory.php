@@ -60,12 +60,12 @@ class ShopTemplateBasicFactory extends Factory
         $shopTemplate->setStyleSupport((bool) $data[$selection->getField('styleSupport')]);
         $shopTemplate->setVersion((int) $data[$selection->getField('version')]);
         $shopTemplate->setEmotion((bool) $data[$selection->getField('emotion')]);
-        $shopTemplate->setPluginId(isset($data[$selection->getField('plugin_id')]) ? (int) $data[$selection->getField('pluginId')] : null);
-        $shopTemplate->setPluginUuid(isset($data[$selection->getField('plugin_uuid')]) ? (string) $data[$selection->getField('pluginUuid')] : null);
-        $shopTemplate->setParentId(isset($data[$selection->getField('parent_id')]) ? (int) $data[$selection->getField('parentId')] : null);
-        $shopTemplate->setParentUuid(isset($data[$selection->getField('parent_uuid')]) ? (string) $data[$selection->getField('parentUuid')] : null);
-        $shopTemplate->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $shopTemplate->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $shopTemplate->setPluginId(isset($data[$selection->getField('pluginId')]) ? (int) $data[$selection->getField('pluginId')] : null);
+        $shopTemplate->setPluginUuid(isset($data[$selection->getField('pluginUuid')]) ? (string) $data[$selection->getField('pluginUuid')] : null);
+        $shopTemplate->setParentId(isset($data[$selection->getField('parentId')]) ? (int) $data[$selection->getField('parentId')] : null);
+        $shopTemplate->setParentUuid(isset($data[$selection->getField('parentUuid')]) ? (string) $data[$selection->getField('parentUuid')] : null);
+        $shopTemplate->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $shopTemplate->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
 
         /** @var $extension ShopTemplateExtension */
         foreach ($this->getExtensions() as $extension) {

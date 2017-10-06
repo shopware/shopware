@@ -50,8 +50,8 @@ class SeoUrlBasicFactory extends Factory
         $seoUrl->setPathInfo((string) $data[$selection->getField('pathInfo')]);
         $seoUrl->setSeoPathInfo((string) $data[$selection->getField('seoPathInfo')]);
         $seoUrl->setIsCanonical((bool) $data[$selection->getField('isCanonical')]);
-        $seoUrl->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $seoUrl->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $seoUrl->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $seoUrl->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
 
         /** @var $extension SeoUrlExtension */
         foreach ($this->getExtensions() as $extension) {

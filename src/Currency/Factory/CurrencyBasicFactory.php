@@ -48,8 +48,8 @@ class CurrencyBasicFactory extends Factory
         $currency->setSymbol((string) $data[$selection->getField('symbol')]);
         $currency->setSymbolPosition((int) $data[$selection->getField('symbolPosition')]);
         $currency->setPosition((int) $data[$selection->getField('position')]);
-        $currency->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $currency->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $currency->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $currency->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $currency->setShortName((string) $data[$selection->getField('shortName')]);
         $currency->setName((string) $data[$selection->getField('name')]);
 

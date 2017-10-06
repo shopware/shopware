@@ -45,16 +45,16 @@ class AlbumBasicFactory extends Factory
         TranslationContext $context
     ): AlbumBasicStruct {
         $album->setUuid((string) $data[$selection->getField('uuid')]);
-        $album->setParentUuid(isset($data[$selection->getField('parent_uuid')]) ? (string) $data[$selection->getField('parentUuid')] : null);
+        $album->setParentUuid(isset($data[$selection->getField('parentUuid')]) ? (string) $data[$selection->getField('parentUuid')] : null);
         $album->setPosition((int) $data[$selection->getField('position')]);
         $album->setCreateThumbnails((bool) $data[$selection->getField('createThumbnails')]);
-        $album->setThumbnailSize(isset($data[$selection->getField('thumbnail_size')]) ? (string) $data[$selection->getField('thumbnailSize')] : null);
+        $album->setThumbnailSize(isset($data[$selection->getField('thumbnailSize')]) ? (string) $data[$selection->getField('thumbnailSize')] : null);
         $album->setIcon(isset($data[$selection->getField('icon')]) ? (string) $data[$selection->getField('icon')] : null);
         $album->setThumbnailHighDpi((bool) $data[$selection->getField('thumbnailHighDpi')]);
-        $album->setThumbnailQuality(isset($data[$selection->getField('thumbnail_quality')]) ? (int) $data[$selection->getField('thumbnailQuality')] : null);
-        $album->setThumbnailHighDpiQuality(isset($data[$selection->getField('thumbnail_high_dpi_quality')]) ? (int) $data[$selection->getField('thumbnailHighDpiQuality')] : null);
-        $album->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $album->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $album->setThumbnailQuality(isset($data[$selection->getField('thumbnailQuality')]) ? (int) $data[$selection->getField('thumbnailQuality')] : null);
+        $album->setThumbnailHighDpiQuality(isset($data[$selection->getField('thumbnailHighDpiQuality')]) ? (int) $data[$selection->getField('thumbnailHighDpiQuality')] : null);
+        $album->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $album->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $album->setName((string) $data[$selection->getField('name')]);
 
         /** @var $extension AlbumExtension */

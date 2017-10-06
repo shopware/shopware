@@ -17,6 +17,7 @@ abstract class ProductListingPriceExtension implements ExtensionInterface, Event
     {
         return [
             ProductListingPriceBasicLoadedEvent::NAME => 'productListingPriceBasicLoaded',
+            ProductListingPriceWrittenEvent::NAME => 'productListingPriceWritten',
         ];
     }
 

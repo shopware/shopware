@@ -42,8 +42,8 @@ class TaxBasicFactory extends Factory
         $tax->setUuid((string) $data[$selection->getField('uuid')]);
         $tax->setRate((float) $data[$selection->getField('rate')]);
         $tax->setName((string) $data[$selection->getField('name')]);
-        $tax->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $tax->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $tax->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $tax->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
 
         /** @var $extension TaxExtension */
         foreach ($this->getExtensions() as $extension) {

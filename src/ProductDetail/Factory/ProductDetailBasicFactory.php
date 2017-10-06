@@ -78,31 +78,31 @@ class ProductDetailBasicFactory extends Factory
     ): ProductDetailBasicStruct {
         $productDetail->setUuid((string) $data[$selection->getField('uuid')]);
         $productDetail->setProductUuid((string) $data[$selection->getField('productUuid')]);
-        $productDetail->setSupplierNumber(isset($data[$selection->getField('supplier_number')]) ? (string) $data[$selection->getField('supplierNumber')] : null);
+        $productDetail->setSupplierNumber(isset($data[$selection->getField('supplierNumber')]) ? (string) $data[$selection->getField('supplierNumber')] : null);
         $productDetail->setIsMain((bool) $data[$selection->getField('isMain')]);
         $productDetail->setSales((int) $data[$selection->getField('sales')]);
         $productDetail->setActive((bool) $data[$selection->getField('active')]);
         $productDetail->setStock((int) $data[$selection->getField('stock')]);
-        $productDetail->setMinStock(isset($data[$selection->getField('min_stock')]) ? (int) $data[$selection->getField('minStock')] : null);
+        $productDetail->setMinStock(isset($data[$selection->getField('minStock')]) ? (int) $data[$selection->getField('minStock')] : null);
         $productDetail->setWeight(isset($data[$selection->getField('weight')]) ? (float) $data[$selection->getField('weight')] : null);
         $productDetail->setPosition((int) $data[$selection->getField('position')]);
         $productDetail->setWidth(isset($data[$selection->getField('width')]) ? (float) $data[$selection->getField('width')] : null);
         $productDetail->setHeight(isset($data[$selection->getField('height')]) ? (float) $data[$selection->getField('height')] : null);
         $productDetail->setLength(isset($data[$selection->getField('length')]) ? (float) $data[$selection->getField('length')] : null);
         $productDetail->setEan(isset($data[$selection->getField('ean')]) ? (string) $data[$selection->getField('ean')] : null);
-        $productDetail->setUnitUuid(isset($data[$selection->getField('unit_uuid')]) ? (string) $data[$selection->getField('unitUuid')] : null);
-        $productDetail->setPurchaseSteps(isset($data[$selection->getField('purchase_steps')]) ? (int) $data[$selection->getField('purchaseSteps')] : null);
-        $productDetail->setMaxPurchase(isset($data[$selection->getField('max_purchase')]) ? (int) $data[$selection->getField('maxPurchase')] : null);
+        $productDetail->setUnitUuid(isset($data[$selection->getField('unitUuid')]) ? (string) $data[$selection->getField('unitUuid')] : null);
+        $productDetail->setPurchaseSteps(isset($data[$selection->getField('purchaseSteps')]) ? (int) $data[$selection->getField('purchaseSteps')] : null);
+        $productDetail->setMaxPurchase(isset($data[$selection->getField('maxPurchase')]) ? (int) $data[$selection->getField('maxPurchase')] : null);
         $productDetail->setMinPurchase((int) $data[$selection->getField('minPurchase')]);
-        $productDetail->setPurchaseUnit(isset($data[$selection->getField('purchase_unit')]) ? (float) $data[$selection->getField('purchaseUnit')] : null);
-        $productDetail->setReferenceUnit(isset($data[$selection->getField('reference_unit')]) ? (float) $data[$selection->getField('referenceUnit')] : null);
-        $productDetail->setReleaseDate(isset($data[$selection->getField('release_date')]) ? new \DateTime($data[$selection->getField('releaseDate')]) : null);
+        $productDetail->setPurchaseUnit(isset($data[$selection->getField('purchaseUnit')]) ? (float) $data[$selection->getField('purchaseUnit')] : null);
+        $productDetail->setReferenceUnit(isset($data[$selection->getField('referenceUnit')]) ? (float) $data[$selection->getField('referenceUnit')] : null);
+        $productDetail->setReleaseDate(isset($data[$selection->getField('releaseDate')]) ? new \DateTime($data[$selection->getField('releaseDate')]) : null);
         $productDetail->setShippingFree((bool) $data[$selection->getField('shippingFree')]);
         $productDetail->setPurchasePrice((float) $data[$selection->getField('purchasePrice')]);
-        $productDetail->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $productDetail->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
-        $productDetail->setAdditionalText(isset($data[$selection->getField('additional_text')]) ? (string) $data[$selection->getField('additionalText')] : null);
-        $productDetail->setPackUnit(isset($data[$selection->getField('pack_unit')]) ? (string) $data[$selection->getField('packUnit')] : null);
+        $productDetail->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $productDetail->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $productDetail->setAdditionalText(isset($data[$selection->getField('additionalText')]) ? (string) $data[$selection->getField('additionalText')] : null);
+        $productDetail->setPackUnit(isset($data[$selection->getField('packUnit')]) ? (string) $data[$selection->getField('packUnit')] : null);
         $unit = $selection->filter('unit');
         if ($unit && !empty($data[$unit->getField('uuid')])) {
             $productDetail->setUnit(

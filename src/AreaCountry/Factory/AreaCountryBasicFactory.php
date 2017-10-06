@@ -59,8 +59,8 @@ class AreaCountryBasicFactory extends Factory
         $areaCountry->setIso3(isset($data[$selection->getField('iso3')]) ? (string) $data[$selection->getField('iso3')] : null);
         $areaCountry->setDisplayStateInRegistration((bool) $data[$selection->getField('displayStateInRegistration')]);
         $areaCountry->setForceStateInRegistration((bool) $data[$selection->getField('forceStateInRegistration')]);
-        $areaCountry->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $areaCountry->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $areaCountry->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $areaCountry->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
         $areaCountry->setName((string) $data[$selection->getField('name')]);
 
         /** @var $extension AreaCountryExtension */

@@ -44,14 +44,14 @@ class ProductManufacturerBasicFactory extends Factory
     ): ProductManufacturerBasicStruct {
         $productManufacturer->setUuid((string) $data[$selection->getField('uuid')]);
         $productManufacturer->setLink((string) $data[$selection->getField('link')]);
-        $productManufacturer->setMediaUuid(isset($data[$selection->getField('media_uuid')]) ? (string) $data[$selection->getField('mediaUuid')] : null);
-        $productManufacturer->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
-        $productManufacturer->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $productManufacturer->setMediaUuid(isset($data[$selection->getField('mediaUuid')]) ? (string) $data[$selection->getField('mediaUuid')] : null);
+        $productManufacturer->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $productManufacturer->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
         $productManufacturer->setName((string) $data[$selection->getField('name')]);
         $productManufacturer->setDescription(isset($data[$selection->getField('description')]) ? (string) $data[$selection->getField('description')] : null);
-        $productManufacturer->setMetaTitle(isset($data[$selection->getField('meta_title')]) ? (string) $data[$selection->getField('metaTitle')] : null);
-        $productManufacturer->setMetaDescription(isset($data[$selection->getField('meta_description')]) ? (string) $data[$selection->getField('metaDescription')] : null);
-        $productManufacturer->setMetaKeywords(isset($data[$selection->getField('meta_keywords')]) ? (string) $data[$selection->getField('metaKeywords')] : null);
+        $productManufacturer->setMetaTitle(isset($data[$selection->getField('metaTitle')]) ? (string) $data[$selection->getField('metaTitle')] : null);
+        $productManufacturer->setMetaDescription(isset($data[$selection->getField('metaDescription')]) ? (string) $data[$selection->getField('metaDescription')] : null);
+        $productManufacturer->setMetaKeywords(isset($data[$selection->getField('metaKeywords')]) ? (string) $data[$selection->getField('metaKeywords')] : null);
 
         /** @var $extension ProductManufacturerExtension */
         foreach ($this->getExtensions() as $extension) {

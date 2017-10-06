@@ -54,10 +54,10 @@ class ProductVoteBasicFactory extends Factory
         $productVote->setActive((int) $data[$selection->getField('active')]);
         $productVote->setEmail((string) $data[$selection->getField('email')]);
         $productVote->setAnswer(isset($data[$selection->getField('answer')]) ? (string) $data[$selection->getField('answer')] : null);
-        $productVote->setAnsweredAt(isset($data[$selection->getField('answered_at')]) ? new \DateTime($data[$selection->getField('answeredAt')]) : null);
-        $productVote->setShopUuid(isset($data[$selection->getField('shop_uuid')]) ? (string) $data[$selection->getField('shopUuid')] : null);
-        $productVote->setCreatedAt(isset($data[$selection->getField('created_at')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $productVote->setUpdatedAt(isset($data[$selection->getField('updated_at')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $productVote->setAnsweredAt(isset($data[$selection->getField('answeredAt')]) ? new \DateTime($data[$selection->getField('answeredAt')]) : null);
+        $productVote->setShopUuid(isset($data[$selection->getField('shopUuid')]) ? (string) $data[$selection->getField('shopUuid')] : null);
+        $productVote->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
+        $productVote->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
 
         /** @var $extension ProductVoteExtension */
         foreach ($this->getExtensions() as $extension) {

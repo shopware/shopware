@@ -89,7 +89,7 @@ class Storefront extends Theme
 
         if (count($paths)) {
             $finder = new Finder();
-            $files = $finder->files()->in($paths)->name('*.js')->getIterator();
+            $files = $finder->files()->in($paths)->name('js/*.js')->getIterator();
 
             /** @var \SplFileInfo $file */
             foreach ($files as $file) {

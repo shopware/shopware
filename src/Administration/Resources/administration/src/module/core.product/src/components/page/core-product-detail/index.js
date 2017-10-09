@@ -52,7 +52,12 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
     },
 
     created() {
-        this.initProduct(this.$route.params.uuid);
+        this.initProduct(this.$route.params.uuid).then((proxy) => {
+            this.$emit(
+                'core-product-detail:load:after',
+                proxy.data
+            );
+        });
         this.getData();
     },
 
@@ -87,8 +92,19 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
 
         onSave() {
             this.isWorking = true;
+
+            this.$emit(
+                'core-product-detail:save:before',
+                this
+            );
+
             this.saveProduct().then((data) => {
                 this.isWorking = false;
+
+                this.$emit(
+                    'core-product-detail:save:after',
+                    data
+                );
 
                 if (!this.$route.params.uuid && data.uuid) {
                     this.$router.push({ path: `/core/product/detail/${data.uuid}` });

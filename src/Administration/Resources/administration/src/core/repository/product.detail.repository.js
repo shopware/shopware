@@ -41,10 +41,15 @@ function initProduct(uuid, dataKey = 'product') {
 
         this.productProxy = productProxy;
         this[dataKey] = productProxy.data;
+        return new Promise().resolve(() => {
+            return productProxy;
+        });
     } else {
-        this.getProductByUuid(uuid).then((productProxy) => {
+        return this.getProductByUuid(uuid).then((productProxy) => {
             this.productProxy = productProxy;
             this[dataKey] = productProxy.data;
+
+            return productProxy;
         });
     }
 }

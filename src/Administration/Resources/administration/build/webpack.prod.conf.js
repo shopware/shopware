@@ -22,7 +22,7 @@ try {
 
     // add hot-reload related code to entry chunks
     Object.keys(plugins).forEach(function (pluginName) {
-        baseWebpackConfig.entry[pluginName] = plugins[pluginName] + '/Resources/Views/src/manifest.js';
+        baseWebpackConfig.entry[pluginName] = plugins[pluginName] + '/Resources/views/src/manifest.js';
     });
 } catch(e) {}
 
@@ -123,7 +123,7 @@ if (Object.keys(plugins).length) {
             new WebpackCopyAfterBuildPlugin({
                 files: [{
                     chunkName: plugin,
-                    to: `${pluginName}/Resources/Views/dist/${plugin}.js`
+                    to: `${pluginName}/Resources/public/${plugin}.js`
                 }],
                 options: {
                     absolutePath: true,

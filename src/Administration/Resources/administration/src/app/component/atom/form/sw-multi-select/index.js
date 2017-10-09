@@ -14,7 +14,10 @@ export default Shopware.ComponentFactory.register('sw-multi-select', {
         },
         values: {
             type: Array,
-            required: false
+            required: true,
+            default() {
+                return [];
+            }
         },
         label: {
             type: String,
@@ -29,10 +32,8 @@ export default Shopware.ComponentFactory.register('sw-multi-select', {
     data() {
         return {
             searchTerm: '',
-            entries: [],
             isExpanded: false,
-            selectedValues: [],
-            displayValues: []
+            entries: []
         };
     },
 
@@ -47,55 +48,57 @@ export default Shopware.ComponentFactory.register('sw-multi-select', {
         },
 
         stringifyValues() {
-            return this.selectedValues.join('|');
+            return this.values.join('|');
         }
     },
 
     watch: {
-        searchTerm: 'onSearchTermChange',
-        values() {
-            this.displayValues = this.values;
-        }
+        searchTerm: 'onSearchTermChange'
     },
 
     created() {
         // Get data from the service provider
-        this.serviceProvider.readAll(10, 0).then((response) => {
+        this.serviceProvider.readAll(100, 0).then((response) => {
             this.entries = response.data;
         });
     },
 
     methods: {
         onDismissEntry(uuid) {
-            // Remove the display item
-            this.displayValues = this.displayValues.filter((entry) => entry.uuid !== uuid);
-
             // Remove the field from the value attribute of the hidden field
-            this.selectedValues = this.selectedValues.filter((entry) => entry.uuid !== uuid);
+            this.values = this.values.filter((entry) => entry.uuid !== uuid);
 
             // Emit change for v-model support
-            this.$emit('input', this.selectedValues);
+            this.$emit('input', this.values);
         },
 
         onSearchTermChange() {
             this.isExpanded = this.searchTerm.length > 3 && this.filteredEntries.length > 0;
         },
 
-        onSelectEntry(uuid, name) {
-            // Update values array
-            this.selectedValues.push(uuid);
+        onSelectEntry(uuid) {
+            if (!uuid) {
+                return false;
+            }
 
-            // Update display items
-            this.displayValues.push({
-                uuid,
-                name
+            const selectedEntry = this.entries.find((item) => {
+                return item.uuid === uuid;
             });
+
+            if (!selectedEntry) {
+                return false;
+            }
+
+            // Update values array
+            this.values.push(selectedEntry);
 
             // Reset search term to reset the filtered list and collapse the drop down
             this.searchTerm = '';
 
             // Emit change for v-model support
-            this.$emit('input', this.selectedValues);
+            this.$emit('input', this.values);
+
+            return selectedEntry;
         }
     },
 

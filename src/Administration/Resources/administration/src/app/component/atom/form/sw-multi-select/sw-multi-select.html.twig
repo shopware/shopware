@@ -6,7 +6,7 @@
         <ul class="sw-multi-select--list">
 
             <!-- Loop through the selected values -->
-            <li class="list--value" v-for="entry in displayValues" :key="entry.uuid">
+            <li class="list--value" v-for="entry in values" :key="entry.uuid">
                 <span class="value--display">{{ entry.name }}</span>
                 <a href="#" class="value--dismiss" @click.prevent="onDismissEntry(entry.uuid)">&#x2715;</a>
             </li>

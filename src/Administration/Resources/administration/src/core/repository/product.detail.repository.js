@@ -81,25 +81,34 @@ function updateProductByUuid(uuid, proxy) {
         return Promise.reject();
     }
 
+    const changeSet = { ...proxy.changeSet };
+
     /**
      * We have to remap the categories at the moment.
      *
      * ToDo: Add category support!
      */
-    if (proxy.data.categories) {
-        proxy.data.categories.map((entry) => {
-            return {
-                categoryUuid: entry
-            };
-        });
+    if (changeSet.categories) {
+        changeSet.categories = mapCategories(changeSet.categories);
     }
 
-    return this.productService.updateByUuid(uuid, proxy.changeSet).then((response) => {
+    return this.productService.updateByUuid(uuid, changeSet).then((response) => {
         return response.data;
     });
 }
 
 function createProduct(proxy) {
+    const data = proxy.data;
+
+    /**
+     * We have to remap the categories at the moment.
+     *
+     * ToDo: Add category support!
+     */
+    if (data.categories) {
+        data.categories = mapCategories(data.categories);
+    }
+
     return this.productService.create([proxy.data]).then((response) => {
         if (response.errors.length) {
             return Promise.reject(new Error('API error'));
@@ -174,3 +183,14 @@ function addProductPrice() {
     });
 }
 
+function mapCategories(categories) {
+    const mappedCategories = [];
+
+    categories.forEach((entry) => {
+        mappedCategories.push({
+            categoryUuid: entry.uuid
+        });
+    });
+
+    return mappedCategories;
+}

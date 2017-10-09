@@ -1,0 +1,11 @@
+    public function __construct(
+        #classUc#DetailLoader $detailLoader,
+        #classUc#BasicLoader $basicLoader,
+        EventDispatcherInterface $eventDispatcher,
+        #classUc#Searcher $searcher
+    ) {
+        $this->detailLoader = $detailLoader;
+        $this->basicLoader = $basicLoader;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->searcher = $searcher;
+    }

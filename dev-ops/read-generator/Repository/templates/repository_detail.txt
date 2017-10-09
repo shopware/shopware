@@ -41,24 +41,7 @@ class #classUc#Repository
      */
     private $searcher;
 
-    /**
-     * @var #classUc#Writer
-     */
-    private $writer;
-
-    public function __construct(
-        #classUc#DetailLoader $detailLoader,
-        #classUc#BasicLoader $basicLoader,
-        EventDispatcherInterface $eventDispatcher,
-        #classUc#Searcher $searcher,
-        #classUc#Writer $writer
-    ) {
-        $this->detailLoader = $detailLoader;
-        $this->basicLoader = $basicLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->searcher = $searcher;
-        $this->writer = $writer;
-    }
+    #constructor#
 
     public function readDetail(array $uuids, TranslationContext $context): #classUc#DetailCollection
     {
@@ -116,30 +99,5 @@ class #classUc#Repository
         return $result;
     }
 
-    public function update(array $data, TranslationContext $context): #classUc#WrittenEvent
-    {
-        $event = $this->writer->update($data, $context);
-
-        $this->eventDispatcher->dispatch($event::NAME, $event);
-
-        return $event;
-    }
-
-    public function upsert(array $data, TranslationContext $context): #classUc#WrittenEvent
-    {
-        $event = $this->writer->upsert($data, $context);
-
-        $this->eventDispatcher->dispatch($event::NAME, $event);
-
-        return $event;
-    }
-
-    public function create(array $data, TranslationContext $context): #classUc#WrittenEvent
-    {
-        $event = $this->writer->create($data, $context);
-
-        $this->eventDispatcher->dispatch($event::NAME, $event);
-
-        return $event;
-    }
+    #writeMethods#
 }

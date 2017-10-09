@@ -11,9 +11,21 @@ class Generator
      */
     private $directory;
 
+    /**
+     * @var string
+     */
+    private $argumentWriterTemplate;
+
+    /**
+     * @var string
+     */
+    private $writeMethodsTemplate;
+
     public function __construct($directory)
     {
         $this->directory = $directory;
+        $this->argumentWriterTemplate = file_get_contents(__DIR__ . '/templates/services_argument_writer.txt');
+        $this->writeMethodsTemplate = file_get_contents(__DIR__ . '/templates/repository_write_methods.txt');
     }
 
     public function getFiles($table)
@@ -27,13 +39,29 @@ class Generator
     public function generate(string $table, array $config)
     {
         $class = Util::snakeCaseToCamelCase($table);
+        $isReadOnly = (bool) preg_match('#_ro$#i', $table);
+
+        $writeMethods = $isReadOnly ? '' : $this->writeMethodsTemplate;
+        $constructor = $isReadOnly
+            ? file_get_contents(__DIR__ . '/templates/repository_constructor_without_write.txt')
+            : file_get_contents(__DIR__ . '/templates/repository_constructor.txt');
 
         $template = __DIR__ . '/templates/repository.txt';
         if (Util::getAssociationsForDetailStruct($table, $config)) {
             $template = __DIR__ . '/templates/repository_detail.txt';
+            $constructor = $isReadOnly
+                ? file_get_contents(__DIR__ . '/templates/repository_detail_constructor_without_write.txt')
+                : file_get_contents(__DIR__ . '/templates/repository_detail_constructor.txt');
         }
 
-        $template = str_replace(['#classUc#'], [ucfirst($class)], file_get_contents($template));
+        $writeMethods = str_replace('#classUc#', ucfirst($class), $writeMethods);
+        $constructor = str_replace('#classUc#', ucfirst($class), $constructor);
+
+        $template = str_replace(
+            ['#classUc#', '#constructor#', '#writeMethods#'],
+            [ucfirst($class), $constructor, $writeMethods],
+            file_get_contents($template)
+        );
 
         $file = $this->directory.'/'.ucfirst($class).'/Repository/'.ucfirst($class).'Repository.php';
 
@@ -46,16 +74,23 @@ class Generator
     {
         $class = Util::snakeCaseToCamelCase($table);
 
+        $argumentWriter = preg_match('#_ro$#i', $table) ? '' : $this->argumentWriterTemplate;
+        $argumentWriter = str_replace(
+            ['#classUc#', '#classLc#', '#table#', '#argumentWriter#'],
+            [ucfirst($class), lcfirst($class), $table, $argumentWriter],
+            $argumentWriter
+        );
+
         if (Util::getAssociationsForDetailStruct($table, $config)) {
             return str_replace(
-                ['#classUc#', '#classLc#', '#table#'],
-                [ucfirst($class), lcfirst($class), $table],
+                ['#classUc#', '#classLc#', '#table#', '#argumentWriter#'],
+                [ucfirst($class), lcfirst($class), $table, $argumentWriter],
                 file_get_contents(__DIR__ . '/templates/repository_detail.xml.txt')
             );
         }
         return str_replace(
-            ['#classUc#', '#classLc#', '#table#'],
-            [ucfirst($class), lcfirst($class), $table],
+            ['#classUc#', '#classLc#', '#table#', '#argumentWriter#'],
+            [ucfirst($class), lcfirst($class), $table, $argumentWriter],
             file_get_contents(__DIR__ . '/templates/repository.xml.txt')
         );
     }

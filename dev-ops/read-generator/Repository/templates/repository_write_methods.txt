@@ -1,0 +1,31 @@
+/**
+ * @var #classUc#Writer
+ */
+private $writer;
+
+public function update(array $data, TranslationContext $context): #classUc#WrittenEvent
+{
+    $event = $this->writer->update($data, $context);
+
+    $this->eventDispatcher->dispatch($event::NAME, $event);
+
+    return $event;
+}
+
+public function upsert(array $data, TranslationContext $context): #classUc#WrittenEvent
+{
+    $event = $this->writer->upsert($data, $context);
+
+    $this->eventDispatcher->dispatch($event::NAME, $event);
+
+    return $event;
+}
+
+public function create(array $data, TranslationContext $context): #classUc#WrittenEvent
+{
+    $event = $this->writer->create($data, $context);
+
+    $this->eventDispatcher->dispatch($event::NAME, $event);
+
+    return $event;
+}

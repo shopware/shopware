@@ -1,0 +1,120 @@
+    /**
+     * @Route("/#classLc#.{responseFormat}", name="api.#classLc#.create", methods={"POST"})
+     * @param ApiContext $context
+     * @return Response
+     */
+    public function createAction(ApiContext $context): Response
+    {
+        $createEvent = $this->#classLc#Repository->create(
+            $context->getPayload(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $#plural# = $this->#classLc#Repository->read(
+            $createEvent->get#classUc#Uuids(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $response = [
+            'data' => $#plural#,
+            'errors' => $createEvent->getErrors()
+        ];
+
+        return $this->createResponse($response, $context);
+    }
+
+    /**
+     * @Route("/#classLc#.{responseFormat}", name="api.#classLc#.upsert", methods={"PUT"})
+     * @param ApiContext $context
+     * @return Response
+     */
+    public function upsertAction(ApiContext $context): Response
+    {
+        $createEvent = $this->#classLc#Repository->upsert(
+            $context->getPayload(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $#plural# = $this->#classLc#Repository->read(
+            $createEvent->get#classUc#Uuids(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $response = [
+            'data' => $#plural#,
+            'errors' => $createEvent->getErrors()
+        ];
+
+        return $this->createResponse($response, $context);
+    }
+
+    /**
+     * @Route("/#classLc#.{responseFormat}", name="api.#classLc#.update", methods={"PATCH"})
+     * @param ApiContext $context
+     * @return Response
+     */
+    public function updateAction(ApiContext $context): Response
+    {
+        $createEvent = $this->#classLc#Repository->update(
+            $context->getPayload(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $#plural# = $this->#classLc#Repository->read(
+            $createEvent->get#classUc#Uuids(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $response = [
+            'data' => $#plural#,
+            'errors' => $createEvent->getErrors()
+        ];
+
+        return $this->createResponse($response, $context);
+    }
+
+    /**
+     * @Route("/#classLc#/{#classLc#Uuid}.{responseFormat}", name="api.#classLc#.single_update", methods={"PATCH"})
+     * @param Request $request
+     * @param ApiContext $context
+     * @return Response
+     */
+    public function singleUpdateAction(Request $request, ApiContext $context): Response
+    {
+        $payload = $context->getPayload();
+        $payload['uuid'] = $request->get('#classLc#Uuid');
+
+        $updateEvent = $this->#classLc#Repository->update(
+            [$payload],
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        if ($updateEvent->hasErrors()) {
+            $errors = $updateEvent->getErrors();
+            $error = array_shift($errors);
+
+            return $this->createResponse(['errors' => $error], $context, 400);
+        }
+
+        $#plural# = $this->#classLc#Repository->readDetail(
+            [$payload['uuid']],
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        return $this->createResponse(
+            ['data' => $#plural#->get($payload['uuid'])],
+            $context
+        );
+    }
+
+    /**
+     * @Route("/#classLc#.{responseFormat}", name="api.#classLc#.delete", methods={"DELETE"})
+     * @param ApiContext $context
+     * @return Response
+     */
+    public function deleteAction(ApiContext $context): Response
+    {
+        $result = ['data' => []];
+
+        return $this->createResponse($result, $context);
+    }

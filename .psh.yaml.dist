@@ -43,9 +43,9 @@ environments:
   docker:
     paths:
       - "dev-ops/docker/actions"
-  nexus:
+  administration:
     paths:
-      - "dev-ops/nexus/actions"
+      - "dev-ops/administration/actions"
   bamboo:
     paths:
       - "dev-ops/bamboo.shopware.com/actions"

@@ -1,0 +1,27 @@
+<div class="sw-login">
+    <h1>Administration Login</h1>
+
+    <transition name="bounce">
+        <div class="alert error" v-if="error">
+            <p>
+                <strong>{{error}}!</strong> {{message}}
+            </p>
+            <i class="icon--close" @click="onHideErrorMessage">&times;</i>
+        </div>
+    </transition>
+
+    <div v-if="state.user.username">
+        <strong>Logged in user:</strong> {{state.user.name}}
+    </div>
+
+    <sw-form action="post" ref="form">
+        <sw-form-row>
+            <sw-form-field id="username" name="username" label="Username" placeholder="Your username"></sw-form-field>
+        </sw-form-row>
+        <sw-form-row>
+            <sw-form-field id="password" name="password" label="Password" type="password" placeholder="Your password"></sw-form-field>
+        </sw-form-row>
+
+        <button @click="onLogin">Login!</button>
+    </sw-form>
+</div>

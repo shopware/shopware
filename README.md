@@ -86,7 +86,7 @@ Please replace the provided credentials with your own. After that you can provis
 
 You can now access your shop. If you want to install Shopware in a sub directory, please fill out the setting `SW_BASE PATH` with your installation path e.g. for example `/sub/direcory`. If you're seeing an Apache directory listing, then you have to modify your `SW_BASE_PATH` and append `/web` to the given path. Please keep in mind that you have to re-run `./psh.phar init` when you're modifying your `.psh.yaml.override` file.
 
-# Backend
+# Administration
 
 - **Requirements:**
     - Node.js > 8.x
@@ -95,23 +95,23 @@ You can now access your shop. If you want to install Shopware in a sub directory
 After initializing the application itself using `./psh.phar init` the stack is up and running. The backend is like a separate application with its own dependencies. Therefore we create a commands for your convince to set it up as well:
 
 ```bash
-./psh.phar nexus:init
+./psh.phar administration:init
 ```
 
-This will resolve the Node.js dependencies of the backend. If you're having trouble setting resolving the using `psh`, go to the `src/Nexus/Resources/nexus` directory and run `npm install` / `yarn` in the folder to resolve the dependencies manually.
+This will resolve the Node.js dependencies of the backend. If you're having trouble setting resolving the using `psh`, go to the `src/Administration/Resources/administration` directory and run `npm install` / `yarn` in the folder to resolve the dependencies manually.
 
 Now you're having two ways to go. If you just want to have a working copy of the backend you have to build the project:
 
 ```bash
-./psh.phar nexus:build
+./psh.phar administration:build
 ```
 
-Now you can access the complied version of the backend using `<http://your-shop-url/nexus>`.
+Now you can access the complied version of the backend using `<http://your-shop-url/admin>`.
 
 If you want to start developing with the backend we're highly recommend the hot module reloading mode. In this mode we're spawning a custom Node.js webserver which is using the `webpack-devserver`:
 
 ```bash
-./psh.phar nexus:watch
+./psh.phar administration:watch
 ```
 
 The hot module reloading mode enables you to use the [Vue.js DevTools](https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) as well as having hot module reloading in place for your components.

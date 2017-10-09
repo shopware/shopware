@@ -44,7 +44,7 @@ class Router implements RouterInterface, RequestMatcherInterface
     const REQUEST_TYPE_ATTRIBUTE = '_request_type';
     const REQUEST_TYPE_STOREFRONT = 'storefront';
     const REQUEST_TYPE_API = 'api';
-    const REQUEST_TYPE_NEXUS = 'nexus';
+    const REQUEST_TYPE_ADMINISTRATION = 'administration';
 
     /**
      * @var RequestContext
@@ -230,12 +230,12 @@ class Router implements RouterInterface, RequestMatcherInterface
 
         $pathInfo = $this->context->getPathInfo();
 
-        // save decision which type of request is called (storefront, api, nexus)
+        // save decision which type of request is called (storefront, api, administration)
         $type = $this->getRequestType($request);
         $request->attributes->set(self::REQUEST_TYPE_ATTRIBUTE, $type);
         $request->attributes->set(
             self::IS_API_REQUEST_ATTRIBUTE,
-            in_array($type, [self::REQUEST_TYPE_NEXUS, self::REQUEST_TYPE_API], true)
+            in_array($type, [self::REQUEST_TYPE_ADMINISTRATION, self::REQUEST_TYPE_API], true)
         );
 
         if (!$shop) {
@@ -354,8 +354,8 @@ class Router implements RouterInterface, RequestMatcherInterface
     {
         $isApi = stripos($request->getPathInfo(), '/api/') === 0;
 
-        if ($isApi && $request->query->has('nexus')) {
-            return self::REQUEST_TYPE_NEXUS;
+        if ($isApi && $request->query->has('administration')) {
+            return self::REQUEST_TYPE_ADMINISTRATION;
         }
         if ($isApi) {
             return self::REQUEST_TYPE_API;

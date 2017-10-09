@@ -56,10 +56,10 @@ class TemplateFinder
 
         array_map([$this, 'addBundle'], $kernel::getPlugins()->getActivePlugins());
 
-        // todo: remove hard nexus dependency
-        $nexusBundle = $kernel->getBundle('Nexus');
-        $this->loader->addPath($nexusBundle->getPath() . '/Resources/views/', $nexusBundle->getName());
-        $this->directories[] = '@' . $nexusBundle->getName();
+        // todo: remove hard administration dependency
+        $administrationBundle = $kernel->getBundle('Administration');
+        $this->loader->addPath($administrationBundle->getPath() . '/Resources/views/', $administrationBundle->getName());
+        $this->directories[] = '@' . $administrationBundle->getName();
 
         // todo: remove hard api dependency
         $this->loader->addPath($kernel->getRootDir() . '/../src/Api/Resources/views', 'Api');

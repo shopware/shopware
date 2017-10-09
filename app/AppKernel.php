@@ -59,7 +59,7 @@ class AppKernel extends Kernel
             new \Shopware\Cart\Cart(),
             new \Shopware\CartBridge\CartBridge(),
             new \Shopware\Context\Context(),
-            new \Shopware\Nexus\Nexus(),
+            new \Shopware\Administration\Administration(),
             new \Shopware\Translation\Translation(),
             new \Shopware\Filesystem\Filesystem(),
             new \Shopware\Search\Search(),

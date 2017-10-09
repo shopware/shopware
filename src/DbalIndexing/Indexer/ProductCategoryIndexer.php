@@ -152,7 +152,7 @@ class ProductCategoryIndexer implements IndexerInterface
         /** @var NestedEventCollection $events */
         $events = $events
             ->getFlatEventList()
-            ->filterInstance(ProductWrittenEvent::NAME);
+            ->filterInstance(ProductWrittenEvent::class);
 
         $uuids = [];
         /** @var ProductWrittenEvent $event */

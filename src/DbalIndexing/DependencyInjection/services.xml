@@ -49,5 +49,10 @@
             <argument id="dbal_connection" type="service"/>
         </service>
 
+        <service class="Shopware\DbalIndexing\Event\EventSubscriber" id="shopware.dbal_indexing.event.event_subscriber">
+            <argument id="shopware.dbal_indexing.indexer.shop_indexer" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
     </services>
 </container>

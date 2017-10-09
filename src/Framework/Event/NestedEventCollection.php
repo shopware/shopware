@@ -40,7 +40,7 @@ class NestedEventCollection extends Collection
 
     public function getFlatEventList(): NestedEventCollection
     {
-        $events[] = $this->elements;
+        $events = [];
 
         foreach ($this->elements as $event) {
             foreach ($event->getFlatEventList() as $item) {

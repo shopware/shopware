@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class FilterWrittenEvent extends NestedEvent
 {
     const NAME = 'filter.written';
-
-    /**
-     * @var string[]
-     */
-    protected $filterUuids;
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,31 @@ class FilterWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $filterUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $filterUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->filterUuids = $filterUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'FilterUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +59,6 @@ class FilterWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getFilterUuids(): array
-    {
-        return $this->filterUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +79,15 @@ class FilterWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getFilterUuids(): array
+    {
+        return $this->filterUuids;
     }
 }

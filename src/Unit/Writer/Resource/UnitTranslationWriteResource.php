@@ -37,9 +37,9 @@ class UnitTranslationWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): UnitTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): UnitTranslationWrittenEvent
     {
-        $event = new UnitTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new UnitTranslationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

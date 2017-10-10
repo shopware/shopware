@@ -5,15 +5,11 @@ namespace Shopware\Currency\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class CurrencyTranslationWrittenEvent extends NestedEvent
 {
     const NAME = 'currency_translation.written';
-
-    /**
-     * @var string[]
-     */
-    protected $currencyTranslationUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,35 @@ class CurrencyTranslationWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $currencyTranslationUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $currencyUuids = [];
+    /**
+     * @var string[]
+     */
+    protected $languageUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->currencyTranslationUuids = $currencyTranslationUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'CurrencyTranslationUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +65,6 @@ class CurrencyTranslationWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getCurrencyTranslationUuids(): array
-    {
-        return $this->currencyTranslationUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +85,20 @@ class CurrencyTranslationWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getCurrencyUuids(): array
+    {
+        return $this->currencyUuids;
+    }
+
+    public function getLanguageUuids(): array
+    {
+        return $this->languageUuids;
     }
 }

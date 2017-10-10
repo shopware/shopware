@@ -66,7 +66,7 @@ class ShopWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return ShopWriteResource::createWrittenEvent($updated, $context, $errors);
+        return ShopWriteResource::createWrittenEvent($updated, $context, $data, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): ShopWrittenEvent
@@ -98,7 +98,7 @@ class ShopWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ShopWriteResource::createWrittenEvent($created, $context, $errors);
+        return ShopWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     public function create(array $data, TranslationContext $context): ShopWrittenEvent
@@ -130,7 +130,7 @@ class ShopWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ShopWriteResource::createWrittenEvent($created, $context, $errors);
+        return ShopWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext

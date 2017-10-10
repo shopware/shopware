@@ -67,7 +67,7 @@ class ProductVoteWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return ProductVoteWriteResource::createWrittenEvent($updated, $context, $errors);
+        return ProductVoteWriteResource::createWrittenEvent($updated, $context, $data, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): ProductVoteWrittenEvent
@@ -99,7 +99,7 @@ class ProductVoteWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ProductVoteWriteResource::createWrittenEvent($created, $context, $errors);
+        return ProductVoteWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     public function create(array $data, TranslationContext $context): ProductVoteWrittenEvent
@@ -131,7 +131,7 @@ class ProductVoteWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ProductVoteWriteResource::createWrittenEvent($created, $context, $errors);
+        return ProductVoteWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext

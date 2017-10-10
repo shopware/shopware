@@ -5,15 +5,11 @@ namespace Shopware\Shop\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class ShopWrittenEvent extends NestedEvent
 {
     const NAME = 'shop.written';
-
-    /**
-     * @var string[]
-     */
-    protected $shopUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class ShopWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $shopUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $shopUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->shopUuids = $shopUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ShopUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class ShopWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getShopUuids(): array
-    {
-        return $this->shopUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class ShopWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getShopUuids(): array
+    {
+        return $this->shopUuids;
     }
 }

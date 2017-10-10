@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class BillingTemplateWrittenEvent extends NestedEvent
 {
-    const NAME = 'billing_template.written';
-
-    /**
-     * @var string[]
-     */
-    protected $billingTemplateUuids;
+    const NAME = 's_billing_template.written';
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,31 @@ class BillingTemplateWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $billingTemplateUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $iDs = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->billingTemplateUuids = $billingTemplateUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'BillingTemplateUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +59,6 @@ class BillingTemplateWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getBillingTemplateUuids(): array
-    {
-        return $this->billingTemplateUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +79,15 @@ class BillingTemplateWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getIDs(): array
+    {
+        return $this->iDs;
     }
 }

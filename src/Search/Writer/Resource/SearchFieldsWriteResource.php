@@ -33,9 +33,9 @@ class SearchFieldsWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): SearchFieldsWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): SearchFieldsWrittenEvent
     {
-        $event = new SearchFieldsWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new SearchFieldsWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

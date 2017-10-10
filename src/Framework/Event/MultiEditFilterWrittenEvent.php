@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class MultiEditFilterWrittenEvent extends NestedEvent
 {
-    const NAME = 'multi_edit_filter.written';
-
-    /**
-     * @var string[]
-     */
-    protected $multiEditFilterUuids;
+    const NAME = 's_multi_edit_filter.written';
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,26 @@ class MultiEditFilterWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $multiEditFilterUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->multiEditFilterUuids = $multiEditFilterUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'MultiEditFilterUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +54,6 @@ class MultiEditFilterWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getMultiEditFilterUuids(): array
-    {
-        return $this->multiEditFilterUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +74,10 @@ class MultiEditFilterWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
     }
 }

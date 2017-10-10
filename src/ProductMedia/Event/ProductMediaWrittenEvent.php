@@ -5,15 +5,11 @@ namespace Shopware\ProductMedia\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class ProductMediaWrittenEvent extends NestedEvent
 {
     const NAME = 'product_media.written';
-
-    /**
-     * @var string[]
-     */
-    protected $productMediaUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class ProductMediaWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $productMediaUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $productMediaUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->productMediaUuids = $productMediaUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ProductMediaUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class ProductMediaWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getProductMediaUuids(): array
-    {
-        return $this->productMediaUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class ProductMediaWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getProductMediaUuids(): array
+    {
+        return $this->productMediaUuids;
     }
 }

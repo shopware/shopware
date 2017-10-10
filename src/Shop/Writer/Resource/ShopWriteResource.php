@@ -17,14 +17,14 @@ use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
-use Shopware\Framework\Write\Resource\ConfigFormFieldValueWriteResource;
-use Shopware\Framework\Write\Resource\MailAttachmentWriteResource;
-use Shopware\Framework\Write\Resource\PremiumProductWriteResource;
-use Shopware\Framework\Write\Resource\SnippetWriteResource;
-use Shopware\Framework\Write\Resource\StatisticProductImpressionWriteResource;
-use Shopware\Framework\Write\Resource\StatisticSearchWriteResource;
-use Shopware\Framework\Write\Resource\StatisticVisitorWriteResource;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Framework\Writer\Resource\ConfigFormFieldValueWriteResource;
+use Shopware\Framework\Writer\Resource\MailAttachmentWriteResource;
+use Shopware\Framework\Writer\Resource\PremiumProductWriteResource;
+use Shopware\Framework\Writer\Resource\SnippetWriteResource;
+use Shopware\Framework\Writer\Resource\StatisticProductImpressionWriteResource;
+use Shopware\Framework\Writer\Resource\StatisticSearchWriteResource;
+use Shopware\Framework\Writer\Resource\StatisticVisitorWriteResource;
 use Shopware\Locale\Writer\Resource\LocaleWriteResource;
 use Shopware\Order\Writer\Resource\OrderWriteResource;
 use Shopware\PaymentMethod\Writer\Resource\PaymentMethodShopWriteResource;
@@ -32,7 +32,6 @@ use Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource;
 use Shopware\Product\Writer\Resource\ProductCategorySeoWriteResource;
 use Shopware\ProductVote\Writer\Resource\ProductVoteWriteResource;
 use Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource;
-use Shopware\Shop\Event\ShopWrittenEvent;
 use Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigFormFieldValueWriteResource;
 use Shopware\ShopTemplate\Writer\Resource\ShopTemplateWriteResource;
 
@@ -140,9 +139,9 @@ class ShopWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ShopWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ShopWrittenEvent
     {
-        $event = new ShopWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ShopWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

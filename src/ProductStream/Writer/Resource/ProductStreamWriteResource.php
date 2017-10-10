@@ -48,9 +48,9 @@ class ProductStreamWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductStreamWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductStreamWrittenEvent
     {
-        $event = new ProductStreamWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductStreamWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

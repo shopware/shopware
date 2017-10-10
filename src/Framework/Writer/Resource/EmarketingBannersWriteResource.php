@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Write\Resource;
+namespace Shopware\Framework\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\EmarketingBannersWrittenEvent;
@@ -42,9 +42,9 @@ class EmarketingBannersWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): EmarketingBannersWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): EmarketingBannersWrittenEvent
     {
-        $event = new EmarketingBannersWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new EmarketingBannersWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

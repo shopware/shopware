@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class StatisticSearchWrittenEvent extends NestedEvent
 {
     const NAME = 'statistic_search.written';
-
-    /**
-     * @var string[]
-     */
-    protected $statisticSearchUuids;
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,31 @@ class StatisticSearchWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $statisticSearchUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $statisticSearchUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->statisticSearchUuids = $statisticSearchUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'StatisticSearchUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +59,6 @@ class StatisticSearchWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getStatisticSearchUuids(): array
-    {
-        return $this->statisticSearchUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +79,15 @@ class StatisticSearchWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getStatisticSearchUuids(): array
+    {
+        return $this->statisticSearchUuids;
     }
 }

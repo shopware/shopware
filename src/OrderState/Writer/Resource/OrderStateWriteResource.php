@@ -10,8 +10,8 @@ use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
-use Shopware\Framework\Write\Resource\MailWriteResource;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Framework\Writer\Resource\MailWriteResource;
 use Shopware\Order\Writer\Resource\OrderWriteResource;
 use Shopware\OrderState\Event\OrderStateWrittenEvent;
 use Shopware\Shop\Writer\Resource\ShopWriteResource;
@@ -50,9 +50,9 @@ class OrderStateWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): OrderStateWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): OrderStateWrittenEvent
     {
-        $event = new OrderStateWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new OrderStateWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

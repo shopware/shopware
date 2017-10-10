@@ -5,15 +5,11 @@ namespace Shopware\PriceGroup\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class PriceGroupTranslationWrittenEvent extends NestedEvent
 {
     const NAME = 'price_group_translation.written';
-
-    /**
-     * @var string[]
-     */
-    protected $priceGroupTranslationUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,35 @@ class PriceGroupTranslationWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $priceGroupTranslationUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $priceGroupUuids = [];
+    /**
+     * @var string[]
+     */
+    protected $languageUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->priceGroupTranslationUuids = $priceGroupTranslationUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'PriceGroupTranslationUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +65,6 @@ class PriceGroupTranslationWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getPriceGroupTranslationUuids(): array
-    {
-        return $this->priceGroupTranslationUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +85,20 @@ class PriceGroupTranslationWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getPriceGroupUuids(): array
+    {
+        return $this->priceGroupUuids;
+    }
+
+    public function getLanguageUuids(): array
+    {
+        return $this->languageUuids;
     }
 }

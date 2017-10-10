@@ -50,9 +50,9 @@ class ProductDetailPriceWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductDetailPriceWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductDetailPriceWrittenEvent
     {
-        $event = new ProductDetailPriceWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductDetailPriceWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

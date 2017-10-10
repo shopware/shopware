@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class EmotionCategoriesWrittenEvent extends NestedEvent
 {
-    const NAME = 'emotion_categories.written';
-
-    /**
-     * @var string[]
-     */
-    protected $emotionCategoriesUuids;
+    const NAME = 's_emotion_categories.written';
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,26 @@ class EmotionCategoriesWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $emotionCategoriesUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->emotionCategoriesUuids = $emotionCategoriesUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'EmotionCategoriesUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +54,6 @@ class EmotionCategoriesWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getEmotionCategoriesUuids(): array
-    {
-        return $this->emotionCategoriesUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +74,10 @@ class EmotionCategoriesWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
     }
 }

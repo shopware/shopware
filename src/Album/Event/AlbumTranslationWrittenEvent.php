@@ -5,15 +5,11 @@ namespace Shopware\Album\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class AlbumTranslationWrittenEvent extends NestedEvent
 {
     const NAME = 'album_translation.written';
-
-    /**
-     * @var string[]
-     */
-    protected $albumTranslationUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,35 @@ class AlbumTranslationWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $albumTranslationUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $albumUuids = [];
+    /**
+     * @var string[]
+     */
+    protected $languageUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->albumTranslationUuids = $albumTranslationUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'AlbumTranslationUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +65,6 @@ class AlbumTranslationWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getAlbumTranslationUuids(): array
-    {
-        return $this->albumTranslationUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +85,20 @@ class AlbumTranslationWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getAlbumUuids(): array
+    {
+        return $this->albumUuids;
+    }
+
+    public function getLanguageUuids(): array
+    {
+        return $this->languageUuids;
     }
 }

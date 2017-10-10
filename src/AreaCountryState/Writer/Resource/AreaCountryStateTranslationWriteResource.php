@@ -35,9 +35,9 @@ class AreaCountryStateTranslationWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): AreaCountryStateTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): AreaCountryStateTranslationWrittenEvent
     {
-        $event = new AreaCountryStateTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new AreaCountryStateTranslationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

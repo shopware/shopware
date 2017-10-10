@@ -73,9 +73,9 @@ class CustomerGroupWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): CustomerGroupWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): CustomerGroupWrittenEvent
     {
-        $event = new CustomerGroupWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new CustomerGroupWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

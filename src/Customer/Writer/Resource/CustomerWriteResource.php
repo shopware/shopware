@@ -16,8 +16,8 @@ use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
-use Shopware\Framework\Write\Resource\StatisticCurrentCustomerWriteResource;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Framework\Writer\Resource\StatisticCurrentCustomerWriteResource;
 use Shopware\Order\Writer\Resource\OrderWriteResource;
 use Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource;
 use Shopware\Shop\Writer\Resource\ShopWriteResource;
@@ -107,9 +107,9 @@ class CustomerWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): CustomerWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): CustomerWrittenEvent
     {
-        $event = new CustomerWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new CustomerWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

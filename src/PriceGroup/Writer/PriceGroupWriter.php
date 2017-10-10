@@ -67,7 +67,7 @@ class PriceGroupWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return PriceGroupWriteResource::createWrittenEvent($updated, $context, $errors);
+        return PriceGroupWriteResource::createWrittenEvent($updated, $context, $data, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): PriceGroupWrittenEvent
@@ -99,7 +99,7 @@ class PriceGroupWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return PriceGroupWriteResource::createWrittenEvent($created, $context, $errors);
+        return PriceGroupWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     public function create(array $data, TranslationContext $context): PriceGroupWrittenEvent
@@ -131,7 +131,7 @@ class PriceGroupWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return PriceGroupWriteResource::createWrittenEvent($created, $context, $errors);
+        return PriceGroupWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext

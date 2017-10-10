@@ -5,15 +5,11 @@ namespace Shopware\ShopTemplate\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class ShopTemplateConfigFormWrittenEvent extends NestedEvent
 {
     const NAME = 'shop_template_config_form.written';
-
-    /**
-     * @var string[]
-     */
-    protected $shopTemplateConfigFormUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class ShopTemplateConfigFormWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $shopTemplateConfigFormUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $shopTemplateConfigFormUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->shopTemplateConfigFormUuids = $shopTemplateConfigFormUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ShopTemplateConfigFormUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class ShopTemplateConfigFormWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getShopTemplateConfigFormUuids(): array
-    {
-        return $this->shopTemplateConfigFormUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class ShopTemplateConfigFormWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getShopTemplateConfigFormUuids(): array
+    {
+        return $this->shopTemplateConfigFormUuids;
     }
 }

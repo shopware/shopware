@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class PluginWrittenEvent extends NestedEvent
 {
     const NAME = 'plugin.written';
-
-    /**
-     * @var string[]
-     */
-    protected $pluginUuids;
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,31 @@ class PluginWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $pluginUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $pluginUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->pluginUuids = $pluginUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'PluginUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +59,6 @@ class PluginWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getPluginUuids(): array
-    {
-        return $this->pluginUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +79,15 @@ class PluginWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getPluginUuids(): array
+    {
+        return $this->pluginUuids;
     }
 }

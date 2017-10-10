@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Write\Resource;
+namespace Shopware\Framework\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\CoreEngineGroupsWrittenEvent;
@@ -35,9 +35,9 @@ class CoreEngineGroupsWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): CoreEngineGroupsWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): CoreEngineGroupsWrittenEvent
     {
-        $event = new CoreEngineGroupsWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new CoreEngineGroupsWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

@@ -42,9 +42,9 @@ class ShopTemplateConfigPresetWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ShopTemplateConfigPresetWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ShopTemplateConfigPresetWrittenEvent
     {
-        $event = new ShopTemplateConfigPresetWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ShopTemplateConfigPresetWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

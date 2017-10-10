@@ -5,15 +5,11 @@ namespace Shopware\ProductManufacturer\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class ProductManufacturerTranslationWrittenEvent extends NestedEvent
 {
     const NAME = 'product_manufacturer_translation.written';
-
-    /**
-     * @var string[]
-     */
-    protected $productManufacturerTranslationUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,35 @@ class ProductManufacturerTranslationWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $productManufacturerTranslationUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $productManufacturerUuids = [];
+    /**
+     * @var string[]
+     */
+    protected $languageUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->productManufacturerTranslationUuids = $productManufacturerTranslationUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ProductManufacturerTranslationUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +65,6 @@ class ProductManufacturerTranslationWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getProductManufacturerTranslationUuids(): array
-    {
-        return $this->productManufacturerTranslationUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +85,20 @@ class ProductManufacturerTranslationWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getProductManufacturerUuids(): array
+    {
+        return $this->productManufacturerUuids;
+    }
+
+    public function getLanguageUuids(): array
+    {
+        return $this->languageUuids;
     }
 }

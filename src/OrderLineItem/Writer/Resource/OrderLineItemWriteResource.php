@@ -52,9 +52,9 @@ class OrderLineItemWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): OrderLineItemWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): OrderLineItemWrittenEvent
     {
-        $event = new OrderLineItemWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new OrderLineItemWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

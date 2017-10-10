@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Write\Resource;
+namespace Shopware\Framework\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\BlogTagTranslationWrittenEvent;
@@ -35,9 +35,9 @@ class BlogTagTranslationWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): BlogTagTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): BlogTagTranslationWrittenEvent
     {
-        $event = new BlogTagTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new BlogTagTranslationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

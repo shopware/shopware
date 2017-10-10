@@ -67,7 +67,7 @@ class CurrencyWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return CurrencyWriteResource::createWrittenEvent($updated, $context, $errors);
+        return CurrencyWriteResource::createWrittenEvent($updated, $context, $data, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): CurrencyWrittenEvent
@@ -99,7 +99,7 @@ class CurrencyWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return CurrencyWriteResource::createWrittenEvent($created, $context, $errors);
+        return CurrencyWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     public function create(array $data, TranslationContext $context): CurrencyWrittenEvent
@@ -131,7 +131,7 @@ class CurrencyWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return CurrencyWriteResource::createWrittenEvent($created, $context, $errors);
+        return CurrencyWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext

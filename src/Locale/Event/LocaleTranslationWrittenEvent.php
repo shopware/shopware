@@ -5,15 +5,11 @@ namespace Shopware\Locale\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class LocaleTranslationWrittenEvent extends NestedEvent
 {
     const NAME = 'locale_translation.written';
-
-    /**
-     * @var string[]
-     */
-    protected $localeTranslationUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,35 @@ class LocaleTranslationWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $localeTranslationUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $localeUuids = [];
+    /**
+     * @var string[]
+     */
+    protected $languageUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->localeTranslationUuids = $localeTranslationUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'LocaleTranslationUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +65,6 @@ class LocaleTranslationWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getLocaleTranslationUuids(): array
-    {
-        return $this->localeTranslationUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +85,20 @@ class LocaleTranslationWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getLocaleUuids(): array
+    {
+        return $this->localeUuids;
+    }
+
+    public function getLanguageUuids(): array
+    {
+        return $this->languageUuids;
     }
 }

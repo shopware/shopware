@@ -12,11 +12,11 @@ use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
-use Shopware\Framework\Write\Resource\BlogProductWriteResource;
-use Shopware\Framework\Write\Resource\FilterProductWriteResource;
-use Shopware\Framework\Write\Resource\FilterWriteResource;
-use Shopware\Framework\Write\Resource\StatisticProductImpressionWriteResource;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Framework\Writer\Resource\BlogProductWriteResource;
+use Shopware\Framework\Writer\Resource\FilterProductWriteResource;
+use Shopware\Framework\Writer\Resource\FilterWriteResource;
+use Shopware\Framework\Writer\Resource\StatisticProductImpressionWriteResource;
 use Shopware\Product\Event\ProductWrittenEvent;
 use Shopware\ProductDetail\Writer\Resource\ProductDetailWriteResource;
 use Shopware\ProductManufacturer\Writer\Resource\ProductManufacturerWriteResource;
@@ -116,9 +116,9 @@ class ProductWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductWrittenEvent
     {
-        $event = new ProductWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

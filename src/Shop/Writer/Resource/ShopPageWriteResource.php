@@ -74,9 +74,9 @@ class ShopPageWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ShopPageWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ShopPageWrittenEvent
     {
-        $event = new ShopPageWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ShopPageWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

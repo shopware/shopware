@@ -5,15 +5,11 @@ namespace Shopware\Shop\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class ShopPageWrittenEvent extends NestedEvent
 {
     const NAME = 'shop_page.written';
-
-    /**
-     * @var string[]
-     */
-    protected $shopPageUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class ShopPageWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $shopPageUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $shopPageUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->shopPageUuids = $shopPageUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ShopPageUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class ShopPageWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getShopPageUuids(): array
-    {
-        return $this->shopPageUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class ShopPageWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getShopPageUuids(): array
+    {
+        return $this->shopPageUuids;
     }
 }

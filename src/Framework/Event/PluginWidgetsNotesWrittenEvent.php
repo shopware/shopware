@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class PluginWidgetsNotesWrittenEvent extends NestedEvent
 {
-    const NAME = 'plugin_widgets_notes.written';
-
-    /**
-     * @var string[]
-     */
-    protected $pluginWidgetsNotesUuids;
+    const NAME = 's_plugin_widgets_notes.written';
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,26 @@ class PluginWidgetsNotesWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $pluginWidgetsNotesUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->pluginWidgetsNotesUuids = $pluginWidgetsNotesUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'PluginWidgetsNotesUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +54,6 @@ class PluginWidgetsNotesWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getPluginWidgetsNotesUuids(): array
-    {
-        return $this->pluginWidgetsNotesUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +74,10 @@ class PluginWidgetsNotesWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
     }
 }

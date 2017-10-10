@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Write\Resource;
+namespace Shopware\Framework\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\ConfigFormFieldValueWrittenEvent;
@@ -38,9 +38,9 @@ class ConfigFormFieldValueWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ConfigFormFieldValueWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ConfigFormFieldValueWrittenEvent
     {
-        $event = new ConfigFormFieldValueWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ConfigFormFieldValueWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

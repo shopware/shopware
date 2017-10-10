@@ -67,7 +67,7 @@ class ProductStreamWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return ProductStreamWriteResource::createWrittenEvent($updated, $context, $errors);
+        return ProductStreamWriteResource::createWrittenEvent($updated, $context, $data, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): ProductStreamWrittenEvent
@@ -99,7 +99,7 @@ class ProductStreamWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ProductStreamWriteResource::createWrittenEvent($created, $context, $errors);
+        return ProductStreamWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     public function create(array $data, TranslationContext $context): ProductStreamWrittenEvent
@@ -131,7 +131,7 @@ class ProductStreamWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ProductStreamWriteResource::createWrittenEvent($created, $context, $errors);
+        return ProductStreamWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext

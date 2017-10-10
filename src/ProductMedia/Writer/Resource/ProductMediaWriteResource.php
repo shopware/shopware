@@ -52,9 +52,9 @@ class ProductMediaWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductMediaWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductMediaWrittenEvent
     {
-        $event = new ProductMediaWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductMediaWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

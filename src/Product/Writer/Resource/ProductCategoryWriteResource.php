@@ -31,9 +31,9 @@ class ProductCategoryWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductCategoryWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductCategoryWrittenEvent
     {
-        $event = new ProductCategoryWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductCategoryWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

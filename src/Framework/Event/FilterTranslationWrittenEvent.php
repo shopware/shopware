@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class FilterTranslationWrittenEvent extends NestedEvent
 {
     const NAME = 'filter_translation.written';
-
-    /**
-     * @var string[]
-     */
-    protected $filterTranslationUuids;
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,35 @@ class FilterTranslationWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $filterTranslationUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $filterUuids = [];
+    /**
+     * @var string[]
+     */
+    protected $languageUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->filterTranslationUuids = $filterTranslationUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'FilterTranslationUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +63,6 @@ class FilterTranslationWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getFilterTranslationUuids(): array
-    {
-        return $this->filterTranslationUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +83,20 @@ class FilterTranslationWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getFilterUuids(): array
+    {
+        return $this->filterUuids;
+    }
+
+    public function getLanguageUuids(): array
+    {
+        return $this->languageUuids;
     }
 }

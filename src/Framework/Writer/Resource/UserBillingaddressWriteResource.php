@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Write\Resource;
+namespace Shopware\Framework\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\UserBillingaddressWrittenEvent;
@@ -57,9 +57,9 @@ class UserBillingaddressWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): UserBillingaddressWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): UserBillingaddressWrittenEvent
     {
-        $event = new UserBillingaddressWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new UserBillingaddressWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

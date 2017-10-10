@@ -5,15 +5,11 @@ namespace Shopware\Product\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class ProductConfiguratorOptionTranslationWrittenEvent extends NestedEvent
 {
     const NAME = 'product_configurator_option_translation.written';
-
-    /**
-     * @var string[]
-     */
-    protected $productConfiguratorOptionTranslationUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,26 @@ class ProductConfiguratorOptionTranslationWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $productConfiguratorOptionTranslationUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->productConfiguratorOptionTranslationUuids = $productConfiguratorOptionTranslationUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ProductConfiguratorOptionTranslationUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +56,6 @@ class ProductConfiguratorOptionTranslationWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getProductConfiguratorOptionTranslationUuids(): array
-    {
-        return $this->productConfiguratorOptionTranslationUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +76,10 @@ class ProductConfiguratorOptionTranslationWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
     }
 }

@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class PremiumProductWrittenEvent extends NestedEvent
 {
     const NAME = 'premium_product.written';
-
-    /**
-     * @var string[]
-     */
-    protected $premiumProductUuids;
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,31 @@ class PremiumProductWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $premiumProductUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $premiumProductUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->premiumProductUuids = $premiumProductUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'PremiumProductUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +59,6 @@ class PremiumProductWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getPremiumProductUuids(): array
-    {
-        return $this->premiumProductUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +79,15 @@ class PremiumProductWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getPremiumProductUuids(): array
+    {
+        return $this->premiumProductUuids;
     }
 }

@@ -34,9 +34,9 @@ class ProductEsdSerialWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductEsdSerialWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductEsdSerialWrittenEvent
     {
-        $event = new ProductEsdSerialWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductEsdSerialWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

@@ -5,15 +5,11 @@ namespace Shopware\CustomerGroup\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class CustomerGroupWrittenEvent extends NestedEvent
 {
     const NAME = 'customer_group.written';
-
-    /**
-     * @var string[]
-     */
-    protected $customerGroupUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class CustomerGroupWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $customerGroupUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $customerGroupUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->customerGroupUuids = $customerGroupUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'CustomerGroupUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class CustomerGroupWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getCustomerGroupUuids(): array
-    {
-        return $this->customerGroupUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class CustomerGroupWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getCustomerGroupUuids(): array
+    {
+        return $this->customerGroupUuids;
     }
 }

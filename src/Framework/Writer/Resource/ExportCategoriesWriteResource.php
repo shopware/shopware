@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Write\Resource;
+namespace Shopware\Framework\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\ExportCategoriesWrittenEvent;
@@ -28,9 +28,9 @@ class ExportCategoriesWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ExportCategoriesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ExportCategoriesWrittenEvent
     {
-        $event = new ExportCategoriesWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ExportCategoriesWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

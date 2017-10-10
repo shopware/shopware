@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Write\Resource;
+namespace Shopware\Framework\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\EmotionElementViewportsWrittenEvent;
@@ -41,9 +41,9 @@ class EmotionElementViewportsWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): EmotionElementViewportsWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): EmotionElementViewportsWrittenEvent
     {
-        $event = new EmotionElementViewportsWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new EmotionElementViewportsWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

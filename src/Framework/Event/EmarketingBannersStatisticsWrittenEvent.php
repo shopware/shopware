@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class EmarketingBannersStatisticsWrittenEvent extends NestedEvent
 {
-    const NAME = 'emarketing_banners_statistics.written';
-
-    /**
-     * @var string[]
-     */
-    protected $emarketingBannersStatisticsUuids;
+    const NAME = 's_emarketing_banners_statistics.written';
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,26 @@ class EmarketingBannersStatisticsWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $emarketingBannersStatisticsUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->emarketingBannersStatisticsUuids = $emarketingBannersStatisticsUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'EmarketingBannersStatisticsUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +54,6 @@ class EmarketingBannersStatisticsWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getEmarketingBannersStatisticsUuids(): array
-    {
-        return $this->emarketingBannersStatisticsUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +74,10 @@ class EmarketingBannersStatisticsWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
     }
 }

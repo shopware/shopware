@@ -38,9 +38,9 @@ class MediaTranslationWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): MediaTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): MediaTranslationWrittenEvent
     {
-        $event = new MediaTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new MediaTranslationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

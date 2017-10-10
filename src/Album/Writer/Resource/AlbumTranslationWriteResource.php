@@ -35,9 +35,9 @@ class AlbumTranslationWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): AlbumTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): AlbumTranslationWrittenEvent
     {
-        $event = new AlbumTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new AlbumTranslationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

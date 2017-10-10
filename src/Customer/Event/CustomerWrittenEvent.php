@@ -5,15 +5,11 @@ namespace Shopware\Customer\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class CustomerWrittenEvent extends NestedEvent
 {
     const NAME = 'customer.written';
-
-    /**
-     * @var string[]
-     */
-    protected $customerUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class CustomerWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $customerUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $customerUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->customerUuids = $customerUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'CustomerUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class CustomerWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getCustomerUuids(): array
-    {
-        return $this->customerUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class CustomerWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getCustomerUuids(): array
+    {
+        return $this->customerUuids;
     }
 }

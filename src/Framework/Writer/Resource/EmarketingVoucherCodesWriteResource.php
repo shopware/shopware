@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Write\Resource;
+namespace Shopware\Framework\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\EmarketingVoucherCodesWrittenEvent;
@@ -33,9 +33,9 @@ class EmarketingVoucherCodesWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): EmarketingVoucherCodesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): EmarketingVoucherCodesWrittenEvent
     {
-        $event = new EmarketingVoucherCodesWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new EmarketingVoucherCodesWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class EmarketingTellafriendWrittenEvent extends NestedEvent
 {
-    const NAME = 'emarketing_tellafriend.written';
-
-    /**
-     * @var string[]
-     */
-    protected $emarketingTellafriendUuids;
+    const NAME = 's_emarketing_tellafriend.written';
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,26 @@ class EmarketingTellafriendWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $emarketingTellafriendUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->emarketingTellafriendUuids = $emarketingTellafriendUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'EmarketingTellafriendUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +54,6 @@ class EmarketingTellafriendWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getEmarketingTellafriendUuids(): array
-    {
-        return $this->emarketingTellafriendUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +74,10 @@ class EmarketingTellafriendWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
     }
 }

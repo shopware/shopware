@@ -5,15 +5,11 @@ namespace Shopware\ProductStream\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class ProductStreamTabWrittenEvent extends NestedEvent
 {
     const NAME = 'product_stream_tab.written';
-
-    /**
-     * @var string[]
-     */
-    protected $productStreamTabUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class ProductStreamTabWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $productStreamTabUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $productStreamTabUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->productStreamTabUuids = $productStreamTabUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ProductStreamTabUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class ProductStreamTabWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getProductStreamTabUuids(): array
-    {
-        return $this->productStreamTabUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class ProductStreamTabWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getProductStreamTabUuids(): array
+    {
+        return $this->productStreamTabUuids;
     }
 }

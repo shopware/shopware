@@ -31,9 +31,9 @@ class ShippingMethodCategoryWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ShippingMethodCategoryWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ShippingMethodCategoryWrittenEvent
     {
-        $event = new ShippingMethodCategoryWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ShippingMethodCategoryWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

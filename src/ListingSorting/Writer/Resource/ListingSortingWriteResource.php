@@ -47,9 +47,9 @@ class ListingSortingWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ListingSortingWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ListingSortingWrittenEvent
     {
-        $event = new ListingSortingWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ListingSortingWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class CoreAclPrivilegesWrittenEvent extends NestedEvent
 {
-    const NAME = 'core_acl_privileges.written';
-
-    /**
-     * @var string[]
-     */
-    protected $coreAclPrivilegesUuids;
+    const NAME = 's_core_acl_privileges.written';
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,26 @@ class CoreAclPrivilegesWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $coreAclPrivilegesUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->coreAclPrivilegesUuids = $coreAclPrivilegesUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'CoreAclPrivilegesUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +54,6 @@ class CoreAclPrivilegesWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getCoreAclPrivilegesUuids(): array
-    {
-        return $this->coreAclPrivilegesUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +74,10 @@ class CoreAclPrivilegesWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
     }
 }

@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class SessionsWrittenEvent extends NestedEvent
 {
     const NAME = 'sessions.written';
-
-    /**
-     * @var string[]
-     */
-    protected $sessionsUuids;
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,31 @@ class SessionsWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $sessionsUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $sessIds = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->sessionsUuids = $sessionsUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'SessionsUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +59,6 @@ class SessionsWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getSessionsUuids(): array
-    {
-        return $this->sessionsUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +79,15 @@ class SessionsWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getSessIds(): array
+    {
+        return $this->sessIds;
     }
 }

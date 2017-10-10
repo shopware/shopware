@@ -5,15 +5,11 @@ namespace Shopware\Currency\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class CurrencyWrittenEvent extends NestedEvent
 {
     const NAME = 'currency.written';
-
-    /**
-     * @var string[]
-     */
-    protected $currencyUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class CurrencyWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $currencyUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $currencyUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->currencyUuids = $currencyUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'CurrencyUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class CurrencyWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getCurrencyUuids(): array
-    {
-        return $this->currencyUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class CurrencyWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getCurrencyUuids(): array
+    {
+        return $this->currencyUuids;
     }
 }

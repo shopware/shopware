@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Write\Resource;
+namespace Shopware\Framework\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\PluginRecommendationsWrittenEvent;
@@ -34,9 +34,9 @@ class PluginRecommendationsWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): PluginRecommendationsWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): PluginRecommendationsWrittenEvent
     {
-        $event = new PluginRecommendationsWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new PluginRecommendationsWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

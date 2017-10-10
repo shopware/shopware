@@ -35,9 +35,9 @@ class TaxAreaRuleTranslationWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): TaxAreaRuleTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): TaxAreaRuleTranslationWrittenEvent
     {
-        $event = new TaxAreaRuleTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new TaxAreaRuleTranslationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

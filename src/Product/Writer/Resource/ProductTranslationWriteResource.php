@@ -45,9 +45,9 @@ class ProductTranslationWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductTranslationWrittenEvent
     {
-        $event = new ProductTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductTranslationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

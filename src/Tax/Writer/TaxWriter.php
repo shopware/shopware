@@ -67,7 +67,7 @@ class TaxWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return TaxWriteResource::createWrittenEvent($updated, $context, $errors);
+        return TaxWriteResource::createWrittenEvent($updated, $context, $data, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): TaxWrittenEvent
@@ -99,7 +99,7 @@ class TaxWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return TaxWriteResource::createWrittenEvent($created, $context, $errors);
+        return TaxWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     public function create(array $data, TranslationContext $context): TaxWrittenEvent
@@ -131,7 +131,7 @@ class TaxWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return TaxWriteResource::createWrittenEvent($created, $context, $errors);
+        return TaxWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext

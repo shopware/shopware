@@ -11,8 +11,8 @@ use Shopware\Framework\Write\Field\StringField;
 use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
-use Shopware\Framework\Write\Resource\PluginWriteResource;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Framework\Writer\Resource\PluginWriteResource;
 use Shopware\Shop\Writer\Resource\ShopWriteResource;
 use Shopware\ShopTemplate\Event\ShopTemplateWrittenEvent;
 
@@ -70,9 +70,9 @@ class ShopTemplateWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ShopTemplateWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ShopTemplateWrittenEvent
     {
-        $event = new ShopTemplateWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ShopTemplateWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

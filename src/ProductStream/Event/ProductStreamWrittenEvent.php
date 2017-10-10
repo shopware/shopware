@@ -5,15 +5,11 @@ namespace Shopware\ProductStream\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class ProductStreamWrittenEvent extends NestedEvent
 {
     const NAME = 'product_stream.written';
-
-    /**
-     * @var string[]
-     */
-    protected $productStreamUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class ProductStreamWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $productStreamUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $productStreamUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->productStreamUuids = $productStreamUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ProductStreamUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class ProductStreamWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getProductStreamUuids(): array
-    {
-        return $this->productStreamUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class ProductStreamWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getProductStreamUuids(): array
+    {
+        return $this->productStreamUuids;
     }
 }

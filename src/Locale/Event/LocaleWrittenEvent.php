@@ -5,15 +5,11 @@ namespace Shopware\Locale\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class LocaleWrittenEvent extends NestedEvent
 {
     const NAME = 'locale.written';
-
-    /**
-     * @var string[]
-     */
-    protected $localeUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class LocaleWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $localeUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $localeUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->localeUuids = $localeUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'LocaleUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class LocaleWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getLocaleUuids(): array
-    {
-        return $this->localeUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class LocaleWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getLocaleUuids(): array
+    {
+        return $this->localeUuids;
     }
 }

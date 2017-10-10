@@ -5,15 +5,11 @@ namespace Shopware\OrderDeliveryPosition\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class OrderDeliveryPositionWrittenEvent extends NestedEvent
 {
     const NAME = 'order_delivery_position.written';
-
-    /**
-     * @var string[]
-     */
-    protected $orderDeliveryPositionUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class OrderDeliveryPositionWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $orderDeliveryPositionUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $orderDeliveryPositionUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->orderDeliveryPositionUuids = $orderDeliveryPositionUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'OrderDeliveryPositionUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class OrderDeliveryPositionWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getOrderDeliveryPositionUuids(): array
-    {
-        return $this->orderDeliveryPositionUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class OrderDeliveryPositionWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getOrderDeliveryPositionUuids(): array
+    {
+        return $this->orderDeliveryPositionUuids;
     }
 }

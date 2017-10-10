@@ -67,7 +67,7 @@ class ShippingMethodWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return ShippingMethodWriteResource::createWrittenEvent($updated, $context, $errors);
+        return ShippingMethodWriteResource::createWrittenEvent($updated, $context, $data, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): ShippingMethodWrittenEvent
@@ -99,7 +99,7 @@ class ShippingMethodWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ShippingMethodWriteResource::createWrittenEvent($created, $context, $errors);
+        return ShippingMethodWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     public function create(array $data, TranslationContext $context): ShippingMethodWrittenEvent
@@ -131,7 +131,7 @@ class ShippingMethodWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return ShippingMethodWriteResource::createWrittenEvent($created, $context, $errors);
+        return ShippingMethodWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext

@@ -43,9 +43,9 @@ class ProductConfiguratorTemplatePriceWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductConfiguratorTemplatePriceWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductConfiguratorTemplatePriceWrittenEvent
     {
-        $event = new ProductConfiguratorTemplatePriceWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductConfiguratorTemplatePriceWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

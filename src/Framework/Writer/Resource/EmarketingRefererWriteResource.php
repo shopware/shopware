@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Write\Resource;
+namespace Shopware\Framework\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\EmarketingRefererWrittenEvent;
@@ -32,9 +32,9 @@ class EmarketingRefererWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): EmarketingRefererWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): EmarketingRefererWrittenEvent
     {
-        $event = new EmarketingRefererWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new EmarketingRefererWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

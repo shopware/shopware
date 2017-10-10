@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Write\Resource;
+namespace Shopware\Framework\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\EmarketingLastarticlesWrittenEvent;
@@ -36,9 +36,9 @@ class EmarketingLastarticlesWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): EmarketingLastarticlesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): EmarketingLastarticlesWrittenEvent
     {
-        $event = new EmarketingLastarticlesWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new EmarketingLastarticlesWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

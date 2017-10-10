@@ -67,7 +67,7 @@ class AreaWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return AreaWriteResource::createWrittenEvent($updated, $context, $errors);
+        return AreaWriteResource::createWrittenEvent($updated, $context, $data, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): AreaWrittenEvent
@@ -99,7 +99,7 @@ class AreaWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return AreaWriteResource::createWrittenEvent($created, $context, $errors);
+        return AreaWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     public function create(array $data, TranslationContext $context): AreaWrittenEvent
@@ -131,7 +131,7 @@ class AreaWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return AreaWriteResource::createWrittenEvent($created, $context, $errors);
+        return AreaWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext

@@ -32,9 +32,9 @@ class ProductMediaMappingRuleWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductMediaMappingRuleWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductMediaMappingRuleWrittenEvent
     {
-        $event = new ProductMediaMappingRuleWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductMediaMappingRuleWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

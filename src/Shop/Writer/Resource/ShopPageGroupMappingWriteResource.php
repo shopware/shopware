@@ -36,9 +36,9 @@ class ShopPageGroupMappingWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ShopPageGroupMappingWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ShopPageGroupMappingWrittenEvent
     {
-        $event = new ShopPageGroupMappingWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ShopPageGroupMappingWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

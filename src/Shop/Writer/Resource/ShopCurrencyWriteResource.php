@@ -31,9 +31,9 @@ class ShopCurrencyWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ShopCurrencyWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ShopCurrencyWrittenEvent
     {
-        $event = new ShopCurrencyWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ShopCurrencyWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

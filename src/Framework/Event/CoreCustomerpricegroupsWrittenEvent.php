@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class CoreCustomerpricegroupsWrittenEvent extends NestedEvent
 {
-    const NAME = 'core_customerpricegroups.written';
-
-    /**
-     * @var string[]
-     */
-    protected $coreCustomerpricegroupsUuids;
+    const NAME = 's_core_customerpricegroups.written';
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,26 @@ class CoreCustomerpricegroupsWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $coreCustomerpricegroupsUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->coreCustomerpricegroupsUuids = $coreCustomerpricegroupsUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'CoreCustomerpricegroupsUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +54,6 @@ class CoreCustomerpricegroupsWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getCoreCustomerpricegroupsUuids(): array
-    {
-        return $this->coreCustomerpricegroupsUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +74,10 @@ class CoreCustomerpricegroupsWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
     }
 }

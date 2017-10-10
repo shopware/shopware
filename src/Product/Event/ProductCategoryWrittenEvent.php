@@ -5,15 +5,11 @@ namespace Shopware\Product\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class ProductCategoryWrittenEvent extends NestedEvent
 {
     const NAME = 'product_category.written';
-
-    /**
-     * @var string[]
-     */
-    protected $productCategoryUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,35 @@ class ProductCategoryWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $productCategoryUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $productUuids = [];
+    /**
+     * @var string[]
+     */
+    protected $categoryUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->productCategoryUuids = $productCategoryUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ProductCategoryUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +65,6 @@ class ProductCategoryWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getProductCategoryUuids(): array
-    {
-        return $this->productCategoryUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +85,20 @@ class ProductCategoryWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getProductUuids(): array
+    {
+        return $this->productUuids;
+    }
+
+    public function getCategoryUuids(): array
+    {
+        return $this->categoryUuids;
     }
 }

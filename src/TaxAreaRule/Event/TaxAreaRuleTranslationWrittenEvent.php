@@ -5,15 +5,11 @@ namespace Shopware\TaxAreaRule\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class TaxAreaRuleTranslationWrittenEvent extends NestedEvent
 {
     const NAME = 'tax_area_rule_translation.written';
-
-    /**
-     * @var string[]
-     */
-    protected $taxAreaRuleTranslationUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,35 @@ class TaxAreaRuleTranslationWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $taxAreaRuleTranslationUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $taxAreaRuleUuids = [];
+    /**
+     * @var string[]
+     */
+    protected $languageUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->taxAreaRuleTranslationUuids = $taxAreaRuleTranslationUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'TaxAreaRuleTranslationUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +65,6 @@ class TaxAreaRuleTranslationWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getTaxAreaRuleTranslationUuids(): array
-    {
-        return $this->taxAreaRuleTranslationUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +85,20 @@ class TaxAreaRuleTranslationWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getTaxAreaRuleUuids(): array
+    {
+        return $this->taxAreaRuleUuids;
+    }
+
+    public function getLanguageUuids(): array
+    {
+        return $this->languageUuids;
     }
 }

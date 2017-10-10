@@ -42,9 +42,9 @@ class HolidayWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): HolidayWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): HolidayWrittenEvent
     {
-        $event = new HolidayWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new HolidayWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

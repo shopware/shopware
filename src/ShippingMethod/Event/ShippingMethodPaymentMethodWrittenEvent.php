@@ -5,15 +5,11 @@ namespace Shopware\ShippingMethod\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class ShippingMethodPaymentMethodWrittenEvent extends NestedEvent
 {
     const NAME = 'shipping_method_payment_method.written';
-
-    /**
-     * @var string[]
-     */
-    protected $shippingMethodPaymentMethodUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,26 @@ class ShippingMethodPaymentMethodWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $shippingMethodPaymentMethodUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->shippingMethodPaymentMethodUuids = $shippingMethodPaymentMethodUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ShippingMethodPaymentMethodUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +56,6 @@ class ShippingMethodPaymentMethodWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getShippingMethodPaymentMethodUuids(): array
-    {
-        return $this->shippingMethodPaymentMethodUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +76,10 @@ class ShippingMethodPaymentMethodWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
     }
 }

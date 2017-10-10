@@ -31,9 +31,9 @@ class MediaAssociationWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): MediaAssociationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): MediaAssociationWrittenEvent
     {
-        $event = new MediaAssociationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new MediaAssociationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

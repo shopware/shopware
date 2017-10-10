@@ -67,7 +67,7 @@ class AlbumWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return AlbumWriteResource::createWrittenEvent($updated, $context, $errors);
+        return AlbumWriteResource::createWrittenEvent($updated, $context, $data, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): AlbumWrittenEvent
@@ -99,7 +99,7 @@ class AlbumWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return AlbumWriteResource::createWrittenEvent($created, $context, $errors);
+        return AlbumWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     public function create(array $data, TranslationContext $context): AlbumWrittenEvent
@@ -131,7 +131,7 @@ class AlbumWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return AlbumWriteResource::createWrittenEvent($created, $context, $errors);
+        return AlbumWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext

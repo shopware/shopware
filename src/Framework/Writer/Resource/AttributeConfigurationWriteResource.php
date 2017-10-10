@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Write\Resource;
+namespace Shopware\Framework\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\AttributeConfigurationWrittenEvent;
@@ -64,9 +64,9 @@ class AttributeConfigurationWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): AttributeConfigurationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): AttributeConfigurationWrittenEvent
     {
-        $event = new AttributeConfigurationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new AttributeConfigurationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

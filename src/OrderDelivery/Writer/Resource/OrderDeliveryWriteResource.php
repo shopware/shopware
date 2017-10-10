@@ -57,9 +57,9 @@ class OrderDeliveryWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): OrderDeliveryWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): OrderDeliveryWrittenEvent
     {
-        $event = new OrderDeliveryWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new OrderDeliveryWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

@@ -30,9 +30,9 @@ class SearchIndexWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): SearchIndexWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): SearchIndexWrittenEvent
     {
-        $event = new SearchIndexWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new SearchIndexWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

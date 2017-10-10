@@ -5,15 +5,11 @@ namespace Shopware\Product\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class ProductAttachmentWrittenEvent extends NestedEvent
 {
     const NAME = 'product_attachment.written';
-
-    /**
-     * @var string[]
-     */
-    protected $productAttachmentUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class ProductAttachmentWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $productAttachmentUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $productAttachmentUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->productAttachmentUuids = $productAttachmentUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ProductAttachmentUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class ProductAttachmentWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getProductAttachmentUuids(): array
-    {
-        return $this->productAttachmentUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class ProductAttachmentWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getProductAttachmentUuids(): array
+    {
+        return $this->productAttachmentUuids;
     }
 }

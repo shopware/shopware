@@ -31,9 +31,9 @@ class ProductConfiguratorSetGroupRelationWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductConfiguratorSetGroupRelationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductConfiguratorSetGroupRelationWrittenEvent
     {
-        $event = new ProductConfiguratorSetGroupRelationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductConfiguratorSetGroupRelationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Write\Resource;
+namespace Shopware\Framework\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\CampaignsMaildataWrittenEvent;
@@ -48,9 +48,9 @@ class CampaignsMaildataWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): CampaignsMaildataWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): CampaignsMaildataWrittenEvent
     {
-        $event = new CampaignsMaildataWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new CampaignsMaildataWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

@@ -14,8 +14,8 @@ use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
-use Shopware\Framework\Write\Resource\PremiumProductWriteResource;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Framework\Writer\Resource\PremiumProductWriteResource;
 use Shopware\Product\Writer\Resource\ProductWriteResource;
 use Shopware\ProductDetail\Event\ProductDetailWrittenEvent;
 use Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceWriteResource;
@@ -97,9 +97,9 @@ class ProductDetailWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductDetailWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductDetailWrittenEvent
     {
-        $event = new ProductDetailWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductDetailWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

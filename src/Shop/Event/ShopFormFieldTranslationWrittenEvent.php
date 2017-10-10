@@ -5,15 +5,11 @@ namespace Shopware\Shop\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class ShopFormFieldTranslationWrittenEvent extends NestedEvent
 {
     const NAME = 'shop_form_field_translation.written';
-
-    /**
-     * @var string[]
-     */
-    protected $shopFormFieldTranslationUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,35 @@ class ShopFormFieldTranslationWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $shopFormFieldTranslationUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $shopFormFieldUuids = [];
+    /**
+     * @var string[]
+     */
+    protected $languageUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->shopFormFieldTranslationUuids = $shopFormFieldTranslationUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ShopFormFieldTranslationUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +65,6 @@ class ShopFormFieldTranslationWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getShopFormFieldTranslationUuids(): array
-    {
-        return $this->shopFormFieldTranslationUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +85,20 @@ class ShopFormFieldTranslationWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getShopFormFieldUuids(): array
+    {
+        return $this->shopFormFieldUuids;
+    }
+
+    public function getLanguageUuids(): array
+    {
+        return $this->languageUuids;
     }
 }

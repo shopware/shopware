@@ -67,7 +67,7 @@ class PaymentMethodWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return PaymentMethodWriteResource::createWrittenEvent($updated, $context, $errors);
+        return PaymentMethodWriteResource::createWrittenEvent($updated, $context, $data, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): PaymentMethodWrittenEvent
@@ -99,7 +99,7 @@ class PaymentMethodWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return PaymentMethodWriteResource::createWrittenEvent($created, $context, $errors);
+        return PaymentMethodWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     public function create(array $data, TranslationContext $context): PaymentMethodWrittenEvent
@@ -131,7 +131,7 @@ class PaymentMethodWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return PaymentMethodWriteResource::createWrittenEvent($created, $context, $errors);
+        return PaymentMethodWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext

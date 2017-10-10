@@ -31,9 +31,9 @@ class ShippingMethodHolidayWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ShippingMethodHolidayWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ShippingMethodHolidayWrittenEvent
     {
-        $event = new ShippingMethodHolidayWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ShippingMethodHolidayWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

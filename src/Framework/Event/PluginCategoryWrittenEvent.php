@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class PluginCategoryWrittenEvent extends NestedEvent
 {
     const NAME = 'plugin_category.written';
-
-    /**
-     * @var string[]
-     */
-    protected $pluginCategoryUuids;
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,35 @@ class PluginCategoryWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $pluginCategoryUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $pluginCategoryUuids = [];
+    /**
+     * @var string[]
+     */
+    protected $locales = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->pluginCategoryUuids = $pluginCategoryUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'PluginCategoryUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +63,6 @@ class PluginCategoryWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getPluginCategoryUuids(): array
-    {
-        return $this->pluginCategoryUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +83,20 @@ class PluginCategoryWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getPluginCategoryUuids(): array
+    {
+        return $this->pluginCategoryUuids;
+    }
+
+    public function getLocales(): array
+    {
+        return $this->locales;
     }
 }

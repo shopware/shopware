@@ -69,9 +69,9 @@ class CustomerAddressWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): CustomerAddressWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): CustomerAddressWrittenEvent
     {
-        $event = new CustomerAddressWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new CustomerAddressWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

@@ -35,9 +35,9 @@ class OrderStateTranslationWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): OrderStateTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): OrderStateTranslationWrittenEvent
     {
-        $event = new OrderStateTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new OrderStateTranslationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

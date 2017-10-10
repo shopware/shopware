@@ -70,9 +70,9 @@ class OrderAddressWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): OrderAddressWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): OrderAddressWrittenEvent
     {
-        $event = new OrderAddressWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new OrderAddressWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

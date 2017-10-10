@@ -5,15 +5,11 @@ namespace Shopware\Product\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class ProductConfiguratorTemplatePriceWrittenEvent extends NestedEvent
 {
     const NAME = 'product_configurator_template_price.written';
-
-    /**
-     * @var string[]
-     */
-    protected $productConfiguratorTemplatePriceUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class ProductConfiguratorTemplatePriceWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $productConfiguratorTemplatePriceUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $productConfiguratorTemplatePriceUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->productConfiguratorTemplatePriceUuids = $productConfiguratorTemplatePriceUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ProductConfiguratorTemplatePriceUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class ProductConfiguratorTemplatePriceWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getProductConfiguratorTemplatePriceUuids(): array
-    {
-        return $this->productConfiguratorTemplatePriceUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class ProductConfiguratorTemplatePriceWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getProductConfiguratorTemplatePriceUuids(): array
+    {
+        return $this->productConfiguratorTemplatePriceUuids;
     }
 }

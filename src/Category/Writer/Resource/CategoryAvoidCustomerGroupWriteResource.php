@@ -31,9 +31,9 @@ class CategoryAvoidCustomerGroupWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): CategoryAvoidCustomerGroupWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): CategoryAvoidCustomerGroupWrittenEvent
     {
-        $event = new CategoryAvoidCustomerGroupWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new CategoryAvoidCustomerGroupWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

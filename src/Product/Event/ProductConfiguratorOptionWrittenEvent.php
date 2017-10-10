@@ -5,15 +5,11 @@ namespace Shopware\Product\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class ProductConfiguratorOptionWrittenEvent extends NestedEvent
 {
     const NAME = 'product_configurator_option.written';
-
-    /**
-     * @var string[]
-     */
-    protected $productConfiguratorOptionUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class ProductConfiguratorOptionWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $productConfiguratorOptionUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $productConfiguratorOptionUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->productConfiguratorOptionUuids = $productConfiguratorOptionUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ProductConfiguratorOptionUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class ProductConfiguratorOptionWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getProductConfiguratorOptionUuids(): array
-    {
-        return $this->productConfiguratorOptionUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class ProductConfiguratorOptionWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getProductConfiguratorOptionUuids(): array
+    {
+        return $this->productConfiguratorOptionUuids;
     }
 }

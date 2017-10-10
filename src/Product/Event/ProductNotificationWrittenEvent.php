@@ -5,15 +5,11 @@ namespace Shopware\Product\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class ProductNotificationWrittenEvent extends NestedEvent
 {
     const NAME = 'product_notification.written';
-
-    /**
-     * @var string[]
-     */
-    protected $productNotificationUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class ProductNotificationWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $productNotificationUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $productNotificationUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->productNotificationUuids = $productNotificationUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ProductNotificationUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class ProductNotificationWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getProductNotificationUuids(): array
-    {
-        return $this->productNotificationUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class ProductNotificationWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getProductNotificationUuids(): array
+    {
+        return $this->productNotificationUuids;
     }
 }

@@ -67,7 +67,7 @@ class LocaleWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return LocaleWriteResource::createWrittenEvent($updated, $context, $errors);
+        return LocaleWriteResource::createWrittenEvent($updated, $context, $data, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): LocaleWrittenEvent
@@ -99,7 +99,7 @@ class LocaleWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return LocaleWriteResource::createWrittenEvent($created, $context, $errors);
+        return LocaleWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     public function create(array $data, TranslationContext $context): LocaleWrittenEvent
@@ -131,7 +131,7 @@ class LocaleWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return LocaleWriteResource::createWrittenEvent($created, $context, $errors);
+        return LocaleWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext

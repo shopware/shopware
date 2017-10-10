@@ -41,9 +41,9 @@ class PriceGroupDiscountWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): PriceGroupDiscountWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): PriceGroupDiscountWrittenEvent
     {
-        $event = new PriceGroupDiscountWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new PriceGroupDiscountWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

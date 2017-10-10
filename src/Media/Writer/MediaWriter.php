@@ -67,7 +67,7 @@ class MediaWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return MediaWriteResource::createWrittenEvent($updated, $context, $errors);
+        return MediaWriteResource::createWrittenEvent($updated, $context, $data, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): MediaWrittenEvent
@@ -99,7 +99,7 @@ class MediaWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return MediaWriteResource::createWrittenEvent($created, $context, $errors);
+        return MediaWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     public function create(array $data, TranslationContext $context): MediaWrittenEvent
@@ -131,7 +131,7 @@ class MediaWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return MediaWriteResource::createWrittenEvent($created, $context, $errors);
+        return MediaWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext

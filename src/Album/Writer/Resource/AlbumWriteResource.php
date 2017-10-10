@@ -59,9 +59,9 @@ class AlbumWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): AlbumWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): AlbumWrittenEvent
     {
-        $event = new AlbumWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new AlbumWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

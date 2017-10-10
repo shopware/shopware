@@ -5,15 +5,11 @@ namespace Shopware\TaxAreaRule\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class TaxAreaRuleWrittenEvent extends NestedEvent
 {
     const NAME = 'tax_area_rule.written';
-
-    /**
-     * @var string[]
-     */
-    protected $taxAreaRuleUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class TaxAreaRuleWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $taxAreaRuleUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $taxAreaRuleUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->taxAreaRuleUuids = $taxAreaRuleUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'TaxAreaRuleUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class TaxAreaRuleWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getTaxAreaRuleUuids(): array
-    {
-        return $this->taxAreaRuleUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class TaxAreaRuleWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getTaxAreaRuleUuids(): array
+    {
+        return $this->taxAreaRuleUuids;
     }
 }

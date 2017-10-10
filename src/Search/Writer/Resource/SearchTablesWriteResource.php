@@ -32,9 +32,9 @@ class SearchTablesWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): SearchTablesWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): SearchTablesWrittenEvent
     {
-        $event = new SearchTablesWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new SearchTablesWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

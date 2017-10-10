@@ -5,15 +5,11 @@ namespace Shopware\Product\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class ProductEsdWrittenEvent extends NestedEvent
 {
     const NAME = 'product_esd.written';
-
-    /**
-     * @var string[]
-     */
-    protected $productEsdUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class ProductEsdWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $productEsdUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $productEsdUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->productEsdUuids = $productEsdUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ProductEsdUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class ProductEsdWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getProductEsdUuids(): array
-    {
-        return $this->productEsdUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class ProductEsdWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getProductEsdUuids(): array
+    {
+        return $this->productEsdUuids;
     }
 }

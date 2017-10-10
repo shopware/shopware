@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class EmotionWrittenEvent extends NestedEvent
 {
-    const NAME = 'emotion.written';
-
-    /**
-     * @var string[]
-     */
-    protected $emotionUuids;
+    const NAME = 's_emotion.written';
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,26 @@ class EmotionWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $emotionUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->emotionUuids = $emotionUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'EmotionUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +54,6 @@ class EmotionWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getEmotionUuids(): array
-    {
-        return $this->emotionUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +74,10 @@ class EmotionWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
     }
 }

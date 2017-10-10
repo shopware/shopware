@@ -43,9 +43,9 @@ class SeoUrlWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): SeoUrlWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): SeoUrlWrittenEvent
     {
-        $event = new SeoUrlWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new SeoUrlWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

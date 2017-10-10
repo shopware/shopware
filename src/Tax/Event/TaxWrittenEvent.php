@@ -5,15 +5,11 @@ namespace Shopware\Tax\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class TaxWrittenEvent extends NestedEvent
 {
     const NAME = 'tax.written';
-
-    /**
-     * @var string[]
-     */
-    protected $taxUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class TaxWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $taxUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $taxUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->taxUuids = $taxUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'TaxUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class TaxWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getTaxUuids(): array
-    {
-        return $this->taxUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class TaxWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getTaxUuids(): array
+    {
+        return $this->taxUuids;
     }
 }

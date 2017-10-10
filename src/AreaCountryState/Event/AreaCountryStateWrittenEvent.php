@@ -5,15 +5,11 @@ namespace Shopware\AreaCountryState\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class AreaCountryStateWrittenEvent extends NestedEvent
 {
     const NAME = 'area_country_state.written';
-
-    /**
-     * @var string[]
-     */
-    protected $areaCountryStateUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class AreaCountryStateWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $areaCountryStateUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $areaCountryStateUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->areaCountryStateUuids = $areaCountryStateUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'AreaCountryStateUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class AreaCountryStateWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getAreaCountryStateUuids(): array
-    {
-        return $this->areaCountryStateUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class AreaCountryStateWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getAreaCountryStateUuids(): array
+    {
+        return $this->areaCountryStateUuids;
     }
 }

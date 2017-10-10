@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class CampaignsGroupsWrittenEvent extends NestedEvent
 {
-    const NAME = 'campaigns_groups.written';
-
-    /**
-     * @var string[]
-     */
-    protected $campaignsGroupsUuids;
+    const NAME = 's_campaigns_groups.written';
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,26 @@ class CampaignsGroupsWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $campaignsGroupsUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->campaignsGroupsUuids = $campaignsGroupsUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'CampaignsGroupsUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +54,6 @@ class CampaignsGroupsWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getCampaignsGroupsUuids(): array
-    {
-        return $this->campaignsGroupsUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +74,10 @@ class CampaignsGroupsWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
     }
 }

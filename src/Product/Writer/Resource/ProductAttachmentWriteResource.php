@@ -44,9 +44,9 @@ class ProductAttachmentWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductAttachmentWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductAttachmentWrittenEvent
     {
-        $event = new ProductAttachmentWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductAttachmentWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class ExportArticlesWrittenEvent extends NestedEvent
 {
-    const NAME = 'export_articles.written';
-
-    /**
-     * @var string[]
-     */
-    protected $exportArticlesUuids;
+    const NAME = 's_export_articles.written';
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,35 @@ class ExportArticlesWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $exportArticlesUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $feedIDs = [];
+    /**
+     * @var string[]
+     */
+    protected $articleIDs = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->exportArticlesUuids = $exportArticlesUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ExportArticlesUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +63,6 @@ class ExportArticlesWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getExportArticlesUuids(): array
-    {
-        return $this->exportArticlesUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +83,20 @@ class ExportArticlesWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getFeedIDs(): array
+    {
+        return $this->feedIDs;
+    }
+
+    public function getArticleIDs(): array
+    {
+        return $this->articleIDs;
     }
 }

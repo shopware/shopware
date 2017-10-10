@@ -67,7 +67,7 @@ class SeoUrlWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return SeoUrlWriteResource::createWrittenEvent($updated, $context, $errors);
+        return SeoUrlWriteResource::createWrittenEvent($updated, $context, $data, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): SeoUrlWrittenEvent
@@ -99,7 +99,7 @@ class SeoUrlWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return SeoUrlWriteResource::createWrittenEvent($created, $context, $errors);
+        return SeoUrlWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     public function create(array $data, TranslationContext $context): SeoUrlWrittenEvent
@@ -131,7 +131,7 @@ class SeoUrlWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return SeoUrlWriteResource::createWrittenEvent($created, $context, $errors);
+        return SeoUrlWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext

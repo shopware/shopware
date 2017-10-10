@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class BlogTagTranslationWrittenEvent extends NestedEvent
 {
     const NAME = 'blog_tag_translation.written';
-
-    /**
-     * @var string[]
-     */
-    protected $blogTagTranslationUuids;
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,35 @@ class BlogTagTranslationWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $blogTagTranslationUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $blogTagUuids = [];
+    /**
+     * @var string[]
+     */
+    protected $languageUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->blogTagTranslationUuids = $blogTagTranslationUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'BlogTagTranslationUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +63,6 @@ class BlogTagTranslationWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getBlogTagTranslationUuids(): array
-    {
-        return $this->blogTagTranslationUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +83,20 @@ class BlogTagTranslationWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getBlogTagUuids(): array
+    {
+        return $this->blogTagUuids;
+    }
+
+    public function getLanguageUuids(): array
+    {
+        return $this->languageUuids;
     }
 }

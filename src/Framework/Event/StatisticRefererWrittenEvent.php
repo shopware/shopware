@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class StatisticRefererWrittenEvent extends NestedEvent
 {
     const NAME = 'statistic_referer.written';
-
-    /**
-     * @var string[]
-     */
-    protected $statisticRefererUuids;
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,31 @@ class StatisticRefererWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $statisticRefererUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $statisticRefererUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->statisticRefererUuids = $statisticRefererUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'StatisticRefererUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +59,6 @@ class StatisticRefererWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getStatisticRefererUuids(): array
-    {
-        return $this->statisticRefererUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +79,15 @@ class StatisticRefererWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getStatisticRefererUuids(): array
+    {
+        return $this->statisticRefererUuids;
     }
 }

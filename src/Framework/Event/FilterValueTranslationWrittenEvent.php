@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class FilterValueTranslationWrittenEvent extends NestedEvent
 {
     const NAME = 'filter_value_translation.written';
-
-    /**
-     * @var string[]
-     */
-    protected $filterValueTranslationUuids;
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,35 @@ class FilterValueTranslationWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $filterValueTranslationUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $filterValueUuids = [];
+    /**
+     * @var string[]
+     */
+    protected $languageUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->filterValueTranslationUuids = $filterValueTranslationUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'FilterValueTranslationUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +63,6 @@ class FilterValueTranslationWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getFilterValueTranslationUuids(): array
-    {
-        return $this->filterValueTranslationUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +83,20 @@ class FilterValueTranslationWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getFilterValueUuids(): array
+    {
+        return $this->filterValueUuids;
+    }
+
+    public function getLanguageUuids(): array
+    {
+        return $this->languageUuids;
     }
 }

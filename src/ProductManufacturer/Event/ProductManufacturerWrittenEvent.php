@@ -5,15 +5,11 @@ namespace Shopware\ProductManufacturer\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class ProductManufacturerWrittenEvent extends NestedEvent
 {
     const NAME = 'product_manufacturer.written';
-
-    /**
-     * @var string[]
-     */
-    protected $productManufacturerUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class ProductManufacturerWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $productManufacturerUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $productManufacturerUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->productManufacturerUuids = $productManufacturerUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ProductManufacturerUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class ProductManufacturerWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getProductManufacturerUuids(): array
-    {
-        return $this->productManufacturerUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class ProductManufacturerWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getProductManufacturerUuids(): array
+    {
+        return $this->productManufacturerUuids;
     }
 }

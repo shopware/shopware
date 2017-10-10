@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class MailWrittenEvent extends NestedEvent
 {
     const NAME = 'mail.written';
-
-    /**
-     * @var string[]
-     */
-    protected $mailUuids;
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,31 @@ class MailWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $mailUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $mailUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->mailUuids = $mailUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'MailUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +59,6 @@ class MailWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getMailUuids(): array
-    {
-        return $this->mailUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +79,15 @@ class MailWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getMailUuids(): array
+    {
+        return $this->mailUuids;
     }
 }

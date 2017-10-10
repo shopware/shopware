@@ -5,15 +5,11 @@ namespace Shopware\ShopTemplate\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class ShopTemplateConfigFormFieldValueWrittenEvent extends NestedEvent
 {
     const NAME = 'shop_template_config_form_field_value.written';
-
-    /**
-     * @var string[]
-     */
-    protected $shopTemplateConfigFormFieldValueUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class ShopTemplateConfigFormFieldValueWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $shopTemplateConfigFormFieldValueUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $shopTemplateConfigFormFieldValueUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->shopTemplateConfigFormFieldValueUuids = $shopTemplateConfigFormFieldValueUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ShopTemplateConfigFormFieldValueUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class ShopTemplateConfigFormFieldValueWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getShopTemplateConfigFormFieldValueUuids(): array
-    {
-        return $this->shopTemplateConfigFormFieldValueUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class ShopTemplateConfigFormFieldValueWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getShopTemplateConfigFormFieldValueUuids(): array
+    {
+        return $this->shopTemplateConfigFormFieldValueUuids;
     }
 }

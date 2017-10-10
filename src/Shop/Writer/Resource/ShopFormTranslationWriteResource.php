@@ -51,9 +51,9 @@ class ShopFormTranslationWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ShopFormTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ShopFormTranslationWrittenEvent
     {
-        $event = new ShopFormTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ShopFormTranslationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

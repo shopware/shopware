@@ -5,15 +5,11 @@ namespace Shopware\PaymentMethod\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class PaymentMethodCountryWrittenEvent extends NestedEvent
 {
     const NAME = 'payment_method_country.written';
-
-    /**
-     * @var string[]
-     */
-    protected $paymentMethodCountryUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,26 @@ class PaymentMethodCountryWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $paymentMethodCountryUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->paymentMethodCountryUuids = $paymentMethodCountryUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'PaymentMethodCountryUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +56,6 @@ class PaymentMethodCountryWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getPaymentMethodCountryUuids(): array
-    {
-        return $this->paymentMethodCountryUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +76,10 @@ class PaymentMethodCountryWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
     }
 }

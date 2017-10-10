@@ -48,9 +48,9 @@ class CategoryTranslationWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): CategoryTranslationWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): CategoryTranslationWrittenEvent
     {
-        $event = new CategoryTranslationWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new CategoryTranslationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

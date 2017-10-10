@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Write\Resource;
+namespace Shopware\Framework\Writer\Resource;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\EmarketingTellafriendWrittenEvent;
@@ -34,9 +34,9 @@ class EmarketingTellafriendWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): EmarketingTellafriendWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): EmarketingTellafriendWrittenEvent
     {
-        $event = new EmarketingTellafriendWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new EmarketingTellafriendWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

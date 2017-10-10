@@ -31,9 +31,9 @@ class PaymentMethodShopWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): PaymentMethodShopWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): PaymentMethodShopWrittenEvent
     {
-        $event = new PaymentMethodShopWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new PaymentMethodShopWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

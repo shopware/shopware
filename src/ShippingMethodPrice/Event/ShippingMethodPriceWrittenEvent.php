@@ -5,15 +5,11 @@ namespace Shopware\ShippingMethodPrice\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class ShippingMethodPriceWrittenEvent extends NestedEvent
 {
     const NAME = 'shipping_method_price.written';
-
-    /**
-     * @var string[]
-     */
-    protected $shippingMethodPriceUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class ShippingMethodPriceWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $shippingMethodPriceUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $shippingMethodPriceUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->shippingMethodPriceUuids = $shippingMethodPriceUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ShippingMethodPriceUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class ShippingMethodPriceWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getShippingMethodPriceUuids(): array
-    {
-        return $this->shippingMethodPriceUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class ShippingMethodPriceWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getShippingMethodPriceUuids(): array
+    {
+        return $this->shippingMethodPriceUuids;
     }
 }

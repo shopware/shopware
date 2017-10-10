@@ -15,8 +15,8 @@ use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
-use Shopware\Framework\Write\Resource\PluginWriteResource;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Framework\Writer\Resource\PluginWriteResource;
 use Shopware\Order\Writer\Resource\OrderWriteResource;
 use Shopware\PaymentMethod\Event\PaymentMethodWrittenEvent;
 use Shopware\ShippingMethod\Writer\Resource\ShippingMethodPaymentMethodWriteResource;
@@ -95,9 +95,9 @@ class PaymentMethodWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): PaymentMethodWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): PaymentMethodWrittenEvent
     {
-        $event = new PaymentMethodWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new PaymentMethodWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

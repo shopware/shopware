@@ -5,15 +5,11 @@ namespace Shopware\OrderLineItem\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class OrderLineItemWrittenEvent extends NestedEvent
 {
     const NAME = 'order_line_item.written';
-
-    /**
-     * @var string[]
-     */
-    protected $orderLineItemUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class OrderLineItemWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $orderLineItemUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $orderLineItemUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->orderLineItemUuids = $orderLineItemUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'OrderLineItemUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class OrderLineItemWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getOrderLineItemUuids(): array
-    {
-        return $this->orderLineItemUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class OrderLineItemWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getOrderLineItemUuids(): array
+    {
+        return $this->orderLineItemUuids;
     }
 }

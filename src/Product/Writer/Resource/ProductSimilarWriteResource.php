@@ -33,9 +33,9 @@ class ProductSimilarWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductSimilarWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductSimilarWrittenEvent
     {
-        $event = new ProductSimilarWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductSimilarWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

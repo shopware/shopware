@@ -67,7 +67,7 @@ class TaxAreaRuleWriter
             $updated = array_merge_recursive(...$updated);
         }
 
-        return TaxAreaRuleWriteResource::createWrittenEvent($updated, $context, $errors);
+        return TaxAreaRuleWriteResource::createWrittenEvent($updated, $context, $data, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): TaxAreaRuleWrittenEvent
@@ -99,7 +99,7 @@ class TaxAreaRuleWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return TaxAreaRuleWriteResource::createWrittenEvent($created, $context, $errors);
+        return TaxAreaRuleWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     public function create(array $data, TranslationContext $context): TaxAreaRuleWrittenEvent
@@ -131,7 +131,7 @@ class TaxAreaRuleWriter
             $created = array_merge_recursive(...$created);
         }
 
-        return TaxAreaRuleWriteResource::createWrittenEvent($created, $context, $errors);
+        return TaxAreaRuleWriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     private function createWriteContext(string $shopUuid): WriteContext

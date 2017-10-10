@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class ExportSuppliersWrittenEvent extends NestedEvent
 {
-    const NAME = 'export_suppliers.written';
-
-    /**
-     * @var string[]
-     */
-    protected $exportSuppliersUuids;
+    const NAME = 's_export_suppliers.written';
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,35 @@ class ExportSuppliersWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $exportSuppliersUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $feedIDs = [];
+    /**
+     * @var string[]
+     */
+    protected $supplierIDs = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->exportSuppliersUuids = $exportSuppliersUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ExportSuppliersUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +63,6 @@ class ExportSuppliersWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getExportSuppliersUuids(): array
-    {
-        return $this->exportSuppliersUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +83,20 @@ class ExportSuppliersWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getFeedIDs(): array
+    {
+        return $this->feedIDs;
+    }
+
+    public function getSupplierIDs(): array
+    {
+        return $this->supplierIDs;
     }
 }

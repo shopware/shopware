@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class StatisticProductImpressionWrittenEvent extends NestedEvent
 {
     const NAME = 'statistic_product_impression.written';
-
-    /**
-     * @var string[]
-     */
-    protected $statisticProductImpressionUuids;
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,31 @@ class StatisticProductImpressionWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $statisticProductImpressionUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $statisticProductImpressionUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->statisticProductImpressionUuids = $statisticProductImpressionUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'StatisticProductImpressionUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +59,6 @@ class StatisticProductImpressionWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getStatisticProductImpressionUuids(): array
-    {
-        return $this->statisticProductImpressionUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +79,15 @@ class StatisticProductImpressionWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getStatisticProductImpressionUuids(): array
+    {
+        return $this->statisticProductImpressionUuids;
     }
 }

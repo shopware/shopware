@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class SchemaVersionWrittenEvent extends NestedEvent
 {
     const NAME = 'schema_version.written';
-
-    /**
-     * @var string[]
-     */
-    protected $schemaVersionUuids;
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,31 @@ class SchemaVersionWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $schemaVersionUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $versions = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->schemaVersionUuids = $schemaVersionUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'SchemaVersionUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +59,6 @@ class SchemaVersionWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getSchemaVersionUuids(): array
-    {
-        return $this->schemaVersionUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +79,15 @@ class SchemaVersionWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getVersions(): array
+    {
+        return $this->versions;
     }
 }

@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class EmarketingLastarticlesWrittenEvent extends NestedEvent
 {
-    const NAME = 'emarketing_lastarticles.written';
-
-    /**
-     * @var string[]
-     */
-    protected $emarketingLastarticlesUuids;
+    const NAME = 's_emarketing_lastarticles.written';
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,26 @@ class EmarketingLastarticlesWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $emarketingLastarticlesUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->emarketingLastarticlesUuids = $emarketingLastarticlesUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'EmarketingLastarticlesUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +54,6 @@ class EmarketingLastarticlesWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getEmarketingLastarticlesUuids(): array
-    {
-        return $this->emarketingLastarticlesUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +74,10 @@ class EmarketingLastarticlesWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
     }
 }

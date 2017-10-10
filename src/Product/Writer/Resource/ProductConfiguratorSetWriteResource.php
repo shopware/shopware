@@ -35,9 +35,9 @@ class ProductConfiguratorSetWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ProductConfiguratorSetWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductConfiguratorSetWrittenEvent
     {
-        $event = new ProductConfiguratorSetWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ProductConfiguratorSetWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

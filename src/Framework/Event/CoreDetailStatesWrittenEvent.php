@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class CoreDetailStatesWrittenEvent extends NestedEvent
 {
-    const NAME = 'core_detail_states.written';
-
-    /**
-     * @var string[]
-     */
-    protected $coreDetailStatesUuids;
+    const NAME = 's_core_detail_states.written';
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,26 @@ class CoreDetailStatesWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $coreDetailStatesUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->coreDetailStatesUuids = $coreDetailStatesUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'CoreDetailStatesUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +54,6 @@ class CoreDetailStatesWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getCoreDetailStatesUuids(): array
-    {
-        return $this->coreDetailStatesUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +74,10 @@ class CoreDetailStatesWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
     }
 }

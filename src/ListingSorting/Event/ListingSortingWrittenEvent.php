@@ -5,15 +5,11 @@ namespace Shopware\ListingSorting\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class ListingSortingWrittenEvent extends NestedEvent
 {
     const NAME = 'listing_sorting.written';
-
-    /**
-     * @var string[]
-     */
-    protected $listingSortingUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class ListingSortingWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $listingSortingUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $listingSortingUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->listingSortingUuids = $listingSortingUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'ListingSortingUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class ListingSortingWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getListingSortingUuids(): array
-    {
-        return $this->listingSortingUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class ListingSortingWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getListingSortingUuids(): array
+    {
+        return $this->listingSortingUuids;
     }
 }

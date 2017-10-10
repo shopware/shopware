@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class LogWrittenEvent extends NestedEvent
 {
     const NAME = 'log.written';
-
-    /**
-     * @var string[]
-     */
-    protected $logUuids;
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,31 @@ class LogWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $logUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $logUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->logUuids = $logUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'LogUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +59,6 @@ class LogWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getLogUuids(): array
-    {
-        return $this->logUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +79,15 @@ class LogWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getLogUuids(): array
+    {
+        return $this->logUuids;
     }
 }

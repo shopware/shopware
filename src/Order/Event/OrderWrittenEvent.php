@@ -5,15 +5,11 @@ namespace Shopware\Order\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class OrderWrittenEvent extends NestedEvent
 {
     const NAME = 'order.written';
-
-    /**
-     * @var string[]
-     */
-    protected $orderUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class OrderWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $orderUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $orderUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->orderUuids = $orderUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'OrderUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class OrderWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getOrderUuids(): array
-    {
-        return $this->orderUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class OrderWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getOrderUuids(): array
+    {
+        return $this->orderUuids;
     }
 }

@@ -8,8 +8,8 @@ use Shopware\Framework\Write\Field\SubresourceField;
 use Shopware\Framework\Write\Field\TranslatedField;
 use Shopware\Framework\Write\Field\UuidField;
 use Shopware\Framework\Write\Flag\Required;
-use Shopware\Framework\Write\Resource\UserWriteResource;
 use Shopware\Framework\Write\WriteResource;
+use Shopware\Framework\Writer\Resource\UserWriteResource;
 use Shopware\Locale\Event\LocaleWrittenEvent;
 use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
@@ -43,9 +43,9 @@ class LocaleWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): LocaleWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): LocaleWrittenEvent
     {
-        $event = new LocaleWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new LocaleWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

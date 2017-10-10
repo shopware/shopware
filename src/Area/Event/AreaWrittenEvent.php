@@ -5,15 +5,11 @@ namespace Shopware\Area\Event;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Symfony\Component\DependencyInjection\Container;
 
 class AreaWrittenEvent extends NestedEvent
 {
     const NAME = 'area.written';
-
-    /**
-     * @var string[]
-     */
-    protected $areaUuids;
 
     /**
      * @var NestedEventCollection
@@ -30,12 +26,31 @@ class AreaWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $areaUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var string[]
+     */
+    protected $areaUuids = [];
+
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->areaUuids = $areaUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'AreaUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -46,14 +61,6 @@ class AreaWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getAreaUuids(): array
-    {
-        return $this->areaUuids;
     }
 
     public function getErrors(): array
@@ -74,5 +81,15 @@ class AreaWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+
+    public function getAreaUuids(): array
+    {
+        return $this->areaUuids;
     }
 }

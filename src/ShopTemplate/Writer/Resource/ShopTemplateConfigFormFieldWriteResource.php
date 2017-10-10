@@ -65,9 +65,9 @@ class ShopTemplateConfigFormFieldWriteResource extends WriteResource
         ];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): ShopTemplateConfigFormFieldWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ShopTemplateConfigFormFieldWrittenEvent
     {
-        $event = new ShopTemplateConfigFormFieldWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new ShopTemplateConfigFormFieldWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

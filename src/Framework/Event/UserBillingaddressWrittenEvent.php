@@ -3,15 +3,11 @@
 namespace Shopware\Framework\Event;
 
 use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
 
 class UserBillingaddressWrittenEvent extends NestedEvent
 {
-    const NAME = 'user_billingaddress.written';
-
-    /**
-     * @var string[]
-     */
-    protected $userBillingaddressUuids;
+    const NAME = 's_user_billingaddress.written';
 
     /**
      * @var NestedEventCollection
@@ -28,12 +24,26 @@ class UserBillingaddressWrittenEvent extends NestedEvent
      */
     protected $context;
 
-    public function __construct(array $userBillingaddressUuids, TranslationContext $context, array $errors = [])
+    /**
+     * @var array
+     */
+    private $rawData;
+
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->userBillingaddressUuids = $userBillingaddressUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = 'UserBillingaddressUuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -44,14 +54,6 @@ class UserBillingaddressWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getUserBillingaddressUuids(): array
-    {
-        return $this->userBillingaddressUuids;
     }
 
     public function getErrors(): array
@@ -72,5 +74,10 @@ class UserBillingaddressWrittenEvent extends NestedEvent
     public function getEvents(): NestedEventCollection
     {
         return $this->events;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
     }
 }

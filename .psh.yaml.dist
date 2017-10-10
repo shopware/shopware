@@ -27,6 +27,7 @@ const:
   DB_USER: "app"
   DB_PASSWORD: "app"
   DB_HOST: "mysql"
+  DB_PORT: "3306"
   DB_NAME: "shopware"
   SW_HOST: "10.101.101.56"
   SW_BASE_PATH: ""

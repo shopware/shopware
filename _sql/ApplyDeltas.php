@@ -8,6 +8,7 @@ $longopts = [
     'password:',
     'host:',
     'dbname:',
+    'port:',
 ];
 $deployConfig = getopt('', ['tablesuffix::', 'shoppath:', 'migrationpath:']);
 $dbConfig = getopt('', $longopts);

@@ -75,6 +75,7 @@ const:
   DB_PASSWORD: "app"
   DB_HOST: "localhost"
   DB_NAME: "shopware"
+  DB_PORT: "3306"
   SW_HOST: "your-shop.com"  
   SW_BASE_PATH: ""
   PHP_VERSION: "7.1"

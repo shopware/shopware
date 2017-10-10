@@ -147,11 +147,13 @@ class Writer
                     $data = $query->getPrimaryKeyData();
                 }
 
-                if (array_key_exists('uuid', $data) === false) {
-                    continue;
+                foreach ($data as $key => $value) {
+                    $changedIdentifiers[$resource][$key][] = $value;
                 }
+            }
 
-                $changedIdentifiers[$resource][] = $data['uuid'];
+            foreach ($changedIdentifiers[$resource] as $field => $values) {
+                $changedIdentifiers[$resource][$field] = array_unique($values);
             }
         }
 

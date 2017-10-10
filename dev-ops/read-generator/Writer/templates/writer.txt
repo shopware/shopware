@@ -87,7 +87,7 @@ class #classUc#Writer
             $updated = array_merge_recursive(...$updated);
         }
 
-        return #classUc#WriteResource::createWrittenEvent($updated, $context, $errors);
+        return #classUc#WriteResource::createWrittenEvent($updated, $context, $data, $errors);
     }
 
     public function upsert(array $data, TranslationContext $context): #classUc#WrittenEvent
@@ -119,7 +119,7 @@ class #classUc#Writer
             $created = array_merge_recursive(...$created);
         }
 
-        return #classUc#WriteResource::createWrittenEvent($created, $context, $errors);
+        return #classUc#WriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     public function create(array $data, TranslationContext $context): #classUc#WrittenEvent
@@ -151,7 +151,7 @@ class #classUc#Writer
             $created = array_merge_recursive(...$created);
         }
 
-        return #classUc#WriteResource::createWrittenEvent($created, $context, $errors);
+        return #classUc#WriteResource::createWrittenEvent($created, $context, $data, $errors);
     }
 
     private function validateWriteInput(array $data): void

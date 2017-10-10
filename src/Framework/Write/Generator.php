@@ -101,12 +101,8 @@ EOD;
 
     public function generateAll()
     {
-        @exec('rm -R ' . __DIR__ . '/../../**/Gateway/WriteResource');
-        @exec('rm -R ' . __DIR__ . '/../../**/Writer/ResourceDefinition');
-        @exec('rm -R ' . __DIR__ . '/../../**/Writer/WriteResource');
-        @exec('rm -R ' . __DIR__ . '/../../**/Writer/*WriteResource.php');
+        @exec('rm -R ' . __DIR__ . '/../../**/Writer/Resource/*WriteResource.php');
         @exec('rm -R ' . __DIR__ . '/../../**/Event/*WrittenEvent.php');
-        @exec('rm -R ' . __DIR__ . '/WriteResource/*.php');
 
         $connection = $this->connection;
         $schemaManager = $connection->getSchemaManager();
@@ -195,11 +191,16 @@ EOD;
                 continue;
             }
 
+            $isPrimary = $this->isPrimary($column, $indexes);
+            if ($isPrimary) {
+                $resourceTemplate->addPrimaryKey($column->getName());
+            }
+
             if (array_key_exists($column->getName(), $foreignKeys)) {
                 continue;
             }
 
-            $writableColumn = $this->makeWritableColumn($column, $table, $this->isPrimary($column, $indexes));
+            $writableColumn = $this->makeWritableColumn($column, $table, $isPrimary);
 
             if (!$writableColumn) {
                 continue;
@@ -558,9 +559,9 @@ class %s extends WriteResource
         ];
     }
     
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $errors = []): %sWrittenEvent
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): %sWrittenEvent
     {
-        $event = new %sWrittenEvent($updates[self::class] ?? [], $context, $errors);
+        $event = new %sWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
 
         unset($updates[self::class]);
 
@@ -587,23 +588,32 @@ EOD;
         </service>
 EOD;
 
-    private $eventClassTemplate = <<<'EOD'
-<?php declare(strict_types=1);
-
-namespace %s\Event;
-
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Context\Struct\TranslationContext;
-
-class %sWrittenEvent extends NestedEvent
-{
-    const NAME = '%s.written';
+    private $eventPrimaryKeyTemplate = <<<'EOD'
 
     /**
      * @var string[]
      */
-    protected $%sUuids;
+    protected $#primaryKeyCamelCase#s = [];
+    
+    public function get#primaryKeyUpperCamelCase#s(): array
+    {
+        return $this->#primaryKeyCamelCase#s;    
+    }
+EOD;
+
+    private $eventClassTemplate = <<<'EOD'
+<?php declare(strict_types=1);
+
+namespace Shopware\#bundle#\Event;
+
+use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Context\Struct\TranslationContext;
+use Symfony\Component\DependencyInjection\Container;
+
+class #classUc#WrittenEvent extends NestedEvent
+{
+    const NAME = '#table#.written';
 
     /**
      * @var NestedEventCollection
@@ -619,13 +629,27 @@ class %sWrittenEvent extends NestedEvent
      * @var TranslationContext
      */
     protected $context;
+    
+    /**
+     * @var array
+     */
+    private $rawData;
 
-    public function __construct(array $%sUuids, TranslationContext $context, array $errors = [])
+    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
     {
-        $this->%sUuids = $%sUuids;
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
+        $this->rawData = $rawData;
+        
+        foreach ($primaryKeys as $key => $value) {
+            if ($key === 'uuid') {
+                $key = '#classUc#Uuid';
+            }
+
+            $key = lcfirst(Container::camelize($key)) . 's';
+            $this->$key = $value;
+        }
     }
 
     public function getName(): string
@@ -636,14 +660,6 @@ class %sWrittenEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function get%sUuids(): array
-    {
-        return $this->%sUuids;
     }
 
     public function getErrors(): array
@@ -665,6 +681,13 @@ class %sWrittenEvent extends NestedEvent
     {
         return $this->events;
     }
+    
+    public function getRawData(): array
+    {
+        return $this->rawData;
+    }
+    
+    #primaryKeys#
 }
 EOD;
 
@@ -684,6 +707,11 @@ EOD;
     private $table;
 
     private $order = [];
+
+    /**
+     * @var string[]
+     */
+    private $primaryKeys = [];
 
     public function __construct(string $table)
     {
@@ -851,17 +879,24 @@ EOD;
 
     public function renderEventClass(): string
     {
-        return sprintf(
-            $this->eventClassTemplate,
-            $this->getBundleNamespace(),
-            $this->getName(),
-            $this->getEventName(),
-            lcfirst($this->getName()),
-            lcfirst($this->getName()),
-            lcfirst($this->getName()),
-            lcfirst($this->getName()),
-            $this->getName(),
-            lcfirst($this->getName())
+        $primaryKeys = '';
+        foreach ($this->primaryKeys as $key) {
+            if ($key === 'uuid') {
+                $key = $this->getName() . '_uuid';
+            }
+
+            $camelCaseKey = \Symfony\Component\DependencyInjection\Container::camelize($key);
+            $primaryKeys .= str_replace(
+                ['#primaryKeyCamelCase#', '#primaryKeyUpperCamelCase#'],
+                [lcfirst($camelCaseKey), $camelCaseKey],
+                $this->eventPrimaryKeyTemplate
+            );
+        }
+
+        return str_replace(
+            ['#bundle#', '#classUc#', '#table#', '#primaryKeys#'],
+            [$this->getBundleName(), $this->getName(), $this->getTable(), $primaryKeys],
+            $this->eventClassTemplate
         );
     }
 
@@ -947,6 +982,11 @@ EOD;
         return false;
     }
 
+    public function addPrimaryKey(string $column): void
+    {
+        $this->primaryKeys[] = $column;
+    }
+
     private function getBundleName(): string
     {
         $srcDir = __DIR__ . '/../../';
@@ -966,7 +1006,7 @@ EOD;
             }
         }
 
-        throw new \InvalidArgumentException('Us the default, please');
+        return 'Framework';
     }
 
     private function hasDates()

@@ -9,7 +9,7 @@ use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Product\Event\ProductWrittenEvent;
+use Shopware\Product\Event\ProductCategoryWrittenEvent;
 use Shopware\Product\Repository\ProductRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -152,10 +152,10 @@ class ProductCategoryIndexer implements IndexerInterface
         /** @var NestedEventCollection $events */
         $events = $events
             ->getFlatEventList()
-            ->filterInstance(ProductWrittenEvent::class);
+            ->filterInstance(ProductCategoryWrittenEvent::class);
 
         $uuids = [];
-        /** @var ProductWrittenEvent $event */
+        /** @var ProductCategoryWrittenEvent $event */
         foreach ($events as $event) {
             foreach ($event->getProductUuids() as $uuid) {
                 $uuids[] = $uuid;

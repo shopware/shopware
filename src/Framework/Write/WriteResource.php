@@ -106,7 +106,7 @@ abstract class WriteResource
         return [];
     }
 
-    public static function createWrittenEvent(array $updates, TranslationContext $context)
+    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = [])
     {
     }
 

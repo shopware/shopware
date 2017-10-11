@@ -164,7 +164,6 @@ class FloatField extends Field implements PathAware, ConstraintBuilderAware, Fil
     private function getInsertConstraints(): array
     {
         return $this->constraintBuilder
-            ->isNotBlank()
             ->isNumeric()
             ->getConstraints();
     }

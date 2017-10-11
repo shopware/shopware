@@ -41,17 +41,18 @@ function initProduct(uuid, dataKey = 'product') {
 
         this.productProxy = productProxy;
         this[dataKey] = productProxy.data;
-        return new Promise().resolve(() => {
-            return productProxy;
-        });
-    } else {
-        return this.getProductByUuid(uuid).then((productProxy) => {
-            this.productProxy = productProxy;
-            this[dataKey] = productProxy.data;
 
+        return Promise.resolve(() => {
             return productProxy;
         });
     }
+
+    return this.getProductByUuid(uuid).then((productProxy) => {
+        this.productProxy = productProxy;
+        this[dataKey] = productProxy.data;
+
+        return productProxy;
+    });
 }
 
 function saveProduct() {

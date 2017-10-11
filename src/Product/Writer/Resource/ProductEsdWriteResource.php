@@ -31,7 +31,7 @@ class ProductEsdWriteResource extends WriteResource
         $this->fields[self::PRODUCT_DETAIL_UUID_FIELD] = (new StringField('product_detail_uuid'))->setFlags(new Required());
         $this->fields[self::FILE_FIELD] = (new StringField('file'))->setFlags(new Required());
         $this->fields[self::HAS_SERIALS_FIELD] = new BoolField('has_serials');
-        $this->fields[self::ALLOW_NOTIFICATION_FIELD] = new IntField('allow_notification');
+        $this->fields[self::ALLOW_NOTIFICATION_FIELD] = new BoolField('allow_notification');
         $this->fields[self::MAX_DOWNLOADS_FIELD] = new IntField('max_downloads');
         $this->fields['product'] = new ReferenceField('productUuid', 'uuid', ProductWriteResource::class);
         $this->fields['productUuid'] = (new FkField('product_uuid', ProductWriteResource::class, 'uuid'))->setFlags(new Required());

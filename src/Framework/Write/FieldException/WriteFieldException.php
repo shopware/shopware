@@ -24,7 +24,9 @@
 
 namespace Shopware\Framework\Write\FieldException;
 
-abstract class WriteFieldException extends \DomainException
+use Shopware\Framework\ShopwareException;
+
+abstract class WriteFieldException extends \DomainException implements ShopwareException
 {
     abstract public function getPath(): string;
 

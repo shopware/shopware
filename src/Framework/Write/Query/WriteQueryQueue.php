@@ -25,6 +25,7 @@
 namespace Shopware\Framework\Write\Query;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Write\Query\WriteTypeIntendException;
 
 class WriteQueryQueue
 {
@@ -145,5 +146,20 @@ class WriteQueryQueue
     public function getQueries(): array
     {
         return $this->queries;
+    }
+
+    public function ensureIs($resourceClass, $class): void
+    {
+        $queries = $this->queries[$resourceClass];
+
+        foreach ($queries as $query) {
+            if (!$query instanceof $class) {
+                throw new WriteTypeIntendException(sprintf(
+                    'Expected query for "%s" to be "%s".',
+                    $resourceClass,
+                    $class
+                ));
+            }
+        }
     }
 }

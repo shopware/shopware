@@ -96,6 +96,7 @@ class Writer
         $exceptionStack->tryToThrow();
         $writeIdentifiers = $this->getWriteIdentifiers($queryQueue);
 
+        $queryQueue->ensureIs($resourceClass, InsertQuery::class);
         $queryQueue->execute($this->connection);
 
         return $writeIdentifiers;
@@ -118,6 +119,7 @@ class Writer
         $exceptionStack->tryToThrow();
         $writeIdentifiers = $this->getWriteIdentifiers($queryQueue);
 
+        $queryQueue->ensureIs($resourceClass, UpdateQuery::class);
         $queryQueue->execute($this->connection);
 
         return $writeIdentifiers;

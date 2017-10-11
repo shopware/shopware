@@ -2,7 +2,7 @@
 
 namespace Shopware\Api;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Shopware\Framework\ShopwareException;
 
 class ResponseEnvelope implements \JsonSerializable
 {
@@ -27,7 +27,7 @@ class ResponseEnvelope implements \JsonSerializable
     private $parameters = [];
 
     /**
-     * @var HttpException
+     * @var ShopwareException
      */
     private $exception;
 
@@ -63,7 +63,7 @@ class ResponseEnvelope implements \JsonSerializable
         return $this->errors;
     }
 
-    public function getException(): ?HttpException
+    public function getException(): ?ShopwareException
     {
         return $this->exception;
     }
@@ -105,7 +105,7 @@ class ResponseEnvelope implements \JsonSerializable
         $this->parameters = $parameters;
     }
 
-    public function setException(HttpException $exception)
+    public function setException(ShopwareException $exception)
     {
         $this->exception = $exception;
     }
@@ -118,7 +118,7 @@ class ResponseEnvelope implements \JsonSerializable
         $this->data = $data;
     }
 
-    private function transformExceptionToArray(?HttpException $exception): ?array
+    private function transformExceptionToArray(?ShopwareException $exception): ?array
     {
         if (!$exception) {
             return null;
@@ -127,7 +127,7 @@ class ResponseEnvelope implements \JsonSerializable
         return [
             'type' => get_class($exception),
             'message' => $exception->getMessage(),
-            'statusCode' => $exception->getStatusCode(),
+            'code' => $exception->getCode(),
         ];
     }
 }

@@ -123,8 +123,8 @@ class Generator extends TestCase
             $fallbackCustomerGroup,
             $taxes,
             $priceGroupDiscounts,
-            new PaymentMethodBasicStruct(1, '', '', ''),
-            new ShippingMethodBasicStruct(1, '', DeliveryCalculator::CALCULATION_BY_WEIGHT, true, 1),
+            new PaymentMethodBasicStruct(),
+            new ShippingMethodBasicStruct(),
             ShippingLocation::createFromAddress($shipping),
             new CustomerBasicStruct()
         );

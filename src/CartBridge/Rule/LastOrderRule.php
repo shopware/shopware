@@ -56,7 +56,7 @@ class LastOrderRule extends Rule
         $data = $collection->get(LastOrderRuleData::class);
 
         $min = (new \DateTime())->sub(
-            new \DateInterval('P' . (int) $this->days . 'D')
+            new \DateInterval('P' . $this->days . 'D')
         );
 
         return new Match(

@@ -40,7 +40,7 @@ class RuleCollection extends Collection
     protected $flat = [];
 
     /**
-     * @var string[]
+     * @var bool[]
      */
     protected $classes = [];
 
@@ -84,7 +84,7 @@ class RuleCollection extends Collection
 
     private function addMeta(Rule $rule): void
     {
-        $this->classes[get_class($rule)] = 1;
+        $this->classes[get_class($rule)] = true;
 
         $this->flat[] = $rule;
 

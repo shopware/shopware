@@ -56,7 +56,7 @@ class DeliveryCollectionTest extends TestCase
                     new \DateTime(),
                     new \DateTime()
                 ),
-                new ShippingMethodBasicStruct(1, '', DeliveryCalculator::CALCULATION_BY_WEIGHT, true, 1),
+                new ShippingMethodBasicStruct(),
                 self::createShippingLocation(),
                 new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
             )
@@ -73,7 +73,7 @@ class DeliveryCollectionTest extends TestCase
                     new \DateTime(),
                     new \DateTime()
                 ),
-                new ShippingMethodBasicStruct(1, '', DeliveryCalculator::CALCULATION_BY_WEIGHT, true, 1),
+                new ShippingMethodBasicStruct(),
                 self::createShippingLocation(),
                 new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
             ),
@@ -83,7 +83,7 @@ class DeliveryCollectionTest extends TestCase
                     new \DateTime(),
                     new \DateTime()
                 ),
-                new ShippingMethodBasicStruct(1, '', DeliveryCalculator::CALCULATION_BY_WEIGHT, true, 1),
+                new ShippingMethodBasicStruct(),
                 self::createShippingLocation(),
                 new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
             ),
@@ -100,7 +100,7 @@ class DeliveryCollectionTest extends TestCase
                     new \DateTime(),
                     new \DateTime()
                 ),
-                new ShippingMethodBasicStruct(1, '', DeliveryCalculator::CALCULATION_BY_WEIGHT, true, 1),
+                new ShippingMethodBasicStruct(),
                 self::createShippingLocation(),
                 new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
             ),
@@ -110,7 +110,7 @@ class DeliveryCollectionTest extends TestCase
                     new \DateTime(),
                     new \DateTime()
                 ),
-                new ShippingMethodBasicStruct(1, '', DeliveryCalculator::CALCULATION_BY_WEIGHT, true, 1),
+                new ShippingMethodBasicStruct(),
                 self::createShippingLocation(),
                 new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
             ),

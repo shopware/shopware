@@ -39,6 +39,6 @@ class PriceRounding
 
     public function round(float $price): float
     {
-        return round((float) $price, $this->precisions);
+        return round($price, $this->precisions);
     }
 }

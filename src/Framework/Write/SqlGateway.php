@@ -56,11 +56,9 @@ class SqlGateway
             $qb->setParameter($pkDatum, $pkValue);
         }
 
-        $ret = (bool) $qb
+        return (bool) $qb
             ->execute()
             ->fetchColumn();
-
-        return $ret;
     }
 
     /**
@@ -68,7 +66,6 @@ class SqlGateway
      */
     public function insert(string $tableName, array $data): void
     {
-        //        $this->connection->transactional(function() use ($data, $tableName) {
         $affectedRows = $this->connection->insert(
             QuerySelection::escape($tableName),
             $data
@@ -77,7 +74,6 @@ class SqlGateway
         if (!$affectedRows) {
             throw new ExceptionNoInsertedRecord('Unable to insert data');
         }
-        //        });
     }
 
     /**
@@ -86,7 +82,6 @@ class SqlGateway
      */
     public function update(string $tableName, array $uuid, array $data): void
     {
-        //        $this->connection->transactional(function() use ($uuid, $data, $tableName) {
         $affectedRows = $this->connection->update(
             QuerySelection::escape($tableName),
             $data,
@@ -101,6 +96,5 @@ class SqlGateway
         if ($affectedRows > 1) {
             throw new ExceptionMultipleUpdatedRecord(sprintf('Unable to update "%s" - multiple rows updated', $uuid));
         }
-        //        });
     }
 }

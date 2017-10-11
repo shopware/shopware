@@ -65,14 +65,14 @@ class ConfiguredLineItem extends \Shopware\Framework\Struct\Struct implements De
 
     /**
      * @param string              $identifier
-     * @param float               $quantity
+     * @param int                 $quantity
      * @param Price               $price
      * @param LineItemInterface   $lineItem
      * @param DeliveryInformation $deliveryInformation
      */
     public function __construct(
         $identifier,
-        $quantity = null,
+        ?int $quantity = null,
         Price $price = null,
         LineItemInterface $lineItem = null,
         DeliveryInformation $deliveryInformation = null

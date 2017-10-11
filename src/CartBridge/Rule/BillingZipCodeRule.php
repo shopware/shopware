@@ -38,7 +38,7 @@ class BillingZipCodeRule extends Rule
     protected $zipCodes;
 
     /**
-     * @param \string[] $zipCodes
+     * @param string[] $zipCodes
      */
     public function __construct(array $zipCodes)
     {

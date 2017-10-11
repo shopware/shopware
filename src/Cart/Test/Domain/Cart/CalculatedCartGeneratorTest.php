@@ -72,8 +72,7 @@ class CalculatedCartGeneratorTest extends TestCase
                 $container,
                 new CalculatedLineItemCollection(),
                 $price,
-                new DeliveryCollection(),
-                new ErrorCollection()
+                new DeliveryCollection()
             ),
             $generator->create($container, $context, $processorCart)
         );
@@ -119,7 +118,7 @@ class CalculatedCartGeneratorTest extends TestCase
         $delivery = new Delivery(
             new DeliveryPositionCollection(),
             new DeliveryDate(new \DateTime(), new \DateTime()),
-            new ShippingMethodBasicStruct(1, 'prime', DeliveryCalculator::CALCULATION_BY_WEIGHT, true, 1),
+            new ShippingMethodBasicStruct(),
             $this->createMock(ShippingLocation::class),
             new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
         );

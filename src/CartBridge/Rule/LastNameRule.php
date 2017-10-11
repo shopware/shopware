@@ -52,7 +52,7 @@ class LastNameRule extends Rule
         }
 
         return new Match(
-            (bool) preg_match("/$this->lastName/", strtolower($customer->getLastname())),
+            (bool) preg_match("/$this->lastName/", strtolower($customer->getLastName())),
             ['Last name not matched']
         );
     }

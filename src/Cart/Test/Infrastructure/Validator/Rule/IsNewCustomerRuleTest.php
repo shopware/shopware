@@ -62,7 +62,7 @@ class IsNewCustomerRuleTest extends TestCase
         $customer = new CustomerBasicStruct();
         $customer->setFirstLogin(
             (new \DateTime())->sub(
-                new \DateInterval('P' . (int) 10 . 'D')
+                new \DateInterval('P' . 10 . 'D')
             )
         );
 
@@ -86,7 +86,7 @@ class IsNewCustomerRuleTest extends TestCase
         $customer = new CustomerBasicStruct();
         $customer->setFirstLogin(
             (new \DateTime())->add(
-                new \DateInterval('P' . (int) 10 . 'D')
+                new \DateInterval('P' . 10 . 'D')
             )
         );
 

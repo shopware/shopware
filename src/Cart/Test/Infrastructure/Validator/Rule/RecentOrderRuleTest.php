@@ -42,7 +42,7 @@ class RecentOrderRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $date = (new \DateTime())->sub(
-            new \DateInterval('P' . (int) 10 . 'D')
+            new \DateInterval('P' . 10 . 'D')
         );
 
         $this->assertTrue(
@@ -61,7 +61,7 @@ class RecentOrderRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $date = (new \DateTime())->sub(
-            new \DateInterval('P' . (int) 9 . 'D')
+            new \DateInterval('P' . 9 . 'D')
         );
 
         $this->assertFalse(
@@ -80,7 +80,7 @@ class RecentOrderRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $date = (new \DateTime())->sub(
-            new \DateInterval('P' . (int) 50 . 'D')
+            new \DateInterval('P' . 50 . 'D')
         );
 
         $this->assertTrue(

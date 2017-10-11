@@ -143,24 +143,6 @@ class Manager
     }
 
     /**
-     * Returns next Migration that is higher than $currentVersion
-     *
-     * @param int $currentVersion
-     *
-     * @return AbstractMigration
-     */
-    public function getNextMigrationForVersion($currentVersion)
-    {
-        $migrations = $this->getMigrationsForVersion($currentVersion, 1);
-
-        if (empty($migrations)) {
-            return null;
-        }
-
-        return array_shift($migrations);
-    }
-
-    /**
      * Return an array of Migrations that have a higher version than $currentVersion
      * The array is indexed by Version
      *

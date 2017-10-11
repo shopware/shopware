@@ -91,11 +91,10 @@ class OrderClearedStateRuleCollectorTest extends TestCase
 
         $this->assertSame(2, $dataCollection->count());
 
+        /* @var OrderClearedStateRuleData $rule */
         $rule = $dataCollection->get(OrderClearedStateRuleData::class);
 
         $this->assertInstanceOf(OrderClearedStateRuleData::class, $rule);
-
-        /* @var OrderClearedStateRuleData $rule */
         $this->assertSame([1], $rule->getStates());
     }
 

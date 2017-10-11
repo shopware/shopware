@@ -55,7 +55,7 @@ class RecentOrderRule extends \Shopware\Cart\Rule\Rule
         $data = $collection->get(RecentOrderRuleData::class);
 
         $min = (new \DateTime())->sub(
-            new \DateInterval('P' . (int) $this->days . 'D')
+            new \DateInterval('P' . $this->days . 'D')
         );
 
         return new Match(

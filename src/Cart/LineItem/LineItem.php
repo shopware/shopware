@@ -36,7 +36,7 @@ class LineItem extends Struct implements LineItemInterface
     protected $identifier;
 
     /**
-     * @var float
+     * @var int
      */
     protected $quantity;
 

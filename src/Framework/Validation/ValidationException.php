@@ -22,15 +22,14 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\B2B\Common\Validator;
+namespace Shopware\Framework\Validation;
 
 use Exception;
-use Shopware\B2B\Common\B2BException;
-use Shopware\B2B\Common\Entity;
+use Shopware\Framework\ShopwareException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
-class ValidationException extends \InvalidArgumentException implements B2BException
+class ValidationException extends \InvalidArgumentException implements ShopwareException
 {
     /**
      * @var ConstraintViolationListInterface
@@ -43,19 +42,12 @@ class ValidationException extends \InvalidArgumentException implements B2BExcept
     private $sortedViolations = [];
 
     /**
-     * @var Entity
-     */
-    private $entity;
-
-    /**
-     * @param Entity                           $entity
      * @param ConstraintViolationListInterface $violations
      * @param string                           $message
      * @param null                             $code
      * @param Exception|null                   $previous
      */
     public function __construct(
-        Entity $entity,
         ConstraintViolationListInterface $violations,
         $message,
         $code = null,
@@ -78,7 +70,6 @@ class ValidationException extends \InvalidArgumentException implements B2BExcept
         parent::__construct($message . "\n\t" . implode("\n\t<br>", $readableViolationList), $code, $previous);
 
         $this->violations = $violations;
-        $this->entity = $entity;
     }
 
     /**
@@ -109,13 +100,5 @@ class ValidationException extends \InvalidArgumentException implements B2BExcept
     public function getViolations()
     {
         return $this->violations;
-    }
-
-    /**
-     * @return Entity
-     */
-    public function getEntity(): Entity
-    {
-        return $this->entity;
     }
 }

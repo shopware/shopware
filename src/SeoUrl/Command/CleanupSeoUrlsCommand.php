@@ -27,6 +27,7 @@ namespace Shopware\SeoUrl\Command;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Search\Condition\CanonicalCondition;
 use Shopware\Search\Criteria;
+use Shopware\Search\Query\TermQuery;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -46,20 +47,20 @@ class CleanupSeoUrlsCommand extends ContainerAwareCommand
         $repo = $this->getContainer()->get('shopware.seo_url.repository');
 
         $criteria = new Criteria();
-        $criteria->offset(0);
-        $criteria->limit(100);
-        $criteria->addCondition(new CanonicalCondition(false));
+        $criteria->setOffset(0);
+        $criteria->setLimit(100);
+        $criteria->addFilter(new TermQuery('is_canonical', false));
 
-        $context = new TranslationContext(1, true, null);
+        $context = new TranslationContext('SWAG-SHOP-UUID-1', true, null);
 
-        $ids = $repo->search($criteria, $context)->getIds();
+        $ids = $repo->search($criteria, $context)->getUuids();
 
         do {
             $repo->delete($ids);
 
-            $criteria->offset($criteria->getOffset() + $criteria->getLimit());
+            $criteria->setOffset($criteria->getOffset() + $criteria->getLimit());
 
-            $ids = $repo->search($criteria, $context)->getIds();
+            $ids = $repo->search($criteria, $context)->getUuids();
         } while ($ids);
     }
 }

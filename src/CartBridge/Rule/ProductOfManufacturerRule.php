@@ -32,7 +32,7 @@ use Shopware\Framework\Struct\StructCollection;
 class ProductOfManufacturerRule extends Rule
 {
     /**
-     * @var int[]
+     * @var string[]
      */
     protected $manufacturerIds;
 
@@ -42,7 +42,7 @@ class ProductOfManufacturerRule extends Rule
     }
 
     /**
-     * @return \int[]
+     * @return string[]
      */
     public function getManufacturerIds(): array
     {

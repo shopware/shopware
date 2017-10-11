@@ -108,32 +108,12 @@ class CategoryWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[BlogWriteResource::class])) {
-            $event->addEvent(BlogWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[MediaWriteResource::class])) {
-            $event->addEvent(MediaWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[CategoryTranslationWriteResource::class])) {
-            $event->addEvent(CategoryTranslationWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[CategoryAvoidCustomerGroupWriteResource::class])) {
-            $event->addEvent(CategoryAvoidCustomerGroupWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductCategoryWriteResource::class])) {
-            $event->addEvent(ProductCategoryWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductCategorySeoWriteResource::class])) {
-            $event->addEvent(ProductCategorySeoWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShippingMethodCategoryWriteResource::class])) {
-            $event->addEvent(ShippingMethodCategoryWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShopWriteResource::class])) {
-            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

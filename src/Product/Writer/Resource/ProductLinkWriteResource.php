@@ -49,14 +49,12 @@ class ProductLinkWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[ProductWriteResource::class])) {
-            $event->addEvent(ProductWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductLinkTranslationWriteResource::class])) {
-            $event->addEvent(ProductLinkTranslationWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

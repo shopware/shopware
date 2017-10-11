@@ -67,26 +67,12 @@ class TaxAreaRuleWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[AreaWriteResource::class])) {
-            $event->addEvent(AreaWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[AreaCountryWriteResource::class])) {
-            $event->addEvent(AreaCountryWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[AreaCountryStateWriteResource::class])) {
-            $event->addEvent(AreaCountryStateWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[TaxWriteResource::class])) {
-            $event->addEvent(TaxWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[CustomerGroupWriteResource::class])) {
-            $event->addEvent(CustomerGroupWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[TaxAreaRuleTranslationWriteResource::class])) {
-            $event->addEvent(TaxAreaRuleTranslationWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

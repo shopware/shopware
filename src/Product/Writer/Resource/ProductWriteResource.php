@@ -122,68 +122,12 @@ class ProductWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[BlogProductWriteResource::class])) {
-            $event->addEvent(BlogProductWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[FilterProductWriteResource::class])) {
-            $event->addEvent(FilterProductWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[TaxWriteResource::class])) {
-            $event->addEvent(TaxWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductManufacturerWriteResource::class])) {
-            $event->addEvent(ProductManufacturerWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[FilterWriteResource::class])) {
-            $event->addEvent(FilterWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductTranslationWriteResource::class])) {
-            $event->addEvent(ProductTranslationWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductAccessoryWriteResource::class])) {
-            $event->addEvent(ProductAccessoryWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductAttachmentWriteResource::class])) {
-            $event->addEvent(ProductAttachmentWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductAvoidCustomerGroupWriteResource::class])) {
-            $event->addEvent(ProductAvoidCustomerGroupWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductCategoryWriteResource::class])) {
-            $event->addEvent(ProductCategoryWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductCategorySeoWriteResource::class])) {
-            $event->addEvent(ProductCategorySeoWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductDetailWriteResource::class])) {
-            $event->addEvent(ProductDetailWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductEsdWriteResource::class])) {
-            $event->addEvent(ProductEsdWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductLinkWriteResource::class])) {
-            $event->addEvent(ProductLinkWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductMediaWriteResource::class])) {
-            $event->addEvent(ProductMediaWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductSimilarWriteResource::class])) {
-            $event->addEvent(ProductSimilarWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductStreamAssignmentWriteResource::class])) {
-            $event->addEvent(ProductStreamAssignmentWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductStreamTabWriteResource::class])) {
-            $event->addEvent(ProductStreamTabWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductVoteWriteResource::class])) {
-            $event->addEvent(ProductVoteWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[StatisticProductImpressionWriteResource::class])) {
-            $event->addEvent(StatisticProductImpressionWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

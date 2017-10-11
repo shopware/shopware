@@ -113,26 +113,12 @@ class CustomerWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[CustomerGroupWriteResource::class])) {
-            $event->addEvent(CustomerGroupWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[PaymentMethodWriteResource::class])) {
-            $event->addEvent(PaymentMethodWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShopWriteResource::class])) {
-            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[CustomerAddressWriteResource::class])) {
-            $event->addEvent(CustomerAddressWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[OrderWriteResource::class])) {
-            $event->addEvent(OrderWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[StatisticCurrentCustomerWriteResource::class])) {
-            $event->addEvent(StatisticCurrentCustomerWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

@@ -60,17 +60,12 @@ class ConfigFormWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[PluginWriteResource::class])) {
-            $event->addEvent(PluginWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ConfigFormTranslationWriteResource::class])) {
-            $event->addEvent(ConfigFormTranslationWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ConfigFormFieldWriteResource::class])) {
-            $event->addEvent(ConfigFormFieldWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

@@ -57,14 +57,12 @@ class ShopFormTranslationWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[ShopFormWriteResource::class])) {
-            $event->addEvent(ShopFormWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShopWriteResource::class])) {
-            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

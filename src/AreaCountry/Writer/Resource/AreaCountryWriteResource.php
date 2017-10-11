@@ -88,35 +88,12 @@ class AreaCountryWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[AreaWriteResource::class])) {
-            $event->addEvent(AreaWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[AreaCountryTranslationWriteResource::class])) {
-            $event->addEvent(AreaCountryTranslationWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[AreaCountryStateWriteResource::class])) {
-            $event->addEvent(AreaCountryStateWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[CustomerAddressWriteResource::class])) {
-            $event->addEvent(CustomerAddressWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[OrderAddressWriteResource::class])) {
-            $event->addEvent(OrderAddressWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[PaymentMethodCountryWriteResource::class])) {
-            $event->addEvent(PaymentMethodCountryWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShippingMethodCountryWriteResource::class])) {
-            $event->addEvent(ShippingMethodCountryWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShopWriteResource::class])) {
-            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[TaxAreaRuleWriteResource::class])) {
-            $event->addEvent(TaxAreaRuleWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

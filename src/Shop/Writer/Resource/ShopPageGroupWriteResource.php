@@ -46,11 +46,12 @@ class ShopPageGroupWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShopPageGroupMappingWriteResource::class])) {
-            $event->addEvent(ShopPageGroupMappingWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

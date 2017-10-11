@@ -37,14 +37,12 @@ class ShippingMethodCountryWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[ShippingMethodWriteResource::class])) {
-            $event->addEvent(ShippingMethodWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[AreaCountryWriteResource::class])) {
-            $event->addEvent(AreaCountryWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

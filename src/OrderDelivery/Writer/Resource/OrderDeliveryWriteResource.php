@@ -63,20 +63,12 @@ class OrderDeliveryWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[OrderWriteResource::class])) {
-            $event->addEvent(OrderWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[OrderAddressWriteResource::class])) {
-            $event->addEvent(OrderAddressWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShippingMethodWriteResource::class])) {
-            $event->addEvent(ShippingMethodWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[OrderDeliveryPositionWriteResource::class])) {
-            $event->addEvent(OrderDeliveryPositionWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

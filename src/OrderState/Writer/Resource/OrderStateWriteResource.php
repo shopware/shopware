@@ -56,17 +56,12 @@ class OrderStateWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[MailWriteResource::class])) {
-            $event->addEvent(MailWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[OrderWriteResource::class])) {
-            $event->addEvent(OrderWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[OrderStateTranslationWriteResource::class])) {
-            $event->addEvent(OrderStateTranslationWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

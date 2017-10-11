@@ -113,35 +113,12 @@ class ShippingMethodWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[OrderDeliveryWriteResource::class])) {
-            $event->addEvent(OrderDeliveryWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShopWriteResource::class])) {
-            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[CustomerGroupWriteResource::class])) {
-            $event->addEvent(CustomerGroupWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShippingMethodTranslationWriteResource::class])) {
-            $event->addEvent(ShippingMethodTranslationWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShippingMethodCategoryWriteResource::class])) {
-            $event->addEvent(ShippingMethodCategoryWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShippingMethodCountryWriteResource::class])) {
-            $event->addEvent(ShippingMethodCountryWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShippingMethodHolidayWriteResource::class])) {
-            $event->addEvent(ShippingMethodHolidayWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShippingMethodPaymentMethodWriteResource::class])) {
-            $event->addEvent(ShippingMethodPaymentMethodWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShippingMethodPriceWriteResource::class])) {
-            $event->addEvent(ShippingMethodPriceWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

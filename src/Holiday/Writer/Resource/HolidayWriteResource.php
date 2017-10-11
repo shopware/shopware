@@ -48,14 +48,12 @@ class HolidayWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[HolidayTranslationWriteResource::class])) {
-            $event->addEvent(HolidayTranslationWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShippingMethodHolidayWriteResource::class])) {
-            $event->addEvent(ShippingMethodHolidayWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

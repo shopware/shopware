@@ -85,32 +85,12 @@ class OrderWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[CustomerWriteResource::class])) {
-            $event->addEvent(CustomerWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[OrderStateWriteResource::class])) {
-            $event->addEvent(OrderStateWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[PaymentMethodWriteResource::class])) {
-            $event->addEvent(PaymentMethodWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[CurrencyWriteResource::class])) {
-            $event->addEvent(CurrencyWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShopWriteResource::class])) {
-            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[OrderAddressWriteResource::class])) {
-            $event->addEvent(OrderAddressWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[OrderDeliveryWriteResource::class])) {
-            $event->addEvent(OrderDeliveryWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[OrderLineItemWriteResource::class])) {
-            $event->addEvent(OrderLineItemWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

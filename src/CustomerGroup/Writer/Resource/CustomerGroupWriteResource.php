@@ -79,38 +79,12 @@ class CustomerGroupWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[CategoryAvoidCustomerGroupWriteResource::class])) {
-            $event->addEvent(CategoryAvoidCustomerGroupWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[CustomerWriteResource::class])) {
-            $event->addEvent(CustomerWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[CustomerGroupTranslationWriteResource::class])) {
-            $event->addEvent(CustomerGroupTranslationWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[CustomerGroupDiscountWriteResource::class])) {
-            $event->addEvent(CustomerGroupDiscountWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[PriceGroupDiscountWriteResource::class])) {
-            $event->addEvent(PriceGroupDiscountWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductAvoidCustomerGroupWriteResource::class])) {
-            $event->addEvent(ProductAvoidCustomerGroupWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductDetailPriceWriteResource::class])) {
-            $event->addEvent(ProductDetailPriceWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShippingMethodWriteResource::class])) {
-            $event->addEvent(ShippingMethodWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShopWriteResource::class])) {
-            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[TaxAreaRuleWriteResource::class])) {
-            $event->addEvent(TaxAreaRuleWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

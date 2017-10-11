@@ -53,20 +53,12 @@ class FilterValueWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[FilterProductWriteResource::class])) {
-            $event->addEvent(FilterProductWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[FilterOptionWriteResource::class])) {
-            $event->addEvent(FilterOptionWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[MediaWriteResource::class])) {
-            $event->addEvent(MediaWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[FilterValueTranslationWriteResource::class])) {
-            $event->addEvent(FilterValueTranslationWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

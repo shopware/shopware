@@ -63,20 +63,12 @@ class CurrencyWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[CurrencyTranslationWriteResource::class])) {
-            $event->addEvent(CurrencyTranslationWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[OrderWriteResource::class])) {
-            $event->addEvent(OrderWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShopWriteResource::class])) {
-            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShopCurrencyWriteResource::class])) {
-            $event->addEvent(ShopCurrencyWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

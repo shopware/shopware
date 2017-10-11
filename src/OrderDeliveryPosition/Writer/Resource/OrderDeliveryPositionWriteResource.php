@@ -52,14 +52,12 @@ class OrderDeliveryPositionWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[OrderDeliveryWriteResource::class])) {
-            $event->addEvent(OrderDeliveryWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[OrderLineItemWriteResource::class])) {
-            $event->addEvent(OrderLineItemWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

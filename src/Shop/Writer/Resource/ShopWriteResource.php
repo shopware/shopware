@@ -146,77 +146,12 @@ class ShopWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[ConfigFormFieldValueWriteResource::class])) {
-            $event->addEvent(ConfigFormFieldValueWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[CustomerWriteResource::class])) {
-            $event->addEvent(CustomerWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[MailAttachmentWriteResource::class])) {
-            $event->addEvent(MailAttachmentWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[OrderWriteResource::class])) {
-            $event->addEvent(OrderWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[PaymentMethodShopWriteResource::class])) {
-            $event->addEvent(PaymentMethodShopWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[PremiumProductWriteResource::class])) {
-            $event->addEvent(PremiumProductWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductCategorySeoWriteResource::class])) {
-            $event->addEvent(ProductCategorySeoWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductVoteWriteResource::class])) {
-            $event->addEvent(ProductVoteWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShippingMethodWriteResource::class])) {
-            $event->addEvent(ShippingMethodWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShopTemplateWriteResource::class])) {
-            $event->addEvent(ShopTemplateWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[CategoryWriteResource::class])) {
-            $event->addEvent(CategoryWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[LocaleWriteResource::class])) {
-            $event->addEvent(LocaleWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[CurrencyWriteResource::class])) {
-            $event->addEvent(CurrencyWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[CustomerGroupWriteResource::class])) {
-            $event->addEvent(CustomerGroupWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[PaymentMethodWriteResource::class])) {
-            $event->addEvent(PaymentMethodWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[AreaCountryWriteResource::class])) {
-            $event->addEvent(AreaCountryWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShopCurrencyWriteResource::class])) {
-            $event->addEvent(ShopCurrencyWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShopPageGroupMappingWriteResource::class])) {
-            $event->addEvent(ShopPageGroupMappingWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShopTemplateConfigFormFieldValueWriteResource::class])) {
-            $event->addEvent(ShopTemplateConfigFormFieldValueWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[SnippetWriteResource::class])) {
-            $event->addEvent(SnippetWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[StatisticProductImpressionWriteResource::class])) {
-            $event->addEvent(StatisticProductImpressionWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[StatisticSearchWriteResource::class])) {
-            $event->addEvent(StatisticSearchWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[StatisticVisitorWriteResource::class])) {
-            $event->addEvent(StatisticVisitorWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

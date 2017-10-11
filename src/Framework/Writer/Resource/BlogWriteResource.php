@@ -85,29 +85,12 @@ class BlogWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[UserWriteResource::class])) {
-            $event->addEvent(UserWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[CategoryWriteResource::class])) {
-            $event->addEvent(CategoryWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[BlogTranslationWriteResource::class])) {
-            $event->addEvent(BlogTranslationWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[BlogCommentWriteResource::class])) {
-            $event->addEvent(BlogCommentWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[BlogMediaWriteResource::class])) {
-            $event->addEvent(BlogMediaWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[BlogProductWriteResource::class])) {
-            $event->addEvent(BlogProductWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[BlogTagWriteResource::class])) {
-            $event->addEvent(BlogTagWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

@@ -52,17 +52,12 @@ class FilterWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[FilterTranslationWriteResource::class])) {
-            $event->addEvent(FilterTranslationWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[FilterRelationWriteResource::class])) {
-            $event->addEvent(FilterRelationWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductWriteResource::class])) {
-            $event->addEvent(ProductWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

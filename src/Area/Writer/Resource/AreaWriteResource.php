@@ -48,17 +48,12 @@ class AreaWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[AreaTranslationWriteResource::class])) {
-            $event->addEvent(AreaTranslationWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[AreaCountryWriteResource::class])) {
-            $event->addEvent(AreaCountryWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[TaxAreaRuleWriteResource::class])) {
-            $event->addEvent(TaxAreaRuleWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

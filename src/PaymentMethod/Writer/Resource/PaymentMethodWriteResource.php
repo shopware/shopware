@@ -101,32 +101,12 @@ class PaymentMethodWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[CustomerWriteResource::class])) {
-            $event->addEvent(CustomerWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[OrderWriteResource::class])) {
-            $event->addEvent(OrderWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[PluginWriteResource::class])) {
-            $event->addEvent(PluginWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[PaymentMethodTranslationWriteResource::class])) {
-            $event->addEvent(PaymentMethodTranslationWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[PaymentMethodCountryWriteResource::class])) {
-            $event->addEvent(PaymentMethodCountryWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[PaymentMethodShopWriteResource::class])) {
-            $event->addEvent(PaymentMethodShopWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShippingMethodPaymentMethodWriteResource::class])) {
-            $event->addEvent(ShippingMethodPaymentMethodWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShopWriteResource::class])) {
-            $event->addEvent(ShopWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

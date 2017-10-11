@@ -58,14 +58,12 @@ class ShopTemplateConfigFormWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShopTemplateWriteResource::class])) {
-            $event->addEvent(ShopTemplateWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ShopTemplateConfigFormFieldWriteResource::class])) {
-            $event->addEvent(ShopTemplateConfigFormFieldWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

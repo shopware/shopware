@@ -77,32 +77,12 @@ class MediaWriteResource extends WriteResource
 
         unset($updates[self::class]);
 
-        if (!empty($updates[BlogMediaWriteResource::class])) {
-            $event->addEvent(BlogMediaWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[CategoryWriteResource::class])) {
-            $event->addEvent(CategoryWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[FilterValueWriteResource::class])) {
-            $event->addEvent(FilterValueWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[MailAttachmentWriteResource::class])) {
-            $event->addEvent(MailAttachmentWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[AlbumWriteResource::class])) {
-            $event->addEvent(AlbumWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[UserWriteResource::class])) {
-            $event->addEvent(UserWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[self::class])) {
-            $event->addEvent(self::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[MediaTranslationWriteResource::class])) {
-            $event->addEvent(MediaTranslationWriteResource::createWrittenEvent($updates, $context));
-        }
-        if (!empty($updates[ProductMediaWriteResource::class])) {
-            $event->addEvent(ProductMediaWriteResource::createWrittenEvent($updates, $context));
+        /**
+         * @var WriteResource
+         * @var string[]      $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
         return $event;

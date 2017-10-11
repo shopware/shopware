@@ -31,6 +31,8 @@ const:
   SW_HOST: "10.101.101.56"
   SW_BASE_PATH: ""
   PHP_VERSION: "7.1"
+  APP_DEBUG: "1"
+  APP_ENV: "dev"
 
 dynamic:
   USERKEY: echo "$(id -u):$(id -g)"

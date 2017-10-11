@@ -84,6 +84,8 @@ abstract class WriteResource
         FieldExtenderCollection $extenderCollection,
         string $path = ''
     ): array {
+        $extenderCollection = clone $extenderCollection;
+
         $this->extendExtender($exceptionStack, $queryQueue, $writeContext, $extenderCollection, $path);
 
         $queryQueue->updateOrder(get_class($this), ...$this->getWriteOrder());

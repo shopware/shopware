@@ -19,7 +19,7 @@ abstract class #classUc#Extension implements ExtensionInterface, EventSubscriber
         return [
             #classUc#BasicLoadedEvent::NAME => '#classLc#BasicLoaded',
             #classUc#DetailLoadedEvent::NAME => '#classLc#DetailLoaded',
-            #classUc#WrittenEvent::NAME => '#classLc#Written',
+            #writeSubscribe#
         ];
     }
 
@@ -55,7 +55,6 @@ abstract class #classUc#Extension implements ExtensionInterface, EventSubscriber
     public function #classLc#DetailLoaded(#classUc#DetailLoadedEvent $event): void
     { }
 
-    public function #classLc#Written(#classUc#WrittenEvent $event): void
-    { }
+    #writeMethod#
 
 }

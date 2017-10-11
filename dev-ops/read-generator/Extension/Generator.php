@@ -29,15 +29,31 @@ class Generator
     {
         $class = Util::snakeCaseToCamelCase($table);
 
+        $writeMethod = '';
+        $writeSubscribe = '';
+
+        if (preg_match('#_ro$#i', $table)) {
+            $writeMethod = file_get_contents(__DIR__ . '/templates/extension_write_method.txt');
+            $writeSubscribe = file_get_contents(__DIR__ . '/templates/extension_write_subscribe.txt');
+        }
+
         $template = __DIR__ . '/templates/extension.txt';
         if (Util::getAssociationsForDetailStruct($table, $config)) {
             $template = __DIR__ . '/templates/extension_detail.txt';
         }
 
+        $template = file_get_contents($template);
+
+        $template = str_replace(
+            ['#writeMethod#', '#writeSubscribe#'],
+            [$writeMethod, $writeSubscribe],
+            $template
+        );
+
         $template = str_replace(
             ['#classUc#', '#classLc#'],
             [ucfirst($class), lcfirst($class)],
-            file_get_contents($template)
+            $template
         );
 
         $file = $this->directory.'/'.ucfirst($class).'/Extension/'.ucfirst($class).'Extension.php';

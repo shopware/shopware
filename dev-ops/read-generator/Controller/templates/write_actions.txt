@@ -96,7 +96,7 @@
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $#plural# = $this->#classLc#Repository->readDetail(
+        $#plural# = $this->#classLc#Repository->#detailRead#(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

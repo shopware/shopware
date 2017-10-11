@@ -1,0 +1,1 @@
+#classUc#WrittenEvent::NAME => '#classLc#Written',

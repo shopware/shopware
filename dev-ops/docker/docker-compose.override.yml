@@ -8,12 +8,12 @@ services:
     volumes:
       - ~/.composer/cache:/var/www/composer-cache-dir
     networks:
-      enterprise:
+      shopware:
         ipv4_address: 10.101.101.56
 
   app_mysql:
     networks:
-      enterprise:
+      shopware:
         ipv4_address: 10.101.101.57
 
   app_volumes:
@@ -25,7 +25,7 @@ services:
       - ./dev-ops/docker/_volumes/app-mysqldata:/var/lib/mysql
 
 networks:
-  enterprise:
+  shopware:
     driver: bridge
     ipam:
       driver: default

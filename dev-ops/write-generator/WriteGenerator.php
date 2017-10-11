@@ -22,16 +22,14 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\Write;
-
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use ReadGenerator\Util;
 
-require_once __DIR__ . '/../../../dev-ops/read-generator/Util.php';
+require_once __DIR__ . '/../read-generator/Util.php';
 
-class Generator
+class WriteGenerator
 {
     private $serviceFileTemplate = <<<'EOD'
 <?xml version="1.0" ?>
@@ -101,8 +99,8 @@ EOD;
 
     public function generateAll()
     {
-        @exec('rm -R ' . __DIR__ . '/../../**/Writer/Resource/*WriteResource.php');
-        @exec('rm -R ' . __DIR__ . '/../../**/Event/*WrittenEvent.php');
+        @exec('rm -R ' . __DIR__ . '/../../src/**/Writer/Resource/*WriteResource.php');
+        @exec('rm -R ' . __DIR__ . '/../../src/**/Event/*WrittenEvent.php');
 
         $connection = $this->connection;
         $schemaManager = $connection->getSchemaManager();
@@ -565,17 +563,17 @@ class %s extends WriteResource
 
         unset($updates[self::class]);
 
-%s
+        /**
+         * @var WriteResource $class
+         * @var string[] $identifiers
+         */
+        foreach ($updates as $class => $identifiers) {
+            $event->addEvent($class::createWrittenEvent($updates, $context));
+        }
+
         return $event;
     }%s
 }
-
-EOD;
-
-    private $eventBodyTemplate = <<<'EOD'
-        if (!empty($updates[%s])) {
-            $event->addEvent(%s::createWrittenEvent($updates, $context));
-        }
 
 EOD;
 
@@ -743,7 +741,7 @@ EOD;
 
     public function getBundlePath(): string
     {
-        $srcDir = __DIR__ . '/../../';
+        $srcDir = __DIR__ . '/../../src/';
         try {
             $bundleName = $this->getBundleName();
         } catch (\InvalidArgumentException $e) {
@@ -765,7 +763,7 @@ EOD;
 
     public function getDiPath(): string
     {
-        $srcDir = __DIR__ . '/../../';
+        $srcDir = __DIR__ . '/../../src/';
         try {
             $bundleName = $this->getBundleName();
         } catch (\InvalidArgumentException $e) {
@@ -937,28 +935,12 @@ EOD;
             implode(",\n            ", $renderedOrder),
             $this->getName(),
             $this->getName(),
-            $this->getEventBody(array_unique($this->order)),
             $this->hasDates() ? $this->defaultDateMethod : ''
         );
 
         $uses = implode("\n", $uses);
 
         return str_replace('#uses#', $uses, $content);
-    }
-
-    public function getEventBody($writeOrder): string
-    {
-        $calls = [];
-
-        foreach ($writeOrder as $resourceClass) {
-            $calls[] = sprintf(
-                $this->eventBodyTemplate,
-                $resourceClass . '::class',
-                $resourceClass
-            );
-        }
-
-        return implode('', $calls);
     }
 
     public function renderServiceDefinition(): string
@@ -989,7 +971,7 @@ EOD;
 
     private function getBundleName(): string
     {
-        $srcDir = __DIR__ . '/../../';
+        $srcDir = __DIR__ . '/../../src/';
         $tableName = $this->table;
 
         if (strpos($tableName, 's_') === 0) {

@@ -132,11 +132,11 @@ class Writer
          * @var UpdateQuery[]|InsertQuery[] $query
          */
         foreach ($queue->getQueries() as $resource => $queries) {
-            $changedIdentifiers[$resource] = [];
-
-            if (empty($queries)) {
+            if (count($queries) === 0) {
                 continue;
             }
+
+            $changedIdentifiers[$resource] = [];
 
             foreach ($queries as $query) {
                 $data = [];

@@ -190,7 +190,7 @@ class ShippingMethodPriceController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $shippingMethodPrices = $this->shippingMethodPriceRepository->readDetail(
+        $shippingMethodPrices = $this->shippingMethodPriceRepository->read(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

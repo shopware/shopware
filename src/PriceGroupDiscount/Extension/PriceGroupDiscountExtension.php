@@ -6,10 +6,10 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\PriceGroupDiscount\Event\PriceGroupDiscountBasicLoadedEvent;
 use Shopware\PriceGroupDiscount\Event\PriceGroupDiscountWrittenEvent;
-use Shopware\PriceGroupDiscount\Struct\PriceGroupDiscountBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\PriceGroupDiscount\Struct\PriceGroupDiscountBasicStruct;
 
 abstract class PriceGroupDiscountExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -17,7 +17,7 @@ abstract class PriceGroupDiscountExtension implements ExtensionInterface, EventS
     {
         return [
             PriceGroupDiscountBasicLoadedEvent::NAME => 'priceGroupDiscountBasicLoaded',
-            PriceGroupDiscountWrittenEvent::NAME => 'priceGroupDiscountWritten',
+            
         ];
     }
 
@@ -26,6 +26,7 @@ abstract class PriceGroupDiscountExtension implements ExtensionInterface, EventS
         QueryBuilder $query,
         TranslationContext $context
     ): void {
+
     }
 
     public function getDetailFields(): array
@@ -43,14 +44,11 @@ abstract class PriceGroupDiscountExtension implements ExtensionInterface, EventS
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void {
-    }
+    ): void
+    { }
 
     public function priceGroupDiscountBasicLoaded(PriceGroupDiscountBasicLoadedEvent $event): void
-    {
-    }
+    { }
 
-    public function priceGroupDiscountWritten(PriceGroupDiscountWrittenEvent $event): void
-    {
-    }
+    
 }

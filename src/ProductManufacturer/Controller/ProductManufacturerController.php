@@ -190,7 +190,7 @@ class ProductManufacturerController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $productManufacturers = $this->productManufacturerRepository->readDetail(
+        $productManufacturers = $this->productManufacturerRepository->read(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

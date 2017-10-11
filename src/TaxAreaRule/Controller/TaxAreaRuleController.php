@@ -190,7 +190,7 @@ class TaxAreaRuleController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $taxAreaRules = $this->taxAreaRuleRepository->readDetail(
+        $taxAreaRules = $this->taxAreaRuleRepository->read(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

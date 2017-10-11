@@ -190,7 +190,7 @@ class OrderStateController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $orderStates = $this->orderStateRepository->readDetail(
+        $orderStates = $this->orderStateRepository->read(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

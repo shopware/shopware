@@ -6,10 +6,10 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\ProductVote\Event\ProductVoteBasicLoadedEvent;
 use Shopware\ProductVote\Event\ProductVoteWrittenEvent;
-use Shopware\ProductVote\Struct\ProductVoteBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\ProductVote\Struct\ProductVoteBasicStruct;
 
 abstract class ProductVoteExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -17,7 +17,7 @@ abstract class ProductVoteExtension implements ExtensionInterface, EventSubscrib
     {
         return [
             ProductVoteBasicLoadedEvent::NAME => 'productVoteBasicLoaded',
-            ProductVoteWrittenEvent::NAME => 'productVoteWritten',
+            
         ];
     }
 
@@ -26,6 +26,7 @@ abstract class ProductVoteExtension implements ExtensionInterface, EventSubscrib
         QueryBuilder $query,
         TranslationContext $context
     ): void {
+
     }
 
     public function getDetailFields(): array
@@ -43,14 +44,11 @@ abstract class ProductVoteExtension implements ExtensionInterface, EventSubscrib
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void {
-    }
+    ): void
+    { }
 
     public function productVoteBasicLoaded(ProductVoteBasicLoadedEvent $event): void
-    {
-    }
+    { }
 
-    public function productVoteWritten(ProductVoteWrittenEvent $event): void
-    {
-    }
+    
 }

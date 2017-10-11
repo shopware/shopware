@@ -25,7 +25,6 @@
 namespace Shopware\SeoUrl\Command;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Search\Condition\CanonicalCondition;
 use Shopware\Search\Criteria;
 use Shopware\Search\Query\TermQuery;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;

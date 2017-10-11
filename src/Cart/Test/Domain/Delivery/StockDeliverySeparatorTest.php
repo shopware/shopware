@@ -28,7 +28,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\AreaCountryState\Struct\AreaCountryStateBasicStruct;
 use Shopware\Cart\Delivery\Delivery;
-use Shopware\Cart\Delivery\DeliveryCalculator;
 use Shopware\Cart\Delivery\DeliveryCollection;
 use Shopware\Cart\Delivery\DeliveryDate;
 use Shopware\Cart\Delivery\DeliveryInformation;

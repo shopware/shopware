@@ -190,7 +190,7 @@ class LocaleController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $locales = $this->localeRepository->readDetail(
+        $locales = $this->localeRepository->read(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

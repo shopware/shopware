@@ -38,10 +38,10 @@ class TaxCalculatorTest extends TestCase
     /**
      * @dataProvider netPricesToGross
      *
-     * @param float                $expected
-     * @param PriceRounding        $rounding
-     * @param TaxRuleInterface     $taxRule
-     * @param float                $net
+     * @param float            $expected
+     * @param PriceRounding    $rounding
+     * @param TaxRuleInterface $taxRule
+     * @param float            $net
      */
     public function testCalculateGrossPriceOfNetPrice($expected, PriceRounding $rounding, TaxRuleInterface $taxRule, $net): void
     {

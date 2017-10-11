@@ -2,15 +2,15 @@
 
 namespace Shopware\Area\Extension;
 
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\Area\Event\AreaBasicLoadedEvent;
 use Shopware\Area\Event\AreaDetailLoadedEvent;
 use Shopware\Area\Event\AreaWrittenEvent;
-use Shopware\Area\Struct\AreaBasicStruct;
-use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\Area\Struct\AreaBasicStruct;
 
 abstract class AreaExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -19,7 +19,7 @@ abstract class AreaExtension implements ExtensionInterface, EventSubscriberInter
         return [
             AreaBasicLoadedEvent::NAME => 'areaBasicLoaded',
             AreaDetailLoadedEvent::NAME => 'areaDetailLoaded',
-            AreaWrittenEvent::NAME => 'areaWritten',
+            
         ];
     }
 
@@ -28,6 +28,7 @@ abstract class AreaExtension implements ExtensionInterface, EventSubscriberInter
         QueryBuilder $query,
         TranslationContext $context
     ): void {
+
     }
 
     public function getDetailFields(): array
@@ -45,18 +46,15 @@ abstract class AreaExtension implements ExtensionInterface, EventSubscriberInter
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void {
-    }
+    ): void
+    { }
 
     public function areaBasicLoaded(AreaBasicLoadedEvent $event): void
-    {
-    }
+    { }
 
     public function areaDetailLoaded(AreaDetailLoadedEvent $event): void
-    {
-    }
+    { }
 
-    public function areaWritten(AreaWrittenEvent $event): void
-    {
-    }
+    
+
 }

@@ -6,10 +6,10 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\Locale\Event\LocaleBasicLoadedEvent;
 use Shopware\Locale\Event\LocaleWrittenEvent;
-use Shopware\Locale\Struct\LocaleBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\Locale\Struct\LocaleBasicStruct;
 
 abstract class LocaleExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -17,7 +17,7 @@ abstract class LocaleExtension implements ExtensionInterface, EventSubscriberInt
     {
         return [
             LocaleBasicLoadedEvent::NAME => 'localeBasicLoaded',
-            LocaleWrittenEvent::NAME => 'localeWritten',
+            
         ];
     }
 
@@ -26,6 +26,7 @@ abstract class LocaleExtension implements ExtensionInterface, EventSubscriberInt
         QueryBuilder $query,
         TranslationContext $context
     ): void {
+
     }
 
     public function getDetailFields(): array
@@ -43,14 +44,11 @@ abstract class LocaleExtension implements ExtensionInterface, EventSubscriberInt
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void {
-    }
+    ): void
+    { }
 
     public function localeBasicLoaded(LocaleBasicLoadedEvent $event): void
-    {
-    }
+    { }
 
-    public function localeWritten(LocaleWrittenEvent $event): void
-    {
-    }
+    
 }

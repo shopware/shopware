@@ -190,7 +190,7 @@ class TaxController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $taxes = $this->taxRepository->readDetail(
+        $taxes = $this->taxRepository->read(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

@@ -4,12 +4,12 @@ namespace Shopware\Unit\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\ExtensionInterface;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Shopware\Unit\Event\UnitBasicLoadedEvent;
 use Shopware\Unit\Event\UnitWrittenEvent;
-use Shopware\Unit\Struct\UnitBasicStruct;
+use Shopware\Search\QueryBuilder;
+use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\Unit\Struct\UnitBasicStruct;
 
 abstract class UnitExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -17,7 +17,7 @@ abstract class UnitExtension implements ExtensionInterface, EventSubscriberInter
     {
         return [
             UnitBasicLoadedEvent::NAME => 'unitBasicLoaded',
-            UnitWrittenEvent::NAME => 'unitWritten',
+            
         ];
     }
 
@@ -26,6 +26,7 @@ abstract class UnitExtension implements ExtensionInterface, EventSubscriberInter
         QueryBuilder $query,
         TranslationContext $context
     ): void {
+
     }
 
     public function getDetailFields(): array
@@ -43,14 +44,11 @@ abstract class UnitExtension implements ExtensionInterface, EventSubscriberInter
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void {
-    }
+    ): void
+    { }
 
     public function unitBasicLoaded(UnitBasicLoadedEvent $event): void
-    {
-    }
+    { }
 
-    public function unitWritten(UnitWrittenEvent $event): void
-    {
-    }
+    
 }

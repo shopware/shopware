@@ -190,7 +190,7 @@ class ListingSortingController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $listingSortings = $this->listingSortingRepository->readDetail(
+        $listingSortings = $this->listingSortingRepository->read(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

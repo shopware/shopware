@@ -45,7 +45,7 @@ class GarbageCollector
     private $connection;
 
     /**
-     * @var UrlGeneratorInterface
+     * @var StrategyInterface
      */
     private $strategy;
 

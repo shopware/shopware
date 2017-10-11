@@ -190,7 +190,7 @@ class OrderAddressController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $orderAddresses = $this->orderAddressRepository->readDetail(
+        $orderAddresses = $this->orderAddressRepository->read(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

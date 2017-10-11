@@ -28,7 +28,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Area\Struct\AreaBasicStruct;
 use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\AreaCountryState\Struct\AreaCountryStateBasicStruct;
-use Shopware\Cart\Delivery\DeliveryCalculator;
 use Shopware\Cart\Delivery\ShippingLocation;
 use Shopware\Cart\Price\PriceDefinition;
 use Shopware\Cart\Tax\TaxDetector;

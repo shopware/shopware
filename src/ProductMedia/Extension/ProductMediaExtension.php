@@ -6,10 +6,10 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\ProductMedia\Event\ProductMediaBasicLoadedEvent;
 use Shopware\ProductMedia\Event\ProductMediaWrittenEvent;
-use Shopware\ProductMedia\Struct\ProductMediaBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\ProductMedia\Struct\ProductMediaBasicStruct;
 
 abstract class ProductMediaExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -17,7 +17,7 @@ abstract class ProductMediaExtension implements ExtensionInterface, EventSubscri
     {
         return [
             ProductMediaBasicLoadedEvent::NAME => 'productMediaBasicLoaded',
-            ProductMediaWrittenEvent::NAME => 'productMediaWritten',
+            
         ];
     }
 
@@ -26,6 +26,7 @@ abstract class ProductMediaExtension implements ExtensionInterface, EventSubscri
         QueryBuilder $query,
         TranslationContext $context
     ): void {
+
     }
 
     public function getDetailFields(): array
@@ -43,14 +44,11 @@ abstract class ProductMediaExtension implements ExtensionInterface, EventSubscri
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void {
-    }
+    ): void
+    { }
 
     public function productMediaBasicLoaded(ProductMediaBasicLoadedEvent $event): void
-    {
-    }
+    { }
 
-    public function productMediaWritten(ProductMediaWrittenEvent $event): void
-    {
-    }
+    
 }

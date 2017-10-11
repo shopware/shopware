@@ -6,10 +6,10 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\OrderState\Event\OrderStateBasicLoadedEvent;
 use Shopware\OrderState\Event\OrderStateWrittenEvent;
-use Shopware\OrderState\Struct\OrderStateBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\OrderState\Struct\OrderStateBasicStruct;
 
 abstract class OrderStateExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -17,7 +17,7 @@ abstract class OrderStateExtension implements ExtensionInterface, EventSubscribe
     {
         return [
             OrderStateBasicLoadedEvent::NAME => 'orderStateBasicLoaded',
-            OrderStateWrittenEvent::NAME => 'orderStateWritten',
+            
         ];
     }
 
@@ -26,6 +26,7 @@ abstract class OrderStateExtension implements ExtensionInterface, EventSubscribe
         QueryBuilder $query,
         TranslationContext $context
     ): void {
+
     }
 
     public function getDetailFields(): array
@@ -43,14 +44,11 @@ abstract class OrderStateExtension implements ExtensionInterface, EventSubscribe
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void {
-    }
+    ): void
+    { }
 
     public function orderStateBasicLoaded(OrderStateBasicLoadedEvent $event): void
-    {
-    }
+    { }
 
-    public function orderStateWritten(OrderStateWrittenEvent $event): void
-    {
-    }
+    
 }

@@ -190,7 +190,7 @@ class UnitController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $units = $this->unitRepository->readDetail(
+        $units = $this->unitRepository->read(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

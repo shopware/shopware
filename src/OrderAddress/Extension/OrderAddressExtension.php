@@ -6,10 +6,10 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\OrderAddress\Event\OrderAddressBasicLoadedEvent;
 use Shopware\OrderAddress\Event\OrderAddressWrittenEvent;
-use Shopware\OrderAddress\Struct\OrderAddressBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\OrderAddress\Struct\OrderAddressBasicStruct;
 
 abstract class OrderAddressExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -17,7 +17,7 @@ abstract class OrderAddressExtension implements ExtensionInterface, EventSubscri
     {
         return [
             OrderAddressBasicLoadedEvent::NAME => 'orderAddressBasicLoaded',
-            OrderAddressWrittenEvent::NAME => 'orderAddressWritten',
+            
         ];
     }
 
@@ -26,6 +26,7 @@ abstract class OrderAddressExtension implements ExtensionInterface, EventSubscri
         QueryBuilder $query,
         TranslationContext $context
     ): void {
+
     }
 
     public function getDetailFields(): array
@@ -43,14 +44,11 @@ abstract class OrderAddressExtension implements ExtensionInterface, EventSubscri
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void {
-    }
+    ): void
+    { }
 
     public function orderAddressBasicLoaded(OrderAddressBasicLoadedEvent $event): void
-    {
-    }
+    { }
 
-    public function orderAddressWritten(OrderAddressWrittenEvent $event): void
-    {
-    }
+    
 }

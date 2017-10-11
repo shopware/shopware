@@ -4,12 +4,12 @@ namespace Shopware\TaxAreaRule\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Factory\ExtensionInterface;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Shopware\TaxAreaRule\Event\TaxAreaRuleBasicLoadedEvent;
 use Shopware\TaxAreaRule\Event\TaxAreaRuleWrittenEvent;
-use Shopware\TaxAreaRule\Struct\TaxAreaRuleBasicStruct;
+use Shopware\Search\QueryBuilder;
+use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\TaxAreaRule\Struct\TaxAreaRuleBasicStruct;
 
 abstract class TaxAreaRuleExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -17,7 +17,7 @@ abstract class TaxAreaRuleExtension implements ExtensionInterface, EventSubscrib
     {
         return [
             TaxAreaRuleBasicLoadedEvent::NAME => 'taxAreaRuleBasicLoaded',
-            TaxAreaRuleWrittenEvent::NAME => 'taxAreaRuleWritten',
+            
         ];
     }
 
@@ -26,6 +26,7 @@ abstract class TaxAreaRuleExtension implements ExtensionInterface, EventSubscrib
         QueryBuilder $query,
         TranslationContext $context
     ): void {
+
     }
 
     public function getDetailFields(): array
@@ -43,14 +44,11 @@ abstract class TaxAreaRuleExtension implements ExtensionInterface, EventSubscrib
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void {
-    }
+    ): void
+    { }
 
     public function taxAreaRuleBasicLoaded(TaxAreaRuleBasicLoadedEvent $event): void
-    {
-    }
+    { }
 
-    public function taxAreaRuleWritten(TaxAreaRuleWrittenEvent $event): void
-    {
-    }
+    
 }

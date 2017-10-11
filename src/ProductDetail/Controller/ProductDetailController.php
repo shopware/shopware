@@ -190,7 +190,7 @@ class ProductDetailController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $productDetails = $this->productDetailRepository->readDetail(
+        $productDetails = $this->productDetailRepository->read(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

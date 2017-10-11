@@ -7,10 +7,10 @@ use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\Order\Event\OrderBasicLoadedEvent;
 use Shopware\Order\Event\OrderDetailLoadedEvent;
 use Shopware\Order\Event\OrderWrittenEvent;
-use Shopware\Order\Struct\OrderBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\Order\Struct\OrderBasicStruct;
 
 abstract class OrderExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -19,7 +19,7 @@ abstract class OrderExtension implements ExtensionInterface, EventSubscriberInte
         return [
             OrderBasicLoadedEvent::NAME => 'orderBasicLoaded',
             OrderDetailLoadedEvent::NAME => 'orderDetailLoaded',
-            OrderWrittenEvent::NAME => 'orderWritten',
+            
         ];
     }
 
@@ -28,6 +28,7 @@ abstract class OrderExtension implements ExtensionInterface, EventSubscriberInte
         QueryBuilder $query,
         TranslationContext $context
     ): void {
+
     }
 
     public function getDetailFields(): array
@@ -45,18 +46,15 @@ abstract class OrderExtension implements ExtensionInterface, EventSubscriberInte
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void {
-    }
+    ): void
+    { }
 
     public function orderBasicLoaded(OrderBasicLoadedEvent $event): void
-    {
-    }
+    { }
 
     public function orderDetailLoaded(OrderDetailLoadedEvent $event): void
-    {
-    }
+    { }
 
-    public function orderWritten(OrderWrittenEvent $event): void
-    {
-    }
+    
+
 }

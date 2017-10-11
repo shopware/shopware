@@ -22,6 +22,6 @@ class DetailPageLoader
     {
         $collection = $this->productRepository->read([$productUuid], $context);
 
-        return $collection->get($productUuid);
+        return ProductBasicStruct::createFrom($collection->get($productUuid));
     }
 }

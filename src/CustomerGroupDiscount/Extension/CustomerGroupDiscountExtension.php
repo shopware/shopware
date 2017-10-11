@@ -3,13 +3,13 @@
 namespace Shopware\CustomerGroupDiscount\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\CustomerGroupDiscount\Event\CustomerGroupDiscountBasicLoadedEvent;
 use Shopware\CustomerGroupDiscount\Event\CustomerGroupDiscountWrittenEvent;
-use Shopware\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicStruct;
-use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicStruct;
 
 abstract class CustomerGroupDiscountExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -17,7 +17,7 @@ abstract class CustomerGroupDiscountExtension implements ExtensionInterface, Eve
     {
         return [
             CustomerGroupDiscountBasicLoadedEvent::NAME => 'customerGroupDiscountBasicLoaded',
-            CustomerGroupDiscountWrittenEvent::NAME => 'customerGroupDiscountWritten',
+            
         ];
     }
 
@@ -26,6 +26,7 @@ abstract class CustomerGroupDiscountExtension implements ExtensionInterface, Eve
         QueryBuilder $query,
         TranslationContext $context
     ): void {
+
     }
 
     public function getDetailFields(): array
@@ -43,14 +44,11 @@ abstract class CustomerGroupDiscountExtension implements ExtensionInterface, Eve
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void {
-    }
+    ): void
+    { }
 
     public function customerGroupDiscountBasicLoaded(CustomerGroupDiscountBasicLoadedEvent $event): void
-    {
-    }
+    { }
 
-    public function customerGroupDiscountWritten(CustomerGroupDiscountWrittenEvent $event): void
-    {
-    }
+    
 }

@@ -10,7 +10,7 @@ class ImportAdvanceEvent extends Event
     const EVENT_NAME = 'translation.import.advance';
 
     /**
-     * @var string
+     * @var SplFileInfo
      */
     private $file;
 
@@ -21,6 +21,6 @@ class ImportAdvanceEvent extends Event
 
     public function getFile(): string
     {
-        return $this->file;
+        return (string) $this->file;
     }
 }

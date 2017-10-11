@@ -2,15 +2,15 @@
 
 namespace Shopware\AreaCountry\Extension;
 
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\AreaCountry\Event\AreaCountryBasicLoadedEvent;
 use Shopware\AreaCountry\Event\AreaCountryDetailLoadedEvent;
 use Shopware\AreaCountry\Event\AreaCountryWrittenEvent;
-use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
-use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 
 abstract class AreaCountryExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -19,7 +19,7 @@ abstract class AreaCountryExtension implements ExtensionInterface, EventSubscrib
         return [
             AreaCountryBasicLoadedEvent::NAME => 'areaCountryBasicLoaded',
             AreaCountryDetailLoadedEvent::NAME => 'areaCountryDetailLoaded',
-            AreaCountryWrittenEvent::NAME => 'areaCountryWritten',
+            
         ];
     }
 
@@ -28,6 +28,7 @@ abstract class AreaCountryExtension implements ExtensionInterface, EventSubscrib
         QueryBuilder $query,
         TranslationContext $context
     ): void {
+
     }
 
     public function getDetailFields(): array
@@ -45,18 +46,15 @@ abstract class AreaCountryExtension implements ExtensionInterface, EventSubscrib
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void {
-    }
+    ): void
+    { }
 
     public function areaCountryBasicLoaded(AreaCountryBasicLoadedEvent $event): void
-    {
-    }
+    { }
 
     public function areaCountryDetailLoaded(AreaCountryDetailLoadedEvent $event): void
-    {
-    }
+    { }
 
-    public function areaCountryWritten(AreaCountryWrittenEvent $event): void
-    {
-    }
+    
+
 }

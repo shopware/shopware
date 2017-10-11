@@ -85,7 +85,7 @@ class MediaOptimizeCommand extends Command
         if ($input->getOption('info')) {
             $this->displayCapabilities();
 
-            return;
+            return null;
         }
 
         $finder = $this->createMediaFinder($input, $output);

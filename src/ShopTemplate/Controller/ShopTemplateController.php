@@ -190,7 +190,7 @@ class ShopTemplateController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $shopTemplates = $this->shopTemplateRepository->readDetail(
+        $shopTemplates = $this->shopTemplateRepository->read(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

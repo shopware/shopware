@@ -33,14 +33,13 @@
         <service id="router" alias="shopware.router" />
 
         <service id="shopware.router" class="Shopware\Framework\Routing\Router">
+            <argument type="service" id="service_container" />
             <argument>%router.resource%</argument>
             <argument type="service" id="kernel" />
             <argument type="service" id="router.request_context" on-invalid="ignore" />
             <argument type="service" id="logger" on-invalid="ignore" />
             <argument type="service" id="shopware.framework.routing.url_resolver" />
             <argument type="service" id="shopware.framework.routing.shop_finder" />
-            <argument type="service" id="routing.loader" />
-            <argument type="service" id="request_stack" />
             <argument id="shopware.cache" type="service"/>
         </service>
 

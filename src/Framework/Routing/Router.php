@@ -27,9 +27,8 @@ namespace Shopware\Framework\Routing;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Context\Struct\TranslationContext;
-use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Matcher\RequestMatcherInterface;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
@@ -77,34 +76,28 @@ class Router implements RouterInterface, RequestMatcherInterface
     private $urlResolver;
 
     /**
-     * @var LoaderInterface
-     */
-    private $routingLoader;
-
-    /**
      * @var \Symfony\Component\HttpKernel\Bundle\BundleInterface[]
      */
     private $bundles;
-
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
 
     /**
      * @var CacheItemPoolInterface
      */
     private $cache;
 
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
     public function __construct(
+        ContainerInterface $container,
         $resource,
         \AppKernel $kernel,
         ?RequestContext $context = null,
         LoggerInterface $logger = null,
         UrlResolverInterface $urlResolver,
         ShopFinder $shopFinder,
-        LoaderInterface $routingLoader,
-        RequestStack $requestStack,
         CacheItemPoolInterface $cache
     ) {
         $this->resource = $resource;
@@ -114,9 +107,8 @@ class Router implements RouterInterface, RequestMatcherInterface
         $this->bundles = $kernel->getBundles();
         $this->urlResolver = $urlResolver;
         $this->shopFinder = $shopFinder;
-        $this->routingLoader = $routingLoader;
-        $this->requestStack = $requestStack;
         $this->cache = $cache;
+        $this->container = $container;
     }
 
     public function setContext(RequestContext $context): void
@@ -213,16 +205,15 @@ class Router implements RouterInterface, RequestMatcherInterface
 
         $matcher = new UrlMatcher($this->getRouteCollection(), $this->getContext());
 
-        $match = $matcher->match($pathinfo);
-
-        return $match;
+        return $matcher->match($pathinfo);
     }
 
     public function matchRequest(Request $request): array
     {
-        $master = $this->requestStack->getMasterRequest();
+        $requestStack = $this->container->get('request_stack');
+        $master = $requestStack->getMasterRequest();
 
-        if ($master->attributes->has('router_shop')) {
+        if ($master !== null && $master->attributes->has('router_shop')) {
             $shop = $master->attributes->get('router_shop');
         } else {
             $shop = $this->shopFinder->findShopByRequest($this->context, $request);
@@ -321,7 +312,7 @@ class Router implements RouterInterface, RequestMatcherInterface
 
         if (file_exists($this->resource)) {
             $routeCollection->addCollection(
-                $this->routingLoader->load($this->resource)
+                $this->container->get('routing.loader')->load($this->resource)
             );
         }
 
@@ -331,7 +322,7 @@ class Router implements RouterInterface, RequestMatcherInterface
             }
 
             $routeCollection->addCollection(
-                $this->routingLoader->import($bundle->getPath() . '/Controller/', 'annotation')
+                $this->container->get('routing.loader')->import($bundle->getPath() . '/Controller/', 'annotation')
             );
         }
 

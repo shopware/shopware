@@ -1,0 +1,10 @@
+tools:
+    external_code_coverage:
+        timeout: 600
+
+filter:
+    paths: [src/*]
+    excluded_paths:
+      - dev-ops/
+      - src/*/Test/
+      - tests/

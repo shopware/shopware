@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/shopware/shopware.svg?branch=labs)](https://travis-ci.org/shopware/shopware)
 [![Crowdin](https://d322cqt584bo4o.cloudfront.net/shopware/localized.svg)](https://crowdin.com/project/shopware)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/shopware/shopware/badges/quality-score.png?b=labs)](https://scrutinizer-ci.com/g/shopware/shopware/?branch=labs)
+[![Code Coverage](https://scrutinizer-ci.com/g/shopware/shopware/badges/coverage.png?b=labs)](https://scrutinizer-ci.com/g/shopware/shopware/?branch=labs)
 
 - **License**: Dual license AGPL v3 / Proprietary
 - **Github Repository**: <https://github.com/shopware/shopware>
@@ -14,7 +15,7 @@
 - PHP 7.1 or above
 - [Apache 2.2 or 2.4](https://httpd.apache.org/)
 - Apache's `mod_rewrite` module
-- MySQL 5.7.0 or above
+- MySQL 5.7.19 or above
 
 #### Required PHP extensions:
 

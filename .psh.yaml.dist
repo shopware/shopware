@@ -52,3 +52,7 @@ environments:
   bamboo:
     paths:
       - "dev-ops/bamboo.shopware.com/actions"
+    dynamic:
+      REVISION: echo "${SW_REVISION}"
+      PARENT_REVISION: echo "${SW_PARENT_REVISION}"
+      OCULAR_ACCESS_TOKEN: echo "${OCULAR_ACCESS_TOKEN}"

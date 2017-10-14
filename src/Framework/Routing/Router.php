@@ -27,6 +27,7 @@ namespace Shopware\Framework\Routing;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Kernel;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGenerator;
@@ -93,7 +94,7 @@ class Router implements RouterInterface, RequestMatcherInterface
     public function __construct(
         ContainerInterface $container,
         $resource,
-        \AppKernel $kernel,
+        Kernel $kernel,
         ?RequestContext $context = null,
         LoggerInterface $logger = null,
         UrlResolverInterface $urlResolver,

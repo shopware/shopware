@@ -33,7 +33,7 @@ class SourceMapCompilerPass implements CompilerPassInterface
     {
         $options = [
             'sourceMap' => true,
-            'sourceMapWriteTo' => $container->getParameter('kernel.root_dir') . '/../web/css/app.css.map',
+            'sourceMapWriteTo' => $container->getParameter('kernel.project_dir') . '/web/css/app.css.map',
             'sourceMapURL' => '/css/app.css.map',
             'outputSourceFiles' => true,
         ];

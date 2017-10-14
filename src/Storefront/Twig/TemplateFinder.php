@@ -24,7 +24,7 @@
 
 namespace Shopware\Storefront\Twig;
 
-use AppKernel;
+use Shopware\Kernel;
 use Shopware\Storefront\Theme\Theme;
 use Symfony\Bundle\TwigBundle\Loader\FilesystemLoader;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
@@ -47,10 +47,10 @@ class TemplateFinder
     private $queue = [];
 
     /**
-     * @param AppKernel        $kernel
+     * @param Kernel        $kernel
      * @param FilesystemLoader $loader
      */
-    public function __construct(AppKernel $kernel, FilesystemLoader $loader)
+    public function __construct(Kernel $kernel, FilesystemLoader $loader)
     {
         $this->loader = $loader;
 

@@ -26,15 +26,16 @@ namespace Shopware\Storefront\Theme;
 
 use Assetic\Asset\AssetInterface;
 use Shopware\Framework\Plugin\Plugin;
+use Shopware\Kernel;
 
 class LessphpFilter extends \Assetic\Filter\LessphpFilter
 {
     /**
-     * @var \AppKernel
+     * @var Kernel
      */
     private $kernel;
 
-    public function __construct(\AppKernel $kernel)
+    public function __construct(Kernel $kernel)
     {
         $this->kernel = $kernel;
     }

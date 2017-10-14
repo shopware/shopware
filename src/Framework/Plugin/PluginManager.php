@@ -13,6 +13,7 @@ use Shopware\Framework\Plugin\Context\UpdateContext;
 use Shopware\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Framework\Plugin\Exception\PluginNotInstalledException;
+use Shopware\Kernel;
 use Symfony\Component\Finder\Finder;
 
 class PluginManager
@@ -28,7 +29,7 @@ class PluginManager
     private $connection;
 
     /**
-     * @var \AppKernel
+     * @var Kernel
      */
     private $kernel;
 
@@ -42,7 +43,7 @@ class PluginManager
      */
     private $requirementValidator;
 
-    public function __construct(string $pluginPath, \AppKernel $kernel, Connection $connection, ContainerInterface $container, RequirementValidator $requirementValidator)
+    public function __construct(string $pluginPath, Kernel $kernel, Connection $connection, ContainerInterface $container, RequirementValidator $requirementValidator)
     {
         $this->pluginPath = $pluginPath;
         $this->kernel = $kernel;

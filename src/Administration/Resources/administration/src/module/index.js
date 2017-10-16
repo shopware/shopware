@@ -4,8 +4,8 @@ import coreLogin from 'module/core.login/manifest';
 import coreDashboard from 'module/core.dashboard/manifest';
 
 export default [
-    coreProduct,
     coreLogin,
     coreDashboard,
-    coreOrder
+    coreOrder,
+    coreProduct
 ];

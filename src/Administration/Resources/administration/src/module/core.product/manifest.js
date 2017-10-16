@@ -9,7 +9,7 @@ export default {
     description: 'Enter description here...',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#9CD0C8',
+    color: '#7AD5C8',
     icon: 'box',
 
     routes: {
@@ -42,7 +42,7 @@ export default {
         root: [{
             'core.product.index': {
                 icon: 'box',
-                color: '#9CD0C8',
+                color: '#7AD5C8',
                 name: 'Produktübersicht'
             }
         }]

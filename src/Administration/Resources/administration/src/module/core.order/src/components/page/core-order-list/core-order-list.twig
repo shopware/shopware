@@ -3,7 +3,7 @@
 
         <header class="toolbar--middle-section" slot="header">
             <h1 class="workspace--headline">
-                Bestell Übersicht
+                Bestellübersicht
             </h1>
 
             <div class="toolbar--primary-actions">
@@ -16,15 +16,14 @@
                 <sw-grid-header>
                     {% block grid_header_columns %}
                     <sw-grid-col :width="50">&nbsp;</sw-grid-col>
-                    <sw-grid-col :width="50">Id #</sw-grid-col>
-                    <sw-grid-col :width="350">Bestelldatum</sw-grid-col>
+                    <sw-grid-col :width="50">#</sw-grid-col>
+                    <sw-grid-col :width="200">Bestelldatum</sw-grid-col>
                     <sw-grid-col :width="200">Kunde</sw-grid-col>
                     <sw-grid-col :width="200">Zahlungsart</sw-grid-col>
-                    <sw-grid-col :width="200">Rechnungs-Adresse</sw-grid-col>
-                    <sw-grid-col :width="200">Status</sw-grid-col>
-                    <sw-grid-col :width="200">Währung</sw-grid-col>
-                    <sw-grid-col :width="200">Shop</sw-grid-col>
-                    <sw-grid-col :width="200">Versandkosten</sw-grid-col>
+                    <sw-grid-col :width="200">Rechn.-Adresse</sw-grid-col>
+                    <sw-grid-col :width="80">Status</sw-grid-col>
+                    <sw-grid-col :width="100">Währung</sw-grid-col>
+                    <sw-grid-col :width="150">Shop</sw-grid-col>
                     <sw-grid-col :width="200">Warenkorbwert</sw-grid-col>
                     <sw-grid-col :width="200">Gesamtbetrag</sw-grid-col>
                     <sw-grid-col :width="100">Info</sw-grid-col>
@@ -39,7 +38,7 @@
                         {% block grid_columns %}
                         <sw-grid-col :width="50"><input type="checkbox" readonly="true" /></sw-grid-col>
                         <sw-grid-col :width="50">{{index + 1}}</sw-grid-col>
-                        <sw-grid-col :width="350">{{item.date.date | moment('lll') }}</sw-grid-col>
+                        <sw-grid-col :width="200">{{item.date.date | moment('lll') }}</sw-grid-col>
                         <sw-grid-col :width="200">{{item.customer.firstName}}<br>{{item.customer.lastName}}<br>{{item.customer.email}}</sw-grid-col>
                         <sw-grid-col :width="200">{{item.paymentMethod.name}}</sw-grid-col>
                         <sw-grid-col :width="200">
@@ -49,15 +48,14 @@
                             <br>
                             {{ item.billingAddress.country.name }}
                         </sw-grid-col>
-                        <sw-grid-col :width="200">{{item.state.description}}</sw-grid-col>
-                        <sw-grid-col :width="200">{{item.currency.name}}</sw-grid-col>
-                        <sw-grid-col :width="200">{{item.shop.name}}</sw-grid-col>
-                        <sw-grid-col :width="200">{{item.shippingTotal | currency(item.currency.shortName) }}</sw-grid-col>
+                        <sw-grid-col :width="80">{{item.state.description}}</sw-grid-col>
+                        <sw-grid-col :width="100">{{item.currency.name}}</sw-grid-col>
+                        <sw-grid-col :width="150">{{item.shop.name}}</sw-grid-col>
                         <sw-grid-col :width="200">{{item.positionPrice | currency(item.currency.shortName) }}</sw-grid-col>
                         <sw-grid-col :width="200">{{item.amountTotal | currency(item.currency.shortName) }}</sw-grid-col>
                         <sw-grid-col :width="100">
-                            <router-link :to="{ name: 'core.order.detail', params: { uuid: item.uuid }}">
-                                Details
+                            <router-link class="action--edit" :to="{ name: 'core.order.detail', params: { uuid: item.uuid }}">
+                                <i class="icon-document-edit"></i>
                             </router-link>
                         </sw-grid-col>
                         {% endblock %}

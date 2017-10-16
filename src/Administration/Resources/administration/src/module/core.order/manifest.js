@@ -4,12 +4,12 @@ import 'module/core.order/src/components';
 
 export default {
     id: 'core.order',
-    name: 'Bestell Übersicht',
+    name: 'Bestellübersicht',
     description: 'Enter description here...',
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#CA8EE0',
-    icon: 'box',
+    icon: 'cart',
 
     routes: {
         index: {
@@ -30,9 +30,9 @@ export default {
     navigation: {
         root: [{
             'core.order.index': {
-                icon: 'box',
+                icon: 'cart',
                 color: '#CA8EE0',
-                name: 'Bestell Übersicht'
+                name: 'Bestellübersicht'
             }
         }]
     },

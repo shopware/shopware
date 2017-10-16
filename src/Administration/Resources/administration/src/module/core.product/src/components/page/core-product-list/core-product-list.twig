@@ -21,11 +21,11 @@
                 <sw-grid-header>
                     {% block grid_header_columns %}
                     <sw-grid-col :width="50">&nbsp;</sw-grid-col>
-                    <sw-grid-col :width="50">Id #</sw-grid-col>
+                    <sw-grid-col :width="50">#</sw-grid-col>
                     <sw-grid-col :width="500">Name</sw-grid-col>
-                    <sw-grid-col :width="300">Hersteller</sw-grid-col>
+                    <sw-grid-col :width="450">Hersteller</sw-grid-col>
                     <sw-grid-col :width="100">Aktiv</sw-grid-col>
-                    <sw-grid-col :width="250">Preis</sw-grid-col>
+                    <sw-grid-col :width="100">Preis</sw-grid-col>
                     <sw-grid-col :width="150">Lager</sw-grid-col>
                     <sw-grid-col :width="100">Info</sw-grid-col>
                     {% endblock %}
@@ -35,7 +35,7 @@
                 {% block grid_body %}
                 <sw-grid-body>
                     {% block grid_item %}
-                    <sw-grid-row v-for="(item, index) in productList" :key="item.uuid" :editable="true" :item="item">
+                    <sw-grid-row v-for="(item, index) in productList" :key="item.uuid" :editable="false" :item="item">
                         {% block grid_columns %}
                         <sw-grid-col :width="50">
                             <input type="checkbox" readonly="true" />
@@ -46,22 +46,25 @@
                         <sw-grid-col :width="500" data-index="name" editor="text">
                             {{item.name}}
                         </sw-grid-col>
-                        <sw-grid-col :width="300">
+                        <sw-grid-col :width="450">
                             {{item.manufacturer.name}}
                         </sw-grid-col>
                         <sw-grid-col :width="100">
-                            <input type="checkbox" readonly="true" v-model="item.active" />
+                            <i class="icon-checkmark" v-if="item.active"></i>
+                            <i class="icon-cross" v-else></i>
                         </sw-grid-col>
-                        <sw-grid-col :width="250">
-                           {{ item.listingPrices[0].price | currency }}
+                        <sw-grid-col :width="100">
+                           <template v-if="item.listingPrices.length > 0">
+                               <span class="product--price">{{ item.listingPrices[0].price | currency }}</span>
+                           </template>
                         </sw-grid-col>
                         <sw-grid-col :width="150" data-index="pseudoSales" editor="number">
                             {{item.mainDetail.stock}} auf Lager
                         </sw-grid-col>
 
                         <sw-grid-col :width="100">
-                            <router-link :to="{ name: 'core.product.detail', params: { uuid: item.uuid }}">
-                                Details
+                            <router-link class="action--edit" :to="{ name: 'core.product.detail', params: { uuid: item.uuid }}">
+                                <i class="icon-document-edit"></i>
                             </router-link>
                         </sw-grid-col>
                         {% endblock %}

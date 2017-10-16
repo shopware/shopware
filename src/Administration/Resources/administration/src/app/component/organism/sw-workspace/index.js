@@ -44,6 +44,8 @@ export default Shopware.ComponentFactory.register('sw-workspace', {
             this.title = module.name;
             this.primaryColor = module.color;
 
+            console.log('primaryColor', this.primaryColor);
+
             if (this.$route.meta.parentPath) {
                 this.parentRoute = this.$route.meta.parentPath;
             }

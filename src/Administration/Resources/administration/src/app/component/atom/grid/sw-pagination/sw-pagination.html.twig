@@ -1,41 +1,41 @@
 <div class="sw-pagination">
 
-    <button class="sw-pagination--btn sw-pagination--first-page" :disabled="pageNum === 1" @click="firstPage">
-        &laquo;
+    <button class="btn--first-page" :disabled="page === 1" @click="firstPage">
+        <i class="icon-arrow-thin-left"></i>
     </button>
 
-    <button class="sw-pagination--btn sw-pagination--prev-page" :disabled="pageNum === 1" @click="prevPage">
-        &lsaquo;
+    <button class="btn--prev-page" :disabled="page === 1" @click="prevPage">
+        <i class="icon-chevron-left"></i>
     </button>
 
-    <div class="sw-pagination--page-selection">
+    <div class="page-selection">
         Page
-        <input type="number" class="sw-pagination--page-selection-field" name="current-page-number" min="1" :max="maxPage" :value="pageNum" @change="changePageNum">
-        of {{maxPage}}
+        <input type="number" class="page-selection--field" name="current-page-number" min="1" :max="maxPage" :value="currentPage" v-model="currentPage" @change="pageChange">
+        of <span class="number">{{ maxPage }}</span>
     </div>
 
-    <button class="sw-pagination--btn sw-pagination--next-page" :disabled="pageNum === maxPage" @click="nextPage">
-        &rsaquo;
+    <button class="btn--next-page" :disabled="page === maxPage" @click="nextPage">
+        <i class="icon-chevron-right"></i>
     </button>
 
-    <button class="sw-pagination--btn sw-pagination--last-page" :disabled="pageNum === maxPage" @click="lastPage">
-        &raquo;
+    <button class="btn--last-page" :disabled="page === maxPage" @click="lastPage">
+        <i class="icon-arrow-thin-right"></i>
     </button>
 
-    <button class="sw-pagination--btn sw-pagination--refresh" @click="refresh">
-        &#8634;
+    <button class="btn--refresh" @click="refresh">
+        <i class="icon-clockwise"></i>
     </button>
 
-    <div class="sw-pagination--per-page">
+    <div class="per-page">
         Items per page:
-        <select class="sw-pagination--per-page" @change="changeLimit">
+        <select class="per-page--select" :value="perPage" v-model="perPage" @change="pageChange">
             <option v-for="step in steps" :value="step">
-                {{step}}
+                {{ step }}
             </option>
         </select>
     </div>
 
-    <div class="sw-pagination--total">
-        Items total: {{total}}
+    <div class="page-total">
+        Items total: <span class="number">{{ total }}</span>
     </div>
 </div>

@@ -5,25 +5,33 @@ import './core-product-list.less';
 import template from './core-product-list.twig';
 
 export default Shopware.ComponentFactory.register('core-product-list', {
-    mixins: [ProductListRepository, PaginationMixin],
+    mixins: [PaginationMixin, ProductListRepository],
 
     data() {
         return {
-            limit: 25,
-            pageNum: 1,
-            isWorking: false,
+            isWorking: true,
             productList: [],
-            total: 0,
             errors: []
         };
     },
 
     created() {
-        this.initProductList();
+        this.initProductList().then(() => {
+            this.isWorking = false;
+        });
     },
 
     filters: {
         currency: utils.currency
+    },
+
+    methods: {
+        handlePagination(offset, limit) {
+            this.isWorking = true;
+            this.getProductList(offset, limit).then(() => {
+                this.isWorking = false;
+            });
+        }
     },
 
     template

@@ -16,11 +16,8 @@ export default Shopware.ComponentFactory.register('core-order-line-item-list', {
 
     data() {
         return {
-            limit: 25,
-            pageNum: 1,
             isWorking: false,
             lineItemList: [],
-            total: 0,
             errors: []
         };
     },
@@ -35,15 +32,23 @@ export default Shopware.ComponentFactory.register('core-order-line-item-list', {
 
     methods: {
         getData() {
+            this.getOrderItemsList();
+        },
+
+        getOrderItemsList(offset = this.offset, limit = this.limit) {
             this.isWorking = true;
             this.orderLineItemService
-                .readAll(this.order.uuid, this.limit, this.offset)
+                .readAll(this.order.uuid, limit, offset)
                 .then((response) => {
                     this.lineItemList = response.data;
                     this.errors = response.errors;
                     this.total = response.total;
                     this.isWorking = false;
                 });
+        },
+
+        handlePagination(offset, limit) {
+            this.getOrderItemsList(offset, limit);
         }
     },
     template

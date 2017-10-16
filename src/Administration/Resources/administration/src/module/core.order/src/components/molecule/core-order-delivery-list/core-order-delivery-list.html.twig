@@ -45,7 +45,7 @@
             {% endblock %}
 
             {% block grid_pagination %}
-                <sw-pagination :page-num="pageNum" :max-page="maxPage" :per-page="limit" :total="total" v-on:data-changed="handlePagination"></sw-pagination>
+                <sw-pagination :page="page" :max-page="maxPage" :limit="limit" :total="total" v-on:page-change="pageChange"></sw-pagination>
             {% endblock %}
 
             <sw-loader v-if="isWorking"></sw-loader>

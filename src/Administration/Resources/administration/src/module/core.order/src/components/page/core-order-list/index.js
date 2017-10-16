@@ -9,11 +9,8 @@ export default Shopware.ComponentFactory.register('core-order-list', {
 
     data() {
         return {
-            limit: 25,
-            pageNum: 1,
             isWorking: false,
             orderList: [],
-            total: 0,
             errors: []
         };
     },
@@ -28,16 +25,20 @@ export default Shopware.ComponentFactory.register('core-order-list', {
     },
 
     methods: {
-        getData() {
+        getData(offset = this.offset, limit = this.limit) {
             this.isWorking = true;
             this.orderService
-                .readAll(this.limit, this.offset)
+                .readAll(limit, offset)
                 .then((response) => {
                     this.orderList = response.data;
                     this.errors = response.errors;
                     this.total = response.total;
                     this.isWorking = false;
                 });
+        },
+
+        handlePagination(offset, limit) {
+            this.getData(offset, limit);
         }
     },
     template

@@ -1,13 +1,88 @@
 .sw-pagination {
-    border-top: 1px solid #ddd;
-    padding: 10px 15px;
-    background: #eef1f6;
+    border-top: 1px solid #D2DEE6;
+    padding: 15px 20px;
+    background: #ffffff;
+    text-align: center;
 
-    .sw-pagination--page-selection, .sw-pagination--per-page, .sw-pagination--total {
+    .page-selection, .page-total, .per-page {
         display: inline-block;
+        font-size: 14px;
+        line-height: 16px;
+        color: #353E47;
     }
 
-    .sw-pagination--page-selection-field {
-        width: 40px;
+    .number {
+        font-weight: bold;
+    }
+
+    button {
+        display: inline-block;
+        height: 32px;
+        width: 32px;
+        font-size: 16px;
+        line-height: 12px;
+        text-align: center;
+        color: #7b8c9d;
+        border: 1px solid #D2DEE6;
+        border-radius: 3px;
+        background-color: #FFFFFF;
+        vertical-align: middle;
+        cursor: pointer;
+        -webkit-appearance: none;
+        outline: none;
+
+        &:hover {
+            color: #189eff;
+            border-color: #189eff;
+        }
+
+        &[disabled="disabled"] {
+            color: #D2DEE6;
+            cursor: default;
+
+            &:hover {
+                color: #D2DEE6;
+                border-color: #D2DEE6;
+            }
+        }
+    }
+
+    .btn--refresh {
+        margin: 0 0 0 20px;
+    }
+
+    .page-selection {
+        margin: 0 20px;
+
+        input {
+            margin: 0 5px;
+            display: inline-block;
+            height: 32px;
+            width: 40px;
+            font-weight: bold;
+            border: 1px solid #D2DEE6;
+            border-radius: 3px;
+            background-color: #FFFFFF;
+            text-align: center;
+            -webkit-appearance: none;
+            outline: none;
+        }
+    }
+
+    .per-page {
+        margin: 0 20px;
+
+        select {
+            display: inline-block;
+            height: 32px;
+            width: 60px;
+            padding: 0 0 0 5px;
+            font-weight: bold;
+            border: 1px solid #D2DEE6;
+            border-radius: 3px;
+            background-color: #FFFFFF;
+            text-align: center;
+            outline: none;
+        }
     }
 }

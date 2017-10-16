@@ -15,11 +15,8 @@ export default Shopware.ComponentFactory.register('core-order-delivery-list', {
 
     data() {
         return {
-            limit: 25,
-            pageNum: 1,
             isWorking: false,
             deliveryList: [],
-            total: 0,
             errors: []
         };
     },
@@ -35,15 +32,23 @@ export default Shopware.ComponentFactory.register('core-order-delivery-list', {
 
     methods: {
         getData() {
+            this.getDeliveryList();
+        },
+
+        getDeliveryList(offset = this.offset, limit = this.limit) {
             this.isWorking = true;
             this.orderDeliveryService
-                .readAll(this.$route.params.uuid, this.limit, this.offset)
+                .readAll(this.$route.params.uuid, limit, offset)
                 .then((response) => {
                     this.deliveryList = response.data;
                     this.errors = response.errors;
                     this.total = response.total;
                     this.isWorking = false;
                 });
+        },
+
+        handlePagination(offset, limit) {
+            this.getDeliveryList(offset, limit);
         }
     },
     template

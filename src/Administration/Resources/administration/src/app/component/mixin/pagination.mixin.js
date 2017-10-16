@@ -1,30 +1,42 @@
 export default {
+
+    data() {
+        return {
+            page: 1,
+            limit: 25,
+            total: 0
+        };
+    },
+
     computed: {
         maxPage() {
             return Math.ceil(this.total / this.limit);
         },
         offset() {
-            return (this.pageNum - 1) * this.limit;
+            return (this.page - 1) * this.limit;
         }
     },
 
     methods: {
-        handlePagination(opts) {
-            this.limit = opts.limit;
-            this.pageNum = opts.pageNum;
-
-            if (opts.refresh === true) {
-                this.getData();
+        pageChange(opts) {
+            if (opts.page) {
+                this.page = opts.page;
             }
+
+            if (opts.limit) {
+                this.limit = opts.limit;
+            }
+
+            this.handlePagination(this.offset, this.limit, this.page);
         }
     },
 
     watch: {
-        pageNum() {
-            this.getData();
+        page() {
+            this.handlePagination(this.offset, this.limit, this.page);
         },
         limit() {
-            this.getData();
+            this.handlePagination(this.offset, this.limit, this.page);
         }
     }
 };

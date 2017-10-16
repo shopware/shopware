@@ -13,15 +13,9 @@ import './atom/utils/sw-loader/sw-loader';
 import './atom/sw-card';
 import './atom/sw-button';
 
-// Molecules
-
-
 // Organisms
 import './organism/sw-admin/sw-admin';
 import './organism/sw-desktop/sw-desktop';
 import './organism/sw-sidebar/sw-sidebar';
 import './organism/sw-search-bar/sw-search-bar';
 import './organism/sw-workspace';
-
-// Mixins
-import './mixin/pagination.mixin';

@@ -6,9 +6,9 @@ export default {
 
     getData() {
         return {
+            offset: 0,
             limit: 25,
-            total: 0,
-            page: 1
+            total: 0
         };
     },
 
@@ -22,11 +22,11 @@ function initProductList(dataKey = 'productList') {
     this.productListDataKey = dataKey;
     this[dataKey] = [];
 
-    this.getProductList();
+    return this.getProductList(this.offset, this.limit);
 }
 
-function getProductList() {
-    return this.productService.getList(this.limit, this.offset).then((response) => {
+function getProductList(offset, limit) {
+    return this.productService.getList(limit, offset).then((response) => {
         this.productListProxy = ProxyFactory.create(response.data);
         this[this.productListDataKey] = this.productListProxy.data;
         this.total = response.total;

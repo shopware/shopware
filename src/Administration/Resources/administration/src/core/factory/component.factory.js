@@ -219,12 +219,19 @@ function getExtendedComponent(componentName) {
     return config;
 }
 
+/**
+ * ToDo: Add possibility to access original parent component.
+ *
+ * @param target
+ * @param source
+ * @param additionalSources
+ * @returns {*}
+ */
 function mergeConfig(target, source, ...additionalSources) {
     if (!utils.isObject(target) || !utils.isObject(source)) {
         return source;
     }
 
-    const parent = Object.assign({}, target);
     const config = Object.assign({}, target);
 
     Object.keys(source).forEach((key) => {
@@ -245,15 +252,10 @@ function mergeConfig(target, source, ...additionalSources) {
             } else {
                 config[key] = source[key];
             }
-        } else if (key !== 'parent') {
+        } else {
             config[key] = source[key];
         }
     });
-
-    // Keep reference to original config
-    if (!utils.isEmpty(parent)) {
-        config.parent = parent;
-    }
 
     if (additionalSources.length > 0) {
         return mergeConfig(config, ...additionalSources);

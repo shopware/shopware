@@ -753,7 +753,6 @@ function mergeConfig(target, source) {
         return source;
     }
 
-    var parent = __WEBPACK_IMPORTED_MODULE_2_babel_runtime_core_js_object_assign___default()({}, target);
     var config = __WEBPACK_IMPORTED_MODULE_2_babel_runtime_core_js_object_assign___default()({}, target);
 
     __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_keys___default()(source).forEach(function (key) {
@@ -771,14 +770,10 @@ function mergeConfig(target, source) {
             } else {
                 config[key] = source[key];
             }
-        } else if (key !== 'parent') {
+        } else {
             config[key] = source[key];
         }
     });
-
-    if (!__WEBPACK_IMPORTED_MODULE_4_src_core_service_util_service__["default"].isEmpty(parent)) {
-        config.parent = parent;
-    }
 
     for (var _len = arguments.length, additionalSources = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
         additionalSources[_key - 2] = arguments[_key];

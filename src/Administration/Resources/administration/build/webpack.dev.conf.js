@@ -17,16 +17,15 @@ delete baseWebpackConfig.entry.app;
 
 /**
  * Try to load plugin definition file
- *
- * ToDo: module name path:
- * { 'pluginName': 'complete/Path/To/Plugin/Resources/Views/src/+moduleName+/manifest.js' }
  */
 try {
-    plugins = require('../../../../../web/cache/config_administration_plugins.json');
+    plugins = require('../../../../../var/config_administration_plugins.json');
 
     // add hot-reload related code to entry chunks
     Object.keys(plugins).forEach(function (pluginName) {
-        baseWebpackConfig.entry[pluginName] = plugins[pluginName] + '/Resources/views/src/manifest.js';
+        plugins[pluginName].forEach((path) => {
+            baseWebpackConfig.entry[path] = '../../../../' + path;
+        });
     });
 } catch(e) {}
 

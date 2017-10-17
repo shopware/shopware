@@ -29,7 +29,7 @@ Thumbs.db
 !/var/cache/.htaccess
 !/var/cache/clear_cache.sh
 /var/bootstrap.php.cache
-
+/var/config_administration_plugins.json
 
 /web/*
 !/web/index.php

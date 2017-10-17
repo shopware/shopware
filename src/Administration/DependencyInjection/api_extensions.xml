@@ -14,5 +14,10 @@
             <argument id="service_container" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service class="Shopware\Administration\Command\AdministrationDumpPluginsCommand" id="shopware.administration.command.dump_plugins">
+            <argument type="service" id="kernel" />
+            <tag name="console.command"/>
+        </service>
     </services>
 </container>

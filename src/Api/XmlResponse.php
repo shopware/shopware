@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Product\Controller;
+namespace Shopware\Api;
 
 use Shopware\Api\ResponseEnvelope;
 use SimpleXMLElement;

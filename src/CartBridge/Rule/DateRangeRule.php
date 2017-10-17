@@ -22,10 +22,12 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Cart\Rule;
+namespace Shopware\CartBridge\Rule;
 
 use DateTime;
 use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Rule\Match;
+use Shopware\Cart\Rule\Rule;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 

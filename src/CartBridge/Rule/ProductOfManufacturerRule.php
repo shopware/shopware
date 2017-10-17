@@ -22,9 +22,11 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Cart\Rule;
+namespace Shopware\CartBridge\Rule;
 
 use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Rule\Match;
+use Shopware\Cart\Rule\Rule;
 use Shopware\CartBridge\Rule\Data\ProductOfManufacturerRuleData;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;

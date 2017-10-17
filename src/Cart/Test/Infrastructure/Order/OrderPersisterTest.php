@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Cart\Test\Infrastructure\Cart;
+namespace Shopware\Cart\Test\Infrastructure\Order;
 
 use Faker\Factory;
 use PHPUnit\Framework\TestCase;

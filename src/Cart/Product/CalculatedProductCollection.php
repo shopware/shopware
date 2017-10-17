@@ -23,7 +23,7 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Cart\LineItem;
+namespace Shopware\Cart\Product;
 
 use Shopware\Cart\Error\Error;
 use Shopware\Cart\Price\PriceCollection;

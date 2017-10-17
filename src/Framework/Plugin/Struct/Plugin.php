@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Struct;
+namespace Shopware\Framework\Plugin\Struct;
 
 use DateTime;
+use Shopware\Framework\Struct\Struct;
 
 class Plugin extends Struct
 {

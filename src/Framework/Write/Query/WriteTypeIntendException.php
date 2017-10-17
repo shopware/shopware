@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Write\Query;
+namespace Shopware\Framework\Write\Query;
 
 use Shopware\Framework\ShopwareException;
 

@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Cart;
+namespace Shopware\Cart\Dynamic;
 
 use Shopware\Cart\Cart\CalculatedCartGenerator;
 use Shopware\Cart\Cart\CartContainer;

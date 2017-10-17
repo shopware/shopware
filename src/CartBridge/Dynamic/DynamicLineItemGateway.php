@@ -25,7 +25,7 @@
 namespace Shopware\CartBridge\Dynamic;
 
 use Shopware\Cart\Cart\CalculatedCart;
-use Shopware\Cart\DynamicLineItemGatewayInterface;
+use Shopware\Cart\Dynamic\DynamicLineItemGatewayInterface;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Context\Struct\ShopContext;
 

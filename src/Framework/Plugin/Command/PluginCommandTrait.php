@@ -3,7 +3,7 @@
 namespace Shopware\Framework\Plugin\Command;
 
 use Shopware\Framework\Plugin\PluginManager;
-use Shopware\Framework\Struct\Plugin;
+use Shopware\Framework\Plugin\Struct\Plugin;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 trait PluginCommandTrait

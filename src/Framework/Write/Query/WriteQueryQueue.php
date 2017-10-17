@@ -25,7 +25,6 @@
 namespace Shopware\Framework\Write\Query;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Write\Query\WriteTypeIntendException;
 
 class WriteQueryQueue
 {

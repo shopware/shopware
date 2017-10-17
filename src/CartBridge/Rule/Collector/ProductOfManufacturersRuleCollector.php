@@ -28,10 +28,10 @@ use Doctrine\DBAL\Connection;
 use Shopware\Cart\Cart\CartContainer;
 use Shopware\Cart\Cart\CollectorInterface;
 use Shopware\Cart\Product\ProductFetchDefinition;
-use Shopware\Cart\Rule\ProductOfManufacturerRule;
 use Shopware\Cart\Rule\RuleCollection;
 use Shopware\Cart\Rule\Validatable;
 use Shopware\CartBridge\Rule\Data\ProductOfManufacturerRuleData;
+use Shopware\CartBridge\Rule\ProductOfManufacturerRule;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 

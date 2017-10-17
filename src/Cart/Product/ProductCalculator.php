@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Product;
 
-use Shopware\Cart\LineItem\CalculatedProductCollection;
 use Shopware\Cart\LineItem\LineItemCollection;
 use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Price\PriceCalculator;

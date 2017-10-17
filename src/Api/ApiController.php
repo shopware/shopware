@@ -3,7 +3,6 @@
 namespace Shopware\Api;
 
 use Shopware\Api\Exception\FormatNotSupportedException;
-use Shopware\Product\Controller\XmlResponse;
 use Shopware\Serializer\SerializerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;

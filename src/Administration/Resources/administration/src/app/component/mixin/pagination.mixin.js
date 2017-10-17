@@ -29,14 +29,5 @@ export default {
 
             this.handlePagination(this.offset, this.limit, this.page);
         }
-    },
-
-    watch: {
-        page() {
-            this.handlePagination(this.offset, this.limit, this.page);
-        },
-        limit() {
-            this.handlePagination(this.offset, this.limit, this.page);
-        }
     }
 };

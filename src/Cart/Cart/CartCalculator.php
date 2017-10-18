@@ -95,6 +95,11 @@ class CartCalculator
         StructCollection $dataCollection,
         int $iteration
     ): CalculatedCart {
+
+        if ($iteration >= self::MAX_ITERATION) {
+            throw new CircularCartCalculationException();
+        }
+
         $processorCart = new ProcessorCart(
             new CalculatedLineItemCollection(),
             new DeliveryCollection()
@@ -112,10 +117,6 @@ class CartCalculator
                 continue;
             }
             $recalculate = true;
-        }
-
-        if ($iteration >= self::MAX_ITERATION) {
-            throw new CircularCartCalculationException();
         }
 
         if ($recalculate) {

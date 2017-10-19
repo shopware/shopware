@@ -46,7 +46,7 @@ class TaxCalculator
      */
     public function __construct(
         PriceRounding $rounding,
-        array $calculators
+        iterable $calculators
     ) {
         $this->rounding = $rounding;
         $this->calculators = $calculators;

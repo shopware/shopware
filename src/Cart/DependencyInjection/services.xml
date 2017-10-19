@@ -40,7 +40,7 @@
 
         <service id="cart.tax.calculator" class="Shopware\Cart\Tax\TaxCalculator" >
             <argument type="service" id="cart.price.rounding" />
-            <argument type="collection" />
+            <argument type="tagged" tag="cart.tax.rule_calculator" />
         </service>
 
         <service id="cart.tax.rule_calculator" class="Shopware\Cart\Tax\TaxRuleCalculator">
@@ -61,15 +61,9 @@
 
 
         <service id="cart.calculator" class="Shopware\Cart\Cart\CartCalculator">
-            <!--cart processors-->
-            <argument type="collection" />
-
-            <!--cart collectors-->
-            <argument type="collection" />
-
-            <!--cart validators-->
-            <argument type="collection" />
-
+            <argument type="tagged" tag="cart.processor" />
+            <argument type="tagged" tag="cart.collector" />
+            <argument type="tagged" tag="cart.validator" />
             <argument type="service" id="cart.calculated_cart_generator" />
         </service>
 

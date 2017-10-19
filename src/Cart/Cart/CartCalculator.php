@@ -56,9 +56,9 @@ class CartCalculator
     private $validators;
 
     public function __construct(
-        array $processors,
-        array $collectors,
-        array $validators,
+        iterable $processors,
+        iterable $collectors,
+        iterable $validators,
         CalculatedCartGenerator $calculatedCartGenerator
     ) {
         $this->processors = $processors;

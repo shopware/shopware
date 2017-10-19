@@ -29,25 +29,19 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class AdministrationDumpPluginsCommand extends ContainerAwareCommand
 {
     /**
-     * @var \Shopware\Framework\Plugin\Plugin[]
+     * @var KernelInterface
      */
-    private $plugins;
+    private $kernel;
 
-    /**
-     * @var string
-     */
-    private $outputPath;
-
-    public function __construct(\AppKernel $kernel)
+    public function __construct(KernelInterface $kernel)
     {
         parent::__construct();
-
-        $this->plugins = $kernel::getPlugins()->getActivePlugins();
-        $this->outputPath = $kernel->getCacheDir() . '/../../config_administration_plugins.json';
+        $this->kernel = $kernel;
     }
 
     /**
@@ -73,7 +67,7 @@ class AdministrationDumpPluginsCommand extends ContainerAwareCommand
         $finder = new Finder();
         $manifests = [];
 
-        foreach ($this->plugins as $pluginName => $plugin) {
+        foreach (\AppKernel::getPlugins()->getActivePlugins() as $pluginName => $plugin) {
             $directory = $plugin->getPath() . '/Resources/views/src';
             if (!file_exists($directory)) {
                 continue;
@@ -93,6 +87,9 @@ class AdministrationDumpPluginsCommand extends ContainerAwareCommand
             }
         }
 
-        file_put_contents($this->outputPath, json_encode($manifests));
+        file_put_contents(
+            $this->kernel->getCacheDir() . '/../../config_administration_plugins.json',
+            json_encode($manifests)
+        );
     }
 }

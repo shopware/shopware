@@ -27,6 +27,7 @@ namespace Shopware\Administration\Command;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Finder\Finder;
 
 class AdministrationDumpPluginsCommand extends ContainerAwareCommand
@@ -62,6 +63,9 @@ class AdministrationDumpPluginsCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->searchPluginDirectories();
+
+        $style = new SymfonyStyle($input, $output);
+        $style->success('Successfully dumped administration modules confiugration');
     }
 
     protected function searchPluginDirectories()
@@ -71,6 +75,10 @@ class AdministrationDumpPluginsCommand extends ContainerAwareCommand
 
         foreach ($this->plugins as $pluginName => $plugin) {
             $directory = $plugin->getPath() . '/Resources/views/src';
+            if (!file_exists($directory)) {
+                continue;
+            }
+
             $manifestFiles = $finder->in($directory)->files()->name('manifest.js')->getIterator();
 
             if (count($manifestFiles) === 0) {

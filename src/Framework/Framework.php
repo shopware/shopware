@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace Shopware\Framework;
 
-use Shopware\Framework\DependencyInjection\ApiRegistryCollector;
 use Shopware\Framework\DependencyInjection\ExtensionCompilerPass;
 use Shopware\Framework\DependencyInjection\FrameworkExtension;
 use Shopware\Framework\Doctrine\BridgeDatabaseCompilerPass;
@@ -64,7 +63,6 @@ class Framework extends Bundle
         $loader->load('write-resources.xml');
 
         $container->addCompilerPass(new BridgeDatabaseCompilerPass());
-        $container->addCompilerPass(new ApiRegistryCollector());
         $container->addCompilerPass(new ExtensionCompilerPass());
     }
 }

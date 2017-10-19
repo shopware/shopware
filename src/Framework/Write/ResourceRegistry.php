@@ -29,9 +29,9 @@ class ResourceRegistry
     /**
      * @var WriteResource[]
      */
-    private $resources = [];
+    private $resources;
 
-    public function __construct(WriteResource ...$resources)
+    public function __construct(iterable $resources)
     {
         $this->resources = $resources;
     }

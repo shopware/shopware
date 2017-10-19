@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "3daef70e8855bfd7ab85eeb2a23163bb",
+    "content-hash": "2a453e9140bf45883b0cd85942c86c34",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.36.29",
+            "version": "3.36.30",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "210958295921f0004d0fdc38bc9aefe33ef2a3de"
+                "reference": "356d36a46e5cfd2f061fa33a5604fa8ab7acf4f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/210958295921f0004d0fdc38bc9aefe33ef2a3de",
-                "reference": "210958295921f0004d0fdc38bc9aefe33ef2a3de",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/356d36a46e5cfd2f061fa33a5604fa8ab7acf4f2",
+                "reference": "356d36a46e5cfd2f061fa33a5604fa8ab7acf4f2",
                 "shasum": ""
             },
             "require": {
@@ -84,7 +84,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2017-10-18T18:46:11+00:00"
+            "time": "2017-10-19T17:42:39+00:00"
         },
         {
             "name": "bcremer/line-reader",
@@ -3520,16 +3520,16 @@
         },
         {
             "name": "symfony/symfony",
-            "version": "3.4.x-dev",
+            "version": "v3.4.0-BETA1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/symfony.git",
-                "reference": "d484f7282a25572a0f1045dcccf7c79260b6fe2e"
+                "reference": "44e3c8bfcf1527172c8d826f0cb5a3894003fe92"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/symfony/zipball/d484f7282a25572a0f1045dcccf7c79260b6fe2e",
-                "reference": "d484f7282a25572a0f1045dcccf7c79260b6fe2e",
+                "url": "https://api.github.com/repos/symfony/symfony/zipball/44e3c8bfcf1527172c8d826f0cb5a3894003fe92",
+                "reference": "44e3c8bfcf1527172c8d826f0cb5a3894003fe92",
                 "shasum": ""
             },
             "require": {
@@ -3670,7 +3670,7 @@
             "keywords": [
                 "framework"
             ],
-            "time": "2017-10-18T22:39:44+00:00"
+            "time": "2017-10-18T21:46:31+00:00"
         },
         {
             "name": "twig/extensions",
@@ -5415,7 +5415,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "symfony/symfony": 20
+        "symfony/symfony": 10
     },
     "prefer-stable": false,
     "prefer-lowest": false,

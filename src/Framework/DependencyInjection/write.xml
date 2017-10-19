@@ -10,7 +10,10 @@
 
         <!-- Value transformer -->
         <service class="Shopware\Framework\Write\ValueTransformer\ValueTransformerRegistry"
-                 id="shopware.framework.write.value_transformer_registry"/>
+                 id="shopware.framework.write.value_transformer_registry">
+            <argument type="tagged" tag="shopware.framework.write.value_transformer" />
+        </service>
+
         <service class="Shopware\Framework\Write\ValueTransformer\ValueTransformerDate"
                  id="shopware.framework.write.value_transformer_date">
             <tag name="shopware.framework.write.value_transformer"/>
@@ -21,26 +24,36 @@
         </service>
 
         <!-- Filter -->
-        <service class="Shopware\Framework\Write\Filter\FilterRegistry" id="shopware.framework.write.filter_registry"/>
+        <service class="Shopware\Framework\Write\Filter\FilterRegistry" id="shopware.framework.write.filter_registry">
+            <argument type="tagged" tag="shopware.framework.write.filter" />
+        </service>
+
         <service class="Shopware\Framework\Write\Filter\HtmlFilter" id="shopware.framework.write.filter_html">
             <tag name="shopware.framework.write.filter"/>
         </service>
 
         <!-- UUID GENERATOOR -->
         <service id="shopware.framework.write.uuid_generator_registry"
-                 class="Shopware\Framework\Write\UuidGenerator\GeneratorRegistry"/>
+                 class="Shopware\Framework\Write\UuidGenerator\GeneratorRegistry">
+            <argument type="tagged" tag="shopware.framework.write.uuid_generator" />
+        </service>
+
         <service id="shopware.framework.write.uuid_generator_ramsey"
                  class="Shopware\Framework\Write\UuidGenerator\RamseyGenerator">
             <tag name="shopware.framework.write.uuid_generator"/>
         </service>
+
         <service id="shopware.framework.write.uuid_generator_product_number"
                  class="Shopware\Framework\Write\UuidGenerator\ProductNumberGenerator">
             <argument type="service" id="doctrine.dbal.default_connection"/>
 
             <tag name="shopware.framework.write.uuid_generator"/>
         </service>
-        <service class="Shopware\Framework\Write\ResourceRegistry"
-                 id="shopware.framework.write.resource_registry"/>
+
+        <service class="Shopware\Framework\Write\ResourceRegistry" id="shopware.framework.write.resource_registry">
+            <argument type="tagged" tag="shopware.framework.write.resource" />
+        </service>
+
         <service class="Shopware\Framework\Write\FieldAware\DefaultExtender"
                  id="shopware.framework.write.field_aware.default_extender">
             <argument type="service" id="shopware.framework.write.resource_registry"/>

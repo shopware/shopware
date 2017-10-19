@@ -31,7 +31,7 @@ class FilterRegistry
      */
     private $filters;
 
-    public function __construct(Filter ...$filters)
+    public function __construct(iterable $filters)
     {
         $this->filters = $filters;
     }

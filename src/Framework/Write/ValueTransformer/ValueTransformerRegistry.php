@@ -31,7 +31,7 @@ class ValueTransformerRegistry
      */
     private $valueTransformers;
 
-    public function __construct(ValueTransformer ...$valueTransformers)
+    public function __construct(iterable $valueTransformers)
     {
         $this->valueTransformers = $valueTransformers;
     }

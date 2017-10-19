@@ -29,18 +29,18 @@ class GeneratorRegistry
     /**
      * @var Generator[]
      */
-    private $valueTransformers;
+    private $generators;
 
-    public function __construct(Generator ...$valueTransformers)
+    public function __construct(iterable $valueTransformers)
     {
-        $this->valueTransformers = $valueTransformers;
+        $this->generators = $valueTransformers;
     }
 
     public function get(string $className): Generator
     {
-        foreach ($this->valueTransformers as $valueTransformer) {
-            if ($valueTransformer instanceof $className) {
-                return $valueTransformer;
+        foreach ($this->generators as $generator) {
+            if ($generator instanceof $className) {
+                return $generator;
             }
         }
 

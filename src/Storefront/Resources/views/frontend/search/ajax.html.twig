@@ -1,0 +1,82 @@
+{% block frontend_search_inline_ajax %}
+    {% if listing.showListing %}
+        <ul class="results--list">
+            {% for product in listing.products %}
+                {% block search_ajax_list_entry %}
+                    <li class="list--entry block-group result--item">
+                        {% if product.canonicalUrl %}
+                            {% set url = product.canonicalUrl.url %}
+                        {% else %}
+                            {% set url = url('detail_page', { 'uuid': product.uuid }) %}
+                        {% endif %}
+
+                        <a href="{{ url }}"
+                           class="product--title"
+                           title="{{ product.name }}">
+                            {% block search_ajax_list_entry_media %}
+                                <span class="entry--media block">
+                                    {% set desc = product.name %}
+
+                                    {% if product.cover.media.thumbnails %}
+
+                                        {% if product.image.description %}
+                                            {% set desc = product.image.description %}
+                                        {% endif %}
+
+                                        {% block frontend_listing_box_article_image_picture_element %}
+                                            <img srcset="{{ product.cover.media.thumbnails[0].url }}"
+                                                 alt="{{ desc }}"
+                                                 title="{{ desc|truncate(160, true) }}" />
+                                        {% endblock %}
+                                    {% else %}
+                                        <img src="{{ asset('bundles/storefront/src/img/no-picture.jpg') }}"
+                                             alt="{{ desc }}"
+                                             title="{{ desc|truncate(160, true) }}" />
+                                    {% endif %}
+                                </span>
+                            {% endblock %}
+
+                            {% block search_ajax_list_entry_name %}
+                                <span class="entry--name block">
+                                    {{ product.name|truncate(50, true) }}
+                                </span>
+                            {% endblock %}
+
+                            {% block search_ajax_list_entry_price %}
+                                <span class="entry--price block">
+                                    {% if product.listingPrice.displayFromPrice %}
+                                        {% trans from 'frontend/listing/box_article' %}ListingBoxArticleStartsAt{% endtrans %}
+                                    {% endif %}
+                                    {{ product.listingPrice.price|localizedcurrency(context.currency.shortName) }}
+                                </span>
+                            {% endblock %}
+                        </a>
+                    </li>
+                {% endblock %}
+            {% endfor %}
+
+            {% block search_ajax_all_results %}
+                <li class="entry--all-results block-group result--item">
+                    {% block search_ajax_all_results_link %}
+                        <a href="{{ path('search_index', {"search": searchTerm}) }}" class="search-result--link entry--all-results-link block">
+                        <i class="icon--arrow-right"></i>
+                            {% trans from 'frontend/search/ajax' %}SearchAjaxLinkAllResults{% endtrans %}
+                        </a>
+                    {% endblock %}
+
+                    {% block search_ajax_all_results_number %}
+                        <span class="entry--all-results-number block">
+                            {{ listing.products.count }} {% trans from 'frontend/search/ajax' %}SearchAjaxInfoResults{% endtrans %}
+                        </span>
+                    {% endblock %}
+                </li>
+            {% endblock %}
+        </ul>
+    {% else %}
+        {% block search_ajax_inner_no_results %}
+            <ul class="results--list">
+                <li class="list--entry entry--no-results result--item">{% trans from 'frontend/search/ajax' %}SearchAjaxNoResults{% endtrans %}</li>
+            </ul>
+        {% endblock %}
+    {% endif %}
+{% endblock %}

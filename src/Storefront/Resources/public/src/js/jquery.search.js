@@ -391,7 +391,7 @@
             me.lastSearchAjax = $.ajax({
                 'url': me.requestURL,
                 'data': {
-                    'sSearch': me.lastSearchTerm
+                    'search': me.lastSearchTerm
                 },
                 'success': function (response) {
                     me.showResult(response);

@@ -171,7 +171,7 @@
                 'vat_check_enabled': '{{ shopware.config.vatcheckendabled }}',
                 'vat_check_required': '{{ shopware.config.vatcheckrequired }}',
                 'ajax_cart': '{url controller="checkout" action="ajaxCart"}',
-                'ajax_search': '{url controller="ajax_search" _seo=false}',
+                'ajax_search': '{{ path('search_ajax') }}',
                 'register': '{url controller="register"}',
                 'checkout': '{url controller="checkout"}',
                 'ajax_validate': '{url controller="register"}',

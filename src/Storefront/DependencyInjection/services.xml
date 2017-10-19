@@ -97,11 +97,16 @@
             <argument id="shopware.category.repository" type="service"/>
         </service>
 
+        <service class="Shopware\Storefront\Page\Detail\DetailPageLoader" id="shopware.storefront.page.detail.detail_page_loader">
+            <argument id="shopware.storefront.product_repository" type="service"/>
+        </service>
+
         <service class="Shopware\Storefront\Page\Listing\ListingPageLoader" id="shopware.storefront.page.listing.listing_page_loader">
             <argument id="shopware.storefront.product_repository" type="service"/>
         </service>
 
-        <service class="Shopware\Storefront\Page\Detail\DetailPageLoader" id="shopware.storefront.page.detail.detail_page_loader">
+        <service class="Shopware\Storefront\Page\Search\SearchPageLoader" id="shopware.storefront.page.search.search_page_loader">
+            <argument type="service" id="shopware.config.config_service" />
             <argument id="shopware.storefront.product_repository" type="service"/>
         </service>
 

@@ -1,0 +1,28 @@
+{% sw_extends "@Storefront/frontend/index/index.html.twig" %}
+
+{% block frontend_index_header %}
+    {% sw_include '@Storefront/frontend/listing/header.html.twig' %}
+{% endblock %}
+
+{# ToDo: add breadcrumb #}
+{% block frontend_index_breadcrumb %}{% endblock %}
+
+
+{% block frontend_index_content_left %}{% endblock %}
+
+{# Main content #}
+{% block frontend_index_content %}
+    <div class="content search--content">
+        <h1 class="search--headline">
+            {{ 'SearchHeadline'|trans({'%searchTerm%': searchTerm, '%searchResultProductsCount%': listing.products.count}, 'frontend/search/fuzzy')|raw}}
+        </h1>
+
+        {# Listing #}
+        {% block frontend_listing_index_listing %}
+            {% sw_include '@Storefront/frontend/listing/listing.html.twig' %}
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{# Sidebar right #}
+{% block frontend_index_content_right %}{% endblock %}

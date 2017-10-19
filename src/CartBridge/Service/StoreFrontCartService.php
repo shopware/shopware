@@ -204,10 +204,10 @@ class StoreFrontCartService
 
     private function createNewCart(): CartContainer
     {
-        $cartContainer = CartContainer::createNew(self::CART_NAME);
-        $this->session->set(self::CART_TOKEN_KEY, $cartContainer->getToken());
+        $this->cartContainer = CartContainer::createNew(self::CART_NAME);
+        $this->session->set(self::CART_TOKEN_KEY, $this->cartContainer->getToken());
 
-        return $cartContainer;
+        return $this->cartContainer;
     }
 
     private function getCartToken(): ? string

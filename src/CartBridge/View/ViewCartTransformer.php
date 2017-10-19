@@ -36,7 +36,7 @@ class ViewCartTransformer
      */
     private $transformers;
 
-    public function __construct(array $transformers)
+    public function __construct(iterable $transformers)
     {
         $this->transformers = $transformers;
     }

@@ -12,3 +12,9 @@ if (file_exists($envFile)) {
     unset($values['APP_ENV']);
     $dotEnv->populate($values);
 }
+
+/*
+ * temporarily disable the public service deprecations.
+ * FIXME!
+ */
+putenv('SYMFONY_DEPRECATIONS_HELPER=weak');

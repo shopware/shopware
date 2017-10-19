@@ -6,6 +6,7 @@ use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Config\CachedConfigService;
 use Shopware\Search\Criteria;
 use Shopware\Search\Query\MatchQuery;
+use Shopware\Search\Query\NestedQuery;
 use Shopware\Search\Query\TermQuery;
 use Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,13 +35,17 @@ class SearchPageLoader
         $this->productRepository = $productRepository;
     }
 
-    public function load(
-        string $searchTerm,
-        Request $request,
-        ShopContext $context
-    ): SearchPageStruct {
+    /**
+     * @param string      $searchTerm
+     * @param Request     $request
+     * @param ShopContext $context
+     *
+     * @return SearchPageStruct
+     */
+    public function load(string $searchTerm, Request $request, ShopContext $context): SearchPageStruct
+    {
         $config = $this->configService->getByShop($context->getShop()->getUuid(), $context->getShop()->getParentUuid());
-        $criteria = $this->createCriteria($searchTerm, $request);
+        $criteria = $this->createCriteria(trim($searchTerm), $request, $config['enableAndSearchLogic']);
         $products = $this->productRepository->search($criteria, $context);
 
         $listingPageStruct = new SearchPageStruct();
@@ -55,10 +60,11 @@ class SearchPageLoader
     /**
      * @param string  $searchTerm
      * @param Request $request
+     * @param bool    $isAndSearchLogicEnabled
      *
      * @return Criteria
      */
-    private function createCriteria(string $searchTerm, Request $request): Criteria
+    private function createCriteria(string $searchTerm, Request $request, bool $isAndSearchLogicEnabled): Criteria
     {
         $limit = 20;
         if ($request->get('limit')) {
@@ -74,9 +80,36 @@ class SearchPageLoader
         $criteria->setLimit($limit);
         $criteria->addFilter(new TermQuery('product.active', 1));
         $criteria->addFilter(
-            new MatchQuery('product.name', $searchTerm)
+            $this->createSearchTermFilter($searchTerm, $isAndSearchLogicEnabled)
         );
 
         return $criteria;
+    }
+
+    /**
+     * @param string $searchTerm
+     * @param bool   $isAndSearchLogicEnabled
+     *
+     * @return NestedQuery
+     */
+    private function createSearchTermFilter(string $searchTerm, bool $isAndSearchLogicEnabled): NestedQuery
+    {
+        $nameQueries = [];
+        $descriptionQueries = [];
+        $queryOperator = $isAndSearchLogicEnabled ? 'AND' : 'OR';
+        $searchTerms = explode(' ', $searchTerm);
+
+        foreach ($searchTerms as $term) {
+            $nameQueries[] = new MatchQuery('product.name', trim($term));
+            $descriptionQueries[] = new MatchQuery('product.description', trim($term));
+        }
+
+        return new NestedQuery(
+            [
+                new NestedQuery($nameQueries, $queryOperator),
+                new NestedQuery($descriptionQueries, $queryOperator),
+            ],
+            'OR'
+        );
     }
 }

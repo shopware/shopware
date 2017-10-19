@@ -4,7 +4,11 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use Symfony\Component\Dotenv\Dotenv;
 
-$dotEnv = new Dotenv();
-$values = $dotEnv->parse(file_get_contents(__DIR__ . '/../.env'));
-unset($values['APP_ENV']);
-$dotEnv->populate($values);
+$envFile = __DIR__ . '/../.env';
+
+if (file_exists($envFile)) {
+    $dotEnv = new Dotenv();
+    $values = $dotEnv->parse(file_get_contents($envFile));
+    unset($values['APP_ENV']);
+    $dotEnv->populate($values);
+}

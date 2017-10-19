@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Storefront\Exception\MinimumSearchTermLengthNotGiven;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,13 +18,22 @@ class SearchController extends StorefrontController
      * @param Request     $request
      *
      * @return Response
+     *
+     * @throws MinimumSearchTermLengthNotGiven
      */
     public function indexAction(ShopContext $context, Request $request): Response
     {
+        $config = $this->get('shopware.config.cached_config_service')->getByShop(
+            $context->getShop()->getUuid(),
+            $context->getShop()->getParentUuid()
+        );
         $searchTerm = $request->get('search');
 
-        if (empty($searchTerm)) {
-            return $this->redirect('/');
+        if (empty($searchTerm) || strlen($searchTerm) < (int)$config['minsearchlenght']) {
+            // ToDo: Catch in frontend error handling.
+            throw new MinimumSearchTermLengthNotGiven(
+                sprintf('Minimum search term length of %d not given.', (int)$config['minsearchlenght'])
+            );
         }
 
         /** @var SearchPageLoader $searchPageLoader */
@@ -33,9 +43,9 @@ class SearchController extends StorefrontController
         return $this->render(
             '@Storefront/frontend/search/index.html.twig',
             [
-                'listing' => $listing,
+                'listing'          => $listing,
                 'productBoxLayout' => $listing->getProductBoxLayout(),
-                'searchTerm' => $searchTerm
+                'searchTerm'       => $searchTerm,
             ]
         );
     }
@@ -62,8 +72,8 @@ class SearchController extends StorefrontController
         return $this->render(
             '@Storefront/frontend/search/ajax.html.twig',
             [
-                'listing' => $searchPageLoader->load($searchTerm, $request, $context),
-                'searchTerm' => $searchTerm
+                'listing'    => $searchPageLoader->load($searchTerm, $request, $context),
+                'searchTerm' => $searchTerm,
             ]
         );
     }

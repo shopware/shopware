@@ -5,8 +5,6 @@ services:
     build: dev-ops/docker/containers/php7
     extra_hosts:
       - "stash.shopware.com:172.16.0.62"
-    ports:
-      - "80:80"
     links:
       - app_mysql:mysql
     volumes_from:
@@ -18,8 +16,6 @@ services:
     build: dev-ops/docker/containers/mysql
     volumes_from:
       - app_volumes
-    ports:
-      - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_USER: app

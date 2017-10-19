@@ -23,11 +23,11 @@ class SearchController extends StorefrontController
      */
     public function indexAction(ShopContext $context, Request $request): Response
     {
+        $searchTerm = $request->get('search');
         $config = $this->get('shopware.config.cached_config_service')->getByShop(
             $context->getShop()->getUuid(),
             $context->getShop()->getParentUuid()
         );
-        $searchTerm = $request->get('search');
 
         if (empty($searchTerm) || strlen($searchTerm) < (int)$config['minsearchlenght']) {
             // ToDo: Catch in frontend error handling.

@@ -12,7 +12,7 @@ class ShopIndexer implements IndexerInterface
      */
     private $indexer;
 
-    public function __construct(array $indexer)
+    public function __construct(iterable $indexer)
     {
         $this->indexer = $indexer;
     }

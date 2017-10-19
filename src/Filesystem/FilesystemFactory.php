@@ -87,7 +87,7 @@ class FilesystemFactory implements FilesystemFactoryInterface
      *
      * @throws DuplicateFilesystemFactoryException
      */
-    private function checkDuplicates(array $adapterFactories): void
+    private function checkDuplicates(iterable $adapterFactories): void
     {
         $dupes = [];
         foreach ($adapterFactories as $adapter) {

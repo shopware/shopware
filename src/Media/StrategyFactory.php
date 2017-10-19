@@ -37,7 +37,7 @@ class StrategyFactory implements StrategyFactoryInterface
     /**
      * @param StrategyInterface[] $strategies
      */
-    public function __construct(array $strategies)
+    public function __construct(iterable $strategies)
     {
         $this->strategies = $strategies;
     }

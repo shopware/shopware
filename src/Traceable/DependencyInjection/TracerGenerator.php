@@ -6,18 +6,18 @@ class TracerGenerator
 {
     private $directory;
 
-    public function __construct($directory = __DIR__ . '/Tracer')
+    public function __construct(string $directory)
     {
         $this->directory = $directory;
     }
 
-    public function createTracer($class, ?string $label = null): string
+    public function createTracer($class, string $label, string $section = 'shopware'): string
     {
         $reflection = new \ReflectionClass($class);
 
         $functionTemplate = '
 public function #name#(#parameters#) #returnType# {
-    $e = $this->stopwatch->start(\'#eventname#\', \'section\');
+    $e = $this->stopwatch->start(\'#eventname#\', \'#section#\');
 
     $result = $this->decorated->#name#(#callparams#);
 
@@ -26,9 +26,6 @@ public function #name#(#parameters#) #returnType# {
 }
         ';
 
-        if ($label === null) {
-            $label = $reflection->getName();
-        }
         $functions = [];
         foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
 
@@ -71,8 +68,8 @@ public function #name#(#parameters#) #returnType# {
             $functionLabel = $label . '.' . $method->getName();
 
             $functions[] = str_replace(
-                ['#name#', '#parameters#', '#returnType#', '#eventname#', '#callparams#', '#returnresult#'],
-                [$method->getName(), $parameters, $return, $functionLabel, $calls, $functionReturn],
+                ['#name#', '#parameters#', '#returnType#', '#eventname#', '#callparams#', '#returnresult#', '#section#'],
+                [$method->getName(), $parameters, $return, $functionLabel, $calls, $functionReturn, $section],
                 $functionTemplate
             );
         }
@@ -88,7 +85,7 @@ public function #name#(#parameters#) #returnType# {
             [$className, '\\' . $originalClass, $functions],
             '<?php
 
-namespace Shopware\Traceable\DependencyInjection\Tracer;
+namespace ShopwareTracer;
 
 class #className# extends #originalClass#
 {
@@ -114,8 +111,9 @@ class #className# extends #originalClass#
             '
         );
 
-        file_put_contents($this->directory . '/' . $className . '.php', $template);
+        $file = $this->directory . '/' . $className . '.php';
+        file_put_contents($file, $template);
 
-        return 'Shopware\\Traceable\\DependencyInjection\\Tracer\\' . $className;
+        return 'ShopwareTracer\\' . $className;
     }
 }

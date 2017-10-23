@@ -6,6 +6,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\Filesystem\Filesystem;
 
 class TracerCompilerPass implements CompilerPassInterface
 {
@@ -16,7 +17,14 @@ class TracerCompilerPass implements CompilerPassInterface
 
     public function process(ContainerBuilder $container)
     {
-        $this->generator = new TracerGenerator();
+        $directory = $container->getParameter('kernel.cache_dir');
+        $directory .= '/tracer';
+        if (!file_exists($directory)) {
+            $system = new Filesystem();
+            $system->mkdir($directory);
+        }
+
+        $this->generator = new TracerGenerator($directory);
 
         $services = $container->findTaggedServiceIds('shopware.traceable');
         foreach ($services as $id => $tags) {

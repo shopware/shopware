@@ -99,29 +99,39 @@ class ProductGateway implements ProductGatewayInterface
             'variant.height',
             'variant.length',
             '(
-                SELECT GROUP_CONCAT(DISTINCT c.customer_group_uuid SEPARATOR \'|\') 
-                FROM product_avoid_customer_group as c 
+                SELECT GROUP_CONCAT(DISTINCT c.customer_group_uuid SEPARATOR \'|\')
+                FROM product_avoid_customer_group as c
                 WHERE c.product_uuid = variant.product_uuid
             ) as blocked_groups',
-
-            '(
-                SELECT GROUP_CONCAT(DISTINCT shop.uuid SEPARATOR \'|\')
-                FROM shop
-                    INNER JOIN product_category_ro categories_ro
-                WHERE shop.category_uuid = categories_ro.category_uuid
-                AND categories_ro.product_uuid = variant.product_uuid
-
-             ) AS allowed_shops',
             'product.is_closeout as closeout',
         ]);
         $query->from('product_detail', 'variant');
         $query->innerJoin('variant', 'product', 'product', 'product.uuid = variant.product_uuid');
-
-        // group by uuid is not possible at the moment since the column is not unique
         $query->where('variant.uuid IN (:numbers)');
         $query->setParameter('numbers', $numbers, Connection::PARAM_STR_ARRAY);
 
-        return $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
+        $data = $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
+
+        $productUuids = array_column($data, 'product_uuid');
+
+        $query = $this->connection->createQueryBuilder();
+        $query->select([
+            'categories_ro.product_uuid',
+            'GROUP_CONCAT(DISTINCT shop.uuid SEPARATOR \'|\')']);
+        $query->from('shop');
+        $query->innerJoin('shop', 'product_category_ro', 'categories_ro', 'shop.category_uuid = categories_ro.category_uuid');
+        $query->andWhere('categories_ro.product_uuid IN (:uuids)');
+        $query->setParameter('uuids', $productUuids, Connection::PARAM_STR_ARRAY);
+        $query->groupBy('categories_ro.product_uuid');
+
+        $shopIds = $query->execute()->fetchAll(\PDO::FETCH_KEY_PAIR);
+
+        foreach ($data as &$row) {
+            $uuid = $row['product_uuid'];
+            $row['allowed_shops'] = array_key_exists($uuid, $shopIds) ? $shopIds[$uuid] : '';
+        }
+
+        return $data;
     }
 
     private function buildDeliveryInformation(array $row): DeliveryInformation

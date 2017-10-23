@@ -31,6 +31,7 @@ use Shopware\Cart\Cart\CartCalculator;
 use Shopware\Cart\Cart\CartContainer;
 use Shopware\Cart\Cart\CartPersisterInterface;
 use Shopware\Cart\Exception\LineItemNotFoundException;
+use Shopware\Cart\LineItem\LineItemCollection;
 use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Order\OrderPersisterInterface;
 use Shopware\CartBridge\View\ViewCart;
@@ -126,6 +127,15 @@ class StoreFrontCartService
         $this->calculate($cart);
     }
 
+    public function fill(LineItemCollection $lineItems): void
+    {
+        $cart = $this->getCartContainer();
+
+        $cart->getLineItems()->fill($lineItems->getElements());
+
+        $this->calculate($cart);
+    }
+
     public function changeQuantity(string $identifier, int $quantity): void
     {
         $cart = $this->getCart()->getCalculatedCart()->getCartContainer();
@@ -200,6 +210,7 @@ class StoreFrontCartService
     {
         $this->persister->save($cartContainer);
         $this->session->set(self::CART_TOKEN_KEY, $cartContainer->getToken());
+        $this->cartContainer = $cartContainer;
     }
 
     private function createNewCart(): CartContainer

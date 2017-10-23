@@ -1,0 +1,34 @@
+{% extends '@WebProfiler/Profiler/layout.html.twig' %}
+
+{% block toolbar %}
+    {% set icon %}
+        <span class="icon"></span>
+        <span class="sf-toolbar-status">Cart</span>
+    {% endset %}
+
+    {% set text %}
+        <div class="sf-toolbar-info-piece">
+            {# ... #}
+        </div>
+    {% endset %}
+
+    {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { 'link': true }) }}
+{% endblock %}
+
+{% block head %}
+    {# Optional. Here you can link to or define your own CSS and JS contents. #}
+    {# Use  to extend the default styles instead of overriding them. #}
+
+    {{ parent() }}
+{% endblock %}
+
+{% block menu %}
+    <span class="label">
+        <span class="icon"><img src="..." alt=""/></span>
+        <strong>Cart</strong>
+    </span>
+{% endblock %}
+
+{% block panel %}
+    <h2>Shopware cart process</h2>
+{% endblock %}

@@ -112,6 +112,7 @@ class AppKernel extends Kernel
             $bundles[]= new \Symfony\Bundle\DebugBundle\DebugBundle();
             $bundles[]= new \Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
             $bundles[]= new \Sensio\Bundle\DistributionBundle\SensioDistributionBundle();
+            $bundles[] = new \Shopware\Traceable\Traceable();
 
             if ('dev' === $this->getEnvironment()) {
                 $bundles[]= new \Sensio\Bundle\GeneratorBundle\SensioGeneratorBundle();

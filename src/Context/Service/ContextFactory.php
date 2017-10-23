@@ -231,7 +231,7 @@ class ContextFactory implements ContextFactoryInterface
         $currency = $this->currencyRepository->read([$currencyUuid], $context);
 
         if (!$currency->has($currencyUuid)) {
-            throw new \RuntimeException(sprintf('Currency by id %s not found', $currencyUuid));
+            return $shop->getCurrency();
         }
 
         return $currency->get($currencyUuid);

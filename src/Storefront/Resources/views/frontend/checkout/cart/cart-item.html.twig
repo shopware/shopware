@@ -1,4 +1,4 @@
-{# Constants for the different basket item types #}
+{# Constants for the different line item types #}
 {#{$IS_PRODUCT = 0}#}
 {#{$IS_PREMIUM_PRODUCT = 1}#}
 {#{$IS_VOUCHER = 2}#}
@@ -39,8 +39,8 @@
 {#{include file="frontend/checkout/items/rebate.tpl" isLast=$isLast}#}
     {% sw_include '@Shopware/frontend/checkout/cart/items/discount.html.twig' %}
 {% endblock%}
-{#{else}#}
+{% else %}
 
-{# Register your own mode selection #}
+{# Custom line item type #}
 {% block frontend_cart_item_additional_type %}{% endblock %}
 {% endif %}

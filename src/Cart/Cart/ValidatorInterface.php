@@ -33,7 +33,7 @@ interface ValidatorInterface
      * Validates the provided calculated cart.
      * If a validator decides, that the cart isn't valid, their are two opportunities:
      *
-     * 1. Add an error to the calculated cart by using $cart->getErrors()->add()
+     * 1. Add an error to the calculated cart by using $cart->getCartContainer()->getErrors()->add()
      * This error is displayed in the store front and forces and customer action to mark the cart as valid
      *
      * 2. Return `false` and remove/change items from the `CartContainer` which stored inside the `CalculatedCart`

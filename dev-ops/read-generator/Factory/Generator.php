@@ -78,7 +78,7 @@ class Generator
                     );
                     break;
                 case Util::ONE_TO_MANY:
-                    if ($association['has_detail_loader']) {
+                    if ($association['has_detail_reader']) {
                         $type = 'Detail';
                         $requiredFactories[] = 'shopware.' . $association['table'] . '.detail_factory';
                     } else {
@@ -362,7 +362,7 @@ class Generator
             switch ($association['type']) {
                 case Util::ONE_TO_ONE:
                     $associationClass = Util::snakeCaseToCamelCase($association['table']);
-                    if ($association['has_detail_loader']) {
+                    if ($association['has_detail_reader']) {
                         $type = 'Detail';
                         $requiredFactories[] = 'shopware.' . $association['table'] . '.detail_factory';
                     } else {
@@ -519,7 +519,7 @@ class Generator
                 case Util::ONE_TO_MANY:
                     $plural = Util::getPlural($property);
 
-                    if ($association['has_detail_loader']) {
+                    if ($association['has_detail_reader']) {
                         $type = 'Detail';
                         $requiredFactories[] = 'shopware.' . $association['table'] . '.detail_factory';
                     } else {

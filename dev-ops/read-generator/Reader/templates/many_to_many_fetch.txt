@@ -1,0 +1,1 @@
+        $#associationPlural# = $this->#associationClassLc#BasicReader->readBasic($#plural#Collection->get#propertyUc#Uuids(), $context);

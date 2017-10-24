@@ -292,7 +292,7 @@ class Generate
 //        $context->createWriter = false;
         $context->createBundle = false;
 //        $context->createEvent = false;
-//        $context->createLoader = false;
+//        $context->createReader = false;
 //        $context->createSearcher = false;
 //        $context->createRepository = false;
 //        $context->createServiceXml = false;
@@ -307,13 +307,13 @@ class Generate
      * @param string $table defines the associated table (like product => "product_detail")
      * @param string $type defines the association type 1:1, 1:N, ...
      * @param bool $inBasic should be loaded with basic struct
-     * @param bool $loadByLoader defines if the entity can loaded in same query or lazy by loader
+     * @param bool $loadByReader defines if the entity can loaded in same query or lazy by reader
      * @param string $property defines the property name
      * @param string $foreignKeyColumn defines the foreign key column
      * @param string $mappingTable only used for N:N (product_category)
      * @param string $condition useless
      * @param bool $nullable defines if the property can be null (only used for ToOne associations)
-     * @param bool $hasDetailLoader defines if the related table has an own detail loader
+     * @param bool $hasDetailReader defines if the related table has an own detail reader
      * @param null $fetchTemplate hack to override "association fetch"
      * @param null $assignTemplate hack to override "association assignment"
      * @return array
@@ -322,19 +322,19 @@ class Generate
         string $table,
         string $type,
         bool $inBasic,
-        bool $loadByLoader,
+        bool $loadByReader,
         string $property,
         string $foreignKeyColumn,
         string $mappingTable = '',
         string $condition = '',
         $nullable = true,
-        $hasDetailLoader = false,
+        $hasDetailReader = false,
         $fetchTemplate = null,
         $assignTemplate = null
     ) {
         return [
             'in_basic' => $inBasic,                        //defines if it should be added to basic struct
-            'load_by_association_loader' => $loadByLoader,      //true to fetch directly in query, false to fetch over associated basic loader
+            'load_by_association_reader' => $loadByReader,      //true to fetch directly in query, false to fetch over associated basic reader
             'type' => $type,
             'table' => $table,
             'mapping' => $mappingTable,
@@ -342,7 +342,7 @@ class Generate
             'property' => $property,
             'foreignKeyColumn' => $foreignKeyColumn,
             'nullable' => $nullable,
-            'has_detail_loader' => $hasDetailLoader,
+            'has_detail_reader' => $hasDetailReader,
             'fetchTemplate' => $fetchTemplate,
             'assignTemplate' => $assignTemplate
         ];

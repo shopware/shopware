@@ -1,6 +1,6 @@
 <?php
 
-namespace ReadGenerator\Loader;
+namespace ReadGenerator\Reader;
 
 use ReadGenerator\Util;
 
@@ -22,13 +22,14 @@ class Generator
         return [
             $this->directory.'/'.ucfirst($class).'/Loader/'.ucfirst($class).'BasicLoader.php',
             $this->directory.'/'.ucfirst($class).'/Loader/'.ucfirst($class).'DetailLoader.php',
+            $this->directory.'/'.ucfirst($class).'/Reader/'.ucfirst($class).'BasicReader.php',
+            $this->directory.'/'.ucfirst($class).'/Reader/'.ucfirst($class).'DetailReader.php',
         ];
     }
 
-
     public function generate(string $table, array $config)
     {
-        $associations = Util::getAssociationsForBasicLoader($table, $config);
+        $associations = Util::getAssociationsForBasicReader($table, $config);
 
         list($uses, $properties, $constructor, $init, $fetches, $assignments, $class, $plural) = $this->getDependencies($table, $associations);
 
@@ -43,7 +44,7 @@ class Generator
             $constructor = ",\n" . $constructor;
         }
 
-        $template = file_get_contents(__DIR__ . '/templates/loader.txt');
+        $template = file_get_contents(__DIR__ . '/templates/reader.txt');
         $iteration = '';
         if (!empty($assignments)) {
             $iteration = '
@@ -69,7 +70,7 @@ class Generator
             $template
         );
 
-        $file = $this->directory.'/'.ucfirst($class).'/Loader/'.ucfirst($class).'BasicLoader.php';
+        $file = $this->directory.'/'.ucfirst($class).'/Reader/'.ucfirst($class).'BasicReader.php';
 
         file_put_contents($file, $template);
         
@@ -79,8 +80,8 @@ class Generator
     public function generateDetail(string $table, array $config)
     {
         $associations = array_merge(
-            Util::getAssociationsForBasicLoader($table, $config),
-            Util::getAssociationsForDetailLoader($table, $config)
+            Util::getAssociationsForBasicReader($table, $config),
+            Util::getAssociationsForDetailReader($table, $config)
         );
 
         list($uses, $properties, $constructor, $init, $fetches, $assignments, $class, $plural) = $this->getDependencies($table, $associations);
@@ -96,7 +97,7 @@ class Generator
             $constructor = ",\n" . $constructor;
         }
 
-        $template = file_get_contents(__DIR__ . '/templates/loader_detail.txt');
+        $template = file_get_contents(__DIR__ . '/templates/reader_detail.txt');
         $iteration = '';
         if (!empty($assignments)) {
             $iteration = '
@@ -122,7 +123,7 @@ class Generator
             $template
         );
 
-        $file = $this->directory.'/'.ucfirst($class).'/Loader/'.ucfirst($class).'DetailLoader.php';
+        $file = $this->directory.'/'.ucfirst($class).'/Reader/'.ucfirst($class).'DetailReader.php';
 
         file_put_contents($file, $template);
 
@@ -153,7 +154,7 @@ class Generator
 
             switch ($association['type']) {
                 case Util::ONE_TO_ONE:
-                    if ($association['has_detail_loader']) {
+                    if ($association['has_detail_reader']) {
                         $type = 'Detail';
                     } else {
                         $type = 'Basic';
@@ -181,26 +182,26 @@ class Generator
                     $constructor[] = str_replace(
                         ['#classUc#', '#classLc#', '#type#'],
                         [ucfirst($associationClass), lcfirst($associationClass), ucfirst($type)],
-                        '        #classUc##type#Loader $#classLc##type#Loader'
+                        '        #classUc##type#Reader $#classLc##type#Reader'
                     );
                     $uses[] = str_replace(
                         ['#classUc#', '#type#'],
                         [ucfirst($associationClass), ucfirst($type)],
-                        'use Shopware\#classUc#\Loader\#classUc##type#Loader;'
+                        'use Shopware\#classUc#\Reader\#classUc##type#Reader;'
                     );
                     $init[] = str_replace(
                         ['#associationClassLc#', '#type#'],
                         [lcfirst($associationClass), ucfirst($type)],
-                        '$this->#associationClassLc##type#Loader = $#associationClassLc##type#Loader;'
+                        '$this->#associationClassLc##type#Reader = $#associationClassLc##type#Reader;'
                     );
                     $properties[] = str_replace(
                         ['#classUc#', '#classLc#', '#type#'],
                         [ucfirst($associationClass), lcfirst($associationClass), ucfirst($type)],
                         '
     /**
-     * @var #classUc##type#Loader
+     * @var #classUc##type#Reader
      */
-    private $#classLc##type#Loader;
+    private $#classLc##type#Reader;
                         '
                     );
                     break;
@@ -227,26 +228,26 @@ class Generator
                     $constructor[] = str_replace(
                         ['#classUc#', '#classLc#'],
                         [ucfirst($associationClass), lcfirst($associationClass)],
-                        '        #classUc#BasicLoader $#classLc#BasicLoader'
+                        '        #classUc#BasicReader $#classLc#BasicReader'
                     );
                     $uses[] = str_replace(
                         ['#classUc#'],
                         [ucfirst($associationClass)],
-                        'use Shopware\#classUc#\Loader\#classUc#BasicLoader;'
+                        'use Shopware\#classUc#\Reader\#classUc#BasicReader;'
                     );
                     $init[] = str_replace(
                         ['#associationClassLc#'],
                         [lcfirst($associationClass)],
-                        '$this->#associationClassLc#BasicLoader = $#associationClassLc#BasicLoader;'
+                        '$this->#associationClassLc#BasicReader = $#associationClassLc#BasicReader;'
                     );
                     $properties[] = str_replace(
                         ['#classUc#', '#classLc#'],
                         [ucfirst($associationClass), lcfirst($associationClass)],
                         '
     /**
-     * @var #classUc#BasicLoader
+     * @var #classUc#BasicReader
      */
-    private $#classLc#BasicLoader;
+    private $#classLc#BasicReader;
                         '
                     );
                     break;
@@ -254,11 +255,11 @@ class Generator
                     if ($association['fetchTemplate'] !== null) {
                         $fetches[] = $association['fetchTemplate'];
                     } else {
-                        if ($association['has_detail_loader']) {
+                        if ($association['has_detail_reader']) {
                             $fetches[] = str_replace(
                                 ['#associationPlural#', '#associationTable#', '#table#', '#classLc#', '#associationClassUc#'],
                                 [lcfirst($associationPlural), $association['table'], lcfirst($class), lcfirst($associationClass), ucfirst($associationClass)],
-                                file_get_contents(__DIR__.'/templates/one_to_many_fetch_by_loader.txt')
+                                file_get_contents(__DIR__.'/templates/one_to_many_fetch_by_reader.txt')
                             );
                         } else {
                             $fetches[] = str_replace(
@@ -317,30 +318,30 @@ class Generator
                         '
                     );
 
-                    if ($association['has_detail_loader']) {
+                    if ($association['has_detail_reader']) {
                         $constructor[] = str_replace(
                             ['#classUc#', '#classLc#'],
                             [ucfirst($associationClass), lcfirst($associationClass)],
-                            '        #classUc#DetailLoader $#classLc#DetailLoader'
+                            '        #classUc#DetailReader $#classLc#DetailReader'
                         );
                         $uses[] = str_replace(
                             ['#classUc#'],
                             [ucfirst($associationClass)],
-                            'use Shopware\#classUc#\Loader\#classUc#DetailLoader;'
+                            'use Shopware\#classUc#\Reader\#classUc#DetailReader;'
                         );
                         $init[] = str_replace(
                             ['#classLc#'],
                             [lcfirst($associationClass)],
-                            '$this->#classLc#DetailLoader = $#classLc#DetailLoader;'
+                            '$this->#classLc#DetailReader = $#classLc#DetailReader;'
                         );
                         $properties[] = str_replace(
                             ['#classUc#', '#classLc#'],
                             [ucfirst($associationClass), lcfirst($associationClass)],
                             '
     /**
-     * @var #classUc#DetailLoader
+     * @var #classUc#DetailReader
      */
-    private $#classLc#DetailLoader;
+    private $#classLc#DetailReader;
                         '
                         );
                     }
@@ -377,26 +378,26 @@ class Generator
                     $constructor[] = str_replace(
                         ['#classUc#', '#classLc#'],
                         [ucfirst($associationClass), lcfirst($associationClass)],
-                        '        #classUc#BasicLoader $#classLc#BasicLoader'
+                        '        #classUc#BasicReader $#classLc#BasicReader'
                     );
                     $uses[] = str_replace(
                         ['#classUc#'],
                         [ucfirst($associationClass)],
-                        'use Shopware\#classUc#\Loader\#classUc#BasicLoader;'
+                        'use Shopware\#classUc#\Reader\#classUc#BasicReader;'
                     );
                     $init[] = str_replace(
                         ['#associationClassLc#'],
                         [lcfirst($associationClass)],
-                        '$this->#associationClassLc#BasicLoader = $#associationClassLc#BasicLoader;'
+                        '$this->#associationClassLc#BasicReader = $#associationClassLc#BasicReader;'
                     );
                     $properties[] = str_replace(
                         ['#classUc#', '#classLc#'],
                         [ucfirst($associationClass), lcfirst($associationClass)],
                         '
     /**
-     * @var #classUc#BasicLoader
+     * @var #classUc#BasicReader
      */
-    private $#classLc#BasicLoader;
+    private $#classLc#BasicReader;
                         '
                     );
                     break;
@@ -415,23 +416,23 @@ class Generator
         foreach ($associations as $association) {
             switch($association['type']) {
                 case Util::ONE_TO_ONE:
-                    if ($association['has_detail_loader']) {
-                        $arguments[] = str_replace('#associationTable#', $association['table'], '            <argument id="shopware.#associationTable#.detail_loader" type="service"/>');
+                    if ($association['has_detail_reader']) {
+                        $arguments[] = str_replace('#associationTable#', $association['table'], '            <argument id="shopware.#associationTable#.detail_reader" type="service"/>');
                     } else {
-                        $arguments[] = str_replace('#associationTable#', $association['table'], '            <argument id="shopware.#associationTable#.basic_loader" type="service"/>');
+                        $arguments[] = str_replace('#associationTable#', $association['table'], '            <argument id="shopware.#associationTable#.basic_reader" type="service"/>');
                     }
                     break;
                 case Util::MANY_TO_ONE:
-                    $arguments[] = str_replace('#associationTable#', $association['table'], '            <argument id="shopware.#associationTable#.basic_loader" type="service"/>');
+                    $arguments[] = str_replace('#associationTable#', $association['table'], '            <argument id="shopware.#associationTable#.basic_reader" type="service"/>');
                     break;
                 case Util::ONE_TO_MANY:
                     $arguments[] = str_replace('#associationTable#', $association['table'], '            <argument id="shopware.#associationTable#.searcher" type="service"/>');
-                    if ($association['has_detail_loader']) {
-                        $arguments[] = str_replace('#associationTable#', $association['table'], '            <argument id="shopware.#associationTable#.detail_loader" type="service"/>');
+                    if ($association['has_detail_reader']) {
+                        $arguments[] = str_replace('#associationTable#', $association['table'], '            <argument id="shopware.#associationTable#.detail_reader" type="service"/>');
                     }
                     break;
                 case Util::MANY_TO_MANY:
-                    $arguments[] = str_replace('#associationTable#', $association['table'], '            <argument id="shopware.#associationTable#.basic_loader" type="service"/>');
+                    $arguments[] = str_replace('#associationTable#', $association['table'], '            <argument id="shopware.#associationTable#.basic_reader" type="service"/>');
                     break;
             }
         }
@@ -442,7 +443,7 @@ class Generator
         return str_replace(
             ['#classUc#', '#table#', '#associations#', '#typeUc#', '#typeLc#'],
             [ucfirst($class), $table, $arguments, ucfirst($type), lcfirst($type)],
-            file_get_contents(__DIR__ . '/templates/loader.xml.txt')
+            file_get_contents(__DIR__ . '/templates/reader.xml.txt')
         );
     }
 }

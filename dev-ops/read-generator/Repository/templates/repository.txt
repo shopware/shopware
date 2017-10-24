@@ -4,7 +4,7 @@ namespace Shopware\#classUc#\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\#classUc#\Event\#classUc#BasicLoadedEvent;
-use Shopware\#classUc#\Loader\#classUc#BasicLoader;
+use Shopware\#classUc#\Reader\#classUc#BasicReader;
 use Shopware\#classUc#\Searcher\#classUc#Searcher;
 use Shopware\#classUc#\Searcher\#classUc#SearchResult;
 use Shopware\#classUc#\Struct\#classUc#BasicCollection;
@@ -19,9 +19,9 @@ use Shopware\#classUc#\Writer\#classUc#Writer;
 class #classUc#Repository
 {
     /**
-     * @var #classUc#BasicLoader
+     * @var #classUc#BasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -35,13 +35,13 @@ class #classUc#Repository
 
     #constructor#
 
-    public function read(array $uuids, TranslationContext $context): #classUc#BasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): #classUc#BasicCollection
     {
         if (empty($uuids)) {
             return new #classUc#BasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             #classUc#BasicLoadedEvent::NAME,

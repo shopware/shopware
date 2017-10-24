@@ -29,7 +29,7 @@ class Generator
         $class = Util::snakeCaseToCamelCase($table);
         $plural = Util::getPlural($class);
 
-        $detailRead = 'read';
+        $detailRead = 'readBasic';
         if (Util::getAssociationsForDetailStruct($table, $config)) {
             $detailRead = 'readDetail';
         }

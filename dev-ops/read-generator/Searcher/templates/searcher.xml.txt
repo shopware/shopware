@@ -2,5 +2,5 @@
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.#table#.#factoryType#_factory" type="service"/>
-            <argument id="shopware.#table#.basic_loader" type="service"/>
+            <argument id="shopware.#table#.basic_reader" type="service"/>
         </service>

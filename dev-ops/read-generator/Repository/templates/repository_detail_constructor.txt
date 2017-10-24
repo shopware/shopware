@@ -1,12 +1,12 @@
     public function __construct(
-        #classUc#DetailLoader $detailLoader,
-        #classUc#BasicLoader $basicLoader,
+        #classUc#DetailReader $detailReader,
+        #classUc#BasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         #classUc#Searcher $searcher,
         #classUc#Writer $writer
     ) {
-        $this->detailLoader = $detailLoader;
-        $this->basicLoader = $basicLoader;
+        $this->detailReader = $detailReader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;

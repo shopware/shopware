@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\#classUc#\Loader;
+namespace Shopware\#classUc#\Reader;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
@@ -12,7 +12,7 @@ use Shopware\Search\Criteria;
 use Shopware\Search\Query\TermsQuery;
 #uses#
 
-class #structClass#Loader
+class #structClass#Reader
 {
     use SortArrayByKeysTrait;
 
@@ -29,7 +29,7 @@ class #structClass#Loader
 #init#
     }
 
-    public function load(array $uuids, TranslationContext $context): #structClass#Collection
+    public function readBasic(array $uuids, TranslationContext $context): #structClass#Collection
     {
         if (empty($uuids)) {
             return new #structClass#Collection();

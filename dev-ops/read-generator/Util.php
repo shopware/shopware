@@ -119,11 +119,11 @@ class Util
         return in_array($type, self::TO_MANY, true);
     }
 
-    public static function getAssociationsForBasicLoader($table, $config)
+    public static function getAssociationsForBasicReader($table, $config)
     {
         return array_filter($config['associations'], function($association) {
             return $association['in_basic'] === true
-                && ($association['load_by_association_loader'] === true || self::isToMany($association['type']));
+                && ($association['load_by_association_reader'] === true || self::isToMany($association['type']));
         });
     }
 
@@ -134,11 +134,11 @@ class Util
         });
     }
 
-    public static function getAssociationsForDetailLoader($table, $config): array
+    public static function getAssociationsForDetailReader($table, $config): array
     {
         return array_filter($config['associations'], function($association) {
             return $association['in_basic'] === false
-                && ($association['load_by_association_loader'] === true || self::isToMany($association['type']));
+                && ($association['load_by_association_reader'] === true || self::isToMany($association['type']));
         });
     }
 
@@ -149,7 +149,7 @@ class Util
             $config['associations'],
             function ($association) {
                 return $association['in_basic'] === true
-                    && ($association['load_by_association_loader'] === false || $association['type'] === 'N:N');
+                    && ($association['load_by_association_reader'] === false || $association['type'] === 'N:N');
             }
         );
     }
@@ -188,7 +188,7 @@ class Util
     {
         return array_filter($config['associations'], function($association) {
             return $association['in_basic'] === false
-                && ($association['load_by_association_loader'] === false || $association['type'] === 'N:N');
+                && ($association['load_by_association_reader'] === false || $association['type'] === 'N:N');
         });
     }
 

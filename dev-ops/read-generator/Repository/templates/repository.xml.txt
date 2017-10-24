@@ -1,5 +1,5 @@
         <service class="Shopware\#classUc#\Repository\#classUc#Repository" id="shopware.#table#.repository">
-            <argument id="shopware.#table#.basic_loader" type="service"/>
+            <argument id="shopware.#table#.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.#table#.searcher" type="service"/>
             #argumentWriter#

@@ -8,7 +8,7 @@ require_once __DIR__ . '/Collection/Generator.php';
 require_once __DIR__ . '/Event/Generator.php';
 require_once __DIR__ . '/Factory/Generator.php';
 require_once __DIR__ . '/Struct/Generator.php';
-require_once __DIR__ . '/Loader/Generator.php';
+require_once __DIR__ . '/Reader/Generator.php';
 require_once __DIR__ . '/Searcher/Generator.php';
 require_once __DIR__ . '/Repository/Generator.php';
 require_once __DIR__ . '/Extension/Generator.php';
@@ -108,8 +108,8 @@ class DomainGenerator
             }
         }
 
-        if ($context->createLoader) {
-            $generator = new \ReadGenerator\Loader\Generator($this->directory);
+        if ($context->createReader) {
+            $generator = new \ReadGenerator\Reader\Generator($this->directory);
             $this->removeFiles($generator->getFiles($table));
             $services[] = $generator->generate($table, $config);
             if (Util::getAssociationsForDetailStruct($table, $config)) {
@@ -163,13 +163,19 @@ class DomainGenerator
             $this->directory.'/'.ucfirst($class).'/Test/Repository',
             $this->directory.'/'.ucfirst($class).'/Event',
             $this->directory.'/'.ucfirst($class).'/Repository',
-            $this->directory.'/'.ucfirst($class).'/Loader',
+            $this->directory.'/'.ucfirst($class).'/Reader',
             $this->directory.'/'.ucfirst($class).'/Searcher',
             $this->directory.'/'.ucfirst($class).'/Factory',
             $this->directory.'/'.ucfirst($class).'/Struct',
             $this->directory.'/'.ucfirst($class).'/Controller',
             $this->directory.'/'.ucfirst($class).'/Writer'
         ];
+
+        $loader = $this->directory.'/'.ucfirst($class).'/Loader';
+
+        if (file_exists($loader)) {
+            rmdir($loader);
+        }
 
         foreach ($dirs as $dir) {
             if (!file_exists($dir)) {

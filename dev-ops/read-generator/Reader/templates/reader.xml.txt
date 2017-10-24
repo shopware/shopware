@@ -1,0 +1,3 @@
+        <service class="Shopware\#classUc#\Reader\#classUc##typeUc#Reader" id="shopware.#table#.#typeLc#_reader">
+            <argument id="shopware.#table#.#typeLc#_factory" type="service"/>#associations#
+        </service>

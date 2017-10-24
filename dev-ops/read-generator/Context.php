@@ -12,7 +12,7 @@ class Context
     public $createWriter = true;
     public $createBundle = true;
     public $createEvent = true;
-    public $createLoader = true;
+    public $createReader = true;
     public $createSearcher = true;
     public $createRepository = true;
     public $createServiceXml = true;

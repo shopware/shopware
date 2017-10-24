@@ -1,8 +1,10 @@
 # Cart deliveries
 
 The cart process allows to split a single cart into different deliveries. The conditions to split deliveries are currently only the stock availability of an line item.
-The deliveries are determined by the `\Shopware\Cart\Delivery\DeliverySeparatorProcessor` and then calculated by the `\Shopware\Cart\Delivery\DeliveryCalculatorProcessor`.
-Each delivery has a determinated delivery date which contains an earliest delivery and latest delivery time:
+
+The new cart representation allows the seperation of line items into seperate deliveries. The `\Shopware\Cart\Delivery\DeliverySeparatorProcessor` is concerned with the seperation of deliveries, with respect to stock availabilities and shipping times of the ordered products. The `\Shopware\Cart\Delivery\DeliveryCalculatorProcessor` eventually calculated the shipping costs per delivery.
+
+Each delivery has a determined delivery date which contains an earliest delivery and latest delivery time:
 ```php
 <?php
 
@@ -25,7 +27,7 @@ class DeliveryDate extends Struct
 ```
 *Note, code examples have been simplified for clarity*
 
-In addition to DeliveryDate, a ShippingLocation and a shipping method are defined on each delivery.
+In addition to DeliveryDate, a ShippingLocation and a shipping method are defined for each delivery.
 
 ```php
 <?php
@@ -68,7 +70,7 @@ class Delivery extends Struct
 }
 ```
 
-All determined deliveries are located in the `\Shopware\Cart\Cart\CalculatedCart` according to the calculation process.
+All calculated deliveries are referenced in the `\Shopware\Cart\Cart\CalculatedCart`.
 ```php
 <?php
 
@@ -113,7 +115,7 @@ class Delivery extends Struct
 
 Unlike a voucher, most products in a shopping cart are goods that need to be delivered (with few exceptions - esd, ...).
 In order to mark an element for the cart as an deliverable element, it is necessary to implement the interface `\Shopware\Cart\LineItem\DeliverableLineItemInterface`.
-These interface provides all functions which required to determinate the delivery time and to calculate the shipping costs:
+These interface provides all functions which are required to determine the delivery time and to calculate the shipping costs:
 ```php
 <?php
 declare(strict_types=1);

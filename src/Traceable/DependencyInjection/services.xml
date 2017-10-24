@@ -6,10 +6,11 @@
 
     <services>
         <service id="Shopware\Traceable\DataCollector\CartCollector" public="false">
-            <tag name="data_collector"
-                 template="@Traceable/Profiler/layout.html.twig"
-                 id="cart"
-            />
+            <tag name="data_collector" template="@Traceable/Profiler/layout.html.twig" id="cart"/>
+            <argument type="service" id="shopware.traceable.traced_cart_actions"/>
         </service>
+
+        <service class="Shopware\Traceable\Cart\TracedCartActions" id="shopware.traceable.traced_cart_actions"/>
+
     </services>
 </container>

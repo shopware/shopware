@@ -3,6 +3,7 @@
 namespace Shopware\Traceable;
 
 use Shopware\Storefront\Theme\Theme;
+use Shopware\Traceable\DependencyInjection\CartTracerCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Shopware\Traceable\DependencyInjection\TracerCompilerPass;
@@ -31,6 +32,7 @@ class Traceable extends Theme
     {
         parent::build($container);
         $container->addCompilerPass(new TracerCompilerPass());
+        $container->addCompilerPass(new CartTracerCompilerPass());
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('services.xml');

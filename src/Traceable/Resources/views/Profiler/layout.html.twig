@@ -31,4 +31,138 @@
 
 {% block panel %}
     <h2>Shopware cart process</h2>
+
+    <h3>Cart container</h3>
+    <table>
+        <tr>
+            <th>Identifier</th>
+            <th>Type</th>
+            <th>Quantity</th>
+            <th>Extra data</th>
+            <th>Price definition</th>
+        </tr>
+
+        {% for item in collector.cartContainer.lineItems %}
+            {# @var item \Shopware\Cart\LineItem\LineItemInterface #}
+            <tr>
+                <td>{{ item.identifier }}</td>
+                <td>{{ item.type }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ dump(item.extraData) }}</td>
+                <td>{{ dump(item.priceDefinition) }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Calculation process</h2>
+    <hr>
+
+    {% for class, classActions in collector.actions %}
+        <h3>{{ class }}</h3>
+        <table>
+            <tr>
+                <th>Action</th>
+                <th>Before</th>
+                <th>After</th>
+                <th>Affected item</th>
+            </tr>
+
+            {% for action in classActions %}
+                <tr>
+                    <td>{{ action.action }}</td>
+                    <td>{{ dump(action.before) }}</td>
+                    <td>{{ dump(action.after) }}</td>
+                    <td>{{ dump(action.item) }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endfor %}
+
+    <hr>
+    <h2>Calculated cart</h2>
+    <table>
+        <tr>
+            <th>Type</th>
+            <th>Identifier</th>
+            <th>Quantity</th>
+            <th>Unit price</th>
+            <th>Total price</th>
+            <th>Taxes</th>
+        </tr>
+
+        {# @var calculated \Shopware\Cart\LineItem\CalculatedLineItemInterface #}
+        {% for calculated in collector.calculatedCart.calculatedLineItems %}
+            <tr>
+                <td>{{ calculated.type }}</td>
+                <td>{{ calculated.identifier }}</td>
+                <td>{{ calculated.quantity }}</td>
+                <td>{{ calculated.price.unitPrice|localizedcurrency(collector.context.currency.shortName) }}</td>
+                <td>{{ calculated.price.totalPrice|localizedcurrency(collector.context.currency.shortName) }}</td>
+
+                <td>
+                    {% for tax in calculated.price.calculatedTaxes %}
+                        {# @var tax \Shopware\Cart\Tax\CalculatedTax #}
+                        {{ tax.taxRate }}% => {{ tax.tax|localizedcurrency(collector.context.currency.shortName) }}
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <hr>
+    <h2>Deliveries</h2>
+
+    {% for delivery in collector.calculatedCart.deliveries %}
+
+        {# @var delivery \Shopware\Cart\Delivery\Delivery#}
+        <table>
+            <tr>
+                <td>Delivery Date</td>
+                <td>{{ delivery.deliveryDate.earliest.format('Y-m-d') }} - {{ delivery.deliveryDate.latest.format('Y-m-d') }}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Shipping costs</td>
+                <td>
+                    {{ delivery.shippingCosts.totalPrice|localizedcurrency(collector.context.currency.shortName) }}
+                </td>
+                <td></td>
+            </tr>
+            {% for tax in delivery.shippingCosts.calculatedTaxes %}
+                <tr>
+                    <td>
+                        &nbsp;&nbsp;&nbsp;{{ tax.taxRate }}% tax of shipping costs
+                    </td>
+                    <td>
+                        &nbsp;&nbsp;&nbsp;{{ tax.tax|localizedcurrency(collector.context.currency.shortName) }}
+                    </td>
+                    <td></td>
+                </tr>
+            {% endfor %}
+
+            <tr>
+                <td><strong style="font-size: 18px">Positions</strong></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td><strong>Identifier</strong></td>
+                <td><strong>Quantity</strong></td>
+                <td><strong>Price of position</strong></td>
+            </tr>
+            {% for position in delivery.positions %}
+                {# @var position \Shopware\Cart\Delivery\DeliveryPosition #}
+                <tr>
+                    <td>{{ position.calculatedLineItem.identifier }}</td>
+                    <td>{{ position.quantity }}</td>
+                    <td>{{ position.price.totalPrice|localizedcurrency(collector.context.currency.shortName) }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+
+    {% endfor %}
+    <h2>Dumped cart</h2>
+    {{ dump(collector.calculatedCart) }}
 {% endblock %}

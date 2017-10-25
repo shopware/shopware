@@ -11,7 +11,7 @@
                         {% endif %}
 
                         <a href="{{ url }}"
-                           class="product--title"
+                           class="product--title search-result--link"
                            title="{{ product.name }}">
                             {% block search_ajax_list_entry_media %}
                                 <span class="entry--media block">
@@ -26,6 +26,7 @@
                                         {% block frontend_listing_box_article_image_picture_element %}
                                             <img srcset="{{ product.cover.media.thumbnails[0].url }}"
                                                  alt="{{ desc }}"
+                                                 class="media--image"
                                                  title="{{ desc|truncate(160, true) }}" />
                                         {% endblock %}
                                     {% else %}

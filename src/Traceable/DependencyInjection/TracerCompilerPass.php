@@ -36,15 +36,18 @@ class TracerCompilerPass implements CompilerPassInterface
             $this->replaceService($container, $id);
         }
 
+        $services = $container->findTaggedServiceIds('cart.processor');
+        foreach ($services as $id => $tags) {
+            $this->replaceService($container, $id);
+        }
+
         $services = $container->getServiceIds();
         $services = array_filter(
             $services,
             function (string $service) {
                 return (
-                    $this->isRepository($service)
-                    || $this->isLoader($service)
-                    || $this->isSearcher($service)
-                    || $this->isProcessor($service)
+                    $this->isLoader($service) ||
+                    $this->isSearcher($service)
                 );
             }
         );
@@ -74,23 +77,13 @@ class TracerCompilerPass implements CompilerPassInterface
         $container->setDefinition($serviceId, $new);
     }
 
-    private function isRepository(string $service): bool
-    {
-        return strpos($service, '.repository') > 0;
-    }
-
     private function isLoader(string $service): bool
     {
-        return strpos($service, '._loader') > 0;
+        return strpos($service, '.basic_loader') > 0 || strpos($service, '.detail_loader') > 0;
     }
 
     private function isSearcher(string $service): bool
     {
         return strpos($service, '.searcher') > 0;
-    }
-
-    private function isProcessor(string $service): bool
-    {
-        return strpos($service, '.collector') > 0 && strpos($service, 'cart') > 0 ;
     }
 }

@@ -107,12 +107,13 @@ class #className# extends #originalClass#
     }
     
     #functions#
-}
-            '
+}'
         );
 
         $file = $this->directory . '/' . $className . '.php';
         file_put_contents($file, $template);
+
+        require_once $file;
 
         return 'ShopwareTracer\\' . $className;
     }

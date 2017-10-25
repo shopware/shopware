@@ -58,6 +58,10 @@ class BlogCommentWriteResource extends WriteResource
          * @var string[]      $identifiers
          */
         foreach ($updates as $class => $identifiers) {
+            if (!array_key_exists($class, $updates) || count($updates[$class]) === 0) {
+                continue;
+            }
+
             $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 

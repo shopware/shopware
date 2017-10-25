@@ -3,13 +3,12 @@
 namespace Shopware\ShippingMethodPrice\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionInterface;
-use Shopware\ShippingMethodPrice\Event\ShippingMethodPriceBasicLoadedEvent;
-use Shopware\ShippingMethodPrice\Event\ShippingMethodPriceWrittenEvent;
+use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\ShippingMethodPrice\Event\ShippingMethodPriceBasicLoadedEvent;
 use Shopware\ShippingMethodPrice\Struct\ShippingMethodPriceBasicStruct;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 abstract class ShippingMethodPriceExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -17,7 +16,6 @@ abstract class ShippingMethodPriceExtension implements ExtensionInterface, Event
     {
         return [
             ShippingMethodPriceBasicLoadedEvent::NAME => 'shippingMethodPriceBasicLoaded',
-            
         ];
     }
 
@@ -26,7 +24,6 @@ abstract class ShippingMethodPriceExtension implements ExtensionInterface, Event
         QueryBuilder $query,
         TranslationContext $context
     ): void {
-
     }
 
     public function getDetailFields(): array
@@ -44,11 +41,10 @@ abstract class ShippingMethodPriceExtension implements ExtensionInterface, Event
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void
-    { }
+    ): void {
+    }
 
     public function shippingMethodPriceBasicLoaded(ShippingMethodPriceBasicLoadedEvent $event): void
-    { }
-
-    
+    {
+    }
 }

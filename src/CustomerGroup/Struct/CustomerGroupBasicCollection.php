@@ -64,6 +64,11 @@ class CustomerGroupBasicCollection extends Collection
         }
     }
 
+    public function current(): CustomerGroupBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(CustomerGroupBasicStruct $element): string
     {
         return $element->getUuid();

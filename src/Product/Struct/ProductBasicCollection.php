@@ -230,6 +230,11 @@ class ProductBasicCollection extends Collection
         return $collection;
     }
 
+    public function current(): ProductBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(ProductBasicStruct $element): string
     {
         return $element->getUuid();

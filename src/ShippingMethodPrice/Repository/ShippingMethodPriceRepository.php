@@ -3,24 +3,25 @@
 namespace Shopware\ShippingMethodPrice\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Shopware\ShippingMethodPrice\Event\ShippingMethodPriceBasicLoadedEvent;
 use Shopware\ShippingMethodPrice\Event\ShippingMethodPriceWrittenEvent;
-use Shopware\ShippingMethodPrice\Loader\ShippingMethodPriceBasicLoader;
+use Shopware\ShippingMethodPrice\Reader\ShippingMethodPriceBasicReader;
 use Shopware\ShippingMethodPrice\Searcher\ShippingMethodPriceSearcher;
 use Shopware\ShippingMethodPrice\Searcher\ShippingMethodPriceSearchResult;
 use Shopware\ShippingMethodPrice\Struct\ShippingMethodPriceBasicCollection;
 use Shopware\ShippingMethodPrice\Writer\ShippingMethodPriceWriter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ShippingMethodPriceRepository
+class ShippingMethodPriceRepository implements RepositoryInterface
 {
     /**
-     * @var ShippingMethodPriceBasicLoader
+     * @var ShippingMethodPriceBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class ShippingMethodPriceRepository
     private $writer;
 
     public function __construct(
-        ShippingMethodPriceBasicLoader $basicLoader,
+        ShippingMethodPriceBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         ShippingMethodPriceSearcher $searcher,
         ShippingMethodPriceWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): ShippingMethodPriceBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): ShippingMethodPriceBasicCollection
     {
         if (empty($uuids)) {
             return new ShippingMethodPriceBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             ShippingMethodPriceBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class ShippingMethodPriceRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): ShippingMethodPriceBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): ShippingMethodPriceSearchResult

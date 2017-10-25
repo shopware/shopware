@@ -45,7 +45,7 @@ class NavigationService
 
     public function load(string $categoryUuid, ShopContext $context): Navigation
     {
-        $activeCategory = $this->repository->read([$categoryUuid], $context->getTranslationContext())
+        $activeCategory = $this->repository->readBasic([$categoryUuid], $context->getTranslationContext())
             ->get($categoryUuid);
 
         $systemCategory = $context->getShop()->getCategory();

@@ -14,7 +14,7 @@ use Shopware\ShippingMethodPrice\Event\ShippingMethodPriceBasicLoadedEvent;
 
 class ShippingMethodDetailLoadedEvent extends NestedEvent
 {
-    const NAME = 'shippingMethod.detail.loaded';
+    const NAME = 'shipping_method.detail.loaded';
 
     /**
      * @var ShippingMethodDetailCollection

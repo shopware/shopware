@@ -9,8 +9,8 @@ use Shopware\Search\UuidSearchResult;
 use Shopware\ShippingMethod\Event\ShippingMethodBasicLoadedEvent;
 use Shopware\ShippingMethod\Event\ShippingMethodDetailLoadedEvent;
 use Shopware\ShippingMethod\Event\ShippingMethodWrittenEvent;
-use Shopware\ShippingMethod\Loader\ShippingMethodBasicLoader;
-use Shopware\ShippingMethod\Loader\ShippingMethodDetailLoader;
+use Shopware\ShippingMethod\Reader\ShippingMethodBasicReader;
+use Shopware\ShippingMethod\Reader\ShippingMethodDetailReader;
 use Shopware\ShippingMethod\Searcher\ShippingMethodSearcher;
 use Shopware\ShippingMethod\Searcher\ShippingMethodSearchResult;
 use Shopware\ShippingMethod\Struct\ShippingMethodBasicCollection;
@@ -21,14 +21,14 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ShippingMethodRepository
 {
     /**
-     * @var ShippingMethodDetailLoader
+     * @var ShippingMethodDetailReader
      */
-    protected $detailLoader;
+    protected $detailReader;
 
     /**
-     * @var ShippingMethodBasicLoader
+     * @var ShippingMethodBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -46,17 +46,33 @@ class ShippingMethodRepository
     private $writer;
 
     public function __construct(
-        ShippingMethodDetailLoader $detailLoader,
-        ShippingMethodBasicLoader $basicLoader,
+        ShippingMethodDetailReader $detailReader,
+        ShippingMethodBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         ShippingMethodSearcher $searcher,
         ShippingMethodWriter $writer
     ) {
-        $this->detailLoader = $detailLoader;
-        $this->basicLoader = $basicLoader;
+        $this->detailReader = $detailReader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
+    }
+
+    public function readBasic(array $uuids, TranslationContext $context): ShippingMethodBasicCollection
+    {
+        if (empty($uuids)) {
+            return new ShippingMethodBasicCollection();
+        }
+
+        $collection = $this->basicReader->readBasic($uuids, $context);
+
+        $this->eventDispatcher->dispatch(
+            ShippingMethodBasicLoadedEvent::NAME,
+            new ShippingMethodBasicLoadedEvent($collection, $context)
+        );
+
+        return $collection;
     }
 
     public function readDetail(array $uuids, TranslationContext $context): ShippingMethodDetailCollection
@@ -64,27 +80,11 @@ class ShippingMethodRepository
         if (empty($uuids)) {
             return new ShippingMethodDetailCollection();
         }
-        $collection = $this->detailLoader->load($uuids, $context);
+        $collection = $this->detailReader->readDetail($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             ShippingMethodDetailLoadedEvent::NAME,
             new ShippingMethodDetailLoadedEvent($collection, $context)
-        );
-
-        return $collection;
-    }
-
-    public function read(array $uuids, TranslationContext $context): ShippingMethodBasicCollection
-    {
-        if (empty($uuids)) {
-            return new ShippingMethodBasicCollection();
-        }
-
-        $collection = $this->basicLoader->load($uuids, $context);
-
-        $this->eventDispatcher->dispatch(
-            ShippingMethodBasicLoadedEvent::NAME,
-            new ShippingMethodBasicLoadedEvent($collection, $context)
         );
 
         return $collection;

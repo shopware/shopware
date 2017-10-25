@@ -28,11 +28,11 @@
             <argument type="service" id="shopware.framework.write.writer" />
         </service>
         
-        <service class="Shopware\Album\Loader\AlbumBasicLoader" id="shopware.album.basic_loader">
+        <service class="Shopware\Album\Reader\AlbumBasicReader" id="shopware.album.basic_reader">
             <argument id="shopware.album.basic_factory" type="service"/>
         </service>
 
-        <service class="Shopware\Album\Loader\AlbumDetailLoader" id="shopware.album.detail_loader">
+        <service class="Shopware\Album\Reader\AlbumDetailReader" id="shopware.album.detail_reader">
             <argument id="shopware.album.detail_factory" type="service"/>
             <argument id="shopware.media.searcher" type="service"/>
         </service>
@@ -41,12 +41,12 @@
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.album.detail_factory" type="service"/>
-            <argument id="shopware.album.basic_loader" type="service"/>
+            <argument id="shopware.album.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\Album\Repository\AlbumRepository" id="shopware.album.repository">
-            <argument id="shopware.album.detail_loader" type="service"/>
-            <argument id="shopware.album.basic_loader" type="service"/>
+            <argument id="shopware.album.detail_reader" type="service"/>
+            <argument id="shopware.album.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.album.searcher" type="service"/>
             <argument id="shopware.album.writer" type="service"/>

@@ -92,6 +92,11 @@ class PriceGroupDiscountBasicCollection extends Collection
         });
     }
 
+    public function current(): PriceGroupDiscountBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(PriceGroupDiscountBasicStruct $element): string
     {
         return $element->getUuid();

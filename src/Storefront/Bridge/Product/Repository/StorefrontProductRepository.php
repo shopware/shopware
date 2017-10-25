@@ -49,7 +49,7 @@ class StorefrontProductRepository
 
     public function read(array $uuids, ShopContext $context): ProductBasicCollection
     {
-        $products = $this->repository->read($uuids, $context->getTranslationContext());
+        $products = $this->repository->readBasic($uuids, $context->getTranslationContext());
 
         $media = $this->fetchMedia($uuids, $context);
 

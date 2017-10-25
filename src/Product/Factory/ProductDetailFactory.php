@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Category\Factory\CategoryBasicFactory;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Factory\CustomerGroupBasicFactory;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
 use Shopware\PriceGroup\Factory\PriceGroupBasicFactory;
 use Shopware\Product\Struct\ProductBasicStruct;
 use Shopware\Product\Struct\ProductDetailStruct;

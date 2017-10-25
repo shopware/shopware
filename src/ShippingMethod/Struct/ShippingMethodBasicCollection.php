@@ -92,6 +92,11 @@ class ShippingMethodBasicCollection extends Collection
         });
     }
 
+    public function current(): ShippingMethodBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(ShippingMethodBasicStruct $element): string
     {
         return $element->getUuid();

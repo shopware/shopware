@@ -76,7 +76,7 @@ class UnitController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('unitUuid');
-        $units = $this->unitRepository->read(
+        $units = $this->unitRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
@@ -98,7 +98,7 @@ class UnitController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $units = $this->unitRepository->read(
+        $units = $this->unitRepository->readBasic(
             $createEvent->getUnitUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class UnitController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $units = $this->unitRepository->read(
+        $units = $this->unitRepository->readBasic(
             $createEvent->getUnitUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class UnitController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $units = $this->unitRepository->read(
+        $units = $this->unitRepository->readBasic(
             $createEvent->getUnitUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -190,7 +190,7 @@ class UnitController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $units = $this->unitRepository->read(
+        $units = $this->unitRepository->readBasic(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

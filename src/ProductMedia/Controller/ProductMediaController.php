@@ -76,7 +76,7 @@ class ProductMediaController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('productMediaUuid');
-        $productMedias = $this->productMediaRepository->read(
+        $productMedias = $this->productMediaRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
@@ -98,7 +98,7 @@ class ProductMediaController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $productMedias = $this->productMediaRepository->read(
+        $productMedias = $this->productMediaRepository->readBasic(
             $createEvent->getProductMediaUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class ProductMediaController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $productMedias = $this->productMediaRepository->read(
+        $productMedias = $this->productMediaRepository->readBasic(
             $createEvent->getProductMediaUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class ProductMediaController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $productMedias = $this->productMediaRepository->read(
+        $productMedias = $this->productMediaRepository->readBasic(
             $createEvent->getProductMediaUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -190,7 +190,7 @@ class ProductMediaController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $productMedias = $this->productMediaRepository->read(
+        $productMedias = $this->productMediaRepository->readBasic(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

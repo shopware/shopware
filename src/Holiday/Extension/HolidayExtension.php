@@ -3,13 +3,12 @@
 namespace Shopware\Holiday\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionInterface;
+use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\Holiday\Event\HolidayBasicLoadedEvent;
-use Shopware\Holiday\Event\HolidayWrittenEvent;
+use Shopware\Holiday\Struct\HolidayBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Shopware\Holiday\Struct\HolidayBasicStruct;
 
 abstract class HolidayExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -17,7 +16,6 @@ abstract class HolidayExtension implements ExtensionInterface, EventSubscriberIn
     {
         return [
             HolidayBasicLoadedEvent::NAME => 'holidayBasicLoaded',
-            
         ];
     }
 
@@ -26,7 +24,6 @@ abstract class HolidayExtension implements ExtensionInterface, EventSubscriberIn
         QueryBuilder $query,
         TranslationContext $context
     ): void {
-
     }
 
     public function getDetailFields(): array
@@ -44,11 +41,10 @@ abstract class HolidayExtension implements ExtensionInterface, EventSubscriberIn
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void
-    { }
+    ): void {
+    }
 
     public function holidayBasicLoaded(HolidayBasicLoadedEvent $event): void
-    { }
-
-    
+    {
+    }
 }

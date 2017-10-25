@@ -4,8 +4,8 @@ namespace Shopware\ProductManufacturer\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
-use Shopware\Framework\Factory\Factory;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
+use Shopware\Framework\Read\Factory;
 use Shopware\ProductManufacturer\Extension\ProductManufacturerExtension;
 use Shopware\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
 use Shopware\Search\QueryBuilder;

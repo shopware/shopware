@@ -2,15 +2,14 @@
 
 namespace Shopware\Album\Extension;
 
-use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\Album\Event\AlbumBasicLoadedEvent;
 use Shopware\Album\Event\AlbumDetailLoadedEvent;
-use Shopware\Album\Event\AlbumWrittenEvent;
+use Shopware\Album\Struct\AlbumBasicStruct;
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Shopware\Album\Struct\AlbumBasicStruct;
 
 abstract class AlbumExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -19,7 +18,6 @@ abstract class AlbumExtension implements ExtensionInterface, EventSubscriberInte
         return [
             AlbumBasicLoadedEvent::NAME => 'albumBasicLoaded',
             AlbumDetailLoadedEvent::NAME => 'albumDetailLoaded',
-            
         ];
     }
 
@@ -28,7 +26,6 @@ abstract class AlbumExtension implements ExtensionInterface, EventSubscriberInte
         QueryBuilder $query,
         TranslationContext $context
     ): void {
-
     }
 
     public function getDetailFields(): array
@@ -46,15 +43,14 @@ abstract class AlbumExtension implements ExtensionInterface, EventSubscriberInte
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void
-    { }
+    ): void {
+    }
 
     public function albumBasicLoaded(AlbumBasicLoadedEvent $event): void
-    { }
+    {
+    }
 
     public function albumDetailLoaded(AlbumDetailLoadedEvent $event): void
-    { }
-
-    
-
+    {
+    }
 }

@@ -22,7 +22,7 @@
             <argument type="service" id="shopware.framework.write.writer" />
         </service>
         
-        <service class="Shopware\Locale\Loader\LocaleBasicLoader" id="shopware.locale.basic_loader">
+        <service class="Shopware\Locale\Reader\LocaleBasicReader" id="shopware.locale.basic_reader">
             <argument id="shopware.locale.basic_factory" type="service"/>
         </service>
 
@@ -30,11 +30,11 @@
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.locale.basic_factory" type="service"/>
-            <argument id="shopware.locale.basic_loader" type="service"/>
+            <argument id="shopware.locale.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\Locale\Repository\LocaleRepository" id="shopware.locale.repository">
-            <argument id="shopware.locale.basic_loader" type="service"/>
+            <argument id="shopware.locale.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.locale.searcher" type="service"/>
             <argument id="shopware.locale.writer" type="service"/>

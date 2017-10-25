@@ -2,7 +2,6 @@
 
 namespace Shopware\Api;
 
-use Shopware\Api\ResponseEnvelope;
 use SimpleXMLElement;
 use Symfony\Component\HttpFoundation\Response;
 

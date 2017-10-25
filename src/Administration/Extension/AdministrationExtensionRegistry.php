@@ -2,9 +2,9 @@
 
 namespace Shopware\Administration\Extension;
 
-use Shopware\Framework\Factory\ExtensionInterface;
-use Shopware\Framework\Factory\ExtensionRegistry;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
+use Shopware\Framework\Read\ExtensionInterface;
+use Shopware\Framework\Read\ExtensionRegistry;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
 
 class AdministrationExtensionRegistry implements ExtensionRegistryInterface
 {

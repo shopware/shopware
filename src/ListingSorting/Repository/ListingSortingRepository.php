@@ -3,9 +3,10 @@
 namespace Shopware\ListingSorting\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\ListingSorting\Event\ListingSortingBasicLoadedEvent;
 use Shopware\ListingSorting\Event\ListingSortingWrittenEvent;
-use Shopware\ListingSorting\Loader\ListingSortingBasicLoader;
+use Shopware\ListingSorting\Reader\ListingSortingBasicReader;
 use Shopware\ListingSorting\Searcher\ListingSortingSearcher;
 use Shopware\ListingSorting\Searcher\ListingSortingSearchResult;
 use Shopware\ListingSorting\Struct\ListingSortingBasicCollection;
@@ -15,12 +16,12 @@ use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ListingSortingRepository
+class ListingSortingRepository implements RepositoryInterface
 {
     /**
-     * @var ListingSortingBasicLoader
+     * @var ListingSortingBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class ListingSortingRepository
     private $writer;
 
     public function __construct(
-        ListingSortingBasicLoader $basicLoader,
+        ListingSortingBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         ListingSortingSearcher $searcher,
         ListingSortingWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): ListingSortingBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): ListingSortingBasicCollection
     {
         if (empty($uuids)) {
             return new ListingSortingBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             ListingSortingBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class ListingSortingRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): ListingSortingBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): ListingSortingSearchResult

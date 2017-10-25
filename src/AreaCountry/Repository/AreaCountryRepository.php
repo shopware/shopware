@@ -5,8 +5,8 @@ namespace Shopware\AreaCountry\Repository;
 use Shopware\AreaCountry\Event\AreaCountryBasicLoadedEvent;
 use Shopware\AreaCountry\Event\AreaCountryDetailLoadedEvent;
 use Shopware\AreaCountry\Event\AreaCountryWrittenEvent;
-use Shopware\AreaCountry\Loader\AreaCountryBasicLoader;
-use Shopware\AreaCountry\Loader\AreaCountryDetailLoader;
+use Shopware\AreaCountry\Reader\AreaCountryBasicReader;
+use Shopware\AreaCountry\Reader\AreaCountryDetailReader;
 use Shopware\AreaCountry\Searcher\AreaCountrySearcher;
 use Shopware\AreaCountry\Searcher\AreaCountrySearchResult;
 use Shopware\AreaCountry\Struct\AreaCountryBasicCollection;
@@ -21,14 +21,14 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class AreaCountryRepository
 {
     /**
-     * @var AreaCountryDetailLoader
+     * @var AreaCountryDetailReader
      */
-    protected $detailLoader;
+    protected $detailReader;
 
     /**
-     * @var AreaCountryBasicLoader
+     * @var AreaCountryBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -46,17 +46,33 @@ class AreaCountryRepository
     private $writer;
 
     public function __construct(
-        AreaCountryDetailLoader $detailLoader,
-        AreaCountryBasicLoader $basicLoader,
+        AreaCountryDetailReader $detailReader,
+        AreaCountryBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         AreaCountrySearcher $searcher,
         AreaCountryWriter $writer
     ) {
-        $this->detailLoader = $detailLoader;
-        $this->basicLoader = $basicLoader;
+        $this->detailReader = $detailReader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
+    }
+
+    public function readBasic(array $uuids, TranslationContext $context): AreaCountryBasicCollection
+    {
+        if (empty($uuids)) {
+            return new AreaCountryBasicCollection();
+        }
+
+        $collection = $this->basicReader->readBasic($uuids, $context);
+
+        $this->eventDispatcher->dispatch(
+            AreaCountryBasicLoadedEvent::NAME,
+            new AreaCountryBasicLoadedEvent($collection, $context)
+        );
+
+        return $collection;
     }
 
     public function readDetail(array $uuids, TranslationContext $context): AreaCountryDetailCollection
@@ -64,27 +80,11 @@ class AreaCountryRepository
         if (empty($uuids)) {
             return new AreaCountryDetailCollection();
         }
-        $collection = $this->detailLoader->load($uuids, $context);
+        $collection = $this->detailReader->readDetail($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             AreaCountryDetailLoadedEvent::NAME,
             new AreaCountryDetailLoadedEvent($collection, $context)
-        );
-
-        return $collection;
-    }
-
-    public function read(array $uuids, TranslationContext $context): AreaCountryBasicCollection
-    {
-        if (empty($uuids)) {
-            return new AreaCountryBasicCollection();
-        }
-
-        $collection = $this->basicLoader->load($uuids, $context);
-
-        $this->eventDispatcher->dispatch(
-            AreaCountryBasicLoadedEvent::NAME,
-            new AreaCountryBasicLoadedEvent($collection, $context)
         );
 
         return $collection;

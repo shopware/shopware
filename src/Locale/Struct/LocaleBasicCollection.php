@@ -64,6 +64,11 @@ class LocaleBasicCollection extends Collection
         }
     }
 
+    public function current(): LocaleBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(LocaleBasicStruct $element): string
     {
         return $element->getUuid();

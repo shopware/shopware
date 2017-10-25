@@ -22,7 +22,7 @@
             <argument type="service" id="shopware.framework.write.writer" />
         </service>
         
-        <service class="Shopware\ListingSorting\Loader\ListingSortingBasicLoader" id="shopware.listing_sorting.basic_loader">
+        <service class="Shopware\ListingSorting\Reader\ListingSortingBasicReader" id="shopware.listing_sorting.basic_reader">
             <argument id="shopware.listing_sorting.basic_factory" type="service"/>
         </service>
 
@@ -30,11 +30,11 @@
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.listing_sorting.basic_factory" type="service"/>
-            <argument id="shopware.listing_sorting.basic_loader" type="service"/>
+            <argument id="shopware.listing_sorting.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\ListingSorting\Repository\ListingSortingRepository" id="shopware.listing_sorting.repository">
-            <argument id="shopware.listing_sorting.basic_loader" type="service"/>
+            <argument id="shopware.listing_sorting.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.listing_sorting.searcher" type="service"/>
             <argument id="shopware.listing_sorting.writer" type="service"/>

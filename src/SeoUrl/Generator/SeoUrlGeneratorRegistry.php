@@ -81,7 +81,7 @@ class SeoUrlGeneratorRegistry
 
     public function generate(string $shopUuid, TranslationContext $context, bool $force): void
     {
-        $shop = $this->shopRepository->read([$shopUuid], $context)->get($shopUuid);
+        $shop = $this->shopRepository->readBasic([$shopUuid], $context)->get($shopUuid);
 
         foreach ($this->generators as $generator) {
             $this->connection->transactional(

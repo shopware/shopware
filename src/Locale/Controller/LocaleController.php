@@ -76,7 +76,7 @@ class LocaleController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('localeUuid');
-        $locales = $this->localeRepository->read(
+        $locales = $this->localeRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
@@ -98,7 +98,7 @@ class LocaleController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $locales = $this->localeRepository->read(
+        $locales = $this->localeRepository->readBasic(
             $createEvent->getLocaleUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class LocaleController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $locales = $this->localeRepository->read(
+        $locales = $this->localeRepository->readBasic(
             $createEvent->getLocaleUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class LocaleController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $locales = $this->localeRepository->read(
+        $locales = $this->localeRepository->readBasic(
             $createEvent->getLocaleUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -190,7 +190,7 @@ class LocaleController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $locales = $this->localeRepository->read(
+        $locales = $this->localeRepository->readBasic(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

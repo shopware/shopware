@@ -4,7 +4,7 @@ namespace Shopware\AreaCountryState\Searcher;
 
 use Doctrine\DBAL\Connection;
 use Shopware\AreaCountryState\Factory\AreaCountryStateBasicFactory;
-use Shopware\AreaCountryState\Loader\AreaCountryStateBasicLoader;
+use Shopware\AreaCountryState\Reader\AreaCountryStateBasicReader;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\SqlParser;
@@ -21,15 +21,15 @@ class AreaCountryStateSearcher extends Searcher
     private $factory;
 
     /**
-     * @var AreaCountryStateBasicLoader
+     * @var AreaCountryStateBasicReader
      */
-    private $loader;
+    private $reader;
 
-    public function __construct(Connection $connection, SqlParser $parser, AreaCountryStateBasicFactory $factory, AreaCountryStateBasicLoader $loader)
+    public function __construct(Connection $connection, SqlParser $parser, AreaCountryStateBasicFactory $factory, AreaCountryStateBasicReader $reader)
     {
         parent::__construct($connection, $parser);
         $this->factory = $factory;
-        $this->loader = $loader;
+        $this->reader = $reader;
     }
 
     protected function createQuery(Criteria $criteria, TranslationContext $context): QueryBuilder
@@ -37,13 +37,15 @@ class AreaCountryStateSearcher extends Searcher
         return $this->factory->createSearchQuery($criteria, $context);
     }
 
-    protected function load(UuidSearchResult $uuidResult, TranslationContext $context): SearchResultInterface
+    protected function load(UuidSearchResult $uuidResult, Criteria $criteria, TranslationContext $context): SearchResultInterface
     {
-        $collection = $this->loader->load($uuidResult->getUuids(), $context);
+        $collection = $this->reader->readBasic($uuidResult->getUuids(), $context);
 
         $result = new AreaCountryStateSearchResult($collection->getElements());
 
         $result->setTotal($uuidResult->getTotal());
+        $result->setCriteria($criteria);
+        $result->setContext($context);
 
         return $result;
     }

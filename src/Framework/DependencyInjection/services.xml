@@ -85,7 +85,7 @@
 
         <service class="Shopware\Framework\Struct\AttributeHydrator" id="shopware.framework.struct.attribute_hydrator"/>
 
-        <service class="Shopware\Framework\Factory\ExtensionRegistry" id="shopware.extension.registry">
+        <service class="Shopware\Framework\Read\ExtensionRegistry" id="shopware.extension.registry">
             <argument type="collection" />
         </service>
 

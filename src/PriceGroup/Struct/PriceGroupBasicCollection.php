@@ -64,6 +64,11 @@ class PriceGroupBasicCollection extends Collection
         }
     }
 
+    public function current(): PriceGroupBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(PriceGroupBasicStruct $element): string
     {
         return $element->getUuid();

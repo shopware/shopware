@@ -9,8 +9,8 @@ use Shopware\Search\UuidSearchResult;
 use Shopware\Shop\Event\ShopBasicLoadedEvent;
 use Shopware\Shop\Event\ShopDetailLoadedEvent;
 use Shopware\Shop\Event\ShopWrittenEvent;
-use Shopware\Shop\Loader\ShopBasicLoader;
-use Shopware\Shop\Loader\ShopDetailLoader;
+use Shopware\Shop\Reader\ShopBasicReader;
+use Shopware\Shop\Reader\ShopDetailReader;
 use Shopware\Shop\Searcher\ShopSearcher;
 use Shopware\Shop\Searcher\ShopSearchResult;
 use Shopware\Shop\Struct\ShopBasicCollection;
@@ -21,14 +21,14 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ShopRepository
 {
     /**
-     * @var ShopDetailLoader
+     * @var ShopDetailReader
      */
-    protected $detailLoader;
+    protected $detailReader;
 
     /**
-     * @var ShopBasicLoader
+     * @var ShopBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -46,17 +46,33 @@ class ShopRepository
     private $writer;
 
     public function __construct(
-        ShopDetailLoader $detailLoader,
-        ShopBasicLoader $basicLoader,
+        ShopDetailReader $detailReader,
+        ShopBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         ShopSearcher $searcher,
         ShopWriter $writer
     ) {
-        $this->detailLoader = $detailLoader;
-        $this->basicLoader = $basicLoader;
+        $this->detailReader = $detailReader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
+    }
+
+    public function readBasic(array $uuids, TranslationContext $context): ShopBasicCollection
+    {
+        if (empty($uuids)) {
+            return new ShopBasicCollection();
+        }
+
+        $collection = $this->basicReader->readBasic($uuids, $context);
+
+        $this->eventDispatcher->dispatch(
+            ShopBasicLoadedEvent::NAME,
+            new ShopBasicLoadedEvent($collection, $context)
+        );
+
+        return $collection;
     }
 
     public function readDetail(array $uuids, TranslationContext $context): ShopDetailCollection
@@ -64,27 +80,11 @@ class ShopRepository
         if (empty($uuids)) {
             return new ShopDetailCollection();
         }
-        $collection = $this->detailLoader->load($uuids, $context);
+        $collection = $this->detailReader->readDetail($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             ShopDetailLoadedEvent::NAME,
             new ShopDetailLoadedEvent($collection, $context)
-        );
-
-        return $collection;
-    }
-
-    public function read(array $uuids, TranslationContext $context): ShopBasicCollection
-    {
-        if (empty($uuids)) {
-            return new ShopBasicCollection();
-        }
-
-        $collection = $this->basicLoader->load($uuids, $context);
-
-        $this->eventDispatcher->dispatch(
-            ShopBasicLoadedEvent::NAME,
-            new ShopBasicLoadedEvent($collection, $context)
         );
 
         return $collection;

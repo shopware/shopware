@@ -76,7 +76,7 @@ class ShippingMethodPriceController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('shippingMethodPriceUuid');
-        $shippingMethodPrices = $this->shippingMethodPriceRepository->read(
+        $shippingMethodPrices = $this->shippingMethodPriceRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
@@ -98,7 +98,7 @@ class ShippingMethodPriceController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $shippingMethodPrices = $this->shippingMethodPriceRepository->read(
+        $shippingMethodPrices = $this->shippingMethodPriceRepository->readBasic(
             $createEvent->getShippingMethodPriceUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class ShippingMethodPriceController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $shippingMethodPrices = $this->shippingMethodPriceRepository->read(
+        $shippingMethodPrices = $this->shippingMethodPriceRepository->readBasic(
             $createEvent->getShippingMethodPriceUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class ShippingMethodPriceController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $shippingMethodPrices = $this->shippingMethodPriceRepository->read(
+        $shippingMethodPrices = $this->shippingMethodPriceRepository->readBasic(
             $createEvent->getShippingMethodPriceUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -190,7 +190,7 @@ class ShippingMethodPriceController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $shippingMethodPrices = $this->shippingMethodPriceRepository->read(
+        $shippingMethodPrices = $this->shippingMethodPriceRepository->readBasic(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

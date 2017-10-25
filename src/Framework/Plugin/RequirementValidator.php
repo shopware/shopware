@@ -76,7 +76,7 @@ class RequirementValidator
     }
 
     /**
-     * @param array[]                             $requiredPlugins
+     * @param array[]                                    $requiredPlugins
      * @param \Shopware\Framework\Plugin\Struct\Plugin[] $availablePlugins
      *
      * @throws \Exception

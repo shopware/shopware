@@ -11,7 +11,7 @@ use Shopware\Search\Searcher;
 use Shopware\Search\SearchResultInterface;
 use Shopware\Search\UuidSearchResult;
 use Shopware\ShippingMethodPrice\Factory\ShippingMethodPriceBasicFactory;
-use Shopware\ShippingMethodPrice\Loader\ShippingMethodPriceBasicLoader;
+use Shopware\ShippingMethodPrice\Reader\ShippingMethodPriceBasicReader;
 
 class ShippingMethodPriceSearcher extends Searcher
 {
@@ -21,15 +21,15 @@ class ShippingMethodPriceSearcher extends Searcher
     private $factory;
 
     /**
-     * @var ShippingMethodPriceBasicLoader
+     * @var ShippingMethodPriceBasicReader
      */
-    private $loader;
+    private $reader;
 
-    public function __construct(Connection $connection, SqlParser $parser, ShippingMethodPriceBasicFactory $factory, ShippingMethodPriceBasicLoader $loader)
+    public function __construct(Connection $connection, SqlParser $parser, ShippingMethodPriceBasicFactory $factory, ShippingMethodPriceBasicReader $reader)
     {
         parent::__construct($connection, $parser);
         $this->factory = $factory;
-        $this->loader = $loader;
+        $this->reader = $reader;
     }
 
     protected function createQuery(Criteria $criteria, TranslationContext $context): QueryBuilder
@@ -37,13 +37,15 @@ class ShippingMethodPriceSearcher extends Searcher
         return $this->factory->createSearchQuery($criteria, $context);
     }
 
-    protected function load(UuidSearchResult $uuidResult, TranslationContext $context): SearchResultInterface
+    protected function load(UuidSearchResult $uuidResult, Criteria $criteria, TranslationContext $context): SearchResultInterface
     {
-        $collection = $this->loader->load($uuidResult->getUuids(), $context);
+        $collection = $this->reader->readBasic($uuidResult->getUuids(), $context);
 
         $result = new ShippingMethodPriceSearchResult($collection->getElements());
 
         $result->setTotal($uuidResult->getTotal());
+        $result->setCriteria($criteria);
+        $result->setContext($context);
 
         return $result;
     }

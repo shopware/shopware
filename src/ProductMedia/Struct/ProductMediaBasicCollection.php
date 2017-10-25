@@ -130,6 +130,11 @@ class ProductMediaBasicCollection extends Collection
         );
     }
 
+    public function current(): ProductMediaBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(ProductMediaBasicStruct $element): string
     {
         return $element->getUuid();

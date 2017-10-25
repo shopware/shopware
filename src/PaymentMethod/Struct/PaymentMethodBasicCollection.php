@@ -78,6 +78,11 @@ class PaymentMethodBasicCollection extends Collection
         });
     }
 
+    public function current(): PaymentMethodBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(PaymentMethodBasicStruct $element): string
     {
         return $element->getUuid();

@@ -22,7 +22,7 @@
             <argument type="service" id="shopware.framework.write.writer" />
         </service>
         
-        <service class="Shopware\TaxAreaRule\Loader\TaxAreaRuleBasicLoader" id="shopware.tax_area_rule.basic_loader">
+        <service class="Shopware\TaxAreaRule\Reader\TaxAreaRuleBasicReader" id="shopware.tax_area_rule.basic_reader">
             <argument id="shopware.tax_area_rule.basic_factory" type="service"/>
         </service>
 
@@ -30,11 +30,11 @@
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.tax_area_rule.basic_factory" type="service"/>
-            <argument id="shopware.tax_area_rule.basic_loader" type="service"/>
+            <argument id="shopware.tax_area_rule.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\TaxAreaRule\Repository\TaxAreaRuleRepository" id="shopware.tax_area_rule.repository">
-            <argument id="shopware.tax_area_rule.basic_loader" type="service"/>
+            <argument id="shopware.tax_area_rule.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.tax_area_rule.searcher" type="service"/>
             <argument id="shopware.tax_area_rule.writer" type="service"/>

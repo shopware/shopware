@@ -76,7 +76,7 @@ class OrderStateController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('orderStateUuid');
-        $orderStates = $this->orderStateRepository->read(
+        $orderStates = $this->orderStateRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
@@ -98,7 +98,7 @@ class OrderStateController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $orderStates = $this->orderStateRepository->read(
+        $orderStates = $this->orderStateRepository->readBasic(
             $createEvent->getOrderStateUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class OrderStateController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $orderStates = $this->orderStateRepository->read(
+        $orderStates = $this->orderStateRepository->readBasic(
             $createEvent->getOrderStateUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class OrderStateController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $orderStates = $this->orderStateRepository->read(
+        $orderStates = $this->orderStateRepository->readBasic(
             $createEvent->getOrderStateUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -190,7 +190,7 @@ class OrderStateController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $orderStates = $this->orderStateRepository->read(
+        $orderStates = $this->orderStateRepository->readBasic(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

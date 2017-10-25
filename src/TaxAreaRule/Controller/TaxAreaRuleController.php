@@ -76,7 +76,7 @@ class TaxAreaRuleController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('taxAreaRuleUuid');
-        $taxAreaRules = $this->taxAreaRuleRepository->read(
+        $taxAreaRules = $this->taxAreaRuleRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
@@ -98,7 +98,7 @@ class TaxAreaRuleController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $taxAreaRules = $this->taxAreaRuleRepository->read(
+        $taxAreaRules = $this->taxAreaRuleRepository->readBasic(
             $createEvent->getTaxAreaRuleUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class TaxAreaRuleController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $taxAreaRules = $this->taxAreaRuleRepository->read(
+        $taxAreaRules = $this->taxAreaRuleRepository->readBasic(
             $createEvent->getTaxAreaRuleUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class TaxAreaRuleController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $taxAreaRules = $this->taxAreaRuleRepository->read(
+        $taxAreaRules = $this->taxAreaRuleRepository->readBasic(
             $createEvent->getTaxAreaRuleUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -190,7 +190,7 @@ class TaxAreaRuleController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $taxAreaRules = $this->taxAreaRuleRepository->read(
+        $taxAreaRules = $this->taxAreaRuleRepository->readBasic(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Currency\Factory\CurrencyBasicFactory;
 use Shopware\Customer\Factory\CustomerBasicFactory;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
 use Shopware\Order\Struct\OrderBasicStruct;
 use Shopware\Order\Struct\OrderDetailStruct;
 use Shopware\OrderAddress\Factory\OrderAddressBasicFactory;

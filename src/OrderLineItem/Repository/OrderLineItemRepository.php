@@ -3,9 +3,10 @@
 namespace Shopware\OrderLineItem\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\OrderLineItem\Event\OrderLineItemBasicLoadedEvent;
 use Shopware\OrderLineItem\Event\OrderLineItemWrittenEvent;
-use Shopware\OrderLineItem\Loader\OrderLineItemBasicLoader;
+use Shopware\OrderLineItem\Reader\OrderLineItemBasicReader;
 use Shopware\OrderLineItem\Searcher\OrderLineItemSearcher;
 use Shopware\OrderLineItem\Searcher\OrderLineItemSearchResult;
 use Shopware\OrderLineItem\Struct\OrderLineItemBasicCollection;
@@ -15,12 +16,12 @@ use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class OrderLineItemRepository
+class OrderLineItemRepository implements RepositoryInterface
 {
     /**
-     * @var OrderLineItemBasicLoader
+     * @var OrderLineItemBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class OrderLineItemRepository
     private $writer;
 
     public function __construct(
-        OrderLineItemBasicLoader $basicLoader,
+        OrderLineItemBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         OrderLineItemSearcher $searcher,
         OrderLineItemWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): OrderLineItemBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): OrderLineItemBasicCollection
     {
         if (empty($uuids)) {
             return new OrderLineItemBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             OrderLineItemBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class OrderLineItemRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): OrderLineItemBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): OrderLineItemSearchResult

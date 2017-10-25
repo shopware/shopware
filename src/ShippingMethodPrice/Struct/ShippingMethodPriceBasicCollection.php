@@ -78,6 +78,11 @@ class ShippingMethodPriceBasicCollection extends Collection
         });
     }
 
+    public function current(): ShippingMethodPriceBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(ShippingMethodPriceBasicStruct $element): string
     {
         return $element->getUuid();

@@ -210,6 +210,11 @@ class CustomerBasicCollection extends Collection
         );
     }
 
+    public function current(): CustomerBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(CustomerBasicStruct $element): string
     {
         return $element->getUuid();

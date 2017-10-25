@@ -5,7 +5,7 @@ namespace Shopware\OrderLineItem\Searcher;
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\OrderLineItem\Factory\OrderLineItemBasicFactory;
-use Shopware\OrderLineItem\Loader\OrderLineItemBasicLoader;
+use Shopware\OrderLineItem\Reader\OrderLineItemBasicReader;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\SqlParser;
 use Shopware\Search\QueryBuilder;
@@ -21,15 +21,15 @@ class OrderLineItemSearcher extends Searcher
     private $factory;
 
     /**
-     * @var OrderLineItemBasicLoader
+     * @var OrderLineItemBasicReader
      */
-    private $loader;
+    private $reader;
 
-    public function __construct(Connection $connection, SqlParser $parser, OrderLineItemBasicFactory $factory, OrderLineItemBasicLoader $loader)
+    public function __construct(Connection $connection, SqlParser $parser, OrderLineItemBasicFactory $factory, OrderLineItemBasicReader $reader)
     {
         parent::__construct($connection, $parser);
         $this->factory = $factory;
-        $this->loader = $loader;
+        $this->reader = $reader;
     }
 
     protected function createQuery(Criteria $criteria, TranslationContext $context): QueryBuilder
@@ -37,13 +37,15 @@ class OrderLineItemSearcher extends Searcher
         return $this->factory->createSearchQuery($criteria, $context);
     }
 
-    protected function load(UuidSearchResult $uuidResult, TranslationContext $context): SearchResultInterface
+    protected function load(UuidSearchResult $uuidResult, Criteria $criteria, TranslationContext $context): SearchResultInterface
     {
-        $collection = $this->loader->load($uuidResult->getUuids(), $context);
+        $collection = $this->reader->readBasic($uuidResult->getUuids(), $context);
 
         $result = new OrderLineItemSearchResult($collection->getElements());
 
         $result->setTotal($uuidResult->getTotal());
+        $result->setCriteria($criteria);
+        $result->setContext($context);
 
         return $result;
     }

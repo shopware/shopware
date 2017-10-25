@@ -76,7 +76,7 @@ class TaxController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('taxUuid');
-        $taxes = $this->taxRepository->read(
+        $taxes = $this->taxRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
@@ -98,7 +98,7 @@ class TaxController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $taxes = $this->taxRepository->read(
+        $taxes = $this->taxRepository->readBasic(
             $createEvent->getTaxUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class TaxController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $taxes = $this->taxRepository->read(
+        $taxes = $this->taxRepository->readBasic(
             $createEvent->getTaxUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class TaxController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $taxes = $this->taxRepository->read(
+        $taxes = $this->taxRepository->readBasic(
             $createEvent->getTaxUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -190,7 +190,7 @@ class TaxController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $taxes = $this->taxRepository->read(
+        $taxes = $this->taxRepository->readBasic(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

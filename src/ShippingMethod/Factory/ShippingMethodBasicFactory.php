@@ -4,8 +4,8 @@ namespace Shopware\ShippingMethod\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
-use Shopware\Framework\Factory\Factory;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
+use Shopware\Framework\Read\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Shopware\ShippingMethod\Extension\ShippingMethodExtension;

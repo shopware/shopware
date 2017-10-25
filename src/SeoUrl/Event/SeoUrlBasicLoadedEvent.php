@@ -9,7 +9,7 @@ use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
 
 class SeoUrlBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'seoUrl.basic.loaded';
+    const NAME = 'seo_url.basic.loaded';
 
     /**
      * @var SeoUrlBasicCollection

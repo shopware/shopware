@@ -7,7 +7,7 @@ use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\AreaCountry\Struct\AreaCountryDetailStruct;
 use Shopware\AreaCountryState\Factory\AreaCountryStateBasicFactory;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 

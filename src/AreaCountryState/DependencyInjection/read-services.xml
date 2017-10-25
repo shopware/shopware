@@ -22,7 +22,7 @@
             <argument type="service" id="shopware.framework.write.writer" />
         </service>
         
-        <service class="Shopware\AreaCountryState\Loader\AreaCountryStateBasicLoader" id="shopware.area_country_state.basic_loader">
+        <service class="Shopware\AreaCountryState\Reader\AreaCountryStateBasicReader" id="shopware.area_country_state.basic_reader">
             <argument id="shopware.area_country_state.basic_factory" type="service"/>
         </service>
 
@@ -30,11 +30,11 @@
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.area_country_state.basic_factory" type="service"/>
-            <argument id="shopware.area_country_state.basic_loader" type="service"/>
+            <argument id="shopware.area_country_state.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\AreaCountryState\Repository\AreaCountryStateRepository" id="shopware.area_country_state.repository">
-            <argument id="shopware.area_country_state.basic_loader" type="service"/>
+            <argument id="shopware.area_country_state.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.area_country_state.searcher" type="service"/>
             <argument id="shopware.area_country_state.writer" type="service"/>

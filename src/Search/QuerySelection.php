@@ -30,12 +30,14 @@ class QuerySelection
         $fields = [];
 
         foreach ($criteria->getFields() as $field) {
-            if (array_key_exists($field, $mapping)) {
-                $fields[$field] = $mapping[$field];
+            if (strpos($field, '.') === false) {
+                $field = $prefix . '.' . $field;
+            }
+            if (!array_key_exists($field, $mapping)) {
                 continue;
             }
 
-            $fields[$field] = $field;
+            $fields[$field] = $mapping[$field];
         }
 
         return new self($fields, $prefix);

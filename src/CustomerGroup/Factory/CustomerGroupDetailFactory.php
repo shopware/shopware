@@ -7,7 +7,7 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
 use Shopware\CustomerGroup\Struct\CustomerGroupDetailStruct;
 use Shopware\CustomerGroupDiscount\Factory\CustomerGroupDiscountBasicFactory;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 

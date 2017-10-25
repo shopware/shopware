@@ -3,14 +3,13 @@
 namespace Shopware\Customer\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionInterface;
 use Shopware\Customer\Event\CustomerBasicLoadedEvent;
 use Shopware\Customer\Event\CustomerDetailLoadedEvent;
-use Shopware\Customer\Event\CustomerWrittenEvent;
+use Shopware\Customer\Struct\CustomerBasicStruct;
+use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Shopware\Customer\Struct\CustomerBasicStruct;
 
 abstract class CustomerExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -19,7 +18,6 @@ abstract class CustomerExtension implements ExtensionInterface, EventSubscriberI
         return [
             CustomerBasicLoadedEvent::NAME => 'customerBasicLoaded',
             CustomerDetailLoadedEvent::NAME => 'customerDetailLoaded',
-            
         ];
     }
 
@@ -28,7 +26,6 @@ abstract class CustomerExtension implements ExtensionInterface, EventSubscriberI
         QueryBuilder $query,
         TranslationContext $context
     ): void {
-
     }
 
     public function getDetailFields(): array
@@ -46,15 +43,14 @@ abstract class CustomerExtension implements ExtensionInterface, EventSubscriberI
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void
-    { }
+    ): void {
+    }
 
     public function customerBasicLoaded(CustomerBasicLoadedEvent $event): void
-    { }
+    {
+    }
 
     public function customerDetailLoaded(CustomerDetailLoadedEvent $event): void
-    { }
-
-    
-
+    {
+    }
 }

@@ -4,8 +4,8 @@ namespace Shopware\ListingSorting\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
-use Shopware\Framework\Factory\Factory;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
+use Shopware\Framework\Read\Factory;
 use Shopware\ListingSorting\Extension\ListingSortingExtension;
 use Shopware\ListingSorting\Struct\ListingSortingBasicStruct;
 use Shopware\Search\QueryBuilder;

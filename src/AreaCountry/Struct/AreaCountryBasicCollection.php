@@ -78,6 +78,11 @@ class AreaCountryBasicCollection extends Collection
         });
     }
 
+    public function current(): AreaCountryBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(AreaCountryBasicStruct $element): string
     {
         return $element->getUuid();

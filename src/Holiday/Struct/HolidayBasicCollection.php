@@ -64,6 +64,11 @@ class HolidayBasicCollection extends Collection
         }
     }
 
+    public function current(): HolidayBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(HolidayBasicStruct $element): string
     {
         return $element->getUuid();

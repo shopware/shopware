@@ -27,7 +27,6 @@ namespace Shopware\Cart\Product;
 
 use Shopware\Cart\Error\Error;
 use Shopware\Cart\Price\PriceCollection;
-use Shopware\Cart\Product\CalculatedProduct;
 use Shopware\Framework\Struct\Collection;
 
 class CalculatedProductCollection extends Collection

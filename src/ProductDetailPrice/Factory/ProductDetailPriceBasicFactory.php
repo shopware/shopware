@@ -4,8 +4,8 @@ namespace Shopware\ProductDetailPrice\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
-use Shopware\Framework\Factory\Factory;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
+use Shopware\Framework\Read\Factory;
 use Shopware\ProductDetailPrice\Extension\ProductDetailPriceExtension;
 use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicStruct;
 use Shopware\Search\QueryBuilder;

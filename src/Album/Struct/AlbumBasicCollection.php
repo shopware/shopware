@@ -78,6 +78,11 @@ class AlbumBasicCollection extends Collection
         });
     }
 
+    public function current(): AlbumBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(AlbumBasicStruct $element): string
     {
         return $element->getUuid();

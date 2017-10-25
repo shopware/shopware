@@ -98,7 +98,7 @@ class AreaCountryController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $areaCountries = $this->areaCountryRepository->read(
+        $areaCountries = $this->areaCountryRepository->readBasic(
             $createEvent->getAreaCountryUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class AreaCountryController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $areaCountries = $this->areaCountryRepository->read(
+        $areaCountries = $this->areaCountryRepository->readBasic(
             $createEvent->getAreaCountryUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class AreaCountryController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $areaCountries = $this->areaCountryRepository->read(
+        $areaCountries = $this->areaCountryRepository->readBasic(
             $createEvent->getAreaCountryUuids(),
             $context->getShopContext()->getTranslationContext()
         );

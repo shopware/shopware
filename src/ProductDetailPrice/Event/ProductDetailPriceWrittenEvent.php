@@ -2,94 +2,19 @@
 
 namespace Shopware\ProductDetailPrice\Event;
 
-use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Symfony\Component\DependencyInjection\Container;
+use Shopware\Framework\Write\EntityWrittenEvent;
 
-class ProductDetailPriceWrittenEvent extends NestedEvent
+class ProductDetailPriceWrittenEvent extends EntityWrittenEvent
 {
     const NAME = 'product_detail_price.written';
-
-    /**
-     * @var NestedEventCollection
-     */
-    protected $events;
-
-    /**
-     * @var array
-     */
-    protected $errors;
-
-    /**
-     * @var TranslationContext
-     */
-    protected $context;
-
-    /**
-     * @var string[]
-     */
-    protected $productDetailPriceUuids = [];
-
-    /**
-     * @var array
-     */
-    private $rawData;
-
-    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
-    {
-        $this->events = new NestedEventCollection();
-        $this->context = $context;
-        $this->errors = $errors;
-        $this->rawData = $rawData;
-
-        foreach ($primaryKeys as $key => $value) {
-            if ($key === 'uuid') {
-                $key = 'ProductDetailPriceUuid';
-            }
-
-            $key = lcfirst(Container::camelize($key)) . 's';
-            $this->$key = $value;
-        }
-    }
 
     public function getName(): string
     {
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getEntityName(): string
     {
-        return $this->context;
-    }
-
-    public function getErrors(): array
-    {
-        return $this->errors;
-    }
-
-    public function hasErrors(): bool
-    {
-        return count($this->errors) > 0;
-    }
-
-    public function addEvent(NestedEvent $event): void
-    {
-        $this->events->add($event);
-    }
-
-    public function getEvents(): NestedEventCollection
-    {
-        return $this->events;
-    }
-
-    public function getRawData(): array
-    {
-        return $this->rawData;
-    }
-
-    public function getProductDetailPriceUuids(): array
-    {
-        return $this->productDetailPriceUuids;
+        return 'product_detail_price';
     }
 }

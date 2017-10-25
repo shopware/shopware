@@ -3,24 +3,25 @@
 namespace Shopware\ShopTemplate\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Shopware\ShopTemplate\Event\ShopTemplateBasicLoadedEvent;
 use Shopware\ShopTemplate\Event\ShopTemplateWrittenEvent;
-use Shopware\ShopTemplate\Loader\ShopTemplateBasicLoader;
+use Shopware\ShopTemplate\Reader\ShopTemplateBasicReader;
 use Shopware\ShopTemplate\Searcher\ShopTemplateSearcher;
 use Shopware\ShopTemplate\Searcher\ShopTemplateSearchResult;
 use Shopware\ShopTemplate\Struct\ShopTemplateBasicCollection;
 use Shopware\ShopTemplate\Writer\ShopTemplateWriter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ShopTemplateRepository
+class ShopTemplateRepository implements RepositoryInterface
 {
     /**
-     * @var ShopTemplateBasicLoader
+     * @var ShopTemplateBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class ShopTemplateRepository
     private $writer;
 
     public function __construct(
-        ShopTemplateBasicLoader $basicLoader,
+        ShopTemplateBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         ShopTemplateSearcher $searcher,
         ShopTemplateWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): ShopTemplateBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): ShopTemplateBasicCollection
     {
         if (empty($uuids)) {
             return new ShopTemplateBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             ShopTemplateBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class ShopTemplateRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): ShopTemplateBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): ShopTemplateSearchResult

@@ -112,6 +112,11 @@ class OrderAddressBasicCollection extends Collection
         );
     }
 
+    public function current(): OrderAddressBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(OrderAddressBasicStruct $element): string
     {
         return $element->getUuid();

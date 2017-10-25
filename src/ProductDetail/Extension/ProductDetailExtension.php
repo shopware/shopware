@@ -3,13 +3,12 @@
 namespace Shopware\ProductDetail\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionInterface;
+use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\ProductDetail\Event\ProductDetailBasicLoadedEvent;
-use Shopware\ProductDetail\Event\ProductDetailWrittenEvent;
+use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
 
 abstract class ProductDetailExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -17,7 +16,6 @@ abstract class ProductDetailExtension implements ExtensionInterface, EventSubscr
     {
         return [
             ProductDetailBasicLoadedEvent::NAME => 'productDetailBasicLoaded',
-            
         ];
     }
 
@@ -26,7 +24,6 @@ abstract class ProductDetailExtension implements ExtensionInterface, EventSubscr
         QueryBuilder $query,
         TranslationContext $context
     ): void {
-
     }
 
     public function getDetailFields(): array
@@ -44,11 +41,10 @@ abstract class ProductDetailExtension implements ExtensionInterface, EventSubscr
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void
-    { }
+    ): void {
+    }
 
     public function productDetailBasicLoaded(ProductDetailBasicLoadedEvent $event): void
-    { }
-
-    
+    {
+    }
 }

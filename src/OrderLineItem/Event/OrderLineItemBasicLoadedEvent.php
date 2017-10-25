@@ -9,7 +9,7 @@ use Shopware\OrderLineItem\Struct\OrderLineItemBasicCollection;
 
 class OrderLineItemBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'orderLineItem.basic.loaded';
+    const NAME = 'order_line_item.basic.loaded';
 
     /**
      * @var OrderLineItemBasicCollection

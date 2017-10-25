@@ -3,13 +3,13 @@
 namespace Shopware\ProductVoteAverage\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionInterface;
+use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\ProductVoteAverage\Event\ProductVoteAverageBasicLoadedEvent;
 use Shopware\ProductVoteAverage\Event\ProductVoteAverageWrittenEvent;
+use Shopware\ProductVoteAverage\Struct\ProductVoteAverageBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Shopware\ProductVoteAverage\Struct\ProductVoteAverageBasicStruct;
 
 abstract class ProductVoteAverageExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -26,7 +26,6 @@ abstract class ProductVoteAverageExtension implements ExtensionInterface, EventS
         QueryBuilder $query,
         TranslationContext $context
     ): void {
-
     }
 
     public function getDetailFields(): array
@@ -44,12 +43,14 @@ abstract class ProductVoteAverageExtension implements ExtensionInterface, EventS
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void
-    { }
+    ): void {
+    }
 
     public function productVoteAverageBasicLoaded(ProductVoteAverageBasicLoadedEvent $event): void
-    { }
+    {
+    }
 
     public function productVoteAverageWritten(ProductVoteAverageWrittenEvent $event): void
-{ }
+    {
+    }
 }

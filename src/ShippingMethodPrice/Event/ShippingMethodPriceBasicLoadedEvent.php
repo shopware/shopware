@@ -9,7 +9,7 @@ use Shopware\ShippingMethodPrice\Struct\ShippingMethodPriceBasicCollection;
 
 class ShippingMethodPriceBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'shippingMethodPrice.basic.loaded';
+    const NAME = 'shipping_method_price.basic.loaded';
 
     /**
      * @var ShippingMethodPriceBasicCollection

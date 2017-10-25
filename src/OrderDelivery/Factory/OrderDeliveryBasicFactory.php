@@ -4,8 +4,8 @@ namespace Shopware\OrderDelivery\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
-use Shopware\Framework\Factory\Factory;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
+use Shopware\Framework\Read\Factory;
 use Shopware\OrderAddress\Factory\OrderAddressBasicFactory;
 use Shopware\OrderAddress\Struct\OrderAddressBasicStruct;
 use Shopware\OrderDelivery\Extension\OrderDeliveryExtension;

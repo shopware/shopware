@@ -3,9 +3,10 @@
 namespace Shopware\OrderState\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\OrderState\Event\OrderStateBasicLoadedEvent;
 use Shopware\OrderState\Event\OrderStateWrittenEvent;
-use Shopware\OrderState\Loader\OrderStateBasicLoader;
+use Shopware\OrderState\Reader\OrderStateBasicReader;
 use Shopware\OrderState\Searcher\OrderStateSearcher;
 use Shopware\OrderState\Searcher\OrderStateSearchResult;
 use Shopware\OrderState\Struct\OrderStateBasicCollection;
@@ -15,12 +16,12 @@ use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class OrderStateRepository
+class OrderStateRepository implements RepositoryInterface
 {
     /**
-     * @var OrderStateBasicLoader
+     * @var OrderStateBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class OrderStateRepository
     private $writer;
 
     public function __construct(
-        OrderStateBasicLoader $basicLoader,
+        OrderStateBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         OrderStateSearcher $searcher,
         OrderStateWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): OrderStateBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): OrderStateBasicCollection
     {
         if (empty($uuids)) {
             return new OrderStateBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             OrderStateBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class OrderStateRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): OrderStateBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): OrderStateSearchResult

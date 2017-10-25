@@ -43,21 +43,6 @@ class #classUc#Repository
 
     #constructor#
 
-    public function readDetail(array $uuids, TranslationContext $context): #classUc#DetailCollection
-    {
-        if (empty($uuids)) {
-            return new #classUc#DetailCollection();
-        }
-        $collection = $this->detailReader->readDetail($uuids, $context);
-
-        $this->eventDispatcher->dispatch(
-            #classUc#DetailLoadedEvent::NAME,
-            new #classUc#DetailLoadedEvent($collection, $context)
-        );
-
-        return $collection;
-    }
-
     public function readBasic(array $uuids, TranslationContext $context): #classUc#BasicCollection
     {
         if (empty($uuids)) {
@@ -69,6 +54,21 @@ class #classUc#Repository
         $this->eventDispatcher->dispatch(
             #classUc#BasicLoadedEvent::NAME,
             new #classUc#BasicLoadedEvent($collection, $context)
+        );
+
+        return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): #classUc#DetailCollection
+    {
+        if (empty($uuids)) {
+            return new #classUc#DetailCollection();
+        }
+        $collection = $this->detailReader->readDetail($uuids, $context);
+
+        $this->eventDispatcher->dispatch(
+            #classUc#DetailLoadedEvent::NAME,
+            new #classUc#DetailLoadedEvent($collection, $context)
         );
 
         return $collection;

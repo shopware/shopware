@@ -92,6 +92,11 @@ class ProductDetailPriceBasicCollection extends Collection
         });
     }
 
+    public function current(): ProductDetailPriceBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(ProductDetailPriceBasicStruct $element): string
     {
         return $element->getUuid();

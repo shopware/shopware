@@ -3,13 +3,12 @@
 namespace Shopware\SeoUrl\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionInterface;
-use Shopware\SeoUrl\Event\SeoUrlBasicLoadedEvent;
-use Shopware\SeoUrl\Event\SeoUrlWrittenEvent;
+use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\SeoUrl\Event\SeoUrlBasicLoadedEvent;
 use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 abstract class SeoUrlExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -17,7 +16,6 @@ abstract class SeoUrlExtension implements ExtensionInterface, EventSubscriberInt
     {
         return [
             SeoUrlBasicLoadedEvent::NAME => 'seoUrlBasicLoaded',
-            
         ];
     }
 
@@ -26,7 +24,6 @@ abstract class SeoUrlExtension implements ExtensionInterface, EventSubscriberInt
         QueryBuilder $query,
         TranslationContext $context
     ): void {
-
     }
 
     public function getDetailFields(): array
@@ -44,11 +41,10 @@ abstract class SeoUrlExtension implements ExtensionInterface, EventSubscriberInt
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void
-    { }
+    ): void {
+    }
 
     public function seoUrlBasicLoaded(SeoUrlBasicLoadedEvent $event): void
-    { }
-
-    
+    {
+    }
 }

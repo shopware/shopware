@@ -3,9 +3,10 @@
 namespace Shopware\ProductVote\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\ProductVote\Event\ProductVoteBasicLoadedEvent;
 use Shopware\ProductVote\Event\ProductVoteWrittenEvent;
-use Shopware\ProductVote\Loader\ProductVoteBasicLoader;
+use Shopware\ProductVote\Reader\ProductVoteBasicReader;
 use Shopware\ProductVote\Searcher\ProductVoteSearcher;
 use Shopware\ProductVote\Searcher\ProductVoteSearchResult;
 use Shopware\ProductVote\Struct\ProductVoteBasicCollection;
@@ -15,12 +16,12 @@ use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ProductVoteRepository
+class ProductVoteRepository implements RepositoryInterface
 {
     /**
-     * @var ProductVoteBasicLoader
+     * @var ProductVoteBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class ProductVoteRepository
     private $writer;
 
     public function __construct(
-        ProductVoteBasicLoader $basicLoader,
+        ProductVoteBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         ProductVoteSearcher $searcher,
         ProductVoteWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): ProductVoteBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): ProductVoteBasicCollection
     {
         if (empty($uuids)) {
             return new ProductVoteBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             ProductVoteBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class ProductVoteRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): ProductVoteBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): ProductVoteSearchResult

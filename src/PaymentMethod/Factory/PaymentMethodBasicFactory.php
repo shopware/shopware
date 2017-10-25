@@ -4,8 +4,8 @@ namespace Shopware\PaymentMethod\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
-use Shopware\Framework\Factory\Factory;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
+use Shopware\Framework\Read\Factory;
 use Shopware\PaymentMethod\Extension\PaymentMethodExtension;
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
 use Shopware\Search\QueryBuilder;

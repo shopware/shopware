@@ -9,7 +9,7 @@ use Shopware\ProductVoteAverage\Struct\ProductVoteAverageBasicCollection;
 
 class ProductVoteAverageBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'productVoteAverage.basic.loaded';
+    const NAME = 'product_vote_average_ro.basic.loaded';
 
     /**
      * @var ProductVoteAverageBasicCollection

@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Currency\Struct\CurrencyDetailStruct;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Shopware\Shop\Factory\ShopBasicFactory;

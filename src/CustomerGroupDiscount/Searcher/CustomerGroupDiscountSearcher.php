@@ -5,7 +5,7 @@ namespace Shopware\CustomerGroupDiscount\Searcher;
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroupDiscount\Factory\CustomerGroupDiscountBasicFactory;
-use Shopware\CustomerGroupDiscount\Loader\CustomerGroupDiscountBasicLoader;
+use Shopware\CustomerGroupDiscount\Reader\CustomerGroupDiscountBasicReader;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\SqlParser;
 use Shopware\Search\QueryBuilder;
@@ -21,15 +21,15 @@ class CustomerGroupDiscountSearcher extends Searcher
     private $factory;
 
     /**
-     * @var CustomerGroupDiscountBasicLoader
+     * @var CustomerGroupDiscountBasicReader
      */
-    private $loader;
+    private $reader;
 
-    public function __construct(Connection $connection, SqlParser $parser, CustomerGroupDiscountBasicFactory $factory, CustomerGroupDiscountBasicLoader $loader)
+    public function __construct(Connection $connection, SqlParser $parser, CustomerGroupDiscountBasicFactory $factory, CustomerGroupDiscountBasicReader $reader)
     {
         parent::__construct($connection, $parser);
         $this->factory = $factory;
-        $this->loader = $loader;
+        $this->reader = $reader;
     }
 
     protected function createQuery(Criteria $criteria, TranslationContext $context): QueryBuilder
@@ -37,13 +37,15 @@ class CustomerGroupDiscountSearcher extends Searcher
         return $this->factory->createSearchQuery($criteria, $context);
     }
 
-    protected function load(UuidSearchResult $uuidResult, TranslationContext $context): SearchResultInterface
+    protected function load(UuidSearchResult $uuidResult, Criteria $criteria, TranslationContext $context): SearchResultInterface
     {
-        $collection = $this->loader->load($uuidResult->getUuids(), $context);
+        $collection = $this->reader->readBasic($uuidResult->getUuids(), $context);
 
         $result = new CustomerGroupDiscountSearchResult($collection->getElements());
 
         $result->setTotal($uuidResult->getTotal());
+        $result->setCriteria($criteria);
+        $result->setContext($context);
 
         return $result;
     }

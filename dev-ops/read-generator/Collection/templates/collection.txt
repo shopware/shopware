@@ -72,4 +72,8 @@ class #classUc#BasicCollection extends Collection
 
 #collectiveUuidGetters#
 
+    public function current(): #classUc#BasicStruct
+    {
+        return parent::current();
+    }
 }

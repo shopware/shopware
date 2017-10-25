@@ -8,8 +8,8 @@ use Shopware\#classUc#\Struct\#classUc#BasicStruct;
 use Shopware\Search\QuerySelection;
 use Shopware\#classUc#\Extension\#classUc#Extension;
 use Shopware\Search\QueryBuilder;
-use Shopware\Framework\Factory\Factory;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
+use Shopware\Framework\Read\Factory;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
 #uses#
 
 class #classUc#BasicFactory extends Factory

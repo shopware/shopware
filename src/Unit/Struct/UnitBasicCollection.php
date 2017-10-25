@@ -64,6 +64,11 @@ class UnitBasicCollection extends Collection
         }
     }
 
+    public function current(): UnitBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(UnitBasicStruct $element): string
     {
         return $element->getUuid();

@@ -129,6 +129,11 @@ class SeoUrlBasicCollection extends Collection
         return false;
     }
 
+    public function current(): SeoUrlBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(SeoUrlBasicStruct $element): string
     {
         return $element->getUuid();

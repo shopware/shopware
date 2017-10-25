@@ -73,6 +73,11 @@ class CurrencyBasicCollection extends Collection
         return $this;
     }
 
+    public function current(): CurrencyBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(CurrencyBasicStruct $element): string
     {
         return $element->getUuid();

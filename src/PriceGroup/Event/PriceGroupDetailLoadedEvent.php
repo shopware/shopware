@@ -10,7 +10,7 @@ use Shopware\PriceGroupDiscount\Event\PriceGroupDiscountBasicLoadedEvent;
 
 class PriceGroupDetailLoadedEvent extends NestedEvent
 {
-    const NAME = 'priceGroup.detail.loaded';
+    const NAME = 'price_group.detail.loaded';
 
     /**
      * @var PriceGroupDetailCollection

@@ -102,6 +102,11 @@ class OrderDeliveryPositionBasicCollection extends Collection
         );
     }
 
+    public function current(): OrderDeliveryPositionBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(OrderDeliveryPositionBasicStruct $element): string
     {
         return $element->getUuid();

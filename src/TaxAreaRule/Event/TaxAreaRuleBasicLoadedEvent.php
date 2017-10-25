@@ -9,7 +9,7 @@ use Shopware\TaxAreaRule\Struct\TaxAreaRuleBasicCollection;
 
 class TaxAreaRuleBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'taxAreaRule.basic.loaded';
+    const NAME = 'tax_area_rule.basic.loaded';
 
     /**
      * @var TaxAreaRuleBasicCollection

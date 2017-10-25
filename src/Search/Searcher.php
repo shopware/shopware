@@ -55,7 +55,7 @@ abstract class Searcher
     {
         $result = $this->searchUuids($criteria, $context);
 
-        return $this->load($result, $context);
+        return $this->load($result, $criteria, $context);
     }
 
     public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
@@ -103,7 +103,7 @@ abstract class Searcher
             $total = count($uuids);
         }
 
-        return new UuidSearchResult($total, $uuids);
+        return new UuidSearchResult($total, $uuids, $criteria);
     }
 
     /**
@@ -118,9 +118,10 @@ abstract class Searcher
      * Hydrate the fetch rows and create a typed hint search result
      *
      * @param UuidSearchResult   $result
+     * @param Criteria           $criteria
      * @param TranslationContext $context
      *
      * @return SearchResultInterface
      */
-    abstract protected function load(UuidSearchResult $result, TranslationContext $context): SearchResultInterface;
+    abstract protected function load(UuidSearchResult $result, Criteria $criteria, TranslationContext $context): SearchResultInterface;
 }

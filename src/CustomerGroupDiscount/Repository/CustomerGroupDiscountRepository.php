@@ -5,22 +5,23 @@ namespace Shopware\CustomerGroupDiscount\Repository;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroupDiscount\Event\CustomerGroupDiscountBasicLoadedEvent;
 use Shopware\CustomerGroupDiscount\Event\CustomerGroupDiscountWrittenEvent;
-use Shopware\CustomerGroupDiscount\Loader\CustomerGroupDiscountBasicLoader;
+use Shopware\CustomerGroupDiscount\Reader\CustomerGroupDiscountBasicReader;
 use Shopware\CustomerGroupDiscount\Searcher\CustomerGroupDiscountSearcher;
 use Shopware\CustomerGroupDiscount\Searcher\CustomerGroupDiscountSearchResult;
 use Shopware\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicCollection;
 use Shopware\CustomerGroupDiscount\Writer\CustomerGroupDiscountWriter;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class CustomerGroupDiscountRepository
+class CustomerGroupDiscountRepository implements RepositoryInterface
 {
     /**
-     * @var CustomerGroupDiscountBasicLoader
+     * @var CustomerGroupDiscountBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class CustomerGroupDiscountRepository
     private $writer;
 
     public function __construct(
-        CustomerGroupDiscountBasicLoader $basicLoader,
+        CustomerGroupDiscountBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         CustomerGroupDiscountSearcher $searcher,
         CustomerGroupDiscountWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): CustomerGroupDiscountBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): CustomerGroupDiscountBasicCollection
     {
         if (empty($uuids)) {
             return new CustomerGroupDiscountBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             CustomerGroupDiscountBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class CustomerGroupDiscountRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): CustomerGroupDiscountBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): CustomerGroupDiscountSearchResult

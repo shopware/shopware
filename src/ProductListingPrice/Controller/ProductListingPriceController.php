@@ -76,7 +76,7 @@ class ProductListingPriceController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('productListingPriceUuid');
-        $productListingPrices = $this->productListingPriceRepository->read(
+        $productListingPrices = $this->productListingPriceRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );

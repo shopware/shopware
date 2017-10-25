@@ -3,13 +3,12 @@
 namespace Shopware\Media\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionInterface;
+use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\Media\Event\MediaBasicLoadedEvent;
-use Shopware\Media\Event\MediaWrittenEvent;
+use Shopware\Media\Struct\MediaBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Shopware\Media\Struct\MediaBasicStruct;
 
 abstract class MediaExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -17,7 +16,6 @@ abstract class MediaExtension implements ExtensionInterface, EventSubscriberInte
     {
         return [
             MediaBasicLoadedEvent::NAME => 'mediaBasicLoaded',
-            
         ];
     }
 
@@ -26,7 +24,6 @@ abstract class MediaExtension implements ExtensionInterface, EventSubscriberInte
         QueryBuilder $query,
         TranslationContext $context
     ): void {
-
     }
 
     public function getDetailFields(): array
@@ -44,11 +41,10 @@ abstract class MediaExtension implements ExtensionInterface, EventSubscriberInte
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void
-    { }
+    ): void {
+    }
 
     public function mediaBasicLoaded(MediaBasicLoadedEvent $event): void
-    { }
-
-    
+    {
+    }
 }

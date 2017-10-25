@@ -9,7 +9,7 @@ use Shopware\ShopTemplate\Struct\ShopTemplateBasicCollection;
 
 class ShopTemplateBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'shopTemplate.basic.loaded';
+    const NAME = 'shop_template.basic.loaded';
 
     /**
      * @var ShopTemplateBasicCollection

@@ -76,7 +76,7 @@ class SeoUrlController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('seoUrlUuid');
-        $seoUrls = $this->seoUrlRepository->read(
+        $seoUrls = $this->seoUrlRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
@@ -98,7 +98,7 @@ class SeoUrlController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $seoUrls = $this->seoUrlRepository->read(
+        $seoUrls = $this->seoUrlRepository->readBasic(
             $createEvent->getSeoUrlUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class SeoUrlController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $seoUrls = $this->seoUrlRepository->read(
+        $seoUrls = $this->seoUrlRepository->readBasic(
             $createEvent->getSeoUrlUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class SeoUrlController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $seoUrls = $this->seoUrlRepository->read(
+        $seoUrls = $this->seoUrlRepository->readBasic(
             $createEvent->getSeoUrlUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -190,7 +190,7 @@ class SeoUrlController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $seoUrls = $this->seoUrlRepository->read(
+        $seoUrls = $this->seoUrlRepository->readBasic(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

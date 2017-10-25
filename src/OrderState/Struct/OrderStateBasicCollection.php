@@ -64,6 +64,11 @@ class OrderStateBasicCollection extends Collection
         }
     }
 
+    public function current(): OrderStateBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(OrderStateBasicStruct $element): string
     {
         return $element->getUuid();

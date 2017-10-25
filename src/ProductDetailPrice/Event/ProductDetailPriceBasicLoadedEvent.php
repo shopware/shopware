@@ -9,7 +9,7 @@ use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicCollection;
 
 class ProductDetailPriceBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'productDetailPrice.basic.loaded';
+    const NAME = 'product_detail_price.basic.loaded';
 
     /**
      * @var ProductDetailPriceBasicCollection

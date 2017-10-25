@@ -10,7 +10,7 @@ use Shopware\Framework\Event\NestedEventCollection;
 
 class #classUc#DetailLoadedEvent extends NestedEvent
 {
-    const NAME = '#classLc#.detail.loaded';
+    const NAME = '#table#.detail.loaded';
 
     /**
      * @var #classUc#DetailCollection

@@ -5,8 +5,8 @@ namespace Shopware\Album\Repository;
 use Shopware\Album\Event\AlbumBasicLoadedEvent;
 use Shopware\Album\Event\AlbumDetailLoadedEvent;
 use Shopware\Album\Event\AlbumWrittenEvent;
-use Shopware\Album\Loader\AlbumBasicLoader;
-use Shopware\Album\Loader\AlbumDetailLoader;
+use Shopware\Album\Reader\AlbumBasicReader;
+use Shopware\Album\Reader\AlbumDetailReader;
 use Shopware\Album\Searcher\AlbumSearcher;
 use Shopware\Album\Searcher\AlbumSearchResult;
 use Shopware\Album\Struct\AlbumBasicCollection;
@@ -21,14 +21,14 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class AlbumRepository
 {
     /**
-     * @var AlbumDetailLoader
+     * @var AlbumDetailReader
      */
-    protected $detailLoader;
+    protected $detailReader;
 
     /**
-     * @var AlbumBasicLoader
+     * @var AlbumBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -46,17 +46,33 @@ class AlbumRepository
     private $writer;
 
     public function __construct(
-        AlbumDetailLoader $detailLoader,
-        AlbumBasicLoader $basicLoader,
+        AlbumDetailReader $detailReader,
+        AlbumBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         AlbumSearcher $searcher,
         AlbumWriter $writer
     ) {
-        $this->detailLoader = $detailLoader;
-        $this->basicLoader = $basicLoader;
+        $this->detailReader = $detailReader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
+    }
+
+    public function readBasic(array $uuids, TranslationContext $context): AlbumBasicCollection
+    {
+        if (empty($uuids)) {
+            return new AlbumBasicCollection();
+        }
+
+        $collection = $this->basicReader->readBasic($uuids, $context);
+
+        $this->eventDispatcher->dispatch(
+            AlbumBasicLoadedEvent::NAME,
+            new AlbumBasicLoadedEvent($collection, $context)
+        );
+
+        return $collection;
     }
 
     public function readDetail(array $uuids, TranslationContext $context): AlbumDetailCollection
@@ -64,27 +80,11 @@ class AlbumRepository
         if (empty($uuids)) {
             return new AlbumDetailCollection();
         }
-        $collection = $this->detailLoader->load($uuids, $context);
+        $collection = $this->detailReader->readDetail($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             AlbumDetailLoadedEvent::NAME,
             new AlbumDetailLoadedEvent($collection, $context)
-        );
-
-        return $collection;
-    }
-
-    public function read(array $uuids, TranslationContext $context): AlbumBasicCollection
-    {
-        if (empty($uuids)) {
-            return new AlbumBasicCollection();
-        }
-
-        $collection = $this->basicLoader->load($uuids, $context);
-
-        $this->eventDispatcher->dispatch(
-            AlbumBasicLoadedEvent::NAME,
-            new AlbumBasicLoadedEvent($collection, $context)
         );
 
         return $collection;

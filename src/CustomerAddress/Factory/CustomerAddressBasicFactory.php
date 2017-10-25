@@ -10,8 +10,8 @@ use Shopware\AreaCountryState\Struct\AreaCountryStateBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerAddress\Extension\CustomerAddressExtension;
 use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
-use Shopware\Framework\Factory\Factory;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
+use Shopware\Framework\Read\Factory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 

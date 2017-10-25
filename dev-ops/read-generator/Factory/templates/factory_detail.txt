@@ -8,7 +8,7 @@ use Shopware\#classUc#\Struct\#classUc#BasicStruct;
 use Shopware\#classUc#\Struct\#classUc#DetailStruct;
 use Shopware\Search\QuerySelection;
 use Shopware\Search\QueryBuilder;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
 #uses#
 
 class #classUc#DetailFactory extends #classUc#BasicFactory

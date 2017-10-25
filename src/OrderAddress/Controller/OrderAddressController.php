@@ -76,7 +76,7 @@ class OrderAddressController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('orderAddressUuid');
-        $orderAddresses = $this->orderAddressRepository->read(
+        $orderAddresses = $this->orderAddressRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
@@ -98,7 +98,7 @@ class OrderAddressController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $orderAddresses = $this->orderAddressRepository->read(
+        $orderAddresses = $this->orderAddressRepository->readBasic(
             $createEvent->getOrderAddressUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class OrderAddressController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $orderAddresses = $this->orderAddressRepository->read(
+        $orderAddresses = $this->orderAddressRepository->readBasic(
             $createEvent->getOrderAddressUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class OrderAddressController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $orderAddresses = $this->orderAddressRepository->read(
+        $orderAddresses = $this->orderAddressRepository->readBasic(
             $createEvent->getOrderAddressUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -190,7 +190,7 @@ class OrderAddressController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $orderAddresses = $this->orderAddressRepository->read(
+        $orderAddresses = $this->orderAddressRepository->readBasic(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

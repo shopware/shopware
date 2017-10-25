@@ -3,24 +3,25 @@
 namespace Shopware\Tax\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Shopware\Tax\Event\TaxBasicLoadedEvent;
 use Shopware\Tax\Event\TaxWrittenEvent;
-use Shopware\Tax\Loader\TaxBasicLoader;
+use Shopware\Tax\Reader\TaxBasicReader;
 use Shopware\Tax\Searcher\TaxSearcher;
 use Shopware\Tax\Searcher\TaxSearchResult;
 use Shopware\Tax\Struct\TaxBasicCollection;
 use Shopware\Tax\Writer\TaxWriter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class TaxRepository
+class TaxRepository implements RepositoryInterface
 {
     /**
-     * @var TaxBasicLoader
+     * @var TaxBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class TaxRepository
     private $writer;
 
     public function __construct(
-        TaxBasicLoader $basicLoader,
+        TaxBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         TaxSearcher $searcher,
         TaxWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): TaxBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): TaxBasicCollection
     {
         if (empty($uuids)) {
             return new TaxBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             TaxBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class TaxRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): TaxBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): TaxSearchResult

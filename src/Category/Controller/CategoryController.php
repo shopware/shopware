@@ -98,7 +98,7 @@ class CategoryController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $categories = $this->categoryRepository->read(
+        $categories = $this->categoryRepository->readBasic(
             $createEvent->getCategoryUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class CategoryController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $categories = $this->categoryRepository->read(
+        $categories = $this->categoryRepository->readBasic(
             $createEvent->getCategoryUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class CategoryController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $categories = $this->categoryRepository->read(
+        $categories = $this->categoryRepository->readBasic(
             $createEvent->getCategoryUuids(),
             $context->getShopContext()->getTranslationContext()
         );

@@ -78,6 +78,11 @@ class OrderLineItemBasicCollection extends Collection
         });
     }
 
+    public function current(): OrderLineItemBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(OrderLineItemBasicStruct $element): string
     {
         return $element->getUuid();

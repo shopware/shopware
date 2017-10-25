@@ -29,26 +29,26 @@
             <argument type="service" id="shopware.framework.write.writer" />
         </service>
         
-        <service class="Shopware\PaymentMethod\Loader\PaymentMethodBasicLoader" id="shopware.payment_method.basic_loader">
+        <service class="Shopware\PaymentMethod\Reader\PaymentMethodBasicReader" id="shopware.payment_method.basic_reader">
             <argument id="shopware.payment_method.basic_factory" type="service"/>
         </service>
 
-        <service class="Shopware\PaymentMethod\Loader\PaymentMethodDetailLoader" id="shopware.payment_method.detail_loader">
+        <service class="Shopware\PaymentMethod\Reader\PaymentMethodDetailReader" id="shopware.payment_method.detail_reader">
             <argument id="shopware.payment_method.detail_factory" type="service"/>
-            <argument id="shopware.shop.basic_loader" type="service"/>
-            <argument id="shopware.area_country.basic_loader" type="service"/>
+            <argument id="shopware.shop.basic_reader" type="service"/>
+            <argument id="shopware.area_country.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\PaymentMethod\Searcher\PaymentMethodSearcher" id="shopware.payment_method.searcher">
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.payment_method.detail_factory" type="service"/>
-            <argument id="shopware.payment_method.basic_loader" type="service"/>
+            <argument id="shopware.payment_method.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\PaymentMethod\Repository\PaymentMethodRepository" id="shopware.payment_method.repository">
-            <argument id="shopware.payment_method.detail_loader" type="service"/>
-            <argument id="shopware.payment_method.basic_loader" type="service"/>
+            <argument id="shopware.payment_method.detail_reader" type="service"/>
+            <argument id="shopware.payment_method.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.payment_method.searcher" type="service"/>
             <argument id="shopware.payment_method.writer" type="service"/>

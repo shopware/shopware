@@ -6,8 +6,8 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Currency\Event\CurrencyBasicLoadedEvent;
 use Shopware\Currency\Event\CurrencyDetailLoadedEvent;
 use Shopware\Currency\Event\CurrencyWrittenEvent;
-use Shopware\Currency\Loader\CurrencyBasicLoader;
-use Shopware\Currency\Loader\CurrencyDetailLoader;
+use Shopware\Currency\Reader\CurrencyBasicReader;
+use Shopware\Currency\Reader\CurrencyDetailReader;
 use Shopware\Currency\Searcher\CurrencySearcher;
 use Shopware\Currency\Searcher\CurrencySearchResult;
 use Shopware\Currency\Struct\CurrencyBasicCollection;
@@ -21,14 +21,14 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class CurrencyRepository
 {
     /**
-     * @var CurrencyDetailLoader
+     * @var CurrencyDetailReader
      */
-    protected $detailLoader;
+    protected $detailReader;
 
     /**
-     * @var CurrencyBasicLoader
+     * @var CurrencyBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -46,17 +46,33 @@ class CurrencyRepository
     private $writer;
 
     public function __construct(
-        CurrencyDetailLoader $detailLoader,
-        CurrencyBasicLoader $basicLoader,
+        CurrencyDetailReader $detailReader,
+        CurrencyBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         CurrencySearcher $searcher,
         CurrencyWriter $writer
     ) {
-        $this->detailLoader = $detailLoader;
-        $this->basicLoader = $basicLoader;
+        $this->detailReader = $detailReader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
+    }
+
+    public function readBasic(array $uuids, TranslationContext $context): CurrencyBasicCollection
+    {
+        if (empty($uuids)) {
+            return new CurrencyBasicCollection();
+        }
+
+        $collection = $this->basicReader->readBasic($uuids, $context);
+
+        $this->eventDispatcher->dispatch(
+            CurrencyBasicLoadedEvent::NAME,
+            new CurrencyBasicLoadedEvent($collection, $context)
+        );
+
+        return $collection;
     }
 
     public function readDetail(array $uuids, TranslationContext $context): CurrencyDetailCollection
@@ -64,27 +80,11 @@ class CurrencyRepository
         if (empty($uuids)) {
             return new CurrencyDetailCollection();
         }
-        $collection = $this->detailLoader->load($uuids, $context);
+        $collection = $this->detailReader->readDetail($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             CurrencyDetailLoadedEvent::NAME,
             new CurrencyDetailLoadedEvent($collection, $context)
-        );
-
-        return $collection;
-    }
-
-    public function read(array $uuids, TranslationContext $context): CurrencyBasicCollection
-    {
-        if (empty($uuids)) {
-            return new CurrencyBasicCollection();
-        }
-
-        $collection = $this->basicLoader->load($uuids, $context);
-
-        $this->eventDispatcher->dispatch(
-            CurrencyBasicLoadedEvent::NAME,
-            new CurrencyBasicLoadedEvent($collection, $context)
         );
 
         return $collection;

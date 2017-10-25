@@ -3,9 +3,10 @@
 namespace Shopware\ProductStream\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\ProductStream\Event\ProductStreamBasicLoadedEvent;
 use Shopware\ProductStream\Event\ProductStreamWrittenEvent;
-use Shopware\ProductStream\Loader\ProductStreamBasicLoader;
+use Shopware\ProductStream\Reader\ProductStreamBasicReader;
 use Shopware\ProductStream\Searcher\ProductStreamSearcher;
 use Shopware\ProductStream\Searcher\ProductStreamSearchResult;
 use Shopware\ProductStream\Struct\ProductStreamBasicCollection;
@@ -15,12 +16,12 @@ use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ProductStreamRepository
+class ProductStreamRepository implements RepositoryInterface
 {
     /**
-     * @var ProductStreamBasicLoader
+     * @var ProductStreamBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class ProductStreamRepository
     private $writer;
 
     public function __construct(
-        ProductStreamBasicLoader $basicLoader,
+        ProductStreamBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         ProductStreamSearcher $searcher,
         ProductStreamWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): ProductStreamBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): ProductStreamBasicCollection
     {
         if (empty($uuids)) {
             return new ProductStreamBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             ProductStreamBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class ProductStreamRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): ProductStreamBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): ProductStreamSearchResult

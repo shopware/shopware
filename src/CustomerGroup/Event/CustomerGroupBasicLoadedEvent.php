@@ -9,7 +9,7 @@ use Shopware\Framework\Event\NestedEventCollection;
 
 class CustomerGroupBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'customerGroup.basic.loaded';
+    const NAME = 'customer_group.basic.loaded';
 
     /**
      * @var CustomerGroupBasicCollection

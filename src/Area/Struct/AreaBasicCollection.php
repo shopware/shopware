@@ -64,6 +64,11 @@ class AreaBasicCollection extends Collection
         }
     }
 
+    public function current(): AreaBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(AreaBasicStruct $element): string
     {
         return $element->getUuid();

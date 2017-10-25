@@ -3,14 +3,13 @@
 namespace Shopware\ShippingMethod\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionInterface;
-use Shopware\ShippingMethod\Event\ShippingMethodBasicLoadedEvent;
-use Shopware\ShippingMethod\Event\ShippingMethodDetailLoadedEvent;
-use Shopware\ShippingMethod\Event\ShippingMethodWrittenEvent;
+use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\ShippingMethod\Event\ShippingMethodBasicLoadedEvent;
+use Shopware\ShippingMethod\Event\ShippingMethodDetailLoadedEvent;
 use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 abstract class ShippingMethodExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -19,7 +18,6 @@ abstract class ShippingMethodExtension implements ExtensionInterface, EventSubsc
         return [
             ShippingMethodBasicLoadedEvent::NAME => 'shippingMethodBasicLoaded',
             ShippingMethodDetailLoadedEvent::NAME => 'shippingMethodDetailLoaded',
-            
         ];
     }
 
@@ -28,7 +26,6 @@ abstract class ShippingMethodExtension implements ExtensionInterface, EventSubsc
         QueryBuilder $query,
         TranslationContext $context
     ): void {
-
     }
 
     public function getDetailFields(): array
@@ -46,15 +43,14 @@ abstract class ShippingMethodExtension implements ExtensionInterface, EventSubsc
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void
-    { }
+    ): void {
+    }
 
     public function shippingMethodBasicLoaded(ShippingMethodBasicLoadedEvent $event): void
-    { }
+    {
+    }
 
     public function shippingMethodDetailLoaded(ShippingMethodDetailLoadedEvent $event): void
-    { }
-
-    
-
+    {
+    }
 }

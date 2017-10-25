@@ -3,9 +3,10 @@
 namespace Shopware\OrderDeliveryPosition\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\OrderDeliveryPosition\Event\OrderDeliveryPositionBasicLoadedEvent;
 use Shopware\OrderDeliveryPosition\Event\OrderDeliveryPositionWrittenEvent;
-use Shopware\OrderDeliveryPosition\Loader\OrderDeliveryPositionBasicLoader;
+use Shopware\OrderDeliveryPosition\Reader\OrderDeliveryPositionBasicReader;
 use Shopware\OrderDeliveryPosition\Searcher\OrderDeliveryPositionSearcher;
 use Shopware\OrderDeliveryPosition\Searcher\OrderDeliveryPositionSearchResult;
 use Shopware\OrderDeliveryPosition\Struct\OrderDeliveryPositionBasicCollection;
@@ -15,12 +16,12 @@ use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class OrderDeliveryPositionRepository
+class OrderDeliveryPositionRepository implements RepositoryInterface
 {
     /**
-     * @var OrderDeliveryPositionBasicLoader
+     * @var OrderDeliveryPositionBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class OrderDeliveryPositionRepository
     private $writer;
 
     public function __construct(
-        OrderDeliveryPositionBasicLoader $basicLoader,
+        OrderDeliveryPositionBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         OrderDeliveryPositionSearcher $searcher,
         OrderDeliveryPositionWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): OrderDeliveryPositionBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): OrderDeliveryPositionBasicCollection
     {
         if (empty($uuids)) {
             return new OrderDeliveryPositionBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             OrderDeliveryPositionBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class OrderDeliveryPositionRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): OrderDeliveryPositionBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): OrderDeliveryPositionSearchResult

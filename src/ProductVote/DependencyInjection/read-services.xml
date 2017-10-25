@@ -22,7 +22,7 @@
             <argument type="service" id="shopware.framework.write.writer" />
         </service>
         
-        <service class="Shopware\ProductVote\Loader\ProductVoteBasicLoader" id="shopware.product_vote.basic_loader">
+        <service class="Shopware\ProductVote\Reader\ProductVoteBasicReader" id="shopware.product_vote.basic_reader">
             <argument id="shopware.product_vote.basic_factory" type="service"/>
         </service>
 
@@ -30,11 +30,11 @@
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.product_vote.basic_factory" type="service"/>
-            <argument id="shopware.product_vote.basic_loader" type="service"/>
+            <argument id="shopware.product_vote.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\ProductVote\Repository\ProductVoteRepository" id="shopware.product_vote.repository">
-            <argument id="shopware.product_vote.basic_loader" type="service"/>
+            <argument id="shopware.product_vote.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.product_vote.searcher" type="service"/>
             <argument id="shopware.product_vote.writer" type="service"/>

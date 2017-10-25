@@ -98,7 +98,7 @@ class CustomerGroupController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $customerGroups = $this->customerGroupRepository->read(
+        $customerGroups = $this->customerGroupRepository->readBasic(
             $createEvent->getCustomerGroupUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class CustomerGroupController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $customerGroups = $this->customerGroupRepository->read(
+        $customerGroups = $this->customerGroupRepository->readBasic(
             $createEvent->getCustomerGroupUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class CustomerGroupController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $customerGroups = $this->customerGroupRepository->read(
+        $customerGroups = $this->customerGroupRepository->readBasic(
             $createEvent->getCustomerGroupUuids(),
             $context->getShopContext()->getTranslationContext()
         );

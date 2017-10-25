@@ -64,6 +64,11 @@ class ListingSortingBasicCollection extends Collection
         }
     }
 
+    public function current(): ListingSortingBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(ListingSortingBasicStruct $element): string
     {
         return $element->getUuid();

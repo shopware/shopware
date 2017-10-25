@@ -76,7 +76,7 @@ class MediaController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('mediaUuid');
-        $media = $this->mediaRepository->read(
+        $media = $this->mediaRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
@@ -98,7 +98,7 @@ class MediaController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $media = $this->mediaRepository->read(
+        $media = $this->mediaRepository->readBasic(
             $createEvent->getMediaUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class MediaController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $media = $this->mediaRepository->read(
+        $media = $this->mediaRepository->readBasic(
             $createEvent->getMediaUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class MediaController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $media = $this->mediaRepository->read(
+        $media = $this->mediaRepository->readBasic(
             $createEvent->getMediaUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -190,7 +190,7 @@ class MediaController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $media = $this->mediaRepository->read(
+        $media = $this->mediaRepository->readBasic(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

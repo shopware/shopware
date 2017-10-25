@@ -12,7 +12,7 @@ use Shopware\ShippingMethod\Event\ShippingMethodBasicLoadedEvent;
 
 class OrderDeliveryBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'orderDelivery.basic.loaded';
+    const NAME = 'order_delivery.basic.loaded';
 
     /**
      * @var OrderDeliveryBasicCollection

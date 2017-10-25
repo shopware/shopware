@@ -76,7 +76,7 @@ class ProductVoteController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('productVoteUuid');
-        $productVotes = $this->productVoteRepository->read(
+        $productVotes = $this->productVoteRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
@@ -98,7 +98,7 @@ class ProductVoteController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $productVotes = $this->productVoteRepository->read(
+        $productVotes = $this->productVoteRepository->readBasic(
             $createEvent->getProductVoteUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class ProductVoteController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $productVotes = $this->productVoteRepository->read(
+        $productVotes = $this->productVoteRepository->readBasic(
             $createEvent->getProductVoteUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class ProductVoteController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $productVotes = $this->productVoteRepository->read(
+        $productVotes = $this->productVoteRepository->readBasic(
             $createEvent->getProductVoteUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -190,7 +190,7 @@ class ProductVoteController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $productVotes = $this->productVoteRepository->read(
+        $productVotes = $this->productVoteRepository->readBasic(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

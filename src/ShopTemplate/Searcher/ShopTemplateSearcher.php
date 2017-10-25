@@ -11,7 +11,7 @@ use Shopware\Search\Searcher;
 use Shopware\Search\SearchResultInterface;
 use Shopware\Search\UuidSearchResult;
 use Shopware\ShopTemplate\Factory\ShopTemplateBasicFactory;
-use Shopware\ShopTemplate\Loader\ShopTemplateBasicLoader;
+use Shopware\ShopTemplate\Reader\ShopTemplateBasicReader;
 
 class ShopTemplateSearcher extends Searcher
 {
@@ -21,15 +21,15 @@ class ShopTemplateSearcher extends Searcher
     private $factory;
 
     /**
-     * @var ShopTemplateBasicLoader
+     * @var ShopTemplateBasicReader
      */
-    private $loader;
+    private $reader;
 
-    public function __construct(Connection $connection, SqlParser $parser, ShopTemplateBasicFactory $factory, ShopTemplateBasicLoader $loader)
+    public function __construct(Connection $connection, SqlParser $parser, ShopTemplateBasicFactory $factory, ShopTemplateBasicReader $reader)
     {
         parent::__construct($connection, $parser);
         $this->factory = $factory;
-        $this->loader = $loader;
+        $this->reader = $reader;
     }
 
     protected function createQuery(Criteria $criteria, TranslationContext $context): QueryBuilder
@@ -37,13 +37,15 @@ class ShopTemplateSearcher extends Searcher
         return $this->factory->createSearchQuery($criteria, $context);
     }
 
-    protected function load(UuidSearchResult $uuidResult, TranslationContext $context): SearchResultInterface
+    protected function load(UuidSearchResult $uuidResult, Criteria $criteria, TranslationContext $context): SearchResultInterface
     {
-        $collection = $this->loader->load($uuidResult->getUuids(), $context);
+        $collection = $this->reader->readBasic($uuidResult->getUuids(), $context);
 
         $result = new ShopTemplateSearchResult($collection->getElements());
 
         $result->setTotal($uuidResult->getTotal());
+        $result->setCriteria($criteria);
+        $result->setContext($context);
 
         return $result;
     }

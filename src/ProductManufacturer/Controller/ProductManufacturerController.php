@@ -76,7 +76,7 @@ class ProductManufacturerController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('productManufacturerUuid');
-        $productManufacturers = $this->productManufacturerRepository->read(
+        $productManufacturers = $this->productManufacturerRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
@@ -98,7 +98,7 @@ class ProductManufacturerController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $productManufacturers = $this->productManufacturerRepository->read(
+        $productManufacturers = $this->productManufacturerRepository->readBasic(
             $createEvent->getProductManufacturerUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class ProductManufacturerController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $productManufacturers = $this->productManufacturerRepository->read(
+        $productManufacturers = $this->productManufacturerRepository->readBasic(
             $createEvent->getProductManufacturerUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class ProductManufacturerController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $productManufacturers = $this->productManufacturerRepository->read(
+        $productManufacturers = $this->productManufacturerRepository->readBasic(
             $createEvent->getProductManufacturerUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -190,7 +190,7 @@ class ProductManufacturerController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $productManufacturers = $this->productManufacturerRepository->read(
+        $productManufacturers = $this->productManufacturerRepository->readBasic(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

@@ -22,7 +22,7 @@
             <argument type="service" id="shopware.framework.write.writer" />
         </service>
         
-        <service class="Shopware\CustomerGroupDiscount\Loader\CustomerGroupDiscountBasicLoader" id="shopware.customer_group_discount.basic_loader">
+        <service class="Shopware\CustomerGroupDiscount\Reader\CustomerGroupDiscountBasicReader" id="shopware.customer_group_discount.basic_reader">
             <argument id="shopware.customer_group_discount.basic_factory" type="service"/>
         </service>
 
@@ -30,11 +30,11 @@
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.customer_group_discount.basic_factory" type="service"/>
-            <argument id="shopware.customer_group_discount.basic_loader" type="service"/>
+            <argument id="shopware.customer_group_discount.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\CustomerGroupDiscount\Repository\CustomerGroupDiscountRepository" id="shopware.customer_group_discount.repository">
-            <argument id="shopware.customer_group_discount.basic_loader" type="service"/>
+            <argument id="shopware.customer_group_discount.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.customer_group_discount.searcher" type="service"/>
             <argument id="shopware.customer_group_discount.writer" type="service"/>

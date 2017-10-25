@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Album\Struct\AlbumBasicStruct;
 use Shopware\Album\Struct\AlbumDetailStruct;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
 use Shopware\Media\Factory\MediaBasicFactory;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;

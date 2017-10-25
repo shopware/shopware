@@ -4,8 +4,8 @@ namespace Shopware\Holiday\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
-use Shopware\Framework\Factory\Factory;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
+use Shopware\Framework\Read\Factory;
 use Shopware\Holiday\Extension\HolidayExtension;
 use Shopware\Holiday\Struct\HolidayBasicStruct;
 use Shopware\Search\QueryBuilder;

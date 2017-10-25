@@ -3,9 +3,10 @@
 namespace Shopware\Locale\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\Locale\Event\LocaleBasicLoadedEvent;
 use Shopware\Locale\Event\LocaleWrittenEvent;
-use Shopware\Locale\Loader\LocaleBasicLoader;
+use Shopware\Locale\Reader\LocaleBasicReader;
 use Shopware\Locale\Searcher\LocaleSearcher;
 use Shopware\Locale\Searcher\LocaleSearchResult;
 use Shopware\Locale\Struct\LocaleBasicCollection;
@@ -15,12 +16,12 @@ use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class LocaleRepository
+class LocaleRepository implements RepositoryInterface
 {
     /**
-     * @var LocaleBasicLoader
+     * @var LocaleBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class LocaleRepository
     private $writer;
 
     public function __construct(
-        LocaleBasicLoader $basicLoader,
+        LocaleBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         LocaleSearcher $searcher,
         LocaleWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): LocaleBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): LocaleBasicCollection
     {
         if (empty($uuids)) {
             return new LocaleBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             LocaleBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class LocaleRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): LocaleBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): LocaleSearchResult

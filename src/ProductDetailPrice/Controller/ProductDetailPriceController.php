@@ -76,7 +76,7 @@ class ProductDetailPriceController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('productDetailPriceUuid');
-        $productDetailPrices = $this->productDetailPriceRepository->read(
+        $productDetailPrices = $this->productDetailPriceRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
@@ -98,7 +98,7 @@ class ProductDetailPriceController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $productDetailPrices = $this->productDetailPriceRepository->read(
+        $productDetailPrices = $this->productDetailPriceRepository->readBasic(
             $createEvent->getProductDetailPriceUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class ProductDetailPriceController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $productDetailPrices = $this->productDetailPriceRepository->read(
+        $productDetailPrices = $this->productDetailPriceRepository->readBasic(
             $createEvent->getProductDetailPriceUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class ProductDetailPriceController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $productDetailPrices = $this->productDetailPriceRepository->read(
+        $productDetailPrices = $this->productDetailPriceRepository->readBasic(
             $createEvent->getProductDetailPriceUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -190,7 +190,7 @@ class ProductDetailPriceController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $productDetailPrices = $this->productDetailPriceRepository->read(
+        $productDetailPrices = $this->productDetailPriceRepository->readBasic(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

@@ -568,6 +568,10 @@ class %s extends WriteResource
          * @var string[] $identifiers
          */
         foreach ($updates as $class => $identifiers) {
+            if (!array_key_exists($class, $updates) || count($updates[$class]) === 0) {
+                continue;
+            }
+
             $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 
@@ -604,88 +608,21 @@ EOD;
 
 namespace Shopware\#bundle#\Event;
 
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Context\Struct\TranslationContext;
-use Symfony\Component\DependencyInjection\Container;
+use Shopware\Framework\Write\EntityWrittenEvent;
 
-class #classUc#WrittenEvent extends NestedEvent
+class #classUc#WrittenEvent extends EntityWrittenEvent
 {
     const NAME = '#table#.written';
-
-    /**
-     * @var NestedEventCollection
-     */
-    protected $events;
-
-    /**
-     * @var array
-     */
-    protected $errors;
-    
-    /**
-     * @var TranslationContext
-     */
-    protected $context;
-    
-    /**
-     * @var array
-     */
-    private $rawData;
-
-    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
-    {
-        $this->events = new NestedEventCollection();
-        $this->context = $context;
-        $this->errors = $errors;
-        $this->rawData = $rawData;
-        
-        foreach ($primaryKeys as $key => $value) {
-            if ($key === 'uuid') {
-                $key = '#classUc#Uuid';
-            }
-
-            $key = lcfirst(Container::camelize($key)) . 's';
-            $this->$key = $value;
-        }
-    }
 
     public function getName(): string
     {
         return self::NAME;
     }
-    
-    public function getContext(): TranslationContext
-    {
-        return $this->context;
-    }
 
-    public function getErrors(): array
+    public function getEntityName(): string
     {
-        return $this->errors;
+        return '#table#';
     }
-
-    public function hasErrors(): bool
-    {
-        return count($this->errors) > 0;
-    }
-
-    public function addEvent(NestedEvent $event): void
-    {
-        $this->events->add($event);
-    }
-    
-    public function getEvents(): NestedEventCollection
-    {
-        return $this->events;
-    }
-    
-    public function getRawData(): array
-    {
-        return $this->rawData;
-    }
-    
-    #primaryKeys#
 }
 EOD;
 
@@ -877,23 +814,9 @@ EOD;
 
     public function renderEventClass(): string
     {
-        $primaryKeys = '';
-        foreach ($this->primaryKeys as $key) {
-            if ($key === 'uuid') {
-                $key = $this->getName() . '_uuid';
-            }
-
-            $camelCaseKey = \Symfony\Component\DependencyInjection\Container::camelize($key);
-            $primaryKeys .= str_replace(
-                ['#primaryKeyCamelCase#', '#primaryKeyUpperCamelCase#'],
-                [lcfirst($camelCaseKey), $camelCaseKey],
-                $this->eventPrimaryKeyTemplate
-            );
-        }
-
         return str_replace(
-            ['#bundle#', '#classUc#', '#table#', '#primaryKeys#'],
-            [$this->getBundleName(), $this->getName(), $this->getTable(), $primaryKeys],
+            ['#bundle#', '#classUc#', '#table#'],
+            [$this->getBundleName(), $this->getName(), $this->getTable()],
             $this->eventClassTemplate
         );
     }

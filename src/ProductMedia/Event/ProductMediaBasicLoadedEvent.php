@@ -10,7 +10,7 @@ use Shopware\ProductMedia\Struct\ProductMediaBasicCollection;
 
 class ProductMediaBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'productMedia.basic.loaded';
+    const NAME = 'product_media.basic.loaded';
 
     /**
      * @var ProductMediaBasicCollection

@@ -78,6 +78,11 @@ class ProductManufacturerBasicCollection extends Collection
         });
     }
 
+    public function current(): ProductManufacturerBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(ProductManufacturerBasicStruct $element): string
     {
         return $element->getUuid();

@@ -5,7 +5,7 @@ namespace Shopware\PaymentMethod\Factory;
 use Doctrine\DBAL\Connection;
 use Shopware\AreaCountry\Factory\AreaCountryBasicFactory;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
 use Shopware\PaymentMethod\Struct\PaymentMethodDetailStruct;
 use Shopware\Search\QueryBuilder;

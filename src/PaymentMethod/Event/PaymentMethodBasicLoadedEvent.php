@@ -9,7 +9,7 @@ use Shopware\PaymentMethod\Struct\PaymentMethodBasicCollection;
 
 class PaymentMethodBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'paymentMethod.basic.loaded';
+    const NAME = 'payment_method.basic.loaded';
 
     /**
      * @var PaymentMethodBasicCollection

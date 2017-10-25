@@ -6,8 +6,8 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Order\Event\OrderBasicLoadedEvent;
 use Shopware\Order\Event\OrderDetailLoadedEvent;
 use Shopware\Order\Event\OrderWrittenEvent;
-use Shopware\Order\Loader\OrderBasicLoader;
-use Shopware\Order\Loader\OrderDetailLoader;
+use Shopware\Order\Reader\OrderBasicReader;
+use Shopware\Order\Reader\OrderDetailReader;
 use Shopware\Order\Searcher\OrderSearcher;
 use Shopware\Order\Searcher\OrderSearchResult;
 use Shopware\Order\Struct\OrderBasicCollection;
@@ -21,14 +21,14 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class OrderRepository
 {
     /**
-     * @var OrderDetailLoader
+     * @var OrderDetailReader
      */
-    protected $detailLoader;
+    protected $detailReader;
 
     /**
-     * @var OrderBasicLoader
+     * @var OrderBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -46,17 +46,33 @@ class OrderRepository
     private $writer;
 
     public function __construct(
-        OrderDetailLoader $detailLoader,
-        OrderBasicLoader $basicLoader,
+        OrderDetailReader $detailReader,
+        OrderBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         OrderSearcher $searcher,
         OrderWriter $writer
     ) {
-        $this->detailLoader = $detailLoader;
-        $this->basicLoader = $basicLoader;
+        $this->detailReader = $detailReader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
+    }
+
+    public function readBasic(array $uuids, TranslationContext $context): OrderBasicCollection
+    {
+        if (empty($uuids)) {
+            return new OrderBasicCollection();
+        }
+
+        $collection = $this->basicReader->readBasic($uuids, $context);
+
+        $this->eventDispatcher->dispatch(
+            OrderBasicLoadedEvent::NAME,
+            new OrderBasicLoadedEvent($collection, $context)
+        );
+
+        return $collection;
     }
 
     public function readDetail(array $uuids, TranslationContext $context): OrderDetailCollection
@@ -64,27 +80,11 @@ class OrderRepository
         if (empty($uuids)) {
             return new OrderDetailCollection();
         }
-        $collection = $this->detailLoader->load($uuids, $context);
+        $collection = $this->detailReader->readDetail($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             OrderDetailLoadedEvent::NAME,
             new OrderDetailLoadedEvent($collection, $context)
-        );
-
-        return $collection;
-    }
-
-    public function read(array $uuids, TranslationContext $context): OrderBasicCollection
-    {
-        if (empty($uuids)) {
-            return new OrderBasicCollection();
-        }
-
-        $collection = $this->basicLoader->load($uuids, $context);
-
-        $this->eventDispatcher->dispatch(
-            OrderBasicLoadedEvent::NAME,
-            new OrderBasicLoadedEvent($collection, $context)
         );
 
         return $collection;

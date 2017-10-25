@@ -98,7 +98,7 @@ class ShippingMethodController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $shippingMethods = $this->shippingMethodRepository->read(
+        $shippingMethods = $this->shippingMethodRepository->readBasic(
             $createEvent->getShippingMethodUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class ShippingMethodController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $shippingMethods = $this->shippingMethodRepository->read(
+        $shippingMethods = $this->shippingMethodRepository->readBasic(
             $createEvent->getShippingMethodUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class ShippingMethodController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $shippingMethods = $this->shippingMethodRepository->read(
+        $shippingMethods = $this->shippingMethodRepository->readBasic(
             $createEvent->getShippingMethodUuids(),
             $context->getShopContext()->getTranslationContext()
         );

@@ -3,9 +3,10 @@
 namespace Shopware\Media\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\Media\Event\MediaBasicLoadedEvent;
 use Shopware\Media\Event\MediaWrittenEvent;
-use Shopware\Media\Loader\MediaBasicLoader;
+use Shopware\Media\Reader\MediaBasicReader;
 use Shopware\Media\Searcher\MediaSearcher;
 use Shopware\Media\Searcher\MediaSearchResult;
 use Shopware\Media\Struct\MediaBasicCollection;
@@ -15,12 +16,12 @@ use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class MediaRepository
+class MediaRepository implements RepositoryInterface
 {
     /**
-     * @var MediaBasicLoader
+     * @var MediaBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class MediaRepository
     private $writer;
 
     public function __construct(
-        MediaBasicLoader $basicLoader,
+        MediaBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         MediaSearcher $searcher,
         MediaWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): MediaBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): MediaBasicCollection
     {
         if (empty($uuids)) {
             return new MediaBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             MediaBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class MediaRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): MediaBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): MediaSearchResult

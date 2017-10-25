@@ -4,21 +4,9 @@ namespace Shopware\Holiday\Searcher;
 
 use Shopware\Holiday\Struct\HolidayBasicCollection;
 use Shopware\Search\SearchResultInterface;
+use Shopware\Search\SearchResultTrait;
 
 class HolidaySearchResult extends HolidayBasicCollection implements SearchResultInterface
 {
-    /**
-     * @var int
-     */
-    protected $total = 0;
-
-    public function getTotal(): int
-    {
-        return $this->total;
-    }
-
-    public function setTotal(int $total): void
-    {
-        $this->total = $total;
-    }
+    use SearchResultTrait;
 }

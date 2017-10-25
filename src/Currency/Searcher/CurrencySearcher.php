@@ -5,7 +5,7 @@ namespace Shopware\Currency\Searcher;
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Currency\Factory\CurrencyDetailFactory;
-use Shopware\Currency\Loader\CurrencyBasicLoader;
+use Shopware\Currency\Reader\CurrencyBasicReader;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\SqlParser;
 use Shopware\Search\QueryBuilder;
@@ -21,15 +21,15 @@ class CurrencySearcher extends Searcher
     private $factory;
 
     /**
-     * @var CurrencyBasicLoader
+     * @var CurrencyBasicReader
      */
-    private $loader;
+    private $reader;
 
-    public function __construct(Connection $connection, SqlParser $parser, CurrencyDetailFactory $factory, CurrencyBasicLoader $loader)
+    public function __construct(Connection $connection, SqlParser $parser, CurrencyDetailFactory $factory, CurrencyBasicReader $reader)
     {
         parent::__construct($connection, $parser);
         $this->factory = $factory;
-        $this->loader = $loader;
+        $this->reader = $reader;
     }
 
     protected function createQuery(Criteria $criteria, TranslationContext $context): QueryBuilder
@@ -37,13 +37,15 @@ class CurrencySearcher extends Searcher
         return $this->factory->createSearchQuery($criteria, $context);
     }
 
-    protected function load(UuidSearchResult $uuidResult, TranslationContext $context): SearchResultInterface
+    protected function load(UuidSearchResult $uuidResult, Criteria $criteria, TranslationContext $context): SearchResultInterface
     {
-        $collection = $this->loader->load($uuidResult->getUuids(), $context);
+        $collection = $this->reader->readBasic($uuidResult->getUuids(), $context);
 
         $result = new CurrencySearchResult($collection->getElements());
 
         $result->setTotal($uuidResult->getTotal());
+        $result->setCriteria($criteria);
+        $result->setContext($context);
 
         return $result;
     }

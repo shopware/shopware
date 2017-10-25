@@ -24,7 +24,7 @@
             <argument type="service" id="shopware.framework.write.writer" />
         </service>
         
-        <service class="Shopware\OrderAddress\Loader\OrderAddressBasicLoader" id="shopware.order_address.basic_loader">
+        <service class="Shopware\OrderAddress\Reader\OrderAddressBasicReader" id="shopware.order_address.basic_reader">
             <argument id="shopware.order_address.basic_factory" type="service"/>
         </service>
 
@@ -32,11 +32,11 @@
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.order_address.basic_factory" type="service"/>
-            <argument id="shopware.order_address.basic_loader" type="service"/>
+            <argument id="shopware.order_address.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\OrderAddress\Repository\OrderAddressRepository" id="shopware.order_address.repository">
-            <argument id="shopware.order_address.basic_loader" type="service"/>
+            <argument id="shopware.order_address.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.order_address.searcher" type="service"/>
             <argument id="shopware.order_address.writer" type="service"/>

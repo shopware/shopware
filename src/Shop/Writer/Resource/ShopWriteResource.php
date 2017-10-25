@@ -32,7 +32,6 @@ use Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource;
 use Shopware\Product\Writer\Resource\ProductCategorySeoWriteResource;
 use Shopware\ProductVote\Writer\Resource\ProductVoteWriteResource;
 use Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource;
-use Shopware\Shop\Event\ShopWrittenEvent;
 use Shopware\ShopTemplate\Writer\Resource\ShopTemplateConfigFormFieldValueWriteResource;
 use Shopware\ShopTemplate\Writer\Resource\ShopTemplateWriteResource;
 
@@ -151,6 +150,10 @@ class ShopWriteResource extends WriteResource
          * @var string[]      $identifiers
          */
         foreach ($updates as $class => $identifiers) {
+            if (!array_key_exists($class, $updates) || count($updates[$class]) === 0) {
+                continue;
+            }
+
             $event->addEvent($class::createWrittenEvent($updates, $context));
         }
 

@@ -24,9 +24,21 @@
 
 namespace Shopware\Search;
 
-interface SearchResultInterface extends \IteratorAggregate
+use Shopware\Context\Struct\TranslationContext;
+
+interface SearchResultInterface extends \Iterator
 {
     public function getElements(): array;
 
     public function getTotal(): int;
+
+    public function getCriteria(): Criteria;
+
+    public function setTotal(int $total): void;
+
+    public function setCriteria(Criteria $criteria): void;
+
+    public function setContext(TranslationContext $context): void;
+
+    public function getContext(): TranslationContext;
 }

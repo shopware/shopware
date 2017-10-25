@@ -28,25 +28,25 @@
             <argument type="service" id="shopware.framework.write.writer" />
         </service>
         
-        <service class="Shopware\Currency\Loader\CurrencyBasicLoader" id="shopware.currency.basic_loader">
+        <service class="Shopware\Currency\Reader\CurrencyBasicReader" id="shopware.currency.basic_reader">
             <argument id="shopware.currency.basic_factory" type="service"/>
         </service>
 
-        <service class="Shopware\Currency\Loader\CurrencyDetailLoader" id="shopware.currency.detail_loader">
+        <service class="Shopware\Currency\Reader\CurrencyDetailReader" id="shopware.currency.detail_reader">
             <argument id="shopware.currency.detail_factory" type="service"/>
-            <argument id="shopware.shop.basic_loader" type="service"/>
+            <argument id="shopware.shop.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\Currency\Searcher\CurrencySearcher" id="shopware.currency.searcher">
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.currency.detail_factory" type="service"/>
-            <argument id="shopware.currency.basic_loader" type="service"/>
+            <argument id="shopware.currency.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\Currency\Repository\CurrencyRepository" id="shopware.currency.repository">
-            <argument id="shopware.currency.detail_loader" type="service"/>
-            <argument id="shopware.currency.basic_loader" type="service"/>
+            <argument id="shopware.currency.detail_reader" type="service"/>
+            <argument id="shopware.currency.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.currency.searcher" type="service"/>
             <argument id="shopware.currency.writer" type="service"/>

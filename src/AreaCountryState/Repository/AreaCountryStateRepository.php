@@ -4,23 +4,24 @@ namespace Shopware\AreaCountryState\Repository;
 
 use Shopware\AreaCountryState\Event\AreaCountryStateBasicLoadedEvent;
 use Shopware\AreaCountryState\Event\AreaCountryStateWrittenEvent;
-use Shopware\AreaCountryState\Loader\AreaCountryStateBasicLoader;
+use Shopware\AreaCountryState\Reader\AreaCountryStateBasicReader;
 use Shopware\AreaCountryState\Searcher\AreaCountryStateSearcher;
 use Shopware\AreaCountryState\Searcher\AreaCountryStateSearchResult;
 use Shopware\AreaCountryState\Struct\AreaCountryStateBasicCollection;
 use Shopware\AreaCountryState\Writer\AreaCountryStateWriter;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class AreaCountryStateRepository
+class AreaCountryStateRepository implements RepositoryInterface
 {
     /**
-     * @var AreaCountryStateBasicLoader
+     * @var AreaCountryStateBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class AreaCountryStateRepository
     private $writer;
 
     public function __construct(
-        AreaCountryStateBasicLoader $basicLoader,
+        AreaCountryStateBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         AreaCountryStateSearcher $searcher,
         AreaCountryStateWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): AreaCountryStateBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): AreaCountryStateBasicCollection
     {
         if (empty($uuids)) {
             return new AreaCountryStateBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             AreaCountryStateBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class AreaCountryStateRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): AreaCountryStateBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): AreaCountryStateSearchResult

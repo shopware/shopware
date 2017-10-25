@@ -32,16 +32,16 @@
             <argument type="service" id="shopware.framework.write.writer" />
         </service>
         
-        <service class="Shopware\ShippingMethod\Loader\ShippingMethodBasicLoader" id="shopware.shipping_method.basic_loader">
+        <service class="Shopware\ShippingMethod\Reader\ShippingMethodBasicReader" id="shopware.shipping_method.basic_reader">
             <argument id="shopware.shipping_method.basic_factory" type="service"/>
         </service>
 
-        <service class="Shopware\ShippingMethod\Loader\ShippingMethodDetailLoader" id="shopware.shipping_method.detail_loader">
+        <service class="Shopware\ShippingMethod\Reader\ShippingMethodDetailReader" id="shopware.shipping_method.detail_reader">
             <argument id="shopware.shipping_method.detail_factory" type="service"/>
-            <argument id="shopware.category.basic_loader" type="service"/>
-            <argument id="shopware.area_country.basic_loader" type="service"/>
-            <argument id="shopware.holiday.basic_loader" type="service"/>
-            <argument id="shopware.payment_method.basic_loader" type="service"/>
+            <argument id="shopware.category.basic_reader" type="service"/>
+            <argument id="shopware.area_country.basic_reader" type="service"/>
+            <argument id="shopware.holiday.basic_reader" type="service"/>
+            <argument id="shopware.payment_method.basic_reader" type="service"/>
             <argument id="shopware.shipping_method_price.searcher" type="service"/>
         </service>
 
@@ -49,12 +49,12 @@
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.shipping_method.detail_factory" type="service"/>
-            <argument id="shopware.shipping_method.basic_loader" type="service"/>
+            <argument id="shopware.shipping_method.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\ShippingMethod\Repository\ShippingMethodRepository" id="shopware.shipping_method.repository">
-            <argument id="shopware.shipping_method.detail_loader" type="service"/>
-            <argument id="shopware.shipping_method.basic_loader" type="service"/>
+            <argument id="shopware.shipping_method.detail_reader" type="service"/>
+            <argument id="shopware.shipping_method.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.shipping_method.searcher" type="service"/>
             <argument id="shopware.shipping_method.writer" type="service"/>

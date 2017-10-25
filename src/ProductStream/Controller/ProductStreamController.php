@@ -76,7 +76,7 @@ class ProductStreamController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('productStreamUuid');
-        $productStreams = $this->productStreamRepository->read(
+        $productStreams = $this->productStreamRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
@@ -98,7 +98,7 @@ class ProductStreamController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $productStreams = $this->productStreamRepository->read(
+        $productStreams = $this->productStreamRepository->readBasic(
             $createEvent->getProductStreamUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class ProductStreamController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $productStreams = $this->productStreamRepository->read(
+        $productStreams = $this->productStreamRepository->readBasic(
             $createEvent->getProductStreamUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class ProductStreamController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $productStreams = $this->productStreamRepository->read(
+        $productStreams = $this->productStreamRepository->readBasic(
             $createEvent->getProductStreamUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -190,7 +190,7 @@ class ProductStreamController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $productStreams = $this->productStreamRepository->read(
+        $productStreams = $this->productStreamRepository->readBasic(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

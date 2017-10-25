@@ -9,7 +9,7 @@ use Shopware\PriceGroup\Struct\PriceGroupBasicCollection;
 
 class PriceGroupBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'priceGroup.basic.loaded';
+    const NAME = 'price_group.basic.loaded';
 
     /**
      * @var PriceGroupBasicCollection

@@ -3,9 +3,10 @@
 namespace Shopware\Holiday\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\Holiday\Event\HolidayBasicLoadedEvent;
 use Shopware\Holiday\Event\HolidayWrittenEvent;
-use Shopware\Holiday\Loader\HolidayBasicLoader;
+use Shopware\Holiday\Reader\HolidayBasicReader;
 use Shopware\Holiday\Searcher\HolidaySearcher;
 use Shopware\Holiday\Searcher\HolidaySearchResult;
 use Shopware\Holiday\Struct\HolidayBasicCollection;
@@ -15,12 +16,12 @@ use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class HolidayRepository
+class HolidayRepository implements RepositoryInterface
 {
     /**
-     * @var HolidayBasicLoader
+     * @var HolidayBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class HolidayRepository
     private $writer;
 
     public function __construct(
-        HolidayBasicLoader $basicLoader,
+        HolidayBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         HolidaySearcher $searcher,
         HolidayWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): HolidayBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): HolidayBasicCollection
     {
         if (empty($uuids)) {
             return new HolidayBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             HolidayBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class HolidayRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): HolidayBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): HolidaySearchResult

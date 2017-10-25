@@ -92,6 +92,11 @@ class ShopTemplateBasicCollection extends Collection
         });
     }
 
+    public function current(): ShopTemplateBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(ShopTemplateBasicStruct $element): string
     {
         return $element->getUuid();

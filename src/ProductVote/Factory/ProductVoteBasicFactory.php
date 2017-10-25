@@ -4,8 +4,8 @@ namespace Shopware\ProductVote\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
-use Shopware\Framework\Factory\Factory;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
+use Shopware\Framework\Read\Factory;
 use Shopware\ProductVote\Extension\ProductVoteExtension;
 use Shopware\ProductVote\Struct\ProductVoteBasicStruct;
 use Shopware\Search\QueryBuilder;

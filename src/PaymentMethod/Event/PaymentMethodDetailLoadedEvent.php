@@ -11,7 +11,7 @@ use Shopware\Shop\Event\ShopBasicLoadedEvent;
 
 class PaymentMethodDetailLoadedEvent extends NestedEvent
 {
-    const NAME = 'paymentMethod.detail.loaded';
+    const NAME = 'payment_method.detail.loaded';
 
     /**
      * @var PaymentMethodDetailCollection

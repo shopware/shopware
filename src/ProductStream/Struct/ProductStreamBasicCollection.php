@@ -88,6 +88,11 @@ class ProductStreamBasicCollection extends Collection
         );
     }
 
+    public function current(): ProductStreamBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(ProductStreamBasicStruct $element): string
     {
         return $element->getUuid();

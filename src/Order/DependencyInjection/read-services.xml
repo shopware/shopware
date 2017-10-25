@@ -41,27 +41,27 @@
             <argument type="service" id="shopware.framework.write.writer" />
         </service>
         
-        <service class="Shopware\Order\Loader\OrderBasicLoader" id="shopware.order.basic_loader">
+        <service class="Shopware\Order\Reader\OrderBasicReader" id="shopware.order.basic_reader">
             <argument id="shopware.order.basic_factory" type="service"/>
         </service>
 
-        <service class="Shopware\Order\Loader\OrderDetailLoader" id="shopware.order.detail_loader">
+        <service class="Shopware\Order\Reader\OrderDetailReader" id="shopware.order.detail_reader">
             <argument id="shopware.order.detail_factory" type="service"/>
             <argument id="shopware.order_line_item.searcher" type="service"/>
             <argument id="shopware.order_delivery.searcher" type="service"/>
-            <argument id="shopware.order_delivery.detail_loader" type="service"/>
+            <argument id="shopware.order_delivery.detail_reader" type="service"/>
         </service>
 
         <service class="Shopware\Order\Searcher\OrderSearcher" id="shopware.order.searcher">
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.order.detail_factory" type="service"/>
-            <argument id="shopware.order.basic_loader" type="service"/>
+            <argument id="shopware.order.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\Order\Repository\OrderRepository" id="shopware.order.repository">
-            <argument id="shopware.order.detail_loader" type="service"/>
-            <argument id="shopware.order.basic_loader" type="service"/>
+            <argument id="shopware.order.detail_reader" type="service"/>
+            <argument id="shopware.order.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.order.searcher" type="service"/>
             <argument id="shopware.order.writer" type="service"/>

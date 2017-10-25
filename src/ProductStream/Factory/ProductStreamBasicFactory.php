@@ -4,8 +4,8 @@ namespace Shopware\ProductStream\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
-use Shopware\Framework\Factory\Factory;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
+use Shopware\Framework\Read\Factory;
 use Shopware\ListingSorting\Factory\ListingSortingBasicFactory;
 use Shopware\ListingSorting\Struct\ListingSortingBasicStruct;
 use Shopware\ProductStream\Extension\ProductStreamExtension;

@@ -11,7 +11,7 @@ use Shopware\Search\Searcher;
 use Shopware\Search\SearchResultInterface;
 use Shopware\Search\UuidSearchResult;
 use Shopware\Unit\Factory\UnitBasicFactory;
-use Shopware\Unit\Loader\UnitBasicLoader;
+use Shopware\Unit\Reader\UnitBasicReader;
 
 class UnitSearcher extends Searcher
 {
@@ -21,15 +21,15 @@ class UnitSearcher extends Searcher
     private $factory;
 
     /**
-     * @var UnitBasicLoader
+     * @var UnitBasicReader
      */
-    private $loader;
+    private $reader;
 
-    public function __construct(Connection $connection, SqlParser $parser, UnitBasicFactory $factory, UnitBasicLoader $loader)
+    public function __construct(Connection $connection, SqlParser $parser, UnitBasicFactory $factory, UnitBasicReader $reader)
     {
         parent::__construct($connection, $parser);
         $this->factory = $factory;
-        $this->loader = $loader;
+        $this->reader = $reader;
     }
 
     protected function createQuery(Criteria $criteria, TranslationContext $context): QueryBuilder
@@ -37,13 +37,15 @@ class UnitSearcher extends Searcher
         return $this->factory->createSearchQuery($criteria, $context);
     }
 
-    protected function load(UuidSearchResult $uuidResult, TranslationContext $context): SearchResultInterface
+    protected function load(UuidSearchResult $uuidResult, Criteria $criteria, TranslationContext $context): SearchResultInterface
     {
-        $collection = $this->loader->load($uuidResult->getUuids(), $context);
+        $collection = $this->reader->readBasic($uuidResult->getUuids(), $context);
 
         $result = new UnitSearchResult($collection->getElements());
 
         $result->setTotal($uuidResult->getTotal());
+        $result->setCriteria($criteria);
+        $result->setContext($context);
 
         return $result;
     }

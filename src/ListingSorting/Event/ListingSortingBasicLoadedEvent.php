@@ -9,7 +9,7 @@ use Shopware\ListingSorting\Struct\ListingSortingBasicCollection;
 
 class ListingSortingBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'listingSorting.basic.loaded';
+    const NAME = 'listing_sorting.basic.loaded';
 
     /**
      * @var ListingSortingBasicCollection

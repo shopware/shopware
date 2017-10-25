@@ -76,7 +76,7 @@ class OrderDeliveryPositionController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('orderDeliveryPositionUuid');
-        $orderDeliveryPositions = $this->orderDeliveryPositionRepository->read(
+        $orderDeliveryPositions = $this->orderDeliveryPositionRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
@@ -98,7 +98,7 @@ class OrderDeliveryPositionController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $orderDeliveryPositions = $this->orderDeliveryPositionRepository->read(
+        $orderDeliveryPositions = $this->orderDeliveryPositionRepository->readBasic(
             $createEvent->getOrderDeliveryPositionUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class OrderDeliveryPositionController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $orderDeliveryPositions = $this->orderDeliveryPositionRepository->read(
+        $orderDeliveryPositions = $this->orderDeliveryPositionRepository->readBasic(
             $createEvent->getOrderDeliveryPositionUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class OrderDeliveryPositionController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $orderDeliveryPositions = $this->orderDeliveryPositionRepository->read(
+        $orderDeliveryPositions = $this->orderDeliveryPositionRepository->readBasic(
             $createEvent->getOrderDeliveryPositionUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -190,7 +190,7 @@ class OrderDeliveryPositionController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $orderDeliveryPositions = $this->orderDeliveryPositionRepository->read(
+        $orderDeliveryPositions = $this->orderDeliveryPositionRepository->readBasic(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

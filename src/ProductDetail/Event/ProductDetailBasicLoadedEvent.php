@@ -11,7 +11,7 @@ use Shopware\Unit\Event\UnitBasicLoadedEvent;
 
 class ProductDetailBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'productDetail.basic.loaded';
+    const NAME = 'product_detail.basic.loaded';
 
     /**
      * @var ProductDetailBasicCollection

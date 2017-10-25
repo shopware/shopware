@@ -83,12 +83,12 @@ class ViewProductTransformer implements ViewLineItemTransformerInterface
             return;
         }
 
-        $variants = $this->productDetailRepository->read(
+        $variants = $this->productDetailRepository->readBasic(
             $collection->getIdentifiers(),
             $context->getTranslationContext()
         );
 
-        $products = $this->productRepository->read(
+        $products = $this->productRepository->readBasic(
             $variants->getProductUuids(),
             $context->getTranslationContext()
         );

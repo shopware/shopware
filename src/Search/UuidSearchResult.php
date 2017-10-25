@@ -16,10 +16,21 @@ class UuidSearchResult extends Struct
      */
     protected $uuids;
 
-    public function __construct(int $total, array $uuids)
+    /**
+     * @var Criteria
+     */
+    protected $criteria;
+
+    public function __construct(int $total, array $uuids, Criteria $criteria)
     {
         $this->total = $total;
         $this->uuids = $uuids;
+        $this->criteria = $criteria;
+    }
+
+    public function getCriteria(): Criteria
+    {
+        return $this->criteria;
     }
 
     public function getTotal(): int

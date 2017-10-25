@@ -3,9 +3,10 @@
 namespace Shopware\ProductManufacturer\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
 use Shopware\ProductManufacturer\Event\ProductManufacturerWrittenEvent;
-use Shopware\ProductManufacturer\Loader\ProductManufacturerBasicLoader;
+use Shopware\ProductManufacturer\Reader\ProductManufacturerBasicReader;
 use Shopware\ProductManufacturer\Searcher\ProductManufacturerSearcher;
 use Shopware\ProductManufacturer\Searcher\ProductManufacturerSearchResult;
 use Shopware\ProductManufacturer\Struct\ProductManufacturerBasicCollection;
@@ -15,12 +16,12 @@ use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ProductManufacturerRepository
+class ProductManufacturerRepository implements RepositoryInterface
 {
     /**
-     * @var ProductManufacturerBasicLoader
+     * @var ProductManufacturerBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class ProductManufacturerRepository
     private $writer;
 
     public function __construct(
-        ProductManufacturerBasicLoader $basicLoader,
+        ProductManufacturerBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         ProductManufacturerSearcher $searcher,
         ProductManufacturerWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): ProductManufacturerBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): ProductManufacturerBasicCollection
     {
         if (empty($uuids)) {
             return new ProductManufacturerBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             ProductManufacturerBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class ProductManufacturerRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): ProductManufacturerBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): ProductManufacturerSearchResult

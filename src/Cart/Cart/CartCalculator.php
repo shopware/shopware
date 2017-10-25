@@ -95,7 +95,6 @@ class CartCalculator
         StructCollection $dataCollection,
         int $iteration
     ): CalculatedCart {
-
         if ($iteration >= self::MAX_ITERATION) {
             throw new CircularCartCalculationException();
         }

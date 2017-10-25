@@ -9,7 +9,7 @@ use Shopware\ProductVote\Struct\ProductVoteBasicCollection;
 
 class ProductVoteBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'productVote.basic.loaded';
+    const NAME = 'product_vote.basic.loaded';
 
     /**
      * @var ProductVoteBasicCollection

@@ -3,14 +3,13 @@
 namespace Shopware\OrderDelivery\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionInterface;
+use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\OrderDelivery\Event\OrderDeliveryBasicLoadedEvent;
 use Shopware\OrderDelivery\Event\OrderDeliveryDetailLoadedEvent;
-use Shopware\OrderDelivery\Event\OrderDeliveryWrittenEvent;
+use Shopware\OrderDelivery\Struct\OrderDeliveryBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Shopware\OrderDelivery\Struct\OrderDeliveryBasicStruct;
 
 abstract class OrderDeliveryExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -19,7 +18,6 @@ abstract class OrderDeliveryExtension implements ExtensionInterface, EventSubscr
         return [
             OrderDeliveryBasicLoadedEvent::NAME => 'orderDeliveryBasicLoaded',
             OrderDeliveryDetailLoadedEvent::NAME => 'orderDeliveryDetailLoaded',
-            
         ];
     }
 
@@ -28,7 +26,6 @@ abstract class OrderDeliveryExtension implements ExtensionInterface, EventSubscr
         QueryBuilder $query,
         TranslationContext $context
     ): void {
-
     }
 
     public function getDetailFields(): array
@@ -46,15 +43,14 @@ abstract class OrderDeliveryExtension implements ExtensionInterface, EventSubscr
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void
-    { }
+    ): void {
+    }
 
     public function orderDeliveryBasicLoaded(OrderDeliveryBasicLoadedEvent $event): void
-    { }
+    {
+    }
 
     public function orderDeliveryDetailLoaded(OrderDeliveryDetailLoadedEvent $event): void
-    { }
-
-    
-
+    {
+    }
 }

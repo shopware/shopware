@@ -16,7 +16,7 @@
         </service>
         
 
-        <service class="Shopware\ProductListingPrice\Loader\ProductListingPriceBasicLoader" id="shopware.product_listing_price_ro.basic_loader">
+        <service class="Shopware\ProductListingPrice\Reader\ProductListingPriceBasicReader" id="shopware.product_listing_price_ro.basic_reader">
             <argument id="shopware.product_listing_price_ro.basic_factory" type="service"/>
         </service>
 
@@ -24,11 +24,11 @@
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.product_listing_price_ro.basic_factory" type="service"/>
-            <argument id="shopware.product_listing_price_ro.basic_loader" type="service"/>
+            <argument id="shopware.product_listing_price_ro.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\ProductListingPrice\Repository\ProductListingPriceRepository" id="shopware.product_listing_price_ro.repository">
-            <argument id="shopware.product_listing_price_ro.basic_loader" type="service"/>
+            <argument id="shopware.product_listing_price_ro.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.product_listing_price_ro.searcher" type="service"/>
             

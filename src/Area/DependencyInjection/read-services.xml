@@ -28,26 +28,26 @@
             <argument type="service" id="shopware.framework.write.writer" />
         </service>
         
-        <service class="Shopware\Area\Loader\AreaBasicLoader" id="shopware.area.basic_loader">
+        <service class="Shopware\Area\Reader\AreaBasicReader" id="shopware.area.basic_reader">
             <argument id="shopware.area.basic_factory" type="service"/>
         </service>
 
-        <service class="Shopware\Area\Loader\AreaDetailLoader" id="shopware.area.detail_loader">
+        <service class="Shopware\Area\Reader\AreaDetailReader" id="shopware.area.detail_reader">
             <argument id="shopware.area.detail_factory" type="service"/>
             <argument id="shopware.area_country.searcher" type="service"/>
-            <argument id="shopware.area_country.detail_loader" type="service"/>
+            <argument id="shopware.area_country.detail_reader" type="service"/>
         </service>
 
         <service class="Shopware\Area\Searcher\AreaSearcher" id="shopware.area.searcher">
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.area.detail_factory" type="service"/>
-            <argument id="shopware.area.basic_loader" type="service"/>
+            <argument id="shopware.area.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\Area\Repository\AreaRepository" id="shopware.area.repository">
-            <argument id="shopware.area.detail_loader" type="service"/>
-            <argument id="shopware.area.basic_loader" type="service"/>
+            <argument id="shopware.area.detail_reader" type="service"/>
+            <argument id="shopware.area.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.area.searcher" type="service"/>
             <argument id="shopware.area.writer" type="service"/>

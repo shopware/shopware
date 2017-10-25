@@ -163,7 +163,7 @@ class ContextFactory implements ContextFactoryInterface
         $currency = $this->getCurrency($shop, $shopScope->getCurrencyUuid(), $translationContext);
 
         //fallback customer group is hard coded to 'EK'
-        $customerGroups = $this->customerGroupRepository->read(
+        $customerGroups = $this->customerGroupRepository->readBasic(
             [StorefrontContextService::FALLBACK_CUSTOMER_GROUP],
             $translationContext
         );
@@ -187,7 +187,7 @@ class ContextFactory implements ContextFactoryInterface
 
         //customer group switched?
         if ($customerScope->getCustomerGroupUuid() !== null) {
-            $customerGroup = $this->customerGroupRepository->read([$customerScope->getCustomerGroupUuid()], $translationContext)
+            $customerGroup = $this->customerGroupRepository->readBasic([$customerScope->getCustomerGroupUuid()], $translationContext)
                 ->get($customerScope->getCustomerGroupUuid());
         }
 
@@ -228,7 +228,7 @@ class ContextFactory implements ContextFactoryInterface
             return $shop->getCurrency();
         }
 
-        $currency = $this->currencyRepository->read([$currencyUuid], $context);
+        $currency = $this->currencyRepository->readBasic([$currencyUuid], $context);
 
         if (!$currency->has($currencyUuid)) {
             return $shop->getCurrency();
@@ -241,7 +241,7 @@ class ContextFactory implements ContextFactoryInterface
     {
         //payment switched in checkout?
         if ($checkoutScope->getPaymentMethodUuid() !== null) {
-            return $this->paymentMethodRepository->read([$checkoutScope->getPaymentMethodUuid()], $context)
+            return $this->paymentMethodRepository->readBasic([$checkoutScope->getPaymentMethodUuid()], $context)
                 ->get($checkoutScope->getPaymentMethodUuid());
         }
 
@@ -262,7 +262,7 @@ class ContextFactory implements ContextFactoryInterface
     private function getShippingMethod(ShopDetailStruct $shop, TranslationContext $context, CheckoutScope $checkoutScope): ShippingMethodBasicStruct
     {
         if ($checkoutScope->getShippingMethodUuid() !== null) {
-            return $this->shippingMethodRepository->read([$checkoutScope->getShippingMethodUuid()], $context)
+            return $this->shippingMethodRepository->readBasic([$checkoutScope->getShippingMethodUuid()], $context)
                 ->get($checkoutScope->getShippingMethodUuid());
         }
 
@@ -288,7 +288,7 @@ class ContextFactory implements ContextFactoryInterface
 
     private function loadCustomer(CustomerScope $customerScope, TranslationContext $translationContext): ?CustomerBasicStruct
     {
-        $customers = $this->customerRepository->read([$customerScope->getCustomerUuid()], $translationContext);
+        $customers = $this->customerRepository->readBasic([$customerScope->getCustomerUuid()], $translationContext);
         $customer = $customers->get($customerScope->getCustomerUuid());
 
         if (!$customer) {
@@ -299,7 +299,7 @@ class ContextFactory implements ContextFactoryInterface
             return $customer;
         }
 
-        $addresses = $this->addressRepository->read(
+        $addresses = $this->addressRepository->readBasic(
             [$customerScope->getBillingAddressUuid(), $customerScope->getShippingAddressUuid()],
             $translationContext
         );
@@ -324,10 +324,10 @@ class ContextFactory implements ContextFactoryInterface
     ): ShippingLocation {
         //allows to preview cart calculation for a specify state for not logged in customers
         if ($checkoutScope->getStateUuid() !== null) {
-            $state = $this->countryStateRepository->read([$checkoutScope->getStateUuid()], $translationContext)
+            $state = $this->countryStateRepository->readBasic([$checkoutScope->getStateUuid()], $translationContext)
                 ->get($checkoutScope->getStateUuid());
 
-            $country = $this->countryRepository->read([$state->getAreaCountryUuid()], $translationContext)
+            $country = $this->countryRepository->readBasic([$state->getAreaCountryUuid()], $translationContext)
                 ->get($state->getAreaCountryUuid());
 
             return new ShippingLocation($country, $state, null);
@@ -335,7 +335,7 @@ class ContextFactory implements ContextFactoryInterface
 
         //allows to preview cart calculation for a specify country for not logged in customers
         if ($checkoutScope->getCountryUuid() !== null) {
-            $country = $this->countryRepository->read([$checkoutScope->getCountryUuid()], $translationContext)
+            $country = $this->countryRepository->readBasic([$checkoutScope->getCountryUuid()], $translationContext)
                 ->get($checkoutScope->getCountryUuid());
 
             return ShippingLocation::createFromCountry($country);

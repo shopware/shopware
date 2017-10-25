@@ -6,8 +6,8 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Product\Event\ProductBasicLoadedEvent;
 use Shopware\Product\Event\ProductDetailLoadedEvent;
 use Shopware\Product\Event\ProductWrittenEvent;
-use Shopware\Product\Loader\ProductBasicLoader;
-use Shopware\Product\Loader\ProductDetailLoader;
+use Shopware\Product\Reader\ProductBasicReader;
+use Shopware\Product\Reader\ProductDetailReader;
 use Shopware\Product\Searcher\ProductSearcher;
 use Shopware\Product\Searcher\ProductSearchResult;
 use Shopware\Product\Struct\ProductBasicCollection;
@@ -21,14 +21,14 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ProductRepository
 {
     /**
-     * @var ProductDetailLoader
+     * @var ProductDetailReader
      */
-    protected $detailLoader;
+    protected $detailReader;
 
     /**
-     * @var ProductBasicLoader
+     * @var ProductBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -46,17 +46,33 @@ class ProductRepository
     private $writer;
 
     public function __construct(
-        ProductDetailLoader $detailLoader,
-        ProductBasicLoader $basicLoader,
+        ProductDetailReader $detailReader,
+        ProductBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         ProductSearcher $searcher,
         ProductWriter $writer
     ) {
-        $this->detailLoader = $detailLoader;
-        $this->basicLoader = $basicLoader;
+        $this->detailReader = $detailReader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
+    }
+
+    public function readBasic(array $uuids, TranslationContext $context): ProductBasicCollection
+    {
+        if (empty($uuids)) {
+            return new ProductBasicCollection();
+        }
+
+        $collection = $this->basicReader->readBasic($uuids, $context);
+
+        $this->eventDispatcher->dispatch(
+            ProductBasicLoadedEvent::NAME,
+            new ProductBasicLoadedEvent($collection, $context)
+        );
+
+        return $collection;
     }
 
     public function readDetail(array $uuids, TranslationContext $context): ProductDetailCollection
@@ -64,27 +80,11 @@ class ProductRepository
         if (empty($uuids)) {
             return new ProductDetailCollection();
         }
-        $collection = $this->detailLoader->load($uuids, $context);
+        $collection = $this->detailReader->readDetail($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             ProductDetailLoadedEvent::NAME,
             new ProductDetailLoadedEvent($collection, $context)
-        );
-
-        return $collection;
-    }
-
-    public function read(array $uuids, TranslationContext $context): ProductBasicCollection
-    {
-        if (empty($uuids)) {
-            return new ProductBasicCollection();
-        }
-
-        $collection = $this->basicLoader->load($uuids, $context);
-
-        $this->eventDispatcher->dispatch(
-            ProductBasicLoadedEvent::NAME,
-            new ProductBasicLoadedEvent($collection, $context)
         );
 
         return $collection;

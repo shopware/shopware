@@ -6,8 +6,8 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Event\CustomerGroupBasicLoadedEvent;
 use Shopware\CustomerGroup\Event\CustomerGroupDetailLoadedEvent;
 use Shopware\CustomerGroup\Event\CustomerGroupWrittenEvent;
-use Shopware\CustomerGroup\Loader\CustomerGroupBasicLoader;
-use Shopware\CustomerGroup\Loader\CustomerGroupDetailLoader;
+use Shopware\CustomerGroup\Reader\CustomerGroupBasicReader;
+use Shopware\CustomerGroup\Reader\CustomerGroupDetailReader;
 use Shopware\CustomerGroup\Searcher\CustomerGroupSearcher;
 use Shopware\CustomerGroup\Searcher\CustomerGroupSearchResult;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicCollection;
@@ -21,14 +21,14 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class CustomerGroupRepository
 {
     /**
-     * @var CustomerGroupDetailLoader
+     * @var CustomerGroupDetailReader
      */
-    protected $detailLoader;
+    protected $detailReader;
 
     /**
-     * @var CustomerGroupBasicLoader
+     * @var CustomerGroupBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -46,17 +46,33 @@ class CustomerGroupRepository
     private $writer;
 
     public function __construct(
-        CustomerGroupDetailLoader $detailLoader,
-        CustomerGroupBasicLoader $basicLoader,
+        CustomerGroupDetailReader $detailReader,
+        CustomerGroupBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         CustomerGroupSearcher $searcher,
         CustomerGroupWriter $writer
     ) {
-        $this->detailLoader = $detailLoader;
-        $this->basicLoader = $basicLoader;
+        $this->detailReader = $detailReader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
+    }
+
+    public function readBasic(array $uuids, TranslationContext $context): CustomerGroupBasicCollection
+    {
+        if (empty($uuids)) {
+            return new CustomerGroupBasicCollection();
+        }
+
+        $collection = $this->basicReader->readBasic($uuids, $context);
+
+        $this->eventDispatcher->dispatch(
+            CustomerGroupBasicLoadedEvent::NAME,
+            new CustomerGroupBasicLoadedEvent($collection, $context)
+        );
+
+        return $collection;
     }
 
     public function readDetail(array $uuids, TranslationContext $context): CustomerGroupDetailCollection
@@ -64,27 +80,11 @@ class CustomerGroupRepository
         if (empty($uuids)) {
             return new CustomerGroupDetailCollection();
         }
-        $collection = $this->detailLoader->load($uuids, $context);
+        $collection = $this->detailReader->readDetail($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             CustomerGroupDetailLoadedEvent::NAME,
             new CustomerGroupDetailLoadedEvent($collection, $context)
-        );
-
-        return $collection;
-    }
-
-    public function read(array $uuids, TranslationContext $context): CustomerGroupBasicCollection
-    {
-        if (empty($uuids)) {
-            return new CustomerGroupBasicCollection();
-        }
-
-        $collection = $this->basicLoader->load($uuids, $context);
-
-        $this->eventDispatcher->dispatch(
-            CustomerGroupBasicLoadedEvent::NAME,
-            new CustomerGroupBasicLoadedEvent($collection, $context)
         );
 
         return $collection;

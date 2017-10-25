@@ -45,21 +45,21 @@
             <argument type="service" id="shopware.framework.write.writer" />
         </service>
         
-        <service class="Shopware\Product\Loader\ProductBasicLoader" id="shopware.product.basic_loader">
+        <service class="Shopware\Product\Reader\ProductBasicReader" id="shopware.product.basic_reader">
             <argument id="shopware.product.basic_factory" type="service"/>
-            <argument id="shopware.product_detail.basic_loader" type="service"/>
-            <argument id="shopware.customer_group.basic_loader" type="service"/>
+            <argument id="shopware.product_detail.basic_reader" type="service"/>
+            <argument id="shopware.customer_group.basic_reader" type="service"/>
             <argument id="shopware.product_listing_price_ro.searcher" type="service"/>
         </service>
 
-        <service class="Shopware\Product\Loader\ProductDetailLoader" id="shopware.product.detail_loader">
+        <service class="Shopware\Product\Reader\ProductDetailReader" id="shopware.product.detail_reader">
             <argument id="shopware.product.detail_factory" type="service"/>
-            <argument id="shopware.product_detail.basic_loader" type="service"/>
-            <argument id="shopware.customer_group.basic_loader" type="service"/>
+            <argument id="shopware.product_detail.basic_reader" type="service"/>
+            <argument id="shopware.customer_group.basic_reader" type="service"/>
             <argument id="shopware.product_listing_price_ro.searcher" type="service"/>
             <argument id="shopware.product_media.searcher" type="service"/>
             <argument id="shopware.product_detail.searcher" type="service"/>
-            <argument id="shopware.category.basic_loader" type="service"/>
+            <argument id="shopware.category.basic_reader" type="service"/>
             <argument id="shopware.product_vote.searcher" type="service"/>
             <argument id="shopware.product_vote_average_ro.searcher" type="service"/>
         </service>
@@ -68,12 +68,12 @@
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.product.detail_factory" type="service"/>
-            <argument id="shopware.product.basic_loader" type="service"/>
+            <argument id="shopware.product.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\Product\Repository\ProductRepository" id="shopware.product.repository">
-            <argument id="shopware.product.detail_loader" type="service"/>
-            <argument id="shopware.product.basic_loader" type="service"/>
+            <argument id="shopware.product.detail_reader" type="service"/>
+            <argument id="shopware.product.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.product.searcher" type="service"/>
             <argument id="shopware.product.writer" type="service"/>

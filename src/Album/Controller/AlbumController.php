@@ -98,7 +98,7 @@ class AlbumController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $album = $this->albumRepository->read(
+        $album = $this->albumRepository->readBasic(
             $createEvent->getAlbumUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class AlbumController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $album = $this->albumRepository->read(
+        $album = $this->albumRepository->readBasic(
             $createEvent->getAlbumUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class AlbumController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $album = $this->albumRepository->read(
+        $album = $this->albumRepository->readBasic(
             $createEvent->getAlbumUuids(),
             $context->getShopContext()->getTranslationContext()
         );

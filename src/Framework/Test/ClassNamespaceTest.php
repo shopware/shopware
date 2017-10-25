@@ -21,7 +21,7 @@ class ClassNamespaceTest extends TestCase
 
             $namespace = 'namespace Shopware\\' . implode('\\', $parts);
 
-            if (false === strpos($file->getContents(), $namespace)) {
+            if (strpos($file->getContents(), $namespace) === false) {
                 $relativePath = str_replace($basePath, '', $file->getPathname());
                 $errors['src' . $relativePath] = $namespace . ';';
             }
@@ -34,7 +34,8 @@ class ClassNamespaceTest extends TestCase
 
     /**
      * @param SplFileInfo $file
-     * @param string[] $basePathParts
+     * @param string[]    $basePathParts
+     *
      * @return string[]
      */
     private function extractProductionNamespaceParts(SplFileInfo $file, array $basePathParts): array

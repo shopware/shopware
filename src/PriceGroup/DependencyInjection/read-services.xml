@@ -28,11 +28,11 @@
             <argument type="service" id="shopware.framework.write.writer" />
         </service>
         
-        <service class="Shopware\PriceGroup\Loader\PriceGroupBasicLoader" id="shopware.price_group.basic_loader">
+        <service class="Shopware\PriceGroup\Reader\PriceGroupBasicReader" id="shopware.price_group.basic_reader">
             <argument id="shopware.price_group.basic_factory" type="service"/>
         </service>
 
-        <service class="Shopware\PriceGroup\Loader\PriceGroupDetailLoader" id="shopware.price_group.detail_loader">
+        <service class="Shopware\PriceGroup\Reader\PriceGroupDetailReader" id="shopware.price_group.detail_reader">
             <argument id="shopware.price_group.detail_factory" type="service"/>
             <argument id="shopware.price_group_discount.searcher" type="service"/>
         </service>
@@ -41,12 +41,12 @@
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.price_group.detail_factory" type="service"/>
-            <argument id="shopware.price_group.basic_loader" type="service"/>
+            <argument id="shopware.price_group.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\PriceGroup\Repository\PriceGroupRepository" id="shopware.price_group.repository">
-            <argument id="shopware.price_group.detail_loader" type="service"/>
-            <argument id="shopware.price_group.basic_loader" type="service"/>
+            <argument id="shopware.price_group.detail_reader" type="service"/>
+            <argument id="shopware.price_group.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.price_group.searcher" type="service"/>
             <argument id="shopware.price_group.writer" type="service"/>

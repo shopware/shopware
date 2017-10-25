@@ -37,25 +37,25 @@
             <argument type="service" id="shopware.framework.write.writer" />
         </service>
         
-        <service class="Shopware\Shop\Loader\ShopBasicLoader" id="shopware.shop.basic_loader">
+        <service class="Shopware\Shop\Reader\ShopBasicReader" id="shopware.shop.basic_reader">
             <argument id="shopware.shop.basic_factory" type="service"/>
         </service>
 
-        <service class="Shopware\Shop\Loader\ShopDetailLoader" id="shopware.shop.detail_loader">
+        <service class="Shopware\Shop\Reader\ShopDetailReader" id="shopware.shop.detail_reader">
             <argument id="shopware.shop.detail_factory" type="service"/>
-            <argument id="shopware.currency.basic_loader" type="service"/>
+            <argument id="shopware.currency.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\Shop\Searcher\ShopSearcher" id="shopware.shop.searcher">
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.shop.detail_factory" type="service"/>
-            <argument id="shopware.shop.basic_loader" type="service"/>
+            <argument id="shopware.shop.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\Shop\Repository\ShopRepository" id="shopware.shop.repository">
-            <argument id="shopware.shop.detail_loader" type="service"/>
-            <argument id="shopware.shop.basic_loader" type="service"/>
+            <argument id="shopware.shop.detail_reader" type="service"/>
+            <argument id="shopware.shop.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.shop.searcher" type="service"/>
             <argument id="shopware.shop.writer" type="service"/>

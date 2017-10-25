@@ -3,14 +3,13 @@
 namespace Shopware\PriceGroup\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionInterface;
+use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\PriceGroup\Event\PriceGroupBasicLoadedEvent;
 use Shopware\PriceGroup\Event\PriceGroupDetailLoadedEvent;
-use Shopware\PriceGroup\Event\PriceGroupWrittenEvent;
+use Shopware\PriceGroup\Struct\PriceGroupBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Shopware\PriceGroup\Struct\PriceGroupBasicStruct;
 
 abstract class PriceGroupExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -19,7 +18,6 @@ abstract class PriceGroupExtension implements ExtensionInterface, EventSubscribe
         return [
             PriceGroupBasicLoadedEvent::NAME => 'priceGroupBasicLoaded',
             PriceGroupDetailLoadedEvent::NAME => 'priceGroupDetailLoaded',
-            
         ];
     }
 
@@ -28,7 +26,6 @@ abstract class PriceGroupExtension implements ExtensionInterface, EventSubscribe
         QueryBuilder $query,
         TranslationContext $context
     ): void {
-
     }
 
     public function getDetailFields(): array
@@ -46,15 +43,14 @@ abstract class PriceGroupExtension implements ExtensionInterface, EventSubscribe
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void
-    { }
+    ): void {
+    }
 
     public function priceGroupBasicLoaded(PriceGroupBasicLoadedEvent $event): void
-    { }
+    {
+    }
 
     public function priceGroupDetailLoaded(PriceGroupDetailLoadedEvent $event): void
-    { }
-
-    
-
+    {
+    }
 }

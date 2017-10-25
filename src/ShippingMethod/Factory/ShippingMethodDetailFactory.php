@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\AreaCountry\Factory\AreaCountryBasicFactory;
 use Shopware\Category\Factory\CategoryBasicFactory;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
 use Shopware\Holiday\Factory\HolidayBasicFactory;
 use Shopware\PaymentMethod\Factory\PaymentMethodBasicFactory;
 use Shopware\Search\QueryBuilder;

@@ -3,24 +3,25 @@
 namespace Shopware\TaxAreaRule\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Shopware\TaxAreaRule\Event\TaxAreaRuleBasicLoadedEvent;
 use Shopware\TaxAreaRule\Event\TaxAreaRuleWrittenEvent;
-use Shopware\TaxAreaRule\Loader\TaxAreaRuleBasicLoader;
+use Shopware\TaxAreaRule\Reader\TaxAreaRuleBasicReader;
 use Shopware\TaxAreaRule\Searcher\TaxAreaRuleSearcher;
 use Shopware\TaxAreaRule\Searcher\TaxAreaRuleSearchResult;
 use Shopware\TaxAreaRule\Struct\TaxAreaRuleBasicCollection;
 use Shopware\TaxAreaRule\Writer\TaxAreaRuleWriter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class TaxAreaRuleRepository
+class TaxAreaRuleRepository implements RepositoryInterface
 {
     /**
-     * @var TaxAreaRuleBasicLoader
+     * @var TaxAreaRuleBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class TaxAreaRuleRepository
     private $writer;
 
     public function __construct(
-        TaxAreaRuleBasicLoader $basicLoader,
+        TaxAreaRuleBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         TaxAreaRuleSearcher $searcher,
         TaxAreaRuleWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): TaxAreaRuleBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): TaxAreaRuleBasicCollection
     {
         if (empty($uuids)) {
             return new TaxAreaRuleBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             TaxAreaRuleBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class TaxAreaRuleRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): TaxAreaRuleBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): TaxAreaRuleSearchResult

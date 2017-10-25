@@ -23,7 +23,7 @@
             <argument type="service" id="shopware.framework.write.writer" />
         </service>
         
-        <service class="Shopware\OrderDeliveryPosition\Loader\OrderDeliveryPositionBasicLoader" id="shopware.order_delivery_position.basic_loader">
+        <service class="Shopware\OrderDeliveryPosition\Reader\OrderDeliveryPositionBasicReader" id="shopware.order_delivery_position.basic_reader">
             <argument id="shopware.order_delivery_position.basic_factory" type="service"/>
         </service>
 
@@ -31,11 +31,11 @@
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.order_delivery_position.basic_factory" type="service"/>
-            <argument id="shopware.order_delivery_position.basic_loader" type="service"/>
+            <argument id="shopware.order_delivery_position.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\OrderDeliveryPosition\Repository\OrderDeliveryPositionRepository" id="shopware.order_delivery_position.repository">
-            <argument id="shopware.order_delivery_position.basic_loader" type="service"/>
+            <argument id="shopware.order_delivery_position.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.order_delivery_position.searcher" type="service"/>
             <argument id="shopware.order_delivery_position.writer" type="service"/>

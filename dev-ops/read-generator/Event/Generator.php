@@ -1,7 +1,9 @@
 <?php
 
 namespace ReadGenerator\Event;
+
 use ReadGenerator\Util;
+
 class Generator
 {
     /**
@@ -36,8 +38,8 @@ class Generator
         $uses = implode("\n", array_unique($uses));
 
         $template = str_replace(
-            ['#classUc#', '#classLc#', '#pluralLc#', '#pluralUc#', '#events#', '#uses#'],
-            [ucfirst($class), lcfirst($class), lcfirst($plural), ucfirst($plural), $events, $uses],
+            ['#classUc#', '#classLc#', '#pluralLc#', '#pluralUc#', '#events#', '#uses#', '#table#'],
+            [ucfirst($class), lcfirst($class), lcfirst($plural), ucfirst($plural), $events, $uses, $table],
             file_get_contents(__DIR__.'/templates/event.txt')
         );
 
@@ -63,8 +65,8 @@ class Generator
         }
 
         $template = str_replace(
-            ['#classUc#', '#classLc#', '#pluralLc#', '#pluralUc#', '#events#', '#uses#'],
-            [ucfirst($class), lcfirst($class), lcfirst($plural), ucfirst($plural), $events, $uses],
+            ['#classUc#', '#classLc#', '#pluralLc#', '#pluralUc#', '#events#', '#uses#', '#table#'],
+            [ucfirst($class), lcfirst($class), lcfirst($plural), ucfirst($plural), $events, $uses, $table],
             file_get_contents(__DIR__.'/templates/detail_event.txt')
         );
 

@@ -76,7 +76,7 @@ class CustomerAddressController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('customerAddressUuid');
-        $customerAddresses = $this->customerAddressRepository->read(
+        $customerAddresses = $this->customerAddressRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
@@ -98,7 +98,7 @@ class CustomerAddressController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $customerAddresses = $this->customerAddressRepository->read(
+        $customerAddresses = $this->customerAddressRepository->readBasic(
             $createEvent->getCustomerAddressUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class CustomerAddressController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $customerAddresses = $this->customerAddressRepository->read(
+        $customerAddresses = $this->customerAddressRepository->readBasic(
             $createEvent->getCustomerAddressUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class CustomerAddressController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $customerAddresses = $this->customerAddressRepository->read(
+        $customerAddresses = $this->customerAddressRepository->readBasic(
             $createEvent->getCustomerAddressUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -190,7 +190,7 @@ class CustomerAddressController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $customerAddresses = $this->customerAddressRepository->read(
+        $customerAddresses = $this->customerAddressRepository->readBasic(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

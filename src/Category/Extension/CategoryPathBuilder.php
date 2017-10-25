@@ -94,7 +94,7 @@ class CategoryPathBuilder
 
     private function loadParents(string $parentUuid, TranslationContext $context): CategoryBasicCollection
     {
-        $parents = $this->repository->read([$parentUuid], $context);
+        $parents = $this->repository->readBasic([$parentUuid], $context);
         $parent = $parents->get($parentUuid);
 
         if ($parent->getParentUuid() !== null) {

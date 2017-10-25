@@ -98,7 +98,7 @@ class CurrencyController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $currencies = $this->currencyRepository->read(
+        $currencies = $this->currencyRepository->readBasic(
             $createEvent->getCurrencyUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class CurrencyController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $currencies = $this->currencyRepository->read(
+        $currencies = $this->currencyRepository->readBasic(
             $createEvent->getCurrencyUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class CurrencyController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $currencies = $this->currencyRepository->read(
+        $currencies = $this->currencyRepository->readBasic(
             $createEvent->getCurrencyUuids(),
             $context->getShopContext()->getTranslationContext()
         );

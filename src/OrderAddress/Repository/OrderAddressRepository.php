@@ -3,9 +3,10 @@
 namespace Shopware\OrderAddress\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\OrderAddress\Event\OrderAddressBasicLoadedEvent;
 use Shopware\OrderAddress\Event\OrderAddressWrittenEvent;
-use Shopware\OrderAddress\Loader\OrderAddressBasicLoader;
+use Shopware\OrderAddress\Reader\OrderAddressBasicReader;
 use Shopware\OrderAddress\Searcher\OrderAddressSearcher;
 use Shopware\OrderAddress\Searcher\OrderAddressSearchResult;
 use Shopware\OrderAddress\Struct\OrderAddressBasicCollection;
@@ -15,12 +16,12 @@ use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class OrderAddressRepository
+class OrderAddressRepository implements RepositoryInterface
 {
     /**
-     * @var OrderAddressBasicLoader
+     * @var OrderAddressBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class OrderAddressRepository
     private $writer;
 
     public function __construct(
-        OrderAddressBasicLoader $basicLoader,
+        OrderAddressBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         OrderAddressSearcher $searcher,
         OrderAddressWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): OrderAddressBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): OrderAddressBasicCollection
     {
         if (empty($uuids)) {
             return new OrderAddressBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             OrderAddressBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class OrderAddressRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): OrderAddressBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): OrderAddressSearchResult

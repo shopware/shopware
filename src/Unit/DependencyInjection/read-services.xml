@@ -22,7 +22,7 @@
             <argument type="service" id="shopware.framework.write.writer" />
         </service>
         
-        <service class="Shopware\Unit\Loader\UnitBasicLoader" id="shopware.unit.basic_loader">
+        <service class="Shopware\Unit\Reader\UnitBasicReader" id="shopware.unit.basic_reader">
             <argument id="shopware.unit.basic_factory" type="service"/>
         </service>
 
@@ -30,11 +30,11 @@
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.unit.basic_factory" type="service"/>
-            <argument id="shopware.unit.basic_loader" type="service"/>
+            <argument id="shopware.unit.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\Unit\Repository\UnitRepository" id="shopware.unit.repository">
-            <argument id="shopware.unit.basic_loader" type="service"/>
+            <argument id="shopware.unit.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.unit.searcher" type="service"/>
             <argument id="shopware.unit.writer" type="service"/>

@@ -6,8 +6,8 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\OrderDelivery\Event\OrderDeliveryBasicLoadedEvent;
 use Shopware\OrderDelivery\Event\OrderDeliveryDetailLoadedEvent;
 use Shopware\OrderDelivery\Event\OrderDeliveryWrittenEvent;
-use Shopware\OrderDelivery\Loader\OrderDeliveryBasicLoader;
-use Shopware\OrderDelivery\Loader\OrderDeliveryDetailLoader;
+use Shopware\OrderDelivery\Reader\OrderDeliveryBasicReader;
+use Shopware\OrderDelivery\Reader\OrderDeliveryDetailReader;
 use Shopware\OrderDelivery\Searcher\OrderDeliverySearcher;
 use Shopware\OrderDelivery\Searcher\OrderDeliverySearchResult;
 use Shopware\OrderDelivery\Struct\OrderDeliveryBasicCollection;
@@ -21,14 +21,14 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class OrderDeliveryRepository
 {
     /**
-     * @var OrderDeliveryDetailLoader
+     * @var OrderDeliveryDetailReader
      */
-    protected $detailLoader;
+    protected $detailReader;
 
     /**
-     * @var OrderDeliveryBasicLoader
+     * @var OrderDeliveryBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -46,17 +46,33 @@ class OrderDeliveryRepository
     private $writer;
 
     public function __construct(
-        OrderDeliveryDetailLoader $detailLoader,
-        OrderDeliveryBasicLoader $basicLoader,
+        OrderDeliveryDetailReader $detailReader,
+        OrderDeliveryBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         OrderDeliverySearcher $searcher,
         OrderDeliveryWriter $writer
     ) {
-        $this->detailLoader = $detailLoader;
-        $this->basicLoader = $basicLoader;
+        $this->detailReader = $detailReader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
+    }
+
+    public function readBasic(array $uuids, TranslationContext $context): OrderDeliveryBasicCollection
+    {
+        if (empty($uuids)) {
+            return new OrderDeliveryBasicCollection();
+        }
+
+        $collection = $this->basicReader->readBasic($uuids, $context);
+
+        $this->eventDispatcher->dispatch(
+            OrderDeliveryBasicLoadedEvent::NAME,
+            new OrderDeliveryBasicLoadedEvent($collection, $context)
+        );
+
+        return $collection;
     }
 
     public function readDetail(array $uuids, TranslationContext $context): OrderDeliveryDetailCollection
@@ -64,27 +80,11 @@ class OrderDeliveryRepository
         if (empty($uuids)) {
             return new OrderDeliveryDetailCollection();
         }
-        $collection = $this->detailLoader->load($uuids, $context);
+        $collection = $this->detailReader->readDetail($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             OrderDeliveryDetailLoadedEvent::NAME,
             new OrderDeliveryDetailLoadedEvent($collection, $context)
-        );
-
-        return $collection;
-    }
-
-    public function read(array $uuids, TranslationContext $context): OrderDeliveryBasicCollection
-    {
-        if (empty($uuids)) {
-            return new OrderDeliveryBasicCollection();
-        }
-
-        $collection = $this->basicLoader->load($uuids, $context);
-
-        $this->eventDispatcher->dispatch(
-            OrderDeliveryBasicLoadedEvent::NAME,
-            new OrderDeliveryBasicLoadedEvent($collection, $context)
         );
 
         return $collection;

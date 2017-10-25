@@ -78,6 +78,11 @@ class CustomerGroupDiscountBasicCollection extends Collection
         });
     }
 
+    public function current(): CustomerGroupDiscountBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(CustomerGroupDiscountBasicStruct $element): string
     {
         return $element->getUuid();

@@ -134,6 +134,11 @@ class TaxAreaRuleBasicCollection extends Collection
         });
     }
 
+    public function current(): TaxAreaRuleBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(TaxAreaRuleBasicStruct $element): string
     {
         return $element->getUuid();

@@ -76,7 +76,7 @@ class ProductVoteAverageController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('productVoteAverageUuid');
-        $productVoteAverages = $this->productVoteAverageRepository->read(
+        $productVoteAverages = $this->productVoteAverageRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );

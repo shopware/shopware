@@ -27,12 +27,14 @@ namespace Shopware\Framework\Struct;
 
 use ArrayIterator;
 
-abstract class Collection extends Struct implements \IteratorAggregate, \Countable, \ArrayAccess
+abstract class Collection extends Struct implements \Countable, \ArrayAccess, \Iterator
 {
     /**
      * @var array
      */
     protected $elements = [];
+
+    private $_pointer;
 
     /**
      * @param array $elements
@@ -40,6 +42,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     public function __construct(array $elements = [])
     {
         $this->fill($elements);
+        $this->_pointer = 0;
     }
 
     public function fill(array $elements): void
@@ -109,17 +112,6 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         return $this->elements;
     }
 
-    /**
-     * Allows to use php-`foreach` to iterate over all elements inside the collection.
-     * Allows to use php-`count` function to count elements inside the collection
-     *
-     * @return ArrayIterator
-     */
-    public function getIterator(): ArrayIterator
-    {
-        return new ArrayIterator($this->elements);
-    }
-
     public function jsonSerialize(): array
     {
         $data = get_object_vars($this);
@@ -166,6 +158,31 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         unset($this->elements[$offset]);
     }
 
+    public function current()
+    {
+        return $this->elements[$this->getKeyOfPointer()];
+    }
+
+    public function next()
+    {
+        ++$this->_pointer;
+    }
+
+    public function key()
+    {
+        return $this->getKeyOfPointer();
+    }
+
+    public function valid()
+    {
+        return isset($this->array[$this->getKeyOfPointer()]);
+    }
+
+    public function rewind()
+    {
+        $this->_pointer = 0;
+    }
+
     protected function doAdd($element): void
     {
         $this->elements[] = $element;
@@ -179,5 +196,10 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     protected function doMerge(Collection $collection)
     {
         return new static(array_merge($this->elements, $collection->getIterator()->getArrayCopy()));
+    }
+
+    private function getKeyOfPointer()
+    {
+        return $this->getKeys()[$this->_pointer];
     }
 }

@@ -5,22 +5,23 @@ namespace Shopware\CustomerAddress\Repository;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerAddress\Event\CustomerAddressBasicLoadedEvent;
 use Shopware\CustomerAddress\Event\CustomerAddressWrittenEvent;
-use Shopware\CustomerAddress\Loader\CustomerAddressBasicLoader;
+use Shopware\CustomerAddress\Reader\CustomerAddressBasicReader;
 use Shopware\CustomerAddress\Searcher\CustomerAddressSearcher;
 use Shopware\CustomerAddress\Searcher\CustomerAddressSearchResult;
 use Shopware\CustomerAddress\Struct\CustomerAddressBasicCollection;
 use Shopware\CustomerAddress\Writer\CustomerAddressWriter;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class CustomerAddressRepository
+class CustomerAddressRepository implements RepositoryInterface
 {
     /**
-     * @var CustomerAddressBasicLoader
+     * @var CustomerAddressBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class CustomerAddressRepository
     private $writer;
 
     public function __construct(
-        CustomerAddressBasicLoader $basicLoader,
+        CustomerAddressBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         CustomerAddressSearcher $searcher,
         CustomerAddressWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): CustomerAddressBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): CustomerAddressBasicCollection
     {
         if (empty($uuids)) {
             return new CustomerAddressBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             CustomerAddressBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class CustomerAddressRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): CustomerAddressBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): CustomerAddressSearchResult

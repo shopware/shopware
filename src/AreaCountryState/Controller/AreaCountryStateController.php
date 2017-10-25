@@ -76,7 +76,7 @@ class AreaCountryStateController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('areaCountryStateUuid');
-        $areaCountryStates = $this->areaCountryStateRepository->read(
+        $areaCountryStates = $this->areaCountryStateRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
@@ -98,7 +98,7 @@ class AreaCountryStateController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $areaCountryStates = $this->areaCountryStateRepository->read(
+        $areaCountryStates = $this->areaCountryStateRepository->readBasic(
             $createEvent->getAreaCountryStateUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class AreaCountryStateController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $areaCountryStates = $this->areaCountryStateRepository->read(
+        $areaCountryStates = $this->areaCountryStateRepository->readBasic(
             $createEvent->getAreaCountryStateUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class AreaCountryStateController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $areaCountryStates = $this->areaCountryStateRepository->read(
+        $areaCountryStates = $this->areaCountryStateRepository->readBasic(
             $createEvent->getAreaCountryStateUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -190,7 +190,7 @@ class AreaCountryStateController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $areaCountryStates = $this->areaCountryStateRepository->read(
+        $areaCountryStates = $this->areaCountryStateRepository->readBasic(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

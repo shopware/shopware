@@ -117,7 +117,7 @@ class ProductGateway implements ProductGatewayInterface
         $query = $this->connection->createQueryBuilder();
         $query->select([
             'categories_ro.product_uuid',
-            'GROUP_CONCAT(DISTINCT shop.uuid SEPARATOR \'|\')']);
+            'GROUP_CONCAT(DISTINCT shop.uuid SEPARATOR \'|\')', ]);
         $query->from('shop');
         $query->innerJoin('shop', 'product_category_ro', 'categories_ro', 'shop.category_uuid = categories_ro.category_uuid');
         $query->andWhere('categories_ro.product_uuid IN (:uuids)');

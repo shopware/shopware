@@ -247,6 +247,11 @@ class ShopBasicCollection extends Collection
         return $this;
     }
 
+    public function current(): ShopBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(ShopBasicStruct $element): string
     {
         return $element->getUuid();

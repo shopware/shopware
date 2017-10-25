@@ -22,7 +22,7 @@
             <argument type="service" id="shopware.framework.write.writer" />
         </service>
         
-        <service class="Shopware\SeoUrl\Loader\SeoUrlBasicLoader" id="shopware.seo_url.basic_loader">
+        <service class="Shopware\SeoUrl\Reader\SeoUrlBasicReader" id="shopware.seo_url.basic_reader">
             <argument id="shopware.seo_url.basic_factory" type="service"/>
         </service>
 
@@ -30,11 +30,11 @@
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.seo_url.basic_factory" type="service"/>
-            <argument id="shopware.seo_url.basic_loader" type="service"/>
+            <argument id="shopware.seo_url.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\SeoUrl\Repository\SeoUrlRepository" id="shopware.seo_url.repository">
-            <argument id="shopware.seo_url.basic_loader" type="service"/>
+            <argument id="shopware.seo_url.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.seo_url.searcher" type="service"/>
             <argument id="shopware.seo_url.writer" type="service"/>

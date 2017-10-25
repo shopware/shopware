@@ -4,21 +4,9 @@ namespace Shopware\PaymentMethod\Searcher;
 
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicCollection;
 use Shopware\Search\SearchResultInterface;
+use Shopware\Search\SearchResultTrait;
 
 class PaymentMethodSearchResult extends PaymentMethodBasicCollection implements SearchResultInterface
 {
-    /**
-     * @var int
-     */
-    protected $total = 0;
-
-    public function getTotal(): int
-    {
-        return $this->total;
-    }
-
-    public function setTotal(int $total): void
-    {
-        $this->total = $total;
-    }
+    use SearchResultTrait;
 }

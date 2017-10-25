@@ -9,7 +9,7 @@ use Shopware\ProductManufacturer\Struct\ProductManufacturerBasicCollection;
 
 class ProductManufacturerBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'productManufacturer.basic.loaded';
+    const NAME = 'product_manufacturer.basic.loaded';
 
     /**
      * @var ProductManufacturerBasicCollection

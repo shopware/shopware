@@ -5,8 +5,8 @@ namespace Shopware\Area\Repository;
 use Shopware\Area\Event\AreaBasicLoadedEvent;
 use Shopware\Area\Event\AreaDetailLoadedEvent;
 use Shopware\Area\Event\AreaWrittenEvent;
-use Shopware\Area\Loader\AreaBasicLoader;
-use Shopware\Area\Loader\AreaDetailLoader;
+use Shopware\Area\Reader\AreaBasicReader;
+use Shopware\Area\Reader\AreaDetailReader;
 use Shopware\Area\Searcher\AreaSearcher;
 use Shopware\Area\Searcher\AreaSearchResult;
 use Shopware\Area\Struct\AreaBasicCollection;
@@ -21,14 +21,14 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class AreaRepository
 {
     /**
-     * @var AreaDetailLoader
+     * @var AreaDetailReader
      */
-    protected $detailLoader;
+    protected $detailReader;
 
     /**
-     * @var AreaBasicLoader
+     * @var AreaBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -46,17 +46,33 @@ class AreaRepository
     private $writer;
 
     public function __construct(
-        AreaDetailLoader $detailLoader,
-        AreaBasicLoader $basicLoader,
+        AreaDetailReader $detailReader,
+        AreaBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         AreaSearcher $searcher,
         AreaWriter $writer
     ) {
-        $this->detailLoader = $detailLoader;
-        $this->basicLoader = $basicLoader;
+        $this->detailReader = $detailReader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
+    }
+
+    public function readBasic(array $uuids, TranslationContext $context): AreaBasicCollection
+    {
+        if (empty($uuids)) {
+            return new AreaBasicCollection();
+        }
+
+        $collection = $this->basicReader->readBasic($uuids, $context);
+
+        $this->eventDispatcher->dispatch(
+            AreaBasicLoadedEvent::NAME,
+            new AreaBasicLoadedEvent($collection, $context)
+        );
+
+        return $collection;
     }
 
     public function readDetail(array $uuids, TranslationContext $context): AreaDetailCollection
@@ -64,27 +80,11 @@ class AreaRepository
         if (empty($uuids)) {
             return new AreaDetailCollection();
         }
-        $collection = $this->detailLoader->load($uuids, $context);
+        $collection = $this->detailReader->readDetail($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             AreaDetailLoadedEvent::NAME,
             new AreaDetailLoadedEvent($collection, $context)
-        );
-
-        return $collection;
-    }
-
-    public function read(array $uuids, TranslationContext $context): AreaBasicCollection
-    {
-        if (empty($uuids)) {
-            return new AreaBasicCollection();
-        }
-
-        $collection = $this->basicLoader->load($uuids, $context);
-
-        $this->eventDispatcher->dispatch(
-            AreaBasicLoadedEvent::NAME,
-            new AreaBasicLoadedEvent($collection, $context)
         );
 
         return $collection;

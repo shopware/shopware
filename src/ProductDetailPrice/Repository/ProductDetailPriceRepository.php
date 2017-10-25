@@ -3,9 +3,10 @@
 namespace Shopware\ProductDetailPrice\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\ProductDetailPrice\Event\ProductDetailPriceBasicLoadedEvent;
 use Shopware\ProductDetailPrice\Event\ProductDetailPriceWrittenEvent;
-use Shopware\ProductDetailPrice\Loader\ProductDetailPriceBasicLoader;
+use Shopware\ProductDetailPrice\Reader\ProductDetailPriceBasicReader;
 use Shopware\ProductDetailPrice\Searcher\ProductDetailPriceSearcher;
 use Shopware\ProductDetailPrice\Searcher\ProductDetailPriceSearchResult;
 use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicCollection;
@@ -15,12 +16,12 @@ use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ProductDetailPriceRepository
+class ProductDetailPriceRepository implements RepositoryInterface
 {
     /**
-     * @var ProductDetailPriceBasicLoader
+     * @var ProductDetailPriceBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class ProductDetailPriceRepository
     private $writer;
 
     public function __construct(
-        ProductDetailPriceBasicLoader $basicLoader,
+        ProductDetailPriceBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         ProductDetailPriceSearcher $searcher,
         ProductDetailPriceWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): ProductDetailPriceBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): ProductDetailPriceBasicCollection
     {
         if (empty($uuids)) {
             return new ProductDetailPriceBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             ProductDetailPriceBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class ProductDetailPriceRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): ProductDetailPriceBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): ProductDetailPriceSearchResult

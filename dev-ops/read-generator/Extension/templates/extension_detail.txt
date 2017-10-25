@@ -3,7 +3,7 @@
 namespace Shopware\#classUc#\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionInterface;
+use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\#classUc#\Event\#classUc#BasicLoadedEvent;
 use Shopware\#classUc#\Event\#classUc#DetailLoadedEvent;
 use Shopware\#classUc#\Event\#classUc#WrittenEvent;

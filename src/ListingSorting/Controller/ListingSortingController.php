@@ -76,7 +76,7 @@ class ListingSortingController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('listingSortingUuid');
-        $listingSortings = $this->listingSortingRepository->read(
+        $listingSortings = $this->listingSortingRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
@@ -98,7 +98,7 @@ class ListingSortingController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $listingSortings = $this->listingSortingRepository->read(
+        $listingSortings = $this->listingSortingRepository->readBasic(
             $createEvent->getListingSortingUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class ListingSortingController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $listingSortings = $this->listingSortingRepository->read(
+        $listingSortings = $this->listingSortingRepository->readBasic(
             $createEvent->getListingSortingUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class ListingSortingController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $listingSortings = $this->listingSortingRepository->read(
+        $listingSortings = $this->listingSortingRepository->readBasic(
             $createEvent->getListingSortingUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -190,7 +190,7 @@ class ListingSortingController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $listingSortings = $this->listingSortingRepository->read(
+        $listingSortings = $this->listingSortingRepository->readBasic(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

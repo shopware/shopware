@@ -4,7 +4,7 @@ namespace Shopware\Area\Searcher;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Area\Factory\AreaDetailFactory;
-use Shopware\Area\Loader\AreaBasicLoader;
+use Shopware\Area\Reader\AreaBasicReader;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\SqlParser;
@@ -21,15 +21,15 @@ class AreaSearcher extends Searcher
     private $factory;
 
     /**
-     * @var AreaBasicLoader
+     * @var AreaBasicReader
      */
-    private $loader;
+    private $reader;
 
-    public function __construct(Connection $connection, SqlParser $parser, AreaDetailFactory $factory, AreaBasicLoader $loader)
+    public function __construct(Connection $connection, SqlParser $parser, AreaDetailFactory $factory, AreaBasicReader $reader)
     {
         parent::__construct($connection, $parser);
         $this->factory = $factory;
-        $this->loader = $loader;
+        $this->reader = $reader;
     }
 
     protected function createQuery(Criteria $criteria, TranslationContext $context): QueryBuilder
@@ -37,13 +37,15 @@ class AreaSearcher extends Searcher
         return $this->factory->createSearchQuery($criteria, $context);
     }
 
-    protected function load(UuidSearchResult $uuidResult, TranslationContext $context): SearchResultInterface
+    protected function load(UuidSearchResult $uuidResult, Criteria $criteria, TranslationContext $context): SearchResultInterface
     {
-        $collection = $this->loader->load($uuidResult->getUuids(), $context);
+        $collection = $this->reader->readBasic($uuidResult->getUuids(), $context);
 
         $result = new AreaSearchResult($collection->getElements());
 
         $result->setTotal($uuidResult->getTotal());
+        $result->setCriteria($criteria);
+        $result->setContext($context);
 
         return $result;
     }

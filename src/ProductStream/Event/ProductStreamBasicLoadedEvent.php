@@ -10,7 +10,7 @@ use Shopware\ProductStream\Struct\ProductStreamBasicCollection;
 
 class ProductStreamBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'productStream.basic.loaded';
+    const NAME = 'product_stream.basic.loaded';
 
     /**
      * @var ProductStreamBasicCollection

@@ -11,7 +11,7 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Currency\Factory\CurrencyBasicFactory;
 use Shopware\CustomerGroup\Factory\CustomerGroupBasicFactory;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
 use Shopware\Locale\Factory\LocaleBasicFactory;
 use Shopware\Locale\Struct\LocaleBasicStruct;
 use Shopware\PaymentMethod\Factory\PaymentMethodBasicFactory;

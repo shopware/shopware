@@ -6,8 +6,8 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\PriceGroup\Event\PriceGroupBasicLoadedEvent;
 use Shopware\PriceGroup\Event\PriceGroupDetailLoadedEvent;
 use Shopware\PriceGroup\Event\PriceGroupWrittenEvent;
-use Shopware\PriceGroup\Loader\PriceGroupBasicLoader;
-use Shopware\PriceGroup\Loader\PriceGroupDetailLoader;
+use Shopware\PriceGroup\Reader\PriceGroupBasicReader;
+use Shopware\PriceGroup\Reader\PriceGroupDetailReader;
 use Shopware\PriceGroup\Searcher\PriceGroupSearcher;
 use Shopware\PriceGroup\Searcher\PriceGroupSearchResult;
 use Shopware\PriceGroup\Struct\PriceGroupBasicCollection;
@@ -21,14 +21,14 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class PriceGroupRepository
 {
     /**
-     * @var PriceGroupDetailLoader
+     * @var PriceGroupDetailReader
      */
-    protected $detailLoader;
+    protected $detailReader;
 
     /**
-     * @var PriceGroupBasicLoader
+     * @var PriceGroupBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -46,17 +46,33 @@ class PriceGroupRepository
     private $writer;
 
     public function __construct(
-        PriceGroupDetailLoader $detailLoader,
-        PriceGroupBasicLoader $basicLoader,
+        PriceGroupDetailReader $detailReader,
+        PriceGroupBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         PriceGroupSearcher $searcher,
         PriceGroupWriter $writer
     ) {
-        $this->detailLoader = $detailLoader;
-        $this->basicLoader = $basicLoader;
+        $this->detailReader = $detailReader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
+    }
+
+    public function readBasic(array $uuids, TranslationContext $context): PriceGroupBasicCollection
+    {
+        if (empty($uuids)) {
+            return new PriceGroupBasicCollection();
+        }
+
+        $collection = $this->basicReader->readBasic($uuids, $context);
+
+        $this->eventDispatcher->dispatch(
+            PriceGroupBasicLoadedEvent::NAME,
+            new PriceGroupBasicLoadedEvent($collection, $context)
+        );
+
+        return $collection;
     }
 
     public function readDetail(array $uuids, TranslationContext $context): PriceGroupDetailCollection
@@ -64,27 +80,11 @@ class PriceGroupRepository
         if (empty($uuids)) {
             return new PriceGroupDetailCollection();
         }
-        $collection = $this->detailLoader->load($uuids, $context);
+        $collection = $this->detailReader->readDetail($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             PriceGroupDetailLoadedEvent::NAME,
             new PriceGroupDetailLoadedEvent($collection, $context)
-        );
-
-        return $collection;
-    }
-
-    public function read(array $uuids, TranslationContext $context): PriceGroupBasicCollection
-    {
-        if (empty($uuids)) {
-            return new PriceGroupBasicCollection();
-        }
-
-        $collection = $this->basicLoader->load($uuids, $context);
-
-        $this->eventDispatcher->dispatch(
-            PriceGroupBasicLoadedEvent::NAME,
-            new PriceGroupBasicLoadedEvent($collection, $context)
         );
 
         return $collection;

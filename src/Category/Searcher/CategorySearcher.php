@@ -4,7 +4,7 @@ namespace Shopware\Category\Searcher;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Category\Factory\CategoryDetailFactory;
-use Shopware\Category\Loader\CategoryBasicLoader;
+use Shopware\Category\Reader\CategoryBasicReader;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\SqlParser;
@@ -21,15 +21,15 @@ class CategorySearcher extends Searcher
     private $factory;
 
     /**
-     * @var CategoryBasicLoader
+     * @var CategoryBasicReader
      */
-    private $loader;
+    private $reader;
 
-    public function __construct(Connection $connection, SqlParser $parser, CategoryDetailFactory $factory, CategoryBasicLoader $loader)
+    public function __construct(Connection $connection, SqlParser $parser, CategoryDetailFactory $factory, CategoryBasicReader $reader)
     {
         parent::__construct($connection, $parser);
         $this->factory = $factory;
-        $this->loader = $loader;
+        $this->reader = $reader;
     }
 
     protected function createQuery(Criteria $criteria, TranslationContext $context): QueryBuilder
@@ -37,13 +37,15 @@ class CategorySearcher extends Searcher
         return $this->factory->createSearchQuery($criteria, $context);
     }
 
-    protected function load(UuidSearchResult $uuidResult, TranslationContext $context): SearchResultInterface
+    protected function load(UuidSearchResult $uuidResult, Criteria $criteria, TranslationContext $context): SearchResultInterface
     {
-        $collection = $this->loader->load($uuidResult->getUuids(), $context);
+        $collection = $this->reader->readBasic($uuidResult->getUuids(), $context);
 
         $result = new CategorySearchResult($collection->getElements());
 
         $result->setTotal($uuidResult->getTotal());
+        $result->setCriteria($criteria);
+        $result->setContext($context);
 
         return $result;
     }

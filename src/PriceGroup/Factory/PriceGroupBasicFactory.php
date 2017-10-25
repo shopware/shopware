@@ -4,8 +4,8 @@ namespace Shopware\PriceGroup\Factory;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
-use Shopware\Framework\Factory\Factory;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
+use Shopware\Framework\Read\Factory;
 use Shopware\PriceGroup\Extension\PriceGroupExtension;
 use Shopware\PriceGroup\Struct\PriceGroupBasicStruct;
 use Shopware\Search\QueryBuilder;

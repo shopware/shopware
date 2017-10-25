@@ -3,8 +3,9 @@
 namespace Shopware\ProductVoteAverage\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\ProductVoteAverage\Event\ProductVoteAverageBasicLoadedEvent;
-use Shopware\ProductVoteAverage\Loader\ProductVoteAverageBasicLoader;
+use Shopware\ProductVoteAverage\Reader\ProductVoteAverageBasicReader;
 use Shopware\ProductVoteAverage\Searcher\ProductVoteAverageSearcher;
 use Shopware\ProductVoteAverage\Searcher\ProductVoteAverageSearchResult;
 use Shopware\ProductVoteAverage\Struct\ProductVoteAverageBasicCollection;
@@ -13,12 +14,12 @@ use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ProductVoteAverageRepository
+class ProductVoteAverageRepository implements RepositoryInterface
 {
     /**
-     * @var ProductVoteAverageBasicLoader
+     * @var ProductVoteAverageBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -31,22 +32,22 @@ class ProductVoteAverageRepository
     private $searcher;
 
     public function __construct(
-        ProductVoteAverageBasicLoader $basicLoader,
+        ProductVoteAverageBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         ProductVoteAverageSearcher $searcher
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
     }
 
-    public function read(array $uuids, TranslationContext $context): ProductVoteAverageBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): ProductVoteAverageBasicCollection
     {
         if (empty($uuids)) {
             return new ProductVoteAverageBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             ProductVoteAverageBasicLoadedEvent::NAME,
@@ -54,6 +55,11 @@ class ProductVoteAverageRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): ProductVoteAverageBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): ProductVoteAverageSearchResult

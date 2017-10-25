@@ -64,6 +64,11 @@ class TaxBasicCollection extends Collection
         }
     }
 
+    public function current(): TaxBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(TaxBasicStruct $element): string
     {
         return $element->getUuid();

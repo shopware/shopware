@@ -102,6 +102,11 @@ class MediaBasicCollection extends Collection
         );
     }
 
+    public function current(): MediaBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(MediaBasicStruct $element): string
     {
         return $element->getUuid();

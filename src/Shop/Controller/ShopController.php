@@ -98,7 +98,7 @@ class ShopController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $shops = $this->shopRepository->read(
+        $shops = $this->shopRepository->readBasic(
             $createEvent->getShopUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class ShopController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $shops = $this->shopRepository->read(
+        $shops = $this->shopRepository->readBasic(
             $createEvent->getShopUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class ShopController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $shops = $this->shopRepository->read(
+        $shops = $this->shopRepository->readBasic(
             $createEvent->getShopUuids(),
             $context->getShopContext()->getTranslationContext()
         );

@@ -7,7 +7,7 @@ use Shopware\Category\Struct\CategoryBasicStruct;
 use Shopware\Category\Struct\CategoryDetailStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Factory\CustomerGroupBasicFactory;
-use Shopware\Framework\Factory\ExtensionRegistryInterface;
+use Shopware\Framework\Read\ExtensionRegistryInterface;
 use Shopware\Media\Factory\MediaBasicFactory;
 use Shopware\Media\Struct\MediaBasicStruct;
 use Shopware\Product\Factory\ProductBasicFactory;

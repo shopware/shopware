@@ -33,26 +33,26 @@
             <argument type="service" id="shopware.framework.write.writer" />
         </service>
         
-        <service class="Shopware\Category\Loader\CategoryBasicLoader" id="shopware.category.basic_loader">
+        <service class="Shopware\Category\Reader\CategoryBasicReader" id="shopware.category.basic_reader">
             <argument id="shopware.category.basic_factory" type="service"/>
         </service>
 
-        <service class="Shopware\Category\Loader\CategoryDetailLoader" id="shopware.category.detail_loader">
+        <service class="Shopware\Category\Reader\CategoryDetailReader" id="shopware.category.detail_reader">
             <argument id="shopware.category.detail_factory" type="service"/>
-            <argument id="shopware.product.basic_loader" type="service"/>
-            <argument id="shopware.customer_group.basic_loader" type="service"/>
+            <argument id="shopware.product.basic_reader" type="service"/>
+            <argument id="shopware.customer_group.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\Category\Searcher\CategorySearcher" id="shopware.category.searcher">
             <argument id="dbal_connection" type="service"/>
             <argument id="shopware.search.sql_parser" type="service"/>
             <argument id="shopware.category.detail_factory" type="service"/>
-            <argument id="shopware.category.basic_loader" type="service"/>
+            <argument id="shopware.category.basic_reader" type="service"/>
         </service>
 
         <service class="Shopware\Category\Repository\CategoryRepository" id="shopware.category.repository">
-            <argument id="shopware.category.detail_loader" type="service"/>
-            <argument id="shopware.category.basic_loader" type="service"/>
+            <argument id="shopware.category.detail_reader" type="service"/>
+            <argument id="shopware.category.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.category.searcher" type="service"/>
             <argument id="shopware.category.writer" type="service"/>

@@ -3,7 +3,7 @@
 namespace Shopware\DbalIndexing\Common;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\RepositoryInterface;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\Search\Criteria;
 
 class RepositoryIterator

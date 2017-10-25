@@ -3,24 +3,25 @@
 namespace Shopware\SeoUrl\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Shopware\SeoUrl\Event\SeoUrlBasicLoadedEvent;
 use Shopware\SeoUrl\Event\SeoUrlWrittenEvent;
-use Shopware\SeoUrl\Loader\SeoUrlBasicLoader;
+use Shopware\SeoUrl\Reader\SeoUrlBasicReader;
 use Shopware\SeoUrl\Searcher\SeoUrlSearcher;
 use Shopware\SeoUrl\Searcher\SeoUrlSearchResult;
 use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
 use Shopware\SeoUrl\Writer\SeoUrlWriter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class SeoUrlRepository
+class SeoUrlRepository implements RepositoryInterface
 {
     /**
-     * @var SeoUrlBasicLoader
+     * @var SeoUrlBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class SeoUrlRepository
     private $writer;
 
     public function __construct(
-        SeoUrlBasicLoader $basicLoader,
+        SeoUrlBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         SeoUrlSearcher $searcher,
         SeoUrlWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): SeoUrlBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): SeoUrlBasicCollection
     {
         if (empty($uuids)) {
             return new SeoUrlBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             SeoUrlBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class SeoUrlRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): SeoUrlBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): SeoUrlSearchResult

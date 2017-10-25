@@ -4,21 +4,9 @@ namespace Shopware\Category\Searcher;
 
 use Shopware\Category\Struct\CategoryBasicCollection;
 use Shopware\Search\SearchResultInterface;
+use Shopware\Search\SearchResultTrait;
 
 class CategorySearchResult extends CategoryBasicCollection implements SearchResultInterface
 {
-    /**
-     * @var int
-     */
-    protected $total = 0;
-
-    public function getTotal(): int
-    {
-        return $this->total;
-    }
-
-    public function setTotal(int $total): void
-    {
-        $this->total = $total;
-    }
+    use SearchResultTrait;
 }

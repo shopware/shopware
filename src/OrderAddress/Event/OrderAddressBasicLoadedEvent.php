@@ -11,7 +11,7 @@ use Shopware\OrderAddress\Struct\OrderAddressBasicCollection;
 
 class OrderAddressBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'orderAddress.basic.loaded';
+    const NAME = 'order_address.basic.loaded';
 
     /**
      * @var OrderAddressBasicCollection

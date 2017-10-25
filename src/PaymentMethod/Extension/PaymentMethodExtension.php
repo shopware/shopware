@@ -3,14 +3,13 @@
 namespace Shopware\PaymentMethod\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Factory\ExtensionInterface;
+use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\PaymentMethod\Event\PaymentMethodBasicLoadedEvent;
 use Shopware\PaymentMethod\Event\PaymentMethodDetailLoadedEvent;
-use Shopware\PaymentMethod\Event\PaymentMethodWrittenEvent;
+use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
 use Shopware\Search\QueryBuilder;
 use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
 
 abstract class PaymentMethodExtension implements ExtensionInterface, EventSubscriberInterface
 {
@@ -19,7 +18,6 @@ abstract class PaymentMethodExtension implements ExtensionInterface, EventSubscr
         return [
             PaymentMethodBasicLoadedEvent::NAME => 'paymentMethodBasicLoaded',
             PaymentMethodDetailLoadedEvent::NAME => 'paymentMethodDetailLoaded',
-            
         ];
     }
 
@@ -28,7 +26,6 @@ abstract class PaymentMethodExtension implements ExtensionInterface, EventSubscr
         QueryBuilder $query,
         TranslationContext $context
     ): void {
-
     }
 
     public function getDetailFields(): array
@@ -46,15 +43,14 @@ abstract class PaymentMethodExtension implements ExtensionInterface, EventSubscr
         array $data,
         QuerySelection $selection,
         TranslationContext $translation
-    ): void
-    { }
+    ): void {
+    }
 
     public function paymentMethodBasicLoaded(PaymentMethodBasicLoadedEvent $event): void
-    { }
+    {
+    }
 
     public function paymentMethodDetailLoaded(PaymentMethodDetailLoadedEvent $event): void
-    { }
-
-    
-
+    {
+    }
 }

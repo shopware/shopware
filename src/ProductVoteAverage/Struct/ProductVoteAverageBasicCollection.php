@@ -92,6 +92,11 @@ class ProductVoteAverageBasicCollection extends Collection
         });
     }
 
+    public function current(): ProductVoteAverageBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(ProductVoteAverageBasicStruct $element): string
     {
         return $element->getUuid();

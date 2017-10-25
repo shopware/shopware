@@ -208,6 +208,11 @@ class OrderBasicCollection extends Collection
         );
     }
 
+    public function current(): OrderBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(OrderBasicStruct $element): string
     {
         return $element->getUuid();

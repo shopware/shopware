@@ -174,6 +174,11 @@ class CategoryBasicCollection extends Collection
         return $result;
     }
 
+    public function current(): CategoryBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(CategoryBasicStruct $element): string
     {
         return $element->getUuid();

@@ -150,6 +150,11 @@ class OrderDeliveryBasicCollection extends Collection
         );
     }
 
+    public function current(): OrderDeliveryBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(OrderDeliveryBasicStruct $element): string
     {
         return $element->getUuid();

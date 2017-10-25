@@ -98,7 +98,7 @@ class ProductController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $products = $this->productRepository->read(
+        $products = $this->productRepository->readBasic(
             $createEvent->getProductUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class ProductController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $products = $this->productRepository->read(
+        $products = $this->productRepository->readBasic(
             $createEvent->getProductUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class ProductController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $products = $this->productRepository->read(
+        $products = $this->productRepository->readBasic(
             $createEvent->getProductUuids(),
             $context->getShopContext()->getTranslationContext()
         );

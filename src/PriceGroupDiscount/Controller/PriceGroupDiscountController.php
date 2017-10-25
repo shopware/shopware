@@ -76,7 +76,7 @@ class PriceGroupDiscountController extends ApiController
     public function detailAction(Request $request, ApiContext $context): Response
     {
         $uuid = $request->get('priceGroupDiscountUuid');
-        $priceGroupDiscounts = $this->priceGroupDiscountRepository->read(
+        $priceGroupDiscounts = $this->priceGroupDiscountRepository->readBasic(
             [$uuid],
             $context->getShopContext()->getTranslationContext()
         );
@@ -98,7 +98,7 @@ class PriceGroupDiscountController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $priceGroupDiscounts = $this->priceGroupDiscountRepository->read(
+        $priceGroupDiscounts = $this->priceGroupDiscountRepository->readBasic(
             $createEvent->getPriceGroupDiscountUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -125,7 +125,7 @@ class PriceGroupDiscountController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $priceGroupDiscounts = $this->priceGroupDiscountRepository->read(
+        $priceGroupDiscounts = $this->priceGroupDiscountRepository->readBasic(
             $createEvent->getPriceGroupDiscountUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -152,7 +152,7 @@ class PriceGroupDiscountController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
-        $priceGroupDiscounts = $this->priceGroupDiscountRepository->read(
+        $priceGroupDiscounts = $this->priceGroupDiscountRepository->readBasic(
             $createEvent->getPriceGroupDiscountUuids(),
             $context->getShopContext()->getTranslationContext()
         );
@@ -190,7 +190,7 @@ class PriceGroupDiscountController extends ApiController
             return $this->createResponse(['errors' => $error], $context, 400);
         }
 
-        $priceGroupDiscounts = $this->priceGroupDiscountRepository->read(
+        $priceGroupDiscounts = $this->priceGroupDiscountRepository->readBasic(
             [$payload['uuid']],
             $context->getShopContext()->getTranslationContext()
         );

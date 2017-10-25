@@ -92,6 +92,11 @@ class ProductVoteBasicCollection extends Collection
         });
     }
 
+    public function current(): ProductVoteBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(ProductVoteBasicStruct $element): string
     {
         return $element->getUuid();

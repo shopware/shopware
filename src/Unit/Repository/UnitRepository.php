@@ -3,24 +3,25 @@
 namespace Shopware\Unit\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Shopware\Unit\Event\UnitBasicLoadedEvent;
 use Shopware\Unit\Event\UnitWrittenEvent;
-use Shopware\Unit\Loader\UnitBasicLoader;
+use Shopware\Unit\Reader\UnitBasicReader;
 use Shopware\Unit\Searcher\UnitSearcher;
 use Shopware\Unit\Searcher\UnitSearchResult;
 use Shopware\Unit\Struct\UnitBasicCollection;
 use Shopware\Unit\Writer\UnitWriter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class UnitRepository
+class UnitRepository implements RepositoryInterface
 {
     /**
-     * @var UnitBasicLoader
+     * @var UnitBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -38,24 +39,24 @@ class UnitRepository
     private $writer;
 
     public function __construct(
-        UnitBasicLoader $basicLoader,
+        UnitBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         UnitSearcher $searcher,
         UnitWriter $writer
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
     }
 
-    public function read(array $uuids, TranslationContext $context): UnitBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): UnitBasicCollection
     {
         if (empty($uuids)) {
             return new UnitBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             UnitBasicLoadedEvent::NAME,
@@ -63,6 +64,11 @@ class UnitRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): UnitBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): UnitSearchResult

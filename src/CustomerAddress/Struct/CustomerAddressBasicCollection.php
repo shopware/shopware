@@ -126,6 +126,11 @@ class CustomerAddressBasicCollection extends Collection
         );
     }
 
+    public function current(): CustomerAddressBasicStruct
+    {
+        return parent::current();
+    }
+
     protected function getKey(CustomerAddressBasicStruct $element): string
     {
         return $element->getUuid();

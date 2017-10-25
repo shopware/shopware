@@ -2,101 +2,19 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Context\Struct\TranslationContext;
-use Symfony\Component\DependencyInjection\Container;
+use Shopware\Framework\Write\EntityWrittenEvent;
 
-class PluginCategoryWrittenEvent extends NestedEvent
+class PluginCategoryWrittenEvent extends EntityWrittenEvent
 {
     const NAME = 'plugin_category.written';
-
-    /**
-     * @var NestedEventCollection
-     */
-    protected $events;
-
-    /**
-     * @var array
-     */
-    protected $errors;
-
-    /**
-     * @var TranslationContext
-     */
-    protected $context;
-
-    /**
-     * @var string[]
-     */
-    protected $pluginCategoryUuids = [];
-    /**
-     * @var string[]
-     */
-    protected $locales = [];
-
-    /**
-     * @var array
-     */
-    private $rawData;
-
-    public function __construct(array $primaryKeys, TranslationContext $context, array $rawData = [], array $errors = [])
-    {
-        $this->events = new NestedEventCollection();
-        $this->context = $context;
-        $this->errors = $errors;
-        $this->rawData = $rawData;
-
-        foreach ($primaryKeys as $key => $value) {
-            if ($key === 'uuid') {
-                $key = 'PluginCategoryUuid';
-            }
-
-            $key = lcfirst(Container::camelize($key)) . 's';
-            $this->$key = $value;
-        }
-    }
 
     public function getName(): string
     {
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getEntityName(): string
     {
-        return $this->context;
-    }
-
-    public function getErrors(): array
-    {
-        return $this->errors;
-    }
-
-    public function hasErrors(): bool
-    {
-        return count($this->errors) > 0;
-    }
-
-    public function addEvent(NestedEvent $event): void
-    {
-        $this->events->add($event);
-    }
-
-    public function getEvents(): NestedEventCollection
-    {
-        return $this->events;
-    }
-
-    public function getRawData(): array
-    {
-        return $this->rawData;
-    }
-
-    public function getPluginCategoryUuids(): array
-    {
-        return $this->pluginCategoryUuids;
-    }
-
-    public function getLocales(): array
-    {
-        return $this->locales;
+        return 'plugin_category';
     }
 }

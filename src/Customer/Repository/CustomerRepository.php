@@ -6,8 +6,8 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Customer\Event\CustomerBasicLoadedEvent;
 use Shopware\Customer\Event\CustomerDetailLoadedEvent;
 use Shopware\Customer\Event\CustomerWrittenEvent;
-use Shopware\Customer\Loader\CustomerBasicLoader;
-use Shopware\Customer\Loader\CustomerDetailLoader;
+use Shopware\Customer\Reader\CustomerBasicReader;
+use Shopware\Customer\Reader\CustomerDetailReader;
 use Shopware\Customer\Searcher\CustomerSearcher;
 use Shopware\Customer\Searcher\CustomerSearchResult;
 use Shopware\Customer\Struct\CustomerBasicCollection;
@@ -21,14 +21,14 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class CustomerRepository
 {
     /**
-     * @var CustomerDetailLoader
+     * @var CustomerDetailReader
      */
-    protected $detailLoader;
+    protected $detailReader;
 
     /**
-     * @var CustomerBasicLoader
+     * @var CustomerBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -46,17 +46,33 @@ class CustomerRepository
     private $writer;
 
     public function __construct(
-        CustomerDetailLoader $detailLoader,
-        CustomerBasicLoader $basicLoader,
+        CustomerDetailReader $detailReader,
+        CustomerBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         CustomerSearcher $searcher,
         CustomerWriter $writer
     ) {
-        $this->detailLoader = $detailLoader;
-        $this->basicLoader = $basicLoader;
+        $this->detailReader = $detailReader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
         $this->writer = $writer;
+    }
+
+    public function readBasic(array $uuids, TranslationContext $context): CustomerBasicCollection
+    {
+        if (empty($uuids)) {
+            return new CustomerBasicCollection();
+        }
+
+        $collection = $this->basicReader->readBasic($uuids, $context);
+
+        $this->eventDispatcher->dispatch(
+            CustomerBasicLoadedEvent::NAME,
+            new CustomerBasicLoadedEvent($collection, $context)
+        );
+
+        return $collection;
     }
 
     public function readDetail(array $uuids, TranslationContext $context): CustomerDetailCollection
@@ -64,27 +80,11 @@ class CustomerRepository
         if (empty($uuids)) {
             return new CustomerDetailCollection();
         }
-        $collection = $this->detailLoader->load($uuids, $context);
+        $collection = $this->detailReader->readDetail($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             CustomerDetailLoadedEvent::NAME,
             new CustomerDetailLoadedEvent($collection, $context)
-        );
-
-        return $collection;
-    }
-
-    public function read(array $uuids, TranslationContext $context): CustomerBasicCollection
-    {
-        if (empty($uuids)) {
-            return new CustomerBasicCollection();
-        }
-
-        $collection = $this->basicLoader->load($uuids, $context);
-
-        $this->eventDispatcher->dispatch(
-            CustomerBasicLoadedEvent::NAME,
-            new CustomerBasicLoadedEvent($collection, $context)
         );
 
         return $collection;

@@ -10,7 +10,7 @@ use Shopware\Framework\Event\NestedEventCollection;
 
 class AreaCountryDetailLoadedEvent extends NestedEvent
 {
-    const NAME = 'areaCountry.detail.loaded';
+    const NAME = 'area_country.detail.loaded';
 
     /**
      * @var AreaCountryDetailCollection

@@ -3,8 +3,9 @@
 namespace Shopware\ProductListingPrice\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\RepositoryInterface;
 use Shopware\ProductListingPrice\Event\ProductListingPriceBasicLoadedEvent;
-use Shopware\ProductListingPrice\Loader\ProductListingPriceBasicLoader;
+use Shopware\ProductListingPrice\Reader\ProductListingPriceBasicReader;
 use Shopware\ProductListingPrice\Searcher\ProductListingPriceSearcher;
 use Shopware\ProductListingPrice\Searcher\ProductListingPriceSearchResult;
 use Shopware\ProductListingPrice\Struct\ProductListingPriceBasicCollection;
@@ -13,12 +14,12 @@ use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ProductListingPriceRepository
+class ProductListingPriceRepository implements RepositoryInterface
 {
     /**
-     * @var ProductListingPriceBasicLoader
+     * @var ProductListingPriceBasicReader
      */
-    private $basicLoader;
+    private $basicReader;
 
     /**
      * @var EventDispatcherInterface
@@ -31,22 +32,22 @@ class ProductListingPriceRepository
     private $searcher;
 
     public function __construct(
-        ProductListingPriceBasicLoader $basicLoader,
+        ProductListingPriceBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
         ProductListingPriceSearcher $searcher
     ) {
-        $this->basicLoader = $basicLoader;
+        $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
     }
 
-    public function read(array $uuids, TranslationContext $context): ProductListingPriceBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): ProductListingPriceBasicCollection
     {
         if (empty($uuids)) {
             return new ProductListingPriceBasicCollection();
         }
 
-        $collection = $this->basicLoader->load($uuids, $context);
+        $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
             ProductListingPriceBasicLoadedEvent::NAME,
@@ -54,6 +55,11 @@ class ProductListingPriceRepository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): ProductListingPriceBasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): ProductListingPriceSearchResult

@@ -15,8 +15,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Shopware\Search\UuidSearchResult;
 use Shopware\#classUc#\Event\#classUc#WrittenEvent;
 use Shopware\#classUc#\Writer\#classUc#Writer;
+use Shopware\Framework\Read\RepositoryInterface;
 
-class #classUc#Repository
+class #classUc#Repository implements RepositoryInterface
 {
     /**
      * @var #classUc#BasicReader
@@ -49,6 +50,11 @@ class #classUc#Repository
         );
 
         return $collection;
+    }
+
+    public function readDetail(array $uuids, TranslationContext $context): #classUc#BasicCollection
+    {
+        return $this->readBasic($uuids, $context);
     }
 
     public function search(Criteria $criteria, TranslationContext $context): #classUc#SearchResult

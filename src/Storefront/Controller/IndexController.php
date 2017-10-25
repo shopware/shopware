@@ -25,6 +25,9 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Product\Struct\ProductBasicCollection;
+use Shopware\Search\Criteria;
+use Shopware\Search\Query\TermQuery;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -37,6 +40,18 @@ class IndexController extends StorefrontController
      */
     public function indexAction(Request $request, ShopContext $context)
     {
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermQuery('product.allow_notification', 0));
+        $criteria->setLimit(10);
+
+        $repo = $this->get('shopware.product.repository');
+
+        /** @var ProductBasicCollection $a */
+        $a = $repo->search($criteria, $context->getTranslationContext());
+
+        foreach ($a as $product) {
+        }
+
         return $this->render('frontend/home/index.html.twig', []);
     }
 }

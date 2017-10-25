@@ -10,7 +10,7 @@ use Shopware\OrderLineItem\Event\OrderLineItemBasicLoadedEvent;
 
 class OrderDeliveryPositionBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'orderDeliveryPosition.basic.loaded';
+    const NAME = 'order_delivery_position.basic.loaded';
 
     /**
      * @var OrderDeliveryPositionBasicCollection

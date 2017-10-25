@@ -121,7 +121,7 @@ class PluginManager
 
     /**
      * @param \Shopware\Framework\Plugin\Struct\Plugin $plugin
-     * @param bool                              $removeUserData
+     * @param bool                                     $removeUserData
      *
      * @throws PluginNotInstalledException
      *

@@ -90,7 +90,8 @@ class AmountCalculator
             $total,
             $positionPrice->getTotalPrice(),
             new CalculatedTaxCollection([]),
-            new TaxRuleCollection([])
+            new TaxRuleCollection([]),
+            CartPrice::TAX_STATE_FREE
         );
     }
 
@@ -124,7 +125,8 @@ class AmountCalculator
             $total->getTotalPrice(),
             $positionPrice->getTotalPrice(),
             $taxes,
-            $positionPrice->getTaxRules()
+            $positionPrice->getTaxRules(),
+            CartPrice::TAX_STATE_GROSS
         );
     }
 
@@ -156,7 +158,8 @@ class AmountCalculator
             $gross,
             $prices->sum()->getTotalPrice(),
             $taxes,
-            $total->getTaxRules()
+            $total->getTaxRules(),
+            CartPrice::TAX_STATE_NET
         );
     }
 }

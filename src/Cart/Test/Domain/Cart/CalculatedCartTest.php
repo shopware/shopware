@@ -41,7 +41,7 @@ class CalculatedCartTest extends TestCase
         $cart = new \Shopware\Cart\Cart\CalculatedCart(
             CartContainer::createNew('test'),
             new CalculatedLineItemCollection(),
-            new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
             new DeliveryCollection()
         );
 
@@ -56,7 +56,7 @@ class CalculatedCartTest extends TestCase
                 new ConfiguredGoodsItem('A', 1),
                 new ConfiguredLineItem('B', 1),
             ]),
-            new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
             new DeliveryCollection()
         );
 
@@ -71,7 +71,7 @@ class CalculatedCartTest extends TestCase
                 new ConfiguredLineItem('A', 1),
                 new ConfiguredLineItem('B', 1),
             ]),
-            new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
             new DeliveryCollection()
         );
 

@@ -42,7 +42,7 @@ class OrderAmountRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $price = new CartPrice(100, 100, 100, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $price = new CartPrice(100, 100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
         $cart->expects($this->any())
             ->method('getPrice')
             ->will($this->returnValue($price));
@@ -60,7 +60,7 @@ class OrderAmountRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $price = new CartPrice(200, 200, 200, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $price = new CartPrice(200, 200, 200, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
         $cart->expects($this->any())
             ->method('getPrice')
             ->will($this->returnValue($price));
@@ -78,7 +78,7 @@ class OrderAmountRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $price = new CartPrice(50, 50, 50, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $price = new CartPrice(50, 50, 50, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
         $cart->expects($this->any())
             ->method('getPrice')
             ->will($this->returnValue($price));
@@ -96,7 +96,7 @@ class OrderAmountRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $price = new CartPrice(100, 100, 100, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $price = new CartPrice(100, 100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
         $cart->expects($this->any())
             ->method('getPrice')
             ->will($this->returnValue($price));
@@ -114,7 +114,7 @@ class OrderAmountRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $price = new CartPrice(50, 50, 50, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $price = new CartPrice(50, 50, 50, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
         $cart->expects($this->any())
             ->method('getPrice')
             ->will($this->returnValue($price));
@@ -132,7 +132,7 @@ class OrderAmountRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $price = new CartPrice(150, 150, 150, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $price = new CartPrice(150, 150, 150, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
         $cart->expects($this->any())
             ->method('getPrice')
             ->will($this->returnValue($price));
@@ -157,7 +157,7 @@ class OrderAmountRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $price = new CartPrice(150, 150, 150, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $price = new CartPrice(150, 150, 150, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
         $cart->expects($this->any())
             ->method('getPrice')
             ->will($this->returnValue($price));

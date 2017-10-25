@@ -55,7 +55,7 @@ class CalculatedCartGeneratorTest extends TestCase
             new DeliveryCollection()
         );
 
-        $price = new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $price = new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
 
         $amountCalculator = $this->createMock(AmountCalculator::class);
         $amountCalculator->method('calculateAmount')->will($this->returnValue($price));
@@ -88,7 +88,7 @@ class CalculatedCartGeneratorTest extends TestCase
             new DeliveryCollection()
         );
 
-        $price = new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $price = new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
 
         $amountCalculator = $this->createMock(AmountCalculator::class);
         $amountCalculator->method('calculateAmount')->will($this->returnValue($price));
@@ -128,7 +128,7 @@ class CalculatedCartGeneratorTest extends TestCase
             new DeliveryCollection([$delivery])
         );
 
-        $price = new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $price = new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
 
         $amountCalculator = $this->createMock(AmountCalculator::class);
         $amountCalculator->method('calculateAmount')->will($this->returnValue($price));
@@ -160,7 +160,7 @@ class CalculatedCartGeneratorTest extends TestCase
 
         $container->getErrors()->add(new VoucherNotFoundError('1'));
 
-        $price = new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $price = new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
 
         $amountCalculator = $this->createMock(AmountCalculator::class);
         $amountCalculator->method('calculateAmount')->will($this->returnValue($price));

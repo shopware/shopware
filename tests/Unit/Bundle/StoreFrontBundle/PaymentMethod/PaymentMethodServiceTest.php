@@ -110,7 +110,7 @@ class PaymentMethodServiceTest extends TestCase
                 new CalculatedCart(
                     CartContainer::createNew('test'),
                     new CalculatedLineItemCollection(),
-                    new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
                     new DeliveryCollection()
                 ),
             ],
@@ -133,7 +133,7 @@ class PaymentMethodServiceTest extends TestCase
                 new CalculatedCart(
                     CartContainer::createNew('test'),
                     new CalculatedLineItemCollection(),
-                    new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
                     new DeliveryCollection()
                 ),
             ],

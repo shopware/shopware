@@ -24,12 +24,12 @@ class CartCollector extends DataCollector
 
     public function collect(Request $request, Response $response, \Exception $exception = null)
     {
-        $this->data = array(
+        $this->data = [
             'actions' => $this->cartActions->actions,
             'cartContainer' => $this->cartActions->cartContainer,
             'calculatedCart' => $this->cartActions->calculatedCart,
             'context' => $this->cartActions->context
-        );
+        ];
     }
 
     public function getActions()

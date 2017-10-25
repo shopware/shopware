@@ -172,24 +172,24 @@ class AmountCalculatorTest extends TestCase
 
         return [
             [
-                new CartPrice(19.5, 19.5, 19.5, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new CartPrice(19.5, 19.5, 19.5, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
                 new PriceCollection([
                     new Price(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.5)]), $highTax),
                 ]),
             ], [
-                new CartPrice(33.7, 33.7, 33.7, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new CartPrice(33.7, 33.7, 33.7, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
                 new PriceCollection([
                     new Price(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
                     new Price(14.20, 14.20, new CalculatedTaxCollection([new CalculatedTax(2.27, 19, 14.20)]), $highTax),
                 ]),
             ], [
-                new CartPrice(33.70, 33.70, 33.70, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new CartPrice(33.70, 33.70, 33.70, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
                 new PriceCollection([
                     new Price(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
                     new Price(14.20, 14.20, new CalculatedTaxCollection([new CalculatedTax(0.93, 7, 14.20)]), $lowTax),
                 ]),
             ], [
-                new CartPrice(105.6, 105.6, 105.6, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new CartPrice(105.6, 105.6, 105.6, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
                 new PriceCollection([
                     new Price(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
                     new Price(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(5.32, 19, 33.30)]), $highTax),
@@ -197,7 +197,7 @@ class AmountCalculatorTest extends TestCase
                     new Price(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(2.18, 7, 33.30)]), $lowTax),
                 ]),
             ], [
-                new CartPrice(105.60, 105.60, 105.60, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new CartPrice(105.60, 105.60, 105.60, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
                 new PriceCollection([
                     new Price(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
                     new Price(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(5.32, 19, 33.30)]), $highTax),
@@ -205,7 +205,7 @@ class AmountCalculatorTest extends TestCase
                     new Price(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(2.18, 7, 33.30)]), $lowTax),
                 ]),
             ], [
-                new CartPrice(20, 20, 20, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new CartPrice(20, 20, 20, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
                 new PriceCollection([
                     new Price(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
                     new Price(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
@@ -225,12 +225,12 @@ class AmountCalculatorTest extends TestCase
 
         return [
             [
-                new CartPrice(19.5, 22.61, 19.5, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.5)]), $highTax),
+                new CartPrice(19.5, 22.61, 19.5, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.5)]), $highTax, CartPrice::TAX_STATE_NET),
                 new PriceCollection([
                     new Price(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
                 ]),
             ], [
-                new CartPrice(33.7, 39.08, 33.7, new CalculatedTaxCollection([new CalculatedTax(5.38, 19, 33.7)]), $highTax),
+                new CartPrice(33.7, 39.08, 33.7, new CalculatedTaxCollection([new CalculatedTax(5.38, 19, 33.7)]), $highTax, CartPrice::TAX_STATE_NET),
                 new PriceCollection([
                     new Price(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
                     new Price(14.20, 14.20, new CalculatedTaxCollection([new CalculatedTax(2.27, 19, 14.20)]), $highTax),
@@ -244,7 +244,8 @@ class AmountCalculatorTest extends TestCase
                         new CalculatedTax(3.11, 19, 19.50),
                         new CalculatedTax(0.93, 7, 14.20),
                     ]),
-                    $mixedTaxes
+                    $mixedTaxes,
+                    CartPrice::TAX_STATE_NET
                 ),
                 new PriceCollection([
                     new Price(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
@@ -259,7 +260,8 @@ class AmountCalculatorTest extends TestCase
                         new CalculatedTax(8.43, 19, 52.8),
                         new CalculatedTax(3.46, 7, 52.8),
                     ]),
-                    $mixedTaxes
+                    $mixedTaxes,
+                    CartPrice::TAX_STATE_NET
                 ),
                 new PriceCollection([
                     new Price(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
@@ -285,7 +287,8 @@ class AmountCalculatorTest extends TestCase
                         new TaxRule(17),
                         new TaxRule(7),
                         new TaxRule(1),
-                    ])
+                    ]),
+                    CartPrice::TAX_STATE_NET
                 ),
                 new PriceCollection([
                     new Price(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
@@ -299,7 +302,7 @@ class AmountCalculatorTest extends TestCase
                     new Price(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(0.33, 1, 33.30)]), new TaxRuleCollection([new TaxRule(1)])),
                 ]),
             ], [
-                new CartPrice(20, 20, 20, new CalculatedTaxCollection([]), new TaxRuleCollection()),
+                new CartPrice(20, 20, 20, new CalculatedTaxCollection([]), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
                 new PriceCollection([
                     new Price(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
                     new Price(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
@@ -315,7 +318,8 @@ class AmountCalculatorTest extends TestCase
                     ]),
                     new TaxRuleCollection([
                         new TaxRule(19),
-                    ])
+                    ]),
+                    CartPrice::TAX_STATE_NET
                 ),
                 new PriceCollection([
                     new Price(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
@@ -350,12 +354,12 @@ class AmountCalculatorTest extends TestCase
 
         return [
             [
-                new CartPrice(16.39, 19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+                new CartPrice(16.39, 19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax, CartPrice::TAX_STATE_GROSS),
                 new PriceCollection([
                     new Price(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
                 ]),
             ], [
-                new CartPrice(28.32, 33.7, 33.7, new CalculatedTaxCollection([new CalculatedTax(5.38, 19, 33.7)]), $highTax),
+                new CartPrice(28.32, 33.7, 33.7, new CalculatedTaxCollection([new CalculatedTax(5.38, 19, 33.7)]), $highTax, CartPrice::TAX_STATE_GROSS),
                 new PriceCollection([
                     new Price(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
                     new Price(14.20, 14.20, new CalculatedTaxCollection([new CalculatedTax(2.27, 19, 14.20)]), $highTax),
@@ -369,7 +373,8 @@ class AmountCalculatorTest extends TestCase
                         new CalculatedTax(3.11, 19, 19.50),
                         new CalculatedTax(0.93, 7, 14.20),
                     ]),
-                    $mixedTaxes
+                    $mixedTaxes,
+                    CartPrice::TAX_STATE_GROSS
                 ),
                 new PriceCollection([
                     new Price(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
@@ -384,7 +389,8 @@ class AmountCalculatorTest extends TestCase
                         new CalculatedTax(8.43, 19, 52.8),
                         new CalculatedTax(3.46, 7, 52.8),
                     ]),
-                    $mixedTaxes
+                    $mixedTaxes,
+                    CartPrice::TAX_STATE_GROSS
                 ),
                 new PriceCollection([
                     new Price(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
@@ -410,7 +416,8 @@ class AmountCalculatorTest extends TestCase
                         new TaxRule(17),
                         new TaxRule(7),
                         new TaxRule(1),
-                    ])
+                    ]),
+                    CartPrice::TAX_STATE_GROSS
                 ),
                 new PriceCollection([
                     new Price(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
@@ -424,7 +431,7 @@ class AmountCalculatorTest extends TestCase
                     new Price(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(0.33, 1, 33.30)]), new TaxRuleCollection([new TaxRule(1)])),
                 ]),
             ], [
-                new CartPrice(20, 20, 20, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new CartPrice(20, 20, 20, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
                 new PriceCollection([
                     new Price(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
                     new Price(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
@@ -439,7 +446,8 @@ class AmountCalculatorTest extends TestCase
                     ]),
                     new TaxRuleCollection([
                         new TaxRule(19),
-                    ])
+                    ]),
+                    CartPrice::TAX_STATE_GROSS
                 ),
                 new PriceCollection([
                     new Price(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
@@ -465,7 +473,8 @@ class AmountCalculatorTest extends TestCase
                     0,
                     0,
                     new CalculatedTaxCollection([new CalculatedTax(0, 19, 0)]),
-                    new TaxRuleCollection([new TaxRule(19)])
+                    new TaxRuleCollection([new TaxRule(19)]),
+                    CartPrice::TAX_STATE_GROSS
                 ),
                 new PriceCollection([
                     new Price(55, 55, new CalculatedTaxCollection([new CalculatedTax(8.78, 19, 55)]), new TaxRuleCollection([new TaxRule(19)])),

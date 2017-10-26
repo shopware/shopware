@@ -97,7 +97,7 @@ class ShopDetailCollection extends ShopBasicCollection
     {
         $collection = new CurrencyBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getAvailableCurrencies()->getIterator()->getArrayCopy());
+            $collection->fill($element->getAvailableCurrencies()->getElements());
         }
 
         return $collection;

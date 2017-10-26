@@ -28,7 +28,7 @@ class PaymentMethodDetailCollection extends PaymentMethodBasicCollection
     {
         $collection = new ShopBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getShops()->getIterator()->getArrayCopy());
+            $collection->fill($element->getShops()->getElements());
         }
 
         return $collection;
@@ -50,7 +50,7 @@ class PaymentMethodDetailCollection extends PaymentMethodBasicCollection
     {
         $collection = new AreaCountryBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getCountries()->getIterator()->getArrayCopy());
+            $collection->fill($element->getCountries()->getElements());
         }
 
         return $collection;

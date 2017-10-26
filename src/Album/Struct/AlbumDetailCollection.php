@@ -27,7 +27,7 @@ class AlbumDetailCollection extends AlbumBasicCollection
     {
         $collection = new MediaBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getMedia()->getIterator()->getArrayCopy());
+            $collection->fill($element->getMedia()->getElements());
         }
 
         return $collection;

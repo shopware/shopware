@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Traceable\Cart;
 
@@ -10,7 +10,6 @@ use Shopware\Cart\Delivery\DeliveryPosition;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
-use Symfony\Component\Stopwatch\Stopwatch;
 
 class ProcessorTracer implements CartProcessorInterface
 {
@@ -38,7 +37,6 @@ class ProcessorTracer implements CartProcessorInterface
         StructCollection $dataCollection,
         ShopContext $context
     ): void {
-
         $before = clone $processorCart;
 
         $this->decorated->process($cartContainer, $processorCart, $dataCollection, $context);
@@ -59,7 +57,7 @@ class ProcessorTracer implements CartProcessorInterface
                     ),
                     'before' => null,
                     'after' => null,
-                    'item' => $lineItem
+                    'item' => $lineItem,
                 ];
             }
         }
@@ -81,18 +79,17 @@ class ProcessorTracer implements CartProcessorInterface
                     ),
                     'before' => null,
                     'after' => null,
-                    'item' => $delivery
+                    'item' => $delivery,
                 ];
                 continue;
             }
-
 
             if ($exists->getShippingCosts() !== $delivery->getShippingCosts()) {
                 $this->actions->actions[$class][] = [
                     'action' => 'calculated shipping costs',
                     'before' => $exists->getShippingCosts(),
                     'after' => $delivery->getShippingCosts(),
-                    'item' => $delivery
+                    'item' => $delivery,
                 ];
             }
 
@@ -106,7 +103,7 @@ class ProcessorTracer implements CartProcessorInterface
                         'action' => 'added delivery position',
                         'before' => null,
                         'after' => null,
-                        'item' => $position
+                        'item' => $position,
                     ];
                     continue;
                 }
@@ -116,7 +113,7 @@ class ProcessorTracer implements CartProcessorInterface
                         'action' => 'changed delivery position quantity',
                         'item' => $position,
                         'before' => $existingPosition->getQuantity(),
-                        'after' => $position->getQuantity()
+                        'after' => $position->getQuantity(),
                     ];
                     continue;
                 }
@@ -128,6 +125,7 @@ class ProcessorTracer implements CartProcessorInterface
     {
         $name = get_class($instance);
         $names = explode('\\', $name);
+
         return array_pop($names);
     }
 }

@@ -48,7 +48,7 @@ class CategoryDetailCollection extends CategoryBasicCollection
     {
         $collection = new ProductBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getProducts()->getIterator()->getArrayCopy());
+            $collection->fill($element->getProducts()->getElements());
         }
 
         return $collection;
@@ -70,7 +70,7 @@ class CategoryDetailCollection extends CategoryBasicCollection
     {
         $collection = new CustomerGroupBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getBlockedCustomerGroups()->getIterator()->getArrayCopy());
+            $collection->fill($element->getBlockedCustomerGroups()->getElements());
         }
 
         return $collection;

@@ -153,6 +153,13 @@ class ProductBasicStruct extends Struct
      */
     protected $listingPrices;
 
+    public function __construct()
+    {
+        $this->blockedCustomerGroups = new CustomerGroupBasicCollection();
+        $this->listingPrices = new ProductListingPriceBasicCollection();
+    }
+
+
     public function getUuid(): string
     {
         return $this->uuid;

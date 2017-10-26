@@ -65,7 +65,7 @@ class ProductProcessor implements CartProcessorInterface
         $cartContainer->getErrors()->fill($products->getErrors());
 
         $processorCart->getCalculatedLineItems()->fill(
-            $products->getIterator()->getArrayCopy()
+            $products->getElements()
         );
     }
 }

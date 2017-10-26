@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Traceable\DependencyInjection;
 
@@ -45,13 +45,13 @@ class TracerCompilerPass implements CompilerPassInterface
         $services = array_filter(
             $services,
             function (string $service) {
-                return (
-                    $this->isLoader($service) ||
+                return
+                    $this->isReader($service) ||
                     $this->isSearcher($service)
-                );
+                ;
             }
         );
-        
+
         foreach ($services as $id) {
             $this->replaceService($container, $id);
         }
@@ -59,7 +59,7 @@ class TracerCompilerPass implements CompilerPassInterface
 
     /**
      * @param ContainerBuilder $container
-     * @param string $serviceId
+     * @param string           $serviceId
      */
     protected function replaceService(ContainerBuilder $container, string $serviceId): void
     {
@@ -69,17 +69,17 @@ class TracerCompilerPass implements CompilerPassInterface
 
         $new = new Definition(
             $className, [
-            new Reference($serviceId.'.inner'),
+            new Reference($serviceId . '.inner'),
             new Reference('debug.stopwatch'),
         ]);
 
-        $container->setDefinition($serviceId.'.inner', $definition);
+        $container->setDefinition($serviceId . '.inner', $definition);
         $container->setDefinition($serviceId, $new);
     }
 
-    private function isLoader(string $service): bool
+    private function isReader(string $service): bool
     {
-        return strpos($service, '.basic_loader') > 0 || strpos($service, '.detail_loader') > 0;
+        return strpos($service, '.basic_reader') > 0 || strpos($service, '.detail_reader') > 0;
     }
 
     private function isSearcher(string $service): bool

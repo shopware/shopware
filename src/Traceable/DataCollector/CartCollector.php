@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Traceable\DataCollector;
 
@@ -6,9 +6,9 @@ use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Cart\CartContainer;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Traceable\Cart\TracedCartActions;
-use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 
 class CartCollector extends DataCollector
 {
@@ -22,13 +22,18 @@ class CartCollector extends DataCollector
         $this->cartActions = $cartActions;
     }
 
+    public function reset()
+    {
+        $this->data = [];
+    }
+
     public function collect(Request $request, Response $response, \Exception $exception = null)
     {
         $this->data = [
             'actions' => $this->cartActions->actions,
             'cartContainer' => $this->cartActions->cartContainer,
             'calculatedCart' => $this->cartActions->calculatedCart,
-            'context' => $this->cartActions->context
+            'context' => $this->cartActions->context,
         ];
     }
 

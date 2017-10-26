@@ -27,7 +27,7 @@ class AreaDetailCollection extends AreaBasicCollection
     {
         $collection = new AreaCountryBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getCountries()->getIterator()->getArrayCopy());
+            $collection->fill($element->getCountries()->getElements());
         }
 
         return $collection;

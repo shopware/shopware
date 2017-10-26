@@ -27,7 +27,7 @@ class CustomerGroupDetailCollection extends CustomerGroupBasicCollection
     {
         $collection = new CustomerGroupDiscountBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getDiscounts()->getIterator()->getArrayCopy());
+            $collection->fill($element->getDiscounts()->getElements());
         }
 
         return $collection;

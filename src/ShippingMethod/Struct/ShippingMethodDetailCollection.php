@@ -31,7 +31,7 @@ class ShippingMethodDetailCollection extends ShippingMethodBasicCollection
     {
         $collection = new CategoryBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getCategories()->getIterator()->getArrayCopy());
+            $collection->fill($element->getCategories()->getElements());
         }
 
         return $collection;
@@ -53,7 +53,7 @@ class ShippingMethodDetailCollection extends ShippingMethodBasicCollection
     {
         $collection = new AreaCountryBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getCountries()->getIterator()->getArrayCopy());
+            $collection->fill($element->getCountries()->getElements());
         }
 
         return $collection;
@@ -75,7 +75,7 @@ class ShippingMethodDetailCollection extends ShippingMethodBasicCollection
     {
         $collection = new HolidayBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getHolidays()->getIterator()->getArrayCopy());
+            $collection->fill($element->getHolidays()->getElements());
         }
 
         return $collection;
@@ -97,7 +97,7 @@ class ShippingMethodDetailCollection extends ShippingMethodBasicCollection
     {
         $collection = new PaymentMethodBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getPaymentMethods()->getIterator()->getArrayCopy());
+            $collection->fill($element->getPaymentMethods()->getElements());
         }
 
         return $collection;
@@ -119,7 +119,7 @@ class ShippingMethodDetailCollection extends ShippingMethodBasicCollection
     {
         $collection = new ShippingMethodPriceBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getPrices()->getIterator()->getArrayCopy());
+            $collection->fill($element->getPrices()->getElements());
         }
 
         return $collection;

@@ -28,7 +28,7 @@ class OrderDetailCollection extends OrderBasicCollection
     {
         $collection = new OrderLineItemBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getLineItems()->getIterator()->getArrayCopy());
+            $collection->fill($element->getLineItems()->getElements());
         }
 
         return $collection;
@@ -50,7 +50,7 @@ class OrderDetailCollection extends OrderBasicCollection
     {
         $collection = new OrderDeliveryBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getDeliveries()->getIterator()->getArrayCopy());
+            $collection->fill($element->getDeliveries()->getElements());
         }
 
         return $collection;

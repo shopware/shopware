@@ -63,6 +63,6 @@ class DynamicProcessor implements CartProcessorInterface
 
         $lineItems = $this->gateway->get($calculatedCart, $context);
 
-        $processorCart->getCalculatedLineItems()->fill($lineItems->getIterator()->getArrayCopy());
+        $processorCart->getCalculatedLineItems()->fill($lineItems->getElements());
     }
 }

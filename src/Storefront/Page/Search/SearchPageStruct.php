@@ -24,7 +24,7 @@ class SearchPageStruct extends Struct
     protected $showListing = true;
 
     /**
-     * @var $productBoxLayout
+     * @var
      */
     protected $productBoxLayout;
 

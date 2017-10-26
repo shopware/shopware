@@ -55,7 +55,6 @@ class StorefrontProductRepository
 
         $listingProducts = new ProductBasicCollection();
 
-        /** @var ProductBasicStruct $base */
         foreach ($products as $base) {
             $product = ProductBasicStruct::createFrom($base);
 

@@ -71,6 +71,6 @@ class DeliverySeparatorProcessor implements CartProcessorInterface
         $deliveries->sortDeliveries();
 
         $processorCart->getDeliveries()->clear();
-        $processorCart->getDeliveries()->fill($deliveries->getIterator()->getArrayCopy());
+        $processorCart->getDeliveries()->fill($deliveries->getElements());
     }
 }

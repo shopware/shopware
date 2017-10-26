@@ -17,9 +17,9 @@ class SearchController extends StorefrontController
      * @param ShopContext $context
      * @param Request     $request
      *
-     * @return Response
-     *
      * @throws MinimumSearchTermLengthNotGiven
+     *
+     * @return Response
      */
     public function indexAction(ShopContext $context, Request $request): Response
     {
@@ -29,10 +29,10 @@ class SearchController extends StorefrontController
             $context->getShop()->getParentUuid()
         );
 
-        if (empty($searchTerm) || strlen($searchTerm) < (int)$config['minsearchlenght']) {
+        if (empty($searchTerm) || strlen($searchTerm) < (int) $config['minsearchlenght']) {
             // ToDo: Catch in frontend error handling.
             throw new MinimumSearchTermLengthNotGiven(
-                sprintf('Minimum search term length of %d not given.', (int)$config['minsearchlenght'])
+                sprintf('Minimum search term length of %d not given.', (int) $config['minsearchlenght'])
             );
         }
 
@@ -43,9 +43,9 @@ class SearchController extends StorefrontController
         return $this->render(
             '@Storefront/frontend/search/index.html.twig',
             [
-                'listing'          => $listing,
+                'listing' => $listing,
                 'productBoxLayout' => $listing->getProductBoxLayout(),
-                'searchTerm'       => $searchTerm,
+                'searchTerm' => $searchTerm,
             ]
         );
     }
@@ -72,7 +72,7 @@ class SearchController extends StorefrontController
         return $this->render(
             '@Storefront/frontend/search/ajax.html.twig',
             [
-                'listing'    => $searchPageLoader->load($searchTerm, $request, $context),
+                'listing' => $searchPageLoader->load($searchTerm, $request, $context),
                 'searchTerm' => $searchTerm,
             ]
         );

@@ -25,8 +25,6 @@ declare(strict_types=1);
 
 namespace Shopware\Framework\Struct;
 
-use ArrayIterator;
-
 abstract class Collection extends Struct implements \Countable, \ArrayAccess, \Iterator
 {
     /**
@@ -175,7 +173,7 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
 
     public function valid()
     {
-        return isset($this->array[$this->getKeyOfPointer()]);
+        return isset($this->elements[$this->getKeyOfPointer()]);
     }
 
     public function rewind()
@@ -195,11 +193,16 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
 
     protected function doMerge(Collection $collection)
     {
-        return new static(array_merge($this->elements, $collection->getIterator()->getArrayCopy()));
+        return new static(array_merge($this->elements, $collection->getElements()));
     }
 
     private function getKeyOfPointer()
     {
-        return $this->getKeys()[$this->_pointer];
+        $keys = $this->getKeys();
+        if (array_key_exists($this->_pointer, $keys)) {
+            return $keys[$this->_pointer];
+        }
+
+        return $this->_pointer;
     }
 }

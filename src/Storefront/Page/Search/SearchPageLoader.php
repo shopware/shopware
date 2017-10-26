@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 class SearchPageLoader
 {
     /**
-     * @var CachedConfigService $configService
+     * @var CachedConfigService
      */
     private $configService;
 
@@ -68,11 +68,11 @@ class SearchPageLoader
     {
         $limit = 20;
         if ($request->get('limit')) {
-            $limit = (int)$request->get('limit');
+            $limit = (int) $request->get('limit');
         }
         $page = 1;
         if ($request->get('page')) {
-            $page = (int)$request->get('page');
+            $page = (int) $request->get('page');
         }
 
         $criteria = new Criteria();

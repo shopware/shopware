@@ -119,7 +119,7 @@ class ProductDetailBasicCollection extends Collection
     {
         $collection = new ProductDetailPriceBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getPrices()->getIterator()->getArrayCopy());
+            $collection->fill($element->getPrices()->getElements());
         }
 
         return $collection;

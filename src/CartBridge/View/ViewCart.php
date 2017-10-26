@@ -55,7 +55,7 @@ class ViewCart extends Struct
         $this->calculatedCart = $calculatedCart;
 
         $this->viewLineItems = new ViewLineItemCollection(
-            $calculatedCart->getCalculatedLineItems()->filterInstance(ViewLineItemInterface::class)->getIterator()->getArrayCopy()
+            $calculatedCart->getCalculatedLineItems()->filterInstance(ViewLineItemInterface::class)->getElements()
         );
 
         $this->deliveries = new ViewDeliveryCollection();

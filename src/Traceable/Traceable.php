@@ -1,12 +1,12 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Traceable;
 
 use Shopware\Storefront\Theme\Theme;
 use Shopware\Traceable\DependencyInjection\CartTracerCompilerPass;
+use Shopware\Traceable\DependencyInjection\TracerCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Shopware\Traceable\DependencyInjection\TracerCompilerPass;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\Finder\Finder;
 

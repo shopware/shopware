@@ -27,7 +27,7 @@ class CurrencyDetailCollection extends CurrencyBasicCollection
     {
         $collection = new ShopBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getShops()->getIterator()->getArrayCopy());
+            $collection->fill($element->getShops()->getElements());
         }
 
         return $collection;

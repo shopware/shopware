@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Traceable\Cart;
 
@@ -37,5 +37,4 @@ class TracedCartActions
     {
         $this->actions[$class][] = $action;
     }
-
 }

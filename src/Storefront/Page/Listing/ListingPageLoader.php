@@ -63,6 +63,7 @@ class ListingPageLoader
         $criteria->setLimit($limit);
         $criteria->addFilter(new TermQuery('product.active', 1));
         $criteria->addFilter(new TermQuery('product.categoryTree.uuid', $categoryUuid));
+        $criteria->setFetchCount(true);
 
         return $criteria;
     }

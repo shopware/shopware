@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Traceable\Cart;
 
@@ -6,7 +6,6 @@ use Shopware\Cart\Cart\CartContainer;
 use Shopware\Cart\Cart\CollectorInterface;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
-use Symfony\Component\Stopwatch\Stopwatch;
 
 class CollectorTracer implements CollectorInterface
 {
@@ -26,7 +25,6 @@ class CollectorTracer implements CollectorInterface
         $this->actions = $actions;
     }
 
-
     public function prepare(
         StructCollection $fetchDefinition,
         CartContainer $cartContainer,
@@ -45,7 +43,7 @@ class CollectorTracer implements CollectorInterface
                         'action' => 'Added fetch definition',
                         'before' => null,
                         'after' => null,
-                        'item' => $definition
+                        'item' => $definition,
                     ]
                 );
             }
@@ -57,7 +55,6 @@ class CollectorTracer implements CollectorInterface
         StructCollection $fetchCollection,
         ShopContext $context
     ): void {
-
         $before = clone $dataCollection;
 
         $time = microtime(true);
@@ -81,7 +78,7 @@ class CollectorTracer implements CollectorInterface
                 'action' => 'Fected data within: (' . $time . ')',
                 'before' => null,
                 'after' => null,
-                'item' => $data
+                'item' => $data,
             ]);
         }
     }
@@ -90,6 +87,7 @@ class CollectorTracer implements CollectorInterface
     {
         $name = get_class($instance);
         $names = explode('\\', $name);
+
         return array_pop($names);
     }
 }

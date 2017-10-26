@@ -67,7 +67,7 @@ class ProductPriceCollection extends Collection
             return null;
         }
 
-        $definitions = $definitions->getIterator()->getArrayCopy();
+        $definitions = $definitions->getElements();
 
         usort(
             $definitions,

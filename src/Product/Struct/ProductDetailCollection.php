@@ -31,7 +31,7 @@ class ProductDetailCollection extends ProductBasicCollection
     {
         $collection = new ProductMediaBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getMedia()->getIterator()->getArrayCopy());
+            $collection->fill($element->getMedia()->getElements());
         }
 
         return $collection;
@@ -53,7 +53,7 @@ class ProductDetailCollection extends ProductBasicCollection
     {
         $collection = new ProductDetailBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getDetails()->getIterator()->getArrayCopy());
+            $collection->fill($element->getDetails()->getElements());
         }
 
         return $collection;
@@ -75,7 +75,7 @@ class ProductDetailCollection extends ProductBasicCollection
     {
         $collection = new CategoryBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getCategories()->getIterator()->getArrayCopy());
+            $collection->fill($element->getCategories()->getElements());
         }
 
         return $collection;
@@ -97,7 +97,7 @@ class ProductDetailCollection extends ProductBasicCollection
     {
         $collection = new CategoryBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getCategoryTree()->getIterator()->getArrayCopy());
+            $collection->fill($element->getCategoryTree()->getElements());
         }
 
         return $collection;
@@ -119,7 +119,7 @@ class ProductDetailCollection extends ProductBasicCollection
     {
         $collection = new ProductVoteBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getVotes()->getIterator()->getArrayCopy());
+            $collection->fill($element->getVotes()->getElements());
         }
 
         return $collection;
@@ -141,7 +141,7 @@ class ProductDetailCollection extends ProductBasicCollection
     {
         $collection = new ProductVoteAverageBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getVoteAverages()->getIterator()->getArrayCopy());
+            $collection->fill($element->getVoteAverages()->getElements());
         }
 
         return $collection;

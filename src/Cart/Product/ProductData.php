@@ -100,7 +100,7 @@ class ProductData extends Struct implements Validatable
 
     public function getPrice(int $quantity): ? PriceDefinition
     {
-        $prices = $this->prices->getIterator()->getArrayCopy();
+        $prices = $this->prices->getElements();
         usort(
             $prices,
             function (PriceDefinition $a, PriceDefinition $b) {

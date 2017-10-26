@@ -202,7 +202,7 @@ class ProductBasicCollection extends Collection
     {
         $collection = new CustomerGroupBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getBlockedCustomerGroups()->getIterator()->getArrayCopy());
+            $collection->fill($element->getBlockedCustomerGroups()->getElements());
         }
 
         return $collection;
@@ -224,7 +224,7 @@ class ProductBasicCollection extends Collection
     {
         $collection = new ProductListingPriceBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getListingPrices()->getIterator()->getArrayCopy());
+            $collection->fill($element->getListingPrices()->getElements());
         }
 
         return $collection;

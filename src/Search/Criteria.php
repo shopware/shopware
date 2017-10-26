@@ -2,12 +2,13 @@
 
 namespace Shopware\Search;
 
+use Shopware\Framework\Struct\Struct;
 use Shopware\Search\Aggregation\Aggregation;
 use Shopware\Search\Query\NestedQuery;
 use Shopware\Search\Query\Query;
 use Shopware\Search\Sorting\FieldSorting;
 
-class Criteria
+class Criteria extends Struct
 {
     /**
      * @var FieldSorting[]

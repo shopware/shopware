@@ -24,7 +24,6 @@
 
 namespace Shopware\Cart;
 
-use Shopware\Cart\DependencyInjection\CompilerPass\CartRuleDataCollectorCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;

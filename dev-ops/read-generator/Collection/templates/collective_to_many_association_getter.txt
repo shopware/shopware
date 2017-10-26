@@ -2,7 +2,7 @@
     {
         $collection = new #associationClassUc#BasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->get#pluralUc#()->getIterator()->getArrayCopy());
+            $collection->fill($element->get#pluralUc#()->getElements());
         }
         return $collection;
     }

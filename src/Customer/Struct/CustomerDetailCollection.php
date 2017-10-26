@@ -28,7 +28,7 @@ class CustomerDetailCollection extends CustomerBasicCollection
     {
         $collection = new CustomerAddressBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getAddresses()->getIterator()->getArrayCopy());
+            $collection->fill($element->getAddresses()->getElements());
         }
 
         return $collection;

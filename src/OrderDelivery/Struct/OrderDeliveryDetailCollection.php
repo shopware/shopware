@@ -27,7 +27,7 @@ class OrderDeliveryDetailCollection extends OrderDeliveryBasicCollection
     {
         $collection = new OrderDeliveryPositionBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getPositions()->getIterator()->getArrayCopy());
+            $collection->fill($element->getPositions()->getElements());
         }
 
         return $collection;

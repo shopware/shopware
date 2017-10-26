@@ -38,7 +38,7 @@ class CategoryPathExtension implements EventSubscriberInterface
     {
         $context = new TranslationContext('SWAG-SHOP-UUID-1', true, null);
 
-        $parentUuids = $this->fetchParents($event->getCategoryUuids());
+        $parentUuids = $this->fetchParents($event->getUuids());
 
         foreach ($parentUuids as $uuid) {
             $this->pathBuilder->update($uuid, $context);

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Traceable\DependencyInjection;
 
@@ -40,12 +40,12 @@ public function #name#(#parameters#) #returnType# {
                 $type = '';
                 if ($param->getClass()) {
                     $type = '\\' . $param->getClass()->getName();
-                } else if ($param->getType()) {
+                } elseif ($param->getType()) {
                     $type = $param->getType()->getName();
                 }
 
                 $parameters[] = $type . ' $' . $param->getName();
-                $calls[] = '$'. $param->getName();
+                $calls[] = '$' . $param->getName();
             }
 
             $parameters = implode(',', $parameters);

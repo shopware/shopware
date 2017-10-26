@@ -44,9 +44,9 @@ class TranslationContext extends Struct
      */
     protected $shopUuid;
 
-    public function __construct(string $shopUuid, bool $isDefaultShop, ?string $fallbackId)
+    public function __construct(string $shopUuid, bool $isDefaultShop, ?string $fallbackUuid)
     {
-        $this->fallbackUuid = $fallbackId;
+        $this->fallbackUuid = $fallbackUuid;
         $this->isDefaultShop = $isDefaultShop;
         $this->shopUuid = $shopUuid;
     }

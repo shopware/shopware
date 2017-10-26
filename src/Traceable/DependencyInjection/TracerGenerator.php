@@ -29,7 +29,7 @@ public function #name#(#parameters#) #returnType# {
         $functions = [];
         foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
 
-            if ($method->getName() == '__construct') {
+            if ($method->name === '__construct') {
                 continue;
             }
 
@@ -65,16 +65,16 @@ public function #name#(#parameters#) #returnType# {
                 $functionReturn = 'return $result;';
             }
 
-            $functionLabel = $label . '.' . $method->getName();
+            $functionLabel = $label . '.' . $method->name;
 
             $functions[] = str_replace(
                 ['#name#', '#parameters#', '#returnType#', '#eventname#', '#callparams#', '#returnresult#', '#section#'],
-                [$method->getName(), $parameters, $return, $functionLabel, $calls, $functionReturn, $section],
+                [$method->name, $parameters, $return, $functionLabel, $calls, $functionReturn, $section],
                 $functionTemplate
             );
         }
 
-        $originalClass = $reflection->getName();
+        $originalClass = $reflection->name;
         $lastPart = explode('\\', $originalClass);
         $className = array_pop($lastPart) . 'Tracer';
 

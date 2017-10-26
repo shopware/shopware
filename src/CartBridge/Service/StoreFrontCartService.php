@@ -85,6 +85,11 @@ class StoreFrontCartService
      */
     private $cartContainer;
 
+    /**
+     * @var ViewCart
+     */
+    private $viewCart;
+
     public function __construct(
         CartCalculator $calculation,
         CartPersisterInterface $persister,
@@ -112,14 +117,24 @@ class StoreFrontCartService
 
     public function getCart(): ViewCart
     {
-        return $this->viewCartTransformer->transform(
-            $this->getCalculatedCart(),
+        if ($this->viewCart) {
+            return $this->viewCart;
+        }
+
+        $calculatedCart = $this->getCalculatedCart();
+
+        $viewCart = $this->viewCartTransformer->transform(
+            $calculatedCart,
             $this->contextService->getShopContext()
         );
+
+        return $this->viewCart = $viewCart;
     }
 
     public function add(LineItemInterface $item): void
     {
+        $this->viewCart = null;
+
         $cart = $this->getCartContainer();
 
         $cart->getLineItems()->add($item);
@@ -129,6 +144,8 @@ class StoreFrontCartService
 
     public function fill(LineItemCollection $lineItems): void
     {
+        $this->viewCart = null;
+
         $cart = $this->getCartContainer();
 
         $cart->getLineItems()->fill($lineItems->getElements());
@@ -138,6 +155,8 @@ class StoreFrontCartService
 
     public function changeQuantity(string $identifier, int $quantity): void
     {
+        $this->viewCart = null;
+
         $cart = $this->getCart()->getCalculatedCart()->getCartContainer();
 
         if (!$lineItem = $cart->getLineItems()->get($identifier)) {
@@ -151,6 +170,8 @@ class StoreFrontCartService
 
     public function remove(string $identifier): void
     {
+        $this->viewCart = null;
+
         $cartContainer = $this->getCart()->getCalculatedCart()->getCartContainer();
         $cartContainer->getLineItems()->remove($identifier);
         $this->calculate($cartContainer);
@@ -163,7 +184,9 @@ class StoreFrontCartService
             $this->contextService->getShopContext()
         );
 
-        $this->createNewCart();
+        $this->save(
+            $this->createNewCart()
+        );
     }
 
     public function getCartContainer(): CartContainer
@@ -217,6 +240,7 @@ class StoreFrontCartService
     {
         $this->cartContainer = CartContainer::createNew(self::CART_NAME);
         $this->session->set(self::CART_TOKEN_KEY, $this->cartContainer->getToken());
+        $this->viewCart = null;
 
         return $this->cartContainer;
     }

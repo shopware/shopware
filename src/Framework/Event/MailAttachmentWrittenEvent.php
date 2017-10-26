@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class MailAttachmentWrittenEvent extends EntityWrittenEvent
+class MailAttachmentWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'mail_attachment.written';
 

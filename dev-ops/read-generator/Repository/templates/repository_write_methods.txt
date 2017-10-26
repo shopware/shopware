@@ -7,7 +7,8 @@ public function update(array $data, TranslationContext $context): #classUc#Writt
 {
     $event = $this->writer->update($data, $context);
 
-    $this->eventDispatcher->dispatch($event::NAME, $event);
+    $container = new EntityWrittenEvent($event, $context);
+    $this->eventDispatcher->dispatch($container::NAME, $container);
 
     return $event;
 }
@@ -16,7 +17,8 @@ public function upsert(array $data, TranslationContext $context): #classUc#Writt
 {
     $event = $this->writer->upsert($data, $context);
 
-    $this->eventDispatcher->dispatch($event::NAME, $event);
+    $container = new EntityWrittenEvent($event, $context);
+    $this->eventDispatcher->dispatch($container::NAME, $container);
 
     return $event;
 }
@@ -25,7 +27,8 @@ public function create(array $data, TranslationContext $context): #classUc#Writt
 {
     $event = $this->writer->create($data, $context);
 
-    $this->eventDispatcher->dispatch($event::NAME, $event);
+    $container = new EntityWrittenEvent($event, $context);
+    $this->eventDispatcher->dispatch($container::NAME, $container);
 
     return $event;
 }

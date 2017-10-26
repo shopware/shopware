@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class LogWrittenEvent extends EntityWrittenEvent
+class LogWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'log.written';
 

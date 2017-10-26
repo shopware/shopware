@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class StatisticAddressPoolWrittenEvent extends EntityWrittenEvent
+class StatisticAddressPoolWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'statistic_address_pool.written';
 

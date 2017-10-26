@@ -2,9 +2,9 @@
 
 namespace Shopware\Media\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class MediaTranslationWrittenEvent extends EntityWrittenEvent
+class MediaTranslationWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'media_translation.written';
 

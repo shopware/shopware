@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class CoreWidgetViewsWrittenEvent extends EntityWrittenEvent
+class CoreWidgetViewsWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 's_core_widget_views.written';
 

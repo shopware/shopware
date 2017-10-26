@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class CoreLicensesWrittenEvent extends EntityWrittenEvent
+class CoreLicensesWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 's_core_licenses.written';
 

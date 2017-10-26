@@ -99,7 +99,7 @@ class AreaController extends ApiController
         );
 
         $areas = $this->areaRepository->readBasic(
-            $createEvent->getAreaUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class AreaController extends ApiController
         );
 
         $areas = $this->areaRepository->readBasic(
-            $createEvent->getAreaUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class AreaController extends ApiController
         );
 
         $areas = $this->areaRepository->readBasic(
-            $createEvent->getAreaUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

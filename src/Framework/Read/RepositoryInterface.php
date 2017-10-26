@@ -4,7 +4,7 @@ namespace Shopware\Framework\Read;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\Collection;
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 use Shopware\Search\Criteria;
 use Shopware\Search\SearchResultInterface;
 use Shopware\Search\UuidSearchResult;
@@ -47,7 +47,7 @@ interface RepositoryInterface
      * @param array              $data
      * @param TranslationContext $context
      *
-     * @return EntityWrittenEvent
+     * @return AbstractWrittenEvent
      */
     public function update(array $data, TranslationContext $context);
 
@@ -55,7 +55,7 @@ interface RepositoryInterface
      * @param array              $data
      * @param TranslationContext $context
      *
-     * @return EntityWrittenEvent
+     * @return AbstractWrittenEvent
      */
     public function upsert(array $data, TranslationContext $context);
 
@@ -63,7 +63,7 @@ interface RepositoryInterface
      * @param array              $data
      * @param TranslationContext $context
      *
-     * @return EntityWrittenEvent
+     * @return AbstractWrittenEvent
      */
     public function create(array $data, TranslationContext $context);
 }

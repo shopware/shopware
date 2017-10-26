@@ -15,9 +15,8 @@ class ListingPageLoader
      */
     private $productRepository;
 
-    public function __construct(
-        StorefrontProductRepository $productRepository
-    ) {
+    public function __construct(StorefrontProductRepository $productRepository)
+    {
         $this->productRepository = $productRepository;
     }
 
@@ -38,25 +37,13 @@ class ListingPageLoader
         return $listingPageStruct;
     }
 
-    /**
-     * @param string  $categoryUuid
-     * @param Request $request
-     *
-     * @return Criteria
-     */
     private function createCriteria(
         string $categoryUuid,
         Request $request,
         ShopContext $context
     ): Criteria {
-        $limit = 20;
-        if ($request->get('limit')) {
-            $limit = (int) $request->get('limit');
-        }
-        $page = 1;
-        if ($request->get('page')) {
-            $page = (int) $request->get('page');
-        }
+        $limit = $request->query->getInt('limit', 20);
+        $page = $request->query->getInt('page', 1);
 
         $criteria = new Criteria();
         $criteria->setOffset(($page - 1) * $limit);

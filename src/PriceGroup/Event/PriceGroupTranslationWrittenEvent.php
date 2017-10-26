@@ -2,9 +2,9 @@
 
 namespace Shopware\PriceGroup\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class PriceGroupTranslationWrittenEvent extends EntityWrittenEvent
+class PriceGroupTranslationWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'price_group_translation.written';
 

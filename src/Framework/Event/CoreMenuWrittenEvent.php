@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class CoreMenuWrittenEvent extends EntityWrittenEvent
+class CoreMenuWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 's_core_menu.written';
 

@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class MultiEditQueueWrittenEvent extends EntityWrittenEvent
+class MultiEditQueueWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 's_multi_edit_queue.written';
 

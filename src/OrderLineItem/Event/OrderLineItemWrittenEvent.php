@@ -2,9 +2,9 @@
 
 namespace Shopware\OrderLineItem\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class OrderLineItemWrittenEvent extends EntityWrittenEvent
+class OrderLineItemWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'order_line_item.written';
 

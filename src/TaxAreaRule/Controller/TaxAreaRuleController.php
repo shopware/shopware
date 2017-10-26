@@ -99,7 +99,7 @@ class TaxAreaRuleController extends ApiController
         );
 
         $taxAreaRules = $this->taxAreaRuleRepository->readBasic(
-            $createEvent->getTaxAreaRuleUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class TaxAreaRuleController extends ApiController
         );
 
         $taxAreaRules = $this->taxAreaRuleRepository->readBasic(
-            $createEvent->getTaxAreaRuleUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class TaxAreaRuleController extends ApiController
         );
 
         $taxAreaRules = $this->taxAreaRuleRepository->readBasic(
-            $createEvent->getTaxAreaRuleUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

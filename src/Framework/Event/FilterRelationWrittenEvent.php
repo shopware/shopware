@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class FilterRelationWrittenEvent extends EntityWrittenEvent
+class FilterRelationWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'filter_relation.written';
 

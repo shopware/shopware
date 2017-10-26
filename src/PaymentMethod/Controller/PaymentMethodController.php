@@ -99,7 +99,7 @@ class PaymentMethodController extends ApiController
         );
 
         $paymentMethods = $this->paymentMethodRepository->readBasic(
-            $createEvent->getPaymentMethodUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class PaymentMethodController extends ApiController
         );
 
         $paymentMethods = $this->paymentMethodRepository->readBasic(
-            $createEvent->getPaymentMethodUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class PaymentMethodController extends ApiController
         );
 
         $paymentMethods = $this->paymentMethodRepository->readBasic(
-            $createEvent->getPaymentMethodUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

@@ -2,9 +2,9 @@
 
 namespace Shopware\OrderDeliveryPosition\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class OrderDeliveryPositionWrittenEvent extends EntityWrittenEvent
+class OrderDeliveryPositionWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'order_delivery_position.written';
 

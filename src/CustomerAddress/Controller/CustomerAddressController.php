@@ -99,7 +99,7 @@ class CustomerAddressController extends ApiController
         );
 
         $customerAddresses = $this->customerAddressRepository->readBasic(
-            $createEvent->getCustomerAddressUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class CustomerAddressController extends ApiController
         );
 
         $customerAddresses = $this->customerAddressRepository->readBasic(
-            $createEvent->getCustomerAddressUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class CustomerAddressController extends ApiController
         );
 
         $customerAddresses = $this->customerAddressRepository->readBasic(
-            $createEvent->getCustomerAddressUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

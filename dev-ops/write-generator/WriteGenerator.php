@@ -608,9 +608,9 @@ EOD;
 
 namespace Shopware\#bundle#\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class #classUc#WrittenEvent extends EntityWrittenEvent
+class #classUc#WrittenEvent extends AbstractWrittenEvent
 {
     const NAME = '#table#.written';
 

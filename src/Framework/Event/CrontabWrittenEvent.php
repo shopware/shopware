@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class CrontabWrittenEvent extends EntityWrittenEvent
+class CrontabWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 's_crontab.written';
 

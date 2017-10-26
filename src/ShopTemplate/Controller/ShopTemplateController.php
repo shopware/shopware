@@ -99,7 +99,7 @@ class ShopTemplateController extends ApiController
         );
 
         $shopTemplates = $this->shopTemplateRepository->readBasic(
-            $createEvent->getShopTemplateUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class ShopTemplateController extends ApiController
         );
 
         $shopTemplates = $this->shopTemplateRepository->readBasic(
-            $createEvent->getShopTemplateUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class ShopTemplateController extends ApiController
         );
 
         $shopTemplates = $this->shopTemplateRepository->readBasic(
-            $createEvent->getShopTemplateUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

@@ -99,7 +99,7 @@ class UnitController extends ApiController
         );
 
         $units = $this->unitRepository->readBasic(
-            $createEvent->getUnitUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class UnitController extends ApiController
         );
 
         $units = $this->unitRepository->readBasic(
-            $createEvent->getUnitUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class UnitController extends ApiController
         );
 
         $units = $this->unitRepository->readBasic(
-            $createEvent->getUnitUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

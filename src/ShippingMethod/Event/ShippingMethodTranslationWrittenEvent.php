@@ -2,9 +2,9 @@
 
 namespace Shopware\ShippingMethod\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class ShippingMethodTranslationWrittenEvent extends EntityWrittenEvent
+class ShippingMethodTranslationWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'shipping_method_translation.written';
 

@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class CorePaymentDataWrittenEvent extends EntityWrittenEvent
+class CorePaymentDataWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 's_core_payment_data.written';
 

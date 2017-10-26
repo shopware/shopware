@@ -99,7 +99,7 @@ class LocaleController extends ApiController
         );
 
         $locales = $this->localeRepository->readBasic(
-            $createEvent->getLocaleUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class LocaleController extends ApiController
         );
 
         $locales = $this->localeRepository->readBasic(
-            $createEvent->getLocaleUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class LocaleController extends ApiController
         );
 
         $locales = $this->localeRepository->readBasic(
-            $createEvent->getLocaleUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

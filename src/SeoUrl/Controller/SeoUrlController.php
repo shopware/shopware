@@ -99,7 +99,7 @@ class SeoUrlController extends ApiController
         );
 
         $seoUrls = $this->seoUrlRepository->readBasic(
-            $createEvent->getSeoUrlUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class SeoUrlController extends ApiController
         );
 
         $seoUrls = $this->seoUrlRepository->readBasic(
-            $createEvent->getSeoUrlUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class SeoUrlController extends ApiController
         );
 
         $seoUrls = $this->seoUrlRepository->readBasic(
-            $createEvent->getSeoUrlUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

@@ -99,7 +99,7 @@ class MediaController extends ApiController
         );
 
         $media = $this->mediaRepository->readBasic(
-            $createEvent->getMediaUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class MediaController extends ApiController
         );
 
         $media = $this->mediaRepository->readBasic(
-            $createEvent->getMediaUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class MediaController extends ApiController
         );
 
         $media = $this->mediaRepository->readBasic(
-            $createEvent->getMediaUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

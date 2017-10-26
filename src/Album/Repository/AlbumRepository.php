@@ -13,6 +13,7 @@ use Shopware\Album\Struct\AlbumBasicCollection;
 use Shopware\Album\Struct\AlbumDetailCollection;
 use Shopware\Album\Writer\AlbumWriter;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
@@ -119,7 +120,8 @@ class AlbumRepository
     {
         $event = $this->writer->update($data, $context);
 
-        $this->eventDispatcher->dispatch($event::NAME, $event);
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
     }
@@ -128,7 +130,8 @@ class AlbumRepository
     {
         $event = $this->writer->upsert($data, $context);
 
-        $this->eventDispatcher->dispatch($event::NAME, $event);
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
     }
@@ -137,7 +140,8 @@ class AlbumRepository
     {
         $event = $this->writer->create($data, $context);
 
-        $this->eventDispatcher->dispatch($event::NAME, $event);
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
     }

@@ -99,7 +99,7 @@ class OrderStateController extends ApiController
         );
 
         $orderStates = $this->orderStateRepository->readBasic(
-            $createEvent->getOrderStateUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class OrderStateController extends ApiController
         );
 
         $orderStates = $this->orderStateRepository->readBasic(
-            $createEvent->getOrderStateUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class OrderStateController extends ApiController
         );
 
         $orderStates = $this->orderStateRepository->readBasic(
-            $createEvent->getOrderStateUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

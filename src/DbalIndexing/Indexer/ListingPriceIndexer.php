@@ -216,7 +216,7 @@ class ListingPriceIndexer implements IndexerInterface
         $uuids = [];
         /** @var ProductWrittenEvent $event */
         foreach ($events as $event) {
-            foreach ($event->getProductUuids() as $uuid) {
+            foreach ($event->getUuids() as $uuid) {
                 $uuids[] = $uuid;
             }
         }

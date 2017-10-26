@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class BillingTemplateWrittenEvent extends EntityWrittenEvent
+class BillingTemplateWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 's_billing_template.written';
 

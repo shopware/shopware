@@ -4,6 +4,7 @@ namespace Shopware\ProductDetail\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Read\RepositoryInterface;
+use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\ProductDetail\Event\ProductDetailBasicLoadedEvent;
 use Shopware\ProductDetail\Event\ProductDetailWrittenEvent;
 use Shopware\ProductDetail\Reader\ProductDetailBasicReader;
@@ -100,7 +101,8 @@ class ProductDetailRepository implements RepositoryInterface
     {
         $event = $this->writer->update($data, $context);
 
-        $this->eventDispatcher->dispatch($event::NAME, $event);
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
     }
@@ -109,7 +111,8 @@ class ProductDetailRepository implements RepositoryInterface
     {
         $event = $this->writer->upsert($data, $context);
 
-        $this->eventDispatcher->dispatch($event::NAME, $event);
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
     }
@@ -118,7 +121,8 @@ class ProductDetailRepository implements RepositoryInterface
     {
         $event = $this->writer->create($data, $context);
 
-        $this->eventDispatcher->dispatch($event::NAME, $event);
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
     }

@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class SessionsWrittenEvent extends EntityWrittenEvent
+class SessionsWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'sessions.written';
 

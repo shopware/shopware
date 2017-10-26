@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class EsBacklogWrittenEvent extends EntityWrittenEvent
+class EsBacklogWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 's_es_backlog.written';
 

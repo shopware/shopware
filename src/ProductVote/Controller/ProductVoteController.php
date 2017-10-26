@@ -99,7 +99,7 @@ class ProductVoteController extends ApiController
         );
 
         $productVotes = $this->productVoteRepository->readBasic(
-            $createEvent->getProductVoteUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class ProductVoteController extends ApiController
         );
 
         $productVotes = $this->productVoteRepository->readBasic(
-            $createEvent->getProductVoteUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class ProductVoteController extends ApiController
         );
 
         $productVotes = $this->productVoteRepository->readBasic(
-            $createEvent->getProductVoteUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

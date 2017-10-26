@@ -34,21 +34,17 @@ class Generator
             $detailRead = 'readDetail';
         }
 
-        $writeActions = $readActions = '';
-
         $readActions = str_replace(
             ['#classUc#', '#classLc#', '#plural#', '#table#', '#detailRead#'],
             [ucfirst($class), lcfirst($class), lcfirst($plural), $table, $detailRead],
             file_get_contents(__DIR__ . '/templates/read_actions.txt')
         );
 
-        if ((bool) preg_match('#_ro$#i', $table) === false) {
-            $writeActions = str_replace(
-                ['#classUc#', '#classLc#', '#plural#', '#table#', '#detailRead#'],
-                [ucfirst($class), lcfirst($class), lcfirst($plural), $table, $detailRead],
-                file_get_contents(__DIR__ . '/templates/write_actions.txt')
-            );
-        }
+        $writeActions = str_replace(
+            ['#classUc#', '#classLc#', '#plural#', '#table#', '#detailRead#'],
+            [ucfirst($class), lcfirst($class), lcfirst($plural), $table, $detailRead],
+            file_get_contents(__DIR__ . '/templates/write_actions.txt')
+        );
 
         $content = str_replace(
             ['#classUc#', '#classLc#', '#plural#', '#table#', '#detailRead#', '#readActions#', '#writeActions#'],

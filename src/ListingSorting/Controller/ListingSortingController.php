@@ -99,7 +99,7 @@ class ListingSortingController extends ApiController
         );
 
         $listingSortings = $this->listingSortingRepository->readBasic(
-            $createEvent->getListingSortingUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class ListingSortingController extends ApiController
         );
 
         $listingSortings = $this->listingSortingRepository->readBasic(
-            $createEvent->getListingSortingUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class ListingSortingController extends ApiController
         );
 
         $listingSortings = $this->listingSortingRepository->readBasic(
-            $createEvent->getListingSortingUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

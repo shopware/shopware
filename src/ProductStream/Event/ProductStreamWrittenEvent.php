@@ -2,9 +2,9 @@
 
 namespace Shopware\ProductStream\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class ProductStreamWrittenEvent extends EntityWrittenEvent
+class ProductStreamWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'product_stream.written';
 

@@ -2,9 +2,9 @@
 
 namespace Shopware\Category\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class CategoryAvoidCustomerGroupWrittenEvent extends EntityWrittenEvent
+class CategoryAvoidCustomerGroupWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'category_avoid_customer_group.written';
 

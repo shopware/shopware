@@ -99,7 +99,7 @@ class ProductManufacturerController extends ApiController
         );
 
         $productManufacturers = $this->productManufacturerRepository->readBasic(
-            $createEvent->getProductManufacturerUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class ProductManufacturerController extends ApiController
         );
 
         $productManufacturers = $this->productManufacturerRepository->readBasic(
-            $createEvent->getProductManufacturerUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class ProductManufacturerController extends ApiController
         );
 
         $productManufacturers = $this->productManufacturerRepository->readBasic(
-            $createEvent->getProductManufacturerUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

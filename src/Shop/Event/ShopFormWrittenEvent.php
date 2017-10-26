@@ -2,9 +2,9 @@
 
 namespace Shopware\Shop\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class ShopFormWrittenEvent extends EntityWrittenEvent
+class ShopFormWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'shop_form.written';
 

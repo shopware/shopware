@@ -99,7 +99,7 @@ class OrderLineItemController extends ApiController
         );
 
         $orderLineItems = $this->orderLineItemRepository->readBasic(
-            $createEvent->getOrderLineItemUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class OrderLineItemController extends ApiController
         );
 
         $orderLineItems = $this->orderLineItemRepository->readBasic(
-            $createEvent->getOrderLineItemUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class OrderLineItemController extends ApiController
         );
 
         $orderLineItems = $this->orderLineItemRepository->readBasic(
-            $createEvent->getOrderLineItemUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

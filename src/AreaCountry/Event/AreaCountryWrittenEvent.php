@@ -2,9 +2,9 @@
 
 namespace Shopware\AreaCountry\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class AreaCountryWrittenEvent extends EntityWrittenEvent
+class AreaCountryWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'area_country.written';
 

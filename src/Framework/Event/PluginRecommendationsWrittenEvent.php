@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class PluginRecommendationsWrittenEvent extends EntityWrittenEvent
+class PluginRecommendationsWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 's_plugin_recommendations.written';
 

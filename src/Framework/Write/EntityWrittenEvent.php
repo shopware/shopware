@@ -6,17 +6,9 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
-abstract class EntityWrittenEvent extends NestedEvent
+class EntityWrittenEvent extends NestedEvent
 {
-    /**
-     * @var NestedEventCollection
-     */
-    protected $events;
-
-    /**
-     * @var array
-     */
-    protected $errors;
+    const NAME = 'entity.written';
 
     /**
      * @var TranslationContext
@@ -24,38 +16,19 @@ abstract class EntityWrittenEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var array
+     * @var NestedEvent
      */
-    private $rawData;
+    protected $event;
 
-    /**
-     * @var string[]
-     */
-    private $uuids = [];
-
-    /**
-     * @var string
-     */
-    private $entity;
-
-    public function __construct(
-        array $uuids,
-        TranslationContext $context,
-        array $rawData = [],
-        array $errors = []
-    ) {
-        $this->events = new NestedEventCollection();
+    public function __construct(NestedEvent $event, TranslationContext $context)
+    {
         $this->context = $context;
-        $this->errors = $errors;
-        $this->rawData = $rawData;
-        $this->uuids = $uuids;
+        $this->event = $event;
     }
-
-    abstract public function getEntityName(): string;
 
     public function getName(): string
     {
-        return 'entity.written';
+        return self::NAME;
     }
 
     public function getContext(): TranslationContext
@@ -63,28 +36,8 @@ abstract class EntityWrittenEvent extends NestedEvent
         return $this->context;
     }
 
-    public function getErrors(): array
+    public function getEvents(): ?NestedEventCollection
     {
-        return $this->errors;
-    }
-
-    public function getRawData(): array
-    {
-        return $this->rawData;
-    }
-
-    public function getUuids(): array
-    {
-        return $this->uuids;
-    }
-
-    public function hasErrors(): bool
-    {
-        return count($this->errors) > 0;
-    }
-
-    public function addEvent(NestedEvent $event): void
-    {
-        $this->events->add($event);
+        return new NestedEventCollection([$this->event]);
     }
 }

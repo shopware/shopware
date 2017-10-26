@@ -2,9 +2,9 @@
 
 namespace Shopware\Search\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class SearchKeywordsWrittenEvent extends EntityWrittenEvent
+class SearchKeywordsWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 's_search_keywords.written';
 

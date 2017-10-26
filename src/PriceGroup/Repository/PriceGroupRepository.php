@@ -3,6 +3,7 @@
 namespace Shopware\PriceGroup\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\PriceGroup\Event\PriceGroupBasicLoadedEvent;
 use Shopware\PriceGroup\Event\PriceGroupDetailLoadedEvent;
 use Shopware\PriceGroup\Event\PriceGroupWrittenEvent;
@@ -119,7 +120,8 @@ class PriceGroupRepository
     {
         $event = $this->writer->update($data, $context);
 
-        $this->eventDispatcher->dispatch($event::NAME, $event);
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
     }
@@ -128,7 +130,8 @@ class PriceGroupRepository
     {
         $event = $this->writer->upsert($data, $context);
 
-        $this->eventDispatcher->dispatch($event::NAME, $event);
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
     }
@@ -137,7 +140,8 @@ class PriceGroupRepository
     {
         $event = $this->writer->create($data, $context);
 
-        $this->eventDispatcher->dispatch($event::NAME, $event);
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
     }

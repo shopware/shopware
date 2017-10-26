@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class CoreThemeSettingsWrittenEvent extends EntityWrittenEvent
+class CoreThemeSettingsWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 's_core_theme_settings.written';
 

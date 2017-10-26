@@ -2,9 +2,9 @@
 
 namespace Shopware\ShopTemplate\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class ShopTemplateConfigPresetWrittenEvent extends EntityWrittenEvent
+class ShopTemplateConfigPresetWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'shop_template_config_preset.written';
 

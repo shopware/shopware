@@ -2,9 +2,9 @@
 
 namespace Shopware\Category\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class CategoryTranslationWrittenEvent extends EntityWrittenEvent
+class CategoryTranslationWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'category_translation.written';
 

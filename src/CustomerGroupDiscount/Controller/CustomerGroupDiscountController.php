@@ -99,7 +99,7 @@ class CustomerGroupDiscountController extends ApiController
         );
 
         $customerGroupDiscounts = $this->customerGroupDiscountRepository->readBasic(
-            $createEvent->getCustomerGroupDiscountUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class CustomerGroupDiscountController extends ApiController
         );
 
         $customerGroupDiscounts = $this->customerGroupDiscountRepository->readBasic(
-            $createEvent->getCustomerGroupDiscountUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class CustomerGroupDiscountController extends ApiController
         );
 
         $customerGroupDiscounts = $this->customerGroupDiscountRepository->readBasic(
-            $createEvent->getCustomerGroupDiscountUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

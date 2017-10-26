@@ -84,6 +84,137 @@ class ProductListingPriceController extends ApiController
         return $this->createResponse(['data' => $productListingPrices->get($uuid)], $context);
     }
 
+    /**
+     * @Route("/productListingPrice.{responseFormat}", name="api.productListingPrice.create", methods={"POST"})
+     *
+     * @param ApiContext $context
+     *
+     * @return Response
+     */
+    public function createAction(ApiContext $context): Response
+    {
+        $createEvent = $this->productListingPriceRepository->create(
+            $context->getPayload(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $productListingPrices = $this->productListingPriceRepository->readBasic(
+            $createEvent->getUuids(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $response = [
+            'data' => $productListingPrices,
+            'errors' => $createEvent->getErrors(),
+        ];
+
+        return $this->createResponse($response, $context);
+    }
+
+    /**
+     * @Route("/productListingPrice.{responseFormat}", name="api.productListingPrice.upsert", methods={"PUT"})
+     *
+     * @param ApiContext $context
+     *
+     * @return Response
+     */
+    public function upsertAction(ApiContext $context): Response
+    {
+        $createEvent = $this->productListingPriceRepository->upsert(
+            $context->getPayload(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $productListingPrices = $this->productListingPriceRepository->readBasic(
+            $createEvent->getUuids(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $response = [
+            'data' => $productListingPrices,
+            'errors' => $createEvent->getErrors(),
+        ];
+
+        return $this->createResponse($response, $context);
+    }
+
+    /**
+     * @Route("/productListingPrice.{responseFormat}", name="api.productListingPrice.update", methods={"PATCH"})
+     *
+     * @param ApiContext $context
+     *
+     * @return Response
+     */
+    public function updateAction(ApiContext $context): Response
+    {
+        $createEvent = $this->productListingPriceRepository->update(
+            $context->getPayload(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $productListingPrices = $this->productListingPriceRepository->readBasic(
+            $createEvent->getUuids(),
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        $response = [
+            'data' => $productListingPrices,
+            'errors' => $createEvent->getErrors(),
+        ];
+
+        return $this->createResponse($response, $context);
+    }
+
+    /**
+     * @Route("/productListingPrice/{productListingPriceUuid}.{responseFormat}", name="api.productListingPrice.single_update", methods={"PATCH"})
+     *
+     * @param Request    $request
+     * @param ApiContext $context
+     *
+     * @return Response
+     */
+    public function singleUpdateAction(Request $request, ApiContext $context): Response
+    {
+        $payload = $context->getPayload();
+        $payload['uuid'] = $request->get('productListingPriceUuid');
+
+        $updateEvent = $this->productListingPriceRepository->update(
+            [$payload],
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        if ($updateEvent->hasErrors()) {
+            $errors = $updateEvent->getErrors();
+            $error = array_shift($errors);
+
+            return $this->createResponse(['errors' => $error], $context, 400);
+        }
+
+        $productListingPrices = $this->productListingPriceRepository->readBasic(
+            [$payload['uuid']],
+            $context->getShopContext()->getTranslationContext()
+        );
+
+        return $this->createResponse(
+            ['data' => $productListingPrices->get($payload['uuid'])],
+            $context
+        );
+    }
+
+    /**
+     * @Route("/productListingPrice.{responseFormat}", name="api.productListingPrice.delete", methods={"DELETE"})
+     *
+     * @param ApiContext $context
+     *
+     * @return Response
+     */
+    public function deleteAction(ApiContext $context): Response
+    {
+        $result = ['data' => []];
+
+        return $this->createResponse($result, $context);
+    }
+
     protected function getXmlRootKey(): string
     {
         return 'productListingPrices';

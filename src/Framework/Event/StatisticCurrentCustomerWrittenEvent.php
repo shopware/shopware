@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class StatisticCurrentCustomerWrittenEvent extends EntityWrittenEvent
+class StatisticCurrentCustomerWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'statistic_current_customer.written';
 

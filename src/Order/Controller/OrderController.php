@@ -99,7 +99,7 @@ class OrderController extends ApiController
         );
 
         $orders = $this->orderRepository->readBasic(
-            $createEvent->getOrderUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class OrderController extends ApiController
         );
 
         $orders = $this->orderRepository->readBasic(
-            $createEvent->getOrderUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class OrderController extends ApiController
         );
 
         $orders = $this->orderRepository->readBasic(
-            $createEvent->getOrderUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

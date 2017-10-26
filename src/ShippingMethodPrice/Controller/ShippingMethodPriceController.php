@@ -99,7 +99,7 @@ class ShippingMethodPriceController extends ApiController
         );
 
         $shippingMethodPrices = $this->shippingMethodPriceRepository->readBasic(
-            $createEvent->getShippingMethodPriceUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class ShippingMethodPriceController extends ApiController
         );
 
         $shippingMethodPrices = $this->shippingMethodPriceRepository->readBasic(
-            $createEvent->getShippingMethodPriceUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class ShippingMethodPriceController extends ApiController
         );
 
         $shippingMethodPrices = $this->shippingMethodPriceRepository->readBasic(
-            $createEvent->getShippingMethodPriceUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

@@ -11,6 +11,7 @@ use Shopware\CustomerAddress\Searcher\CustomerAddressSearchResult;
 use Shopware\CustomerAddress\Struct\CustomerAddressBasicCollection;
 use Shopware\CustomerAddress\Writer\CustomerAddressWriter;
 use Shopware\Framework\Read\RepositoryInterface;
+use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
@@ -100,7 +101,8 @@ class CustomerAddressRepository implements RepositoryInterface
     {
         $event = $this->writer->update($data, $context);
 
-        $this->eventDispatcher->dispatch($event::NAME, $event);
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
     }
@@ -109,7 +111,8 @@ class CustomerAddressRepository implements RepositoryInterface
     {
         $event = $this->writer->upsert($data, $context);
 
-        $this->eventDispatcher->dispatch($event::NAME, $event);
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
     }
@@ -118,7 +121,8 @@ class CustomerAddressRepository implements RepositoryInterface
     {
         $event = $this->writer->create($data, $context);
 
-        $this->eventDispatcher->dispatch($event::NAME, $event);
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
     }

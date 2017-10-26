@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class EmarketingVouchersWrittenEvent extends EntityWrittenEvent
+class EmarketingVouchersWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 's_emarketing_vouchers.written';
 

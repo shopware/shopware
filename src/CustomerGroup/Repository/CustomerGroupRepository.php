@@ -13,6 +13,7 @@ use Shopware\CustomerGroup\Searcher\CustomerGroupSearchResult;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicCollection;
 use Shopware\CustomerGroup\Struct\CustomerGroupDetailCollection;
 use Shopware\CustomerGroup\Writer\CustomerGroupWriter;
+use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
@@ -119,7 +120,8 @@ class CustomerGroupRepository
     {
         $event = $this->writer->update($data, $context);
 
-        $this->eventDispatcher->dispatch($event::NAME, $event);
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
     }
@@ -128,7 +130,8 @@ class CustomerGroupRepository
     {
         $event = $this->writer->upsert($data, $context);
 
-        $this->eventDispatcher->dispatch($event::NAME, $event);
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
     }
@@ -137,7 +140,8 @@ class CustomerGroupRepository
     {
         $event = $this->writer->create($data, $context);
 
-        $this->eventDispatcher->dispatch($event::NAME, $event);
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
     }

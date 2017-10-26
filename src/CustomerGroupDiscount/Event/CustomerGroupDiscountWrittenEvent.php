@@ -2,9 +2,9 @@
 
 namespace Shopware\CustomerGroupDiscount\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class CustomerGroupDiscountWrittenEvent extends EntityWrittenEvent
+class CustomerGroupDiscountWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'customer_group_discount.written';
 

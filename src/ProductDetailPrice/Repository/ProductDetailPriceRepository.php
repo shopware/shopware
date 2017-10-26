@@ -4,6 +4,7 @@ namespace Shopware\ProductDetailPrice\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Read\RepositoryInterface;
+use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\ProductDetailPrice\Event\ProductDetailPriceBasicLoadedEvent;
 use Shopware\ProductDetailPrice\Event\ProductDetailPriceWrittenEvent;
 use Shopware\ProductDetailPrice\Reader\ProductDetailPriceBasicReader;
@@ -100,7 +101,8 @@ class ProductDetailPriceRepository implements RepositoryInterface
     {
         $event = $this->writer->update($data, $context);
 
-        $this->eventDispatcher->dispatch($event::NAME, $event);
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
     }
@@ -109,7 +111,8 @@ class ProductDetailPriceRepository implements RepositoryInterface
     {
         $event = $this->writer->upsert($data, $context);
 
-        $this->eventDispatcher->dispatch($event::NAME, $event);
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
     }
@@ -118,7 +121,8 @@ class ProductDetailPriceRepository implements RepositoryInterface
     {
         $event = $this->writer->create($data, $context);
 
-        $this->eventDispatcher->dispatch($event::NAME, $event);
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
     }

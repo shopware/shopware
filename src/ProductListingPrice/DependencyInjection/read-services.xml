@@ -16,6 +16,12 @@
         </service>
         
 
+        <service class="Shopware\ProductListingPrice\Writer\ProductListingPriceWriter" id="shopware.product_listing_price_ro.writer">
+            <argument type="service" id="shopware.framework.write.field_aware.default_extender" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="shopware.framework.write.writer" />
+        </service>
+        
         <service class="Shopware\ProductListingPrice\Reader\ProductListingPriceBasicReader" id="shopware.product_listing_price_ro.basic_reader">
             <argument id="shopware.product_listing_price_ro.basic_factory" type="service"/>
         </service>
@@ -31,7 +37,7 @@
             <argument id="shopware.product_listing_price_ro.basic_reader" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.product_listing_price_ro.searcher" type="service"/>
-            
+            <argument id="shopware.product_listing_price_ro.writer" type="service"/>
         </service>
 
     </services>

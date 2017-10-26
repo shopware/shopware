@@ -28,10 +28,6 @@ class Generator
 
     public function generate(string $table, array $config): string
     {
-        if ((bool) preg_match('#_ro$#i', $table) === true) {
-            return '';
-        }
-
         $class = Util::snakeCaseToCamelCase($table);
 
         $resourceUse = '';

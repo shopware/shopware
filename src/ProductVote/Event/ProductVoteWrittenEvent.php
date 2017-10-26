@@ -2,9 +2,9 @@
 
 namespace Shopware\ProductVote\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class ProductVoteWrittenEvent extends EntityWrittenEvent
+class ProductVoteWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'product_vote.written';
 

@@ -2,9 +2,9 @@
 
 namespace Shopware\Product\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class ProductConfiguratorOptionTranslationWrittenEvent extends EntityWrittenEvent
+class ProductConfiguratorOptionTranslationWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'product_configurator_option_translation.written';
 

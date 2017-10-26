@@ -4,11 +4,14 @@ namespace Shopware\ProductListingPrice\Repository;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Read\RepositoryInterface;
+use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\ProductListingPrice\Event\ProductListingPriceBasicLoadedEvent;
+use Shopware\ProductListingPrice\Event\ProductListingPriceWrittenEvent;
 use Shopware\ProductListingPrice\Reader\ProductListingPriceBasicReader;
 use Shopware\ProductListingPrice\Searcher\ProductListingPriceSearcher;
 use Shopware\ProductListingPrice\Searcher\ProductListingPriceSearchResult;
 use Shopware\ProductListingPrice\Struct\ProductListingPriceBasicCollection;
+use Shopware\ProductListingPrice\Writer\ProductListingPriceWriter;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
 use Shopware\Search\UuidSearchResult;
@@ -31,14 +34,21 @@ class ProductListingPriceRepository implements RepositoryInterface
      */
     private $searcher;
 
+    /**
+     * @var ProductListingPriceWriter
+     */
+    private $writer;
+
     public function __construct(
         ProductListingPriceBasicReader $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        ProductListingPriceSearcher $searcher
+        ProductListingPriceSearcher $searcher,
+        ProductListingPriceWriter $writer
     ) {
         $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searcher = $searcher;
+        $this->writer = $writer;
     }
 
     public function readBasic(array $uuids, TranslationContext $context): ProductListingPriceBasicCollection
@@ -85,5 +95,35 @@ class ProductListingPriceRepository implements RepositoryInterface
         $result = $this->searcher->aggregate($criteria, $context);
 
         return $result;
+    }
+
+    public function update(array $data, TranslationContext $context): ProductListingPriceWrittenEvent
+    {
+        $event = $this->writer->update($data, $context);
+
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
+
+        return $event;
+    }
+
+    public function upsert(array $data, TranslationContext $context): ProductListingPriceWrittenEvent
+    {
+        $event = $this->writer->upsert($data, $context);
+
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
+
+        return $event;
+    }
+
+    public function create(array $data, TranslationContext $context): ProductListingPriceWrittenEvent
+    {
+        $event = $this->writer->create($data, $context);
+
+        $container = new EntityWrittenEvent($event, $context);
+        $this->eventDispatcher->dispatch($container::NAME, $container);
+
+        return $event;
     }
 }

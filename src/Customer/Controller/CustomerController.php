@@ -99,7 +99,7 @@ class CustomerController extends ApiController
         );
 
         $customers = $this->customerRepository->readBasic(
-            $createEvent->getCustomerUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class CustomerController extends ApiController
         );
 
         $customers = $this->customerRepository->readBasic(
-            $createEvent->getCustomerUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class CustomerController extends ApiController
         );
 
         $customers = $this->customerRepository->readBasic(
-            $createEvent->getCustomerUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

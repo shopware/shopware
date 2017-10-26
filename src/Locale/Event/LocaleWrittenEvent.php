@@ -2,9 +2,9 @@
 
 namespace Shopware\Locale\Event;
 
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\Framework\Write\AbstractWrittenEvent;
 
-class LocaleWrittenEvent extends EntityWrittenEvent
+class LocaleWrittenEvent extends AbstractWrittenEvent
 {
     const NAME = 'locale.written';
 

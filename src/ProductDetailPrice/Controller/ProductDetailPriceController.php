@@ -99,7 +99,7 @@ class ProductDetailPriceController extends ApiController
         );
 
         $productDetailPrices = $this->productDetailPriceRepository->readBasic(
-            $createEvent->getProductDetailPriceUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class ProductDetailPriceController extends ApiController
         );
 
         $productDetailPrices = $this->productDetailPriceRepository->readBasic(
-            $createEvent->getProductDetailPriceUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class ProductDetailPriceController extends ApiController
         );
 
         $productDetailPrices = $this->productDetailPriceRepository->readBasic(
-            $createEvent->getProductDetailPriceUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

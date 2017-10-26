@@ -99,7 +99,7 @@ class TaxController extends ApiController
         );
 
         $taxes = $this->taxRepository->readBasic(
-            $createEvent->getTaxUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class TaxController extends ApiController
         );
 
         $taxes = $this->taxRepository->readBasic(
-            $createEvent->getTaxUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class TaxController extends ApiController
         );
 
         $taxes = $this->taxRepository->readBasic(
-            $createEvent->getTaxUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

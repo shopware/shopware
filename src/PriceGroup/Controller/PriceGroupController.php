@@ -99,7 +99,7 @@ class PriceGroupController extends ApiController
         );
 
         $priceGroups = $this->priceGroupRepository->readBasic(
-            $createEvent->getPriceGroupUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class PriceGroupController extends ApiController
         );
 
         $priceGroups = $this->priceGroupRepository->readBasic(
-            $createEvent->getPriceGroupUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class PriceGroupController extends ApiController
         );
 
         $priceGroups = $this->priceGroupRepository->readBasic(
-            $createEvent->getPriceGroupUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

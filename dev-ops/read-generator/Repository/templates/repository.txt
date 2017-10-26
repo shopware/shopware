@@ -16,6 +16,7 @@ use Shopware\Search\UuidSearchResult;
 use Shopware\#classUc#\Event\#classUc#WrittenEvent;
 use Shopware\#classUc#\Writer\#classUc#Writer;
 use Shopware\Framework\Read\RepositoryInterface;
+use Shopware\Framework\Write\EntityWrittenEvent;
 
 class #classUc#Repository implements RepositoryInterface
 {

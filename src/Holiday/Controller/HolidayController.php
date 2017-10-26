@@ -99,7 +99,7 @@ class HolidayController extends ApiController
         );
 
         $holidays = $this->holidayRepository->readBasic(
-            $createEvent->getHolidayUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class HolidayController extends ApiController
         );
 
         $holidays = $this->holidayRepository->readBasic(
-            $createEvent->getHolidayUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class HolidayController extends ApiController
         );
 
         $holidays = $this->holidayRepository->readBasic(
-            $createEvent->getHolidayUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

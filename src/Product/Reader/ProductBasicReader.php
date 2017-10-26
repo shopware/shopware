@@ -73,9 +73,8 @@ class ProductBasicReader
             if ($product->getMainDetailUuid()) {
                 $product->setMainDetail($mainDetails->get($product->getMainDetailUuid()));
             }
-            $product->setBlockedCustomerGroups(
-                $blockedCustomerGroups->getList($product->getBlockedCustomerGroupsUuids())
-            );
+
+            $product->setBlockedCustomerGroups($blockedCustomerGroups->getList($product->getBlockedCustomerGroupsUuids()));
             $product->setListingPrices($listingPrices->filterByProductUuid($product->getUuid()));
         }
 

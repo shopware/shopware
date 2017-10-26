@@ -99,7 +99,7 @@ class OrderDeliveryPositionController extends ApiController
         );
 
         $orderDeliveryPositions = $this->orderDeliveryPositionRepository->readBasic(
-            $createEvent->getOrderDeliveryPositionUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class OrderDeliveryPositionController extends ApiController
         );
 
         $orderDeliveryPositions = $this->orderDeliveryPositionRepository->readBasic(
-            $createEvent->getOrderDeliveryPositionUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class OrderDeliveryPositionController extends ApiController
         );
 
         $orderDeliveryPositions = $this->orderDeliveryPositionRepository->readBasic(
-            $createEvent->getOrderDeliveryPositionUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

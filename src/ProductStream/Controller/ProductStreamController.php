@@ -99,7 +99,7 @@ class ProductStreamController extends ApiController
         );
 
         $productStreams = $this->productStreamRepository->readBasic(
-            $createEvent->getProductStreamUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -126,7 +126,7 @@ class ProductStreamController extends ApiController
         );
 
         $productStreams = $this->productStreamRepository->readBasic(
-            $createEvent->getProductStreamUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 
@@ -153,7 +153,7 @@ class ProductStreamController extends ApiController
         );
 
         $productStreams = $this->productStreamRepository->readBasic(
-            $createEvent->getProductStreamUuids(),
+            $createEvent->getUuids(),
             $context->getShopContext()->getTranslationContext()
         );
 

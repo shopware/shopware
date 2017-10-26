@@ -39,19 +39,14 @@ class Generator
     public function generate(string $table, array $config)
     {
         $class = Util::snakeCaseToCamelCase($table);
-        $isReadOnly = (bool) preg_match('#_ro$#i', $table);
 
-        $writeMethods = $isReadOnly ? '' : $this->writeMethodsTemplate;
-        $constructor = $isReadOnly
-            ? file_get_contents(__DIR__ . '/templates/repository_constructor_without_write.txt')
-            : file_get_contents(__DIR__ . '/templates/repository_constructor.txt');
+        $writeMethods = $this->writeMethodsTemplate;
+        $constructor = file_get_contents(__DIR__ . '/templates/repository_constructor.txt');
 
         $template = __DIR__ . '/templates/repository.txt';
         if (Util::getAssociationsForDetailStruct($table, $config)) {
             $template = __DIR__ . '/templates/repository_detail.txt';
-            $constructor = $isReadOnly
-                ? file_get_contents(__DIR__ . '/templates/repository_detail_constructor_without_write.txt')
-                : file_get_contents(__DIR__ . '/templates/repository_detail_constructor.txt');
+            $constructor = file_get_contents(__DIR__ . '/templates/repository_detail_constructor.txt');
         }
 
         $writeMethods = str_replace('#classUc#', ucfirst($class), $writeMethods);
@@ -74,7 +69,7 @@ class Generator
     {
         $class = Util::snakeCaseToCamelCase($table);
 
-        $argumentWriter = preg_match('#_ro$#i', $table) ? '' : $this->argumentWriterTemplate;
+        $argumentWriter = $this->argumentWriterTemplate;
         $argumentWriter = str_replace(
             ['#classUc#', '#classLc#', '#table#', '#argumentWriter#'],
             [ucfirst($class), lcfirst($class), $table, $argumentWriter],

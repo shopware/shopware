@@ -38,7 +38,7 @@ class CartTracerCompilerPass implements CompilerPassInterface
 
     protected function decorateService(ContainerBuilder $container, string $serviceId, string $class): void
     {
-        $new = new Definition(ProcessorTracer::class, [
+        $new = new Definition($class, [
             new Reference($serviceId . '.tracer.inner'),
             new Reference('shopware.traceable.traced_cart_actions'),
         ]);

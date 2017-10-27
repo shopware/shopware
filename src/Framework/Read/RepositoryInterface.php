@@ -6,10 +6,15 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\Collection;
 use Shopware\Framework\Write\AbstractWrittenEvent;
 use Shopware\Search\Criteria;
+use Shopware\Search\SearcherInterface;
 use Shopware\Search\SearchResultInterface;
 use Shopware\Search\UuidSearchResult;
 
-interface RepositoryInterface
+interface RepositoryInterface extends
+    SearcherInterface,
+    BasicReaderInterface,
+    DetailReaderInterface,
+    WriterInterface
 {
     /**
      * @param Criteria           $criteria

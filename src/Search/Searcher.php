@@ -28,7 +28,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Search\Parser\SqlParser;
 
-abstract class Searcher
+abstract class Searcher implements SearcherInterface
 {
     /**
      * @var Connection

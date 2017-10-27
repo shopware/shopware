@@ -42,6 +42,7 @@ class Writer
      * @var Connection
      */
     private $connection;
+
     /**
      * @var SqlGateway
      */

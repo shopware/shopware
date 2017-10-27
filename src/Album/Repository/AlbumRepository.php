@@ -5,29 +5,29 @@ namespace Shopware\Album\Repository;
 use Shopware\Album\Event\AlbumBasicLoadedEvent;
 use Shopware\Album\Event\AlbumDetailLoadedEvent;
 use Shopware\Album\Event\AlbumWrittenEvent;
-use Shopware\Album\Reader\AlbumBasicReader;
-use Shopware\Album\Reader\AlbumDetailReader;
-use Shopware\Album\Searcher\AlbumSearcher;
 use Shopware\Album\Searcher\AlbumSearchResult;
 use Shopware\Album\Struct\AlbumBasicCollection;
 use Shopware\Album\Struct\AlbumDetailCollection;
-use Shopware\Album\Writer\AlbumWriter;
+use Shopware\Framework\Read\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Read\BasicReaderInterface;
+use Shopware\Framework\Read\DetailReaderInterface;
 use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\Search\AggregationResult;
 use Shopware\Search\Criteria;
+use Shopware\Search\SearcherInterface;
 use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AlbumRepository
 {
     /**
-     * @var AlbumDetailReader
+     * @var DetailReaderInterface
      */
     protected $detailReader;
 
     /**
-     * @var AlbumBasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -37,21 +37,21 @@ class AlbumRepository
     private $eventDispatcher;
 
     /**
-     * @var AlbumSearcher
+     * @var SearcherInterface
      */
     private $searcher;
 
     /**
-     * @var AlbumWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
-        AlbumDetailReader $detailReader,
-        AlbumBasicReader $basicReader,
-        EventDispatcherInterface $eventDispatcher,
-        AlbumSearcher $searcher,
-        AlbumWriter $writer
+        DetailReaderInterface $detailReader,
+        BasicReaderInterface $basicReader,
+        SearcherInterface $searcher,
+        WriterInterface $writer,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->detailReader = $detailReader;
         $this->basicReader = $basicReader;

@@ -38,6 +38,7 @@
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.tax_area_rule.searcher" type="service"/>
             <argument id="shopware.tax_area_rule.writer" type="service"/>
+            <tag name="shopware.repository" />
         </service>
 
     </services>

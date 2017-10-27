@@ -98,6 +98,11 @@ class PriceGroupDiscountRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'price_group_discount';
+    }
+
     public function update(array $data, TranslationContext $context): PriceGroupDiscountWrittenEvent
     {
         $event = $this->writer->update($data, $context);

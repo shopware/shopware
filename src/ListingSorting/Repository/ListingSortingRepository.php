@@ -98,6 +98,11 @@ class ListingSortingRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'listing_sorting';
+    }
+
     public function update(array $data, TranslationContext $context): ListingSortingWrittenEvent
     {
         $event = $this->writer->update($data, $context);

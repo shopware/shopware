@@ -98,6 +98,11 @@ class ProductVoteAverageRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'product_vote_average_ro';
+    }
+
     public function update(array $data, TranslationContext $context): ProductVoteAverageWrittenEvent
     {
         $event = $this->writer->update($data, $context);

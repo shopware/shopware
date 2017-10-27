@@ -120,6 +120,11 @@ class ShopRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'shop';
+    }
+
     public function update(array $data, TranslationContext $context): ShopWrittenEvent
     {
         $event = $this->writer->update($data, $context);

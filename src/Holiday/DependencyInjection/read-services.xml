@@ -38,6 +38,7 @@
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.holiday.searcher" type="service"/>
             <argument id="shopware.holiday.writer" type="service"/>
+            <tag name="shopware.repository" />
         </service>
 
     </services>

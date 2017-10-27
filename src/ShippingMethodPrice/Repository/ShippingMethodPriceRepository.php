@@ -98,6 +98,11 @@ class ShippingMethodPriceRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'shipping_method_price';
+    }
+
     public function update(array $data, TranslationContext $context): ShippingMethodPriceWrittenEvent
     {
         $event = $this->writer->update($data, $context);

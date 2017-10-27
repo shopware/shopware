@@ -98,6 +98,11 @@ class TaxAreaRuleRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'tax_area_rule';
+    }
+
     public function update(array $data, TranslationContext $context): TaxAreaRuleWrittenEvent
     {
         $event = $this->writer->update($data, $context);

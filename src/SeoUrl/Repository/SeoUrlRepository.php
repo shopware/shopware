@@ -98,6 +98,11 @@ class SeoUrlRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'seo_url';
+    }
+
     public function update(array $data, TranslationContext $context): SeoUrlWrittenEvent
     {
         $event = $this->writer->update($data, $context);

@@ -40,6 +40,7 @@
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.order_address.searcher" type="service"/>
             <argument id="shopware.order_address.writer" type="service"/>
+            <tag name="shopware.repository" />
         </service>
 
     </services>

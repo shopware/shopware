@@ -120,6 +120,11 @@ class AreaCountryRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'area_country';
+    }
+
     public function update(array $data, TranslationContext $context): AreaCountryWrittenEvent
     {
         $event = $this->writer->update($data, $context);

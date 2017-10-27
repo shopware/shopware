@@ -98,6 +98,11 @@ class CustomerAddressRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'customer_address';
+    }
+
     public function update(array $data, TranslationContext $context): CustomerAddressWrittenEvent
     {
         $event = $this->writer->update($data, $context);

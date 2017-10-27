@@ -3,4 +3,5 @@
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.#table#.searcher" type="service"/>
             #argumentWriter#
+            <tag name="shopware.repository" />
         </service>

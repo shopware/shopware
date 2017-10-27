@@ -120,6 +120,11 @@ class CurrencyRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'currency';
+    }
+
     public function update(array $data, TranslationContext $context): CurrencyWrittenEvent
     {
         $event = $this->writer->update($data, $context);

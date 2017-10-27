@@ -98,6 +98,11 @@ class ProductVoteRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'product_vote';
+    }
+
     public function update(array $data, TranslationContext $context): ProductVoteWrittenEvent
     {
         $event = $this->writer->update($data, $context);

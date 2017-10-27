@@ -98,6 +98,11 @@ class TaxRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'tax';
+    }
+
     public function update(array $data, TranslationContext $context): TaxWrittenEvent
     {
         $event = $this->writer->update($data, $context);

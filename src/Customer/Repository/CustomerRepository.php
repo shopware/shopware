@@ -120,6 +120,11 @@ class CustomerRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'customer';
+    }
+
     public function update(array $data, TranslationContext $context): CustomerWrittenEvent
     {
         $event = $this->writer->update($data, $context);

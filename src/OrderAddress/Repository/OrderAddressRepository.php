@@ -98,6 +98,11 @@ class OrderAddressRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'order_address';
+    }
+
     public function update(array $data, TranslationContext $context): OrderAddressWrittenEvent
     {
         $event = $this->writer->update($data, $context);

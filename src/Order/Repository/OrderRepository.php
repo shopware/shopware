@@ -120,6 +120,11 @@ class OrderRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'order';
+    }
+
     public function update(array $data, TranslationContext $context): OrderWrittenEvent
     {
         $event = $this->writer->update($data, $context);

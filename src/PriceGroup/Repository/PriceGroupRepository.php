@@ -120,6 +120,11 @@ class PriceGroupRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'price_group';
+    }
+
     public function update(array $data, TranslationContext $context): PriceGroupWrittenEvent
     {
         $event = $this->writer->update($data, $context);

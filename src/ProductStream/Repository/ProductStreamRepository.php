@@ -98,6 +98,11 @@ class ProductStreamRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'product_stream';
+    }
+
     public function update(array $data, TranslationContext $context): ProductStreamWrittenEvent
     {
         $event = $this->writer->update($data, $context);

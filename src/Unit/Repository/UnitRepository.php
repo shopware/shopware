@@ -98,6 +98,11 @@ class UnitRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'unit';
+    }
+
     public function update(array $data, TranslationContext $context): UnitWrittenEvent
     {
         $event = $this->writer->update($data, $context);

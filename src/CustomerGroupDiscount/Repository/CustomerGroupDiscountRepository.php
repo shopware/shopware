@@ -98,6 +98,11 @@ class CustomerGroupDiscountRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'customer_group_discount';
+    }
+
     public function update(array $data, TranslationContext $context): CustomerGroupDiscountWrittenEvent
     {
         $event = $this->writer->update($data, $context);

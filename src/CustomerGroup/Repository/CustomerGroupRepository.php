@@ -120,6 +120,11 @@ class CustomerGroupRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'customer_group';
+    }
+
     public function update(array $data, TranslationContext $context): CustomerGroupWrittenEvent
     {
         $event = $this->writer->update($data, $context);

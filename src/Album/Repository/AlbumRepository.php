@@ -120,6 +120,11 @@ class AlbumRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'album';
+    }
+
     public function update(array $data, TranslationContext $context): AlbumWrittenEvent
     {
         $event = $this->writer->update($data, $context);

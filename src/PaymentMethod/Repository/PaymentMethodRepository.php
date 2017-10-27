@@ -120,6 +120,11 @@ class PaymentMethodRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'payment_method';
+    }
+
     public function update(array $data, TranslationContext $context): PaymentMethodWrittenEvent
     {
         $event = $this->writer->update($data, $context);

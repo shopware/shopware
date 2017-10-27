@@ -98,6 +98,11 @@ class OrderStateRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'order_state';
+    }
+
     public function update(array $data, TranslationContext $context): OrderStateWrittenEvent
     {
         $event = $this->writer->update($data, $context);

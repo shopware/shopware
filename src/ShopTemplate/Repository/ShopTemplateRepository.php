@@ -98,6 +98,11 @@ class ShopTemplateRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'shop_template';
+    }
+
     public function update(array $data, TranslationContext $context): ShopTemplateWrittenEvent
     {
         $event = $this->writer->update($data, $context);

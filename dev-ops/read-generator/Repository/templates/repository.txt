@@ -88,7 +88,7 @@ class #classUc#Repository implements RepositoryInterface
 
     public function getEntityName(): string
     {
-        return #table#
+        return '#table#';
     }
 
     #writeMethods#

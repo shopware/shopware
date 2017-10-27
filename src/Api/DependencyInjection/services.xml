@@ -7,6 +7,10 @@
     <services>
         <service class="Shopware\Api\Search\Parser\SqlParser" id="shopware.search.sql_parser"/>
 
+        <service class="Shopware\Api\Read\RepositoryRegistry" id="shopware.api.repository_registry">
+            <argument type="tagged" tag="shopware.repository" />
+        </service>
+
         <service class="Shopware\Api\Read\ExtensionRegistry" id="shopware.extension.registry">
             <argument type="collection" />
         </service>

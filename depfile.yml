@@ -43,7 +43,7 @@ layers:
   - name: BundleWriter
     collectors:
       - type: className
-        regex: ^Shopware\\.*\\SqlResourceWriter\\.+SqlResourceWriter$
+        regex: ^Shopware\\.*\\Writer\\.+Writer
 
   - name: CoreWriter
     collectors:

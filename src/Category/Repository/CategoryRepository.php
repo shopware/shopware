@@ -120,6 +120,11 @@ class CategoryRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'category';
+    }
+
     public function update(array $data, TranslationContext $context): CategoryWrittenEvent
     {
         $event = $this->writer->update($data, $context);

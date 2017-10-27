@@ -98,6 +98,11 @@ class OrderLineItemRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'order_line_item';
+    }
+
     public function update(array $data, TranslationContext $context): OrderLineItemWrittenEvent
     {
         $event = $this->writer->update($data, $context);

@@ -98,6 +98,11 @@ class ProductManufacturerRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'product_manufacturer';
+    }
+
     public function update(array $data, TranslationContext $context): ProductManufacturerWrittenEvent
     {
         $event = $this->writer->update($data, $context);

@@ -98,6 +98,11 @@ class LocaleRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'locale';
+    }
+
     public function update(array $data, TranslationContext $context): LocaleWrittenEvent
     {
         $event = $this->writer->update($data, $context);

@@ -98,6 +98,11 @@ class ProductMediaRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'product_media';
+    }
+
     public function update(array $data, TranslationContext $context): ProductMediaWrittenEvent
     {
         $event = $this->writer->update($data, $context);

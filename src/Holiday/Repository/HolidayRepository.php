@@ -98,6 +98,11 @@ class HolidayRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'holiday';
+    }
+
     public function update(array $data, TranslationContext $context): HolidayWrittenEvent
     {
         $event = $this->writer->update($data, $context);

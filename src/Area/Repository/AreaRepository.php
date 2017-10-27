@@ -120,6 +120,11 @@ class AreaRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'area';
+    }
+
     public function update(array $data, TranslationContext $context): AreaWrittenEvent
     {
         $event = $this->writer->update($data, $context);

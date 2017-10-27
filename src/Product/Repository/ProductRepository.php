@@ -120,6 +120,11 @@ class ProductRepository implements RepositoryInterface
         return $result;
     }
 
+    public function getEntityName(): string
+    {
+        return 'product';
+    }
+
     public function update(array $data, TranslationContext $context): ProductWrittenEvent
     {
         $event = $this->writer->update($data, $context);

@@ -39,6 +39,7 @@
             <argument id="event_dispatcher" type="service"/>
             <argument id="shopware.product_media.searcher" type="service"/>
             <argument id="shopware.product_media.writer" type="service"/>
+            <tag name="shopware.repository" />
         </service>
 
     </services>

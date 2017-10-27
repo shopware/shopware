@@ -2,25 +2,25 @@
 
 namespace Shopware\ShopTemplate\Repository;
 
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\RepositoryInterface;
-use Shopware\Framework\Write\EntityWrittenEvent;
-use Shopware\Search\AggregationResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Shopware\ShopTemplate\Event\ShopTemplateBasicLoadedEvent;
 use Shopware\ShopTemplate\Event\ShopTemplateWrittenEvent;
-use Shopware\ShopTemplate\Reader\ShopTemplateBasicReader;
-use Shopware\ShopTemplate\Searcher\ShopTemplateSearcher;
 use Shopware\ShopTemplate\Searcher\ShopTemplateSearchResult;
 use Shopware\ShopTemplate\Struct\ShopTemplateBasicCollection;
-use Shopware\ShopTemplate\Writer\ShopTemplateWriter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ShopTemplateRepository implements RepositoryInterface
 {
     /**
-     * @var ShopTemplateBasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -30,20 +30,20 @@ class ShopTemplateRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var ShopTemplateSearcher
+     * @var SearcherInterface
      */
     private $searcher;
 
     /**
-     * @var ShopTemplateWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
-        ShopTemplateBasicReader $basicReader,
+        BasicReaderInterface $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        ShopTemplateSearcher $searcher,
-        ShopTemplateWriter $writer
+        SearcherInterface $searcher,
+        WriterInterface $writer
     ) {
         $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
@@ -57,6 +57,7 @@ class ShopTemplateRepository implements RepositoryInterface
             return new ShopTemplateBasicCollection();
         }
 
+        /** @var ShopTemplateBasicCollection $collection */
         $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -101,7 +102,7 @@ class ShopTemplateRepository implements RepositoryInterface
     {
         $event = $this->writer->update($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -111,7 +112,7 @@ class ShopTemplateRepository implements RepositoryInterface
     {
         $event = $this->writer->upsert($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -121,7 +122,7 @@ class ShopTemplateRepository implements RepositoryInterface
     {
         $event = $this->writer->create($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;

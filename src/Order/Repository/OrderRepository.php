@@ -2,32 +2,33 @@
 
 namespace Shopware\Order\Repository;
 
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\Read\DetailReaderInterface;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\Order\Event\OrderBasicLoadedEvent;
 use Shopware\Order\Event\OrderDetailLoadedEvent;
 use Shopware\Order\Event\OrderWrittenEvent;
-use Shopware\Order\Reader\OrderBasicReader;
-use Shopware\Order\Reader\OrderDetailReader;
-use Shopware\Order\Searcher\OrderSearcher;
 use Shopware\Order\Searcher\OrderSearchResult;
 use Shopware\Order\Struct\OrderBasicCollection;
 use Shopware\Order\Struct\OrderDetailCollection;
-use Shopware\Order\Writer\OrderWriter;
-use Shopware\Search\AggregationResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class OrderRepository
+class OrderRepository implements RepositoryInterface
 {
     /**
-     * @var OrderDetailReader
+     * @var DetailReaderInterface
      */
     protected $detailReader;
 
     /**
-     * @var OrderBasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -37,21 +38,21 @@ class OrderRepository
     private $eventDispatcher;
 
     /**
-     * @var OrderSearcher
+     * @var SearcherInterface
      */
     private $searcher;
 
     /**
-     * @var OrderWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
-        OrderDetailReader $detailReader,
-        OrderBasicReader $basicReader,
+        DetailReaderInterface $detailReader,
+        BasicReaderInterface $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        OrderSearcher $searcher,
-        OrderWriter $writer
+        SearcherInterface $searcher,
+        WriterInterface $writer
     ) {
         $this->detailReader = $detailReader;
         $this->basicReader = $basicReader;
@@ -66,6 +67,7 @@ class OrderRepository
             return new OrderBasicCollection();
         }
 
+        /** @var OrderBasicCollection $collection */
         $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -81,6 +83,8 @@ class OrderRepository
         if (empty($uuids)) {
             return new OrderDetailCollection();
         }
+
+        /** @var OrderDetailCollection $collection */
         $collection = $this->detailReader->readDetail($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -120,7 +124,7 @@ class OrderRepository
     {
         $event = $this->writer->update($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -130,7 +134,7 @@ class OrderRepository
     {
         $event = $this->writer->upsert($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -140,7 +144,7 @@ class OrderRepository
     {
         $event = $this->writer->create($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;

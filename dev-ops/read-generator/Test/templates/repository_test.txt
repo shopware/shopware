@@ -5,8 +5,8 @@ namespace Shopware\#classUc#\Test\Repository;
 use Shopware\#classUc#\Repository\#classUc#Repository;
 use Shopware\#classUc#\Searcher\#classUc#SearchResult;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\UuidSearchResult;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class #classUc#RepositoryTest extends KernelTestCase

@@ -2,16 +2,16 @@
 
 namespace Shopware\PaymentMethod\Extension;
 
+use Shopware\Api\Read\FactoryExtensionInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\PaymentMethod\Event\PaymentMethodBasicLoadedEvent;
 use Shopware\PaymentMethod\Event\PaymentMethodDetailLoadedEvent;
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class PaymentMethodExtension implements ExtensionInterface, EventSubscriberInterface
+abstract class PaymentMethodExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

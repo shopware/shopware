@@ -2,12 +2,12 @@
 
 namespace Shopware\Storefront\Page\Search;
 
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Query\MatchQuery;
+use Shopware\Api\Search\Query\NestedQuery;
+use Shopware\Api\Search\Query\TermQuery;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Config\CachedConfigService;
-use Shopware\Search\Criteria;
-use Shopware\Search\Query\MatchQuery;
-use Shopware\Search\Query\NestedQuery;
-use Shopware\Search\Query\TermQuery;
 use Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository;
 use Symfony\Component\HttpFoundation\Request;
 

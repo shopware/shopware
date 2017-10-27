@@ -2,25 +2,25 @@
 
 namespace Shopware\Unit\Repository;
 
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\RepositoryInterface;
-use Shopware\Framework\Write\EntityWrittenEvent;
-use Shopware\Search\AggregationResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Shopware\Unit\Event\UnitBasicLoadedEvent;
 use Shopware\Unit\Event\UnitWrittenEvent;
-use Shopware\Unit\Reader\UnitBasicReader;
-use Shopware\Unit\Searcher\UnitSearcher;
 use Shopware\Unit\Searcher\UnitSearchResult;
 use Shopware\Unit\Struct\UnitBasicCollection;
-use Shopware\Unit\Writer\UnitWriter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UnitRepository implements RepositoryInterface
 {
     /**
-     * @var UnitBasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -30,20 +30,20 @@ class UnitRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var UnitSearcher
+     * @var SearcherInterface
      */
     private $searcher;
 
     /**
-     * @var UnitWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
-        UnitBasicReader $basicReader,
+        BasicReaderInterface $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        UnitSearcher $searcher,
-        UnitWriter $writer
+        SearcherInterface $searcher,
+        WriterInterface $writer
     ) {
         $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
@@ -57,6 +57,7 @@ class UnitRepository implements RepositoryInterface
             return new UnitBasicCollection();
         }
 
+        /** @var UnitBasicCollection $collection */
         $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -101,7 +102,7 @@ class UnitRepository implements RepositoryInterface
     {
         $event = $this->writer->update($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -111,7 +112,7 @@ class UnitRepository implements RepositoryInterface
     {
         $event = $this->writer->upsert($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -121,7 +122,7 @@ class UnitRepository implements RepositoryInterface
     {
         $event = $this->writer->create($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;

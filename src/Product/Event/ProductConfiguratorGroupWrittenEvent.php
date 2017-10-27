@@ -2,9 +2,9 @@
 
 namespace Shopware\Product\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class ProductConfiguratorGroupWrittenEvent extends AbstractWrittenEvent
+class ProductConfiguratorGroupWrittenEvent extends WrittenEvent
 {
     const NAME = 'product_configurator_group.written';
 

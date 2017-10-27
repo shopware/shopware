@@ -2,9 +2,9 @@
 
 namespace Shopware\Tax\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class TaxWrittenEvent extends AbstractWrittenEvent
+class TaxWrittenEvent extends WrittenEvent
 {
     const NAME = 'tax.written';
 

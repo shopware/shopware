@@ -3,18 +3,18 @@
 namespace Shopware\Category\Factory;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\ExtensionRegistryInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Category\Struct\CategoryBasicStruct;
 use Shopware\Category\Struct\CategoryDetailStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Factory\CustomerGroupBasicFactory;
-use Shopware\Framework\Read\ExtensionRegistryInterface;
 use Shopware\Media\Factory\MediaBasicFactory;
 use Shopware\Media\Struct\MediaBasicStruct;
 use Shopware\Product\Factory\ProductBasicFactory;
 use Shopware\ProductStream\Factory\ProductStreamBasicFactory;
 use Shopware\ProductStream\Struct\ProductStreamBasicStruct;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Shopware\SeoUrl\Factory\SeoUrlBasicFactory;
 
 class CategoryDetailFactory extends CategoryBasicFactory

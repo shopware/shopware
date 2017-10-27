@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class MultiEditBackupWrittenEvent extends AbstractWrittenEvent
+class MultiEditBackupWrittenEvent extends WrittenEvent
 {
     const NAME = 's_multi_edit_backup.written';
 

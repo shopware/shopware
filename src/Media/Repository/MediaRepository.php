@@ -2,25 +2,25 @@
 
 namespace Shopware\Media\Repository;
 
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\RepositoryInterface;
-use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\Media\Event\MediaBasicLoadedEvent;
 use Shopware\Media\Event\MediaWrittenEvent;
-use Shopware\Media\Reader\MediaBasicReader;
-use Shopware\Media\Searcher\MediaSearcher;
 use Shopware\Media\Searcher\MediaSearchResult;
 use Shopware\Media\Struct\MediaBasicCollection;
-use Shopware\Media\Writer\MediaWriter;
-use Shopware\Search\AggregationResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MediaRepository implements RepositoryInterface
 {
     /**
-     * @var MediaBasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -30,20 +30,20 @@ class MediaRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var MediaSearcher
+     * @var SearcherInterface
      */
     private $searcher;
 
     /**
-     * @var MediaWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
-        MediaBasicReader $basicReader,
+        BasicReaderInterface $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        MediaSearcher $searcher,
-        MediaWriter $writer
+        SearcherInterface $searcher,
+        WriterInterface $writer
     ) {
         $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
@@ -57,6 +57,7 @@ class MediaRepository implements RepositoryInterface
             return new MediaBasicCollection();
         }
 
+        /** @var MediaBasicCollection $collection */
         $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -101,7 +102,7 @@ class MediaRepository implements RepositoryInterface
     {
         $event = $this->writer->update($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -111,7 +112,7 @@ class MediaRepository implements RepositoryInterface
     {
         $event = $this->writer->upsert($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -121,7 +122,7 @@ class MediaRepository implements RepositoryInterface
     {
         $event = $this->writer->create($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;

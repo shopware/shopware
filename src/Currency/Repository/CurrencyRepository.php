@@ -2,32 +2,33 @@
 
 namespace Shopware\Currency\Repository;
 
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\Read\DetailReaderInterface;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Currency\Event\CurrencyBasicLoadedEvent;
 use Shopware\Currency\Event\CurrencyDetailLoadedEvent;
 use Shopware\Currency\Event\CurrencyWrittenEvent;
-use Shopware\Currency\Reader\CurrencyBasicReader;
-use Shopware\Currency\Reader\CurrencyDetailReader;
-use Shopware\Currency\Searcher\CurrencySearcher;
 use Shopware\Currency\Searcher\CurrencySearchResult;
 use Shopware\Currency\Struct\CurrencyBasicCollection;
 use Shopware\Currency\Struct\CurrencyDetailCollection;
-use Shopware\Currency\Writer\CurrencyWriter;
-use Shopware\Framework\Write\EntityWrittenEvent;
-use Shopware\Search\AggregationResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class CurrencyRepository
+class CurrencyRepository implements RepositoryInterface
 {
     /**
-     * @var CurrencyDetailReader
+     * @var DetailReaderInterface
      */
     protected $detailReader;
 
     /**
-     * @var CurrencyBasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -37,21 +38,21 @@ class CurrencyRepository
     private $eventDispatcher;
 
     /**
-     * @var CurrencySearcher
+     * @var SearcherInterface
      */
     private $searcher;
 
     /**
-     * @var CurrencyWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
-        CurrencyDetailReader $detailReader,
-        CurrencyBasicReader $basicReader,
+        DetailReaderInterface $detailReader,
+        BasicReaderInterface $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        CurrencySearcher $searcher,
-        CurrencyWriter $writer
+        SearcherInterface $searcher,
+        WriterInterface $writer
     ) {
         $this->detailReader = $detailReader;
         $this->basicReader = $basicReader;
@@ -66,6 +67,7 @@ class CurrencyRepository
             return new CurrencyBasicCollection();
         }
 
+        /** @var CurrencyBasicCollection $collection */
         $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -81,6 +83,8 @@ class CurrencyRepository
         if (empty($uuids)) {
             return new CurrencyDetailCollection();
         }
+
+        /** @var CurrencyDetailCollection $collection */
         $collection = $this->detailReader->readDetail($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -120,7 +124,7 @@ class CurrencyRepository
     {
         $event = $this->writer->update($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -130,7 +134,7 @@ class CurrencyRepository
     {
         $event = $this->writer->upsert($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -140,7 +144,7 @@ class CurrencyRepository
     {
         $event = $this->writer->create($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;

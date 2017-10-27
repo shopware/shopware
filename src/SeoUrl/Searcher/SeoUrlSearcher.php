@@ -3,13 +3,13 @@
 namespace Shopware\SeoUrl\Searcher;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Parser\SqlParser;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\Searcher;
+use Shopware\Api\Search\SearchResultInterface;
+use Shopware\Api\Search\UuidSearchResult;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Search\Criteria;
-use Shopware\Search\Parser\SqlParser;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\Searcher;
-use Shopware\Search\SearchResultInterface;
-use Shopware\Search\UuidSearchResult;
 use Shopware\SeoUrl\Factory\SeoUrlBasicFactory;
 use Shopware\SeoUrl\Reader\SeoUrlBasicReader;
 

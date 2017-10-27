@@ -2,16 +2,16 @@
 
 namespace Shopware\CustomerGroup\Extension;
 
+use Shopware\Api\Read\FactoryExtensionInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Event\CustomerGroupBasicLoadedEvent;
 use Shopware\CustomerGroup\Event\CustomerGroupDetailLoadedEvent;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
-use Shopware\Framework\Read\ExtensionInterface;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class CustomerGroupExtension implements ExtensionInterface, EventSubscriberInterface
+abstract class CustomerGroupExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

@@ -2,25 +2,25 @@
 
 namespace Shopware\OrderAddress\Repository;
 
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\RepositoryInterface;
-use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\OrderAddress\Event\OrderAddressBasicLoadedEvent;
 use Shopware\OrderAddress\Event\OrderAddressWrittenEvent;
-use Shopware\OrderAddress\Reader\OrderAddressBasicReader;
-use Shopware\OrderAddress\Searcher\OrderAddressSearcher;
 use Shopware\OrderAddress\Searcher\OrderAddressSearchResult;
 use Shopware\OrderAddress\Struct\OrderAddressBasicCollection;
-use Shopware\OrderAddress\Writer\OrderAddressWriter;
-use Shopware\Search\AggregationResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderAddressRepository implements RepositoryInterface
 {
     /**
-     * @var OrderAddressBasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -30,20 +30,20 @@ class OrderAddressRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var OrderAddressSearcher
+     * @var SearcherInterface
      */
     private $searcher;
 
     /**
-     * @var OrderAddressWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
-        OrderAddressBasicReader $basicReader,
+        BasicReaderInterface $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        OrderAddressSearcher $searcher,
-        OrderAddressWriter $writer
+        SearcherInterface $searcher,
+        WriterInterface $writer
     ) {
         $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
@@ -57,6 +57,7 @@ class OrderAddressRepository implements RepositoryInterface
             return new OrderAddressBasicCollection();
         }
 
+        /** @var OrderAddressBasicCollection $collection */
         $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -101,7 +102,7 @@ class OrderAddressRepository implements RepositoryInterface
     {
         $event = $this->writer->update($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -111,7 +112,7 @@ class OrderAddressRepository implements RepositoryInterface
     {
         $event = $this->writer->upsert($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -121,7 +122,7 @@ class OrderAddressRepository implements RepositoryInterface
     {
         $event = $this->writer->create($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;

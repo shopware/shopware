@@ -2,25 +2,25 @@
 
 namespace Shopware\ProductVoteAverage\Repository;
 
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\RepositoryInterface;
-use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\ProductVoteAverage\Event\ProductVoteAverageBasicLoadedEvent;
 use Shopware\ProductVoteAverage\Event\ProductVoteAverageWrittenEvent;
-use Shopware\ProductVoteAverage\Reader\ProductVoteAverageBasicReader;
-use Shopware\ProductVoteAverage\Searcher\ProductVoteAverageSearcher;
 use Shopware\ProductVoteAverage\Searcher\ProductVoteAverageSearchResult;
 use Shopware\ProductVoteAverage\Struct\ProductVoteAverageBasicCollection;
-use Shopware\ProductVoteAverage\Writer\ProductVoteAverageWriter;
-use Shopware\Search\AggregationResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductVoteAverageRepository implements RepositoryInterface
 {
     /**
-     * @var ProductVoteAverageBasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -30,20 +30,20 @@ class ProductVoteAverageRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var ProductVoteAverageSearcher
+     * @var SearcherInterface
      */
     private $searcher;
 
     /**
-     * @var ProductVoteAverageWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
-        ProductVoteAverageBasicReader $basicReader,
+        BasicReaderInterface $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        ProductVoteAverageSearcher $searcher,
-        ProductVoteAverageWriter $writer
+        SearcherInterface $searcher,
+        WriterInterface $writer
     ) {
         $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
@@ -57,6 +57,7 @@ class ProductVoteAverageRepository implements RepositoryInterface
             return new ProductVoteAverageBasicCollection();
         }
 
+        /** @var ProductVoteAverageBasicCollection $collection */
         $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -101,7 +102,7 @@ class ProductVoteAverageRepository implements RepositoryInterface
     {
         $event = $this->writer->update($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -111,7 +112,7 @@ class ProductVoteAverageRepository implements RepositoryInterface
     {
         $event = $this->writer->upsert($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -121,7 +122,7 @@ class ProductVoteAverageRepository implements RepositoryInterface
     {
         $event = $this->writer->create($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;

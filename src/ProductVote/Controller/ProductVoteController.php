@@ -3,11 +3,11 @@
 namespace Shopware\ProductVote\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Parser\QueryStringParser;
+use Shopware\ProductVote\Repository\ProductVoteRepository;
 use Shopware\Rest\ApiContext;
 use Shopware\Rest\ApiController;
-use Shopware\ProductVote\Repository\ProductVoteRepository;
-use Shopware\Search\Criteria;
-use Shopware\Search\Parser\QueryStringParser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 

@@ -3,13 +3,14 @@
 namespace Shopware\Tax\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\BasicReaderInterface;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\Tax\Factory\TaxBasicFactory;
 use Shopware\Tax\Struct\TaxBasicCollection;
 use Shopware\Tax\Struct\TaxBasicStruct;
 
-class TaxBasicReader
+class TaxBasicReader implements BasicReaderInterface
 {
     use SortArrayByKeysTrait;
 

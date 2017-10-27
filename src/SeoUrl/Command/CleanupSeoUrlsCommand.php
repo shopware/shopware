@@ -24,9 +24,9 @@
 
 namespace Shopware\SeoUrl\Command;
 
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Query\TermQuery;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Search\Criteria;
-use Shopware\Search\Query\TermQuery;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

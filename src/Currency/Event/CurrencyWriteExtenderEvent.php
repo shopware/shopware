@@ -2,7 +2,7 @@
 
 namespace Shopware\Currency\Event;
 
-use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Api\Write\FieldAware\FieldExtenderCollection;
 use Symfony\Component\EventDispatcher\Event;
 
 class CurrencyWriteExtenderEvent extends Event

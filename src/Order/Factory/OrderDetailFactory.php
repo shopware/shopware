@@ -3,10 +3,12 @@
 namespace Shopware\Order\Factory;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\ExtensionRegistryInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Currency\Factory\CurrencyBasicFactory;
 use Shopware\Customer\Factory\CustomerBasicFactory;
-use Shopware\Framework\Read\ExtensionRegistryInterface;
 use Shopware\Order\Struct\OrderBasicStruct;
 use Shopware\Order\Struct\OrderDetailStruct;
 use Shopware\OrderAddress\Factory\OrderAddressBasicFactory;
@@ -14,8 +16,6 @@ use Shopware\OrderDelivery\Factory\OrderDeliveryDetailFactory;
 use Shopware\OrderLineItem\Factory\OrderLineItemBasicFactory;
 use Shopware\OrderState\Factory\OrderStateBasicFactory;
 use Shopware\PaymentMethod\Factory\PaymentMethodBasicFactory;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Shopware\Shop\Factory\ShopBasicFactory;
 
 class OrderDetailFactory extends OrderBasicFactory

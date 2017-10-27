@@ -2,16 +2,16 @@
 
 namespace Shopware\OrderDelivery\Extension;
 
+use Shopware\Api\Read\FactoryExtensionInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\OrderDelivery\Event\OrderDeliveryBasicLoadedEvent;
 use Shopware\OrderDelivery\Event\OrderDeliveryDetailLoadedEvent;
 use Shopware\OrderDelivery\Struct\OrderDeliveryBasicStruct;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class OrderDeliveryExtension implements ExtensionInterface, EventSubscriberInterface
+abstract class OrderDeliveryExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

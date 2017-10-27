@@ -8,20 +8,23 @@ use Shopware\#classUc#\Reader\#classUc#BasicReader;
 use Shopware\#classUc#\Searcher\#classUc#Searcher;
 use Shopware\#classUc#\Searcher\#classUc#SearchResult;
 use Shopware\#classUc#\Struct\#classUc#BasicCollection;
-use Shopware\#classUc#\Writer\#classUc#WriteResource;
-use Shopware\Search\AggregationResult;
-use Shopware\Search\Criteria;
+use Shopware\#classUc#\SqlResourceWriter\#classUc#WriteResource;
+use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Search\Criteria;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Shopware\Search\UuidSearchResult;
+use Shopware\Api\Search\UuidSearchResult;
 use Shopware\#classUc#\Event\#classUc#WrittenEvent;
-use Shopware\#classUc#\Writer\#classUc#Writer;
-use Shopware\Framework\Read\RepositoryInterface;
-use Shopware\Framework\Write\EntityWrittenEvent;
+use Shopware\#classUc#\SqlResourceWriter\#classUc#SqlResourceWriter;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Write\WriterInterface;
 
 class #classUc#Repository implements RepositoryInterface
 {
     /**
-     * @var #classUc#BasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -31,7 +34,7 @@ class #classUc#Repository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var #classUc#Searcher
+     * @var SearcherInterface
      */
     private $searcher;
 
@@ -43,6 +46,7 @@ class #classUc#Repository implements RepositoryInterface
             return new #classUc#BasicCollection();
         }
 
+        /** @var #classUc#BasicCollection $collection */
         $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(

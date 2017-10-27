@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class CoreDetailStatesWrittenEvent extends AbstractWrittenEvent
+class CoreDetailStatesWrittenEvent extends WrittenEvent
 {
     const NAME = 's_core_detail_states.written';
 

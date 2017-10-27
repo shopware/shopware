@@ -2,19 +2,20 @@
 
 namespace Shopware\PaymentMethod\Writer;
 
+use Shopware\Api\Write\FieldAware\DefaultExtender;
+use Shopware\Api\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Api\Write\FieldException\WriteStackException;
+use Shopware\Api\Write\ResourceWriterInterface;
+use Shopware\Api\Write\WriteContext;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEventDispatcherInterface;
-use Shopware\Framework\Write\FieldAware\DefaultExtender;
-use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
-use Shopware\Framework\Write\FieldException\WriteStackException;
-use Shopware\Framework\Write\WriteContext;
-use Shopware\Framework\Write\Writer;
 use Shopware\PaymentMethod\Event\PaymentMethodWriteExtenderEvent;
 use Shopware\PaymentMethod\Event\PaymentMethodWrittenEvent;
 use Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource;
 use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
-class PaymentMethodWriter
+class PaymentMethodWriter implements WriterInterface
 {
     /**
      * @var DefaultExtender
@@ -27,11 +28,11 @@ class PaymentMethodWriter
     private $eventDispatcher;
 
     /**
-     * @var Writer
+     * @var ResourceWriterInterface
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, NestedEventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcherInterface $eventDispatcher, ResourceWriterInterface $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;

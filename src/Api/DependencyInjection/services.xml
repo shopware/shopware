@@ -1,0 +1,83 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\Api\Search\Parser\SqlParser" id="shopware.search.sql_parser"/>
+
+        <service class="Shopware\Api\Read\ExtensionRegistry" id="shopware.extension.registry">
+            <argument type="collection" />
+        </service>
+
+        <service id="shopware.framework.write.sql_gateway" class="Shopware\Api\Write\SqlGateway">
+            <argument type="service" id="dbal_connection"/>
+        </service>
+
+        <!-- Value transformer -->
+        <service class="Shopware\Api\Write\ValueTransformer\ValueTransformerRegistry"
+                 id="shopware.framework.write.value_transformer_registry">
+            <argument type="tagged" tag="shopware.framework.write.value_transformer" />
+        </service>
+
+        <service class="Shopware\Api\Write\ValueTransformer\ValueTransformerDate"
+                 id="shopware.framework.write.value_transformer_date">
+            <tag name="shopware.framework.write.value_transformer"/>
+        </service>
+        <service class="Shopware\Api\Write\ValueTransformer\ValueTransformerBoolean"
+                 id="shopware.framework.write.value_transformer_boolean">
+            <tag name="shopware.framework.write.value_transformer"/>
+        </service>
+
+        <!-- Filter -->
+        <service class="Shopware\Api\Write\Filter\FilterRegistry" id="shopware.framework.write.filter_registry">
+            <argument type="tagged" tag="shopware.framework.write.filter" />
+        </service>
+
+        <service class="Shopware\Api\Write\Filter\HtmlFilter" id="shopware.framework.write.filter_html">
+            <tag name="shopware.framework.write.filter"/>
+        </service>
+
+        <!-- UUID GENERATOOR -->
+        <service id="shopware.framework.write.uuid_generator_registry"
+                 class="Shopware\Api\Write\UuidGenerator\GeneratorRegistry">
+            <argument type="tagged" tag="shopware.framework.write.uuid_generator" />
+        </service>
+
+        <service id="shopware.framework.write.uuid_generator_ramsey"
+                 class="Shopware\Api\Write\UuidGenerator\RamseyGenerator">
+            <tag name="shopware.framework.write.uuid_generator"/>
+        </service>
+
+        <service id="shopware.framework.write.uuid_generator_product_number"
+                 class="Shopware\Api\Write\UuidGenerator\ProductNumberGenerator">
+            <argument type="service" id="dbal_connection"/>
+
+            <tag name="shopware.framework.write.uuid_generator"/>
+        </service>
+
+        <service class="Shopware\Api\Write\ResourceRegistry" id="shopware.framework.write.resource_registry">
+            <argument type="tagged" tag="shopware.framework.write.resource" />
+        </service>
+
+        <service class="Shopware\Api\Write\FieldAware\DefaultExtender" id="shopware.framework.write.field_aware.default_extender">
+            <argument type="service" id="shopware.framework.write.resource_registry"/>
+            <argument type="service" id="shopware.framework.write.sql_gateway"/>
+            <argument type="service" id="validator"/>
+            <argument type="service" id="shopware.validation.constraint_builder"/>
+            <argument type="service" id="shopware.framework.write.uuid_generator_registry"/>
+            <argument type="service" id="shopware.framework.write.filter_registry"/>
+            <argument type="service" id="shopware.framework.write.value_transformer_registry"/>
+        </service>
+
+        <service id="shopware.framework.write.field_extender_collection" class="Shopware\Api\Write\FieldAware\FieldExtenderCollection"/>
+
+        <service id="shopware.framework.write.writer" class="Shopware\Api\Write\SqlResourceWriter">
+            <argument type="service" id="shopware.framework.write.sql_gateway"/>
+            <argument type="service" id="shopware.framework.write.resource_registry"/>
+            <argument type="service" id="dbal_connection"/>
+        </service>
+
+    </services>
+</container>

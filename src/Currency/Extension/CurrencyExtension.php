@@ -2,16 +2,16 @@
 
 namespace Shopware\Currency\Extension;
 
+use Shopware\Api\Read\FactoryExtensionInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Currency\Event\CurrencyBasicLoadedEvent;
 use Shopware\Currency\Event\CurrencyDetailLoadedEvent;
 use Shopware\Currency\Struct\CurrencyBasicStruct;
-use Shopware\Framework\Read\ExtensionInterface;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class CurrencyExtension implements ExtensionInterface, EventSubscriberInterface
+abstract class CurrencyExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

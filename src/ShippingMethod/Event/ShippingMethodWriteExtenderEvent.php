@@ -2,7 +2,7 @@
 
 namespace Shopware\ShippingMethod\Event;
 
-use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Api\Write\FieldAware\FieldExtenderCollection;
 use Symfony\Component\EventDispatcher\Event;
 
 class ShippingMethodWriteExtenderEvent extends Event

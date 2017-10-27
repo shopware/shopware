@@ -2,25 +2,25 @@
 
 namespace Shopware\ProductDetailPrice\Repository;
 
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\RepositoryInterface;
-use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\ProductDetailPrice\Event\ProductDetailPriceBasicLoadedEvent;
 use Shopware\ProductDetailPrice\Event\ProductDetailPriceWrittenEvent;
-use Shopware\ProductDetailPrice\Reader\ProductDetailPriceBasicReader;
-use Shopware\ProductDetailPrice\Searcher\ProductDetailPriceSearcher;
 use Shopware\ProductDetailPrice\Searcher\ProductDetailPriceSearchResult;
 use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicCollection;
-use Shopware\ProductDetailPrice\Writer\ProductDetailPriceWriter;
-use Shopware\Search\AggregationResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductDetailPriceRepository implements RepositoryInterface
 {
     /**
-     * @var ProductDetailPriceBasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -30,20 +30,20 @@ class ProductDetailPriceRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var ProductDetailPriceSearcher
+     * @var SearcherInterface
      */
     private $searcher;
 
     /**
-     * @var ProductDetailPriceWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
-        ProductDetailPriceBasicReader $basicReader,
+        BasicReaderInterface $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        ProductDetailPriceSearcher $searcher,
-        ProductDetailPriceWriter $writer
+        SearcherInterface $searcher,
+        WriterInterface $writer
     ) {
         $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
@@ -57,6 +57,7 @@ class ProductDetailPriceRepository implements RepositoryInterface
             return new ProductDetailPriceBasicCollection();
         }
 
+        /** @var ProductDetailPriceBasicCollection $collection */
         $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -101,7 +102,7 @@ class ProductDetailPriceRepository implements RepositoryInterface
     {
         $event = $this->writer->update($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -111,7 +112,7 @@ class ProductDetailPriceRepository implements RepositoryInterface
     {
         $event = $this->writer->upsert($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -121,7 +122,7 @@ class ProductDetailPriceRepository implements RepositoryInterface
     {
         $event = $this->writer->create($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;

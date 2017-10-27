@@ -25,6 +25,9 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\View;
 
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Query\TermQuery;
+use Shopware\Api\Search\Query\TermsQuery;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\Product\CalculatedProduct;
@@ -34,9 +37,6 @@ use Shopware\ProductDetail\Repository\ProductDetailRepository;
 use Shopware\ProductMedia\Repository\ProductMediaRepository;
 use Shopware\ProductMedia\Searcher\ProductMediaSearchResult;
 use Shopware\ProductMedia\Struct\ProductMediaBasicStruct;
-use Shopware\Search\Criteria;
-use Shopware\Search\Query\TermQuery;
-use Shopware\Search\Query\TermsQuery;
 
 class ViewProductTransformer implements ViewLineItemTransformerInterface
 {

@@ -3,13 +3,14 @@
 namespace Shopware\ProductVoteAverage\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\BasicReaderInterface;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\ProductVoteAverage\Factory\ProductVoteAverageBasicFactory;
 use Shopware\ProductVoteAverage\Struct\ProductVoteAverageBasicCollection;
 use Shopware\ProductVoteAverage\Struct\ProductVoteAverageBasicStruct;
 
-class ProductVoteAverageBasicReader
+class ProductVoteAverageBasicReader implements BasicReaderInterface
 {
     use SortArrayByKeysTrait;
 

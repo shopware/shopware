@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class CoreRewriteUrlsWrittenEvent extends AbstractWrittenEvent
+class CoreRewriteUrlsWrittenEvent extends WrittenEvent
 {
     const NAME = 's_core_rewrite_urls.written';
 

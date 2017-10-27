@@ -5,7 +5,7 @@ namespace Shopware\SeoUrl\Extension;
 use Shopware\SeoUrl\Event\SeoUrlBasicLoadedEvent;
 use Symfony\Component\Routing\RequestContext;
 
-class UrlGeneratorExtension extends SeoUrlExtension
+class UrlGeneratorExtension extends SeoUrlFactoryExtension
 {
     /**
      * @var null|RequestContext

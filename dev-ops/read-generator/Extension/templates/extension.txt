@@ -3,15 +3,15 @@
 namespace Shopware\#classUc#\Extension;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionInterface;
+use Shopware\Api\Read\FactoryExtensionInterface;
 use Shopware\#classUc#\Event\#classUc#BasicLoadedEvent;
 use Shopware\#classUc#\Event\#classUc#WrittenEvent;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Shopware\#classUc#\Struct\#classUc#BasicStruct;
 
-abstract class #classUc#Extension implements ExtensionInterface, EventSubscriberInterface
+abstract class #classUc#Extension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

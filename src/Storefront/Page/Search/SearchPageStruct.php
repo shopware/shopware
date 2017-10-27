@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Page\Search;
 
+use Shopware\Api\Search\Criteria;
 use Shopware\Framework\Struct\Struct;
 use Shopware\Product\Struct\ProductBasicCollection;
-use Shopware\Search\Criteria;
 
 class SearchPageStruct extends Struct
 {

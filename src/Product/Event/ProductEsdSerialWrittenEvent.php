@@ -2,9 +2,9 @@
 
 namespace Shopware\Product\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class ProductEsdSerialWrittenEvent extends AbstractWrittenEvent
+class ProductEsdSerialWrittenEvent extends WrittenEvent
 {
     const NAME = 'product_esd_serial.written';
 

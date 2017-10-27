@@ -85,10 +85,6 @@
 
         <service class="Shopware\Framework\Struct\AttributeHydrator" id="shopware.framework.struct.attribute_hydrator"/>
 
-        <service class="Shopware\Framework\Read\ExtensionRegistry" id="shopware.extension.registry">
-            <argument type="collection" />
-        </service>
-
         <!-- Pluginsystem -->
         <service id="shopware.framework.plugin.manager" class="Shopware\Framework\Plugin\PluginManager">
             <argument>%kernel.plugin_dir%</argument>

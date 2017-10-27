@@ -2,7 +2,7 @@
 
 namespace Shopware\ProductListingPrice\Event;
 
-use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Api\Write\FieldAware\FieldExtenderCollection;
 use Symfony\Component\EventDispatcher\Event;
 
 class ProductListingPriceWriteExtenderEvent extends Event

@@ -3,11 +3,11 @@
 namespace Shopware\OrderLineItem\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Parser\QueryStringParser;
+use Shopware\OrderLineItem\Repository\OrderLineItemRepository;
 use Shopware\Rest\ApiContext;
 use Shopware\Rest\ApiController;
-use Shopware\OrderLineItem\Repository\OrderLineItemRepository;
-use Shopware\Search\Criteria;
-use Shopware\Search\Parser\QueryStringParser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 

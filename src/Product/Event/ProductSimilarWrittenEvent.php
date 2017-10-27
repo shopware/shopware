@@ -2,9 +2,9 @@
 
 namespace Shopware\Product\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class ProductSimilarWrittenEvent extends AbstractWrittenEvent
+class ProductSimilarWrittenEvent extends WrittenEvent
 {
     const NAME = 'product_similar.written';
 

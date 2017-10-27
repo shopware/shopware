@@ -2,11 +2,11 @@
 
 namespace Shopware\ProductDetailPrice\Test\Repository;
 
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\UuidSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\ProductDetailPrice\Repository\ProductDetailPriceRepository;
 use Shopware\ProductDetailPrice\Searcher\ProductDetailPriceSearchResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class ProductDetailPriceRepositoryTest extends KernelTestCase

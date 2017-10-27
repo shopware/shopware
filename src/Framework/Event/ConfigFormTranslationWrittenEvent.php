@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class ConfigFormTranslationWrittenEvent extends AbstractWrittenEvent
+class ConfigFormTranslationWrittenEvent extends WrittenEvent
 {
     const NAME = 'config_form_translation.written';
 

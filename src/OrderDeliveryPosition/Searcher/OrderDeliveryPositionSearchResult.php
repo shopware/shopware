@@ -2,9 +2,9 @@
 
 namespace Shopware\OrderDeliveryPosition\Searcher;
 
+use Shopware\Api\Search\SearchResultInterface;
+use Shopware\Api\Search\SearchResultTrait;
 use Shopware\OrderDeliveryPosition\Struct\OrderDeliveryPositionBasicCollection;
-use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
 
 class OrderDeliveryPositionSearchResult extends OrderDeliveryPositionBasicCollection implements SearchResultInterface
 {

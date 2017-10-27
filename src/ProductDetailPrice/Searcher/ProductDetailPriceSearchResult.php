@@ -2,9 +2,9 @@
 
 namespace Shopware\ProductDetailPrice\Searcher;
 
+use Shopware\Api\Search\SearchResultInterface;
+use Shopware\Api\Search\SearchResultTrait;
 use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicCollection;
-use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
 
 class ProductDetailPriceSearchResult extends ProductDetailPriceBasicCollection implements SearchResultInterface
 {

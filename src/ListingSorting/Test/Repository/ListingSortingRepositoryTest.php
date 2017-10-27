@@ -2,11 +2,11 @@
 
 namespace Shopware\ListingSorting\Test\Repository;
 
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\UuidSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\ListingSorting\Repository\ListingSortingRepository;
 use Shopware\ListingSorting\Searcher\ListingSortingSearchResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class ListingSortingRepositoryTest extends KernelTestCase

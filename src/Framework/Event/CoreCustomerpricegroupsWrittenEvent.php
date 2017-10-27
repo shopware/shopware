@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class CoreCustomerpricegroupsWrittenEvent extends AbstractWrittenEvent
+class CoreCustomerpricegroupsWrittenEvent extends WrittenEvent
 {
     const NAME = 's_core_customerpricegroups.written';
 

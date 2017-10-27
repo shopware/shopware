@@ -3,8 +3,8 @@
 namespace Shopware\Album\Searcher;
 
 use Shopware\Album\Struct\AlbumBasicCollection;
-use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
+use Shopware\Api\Search\SearchResultInterface;
+use Shopware\Api\Search\SearchResultTrait;
 
 class AlbumSearchResult extends AlbumBasicCollection implements SearchResultInterface
 {

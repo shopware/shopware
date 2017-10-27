@@ -2,9 +2,9 @@
 
 namespace Shopware\AreaCountryState\Searcher;
 
+use Shopware\Api\Search\SearchResultInterface;
+use Shopware\Api\Search\SearchResultTrait;
 use Shopware\AreaCountryState\Struct\AreaCountryStateBasicCollection;
-use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
 
 class AreaCountryStateSearchResult extends AreaCountryStateBasicCollection implements SearchResultInterface
 {

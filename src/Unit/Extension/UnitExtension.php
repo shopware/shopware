@@ -2,15 +2,15 @@
 
 namespace Shopware\Unit\Extension;
 
+use Shopware\Api\Read\FactoryExtensionInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionInterface;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Shopware\Unit\Event\UnitBasicLoadedEvent;
 use Shopware\Unit\Struct\UnitBasicStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class UnitExtension implements ExtensionInterface, EventSubscriberInterface
+abstract class UnitExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

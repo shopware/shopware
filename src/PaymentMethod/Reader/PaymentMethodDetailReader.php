@@ -3,6 +3,7 @@
 namespace Shopware\PaymentMethod\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\DetailReaderInterface;
 use Shopware\AreaCountry\Reader\AreaCountryBasicReader;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\SortArrayByKeysTrait;
@@ -11,7 +12,7 @@ use Shopware\PaymentMethod\Struct\PaymentMethodDetailCollection;
 use Shopware\PaymentMethod\Struct\PaymentMethodDetailStruct;
 use Shopware\Shop\Reader\ShopBasicReader;
 
-class PaymentMethodDetailReader
+class PaymentMethodDetailReader implements DetailReaderInterface
 {
     use SortArrayByKeysTrait;
 

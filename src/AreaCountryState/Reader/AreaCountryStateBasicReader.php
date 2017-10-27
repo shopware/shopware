@@ -3,13 +3,14 @@
 namespace Shopware\AreaCountryState\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\BasicReaderInterface;
 use Shopware\AreaCountryState\Factory\AreaCountryStateBasicFactory;
 use Shopware\AreaCountryState\Struct\AreaCountryStateBasicCollection;
 use Shopware\AreaCountryState\Struct\AreaCountryStateBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\SortArrayByKeysTrait;
 
-class AreaCountryStateBasicReader
+class AreaCountryStateBasicReader implements BasicReaderInterface
 {
     use SortArrayByKeysTrait;
 

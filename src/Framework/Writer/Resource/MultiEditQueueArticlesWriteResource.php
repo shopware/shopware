@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Writer\Resource;
 
+use Shopware\Api\Write\WriteResource;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\MultiEditQueueArticlesWrittenEvent;
-use Shopware\Framework\Write\WriteResource;
 
 class MultiEditQueueArticlesWriteResource extends WriteResource
 {

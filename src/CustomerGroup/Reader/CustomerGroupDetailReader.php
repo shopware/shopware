@@ -3,6 +3,9 @@
 namespace Shopware\CustomerGroup\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\DetailReaderInterface;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Query\TermsQuery;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Factory\CustomerGroupDetailFactory;
 use Shopware\CustomerGroup\Struct\CustomerGroupDetailCollection;
@@ -10,10 +13,8 @@ use Shopware\CustomerGroup\Struct\CustomerGroupDetailStruct;
 use Shopware\CustomerGroupDiscount\Searcher\CustomerGroupDiscountSearcher;
 use Shopware\CustomerGroupDiscount\Searcher\CustomerGroupDiscountSearchResult;
 use Shopware\Framework\Struct\SortArrayByKeysTrait;
-use Shopware\Search\Criteria;
-use Shopware\Search\Query\TermsQuery;
 
-class CustomerGroupDetailReader
+class CustomerGroupDetailReader implements DetailReaderInterface
 {
     use SortArrayByKeysTrait;
 

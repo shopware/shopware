@@ -4,13 +4,13 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-                <service id="shopware.category.category.resource" class="Shopware\Category\Writer\Resource\CategoryWriteResource">
+                <service id="shopware.category.category.resource" class="Shopware\Category\SqlResourceWriter\Resource\CategoryWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.category.category-avoid-customer-group.resource" class="Shopware\Category\Writer\Resource\CategoryAvoidCustomerGroupWriteResource">
+        <service id="shopware.category.category-avoid-customer-group.resource" class="Shopware\Category\SqlResourceWriter\Resource\CategoryAvoidCustomerGroupWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.category.category-translation.resource" class="Shopware\Category\Writer\Resource\CategoryTranslationWriteResource">
+        <service id="shopware.category.category-translation.resource" class="Shopware\Category\SqlResourceWriter\Resource\CategoryTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
     </services>

@@ -2,16 +2,16 @@
 
 namespace Shopware\AreaCountry\Extension;
 
+use Shopware\Api\Read\FactoryExtensionInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\AreaCountry\Event\AreaCountryBasicLoadedEvent;
 use Shopware\AreaCountry\Event\AreaCountryDetailLoadedEvent;
 use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionInterface;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class AreaCountryExtension implements ExtensionInterface, EventSubscriberInterface
+abstract class AreaCountryExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

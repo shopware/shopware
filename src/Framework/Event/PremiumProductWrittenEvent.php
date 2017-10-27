@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class PremiumProductWrittenEvent extends AbstractWrittenEvent
+class PremiumProductWrittenEvent extends WrittenEvent
 {
     const NAME = 'premium_product.written';
 

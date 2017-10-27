@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
+use Shopware\Api\Search\Criteria;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Repository\CustomerGroupRepository;
 use Shopware\DbalIndexing\Common\RepositoryIterator;
@@ -18,7 +19,6 @@ use Shopware\Product\Event\ProductWrittenEvent;
 use Shopware\Product\Repository\ProductRepository;
 use Shopware\ProductListingPrice\Struct\ProductListingPriceBasicCollection;
 use Shopware\ProductListingPrice\Struct\ProductListingPriceBasicStruct;
-use Shopware\Search\Criteria;
 use Shopware\Storefront\Context\StorefrontContextService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

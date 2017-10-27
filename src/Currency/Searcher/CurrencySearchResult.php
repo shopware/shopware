@@ -2,9 +2,9 @@
 
 namespace Shopware\Currency\Searcher;
 
+use Shopware\Api\Search\SearchResultInterface;
+use Shopware\Api\Search\SearchResultTrait;
 use Shopware\Currency\Struct\CurrencyBasicCollection;
-use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
 
 class CurrencySearchResult extends CurrencyBasicCollection implements SearchResultInterface
 {

@@ -24,12 +24,12 @@
 
 namespace Shopware\Storefront\Navigation;
 
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Query\TermQuery;
+use Shopware\Api\Search\Query\TermsQuery;
 use Shopware\Category\Repository\CategoryRepository;
 use Shopware\Category\Searcher\CategorySearchResult;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Search\Criteria;
-use Shopware\Search\Query\TermQuery;
-use Shopware\Search\Query\TermsQuery;
 
 class NavigationService
 {

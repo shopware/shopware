@@ -2,25 +2,25 @@
 
 namespace Shopware\PriceGroupDiscount\Repository;
 
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\RepositoryInterface;
-use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\PriceGroupDiscount\Event\PriceGroupDiscountBasicLoadedEvent;
 use Shopware\PriceGroupDiscount\Event\PriceGroupDiscountWrittenEvent;
-use Shopware\PriceGroupDiscount\Reader\PriceGroupDiscountBasicReader;
-use Shopware\PriceGroupDiscount\Searcher\PriceGroupDiscountSearcher;
 use Shopware\PriceGroupDiscount\Searcher\PriceGroupDiscountSearchResult;
 use Shopware\PriceGroupDiscount\Struct\PriceGroupDiscountBasicCollection;
-use Shopware\PriceGroupDiscount\Writer\PriceGroupDiscountWriter;
-use Shopware\Search\AggregationResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PriceGroupDiscountRepository implements RepositoryInterface
 {
     /**
-     * @var PriceGroupDiscountBasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -30,20 +30,20 @@ class PriceGroupDiscountRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var PriceGroupDiscountSearcher
+     * @var SearcherInterface
      */
     private $searcher;
 
     /**
-     * @var PriceGroupDiscountWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
-        PriceGroupDiscountBasicReader $basicReader,
+        BasicReaderInterface $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        PriceGroupDiscountSearcher $searcher,
-        PriceGroupDiscountWriter $writer
+        SearcherInterface $searcher,
+        WriterInterface $writer
     ) {
         $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
@@ -57,6 +57,7 @@ class PriceGroupDiscountRepository implements RepositoryInterface
             return new PriceGroupDiscountBasicCollection();
         }
 
+        /** @var PriceGroupDiscountBasicCollection $collection */
         $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -101,7 +102,7 @@ class PriceGroupDiscountRepository implements RepositoryInterface
     {
         $event = $this->writer->update($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -111,7 +112,7 @@ class PriceGroupDiscountRepository implements RepositoryInterface
     {
         $event = $this->writer->upsert($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -121,7 +122,7 @@ class PriceGroupDiscountRepository implements RepositoryInterface
     {
         $event = $this->writer->create($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;

@@ -5,11 +5,11 @@ namespace Shopware\Album\Factory;
 use Doctrine\DBAL\Connection;
 use Shopware\Album\Extension\AlbumExtension;
 use Shopware\Album\Struct\AlbumBasicStruct;
+use Shopware\Api\Read\ExtensionRegistryInterface;
+use Shopware\Api\Read\Factory;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionRegistryInterface;
-use Shopware\Framework\Read\Factory;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 
 class AlbumBasicFactory extends Factory
 {

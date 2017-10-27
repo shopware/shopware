@@ -4,10 +4,10 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-                <service id="shopware.listingsorting.listing-sorting.resource" class="Shopware\ListingSorting\Writer\Resource\ListingSortingWriteResource">
+                <service id="shopware.listingsorting.listing-sorting.resource" class="Shopware\ListingSorting\SqlResourceWriter\Resource\ListingSortingWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.listingsorting.listing-sorting-translation.resource" class="Shopware\ListingSorting\Writer\Resource\ListingSortingTranslationWriteResource">
+        <service id="shopware.listingsorting.listing-sorting-translation.resource" class="Shopware\ListingSorting\SqlResourceWriter\Resource\ListingSortingTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
     </services>

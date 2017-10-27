@@ -1,9 +1,0 @@
-    public function __construct(
-        #classUc#BasicReader $basicReader,
-        EventDispatcherInterface $eventDispatcher,
-        #classUc#Searcher $searcher
-    ) {
-        $this->basicReader = $basicReader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->searcher = $searcher;
-    }

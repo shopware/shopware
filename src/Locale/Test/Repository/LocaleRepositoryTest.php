@@ -2,11 +2,11 @@
 
 namespace Shopware\Locale\Test\Repository;
 
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\UuidSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Locale\Repository\LocaleRepository;
 use Shopware\Locale\Searcher\LocaleSearchResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class LocaleRepositoryTest extends KernelTestCase

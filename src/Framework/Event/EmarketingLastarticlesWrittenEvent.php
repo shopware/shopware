@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class EmarketingLastarticlesWrittenEvent extends AbstractWrittenEvent
+class EmarketingLastarticlesWrittenEvent extends WrittenEvent
 {
     const NAME = 's_emarketing_lastarticles.written';
 

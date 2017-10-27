@@ -3,17 +3,17 @@
 namespace Shopware\OrderAddress\Factory;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\ExtensionRegistryInterface;
+use Shopware\Api\Read\Factory;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\AreaCountry\Factory\AreaCountryBasicFactory;
 use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\AreaCountryState\Factory\AreaCountryStateBasicFactory;
 use Shopware\AreaCountryState\Struct\AreaCountryStateBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionRegistryInterface;
-use Shopware\Framework\Read\Factory;
 use Shopware\OrderAddress\Extension\OrderAddressExtension;
 use Shopware\OrderAddress\Struct\OrderAddressBasicStruct;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 
 class OrderAddressBasicFactory extends Factory
 {

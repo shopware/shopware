@@ -3,6 +3,9 @@
 namespace Shopware\Product\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\DetailReaderInterface;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Query\TermsQuery;
 use Shopware\Category\Reader\CategoryBasicReader;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Reader\CustomerGroupBasicReader;
@@ -21,10 +24,8 @@ use Shopware\ProductVote\Searcher\ProductVoteSearcher;
 use Shopware\ProductVote\Searcher\ProductVoteSearchResult;
 use Shopware\ProductVoteAverage\Searcher\ProductVoteAverageSearcher;
 use Shopware\ProductVoteAverage\Searcher\ProductVoteAverageSearchResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\Query\TermsQuery;
 
-class ProductDetailReader
+class ProductDetailReader implements DetailReaderInterface
 {
     use SortArrayByKeysTrait;
 

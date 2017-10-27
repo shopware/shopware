@@ -2,9 +2,9 @@
 
 namespace Shopware\Holiday\Searcher;
 
+use Shopware\Api\Search\SearchResultInterface;
+use Shopware\Api\Search\SearchResultTrait;
 use Shopware\Holiday\Struct\HolidayBasicCollection;
-use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
 
 class HolidaySearchResult extends HolidayBasicCollection implements SearchResultInterface
 {

@@ -2,11 +2,11 @@
 
 namespace Shopware\Area\Test\Repository;
 
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\UuidSearchResult;
 use Shopware\Area\Repository\AreaRepository;
 use Shopware\Area\Searcher\AreaSearchResult;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class AreaRepositoryTest extends KernelTestCase

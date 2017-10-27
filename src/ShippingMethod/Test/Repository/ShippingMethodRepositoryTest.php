@@ -2,9 +2,9 @@
 
 namespace Shopware\ShippingMethod\Test\Repository;
 
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\UuidSearchResult;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Shopware\ShippingMethod\Repository\ShippingMethodRepository;
 use Shopware\ShippingMethod\Searcher\ShippingMethodSearchResult;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

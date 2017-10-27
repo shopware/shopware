@@ -2,15 +2,15 @@
 
 namespace Shopware\ProductStream\Extension;
 
+use Shopware\Api\Read\FactoryExtensionInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\ProductStream\Event\ProductStreamBasicLoadedEvent;
 use Shopware\ProductStream\Struct\ProductStreamBasicStruct;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class ProductStreamExtension implements ExtensionInterface, EventSubscriberInterface
+abstract class ProductStreamExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

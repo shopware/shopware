@@ -2,7 +2,7 @@
 
 namespace Shopware\Media\Event;
 
-use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Api\Write\FieldAware\FieldExtenderCollection;
 use Symfony\Component\EventDispatcher\Event;
 
 class MediaWriteExtenderEvent extends Event

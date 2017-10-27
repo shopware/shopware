@@ -2,16 +2,16 @@
 
 namespace Shopware\ShippingMethod\Extension;
 
+use Shopware\Api\Read\FactoryExtensionInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionInterface;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Shopware\ShippingMethod\Event\ShippingMethodBasicLoadedEvent;
 use Shopware\ShippingMethod\Event\ShippingMethodDetailLoadedEvent;
 use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class ShippingMethodExtension implements ExtensionInterface, EventSubscriberInterface
+abstract class ShippingMethodExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

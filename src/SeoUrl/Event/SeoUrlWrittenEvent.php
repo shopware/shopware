@@ -2,9 +2,9 @@
 
 namespace Shopware\SeoUrl\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class SeoUrlWrittenEvent extends AbstractWrittenEvent
+class SeoUrlWrittenEvent extends WrittenEvent
 {
     const NAME = 'seo_url.written';
 

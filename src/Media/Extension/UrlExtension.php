@@ -5,7 +5,7 @@ namespace Shopware\Media\Extension;
 use Shopware\Media\Event\MediaBasicLoadedEvent;
 use Shopware\Media\UrlGeneratorInterface;
 
-class UrlExtension extends MediaExtension
+class UrlExtension extends MediaFactoryExtension
 {
     /**
      * @var UrlGeneratorInterface

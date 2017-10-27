@@ -3,13 +3,14 @@
 namespace Shopware\Currency\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\BasicReaderInterface;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Currency\Factory\CurrencyBasicFactory;
 use Shopware\Currency\Struct\CurrencyBasicCollection;
 use Shopware\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Framework\Struct\SortArrayByKeysTrait;
 
-class CurrencyBasicReader
+class CurrencyBasicReader implements BasicReaderInterface
 {
     use SortArrayByKeysTrait;
 

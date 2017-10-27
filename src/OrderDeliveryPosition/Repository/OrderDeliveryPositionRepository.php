@@ -2,25 +2,25 @@
 
 namespace Shopware\OrderDeliveryPosition\Repository;
 
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\RepositoryInterface;
-use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\OrderDeliveryPosition\Event\OrderDeliveryPositionBasicLoadedEvent;
 use Shopware\OrderDeliveryPosition\Event\OrderDeliveryPositionWrittenEvent;
-use Shopware\OrderDeliveryPosition\Reader\OrderDeliveryPositionBasicReader;
-use Shopware\OrderDeliveryPosition\Searcher\OrderDeliveryPositionSearcher;
 use Shopware\OrderDeliveryPosition\Searcher\OrderDeliveryPositionSearchResult;
 use Shopware\OrderDeliveryPosition\Struct\OrderDeliveryPositionBasicCollection;
-use Shopware\OrderDeliveryPosition\Writer\OrderDeliveryPositionWriter;
-use Shopware\Search\AggregationResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderDeliveryPositionRepository implements RepositoryInterface
 {
     /**
-     * @var OrderDeliveryPositionBasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -30,20 +30,20 @@ class OrderDeliveryPositionRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var OrderDeliveryPositionSearcher
+     * @var SearcherInterface
      */
     private $searcher;
 
     /**
-     * @var OrderDeliveryPositionWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
-        OrderDeliveryPositionBasicReader $basicReader,
+        BasicReaderInterface $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        OrderDeliveryPositionSearcher $searcher,
-        OrderDeliveryPositionWriter $writer
+        SearcherInterface $searcher,
+        WriterInterface $writer
     ) {
         $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
@@ -57,6 +57,7 @@ class OrderDeliveryPositionRepository implements RepositoryInterface
             return new OrderDeliveryPositionBasicCollection();
         }
 
+        /** @var OrderDeliveryPositionBasicCollection $collection */
         $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -101,7 +102,7 @@ class OrderDeliveryPositionRepository implements RepositoryInterface
     {
         $event = $this->writer->update($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -111,7 +112,7 @@ class OrderDeliveryPositionRepository implements RepositoryInterface
     {
         $event = $this->writer->upsert($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -121,7 +122,7 @@ class OrderDeliveryPositionRepository implements RepositoryInterface
     {
         $event = $this->writer->create($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;

@@ -2,11 +2,11 @@
 
 namespace Shopware\Order\Test\Repository;
 
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\UuidSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Order\Repository\OrderRepository;
 use Shopware\Order\Searcher\OrderSearchResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class OrderRepositoryTest extends KernelTestCase

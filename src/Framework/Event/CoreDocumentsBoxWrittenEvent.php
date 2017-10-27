@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class CoreDocumentsBoxWrittenEvent extends AbstractWrittenEvent
+class CoreDocumentsBoxWrittenEvent extends WrittenEvent
 {
     const NAME = 's_core_documents_box.written';
 

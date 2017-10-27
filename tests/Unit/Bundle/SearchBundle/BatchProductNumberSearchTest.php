@@ -23,11 +23,11 @@
  */
 
 use Shopware\Bundle\SearchBundle\BatchProductNumberSearch;
-use Shopware\Search\Condition\CategoryCondition;
+use Shopware\Api\Search\Condition\CategoryCondition;
 use Shopware\Bundle\SearchBundle\Condition\CloseoutCondition;
 use Shopware\Bundle\SearchBundle\Condition\IsNewCondition;
 use Shopware\Bundle\SearchBundle\Condition\PriceCondition;
-use Shopware\Search\Criteria;
+use Shopware\Api\Search\Criteria;
 use Shopware\Bundle\SearchBundle\Sorting\PriceSorting;
 use Shopware\Bundle\SearchBundle\Sorting\ReleaseDateSorting;
 use Shopware\Bundle\StoreFrontBundle\Product\BaseProduct;

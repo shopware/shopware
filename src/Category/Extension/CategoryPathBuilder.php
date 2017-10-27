@@ -3,12 +3,12 @@
 namespace Shopware\Category\Extension;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Query\TermQuery;
 use Shopware\Category\Repository\CategoryRepository;
 use Shopware\Category\Struct\CategoryBasicCollection;
 use Shopware\Category\Struct\CategoryBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Search\Criteria;
-use Shopware\Search\Query\TermQuery;
 
 class CategoryPathBuilder
 {

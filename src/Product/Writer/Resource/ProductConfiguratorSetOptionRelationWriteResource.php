@@ -2,9 +2,9 @@
 
 namespace Shopware\Product\Writer\Resource;
 
+use Shopware\Api\Write\Field\IntField;
+use Shopware\Api\Write\WriteResource;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Write\Field\IntField;
-use Shopware\Framework\Write\WriteResource;
 use Shopware\Product\Event\ProductConfiguratorSetOptionRelationWrittenEvent;
 
 class ProductConfiguratorSetOptionRelationWriteResource extends WriteResource

@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class StatisticRefererWrittenEvent extends AbstractWrittenEvent
+class StatisticRefererWrittenEvent extends WrittenEvent
 {
     const NAME = 'statistic_referer.written';
 

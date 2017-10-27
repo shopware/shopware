@@ -3,14 +3,14 @@
 namespace Shopware\ShippingMethod\Factory;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\ExtensionRegistryInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\AreaCountry\Factory\AreaCountryBasicFactory;
 use Shopware\Category\Factory\CategoryBasicFactory;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionRegistryInterface;
 use Shopware\Holiday\Factory\HolidayBasicFactory;
 use Shopware\PaymentMethod\Factory\PaymentMethodBasicFactory;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
 use Shopware\ShippingMethod\Struct\ShippingMethodDetailStruct;
 use Shopware\ShippingMethodPrice\Factory\ShippingMethodPriceBasicFactory;

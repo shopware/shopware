@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class AttributeConfigurationWrittenEvent extends AbstractWrittenEvent
+class AttributeConfigurationWrittenEvent extends WrittenEvent
 {
     const NAME = 'attribute_configuration.written';
 

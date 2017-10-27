@@ -2,7 +2,7 @@
 
 namespace Shopware\CustomerGroup\Event;
 
-use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Api\Write\FieldAware\FieldExtenderCollection;
 use Symfony\Component\EventDispatcher\Event;
 
 class CustomerGroupWriteExtenderEvent extends Event

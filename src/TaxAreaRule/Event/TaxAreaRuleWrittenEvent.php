@@ -2,9 +2,9 @@
 
 namespace Shopware\TaxAreaRule\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class TaxAreaRuleWrittenEvent extends AbstractWrittenEvent
+class TaxAreaRuleWrittenEvent extends WrittenEvent
 {
     const NAME = 'tax_area_rule.written';
 

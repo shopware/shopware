@@ -2,16 +2,16 @@
 
 namespace Shopware\Category\Extension;
 
+use Shopware\Api\Read\FactoryExtensionInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Category\Event\CategoryBasicLoadedEvent;
 use Shopware\Category\Event\CategoryDetailLoadedEvent;
 use Shopware\Category\Struct\CategoryBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionInterface;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class CategoryExtension implements ExtensionInterface, EventSubscriberInterface
+abstract class CategoryExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

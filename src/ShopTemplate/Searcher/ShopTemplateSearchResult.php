@@ -2,8 +2,8 @@
 
 namespace Shopware\ShopTemplate\Searcher;
 
-use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
+use Shopware\Api\Search\SearchResultInterface;
+use Shopware\Api\Search\SearchResultTrait;
 use Shopware\ShopTemplate\Struct\ShopTemplateBasicCollection;
 
 class ShopTemplateSearchResult extends ShopTemplateBasicCollection implements SearchResultInterface

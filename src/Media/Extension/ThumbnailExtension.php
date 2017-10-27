@@ -7,7 +7,7 @@ use Shopware\Media\Struct\MediaBasicStruct;
 use Shopware\Media\Struct\ThumbnailStruct;
 use Shopware\Media\UrlGeneratorInterface;
 
-class ThumbnailExtension extends MediaExtension
+class ThumbnailExtension extends MediaFactoryExtension
 {
     /**
      * @var UrlGeneratorInterface

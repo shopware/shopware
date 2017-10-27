@@ -3,15 +3,15 @@
 namespace Shopware\Customer\Factory;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\ExtensionRegistryInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Customer\Struct\CustomerBasicStruct;
 use Shopware\Customer\Struct\CustomerDetailStruct;
 use Shopware\CustomerAddress\Factory\CustomerAddressBasicFactory;
 use Shopware\CustomerGroup\Factory\CustomerGroupBasicFactory;
-use Shopware\Framework\Read\ExtensionRegistryInterface;
 use Shopware\PaymentMethod\Factory\PaymentMethodBasicFactory;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Shopware\Shop\Factory\ShopBasicFactory;
 use Shopware\Shop\Struct\ShopBasicStruct;
 

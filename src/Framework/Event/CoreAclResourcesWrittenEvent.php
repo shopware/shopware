@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class CoreAclResourcesWrittenEvent extends AbstractWrittenEvent
+class CoreAclResourcesWrittenEvent extends WrittenEvent
 {
     const NAME = 's_core_acl_resources.written';
 

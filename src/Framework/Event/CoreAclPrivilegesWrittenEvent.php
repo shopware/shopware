@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class CoreAclPrivilegesWrittenEvent extends AbstractWrittenEvent
+class CoreAclPrivilegesWrittenEvent extends WrittenEvent
 {
     const NAME = 's_core_acl_privileges.written';
 

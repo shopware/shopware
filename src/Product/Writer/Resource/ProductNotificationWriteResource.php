@@ -2,12 +2,12 @@
 
 namespace Shopware\Product\Writer\Resource;
 
+use Shopware\Api\Write\Field\IntField;
+use Shopware\Api\Write\Field\StringField;
+use Shopware\Api\Write\Field\UuidField;
+use Shopware\Api\Write\Flag\Required;
+use Shopware\Api\Write\WriteResource;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Write\Field\IntField;
-use Shopware\Framework\Write\Field\StringField;
-use Shopware\Framework\Write\Field\UuidField;
-use Shopware\Framework\Write\Flag\Required;
-use Shopware\Framework\Write\WriteResource;
 use Shopware\Product\Event\ProductNotificationWrittenEvent;
 
 class ProductNotificationWriteResource extends WriteResource

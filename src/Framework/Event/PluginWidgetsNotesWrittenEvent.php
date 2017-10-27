@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class PluginWidgetsNotesWrittenEvent extends AbstractWrittenEvent
+class PluginWidgetsNotesWrittenEvent extends WrittenEvent
 {
     const NAME = 's_plugin_widgets_notes.written';
 

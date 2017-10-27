@@ -2,12 +2,12 @@
 
 namespace Shopware\Framework\Writer\Resource;
 
+use Shopware\Api\Write\Field\FloatField;
+use Shopware\Api\Write\Field\IntField;
+use Shopware\Api\Write\Field\StringField;
+use Shopware\Api\Write\WriteResource;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\CorePaymentInstanceWrittenEvent;
-use Shopware\Framework\Write\Field\FloatField;
-use Shopware\Framework\Write\Field\IntField;
-use Shopware\Framework\Write\Field\StringField;
-use Shopware\Framework\Write\WriteResource;
 
 class CorePaymentInstanceWriteResource extends WriteResource
 {

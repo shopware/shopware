@@ -2,9 +2,9 @@
 
 namespace Shopware\OrderAddress\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class OrderAddressWrittenEvent extends AbstractWrittenEvent
+class OrderAddressWrittenEvent extends WrittenEvent
 {
     const NAME = 'order_address.written';
 

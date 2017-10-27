@@ -2,9 +2,9 @@
 
 namespace Shopware\PriceGroupDiscount\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class PriceGroupDiscountWrittenEvent extends AbstractWrittenEvent
+class PriceGroupDiscountWrittenEvent extends WrittenEvent
 {
     const NAME = 'price_group_discount.written';
 

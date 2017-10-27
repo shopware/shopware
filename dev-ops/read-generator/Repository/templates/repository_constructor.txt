@@ -1,8 +1,8 @@
     public function __construct(
-        #classUc#BasicReader $basicReader,
+        BasicReaderInterface $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        #classUc#Searcher $searcher,
-        #classUc#Writer $writer
+        SearcherInterface $searcher,
+        WriterInterface $writer
     ) {
         $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;

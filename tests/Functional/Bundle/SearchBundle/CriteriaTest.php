@@ -24,20 +24,20 @@
 
 namespace Shopware\Tests\Functional\Bundle\SearchBundle;
 
-use Shopware\Search\Condition\CategoryCondition;
-use Shopware\Search\Criteria;
+use Shopware\Api\Search\Condition\CategoryCondition;
+use Shopware\Api\Search\Criteria;
 use Shopware\Bundle\SearchBundle\Facet\PriceFacet;
 use Shopware\Bundle\SearchBundle\Sorting\PopularitySorting;
 use Shopware\Bundle\SearchBundle\Sorting\PriceSorting;
 use Shopware\Bundle\SearchBundle\Sorting\ProductNameSorting;
-use Shopware\Search\SortingInterface;
+use Shopware\Api\Search\SortingInterface;
 use Shopware\Tests\Functional\Bundle\StoreFrontBundle\TestCase;
 
 class CriteriaTest extends TestCase
 {
     public function testUniqueCondition()
     {
-        $criteria = new \Shopware\Search\Criteria();
+        $criteria = new \Shopware\Api\Search\Criteria();
 
         $criteria->addCondition(new CategoryCondition([1]));
         $criteria->addCondition(new CategoryCondition([3]));
@@ -54,7 +54,7 @@ class CriteriaTest extends TestCase
 
     public function testUniqueSorting()
     {
-        $criteria = new \Shopware\Search\Criteria();
+        $criteria = new \Shopware\Api\Search\Criteria();
         $criteria->addSorting(new PriceSorting());
         $criteria->addSorting(new PriceSorting());
         $this->assertCount(1, $criteria->getSortings());
@@ -82,7 +82,7 @@ class CriteriaTest extends TestCase
 
     public function testConditionOverwrite()
     {
-        $criteria = new \Shopware\Search\Criteria();
+        $criteria = new \Shopware\Api\Search\Criteria();
 
         $criteria->addCondition(new CategoryCondition([1]));
 
@@ -92,9 +92,9 @@ class CriteriaTest extends TestCase
         $this->assertCount(1, $criteria->getConditions());
         $condition = $criteria->getCondition($condition->getName());
 
-        $this->assertInstanceOf('Shopware\Search\Condition\CategoryCondition', $condition);
+        $this->assertInstanceOf('Shopware\Api\Search\Condition\CategoryCondition', $condition);
 
-        /* @var \Shopware\Search\Condition\CategoryCondition $condition */
+        /* @var \Shopware\Api\Search\Condition\CategoryCondition $condition */
         $this->assertEquals([3], $condition->getCategoryUuids());
     }
 }

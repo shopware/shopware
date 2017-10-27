@@ -2,9 +2,9 @@
 
 namespace Shopware\Album\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class AlbumTranslationWrittenEvent extends AbstractWrittenEvent
+class AlbumTranslationWrittenEvent extends WrittenEvent
 {
     const NAME = 'album_translation.written';
 

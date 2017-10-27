@@ -2,32 +2,33 @@
 
 namespace Shopware\Shop\Repository;
 
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\Read\DetailReaderInterface;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Write\EntityWrittenEvent;
-use Shopware\Search\AggregationResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Shopware\Shop\Event\ShopBasicLoadedEvent;
 use Shopware\Shop\Event\ShopDetailLoadedEvent;
 use Shopware\Shop\Event\ShopWrittenEvent;
-use Shopware\Shop\Reader\ShopBasicReader;
-use Shopware\Shop\Reader\ShopDetailReader;
-use Shopware\Shop\Searcher\ShopSearcher;
 use Shopware\Shop\Searcher\ShopSearchResult;
 use Shopware\Shop\Struct\ShopBasicCollection;
 use Shopware\Shop\Struct\ShopDetailCollection;
-use Shopware\Shop\Writer\ShopWriter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ShopRepository
+class ShopRepository implements RepositoryInterface
 {
     /**
-     * @var ShopDetailReader
+     * @var DetailReaderInterface
      */
     protected $detailReader;
 
     /**
-     * @var ShopBasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -37,21 +38,21 @@ class ShopRepository
     private $eventDispatcher;
 
     /**
-     * @var ShopSearcher
+     * @var SearcherInterface
      */
     private $searcher;
 
     /**
-     * @var ShopWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
-        ShopDetailReader $detailReader,
-        ShopBasicReader $basicReader,
+        DetailReaderInterface $detailReader,
+        BasicReaderInterface $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        ShopSearcher $searcher,
-        ShopWriter $writer
+        SearcherInterface $searcher,
+        WriterInterface $writer
     ) {
         $this->detailReader = $detailReader;
         $this->basicReader = $basicReader;
@@ -66,6 +67,7 @@ class ShopRepository
             return new ShopBasicCollection();
         }
 
+        /** @var ShopBasicCollection $collection */
         $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -81,6 +83,8 @@ class ShopRepository
         if (empty($uuids)) {
             return new ShopDetailCollection();
         }
+
+        /** @var ShopDetailCollection $collection */
         $collection = $this->detailReader->readDetail($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -120,7 +124,7 @@ class ShopRepository
     {
         $event = $this->writer->update($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -130,7 +134,7 @@ class ShopRepository
     {
         $event = $this->writer->upsert($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -140,7 +144,7 @@ class ShopRepository
     {
         $event = $this->writer->create($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;

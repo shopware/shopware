@@ -2,9 +2,9 @@
 
 namespace Shopware\SeoUrl\Test\Repository;
 
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\UuidSearchResult;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Shopware\SeoUrl\Repository\SeoUrlRepository;
 use Shopware\SeoUrl\Searcher\SeoUrlSearchResult;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

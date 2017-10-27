@@ -1,5 +1,5 @@
 /**
- * @var #classUc#Writer
+ * @var WriterInterface
  */
 private $writer;
 
@@ -7,7 +7,7 @@ public function update(array $data, TranslationContext $context): #classUc#Writt
 {
     $event = $this->writer->update($data, $context);
 
-    $container = new EntityWrittenEvent($event, $context);
+    $container = new GenericWrittenEvent($event, $context);
     $this->eventDispatcher->dispatch($container::NAME, $container);
 
     return $event;
@@ -17,7 +17,7 @@ public function upsert(array $data, TranslationContext $context): #classUc#Writt
 {
     $event = $this->writer->upsert($data, $context);
 
-    $container = new EntityWrittenEvent($event, $context);
+    $container = new GenericWrittenEvent($event, $context);
     $this->eventDispatcher->dispatch($container::NAME, $container);
 
     return $event;
@@ -27,7 +27,7 @@ public function create(array $data, TranslationContext $context): #classUc#Writt
 {
     $event = $this->writer->create($data, $context);
 
-    $container = new EntityWrittenEvent($event, $context);
+    $container = new GenericWrittenEvent($event, $context);
     $this->eventDispatcher->dispatch($container::NAME, $container);
 
     return $event;

@@ -2,15 +2,15 @@
 
 namespace Shopware\CustomerAddress\Extension;
 
+use Shopware\Api\Read\FactoryExtensionInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerAddress\Event\CustomerAddressBasicLoadedEvent;
 use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Framework\Read\ExtensionInterface;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class CustomerAddressExtension implements ExtensionInterface, EventSubscriberInterface
+abstract class CustomerAddressExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

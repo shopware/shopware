@@ -6,10 +6,11 @@ use Doctrine\DBAL\Connection;
 use Shopware\Album\Factory\AlbumBasicFactory;
 use Shopware\Album\Struct\AlbumBasicCollection;
 use Shopware\Album\Struct\AlbumBasicStruct;
+use Shopware\Api\Read\BasicReaderInterface;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\SortArrayByKeysTrait;
 
-class AlbumBasicReader
+class AlbumBasicReader implements BasicReaderInterface
 {
     use SortArrayByKeysTrait;
 

@@ -4,18 +4,20 @@ namespace Shopware\#classUc#\Writer;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEventDispatcherInterface;
-use Shopware\Framework\Write\FieldAware\DefaultExtender;
-use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
-use Shopware\Framework\Write\FieldException\WriteStackException;
-use Shopware\Framework\Write\WriteContext;
-use Shopware\Framework\Write\Writer;
+use Shopware\Api\Write\FieldAware\DefaultExtender;
+use Shopware\Api\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Api\Write\FieldException\WriteStackException;
+use Shopware\Api\Write\WriteContext;
 use Shopware\Shop\Writer\Resource\ShopWriteResource;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Shopware\#classUc#\Event\#classUc#WriteExtenderEvent;
 use Shopware\#classUc#\Event\#classUc#WrittenEvent;
+use Shopware\Api\Write\WriterInterface;
+use Shopware\Api\Write\ResourceWriterInterface;
+
 #resourceUse#
 
-class #classUc#Writer
+class #classUc#Writer implements WriterInterface
 {
     /**
      * @var DefaultExtender
@@ -28,11 +30,11 @@ class #classUc#Writer
     private $eventDispatcher;
 
     /**
-     * @var Writer
+     * @var ResourceWriterInterface
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, NestedEventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcherInterface $eventDispatcher, ResourceWriterInterface $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;

@@ -2,7 +2,7 @@
 
 namespace Shopware\ProductDetail\Event;
 
-use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Api\Write\FieldAware\FieldExtenderCollection;
 use Symfony\Component\EventDispatcher\Event;
 
 class ProductDetailWriteExtenderEvent extends Event

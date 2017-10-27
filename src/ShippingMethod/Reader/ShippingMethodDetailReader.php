@@ -3,21 +3,22 @@
 namespace Shopware\ShippingMethod\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\DetailReaderInterface;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Query\TermsQuery;
 use Shopware\AreaCountry\Reader\AreaCountryBasicReader;
 use Shopware\Category\Reader\CategoryBasicReader;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\Holiday\Reader\HolidayBasicReader;
 use Shopware\PaymentMethod\Reader\PaymentMethodBasicReader;
-use Shopware\Search\Criteria;
-use Shopware\Search\Query\TermsQuery;
 use Shopware\ShippingMethod\Factory\ShippingMethodDetailFactory;
 use Shopware\ShippingMethod\Struct\ShippingMethodDetailCollection;
 use Shopware\ShippingMethod\Struct\ShippingMethodDetailStruct;
 use Shopware\ShippingMethodPrice\Searcher\ShippingMethodPriceSearcher;
 use Shopware\ShippingMethodPrice\Searcher\ShippingMethodPriceSearchResult;
 
-class ShippingMethodDetailReader
+class ShippingMethodDetailReader implements DetailReaderInterface
 {
     use SortArrayByKeysTrait;
 

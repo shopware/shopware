@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class SchemaVersionWrittenEvent extends AbstractWrittenEvent
+class SchemaVersionWrittenEvent extends WrittenEvent
 {
     const NAME = 'schema_version.written';
 

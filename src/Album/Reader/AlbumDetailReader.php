@@ -6,14 +6,15 @@ use Doctrine\DBAL\Connection;
 use Shopware\Album\Factory\AlbumDetailFactory;
 use Shopware\Album\Struct\AlbumDetailCollection;
 use Shopware\Album\Struct\AlbumDetailStruct;
+use Shopware\Api\Read\DetailReaderInterface;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Query\TermsQuery;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\Media\Searcher\MediaSearcher;
 use Shopware\Media\Searcher\MediaSearchResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\Query\TermsQuery;
 
-class AlbumDetailReader
+class AlbumDetailReader implements DetailReaderInterface
 {
     use SortArrayByKeysTrait;
 

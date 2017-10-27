@@ -25,6 +25,7 @@
 namespace Shopware\Context\Service;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Search\Criteria;
 use Shopware\AreaCountry\Repository\AreaCountryRepository;
 use Shopware\AreaCountryState\Repository\AreaCountryStateRepository;
 use Shopware\Cart\Delivery\ShippingLocation;
@@ -44,7 +45,6 @@ use Shopware\CustomerGroup\Repository\CustomerGroupRepository;
 use Shopware\PaymentMethod\Repository\PaymentMethodRepository;
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
 use Shopware\PriceGroupDiscount\Repository\PriceGroupDiscountRepository;
-use Shopware\Search\Criteria;
 use Shopware\ShippingMethod\Repository\ShippingMethodRepository;
 use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
 use Shopware\Shop\Repository\ShopRepository;

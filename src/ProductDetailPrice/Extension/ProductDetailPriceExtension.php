@@ -2,15 +2,15 @@
 
 namespace Shopware\ProductDetailPrice\Extension;
 
+use Shopware\Api\Read\FactoryExtensionInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\ProductDetailPrice\Event\ProductDetailPriceBasicLoadedEvent;
 use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicStruct;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class ProductDetailPriceExtension implements ExtensionInterface, EventSubscriberInterface
+abstract class ProductDetailPriceExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

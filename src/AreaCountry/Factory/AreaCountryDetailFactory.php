@@ -3,13 +3,13 @@
 namespace Shopware\AreaCountry\Factory;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\ExtensionRegistryInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\AreaCountry\Struct\AreaCountryDetailStruct;
 use Shopware\AreaCountryState\Factory\AreaCountryStateBasicFactory;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionRegistryInterface;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 
 class AreaCountryDetailFactory extends AreaCountryBasicFactory
 {

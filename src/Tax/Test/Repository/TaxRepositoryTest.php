@@ -2,9 +2,9 @@
 
 namespace Shopware\Tax\Test\Repository;
 
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\UuidSearchResult;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Shopware\Tax\Repository\TaxRepository;
 use Shopware\Tax\Searcher\TaxSearchResult;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

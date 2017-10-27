@@ -2,11 +2,11 @@
 
 namespace Shopware\ProductStream\Test\Repository;
 
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\UuidSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\ProductStream\Repository\ProductStreamRepository;
 use Shopware\ProductStream\Searcher\ProductStreamSearchResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class ProductStreamRepositoryTest extends KernelTestCase

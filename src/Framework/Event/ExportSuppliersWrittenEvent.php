@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class ExportSuppliersWrittenEvent extends AbstractWrittenEvent
+class ExportSuppliersWrittenEvent extends WrittenEvent
 {
     const NAME = 's_export_suppliers.written';
 

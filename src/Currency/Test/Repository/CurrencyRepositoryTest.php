@@ -2,11 +2,11 @@
 
 namespace Shopware\Currency\Test\Repository;
 
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\UuidSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Currency\Repository\CurrencyRepository;
 use Shopware\Currency\Searcher\CurrencySearchResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class CurrencyRepositoryTest extends KernelTestCase

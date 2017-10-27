@@ -2,9 +2,9 @@
 
 namespace Shopware\Product\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class ProductConfiguratorOptionRelationWrittenEvent extends AbstractWrittenEvent
+class ProductConfiguratorOptionRelationWrittenEvent extends WrittenEvent
 {
     const NAME = 'product_configurator_option_relation.written';
 

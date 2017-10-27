@@ -2,32 +2,33 @@
 
 namespace Shopware\OrderDelivery\Repository;
 
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\Read\DetailReaderInterface;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\OrderDelivery\Event\OrderDeliveryBasicLoadedEvent;
 use Shopware\OrderDelivery\Event\OrderDeliveryDetailLoadedEvent;
 use Shopware\OrderDelivery\Event\OrderDeliveryWrittenEvent;
-use Shopware\OrderDelivery\Reader\OrderDeliveryBasicReader;
-use Shopware\OrderDelivery\Reader\OrderDeliveryDetailReader;
-use Shopware\OrderDelivery\Searcher\OrderDeliverySearcher;
 use Shopware\OrderDelivery\Searcher\OrderDeliverySearchResult;
 use Shopware\OrderDelivery\Struct\OrderDeliveryBasicCollection;
 use Shopware\OrderDelivery\Struct\OrderDeliveryDetailCollection;
-use Shopware\OrderDelivery\Writer\OrderDeliveryWriter;
-use Shopware\Search\AggregationResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class OrderDeliveryRepository
+class OrderDeliveryRepository implements RepositoryInterface
 {
     /**
-     * @var OrderDeliveryDetailReader
+     * @var DetailReaderInterface
      */
     protected $detailReader;
 
     /**
-     * @var OrderDeliveryBasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -37,21 +38,21 @@ class OrderDeliveryRepository
     private $eventDispatcher;
 
     /**
-     * @var OrderDeliverySearcher
+     * @var SearcherInterface
      */
     private $searcher;
 
     /**
-     * @var OrderDeliveryWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
-        OrderDeliveryDetailReader $detailReader,
-        OrderDeliveryBasicReader $basicReader,
+        DetailReaderInterface $detailReader,
+        BasicReaderInterface $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        OrderDeliverySearcher $searcher,
-        OrderDeliveryWriter $writer
+        SearcherInterface $searcher,
+        WriterInterface $writer
     ) {
         $this->detailReader = $detailReader;
         $this->basicReader = $basicReader;
@@ -66,6 +67,7 @@ class OrderDeliveryRepository
             return new OrderDeliveryBasicCollection();
         }
 
+        /** @var OrderDeliveryBasicCollection $collection */
         $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -81,6 +83,8 @@ class OrderDeliveryRepository
         if (empty($uuids)) {
             return new OrderDeliveryDetailCollection();
         }
+
+        /** @var OrderDeliveryDetailCollection $collection */
         $collection = $this->detailReader->readDetail($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -120,7 +124,7 @@ class OrderDeliveryRepository
     {
         $event = $this->writer->update($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -130,7 +134,7 @@ class OrderDeliveryRepository
     {
         $event = $this->writer->upsert($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -140,7 +144,7 @@ class OrderDeliveryRepository
     {
         $event = $this->writer->create($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;

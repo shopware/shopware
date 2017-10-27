@@ -2,15 +2,15 @@
 
 namespace Shopware\OrderLineItem\Extension;
 
+use Shopware\Api\Read\FactoryExtensionInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\OrderLineItem\Event\OrderLineItemBasicLoadedEvent;
 use Shopware\OrderLineItem\Struct\OrderLineItemBasicStruct;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class OrderLineItemExtension implements ExtensionInterface, EventSubscriberInterface
+abstract class OrderLineItemExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

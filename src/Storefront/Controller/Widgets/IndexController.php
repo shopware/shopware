@@ -26,10 +26,10 @@ namespace Shopware\Storefront\Controller\Widgets;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Query\TermQuery;
+use Shopware\Api\Search\Query\TermsQuery;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Search\Criteria;
-use Shopware\Search\Query\TermQuery;
-use Shopware\Search\Query\TermsQuery;
 use Shopware\Storefront\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 

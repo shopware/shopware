@@ -26,13 +26,13 @@ namespace Shopware\Storefront\Page\Detail;
 
 use Cocur\Slugify\SlugifyInterface;
 use Ramsey\Uuid\Uuid;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Query\TermQuery;
+use Shopware\Api\Search\Query\TermsQuery;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Routing\Router;
 use Shopware\Product\Repository\ProductRepository;
 use Shopware\Product\Struct\ProductBasicStruct;
-use Shopware\Search\Criteria;
-use Shopware\Search\Query\TermQuery;
-use Shopware\Search\Query\TermsQuery;
 use Shopware\SeoUrl\Generator\SeoUrlGeneratorInterface;
 use Shopware\SeoUrl\Repository\SeoUrlRepository;
 use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;

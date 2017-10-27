@@ -2,11 +2,11 @@
 
 namespace Shopware\ProductMedia\Test\Repository;
 
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\UuidSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\ProductMedia\Repository\ProductMediaRepository;
 use Shopware\ProductMedia\Searcher\ProductMediaSearchResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class ProductMediaRepositoryTest extends KernelTestCase

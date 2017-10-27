@@ -2,13 +2,13 @@
 
 namespace Shopware\ProductManufacturer\Writer\Resource;
 
+use Shopware\Api\Write\Field\StringField;
+use Shopware\Api\Write\Field\SubresourceField;
+use Shopware\Api\Write\Field\TranslatedField;
+use Shopware\Api\Write\Field\UuidField;
+use Shopware\Api\Write\Flag\Required;
+use Shopware\Api\Write\WriteResource;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Write\Field\StringField;
-use Shopware\Framework\Write\Field\SubresourceField;
-use Shopware\Framework\Write\Field\TranslatedField;
-use Shopware\Framework\Write\Field\UuidField;
-use Shopware\Framework\Write\Flag\Required;
-use Shopware\Framework\Write\WriteResource;
 use Shopware\Product\Writer\Resource\ProductWriteResource;
 use Shopware\ProductManufacturer\Event\ProductManufacturerWrittenEvent;
 use Shopware\Shop\Writer\Resource\ShopWriteResource;

@@ -24,12 +24,12 @@
 
 namespace Shopware\DbalIndexing\Command;
 
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Sorting\FieldSorting;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
-use Shopware\Search\Criteria;
-use Shopware\Search\Sorting\FieldSorting;
 use Shopware\Shop\Struct\ShopBasicStruct;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;

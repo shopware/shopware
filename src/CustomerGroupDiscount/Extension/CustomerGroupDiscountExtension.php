@@ -2,15 +2,15 @@
 
 namespace Shopware\CustomerGroupDiscount\Extension;
 
+use Shopware\Api\Read\FactoryExtensionInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroupDiscount\Event\CustomerGroupDiscountBasicLoadedEvent;
 use Shopware\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicStruct;
-use Shopware\Framework\Read\ExtensionInterface;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class CustomerGroupDiscountExtension implements ExtensionInterface, EventSubscriberInterface
+abstract class CustomerGroupDiscountExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

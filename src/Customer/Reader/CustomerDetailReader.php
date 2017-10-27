@@ -3,6 +3,9 @@
 namespace Shopware\Customer\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\DetailReaderInterface;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Query\TermsQuery;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Customer\Factory\CustomerDetailFactory;
 use Shopware\Customer\Struct\CustomerDetailCollection;
@@ -10,10 +13,8 @@ use Shopware\Customer\Struct\CustomerDetailStruct;
 use Shopware\CustomerAddress\Searcher\CustomerAddressSearcher;
 use Shopware\CustomerAddress\Searcher\CustomerAddressSearchResult;
 use Shopware\Framework\Struct\SortArrayByKeysTrait;
-use Shopware\Search\Criteria;
-use Shopware\Search\Query\TermsQuery;
 
-class CustomerDetailReader
+class CustomerDetailReader implements DetailReaderInterface
 {
     use SortArrayByKeysTrait;
 

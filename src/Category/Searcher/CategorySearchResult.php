@@ -2,9 +2,9 @@
 
 namespace Shopware\Category\Searcher;
 
+use Shopware\Api\Search\SearchResultInterface;
+use Shopware\Api\Search\SearchResultTrait;
 use Shopware\Category\Struct\CategoryBasicCollection;
-use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
 
 class CategorySearchResult extends CategoryBasicCollection implements SearchResultInterface
 {

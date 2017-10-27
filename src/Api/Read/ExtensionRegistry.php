@@ -1,0 +1,30 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Api\Read;
+
+class ExtensionRegistry implements ExtensionRegistryInterface
+{
+    /**
+     * @var array[]
+     */
+    private $extensions;
+
+    public function __construct(array $extensions)
+    {
+        $this->extensions = $extensions;
+    }
+
+    /**
+     * @param string $bundle
+     *
+     * @return FactoryExtensionInterface[]
+     */
+    public function getExtensions(string $bundle): array
+    {
+        if (array_key_exists($bundle, $this->extensions)) {
+            return $this->extensions[$bundle];
+        }
+
+        return [];
+    }
+}

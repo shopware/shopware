@@ -5,11 +5,11 @@ namespace Shopware\#classUc#\Factory;
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\#classUc#\Struct\#classUc#BasicStruct;
-use Shopware\Search\QuerySelection;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\#classUc#\Extension\#classUc#Extension;
-use Shopware\Search\QueryBuilder;
-use Shopware\Framework\Read\Factory;
-use Shopware\Framework\Read\ExtensionRegistryInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Read\Factory;
+use Shopware\Api\Read\ExtensionRegistryInterface;
 #uses#
 
 class #classUc#BasicFactory extends Factory

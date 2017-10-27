@@ -3,6 +3,9 @@
 namespace Shopware\Product\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Query\TermsQuery;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Reader\CustomerGroupBasicReader;
 use Shopware\Framework\Struct\SortArrayByKeysTrait;
@@ -12,10 +15,8 @@ use Shopware\Product\Struct\ProductBasicStruct;
 use Shopware\ProductDetail\Reader\ProductDetailBasicReader;
 use Shopware\ProductListingPrice\Searcher\ProductListingPriceSearcher;
 use Shopware\ProductListingPrice\Searcher\ProductListingPriceSearchResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\Query\TermsQuery;
 
-class ProductBasicReader
+class ProductBasicReader implements BasicReaderInterface
 {
     use SortArrayByKeysTrait;
 

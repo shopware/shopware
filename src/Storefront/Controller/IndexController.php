@@ -24,10 +24,10 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Query\TermQuery;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Product\Struct\ProductBasicCollection;
-use Shopware\Search\Criteria;
-use Shopware\Search\Query\TermQuery;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

@@ -2,32 +2,33 @@
 
 namespace Shopware\PaymentMethod\Repository;
 
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\Read\DetailReaderInterface;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\PaymentMethod\Event\PaymentMethodBasicLoadedEvent;
 use Shopware\PaymentMethod\Event\PaymentMethodDetailLoadedEvent;
 use Shopware\PaymentMethod\Event\PaymentMethodWrittenEvent;
-use Shopware\PaymentMethod\Reader\PaymentMethodBasicReader;
-use Shopware\PaymentMethod\Reader\PaymentMethodDetailReader;
-use Shopware\PaymentMethod\Searcher\PaymentMethodSearcher;
 use Shopware\PaymentMethod\Searcher\PaymentMethodSearchResult;
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicCollection;
 use Shopware\PaymentMethod\Struct\PaymentMethodDetailCollection;
-use Shopware\PaymentMethod\Writer\PaymentMethodWriter;
-use Shopware\Search\AggregationResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class PaymentMethodRepository
+class PaymentMethodRepository implements RepositoryInterface
 {
     /**
-     * @var PaymentMethodDetailReader
+     * @var DetailReaderInterface
      */
     protected $detailReader;
 
     /**
-     * @var PaymentMethodBasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -37,21 +38,21 @@ class PaymentMethodRepository
     private $eventDispatcher;
 
     /**
-     * @var PaymentMethodSearcher
+     * @var SearcherInterface
      */
     private $searcher;
 
     /**
-     * @var PaymentMethodWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
-        PaymentMethodDetailReader $detailReader,
-        PaymentMethodBasicReader $basicReader,
+        DetailReaderInterface $detailReader,
+        BasicReaderInterface $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        PaymentMethodSearcher $searcher,
-        PaymentMethodWriter $writer
+        SearcherInterface $searcher,
+        WriterInterface $writer
     ) {
         $this->detailReader = $detailReader;
         $this->basicReader = $basicReader;
@@ -66,6 +67,7 @@ class PaymentMethodRepository
             return new PaymentMethodBasicCollection();
         }
 
+        /** @var PaymentMethodBasicCollection $collection */
         $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -81,6 +83,8 @@ class PaymentMethodRepository
         if (empty($uuids)) {
             return new PaymentMethodDetailCollection();
         }
+
+        /** @var PaymentMethodDetailCollection $collection */
         $collection = $this->detailReader->readDetail($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -120,7 +124,7 @@ class PaymentMethodRepository
     {
         $event = $this->writer->update($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -130,7 +134,7 @@ class PaymentMethodRepository
     {
         $event = $this->writer->upsert($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -140,7 +144,7 @@ class PaymentMethodRepository
     {
         $event = $this->writer->create($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;

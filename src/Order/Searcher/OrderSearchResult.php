@@ -2,9 +2,9 @@
 
 namespace Shopware\Order\Searcher;
 
+use Shopware\Api\Search\SearchResultInterface;
+use Shopware\Api\Search\SearchResultTrait;
 use Shopware\Order\Struct\OrderBasicCollection;
-use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
 
 class OrderSearchResult extends OrderBasicCollection implements SearchResultInterface
 {

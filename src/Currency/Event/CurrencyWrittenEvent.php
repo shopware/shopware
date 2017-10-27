@@ -2,9 +2,9 @@
 
 namespace Shopware\Currency\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class CurrencyWrittenEvent extends AbstractWrittenEvent
+class CurrencyWrittenEvent extends WrittenEvent
 {
     const NAME = 'currency.written';
 

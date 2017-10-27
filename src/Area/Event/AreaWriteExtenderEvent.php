@@ -2,7 +2,7 @@
 
 namespace Shopware\Area\Event;
 
-use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Api\Write\FieldAware\FieldExtenderCollection;
 use Symfony\Component\EventDispatcher\Event;
 
 class AreaWriteExtenderEvent extends Event

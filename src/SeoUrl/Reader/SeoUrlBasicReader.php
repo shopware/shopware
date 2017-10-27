@@ -3,13 +3,14 @@
 namespace Shopware\SeoUrl\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\BasicReaderInterface;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\SeoUrl\Factory\SeoUrlBasicFactory;
 use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
 use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
 
-class SeoUrlBasicReader
+class SeoUrlBasicReader implements BasicReaderInterface
 {
     use SortArrayByKeysTrait;
 

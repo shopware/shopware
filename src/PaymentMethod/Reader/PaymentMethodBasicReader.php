@@ -3,13 +3,14 @@
 namespace Shopware\PaymentMethod\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\BasicReaderInterface;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\PaymentMethod\Factory\PaymentMethodBasicFactory;
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicCollection;
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
 
-class PaymentMethodBasicReader
+class PaymentMethodBasicReader implements BasicReaderInterface
 {
     use SortArrayByKeysTrait;
 

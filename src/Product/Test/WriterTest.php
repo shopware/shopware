@@ -4,10 +4,10 @@ namespace Shopware\Product\Tests;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
-use Shopware\Framework\Write\FieldException\WriteStackException;
-use Shopware\Framework\Write\WriteContext;
-use Shopware\Framework\Write\Writer;
+use Shopware\Api\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Api\Write\FieldException\WriteStackException;
+use Shopware\Api\Write\SqlResourceWriter;
+use Shopware\Api\Write\WriteContext;
 use Shopware\Product\Writer\Resource\ProductWriteResource;
 use Shopware\Shop\Writer\Resource\ShopWriteResource;
 use Shopware\Storefront\Context\StorefrontContextService;
@@ -375,7 +375,7 @@ class WriterTest extends KernelTestCase
         );
     }
 
-    private function getWriter(): Writer
+    private function getWriter(): SqlResourceWriter
     {
         return self::$kernel->getContainer()->get('shopware.framework.write.writer');
     }

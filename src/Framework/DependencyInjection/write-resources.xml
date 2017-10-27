@@ -4,328 +4,340 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-                <service id="shopware.framework.attribute-configuration.resource" class="Shopware\Framework\Writer\Resource\AttributeConfigurationWriteResource">
+                <service id="shopware.framework.attribute-configuration.resource" class="Shopware\Framework\SqlResourceWriter\Resource\AttributeConfigurationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.attribute-configuration-translation.resource" class="Shopware\Framework\Writer\Resource\AttributeConfigurationTranslationWriteResource">
+        <service id="shopware.framework.attribute-configuration-translation.resource" class="Shopware\Framework\SqlResourceWriter\Resource\AttributeConfigurationTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.blog.resource" class="Shopware\Framework\Writer\Resource\BlogWriteResource">
+        <service id="shopware.framework.blog.resource" class="Shopware\Framework\SqlResourceWriter\Resource\BlogWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.blog-comment.resource" class="Shopware\Framework\Writer\Resource\BlogCommentWriteResource">
+        <service id="shopware.framework.blog-comment.resource" class="Shopware\Framework\SqlResourceWriter\Resource\BlogCommentWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.blog-media.resource" class="Shopware\Framework\Writer\Resource\BlogMediaWriteResource">
+        <service id="shopware.framework.blog-media.resource" class="Shopware\Framework\SqlResourceWriter\Resource\BlogMediaWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.blog-product.resource" class="Shopware\Framework\Writer\Resource\BlogProductWriteResource">
+        <service id="shopware.framework.blog-product.resource" class="Shopware\Framework\SqlResourceWriter\Resource\BlogProductWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.blog-tag.resource" class="Shopware\Framework\Writer\Resource\BlogTagWriteResource">
+        <service id="shopware.framework.blog-tag.resource" class="Shopware\Framework\SqlResourceWriter\Resource\BlogTagWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.blog-tag-translation.resource" class="Shopware\Framework\Writer\Resource\BlogTagTranslationWriteResource">
+        <service id="shopware.framework.blog-tag-translation.resource" class="Shopware\Framework\SqlResourceWriter\Resource\BlogTagTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.blog-translation.resource" class="Shopware\Framework\Writer\Resource\BlogTranslationWriteResource">
+        <service id="shopware.framework.blog-translation.resource" class="Shopware\Framework\SqlResourceWriter\Resource\BlogTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.config-form.resource" class="Shopware\Framework\Writer\Resource\ConfigFormWriteResource">
+        <service id="shopware.framework.config-form.resource" class="Shopware\Framework\SqlResourceWriter\Resource\ConfigFormWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.config-form-field.resource" class="Shopware\Framework\Writer\Resource\ConfigFormFieldWriteResource">
+        <service id="shopware.framework.config-form-field.resource" class="Shopware\Framework\SqlResourceWriter\Resource\ConfigFormFieldWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.config-form-field-translation.resource" class="Shopware\Framework\Writer\Resource\ConfigFormFieldTranslationWriteResource">
+        <service id="shopware.framework.config-form-field-translation.resource" class="Shopware\Framework\SqlResourceWriter\Resource\ConfigFormFieldTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.config-form-field-value.resource" class="Shopware\Framework\Writer\Resource\ConfigFormFieldValueWriteResource">
+        <service id="shopware.framework.config-form-field-value.resource" class="Shopware\Framework\SqlResourceWriter\Resource\ConfigFormFieldValueWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.config-form-translation.resource" class="Shopware\Framework\Writer\Resource\ConfigFormTranslationWriteResource">
+        <service id="shopware.framework.config-form-translation.resource" class="Shopware\Framework\SqlResourceWriter\Resource\ConfigFormTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.filter.resource" class="Shopware\Framework\Writer\Resource\FilterWriteResource">
+        <service id="shopware.framework.filter.resource" class="Shopware\Framework\SqlResourceWriter\Resource\FilterWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.filter-option.resource" class="Shopware\Framework\Writer\Resource\FilterOptionWriteResource">
+        <service id="shopware.framework.filter-option.resource" class="Shopware\Framework\SqlResourceWriter\Resource\FilterOptionWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.filter-option-translation.resource" class="Shopware\Framework\Writer\Resource\FilterOptionTranslationWriteResource">
+        <service id="shopware.framework.filter-option-translation.resource" class="Shopware\Framework\SqlResourceWriter\Resource\FilterOptionTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.filter-product.resource" class="Shopware\Framework\Writer\Resource\FilterProductWriteResource">
+        <service id="shopware.framework.filter-product.resource" class="Shopware\Framework\SqlResourceWriter\Resource\FilterProductWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.filter-relation.resource" class="Shopware\Framework\Writer\Resource\FilterRelationWriteResource">
+        <service id="shopware.framework.filter-relation.resource" class="Shopware\Framework\SqlResourceWriter\Resource\FilterRelationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.filter-translation.resource" class="Shopware\Framework\Writer\Resource\FilterTranslationWriteResource">
+        <service id="shopware.framework.filter-translation.resource" class="Shopware\Framework\SqlResourceWriter\Resource\FilterTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.filter-value.resource" class="Shopware\Framework\Writer\Resource\FilterValueWriteResource">
+        <service id="shopware.framework.filter-value.resource" class="Shopware\Framework\SqlResourceWriter\Resource\FilterValueWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.filter-value-translation.resource" class="Shopware\Framework\Writer\Resource\FilterValueTranslationWriteResource">
+        <service id="shopware.framework.filter-value-translation.resource" class="Shopware\Framework\SqlResourceWriter\Resource\FilterValueTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.listing-facet.resource" class="Shopware\Framework\Writer\Resource\ListingFacetWriteResource">
+        <service id="shopware.framework.listing-facet.resource" class="Shopware\Framework\SqlResourceWriter\Resource\ListingFacetWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.listing-facet-translation.resource" class="Shopware\Framework\Writer\Resource\ListingFacetTranslationWriteResource">
+        <service id="shopware.framework.listing-facet-translation.resource" class="Shopware\Framework\SqlResourceWriter\Resource\ListingFacetTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.log.resource" class="Shopware\Framework\Writer\Resource\LogWriteResource">
+        <service id="shopware.framework.log.resource" class="Shopware\Framework\SqlResourceWriter\Resource\LogWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.mail.resource" class="Shopware\Framework\Writer\Resource\MailWriteResource">
+        <service id="shopware.framework.mail.resource" class="Shopware\Framework\SqlResourceWriter\Resource\MailWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.mail-attachment.resource" class="Shopware\Framework\Writer\Resource\MailAttachmentWriteResource">
+        <service id="shopware.framework.mail-attachment.resource" class="Shopware\Framework\SqlResourceWriter\Resource\MailAttachmentWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.mail-translation.resource" class="Shopware\Framework\Writer\Resource\MailTranslationWriteResource">
+        <service id="shopware.framework.mail-translation.resource" class="Shopware\Framework\SqlResourceWriter\Resource\MailTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.plugin.resource" class="Shopware\Framework\Writer\Resource\PluginWriteResource">
+        <service id="shopware.framework.plugin.resource" class="Shopware\Framework\SqlResourceWriter\Resource\PluginWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.plugin-category.resource" class="Shopware\Framework\Writer\Resource\PluginCategoryWriteResource">
+        <service id="shopware.framework.plugin-category.resource" class="Shopware\Framework\SqlResourceWriter\Resource\PluginCategoryWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.premium-product.resource" class="Shopware\Framework\Writer\Resource\PremiumProductWriteResource">
+        <service id="shopware.framework.premium-product.resource" class="Shopware\Framework\SqlResourceWriter\Resource\PremiumProductWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.articles-translations.resource" class="Shopware\Framework\Writer\Resource\ArticlesTranslationsWriteResource">
+        <service id="shopware.framework.articles-translations.resource" class="Shopware\Framework\SqlResourceWriter\Resource\ArticlesTranslationsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.billing-template.resource" class="Shopware\Framework\Writer\Resource\BillingTemplateWriteResource">
+        <service id="shopware.framework.billing-template.resource" class="Shopware\Framework\SqlResourceWriter\Resource\BillingTemplateWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.campaigns-articles.resource" class="Shopware\Framework\Writer\Resource\CampaignsArticlesWriteResource">
+        <service id="shopware.framework.campaigns-articles.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CampaignsArticlesWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.campaigns-banner.resource" class="Shopware\Framework\Writer\Resource\CampaignsBannerWriteResource">
+        <service id="shopware.framework.campaigns-banner.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CampaignsBannerWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.campaigns-containers.resource" class="Shopware\Framework\Writer\Resource\CampaignsContainersWriteResource">
+        <service id="shopware.framework.campaigns-containers.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CampaignsContainersWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.campaigns-groups.resource" class="Shopware\Framework\Writer\Resource\CampaignsGroupsWriteResource">
+        <service id="shopware.framework.campaigns-groups.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CampaignsGroupsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.campaigns-html.resource" class="Shopware\Framework\Writer\Resource\CampaignsHtmlWriteResource">
+        <service id="shopware.framework.campaigns-html.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CampaignsHtmlWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.campaigns-links.resource" class="Shopware\Framework\Writer\Resource\CampaignsLinksWriteResource">
+        <service id="shopware.framework.campaigns-links.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CampaignsLinksWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.campaigns-logs.resource" class="Shopware\Framework\Writer\Resource\CampaignsLogsWriteResource">
+        <service id="shopware.framework.campaigns-logs.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CampaignsLogsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.campaigns-mailaddresses.resource" class="Shopware\Framework\Writer\Resource\CampaignsMailaddressesWriteResource">
+        <service id="shopware.framework.campaigns-mailaddresses.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CampaignsMailaddressesWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.campaigns-maildata.resource" class="Shopware\Framework\Writer\Resource\CampaignsMaildataWriteResource">
+        <service id="shopware.framework.campaigns-maildata.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CampaignsMaildataWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.campaigns-mailings.resource" class="Shopware\Framework\Writer\Resource\CampaignsMailingsWriteResource">
+        <service id="shopware.framework.campaigns-mailings.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CampaignsMailingsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.campaigns-positions.resource" class="Shopware\Framework\Writer\Resource\CampaignsPositionsWriteResource">
+        <service id="shopware.framework.campaigns-positions.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CampaignsPositionsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.campaigns-sender.resource" class="Shopware\Framework\Writer\Resource\CampaignsSenderWriteResource">
+        <service id="shopware.framework.campaigns-sender.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CampaignsSenderWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.campaigns-templates.resource" class="Shopware\Framework\Writer\Resource\CampaignsTemplatesWriteResource">
+        <service id="shopware.framework.campaigns-templates.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CampaignsTemplatesWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.core-acl-privileges.resource" class="Shopware\Framework\Writer\Resource\CoreAclPrivilegesWriteResource">
+        <service id="shopware.framework.core-acl-privileges.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CoreAclPrivilegesWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.core-acl-resources.resource" class="Shopware\Framework\Writer\Resource\CoreAclResourcesWriteResource">
+        <service id="shopware.framework.core-acl-resources.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CoreAclResourcesWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.core-customerpricegroups.resource" class="Shopware\Framework\Writer\Resource\CoreCustomerpricegroupsWriteResource">
+        <service id="shopware.framework.core-customerpricegroups.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CoreCustomerpricegroupsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.core-detail-states.resource" class="Shopware\Framework\Writer\Resource\CoreDetailStatesWriteResource">
+        <service id="shopware.framework.core-detail-states.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CoreDetailStatesWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.core-documents.resource" class="Shopware\Framework\Writer\Resource\CoreDocumentsWriteResource">
+        <service id="shopware.framework.core-documents.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CoreDocumentsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.core-documents-box.resource" class="Shopware\Framework\Writer\Resource\CoreDocumentsBoxWriteResource">
+        <service id="shopware.framework.core-documents-box.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CoreDocumentsBoxWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.core-engine-groups.resource" class="Shopware\Framework\Writer\Resource\CoreEngineGroupsWriteResource">
+        <service id="shopware.framework.core-engine-groups.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CoreEngineGroupsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.core-licenses.resource" class="Shopware\Framework\Writer\Resource\CoreLicensesWriteResource">
+        <service id="shopware.framework.core-licenses.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CoreLicensesWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.core-menu.resource" class="Shopware\Framework\Writer\Resource\CoreMenuWriteResource">
+        <service id="shopware.framework.core-menu.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CoreMenuWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.core-optin.resource" class="Shopware\Framework\Writer\Resource\CoreOptinWriteResource">
+        <service id="shopware.framework.core-optin.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CoreOptinWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.core-payment-data.resource" class="Shopware\Framework\Writer\Resource\CorePaymentDataWriteResource">
+        <service id="shopware.framework.core-payment-data.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CorePaymentDataWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.core-payment-instance.resource" class="Shopware\Framework\Writer\Resource\CorePaymentInstanceWriteResource">
+        <service id="shopware.framework.core-payment-instance.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CorePaymentInstanceWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.core-rewrite-urls.resource" class="Shopware\Framework\Writer\Resource\CoreRewriteUrlsWriteResource">
+        <service id="shopware.framework.core-rewrite-urls.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CoreRewriteUrlsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.core-rulesets.resource" class="Shopware\Framework\Writer\Resource\CoreRulesetsWriteResource">
+        <service id="shopware.framework.core-rulesets.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CoreRulesetsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.core-sessions-backend.resource" class="Shopware\Framework\Writer\Resource\CoreSessionsBackendWriteResource">
+        <service id="shopware.framework.core-sessions-backend.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CoreSessionsBackendWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.core-subscribes.resource" class="Shopware\Framework\Writer\Resource\CoreSubscribesWriteResource">
+        <service id="shopware.framework.core-subscribes.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CoreSubscribesWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.core-theme-settings.resource" class="Shopware\Framework\Writer\Resource\CoreThemeSettingsWriteResource">
+        <service id="shopware.framework.core-theme-settings.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CoreThemeSettingsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.core-translations.resource" class="Shopware\Framework\Writer\Resource\CoreTranslationsWriteResource">
+        <service id="shopware.framework.core-translations.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CoreTranslationsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.core-widget-views.resource" class="Shopware\Framework\Writer\Resource\CoreWidgetViewsWriteResource">
+        <service id="shopware.framework.core-widget-views.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CoreWidgetViewsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.core-widgets.resource" class="Shopware\Framework\Writer\Resource\CoreWidgetsWriteResource">
+        <service id="shopware.framework.core-widgets.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CoreWidgetsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.crontab.resource" class="Shopware\Framework\Writer\Resource\CrontabWriteResource">
+        <service id="shopware.framework.crontab.resource" class="Shopware\Framework\SqlResourceWriter\Resource\CrontabWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.emarketing-banners.resource" class="Shopware\Framework\Writer\Resource\EmarketingBannersWriteResource">
+        <service id="shopware.framework.emarketing-banners.resource" class="Shopware\Framework\SqlResourceWriter\Resource\EmarketingBannersWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.emarketing-banners-statistics.resource" class="Shopware\Framework\Writer\Resource\EmarketingBannersStatisticsWriteResource">
+        <service id="shopware.framework.emarketing-banners-statistics.resource" class="Shopware\Framework\SqlResourceWriter\Resource\EmarketingBannersStatisticsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.emarketing-lastarticles.resource" class="Shopware\Framework\Writer\Resource\EmarketingLastarticlesWriteResource">
+        <service id="shopware.framework.emarketing-lastarticles.resource" class="Shopware\Framework\SqlResourceWriter\Resource\EmarketingLastarticlesWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.emarketing-partner.resource" class="Shopware\Framework\Writer\Resource\EmarketingPartnerWriteResource">
+        <service id="shopware.framework.emarketing-partner.resource" class="Shopware\Framework\SqlResourceWriter\Resource\EmarketingPartnerWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.emarketing-referer.resource" class="Shopware\Framework\Writer\Resource\EmarketingRefererWriteResource">
+        <service id="shopware.framework.emarketing-referer.resource" class="Shopware\Framework\SqlResourceWriter\Resource\EmarketingRefererWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.emarketing-tellafriend.resource" class="Shopware\Framework\Writer\Resource\EmarketingTellafriendWriteResource">
+        <service id="shopware.framework.emarketing-tellafriend.resource" class="Shopware\Framework\SqlResourceWriter\Resource\EmarketingTellafriendWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.emarketing-voucher-codes.resource" class="Shopware\Framework\Writer\Resource\EmarketingVoucherCodesWriteResource">
+        <service id="shopware.framework.emarketing-voucher-codes.resource" class="Shopware\Framework\SqlResourceWriter\Resource\EmarketingVoucherCodesWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.emarketing-vouchers.resource" class="Shopware\Framework\Writer\Resource\EmarketingVouchersWriteResource">
+        <service id="shopware.framework.emarketing-vouchers.resource" class="Shopware\Framework\SqlResourceWriter\Resource\EmarketingVouchersWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.emotion.resource" class="Shopware\Framework\Writer\Resource\EmotionWriteResource">
+        <service id="shopware.framework.emotion.resource" class="Shopware\Framework\SqlResourceWriter\Resource\EmotionWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.emotion-categories.resource" class="Shopware\Framework\Writer\Resource\EmotionCategoriesWriteResource">
+        <service id="shopware.framework.emotion-categories.resource" class="Shopware\Framework\SqlResourceWriter\Resource\EmotionCategoriesWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.emotion-element.resource" class="Shopware\Framework\Writer\Resource\EmotionElementWriteResource">
+        <service id="shopware.framework.emotion-element.resource" class="Shopware\Framework\SqlResourceWriter\Resource\EmotionElementWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.emotion-element-value.resource" class="Shopware\Framework\Writer\Resource\EmotionElementValueWriteResource">
+        <service id="shopware.framework.emotion-element-value.resource" class="Shopware\Framework\SqlResourceWriter\Resource\EmotionElementValueWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.emotion-element-viewports.resource" class="Shopware\Framework\Writer\Resource\EmotionElementViewportsWriteResource">
+        <service id="shopware.framework.emotion-element-viewports.resource" class="Shopware\Framework\SqlResourceWriter\Resource\EmotionElementViewportsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.emotion-shops.resource" class="Shopware\Framework\Writer\Resource\EmotionShopsWriteResource">
+        <service id="shopware.framework.emotion-shops.resource" class="Shopware\Framework\SqlResourceWriter\Resource\EmotionShopsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.emotion-templates.resource" class="Shopware\Framework\Writer\Resource\EmotionTemplatesWriteResource">
+        <service id="shopware.framework.emotion-templates.resource" class="Shopware\Framework\SqlResourceWriter\Resource\EmotionTemplatesWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.es-backlog.resource" class="Shopware\Framework\Writer\Resource\EsBacklogWriteResource">
+        <service id="shopware.framework.es-backlog.resource" class="Shopware\Framework\SqlResourceWriter\Resource\EsBacklogWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.export.resource" class="Shopware\Framework\Writer\Resource\ExportWriteResource">
+        <service id="shopware.framework.export.resource" class="Shopware\Framework\SqlResourceWriter\Resource\ExportWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.export-articles.resource" class="Shopware\Framework\Writer\Resource\ExportArticlesWriteResource">
+        <service id="shopware.framework.export-articles.resource" class="Shopware\Framework\SqlResourceWriter\Resource\ExportArticlesWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.export-categories.resource" class="Shopware\Framework\Writer\Resource\ExportCategoriesWriteResource">
+        <service id="shopware.framework.export-categories.resource" class="Shopware\Framework\SqlResourceWriter\Resource\ExportCategoriesWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.export-suppliers.resource" class="Shopware\Framework\Writer\Resource\ExportSuppliersWriteResource">
+        <service id="shopware.framework.export-suppliers.resource" class="Shopware\Framework\SqlResourceWriter\Resource\ExportSuppliersWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.multi-edit-backup.resource" class="Shopware\Framework\Writer\Resource\MultiEditBackupWriteResource">
+        <service id="shopware.framework.multi-edit-backup.resource" class="Shopware\Framework\SqlResourceWriter\Resource\MultiEditBackupWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.multi-edit-filter.resource" class="Shopware\Framework\Writer\Resource\MultiEditFilterWriteResource">
+        <service id="shopware.framework.multi-edit-filter.resource" class="Shopware\Framework\SqlResourceWriter\Resource\MultiEditFilterWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.multi-edit-queue.resource" class="Shopware\Framework\Writer\Resource\MultiEditQueueWriteResource">
+        <service id="shopware.framework.multi-edit-queue.resource" class="Shopware\Framework\SqlResourceWriter\Resource\MultiEditQueueWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.multi-edit-queue-articles.resource" class="Shopware\Framework\Writer\Resource\MultiEditQueueArticlesWriteResource">
+        <service id="shopware.framework.multi-edit-queue-articles.resource" class="Shopware\Framework\SqlResourceWriter\Resource\MultiEditQueueArticlesWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.plugin-recommendations.resource" class="Shopware\Framework\Writer\Resource\PluginRecommendationsWriteResource">
+        <service id="shopware.framework.plugin-recommendations.resource" class="Shopware\Framework\SqlResourceWriter\Resource\PluginRecommendationsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.plugin-widgets-notes.resource" class="Shopware\Framework\Writer\Resource\PluginWidgetsNotesWriteResource">
+        <service id="shopware.framework.plugin-widgets-notes.resource" class="Shopware\Framework\SqlResourceWriter\Resource\PluginWidgetsNotesWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.user-billingaddress.resource" class="Shopware\Framework\Writer\Resource\UserBillingaddressWriteResource">
+        <service id="shopware.framework.search-fields.resource" class="Shopware\Framework\SqlResourceWriter\Resource\SearchFieldsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.user-shippingaddress.resource" class="Shopware\Framework\Writer\Resource\UserShippingaddressWriteResource">
+        <service id="shopware.framework.search-index.resource" class="Shopware\Framework\SqlResourceWriter\Resource\SearchIndexWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.schema-version.resource" class="Shopware\Framework\Writer\Resource\SchemaVersionWriteResource">
+        <service id="shopware.framework.search-keywords.resource" class="Shopware\Framework\SqlResourceWriter\Resource\SearchKeywordsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.session.resource" class="Shopware\Framework\Writer\Resource\SessionWriteResource">
+        <service id="shopware.framework.search-tables.resource" class="Shopware\Framework\SqlResourceWriter\Resource\SearchTablesWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.sessions.resource" class="Shopware\Framework\Writer\Resource\SessionsWriteResource">
+        <service id="shopware.framework.user-billingaddress.resource" class="Shopware\Framework\SqlResourceWriter\Resource\UserBillingaddressWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.shopping-world-component.resource" class="Shopware\Framework\Writer\Resource\ShoppingWorldComponentWriteResource">
+        <service id="shopware.framework.user-shippingaddress.resource" class="Shopware\Framework\SqlResourceWriter\Resource\UserShippingaddressWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.shopping-world-component-field.resource" class="Shopware\Framework\Writer\Resource\ShoppingWorldComponentFieldWriteResource">
+        <service id="shopware.framework.schema-version.resource" class="Shopware\Framework\SqlResourceWriter\Resource\SchemaVersionWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.snippet.resource" class="Shopware\Framework\Writer\Resource\SnippetWriteResource">
+        <service id="shopware.framework.session.resource" class="Shopware\Framework\SqlResourceWriter\Resource\SessionWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.statistic-address-pool.resource" class="Shopware\Framework\Writer\Resource\StatisticAddressPoolWriteResource">
+        <service id="shopware.framework.sessions.resource" class="Shopware\Framework\SqlResourceWriter\Resource\SessionsWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.statistic-current-customer.resource" class="Shopware\Framework\Writer\Resource\StatisticCurrentCustomerWriteResource">
+        <service id="shopware.framework.shopping-world-component.resource" class="Shopware\Framework\SqlResourceWriter\Resource\ShoppingWorldComponentWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.statistic-product-impression.resource" class="Shopware\Framework\Writer\Resource\StatisticProductImpressionWriteResource">
+        <service id="shopware.framework.shopping-world-component-field.resource" class="Shopware\Framework\SqlResourceWriter\Resource\ShoppingWorldComponentFieldWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.statistic-referer.resource" class="Shopware\Framework\Writer\Resource\StatisticRefererWriteResource">
+        <service id="shopware.framework.snippet.resource" class="Shopware\Framework\SqlResourceWriter\Resource\SnippetWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.statistic-search.resource" class="Shopware\Framework\Writer\Resource\StatisticSearchWriteResource">
+        <service id="shopware.framework.statistic-address-pool.resource" class="Shopware\Framework\SqlResourceWriter\Resource\StatisticAddressPoolWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.statistic-visitor.resource" class="Shopware\Framework\Writer\Resource\StatisticVisitorWriteResource">
+        <service id="shopware.framework.statistic-current-customer.resource" class="Shopware\Framework\SqlResourceWriter\Resource\StatisticCurrentCustomerWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.framework.user.resource" class="Shopware\Framework\Writer\Resource\UserWriteResource">
+        <service id="shopware.framework.statistic-product-impression.resource" class="Shopware\Framework\SqlResourceWriter\Resource\StatisticProductImpressionWriteResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.framework.statistic-referer.resource" class="Shopware\Framework\SqlResourceWriter\Resource\StatisticRefererWriteResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.framework.statistic-search.resource" class="Shopware\Framework\SqlResourceWriter\Resource\StatisticSearchWriteResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.framework.statistic-visitor.resource" class="Shopware\Framework\SqlResourceWriter\Resource\StatisticVisitorWriteResource">
+            <tag name="shopware.framework.write.resource"/> 
+        </service>
+        <service id="shopware.framework.user.resource" class="Shopware\Framework\SqlResourceWriter\Resource\UserWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
     </services>

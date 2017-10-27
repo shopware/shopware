@@ -3,13 +3,14 @@
 namespace Shopware\ProductListingPrice\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\BasicReaderInterface;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\ProductListingPrice\Factory\ProductListingPriceBasicFactory;
 use Shopware\ProductListingPrice\Struct\ProductListingPriceBasicCollection;
 use Shopware\ProductListingPrice\Struct\ProductListingPriceBasicStruct;
 
-class ProductListingPriceBasicReader
+class ProductListingPriceBasicReader implements BasicReaderInterface
 {
     use SortArrayByKeysTrait;
 

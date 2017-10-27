@@ -2,8 +2,8 @@
 
 namespace Shopware\TaxAreaRule\Searcher;
 
-use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
+use Shopware\Api\Search\SearchResultInterface;
+use Shopware\Api\Search\SearchResultTrait;
 use Shopware\TaxAreaRule\Struct\TaxAreaRuleBasicCollection;
 
 class TaxAreaRuleSearchResult extends TaxAreaRuleBasicCollection implements SearchResultInterface

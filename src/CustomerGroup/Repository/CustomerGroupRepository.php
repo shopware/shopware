@@ -2,32 +2,33 @@
 
 namespace Shopware\CustomerGroup\Repository;
 
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\Read\DetailReaderInterface;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Event\CustomerGroupBasicLoadedEvent;
 use Shopware\CustomerGroup\Event\CustomerGroupDetailLoadedEvent;
 use Shopware\CustomerGroup\Event\CustomerGroupWrittenEvent;
-use Shopware\CustomerGroup\Reader\CustomerGroupBasicReader;
-use Shopware\CustomerGroup\Reader\CustomerGroupDetailReader;
-use Shopware\CustomerGroup\Searcher\CustomerGroupSearcher;
 use Shopware\CustomerGroup\Searcher\CustomerGroupSearchResult;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicCollection;
 use Shopware\CustomerGroup\Struct\CustomerGroupDetailCollection;
-use Shopware\CustomerGroup\Writer\CustomerGroupWriter;
-use Shopware\Framework\Write\EntityWrittenEvent;
-use Shopware\Search\AggregationResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class CustomerGroupRepository
+class CustomerGroupRepository implements RepositoryInterface
 {
     /**
-     * @var CustomerGroupDetailReader
+     * @var DetailReaderInterface
      */
     protected $detailReader;
 
     /**
-     * @var CustomerGroupBasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -37,21 +38,21 @@ class CustomerGroupRepository
     private $eventDispatcher;
 
     /**
-     * @var CustomerGroupSearcher
+     * @var SearcherInterface
      */
     private $searcher;
 
     /**
-     * @var CustomerGroupWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
-        CustomerGroupDetailReader $detailReader,
-        CustomerGroupBasicReader $basicReader,
+        DetailReaderInterface $detailReader,
+        BasicReaderInterface $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        CustomerGroupSearcher $searcher,
-        CustomerGroupWriter $writer
+        SearcherInterface $searcher,
+        WriterInterface $writer
     ) {
         $this->detailReader = $detailReader;
         $this->basicReader = $basicReader;
@@ -66,6 +67,7 @@ class CustomerGroupRepository
             return new CustomerGroupBasicCollection();
         }
 
+        /** @var CustomerGroupBasicCollection $collection */
         $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -81,6 +83,8 @@ class CustomerGroupRepository
         if (empty($uuids)) {
             return new CustomerGroupDetailCollection();
         }
+
+        /** @var CustomerGroupDetailCollection $collection */
         $collection = $this->detailReader->readDetail($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -120,7 +124,7 @@ class CustomerGroupRepository
     {
         $event = $this->writer->update($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -130,7 +134,7 @@ class CustomerGroupRepository
     {
         $event = $this->writer->upsert($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -140,7 +144,7 @@ class CustomerGroupRepository
     {
         $event = $this->writer->create($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;

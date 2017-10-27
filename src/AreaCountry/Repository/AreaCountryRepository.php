@@ -2,32 +2,33 @@
 
 namespace Shopware\AreaCountry\Repository;
 
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\Read\DetailReaderInterface;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\AreaCountry\Event\AreaCountryBasicLoadedEvent;
 use Shopware\AreaCountry\Event\AreaCountryDetailLoadedEvent;
 use Shopware\AreaCountry\Event\AreaCountryWrittenEvent;
-use Shopware\AreaCountry\Reader\AreaCountryBasicReader;
-use Shopware\AreaCountry\Reader\AreaCountryDetailReader;
-use Shopware\AreaCountry\Searcher\AreaCountrySearcher;
 use Shopware\AreaCountry\Searcher\AreaCountrySearchResult;
 use Shopware\AreaCountry\Struct\AreaCountryBasicCollection;
 use Shopware\AreaCountry\Struct\AreaCountryDetailCollection;
-use Shopware\AreaCountry\Writer\AreaCountryWriter;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Write\EntityWrittenEvent;
-use Shopware\Search\AggregationResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class AreaCountryRepository
+class AreaCountryRepository implements RepositoryInterface
 {
     /**
-     * @var AreaCountryDetailReader
+     * @var DetailReaderInterface
      */
     protected $detailReader;
 
     /**
-     * @var AreaCountryBasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -37,21 +38,21 @@ class AreaCountryRepository
     private $eventDispatcher;
 
     /**
-     * @var AreaCountrySearcher
+     * @var SearcherInterface
      */
     private $searcher;
 
     /**
-     * @var AreaCountryWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
-        AreaCountryDetailReader $detailReader,
-        AreaCountryBasicReader $basicReader,
+        DetailReaderInterface $detailReader,
+        BasicReaderInterface $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        AreaCountrySearcher $searcher,
-        AreaCountryWriter $writer
+        SearcherInterface $searcher,
+        WriterInterface $writer
     ) {
         $this->detailReader = $detailReader;
         $this->basicReader = $basicReader;
@@ -66,6 +67,7 @@ class AreaCountryRepository
             return new AreaCountryBasicCollection();
         }
 
+        /** @var AreaCountryBasicCollection $collection */
         $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -81,6 +83,8 @@ class AreaCountryRepository
         if (empty($uuids)) {
             return new AreaCountryDetailCollection();
         }
+
+        /** @var AreaCountryDetailCollection $collection */
         $collection = $this->detailReader->readDetail($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -120,7 +124,7 @@ class AreaCountryRepository
     {
         $event = $this->writer->update($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -130,7 +134,7 @@ class AreaCountryRepository
     {
         $event = $this->writer->upsert($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -140,7 +144,7 @@ class AreaCountryRepository
     {
         $event = $this->writer->create($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;

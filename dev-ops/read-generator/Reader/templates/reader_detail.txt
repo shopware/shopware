@@ -8,11 +8,12 @@ use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\#classUc#\Factory\#classUc#DetailFactory;
 use Shopware\#classUc#\Struct\#structClass#Collection;
 use Shopware\#classUc#\Struct\#structClass#Struct;
-use Shopware\Search\Criteria;
-use Shopware\Search\Query\TermsQuery;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Query\TermsQuery;
+use Shopware\Api\Read\DetailReaderInterface;
 #uses#
 
-class #structClass#Reader
+class #structClass#Reader implements DetailReaderInterface
 {
     use SortArrayByKeysTrait;
 

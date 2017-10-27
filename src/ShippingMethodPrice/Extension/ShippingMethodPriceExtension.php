@@ -2,15 +2,15 @@
 
 namespace Shopware\ShippingMethodPrice\Extension;
 
+use Shopware\Api\Read\FactoryExtensionInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionInterface;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Shopware\ShippingMethodPrice\Event\ShippingMethodPriceBasicLoadedEvent;
 use Shopware\ShippingMethodPrice\Struct\ShippingMethodPriceBasicStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class ShippingMethodPriceExtension implements ExtensionInterface, EventSubscriberInterface
+abstract class ShippingMethodPriceExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

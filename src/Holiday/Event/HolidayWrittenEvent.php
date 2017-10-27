@@ -2,9 +2,9 @@
 
 namespace Shopware\Holiday\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class HolidayWrittenEvent extends AbstractWrittenEvent
+class HolidayWrittenEvent extends WrittenEvent
 {
     const NAME = 'holiday.written';
 

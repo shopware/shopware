@@ -3,13 +3,14 @@
 namespace Shopware\TaxAreaRule\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\BasicReaderInterface;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\TaxAreaRule\Factory\TaxAreaRuleBasicFactory;
 use Shopware\TaxAreaRule\Struct\TaxAreaRuleBasicCollection;
 use Shopware\TaxAreaRule\Struct\TaxAreaRuleBasicStruct;
 
-class TaxAreaRuleBasicReader
+class TaxAreaRuleBasicReader implements BasicReaderInterface
 {
     use SortArrayByKeysTrait;
 

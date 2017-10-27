@@ -3,6 +3,7 @@
 namespace Shopware\Currency\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\DetailReaderInterface;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Currency\Factory\CurrencyDetailFactory;
 use Shopware\Currency\Struct\CurrencyDetailCollection;
@@ -10,7 +11,7 @@ use Shopware\Currency\Struct\CurrencyDetailStruct;
 use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\Shop\Reader\ShopBasicReader;
 
-class CurrencyDetailReader
+class CurrencyDetailReader implements DetailReaderInterface
 {
     use SortArrayByKeysTrait;
 

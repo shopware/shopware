@@ -2,9 +2,9 @@
 
 namespace Shopware\PaymentMethod\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class PaymentMethodWrittenEvent extends AbstractWrittenEvent
+class PaymentMethodWrittenEvent extends WrittenEvent
 {
     const NAME = 'payment_method.written';
 

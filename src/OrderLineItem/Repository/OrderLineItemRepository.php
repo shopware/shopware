@@ -2,25 +2,25 @@
 
 namespace Shopware\OrderLineItem\Repository;
 
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\RepositoryInterface;
-use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\OrderLineItem\Event\OrderLineItemBasicLoadedEvent;
 use Shopware\OrderLineItem\Event\OrderLineItemWrittenEvent;
-use Shopware\OrderLineItem\Reader\OrderLineItemBasicReader;
-use Shopware\OrderLineItem\Searcher\OrderLineItemSearcher;
 use Shopware\OrderLineItem\Searcher\OrderLineItemSearchResult;
 use Shopware\OrderLineItem\Struct\OrderLineItemBasicCollection;
-use Shopware\OrderLineItem\Writer\OrderLineItemWriter;
-use Shopware\Search\AggregationResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderLineItemRepository implements RepositoryInterface
 {
     /**
-     * @var OrderLineItemBasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -30,20 +30,20 @@ class OrderLineItemRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var OrderLineItemSearcher
+     * @var SearcherInterface
      */
     private $searcher;
 
     /**
-     * @var OrderLineItemWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
-        OrderLineItemBasicReader $basicReader,
+        BasicReaderInterface $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        OrderLineItemSearcher $searcher,
-        OrderLineItemWriter $writer
+        SearcherInterface $searcher,
+        WriterInterface $writer
     ) {
         $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
@@ -57,6 +57,7 @@ class OrderLineItemRepository implements RepositoryInterface
             return new OrderLineItemBasicCollection();
         }
 
+        /** @var OrderLineItemBasicCollection $collection */
         $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -101,7 +102,7 @@ class OrderLineItemRepository implements RepositoryInterface
     {
         $event = $this->writer->update($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -111,7 +112,7 @@ class OrderLineItemRepository implements RepositoryInterface
     {
         $event = $this->writer->upsert($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -121,7 +122,7 @@ class OrderLineItemRepository implements RepositoryInterface
     {
         $event = $this->writer->create($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;

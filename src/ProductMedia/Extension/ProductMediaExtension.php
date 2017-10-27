@@ -2,15 +2,15 @@
 
 namespace Shopware\ProductMedia\Extension;
 
+use Shopware\Api\Read\FactoryExtensionInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\ProductMedia\Event\ProductMediaBasicLoadedEvent;
 use Shopware\ProductMedia\Struct\ProductMediaBasicStruct;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class ProductMediaExtension implements ExtensionInterface, EventSubscriberInterface
+abstract class ProductMediaExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

@@ -2,16 +2,16 @@
 
 namespace Shopware\ProductVoteAverage\Extension;
 
+use Shopware\Api\Read\FactoryExtensionInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\ProductVoteAverage\Event\ProductVoteAverageBasicLoadedEvent;
 use Shopware\ProductVoteAverage\Event\ProductVoteAverageWrittenEvent;
 use Shopware\ProductVoteAverage\Struct\ProductVoteAverageBasicStruct;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class ProductVoteAverageExtension implements ExtensionInterface, EventSubscriberInterface
+abstract class ProductVoteAverageExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

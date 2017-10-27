@@ -2,9 +2,9 @@
 
 namespace Shopware\ProductVoteAverage\Searcher;
 
+use Shopware\Api\Search\SearchResultInterface;
+use Shopware\Api\Search\SearchResultTrait;
 use Shopware\ProductVoteAverage\Struct\ProductVoteAverageBasicCollection;
-use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
 
 class ProductVoteAverageSearchResult extends ProductVoteAverageBasicCollection implements SearchResultInterface
 {

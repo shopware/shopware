@@ -2,25 +2,25 @@
 
 namespace Shopware\ProductVote\Repository;
 
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\RepositoryInterface;
-use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\ProductVote\Event\ProductVoteBasicLoadedEvent;
 use Shopware\ProductVote\Event\ProductVoteWrittenEvent;
-use Shopware\ProductVote\Reader\ProductVoteBasicReader;
-use Shopware\ProductVote\Searcher\ProductVoteSearcher;
 use Shopware\ProductVote\Searcher\ProductVoteSearchResult;
 use Shopware\ProductVote\Struct\ProductVoteBasicCollection;
-use Shopware\ProductVote\Writer\ProductVoteWriter;
-use Shopware\Search\AggregationResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductVoteRepository implements RepositoryInterface
 {
     /**
-     * @var ProductVoteBasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -30,20 +30,20 @@ class ProductVoteRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var ProductVoteSearcher
+     * @var SearcherInterface
      */
     private $searcher;
 
     /**
-     * @var ProductVoteWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
-        ProductVoteBasicReader $basicReader,
+        BasicReaderInterface $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        ProductVoteSearcher $searcher,
-        ProductVoteWriter $writer
+        SearcherInterface $searcher,
+        WriterInterface $writer
     ) {
         $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
@@ -57,6 +57,7 @@ class ProductVoteRepository implements RepositoryInterface
             return new ProductVoteBasicCollection();
         }
 
+        /** @var ProductVoteBasicCollection $collection */
         $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -101,7 +102,7 @@ class ProductVoteRepository implements RepositoryInterface
     {
         $event = $this->writer->update($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -111,7 +112,7 @@ class ProductVoteRepository implements RepositoryInterface
     {
         $event = $this->writer->upsert($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -121,7 +122,7 @@ class ProductVoteRepository implements RepositoryInterface
     {
         $event = $this->writer->create($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;

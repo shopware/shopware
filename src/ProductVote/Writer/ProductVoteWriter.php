@@ -2,19 +2,20 @@
 
 namespace Shopware\ProductVote\Writer;
 
+use Shopware\Api\Write\FieldAware\DefaultExtender;
+use Shopware\Api\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Api\Write\FieldException\WriteStackException;
+use Shopware\Api\Write\ResourceWriterInterface;
+use Shopware\Api\Write\WriteContext;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEventDispatcherInterface;
-use Shopware\Framework\Write\FieldAware\DefaultExtender;
-use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
-use Shopware\Framework\Write\FieldException\WriteStackException;
-use Shopware\Framework\Write\WriteContext;
-use Shopware\Framework\Write\Writer;
 use Shopware\ProductVote\Event\ProductVoteWriteExtenderEvent;
 use Shopware\ProductVote\Event\ProductVoteWrittenEvent;
 use Shopware\ProductVote\Writer\Resource\ProductVoteWriteResource;
 use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
-class ProductVoteWriter
+class ProductVoteWriter implements WriterInterface
 {
     /**
      * @var DefaultExtender
@@ -27,11 +28,11 @@ class ProductVoteWriter
     private $eventDispatcher;
 
     /**
-     * @var Writer
+     * @var ResourceWriterInterface
      */
     private $writer;
 
-    public function __construct(DefaultExtender $extender, NestedEventDispatcherInterface $eventDispatcher, Writer $writer)
+    public function __construct(DefaultExtender $extender, NestedEventDispatcherInterface $eventDispatcher, ResourceWriterInterface $writer)
     {
         $this->extender = $extender;
         $this->eventDispatcher = $eventDispatcher;

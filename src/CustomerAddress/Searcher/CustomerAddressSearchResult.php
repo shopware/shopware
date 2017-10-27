@@ -2,9 +2,9 @@
 
 namespace Shopware\CustomerAddress\Searcher;
 
+use Shopware\Api\Search\SearchResultInterface;
+use Shopware\Api\Search\SearchResultTrait;
 use Shopware\CustomerAddress\Struct\CustomerAddressBasicCollection;
-use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
 
 class CustomerAddressSearchResult extends CustomerAddressBasicCollection implements SearchResultInterface
 {

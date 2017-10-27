@@ -2,9 +2,9 @@
 
 namespace Shopware\ProductMedia\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class ProductMediaMappingRuleWrittenEvent extends AbstractWrittenEvent
+class ProductMediaMappingRuleWrittenEvent extends WrittenEvent
 {
     const NAME = 'product_media_mapping_rule.written';
 

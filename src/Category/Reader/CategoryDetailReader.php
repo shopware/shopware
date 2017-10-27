@@ -3,6 +3,7 @@
 namespace Shopware\Category\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\DetailReaderInterface;
 use Shopware\Category\Factory\CategoryDetailFactory;
 use Shopware\Category\Struct\CategoryDetailCollection;
 use Shopware\Category\Struct\CategoryDetailStruct;
@@ -11,7 +12,7 @@ use Shopware\CustomerGroup\Reader\CustomerGroupBasicReader;
 use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\Product\Reader\ProductBasicReader;
 
-class CategoryDetailReader
+class CategoryDetailReader implements DetailReaderInterface
 {
     use SortArrayByKeysTrait;
 

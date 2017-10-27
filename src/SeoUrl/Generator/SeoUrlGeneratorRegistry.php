@@ -25,10 +25,10 @@
 namespace Shopware\SeoUrl\Generator;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Query\TermQuery;
+use Shopware\Api\Search\Query\TermsQuery;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Search\Criteria;
-use Shopware\Search\Query\TermQuery;
-use Shopware\Search\Query\TermsQuery;
 use Shopware\SeoUrl\Repository\SeoUrlRepository;
 use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
 use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;

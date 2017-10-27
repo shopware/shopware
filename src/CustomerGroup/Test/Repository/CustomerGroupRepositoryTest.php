@@ -2,11 +2,11 @@
 
 namespace Shopware\CustomerGroup\Test\Repository;
 
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\UuidSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Repository\CustomerGroupRepository;
 use Shopware\CustomerGroup\Searcher\CustomerGroupSearchResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class CustomerGroupRepositoryTest extends KernelTestCase

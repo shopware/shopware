@@ -3,13 +3,13 @@
 namespace Shopware\CustomerGroup\Factory;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\ExtensionRegistryInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
 use Shopware\CustomerGroup\Struct\CustomerGroupDetailStruct;
 use Shopware\CustomerGroupDiscount\Factory\CustomerGroupDiscountBasicFactory;
-use Shopware\Framework\Read\ExtensionRegistryInterface;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 
 class CustomerGroupDetailFactory extends CustomerGroupBasicFactory
 {

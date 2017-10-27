@@ -3,13 +3,14 @@
 namespace Shopware\Category\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\BasicReaderInterface;
 use Shopware\Category\Factory\CategoryBasicFactory;
 use Shopware\Category\Struct\CategoryBasicCollection;
 use Shopware\Category\Struct\CategoryBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\SortArrayByKeysTrait;
 
-class CategoryBasicReader
+class CategoryBasicReader implements BasicReaderInterface
 {
     use SortArrayByKeysTrait;
 

@@ -2,9 +2,9 @@
 
 namespace Shopware\OrderDelivery\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class OrderDeliveryWrittenEvent extends AbstractWrittenEvent
+class OrderDeliveryWrittenEvent extends WrittenEvent
 {
     const NAME = 'order_delivery.written';
 

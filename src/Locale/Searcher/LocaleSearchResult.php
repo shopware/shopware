@@ -2,9 +2,9 @@
 
 namespace Shopware\Locale\Searcher;
 
+use Shopware\Api\Search\SearchResultInterface;
+use Shopware\Api\Search\SearchResultTrait;
 use Shopware\Locale\Struct\LocaleBasicCollection;
-use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
 
 class LocaleSearchResult extends LocaleBasicCollection implements SearchResultInterface
 {

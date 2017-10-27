@@ -2,9 +2,9 @@
 
 namespace Shopware\ShippingMethodPrice\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class ShippingMethodPriceWrittenEvent extends AbstractWrittenEvent
+class ShippingMethodPriceWrittenEvent extends WrittenEvent
 {
     const NAME = 'shipping_method_price.written';
 

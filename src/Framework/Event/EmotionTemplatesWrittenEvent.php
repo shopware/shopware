@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class EmotionTemplatesWrittenEvent extends AbstractWrittenEvent
+class EmotionTemplatesWrittenEvent extends WrittenEvent
 {
     const NAME = 's_emotion_templates.written';
 

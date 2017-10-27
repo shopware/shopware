@@ -3,6 +3,9 @@
 namespace Shopware\OrderDelivery\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\DetailReaderInterface;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Query\TermsQuery;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\OrderDelivery\Factory\OrderDeliveryDetailFactory;
@@ -10,10 +13,8 @@ use Shopware\OrderDelivery\Struct\OrderDeliveryDetailCollection;
 use Shopware\OrderDelivery\Struct\OrderDeliveryDetailStruct;
 use Shopware\OrderDeliveryPosition\Searcher\OrderDeliveryPositionSearcher;
 use Shopware\OrderDeliveryPosition\Searcher\OrderDeliveryPositionSearchResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\Query\TermsQuery;
 
-class OrderDeliveryDetailReader
+class OrderDeliveryDetailReader implements DetailReaderInterface
 {
     use SortArrayByKeysTrait;
 

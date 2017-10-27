@@ -2,9 +2,9 @@
 
 namespace Shopware\ProductManufacturer\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class ProductManufacturerTranslationWrittenEvent extends AbstractWrittenEvent
+class ProductManufacturerTranslationWrittenEvent extends WrittenEvent
 {
     const NAME = 'product_manufacturer_translation.written';
 

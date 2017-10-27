@@ -2,11 +2,11 @@
 
 namespace Shopware\Framework\Writer\Resource;
 
+use Shopware\Api\Write\Field\StringField;
+use Shopware\Api\Write\Flag\Required;
+use Shopware\Api\Write\WriteResource;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\EmotionTemplatesWrittenEvent;
-use Shopware\Framework\Write\Field\StringField;
-use Shopware\Framework\Write\Flag\Required;
-use Shopware\Framework\Write\WriteResource;
 
 class EmotionTemplatesWriteResource extends WriteResource
 {

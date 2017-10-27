@@ -5,13 +5,13 @@ namespace Shopware\Album\Extension;
 use Shopware\Album\Event\AlbumBasicLoadedEvent;
 use Shopware\Album\Event\AlbumDetailLoadedEvent;
 use Shopware\Album\Struct\AlbumBasicStruct;
+use Shopware\Api\Read\FactoryExtensionInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionInterface;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class AlbumExtension implements ExtensionInterface, EventSubscriberInterface
+abstract class AlbumExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

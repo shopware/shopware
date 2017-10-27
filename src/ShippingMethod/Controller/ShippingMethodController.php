@@ -3,10 +3,10 @@
 namespace Shopware\ShippingMethod\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Parser\QueryStringParser;
 use Shopware\Rest\ApiContext;
 use Shopware\Rest\ApiController;
-use Shopware\Search\Criteria;
-use Shopware\Search\Parser\QueryStringParser;
 use Shopware\ShippingMethod\Repository\ShippingMethodRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

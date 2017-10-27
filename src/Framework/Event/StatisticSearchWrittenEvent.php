@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class StatisticSearchWrittenEvent extends AbstractWrittenEvent
+class StatisticSearchWrittenEvent extends WrittenEvent
 {
     const NAME = 'statistic_search.written';
 

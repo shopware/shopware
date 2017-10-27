@@ -3,15 +3,15 @@
 namespace Shopware\OrderDelivery\Factory;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\ExtensionRegistryInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionRegistryInterface;
 use Shopware\OrderAddress\Factory\OrderAddressBasicFactory;
 use Shopware\OrderDelivery\Struct\OrderDeliveryBasicStruct;
 use Shopware\OrderDelivery\Struct\OrderDeliveryDetailStruct;
 use Shopware\OrderDeliveryPosition\Factory\OrderDeliveryPositionBasicFactory;
 use Shopware\OrderState\Factory\OrderStateBasicFactory;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Shopware\ShippingMethod\Factory\ShippingMethodBasicFactory;
 
 class OrderDeliveryDetailFactory extends OrderDeliveryBasicFactory

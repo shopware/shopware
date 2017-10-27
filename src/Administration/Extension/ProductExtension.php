@@ -2,7 +2,7 @@
 
 namespace Shopware\Administration\Extension;
 
-use Shopware\Product\Extension\ProductExtension as ProductApiExtension;
+use Shopware\Product\Extension\ProductFactoryExtension as ProductApiExtension;
 
 class ProductExtension extends ProductApiExtension
 {

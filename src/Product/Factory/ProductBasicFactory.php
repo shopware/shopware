@@ -3,10 +3,12 @@
 namespace Shopware\Product\Factory;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\ExtensionRegistryInterface;
+use Shopware\Api\Read\Factory;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\CustomerGroup\Factory\CustomerGroupBasicFactory;
-use Shopware\Framework\Read\ExtensionRegistryInterface;
-use Shopware\Framework\Read\Factory;
 use Shopware\PriceGroup\Factory\PriceGroupBasicFactory;
 use Shopware\PriceGroup\Struct\PriceGroupBasicStruct;
 use Shopware\Product\Extension\ProductExtension;
@@ -16,8 +18,6 @@ use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
 use Shopware\ProductListingPrice\Factory\ProductListingPriceBasicFactory;
 use Shopware\ProductManufacturer\Factory\ProductManufacturerBasicFactory;
 use Shopware\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Shopware\SeoUrl\Factory\SeoUrlBasicFactory;
 use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
 use Shopware\Tax\Factory\TaxBasicFactory;

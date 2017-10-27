@@ -2,7 +2,7 @@
 
 namespace Shopware\PriceGroupDiscount\Event;
 
-use Shopware\Framework\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Api\Write\FieldAware\FieldExtenderCollection;
 use Symfony\Component\EventDispatcher\Event;
 
 class PriceGroupDiscountWriteExtenderEvent extends Event

@@ -2,11 +2,11 @@
 
 namespace Shopware\ProductVoteAverage\Test\Repository;
 
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\UuidSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\ProductVoteAverage\Repository\ProductVoteAverageRepository;
 use Shopware\ProductVoteAverage\Searcher\ProductVoteAverageSearchResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class ProductVoteAverageRepositoryTest extends KernelTestCase

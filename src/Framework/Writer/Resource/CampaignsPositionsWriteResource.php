@@ -2,10 +2,10 @@
 
 namespace Shopware\Framework\Writer\Resource;
 
+use Shopware\Api\Write\Field\IntField;
+use Shopware\Api\Write\WriteResource;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\CampaignsPositionsWrittenEvent;
-use Shopware\Framework\Write\Field\IntField;
-use Shopware\Framework\Write\WriteResource;
 
 class CampaignsPositionsWriteResource extends WriteResource
 {

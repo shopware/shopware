@@ -2,9 +2,9 @@
 
 namespace Shopware\ShippingMethodPrice\Test\Repository;
 
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\UuidSearchResult;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Shopware\ShippingMethodPrice\Repository\ShippingMethodPriceRepository;
 use Shopware\ShippingMethodPrice\Searcher\ShippingMethodPriceSearchResult;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

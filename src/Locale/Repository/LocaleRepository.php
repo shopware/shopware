@@ -2,25 +2,25 @@
 
 namespace Shopware\Locale\Repository;
 
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\RepositoryInterface;
-use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\Locale\Event\LocaleBasicLoadedEvent;
 use Shopware\Locale\Event\LocaleWrittenEvent;
-use Shopware\Locale\Reader\LocaleBasicReader;
-use Shopware\Locale\Searcher\LocaleSearcher;
 use Shopware\Locale\Searcher\LocaleSearchResult;
 use Shopware\Locale\Struct\LocaleBasicCollection;
-use Shopware\Locale\Writer\LocaleWriter;
-use Shopware\Search\AggregationResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class LocaleRepository implements RepositoryInterface
 {
     /**
-     * @var LocaleBasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -30,20 +30,20 @@ class LocaleRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var LocaleSearcher
+     * @var SearcherInterface
      */
     private $searcher;
 
     /**
-     * @var LocaleWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
-        LocaleBasicReader $basicReader,
+        BasicReaderInterface $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        LocaleSearcher $searcher,
-        LocaleWriter $writer
+        SearcherInterface $searcher,
+        WriterInterface $writer
     ) {
         $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
@@ -57,6 +57,7 @@ class LocaleRepository implements RepositoryInterface
             return new LocaleBasicCollection();
         }
 
+        /** @var LocaleBasicCollection $collection */
         $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -101,7 +102,7 @@ class LocaleRepository implements RepositoryInterface
     {
         $event = $this->writer->update($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -111,7 +112,7 @@ class LocaleRepository implements RepositoryInterface
     {
         $event = $this->writer->upsert($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -121,7 +122,7 @@ class LocaleRepository implements RepositoryInterface
     {
         $event = $this->writer->create($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;

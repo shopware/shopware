@@ -3,9 +3,9 @@
 namespace Shopware\Rest\EventListener;
 
 use Psr\Log\LoggerInterface;
-use Shopware\Rest\ResponseEnvelope;
 use Shopware\Framework\Routing\Router;
 use Shopware\Framework\ShopwareException;
+use Shopware\Rest\ResponseEnvelope;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\EventListener\ExceptionListener;

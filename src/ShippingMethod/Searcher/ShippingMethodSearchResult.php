@@ -2,8 +2,8 @@
 
 namespace Shopware\ShippingMethod\Searcher;
 
-use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
+use Shopware\Api\Search\SearchResultInterface;
+use Shopware\Api\Search\SearchResultTrait;
 use Shopware\ShippingMethod\Struct\ShippingMethodBasicCollection;
 
 class ShippingMethodSearchResult extends ShippingMethodBasicCollection implements SearchResultInterface

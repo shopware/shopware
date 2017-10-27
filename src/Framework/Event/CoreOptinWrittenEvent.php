@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class CoreOptinWrittenEvent extends AbstractWrittenEvent
+class CoreOptinWrittenEvent extends WrittenEvent
 {
     const NAME = 's_core_optin.written';
 

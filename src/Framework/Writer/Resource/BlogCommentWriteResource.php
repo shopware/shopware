@@ -2,17 +2,17 @@
 
 namespace Shopware\Framework\Writer\Resource;
 
+use Shopware\Api\Write\Field\BoolField;
+use Shopware\Api\Write\Field\FkField;
+use Shopware\Api\Write\Field\FloatField;
+use Shopware\Api\Write\Field\LongTextField;
+use Shopware\Api\Write\Field\ReferenceField;
+use Shopware\Api\Write\Field\StringField;
+use Shopware\Api\Write\Field\UuidField;
+use Shopware\Api\Write\Flag\Required;
+use Shopware\Api\Write\WriteResource;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\BlogCommentWrittenEvent;
-use Shopware\Framework\Write\Field\BoolField;
-use Shopware\Framework\Write\Field\FkField;
-use Shopware\Framework\Write\Field\FloatField;
-use Shopware\Framework\Write\Field\LongTextField;
-use Shopware\Framework\Write\Field\ReferenceField;
-use Shopware\Framework\Write\Field\StringField;
-use Shopware\Framework\Write\Field\UuidField;
-use Shopware\Framework\Write\Flag\Required;
-use Shopware\Framework\Write\WriteResource;
 
 class BlogCommentWriteResource extends WriteResource
 {

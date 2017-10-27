@@ -2,9 +2,9 @@
 
 namespace Shopware\ListingSorting\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class ListingSortingTranslationWrittenEvent extends AbstractWrittenEvent
+class ListingSortingTranslationWrittenEvent extends WrittenEvent
 {
     const NAME = 'listing_sorting_translation.written';
 

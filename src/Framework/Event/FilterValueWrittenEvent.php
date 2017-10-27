@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class FilterValueWrittenEvent extends AbstractWrittenEvent
+class FilterValueWrittenEvent extends WrittenEvent
 {
     const NAME = 'filter_value.written';
 

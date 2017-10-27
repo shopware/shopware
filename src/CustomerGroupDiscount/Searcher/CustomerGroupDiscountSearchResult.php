@@ -2,9 +2,9 @@
 
 namespace Shopware\CustomerGroupDiscount\Searcher;
 
+use Shopware\Api\Search\SearchResultInterface;
+use Shopware\Api\Search\SearchResultTrait;
 use Shopware\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicCollection;
-use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
 
 class CustomerGroupDiscountSearchResult extends CustomerGroupDiscountBasicCollection implements SearchResultInterface
 {

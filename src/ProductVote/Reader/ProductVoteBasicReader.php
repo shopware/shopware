@@ -3,13 +3,14 @@
 namespace Shopware\ProductVote\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\BasicReaderInterface;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\ProductVote\Factory\ProductVoteBasicFactory;
 use Shopware\ProductVote\Struct\ProductVoteBasicCollection;
 use Shopware\ProductVote\Struct\ProductVoteBasicStruct;
 
-class ProductVoteBasicReader
+class ProductVoteBasicReader implements BasicReaderInterface
 {
     use SortArrayByKeysTrait;
 

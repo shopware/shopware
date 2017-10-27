@@ -2,18 +2,18 @@
 
 namespace Shopware\CustomerGroup\Writer\Resource;
 
+use Shopware\Api\Write\Field\BoolField;
+use Shopware\Api\Write\Field\FloatField;
+use Shopware\Api\Write\Field\SubresourceField;
+use Shopware\Api\Write\Field\TranslatedField;
+use Shopware\Api\Write\Field\UuidField;
+use Shopware\Api\Write\Flag\Required;
+use Shopware\Api\Write\WriteResource;
 use Shopware\Category\Writer\Resource\CategoryAvoidCustomerGroupWriteResource;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Customer\Writer\Resource\CustomerWriteResource;
 use Shopware\CustomerGroup\Event\CustomerGroupWrittenEvent;
 use Shopware\CustomerGroupDiscount\Writer\Resource\CustomerGroupDiscountWriteResource;
-use Shopware\Framework\Write\Field\BoolField;
-use Shopware\Framework\Write\Field\FloatField;
-use Shopware\Framework\Write\Field\SubresourceField;
-use Shopware\Framework\Write\Field\TranslatedField;
-use Shopware\Framework\Write\Field\UuidField;
-use Shopware\Framework\Write\Flag\Required;
-use Shopware\Framework\Write\WriteResource;
 use Shopware\PriceGroupDiscount\Writer\Resource\PriceGroupDiscountWriteResource;
 use Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupWriteResource;
 use Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceWriteResource;

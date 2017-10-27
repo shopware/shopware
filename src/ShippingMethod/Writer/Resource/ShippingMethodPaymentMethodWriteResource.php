@@ -2,11 +2,11 @@
 
 namespace Shopware\ShippingMethod\Writer\Resource;
 
+use Shopware\Api\Write\Field\FkField;
+use Shopware\Api\Write\Field\ReferenceField;
+use Shopware\Api\Write\Flag\Required;
+use Shopware\Api\Write\WriteResource;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Write\Field\FkField;
-use Shopware\Framework\Write\Field\ReferenceField;
-use Shopware\Framework\Write\Flag\Required;
-use Shopware\Framework\Write\WriteResource;
 use Shopware\PaymentMethod\Writer\Resource\PaymentMethodWriteResource;
 use Shopware\ShippingMethod\Event\ShippingMethodPaymentMethodWrittenEvent;
 

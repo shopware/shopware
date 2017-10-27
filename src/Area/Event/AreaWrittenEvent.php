@@ -2,9 +2,9 @@
 
 namespace Shopware\Area\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class AreaWrittenEvent extends AbstractWrittenEvent
+class AreaWrittenEvent extends WrittenEvent
 {
     const NAME = 'area.written';
 

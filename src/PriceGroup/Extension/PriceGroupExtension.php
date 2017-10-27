@@ -2,16 +2,16 @@
 
 namespace Shopware\PriceGroup\Extension;
 
+use Shopware\Api\Read\FactoryExtensionInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionInterface;
 use Shopware\PriceGroup\Event\PriceGroupBasicLoadedEvent;
 use Shopware\PriceGroup\Event\PriceGroupDetailLoadedEvent;
 use Shopware\PriceGroup\Struct\PriceGroupBasicStruct;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class PriceGroupExtension implements ExtensionInterface, EventSubscriberInterface
+abstract class PriceGroupExtension implements FactoryExtensionInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

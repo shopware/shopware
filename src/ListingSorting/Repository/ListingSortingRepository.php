@@ -2,25 +2,25 @@
 
 namespace Shopware\ListingSorting\Repository;
 
+use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Write\WriterInterface;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\RepositoryInterface;
-use Shopware\Framework\Write\EntityWrittenEvent;
 use Shopware\ListingSorting\Event\ListingSortingBasicLoadedEvent;
 use Shopware\ListingSorting\Event\ListingSortingWrittenEvent;
-use Shopware\ListingSorting\Reader\ListingSortingBasicReader;
-use Shopware\ListingSorting\Searcher\ListingSortingSearcher;
 use Shopware\ListingSorting\Searcher\ListingSortingSearchResult;
 use Shopware\ListingSorting\Struct\ListingSortingBasicCollection;
-use Shopware\ListingSorting\Writer\ListingSortingWriter;
-use Shopware\Search\AggregationResult;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingSortingRepository implements RepositoryInterface
 {
     /**
-     * @var ListingSortingBasicReader
+     * @var BasicReaderInterface
      */
     private $basicReader;
 
@@ -30,20 +30,20 @@ class ListingSortingRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var ListingSortingSearcher
+     * @var SearcherInterface
      */
     private $searcher;
 
     /**
-     * @var ListingSortingWriter
+     * @var WriterInterface
      */
     private $writer;
 
     public function __construct(
-        ListingSortingBasicReader $basicReader,
+        BasicReaderInterface $basicReader,
         EventDispatcherInterface $eventDispatcher,
-        ListingSortingSearcher $searcher,
-        ListingSortingWriter $writer
+        SearcherInterface $searcher,
+        WriterInterface $writer
     ) {
         $this->basicReader = $basicReader;
         $this->eventDispatcher = $eventDispatcher;
@@ -57,6 +57,7 @@ class ListingSortingRepository implements RepositoryInterface
             return new ListingSortingBasicCollection();
         }
 
+        /** @var ListingSortingBasicCollection $collection */
         $collection = $this->basicReader->readBasic($uuids, $context);
 
         $this->eventDispatcher->dispatch(
@@ -101,7 +102,7 @@ class ListingSortingRepository implements RepositoryInterface
     {
         $event = $this->writer->update($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -111,7 +112,7 @@ class ListingSortingRepository implements RepositoryInterface
     {
         $event = $this->writer->upsert($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;
@@ -121,7 +122,7 @@ class ListingSortingRepository implements RepositoryInterface
     {
         $event = $this->writer->create($data, $context);
 
-        $container = new EntityWrittenEvent($event, $context);
+        $container = new GenericWrittenEvent($event, $context);
         $this->eventDispatcher->dispatch($container::NAME, $container);
 
         return $event;

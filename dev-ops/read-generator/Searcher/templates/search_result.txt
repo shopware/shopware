@@ -3,8 +3,8 @@
 namespace Shopware\#classUc#\Searcher;
 
 use Shopware\#classUc#\Struct\#classUc#BasicCollection;
-use Shopware\Search\SearchResultInterface;
-use Shopware\Search\SearchResultTrait;
+use Shopware\Api\Search\SearchResultInterface;
+use Shopware\Api\Search\SearchResultTrait;
 
 class #classUc#SearchResult extends #classUc#BasicCollection implements SearchResultInterface
 {

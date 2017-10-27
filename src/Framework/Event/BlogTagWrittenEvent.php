@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Framework\Write\AbstractWrittenEvent;
+use Shopware\Api\Write\WrittenEvent;
 
-class BlogTagWrittenEvent extends AbstractWrittenEvent
+class BlogTagWrittenEvent extends WrittenEvent
 {
     const NAME = 'blog_tag.written';
 

@@ -3,13 +3,13 @@
 namespace Shopware\PaymentMethod\Factory;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\ExtensionRegistryInterface;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\AreaCountry\Factory\AreaCountryBasicFactory;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionRegistryInterface;
 use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
 use Shopware\PaymentMethod\Struct\PaymentMethodDetailStruct;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 use Shopware\Shop\Factory\ShopBasicFactory;
 
 class PaymentMethodDetailFactory extends PaymentMethodBasicFactory

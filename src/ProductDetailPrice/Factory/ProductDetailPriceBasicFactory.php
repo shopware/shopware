@@ -3,13 +3,13 @@
 namespace Shopware\ProductDetailPrice\Factory;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Read\ExtensionRegistryInterface;
+use Shopware\Api\Read\Factory;
+use Shopware\Api\Search\QueryBuilder;
+use Shopware\Api\Search\QuerySelection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Read\ExtensionRegistryInterface;
-use Shopware\Framework\Read\Factory;
 use Shopware\ProductDetailPrice\Extension\ProductDetailPriceExtension;
 use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicStruct;
-use Shopware\Search\QueryBuilder;
-use Shopware\Search\QuerySelection;
 
 class ProductDetailPriceBasicFactory extends Factory
 {

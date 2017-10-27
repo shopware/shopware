@@ -4,9 +4,9 @@ namespace Shopware\Album\Test\Repository;
 
 use Shopware\Album\Repository\AlbumRepository;
 use Shopware\Album\Searcher\AlbumSearchResult;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\UuidSearchResult;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Search\Criteria;
-use Shopware\Search\UuidSearchResult;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class AlbumRepositoryTest extends KernelTestCase

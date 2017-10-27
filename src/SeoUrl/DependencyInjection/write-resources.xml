@@ -4,7 +4,7 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-                <service id="shopware.seourl.seo-url.resource" class="Shopware\SeoUrl\SqlResourceWriter\Resource\SeoUrlWriteResource">
+                <service id="shopware.seourl.seo-url.resource" class="Shopware\SeoUrl\Writer\Resource\SeoUrlWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
     </services>

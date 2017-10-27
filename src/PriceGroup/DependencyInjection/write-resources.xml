@@ -4,10 +4,10 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-                <service id="shopware.pricegroup.price-group.resource" class="Shopware\PriceGroup\SqlResourceWriter\Resource\PriceGroupWriteResource">
+                <service id="shopware.pricegroup.price-group.resource" class="Shopware\PriceGroup\Writer\Resource\PriceGroupWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.pricegroup.price-group-translation.resource" class="Shopware\PriceGroup\SqlResourceWriter\Resource\PriceGroupTranslationWriteResource">
+        <service id="shopware.pricegroup.price-group-translation.resource" class="Shopware\PriceGroup\Writer\Resource\PriceGroupTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
     </services>

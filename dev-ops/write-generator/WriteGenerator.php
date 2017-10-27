@@ -100,6 +100,7 @@ EOD;
     public function generateAll()
     {
         @exec('rm -R ' . __DIR__ . '/../../src/**/SqlResourceWriter/Resource/*WriteResource.php');
+        @exec('rm -R ' . __DIR__ . '/../../src/**/Writer/Resource/*WriteResource.php');
         @exec('rm -R ' . __DIR__ . '/../../src/**/Event/*WrittenEvent.php');
 
         $connection = $this->connection;
@@ -690,7 +691,7 @@ EOD;
 
     public function getPath(): string
     {
-        return $this->getBundlePath() . '/SqlResourceWriter/Resource';
+        return $this->getBundlePath() . '/Writer/Resource';
     }
 
     public function getEventPath(): string
@@ -745,7 +746,7 @@ EOD;
             return 'Shopware\\Api\\Write\\Resource';
         }
 
-        return 'Shopware\\' . $bundleName . '\\SqlResourceWriter\\Resource';
+        return 'Shopware\\' . $bundleName . '\\Writer\\Resource';
     }
 
     public function getBundleNamespace(): string

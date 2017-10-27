@@ -4,82 +4,82 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-                <service id="shopware.product.product.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductWriteResource">
+                <service id="shopware.product.product.resource" class="Shopware\Product\Writer\Resource\ProductWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-accessory.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductAccessoryWriteResource">
+        <service id="shopware.product.product-accessory.resource" class="Shopware\Product\Writer\Resource\ProductAccessoryWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-attachment.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductAttachmentWriteResource">
+        <service id="shopware.product.product-attachment.resource" class="Shopware\Product\Writer\Resource\ProductAttachmentWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-attachment-translation.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductAttachmentTranslationWriteResource">
+        <service id="shopware.product.product-attachment-translation.resource" class="Shopware\Product\Writer\Resource\ProductAttachmentTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-avoid-customer-group.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductAvoidCustomerGroupWriteResource">
+        <service id="shopware.product.product-avoid-customer-group.resource" class="Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-category.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductCategoryWriteResource">
+        <service id="shopware.product.product-category.resource" class="Shopware\Product\Writer\Resource\ProductCategoryWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-category-seo.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductCategorySeoWriteResource">
+        <service id="shopware.product.product-category-seo.resource" class="Shopware\Product\Writer\Resource\ProductCategorySeoWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-configurator-dependency.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductConfiguratorDependencyWriteResource">
+        <service id="shopware.product.product-configurator-dependency.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorDependencyWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-configurator-group.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductConfiguratorGroupWriteResource">
+        <service id="shopware.product.product-configurator-group.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorGroupWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-configurator-group-translation.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductConfiguratorGroupTranslationWriteResource">
+        <service id="shopware.product.product-configurator-group-translation.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorGroupTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-configurator-option.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductConfiguratorOptionWriteResource">
+        <service id="shopware.product.product-configurator-option.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorOptionWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-configurator-option-relation.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductConfiguratorOptionRelationWriteResource">
+        <service id="shopware.product.product-configurator-option-relation.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorOptionRelationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-configurator-option-translation.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductConfiguratorOptionTranslationWriteResource">
+        <service id="shopware.product.product-configurator-option-translation.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorOptionTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-configurator-price-variation.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductConfiguratorPriceVariationWriteResource">
+        <service id="shopware.product.product-configurator-price-variation.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorPriceVariationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-configurator-set.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductConfiguratorSetWriteResource">
+        <service id="shopware.product.product-configurator-set.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorSetWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-configurator-set-group-relation.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductConfiguratorSetGroupRelationWriteResource">
+        <service id="shopware.product.product-configurator-set-group-relation.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorSetGroupRelationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-configurator-set-option-relation.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductConfiguratorSetOptionRelationWriteResource">
+        <service id="shopware.product.product-configurator-set-option-relation.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorSetOptionRelationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-configurator-template.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductConfiguratorTemplateWriteResource">
+        <service id="shopware.product.product-configurator-template.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorTemplateWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-configurator-template-price.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductConfiguratorTemplatePriceWriteResource">
+        <service id="shopware.product.product-configurator-template-price.resource" class="Shopware\Product\Writer\Resource\ProductConfiguratorTemplatePriceWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-esd.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductEsdWriteResource">
+        <service id="shopware.product.product-esd.resource" class="Shopware\Product\Writer\Resource\ProductEsdWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-esd-serial.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductEsdSerialWriteResource">
+        <service id="shopware.product.product-esd-serial.resource" class="Shopware\Product\Writer\Resource\ProductEsdSerialWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-link.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductLinkWriteResource">
+        <service id="shopware.product.product-link.resource" class="Shopware\Product\Writer\Resource\ProductLinkWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-link-translation.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductLinkTranslationWriteResource">
+        <service id="shopware.product.product-link-translation.resource" class="Shopware\Product\Writer\Resource\ProductLinkTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-notification.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductNotificationWriteResource">
+        <service id="shopware.product.product-notification.resource" class="Shopware\Product\Writer\Resource\ProductNotificationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-similar.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductSimilarWriteResource">
+        <service id="shopware.product.product-similar.resource" class="Shopware\Product\Writer\Resource\ProductSimilarWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.product.product-translation.resource" class="Shopware\Product\SqlResourceWriter\Resource\ProductTranslationWriteResource">
+        <service id="shopware.product.product-translation.resource" class="Shopware\Product\Writer\Resource\ProductTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
     </services>

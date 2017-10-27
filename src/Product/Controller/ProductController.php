@@ -59,6 +59,7 @@ class ProductController extends ApiController
             $context->getShopContext()->getTranslationContext()
         );
 
+
         return $this->createResponse(
             ['data' => $products, 'total' => $products->getTotal()],
             $context

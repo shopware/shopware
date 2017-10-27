@@ -4,31 +4,31 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-                <service id="shopware.shop.shop.resource" class="Shopware\Shop\SqlResourceWriter\Resource\ShopWriteResource">
+                <service id="shopware.shop.shop.resource" class="Shopware\Shop\Writer\Resource\ShopWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shop.shop-currency.resource" class="Shopware\Shop\SqlResourceWriter\Resource\ShopCurrencyWriteResource">
+        <service id="shopware.shop.shop-currency.resource" class="Shopware\Shop\Writer\Resource\ShopCurrencyWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shop.shop-form.resource" class="Shopware\Shop\SqlResourceWriter\Resource\ShopFormWriteResource">
+        <service id="shopware.shop.shop-form.resource" class="Shopware\Shop\Writer\Resource\ShopFormWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shop.shop-form-field.resource" class="Shopware\Shop\SqlResourceWriter\Resource\ShopFormFieldWriteResource">
+        <service id="shopware.shop.shop-form-field.resource" class="Shopware\Shop\Writer\Resource\ShopFormFieldWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shop.shop-form-field-translation.resource" class="Shopware\Shop\SqlResourceWriter\Resource\ShopFormFieldTranslationWriteResource">
+        <service id="shopware.shop.shop-form-field-translation.resource" class="Shopware\Shop\Writer\Resource\ShopFormFieldTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shop.shop-form-translation.resource" class="Shopware\Shop\SqlResourceWriter\Resource\ShopFormTranslationWriteResource">
+        <service id="shopware.shop.shop-form-translation.resource" class="Shopware\Shop\Writer\Resource\ShopFormTranslationWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shop.shop-page.resource" class="Shopware\Shop\SqlResourceWriter\Resource\ShopPageWriteResource">
+        <service id="shopware.shop.shop-page.resource" class="Shopware\Shop\Writer\Resource\ShopPageWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shop.shop-page-group.resource" class="Shopware\Shop\SqlResourceWriter\Resource\ShopPageGroupWriteResource">
+        <service id="shopware.shop.shop-page-group.resource" class="Shopware\Shop\Writer\Resource\ShopPageGroupWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
-        <service id="shopware.shop.shop-page-group-mapping.resource" class="Shopware\Shop\SqlResourceWriter\Resource\ShopPageGroupMappingWriteResource">
+        <service id="shopware.shop.shop-page-group-mapping.resource" class="Shopware\Shop\Writer\Resource\ShopPageGroupMappingWriteResource">
             <tag name="shopware.framework.write.resource"/> 
         </service>
     </services>

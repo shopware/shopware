@@ -8,13 +8,12 @@ use Shopware\#classUc#\Reader\#classUc#BasicReader;
 use Shopware\#classUc#\Searcher\#classUc#Searcher;
 use Shopware\#classUc#\Searcher\#classUc#SearchResult;
 use Shopware\#classUc#\Struct\#classUc#BasicCollection;
-use Shopware\#classUc#\SqlResourceWriter\#classUc#WriteResource;
+use Shopware\#classUc#\Writer\#classUc#WriteResource;
 use Shopware\Api\Search\AggregationResult;
 use Shopware\Api\Search\Criteria;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Shopware\Api\Search\UuidSearchResult;
 use Shopware\#classUc#\Event\#classUc#WrittenEvent;
-use Shopware\#classUc#\SqlResourceWriter\#classUc#SqlResourceWriter;
 use Shopware\Api\Write\GenericWrittenEvent;
 use Shopware\Api\Read\BasicReaderInterface;
 use Shopware\Api\RepositoryInterface;
@@ -85,6 +84,11 @@ class #classUc#Repository implements RepositoryInterface
         $result = $this->searcher->aggregate($criteria, $context);
 
         return $result;
+    }
+
+    public function getEntityName(): string
+    {
+        return #table#
     }
 
     #writeMethods#

@@ -53,8 +53,8 @@ class Generator
         $constructor = str_replace('#classUc#', ucfirst($class), $constructor);
 
         $template = str_replace(
-            ['#classUc#', '#constructor#', '#writeMethods#'],
-            [ucfirst($class), $constructor, $writeMethods],
+            ['#classUc#', '#constructor#', '#writeMethods#', '#table#'],
+            [ucfirst($class), $constructor, $writeMethods, $table],
             file_get_contents($template)
         );
 

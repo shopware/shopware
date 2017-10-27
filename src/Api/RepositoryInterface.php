@@ -70,4 +70,6 @@ interface RepositoryInterface extends SearcherInterface, BasicReaderInterface, D
      * @return WrittenEvent
      */
     public function create(array $data, TranslationContext $context);
+
+    public function getEntityName(): string;
 }

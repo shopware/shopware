@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\EventListener;
+namespace Shopware\Rest\EventListener;
 
 use Psr\Log\LoggerInterface;
-use Shopware\Api\ResponseEnvelope;
+use Shopware\Rest\ResponseEnvelope;
 use Shopware\Framework\Routing\Router;
 use Shopware\Framework\ShopwareException;
 use Symfony\Component\HttpFoundation\JsonResponse;

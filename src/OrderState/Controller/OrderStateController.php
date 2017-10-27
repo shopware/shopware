@@ -3,8 +3,8 @@
 namespace Shopware\OrderState\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Api\ApiContext;
-use Shopware\Api\ApiController;
+use Shopware\Rest\ApiContext;
+use Shopware\Rest\ApiController;
 use Shopware\OrderState\Repository\OrderStateRepository;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\QueryStringParser;

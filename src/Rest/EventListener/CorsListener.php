@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\EventListener;
+namespace Shopware\Rest\EventListener;
 
 use Shopware\Framework\Routing\Router;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

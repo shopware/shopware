@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api;
+namespace Shopware\Rest;
 
 use Shopware\Storefront\Session\ShopSubscriber;
 use Symfony\Component\HttpFoundation\Request;

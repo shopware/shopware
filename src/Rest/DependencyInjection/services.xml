@@ -6,16 +6,16 @@
 
     <services>
 
-        <service id="shopware.api.cors_listener" class="Shopware\Api\EventListener\CorsListener">
+        <service id="shopware.api.cors_listener" class="Shopware\Rest\EventListener\CorsListener">
             <tag name="kernel.event_subscriber" />
         </service>
 
-        <service id="shopware.api.event_listener.api_exception_listener" class="Shopware\Api\EventListener\ApiExceptionListener">
+        <service id="shopware.api.event_listener.api_exception_listener" class="Shopware\Rest\EventListener\ApiExceptionListener">
             <tag name="kernel.event_subscriber" />
             <argument type="service" id="logger" />
         </service>
 
-        <service class="Shopware\Api\ApiContextValueResolver" id="shopware.api.api_context_value_resolver">
+        <service class="Shopware\Rest\ApiContextValueResolver" id="shopware.api.api_context_value_resolver">
             <tag name="controller.argument_value_resolver"/>
         </service>
 

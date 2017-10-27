@@ -137,7 +137,7 @@ class CategoryTest extends TestCase
 //     */
 //    public function testGetListShouldBeAbleToReturnObjects()
 //    {
-//        $this->resource->setResultMode(\Shopware\Components\Api\WriteResource\WriteResource::HYDRATE_OBJECT);
+//        $this->resource->setResultMode(\Shopware\Components\Rest\WriteResource\WriteResource::HYDRATE_OBJECT);
 //        $result = $this->resource->getList();
 //
 //        $this->assertArrayHasKey('data', $result);

@@ -3,8 +3,8 @@
 namespace Shopware\ProductVote\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Api\ApiContext;
-use Shopware\Api\ApiController;
+use Shopware\Rest\ApiContext;
+use Shopware\Rest\ApiController;
 use Shopware\ProductVote\Repository\ProductVoteRepository;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\QueryStringParser;

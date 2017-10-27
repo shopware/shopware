@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api;
+namespace Shopware\Rest;
 
-use Shopware\Api\Exception\FormatNotSupportedException;
+use Shopware\Rest\Exception\FormatNotSupportedException;
 use Shopware\Serializer\SerializerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Exception;
+namespace Shopware\Rest\Exception;
 
 use Throwable;
 

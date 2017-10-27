@@ -3,8 +3,8 @@
 namespace Shopware\PriceGroup\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Api\ApiContext;
-use Shopware\Api\ApiController;
+use Shopware\Rest\ApiContext;
+use Shopware\Rest\ApiController;
 use Shopware\PriceGroup\Repository\PriceGroupRepository;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\QueryStringParser;

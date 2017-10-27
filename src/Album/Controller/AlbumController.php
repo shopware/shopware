@@ -4,8 +4,8 @@ namespace Shopware\Album\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Album\Repository\AlbumRepository;
-use Shopware\Api\ApiContext;
-use Shopware\Api\ApiController;
+use Shopware\Rest\ApiContext;
+use Shopware\Rest\ApiController;
 use Shopware\Search\Criteria;
 use Shopware\Search\Parser\QueryStringParser;
 use Symfony\Component\HttpFoundation\Request;

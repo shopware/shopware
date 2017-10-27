@@ -62,7 +62,7 @@ class TemplateFinder
         $this->directories[] = '@' . $administrationBundle->getName();
 
         // todo: remove hard api dependency
-        $this->loader->addPath($kernel->getRootDir() . '/../src/Api/Resources/views', 'Api');
+        $this->loader->addPath($kernel->getRootDir() . '/../src/Rest/Resources/views', 'Rest');
 
         array_map([$this, 'addTheme'], $kernel->getThemes());
     }

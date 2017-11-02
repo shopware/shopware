@@ -105,6 +105,12 @@ class SqlParser
         $field = $selection->getFieldEscaped($query->getField());
 
         $result = new ParseResult();
+        if ($query->getValue() === null) {
+            $result->addWhere($field . ' IS NULL');
+
+            return $result;
+        }
+
         $result->addWhere($field . ' = :' . $key);
         $result->addParameter($key, $query->getValue());
 

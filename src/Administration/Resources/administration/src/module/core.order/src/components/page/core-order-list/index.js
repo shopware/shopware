@@ -28,7 +28,7 @@ export default Shopware.ComponentFactory.register('core-order-list', {
         getData(offset = this.offset, limit = this.limit) {
             this.isWorking = true;
             this.orderService
-                .readAll(limit, offset)
+                .getList(offset, limit)
                 .then((response) => {
                     this.orderList = response.data;
                     this.errors = response.errors;

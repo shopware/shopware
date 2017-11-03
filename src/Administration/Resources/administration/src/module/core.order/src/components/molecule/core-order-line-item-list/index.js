@@ -38,7 +38,7 @@ export default Shopware.ComponentFactory.register('core-order-line-item-list', {
         getOrderItemsList(offset = this.offset, limit = this.limit) {
             this.isWorking = true;
             this.orderLineItemService
-                .readAll(this.order.uuid, limit, offset)
+                .getList(offset, limit, this.order.uuid)
                 .then((response) => {
                     this.lineItemList = response.data;
                     this.errors = response.errors;

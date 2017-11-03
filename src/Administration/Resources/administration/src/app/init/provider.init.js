@@ -1,22 +1,22 @@
 import EventEmitter from 'src/core/factory/event-emitter.factory';
-import ProductService from 'src/core/service/api/product/product.service';
-import OrderService from 'src/core/service/api/order/order.service';
-import CustomerService from 'src/core/service/api/customer/customer.service';
-import CustomerGroupService from 'src/core/service/api/customer_group/customer_group.service';
-import PaymentMethodService from 'src/core/service/api/payment_method/payment_method.service';
-import OrderLineItemService from 'src/core/service/api/order_line_item/order_line_item.service';
-import ShippingMethodService from 'src/core/service/api/shipping_method/shipping_method.service';
-import CountryService from 'src/core/service/api/country/country.service';
-import OrderDeliveryService from 'src/core/service/api/order_delivery/order_delivery.service';
-import CurrencyService from 'src/core/service/api/currency/currency.service';
-import ShopService from 'src/core/service/api/shop/shop.service';
-import OrderStateService from 'src/core/service/api/order_state/order_state.service';
-import ProductManufacturerService from 'src/core/service/api/product_manufacturer/product_manufacturer.service';
-import TaxService from 'src/core/service/api/tax/tax.service';
-import CategoryService from 'src/core/service/api/category/category.service';
-import MediaService from 'src/core/service/api/media/media.service';
-import LoginService from 'src/core/service/api/login/login.service';
+import LoginService from 'src/core/service/login.service';
 import MenuService from 'src/app/service/menu.service';
+import ShopApiService from 'src/core/service/api/shop.api.service';
+import CategoryApiService from 'src/core/service/api/category.api.service';
+import ProductApiService from 'src/core/service/api/product.api.service';
+import ProductManufacturerApiService from 'src/core/service/api/product-manufacturer.api.service';
+import OrderApiService from 'src/core/service/api/order.api.service';
+import OrderLineItemApiService from 'src/core/service/api/order-line-item.api.service';
+import OrderDeliveryApiService from 'src/core/service/api/order-delivery.api.service';
+import OrderStateApiService from 'src/core/service/api/order-state.api.service';
+import CustomerApiService from 'src/core/service/api/customer.api.service';
+import CustomerGroupApiService from 'src/core/service/api/customer-group.api.service';
+import PaymentMethodApiService from 'src/core/service/api/payment-method.api.service';
+import ShippingMethodApiService from 'src/core/service/api/shipping-method.api.service';
+import CountryApiService from 'src/core/service/api/country.api.service';
+import CurrencyApiService from 'src/core/service/api/currency.api.service';
+import TaxApiService from 'src/core/service/api/tax.api.service';
+import MediaApiService from 'src/core/service/api/media.api.service';
 
 export default function initializeProviders(app, configuration, done) {
     const httpClient = configuration.httpClient;
@@ -28,22 +28,22 @@ export default function initializeProviders(app, configuration, done) {
         .addProvider('eventSystem', eventSystem)
         .addProvider('eventEmitter', EventEmitter(eventSystem))
         .addProvider('stateContainer', stateContainer)
-        .addProvider('productService', ProductService(httpClient))
-        .addProvider('orderService', OrderService(httpClient))
-        .addProvider('currencyService', CurrencyService(httpClient))
-        .addProvider('shopService', ShopService(httpClient))
-        .addProvider('orderStateService', OrderStateService(httpClient))
-        .addProvider('countryService', CountryService(httpClient))
-        .addProvider('orderLineItemService', OrderLineItemService(httpClient))
-        .addProvider('orderDeliveryService', OrderDeliveryService(httpClient))
-        .addProvider('shippingMethodService', ShippingMethodService(httpClient))
-        .addProvider('paymentMethodService', PaymentMethodService(httpClient))
-        .addProvider('customerService', CustomerService(httpClient))
-        .addProvider('customerGroupService', CustomerGroupService(httpClient))
-        .addProvider('productManufacturerService', ProductManufacturerService(httpClient))
-        .addProvider('taxService', TaxService(httpClient))
-        .addProvider('categoryService', CategoryService(httpClient))
-        .addProvider('mediaService', MediaService(httpClient))
+        .addProvider('productService', new ProductApiService(httpClient))
+        .addProvider('orderService', new OrderApiService(httpClient))
+        .addProvider('currencyService', new CurrencyApiService(httpClient))
+        .addProvider('shopService', new ShopApiService(httpClient))
+        .addProvider('orderStateService', new OrderStateApiService(httpClient))
+        .addProvider('countryService', new CountryApiService(httpClient))
+        .addProvider('orderLineItemService', new OrderLineItemApiService(httpClient))
+        .addProvider('orderDeliveryService', new OrderDeliveryApiService(httpClient))
+        .addProvider('shippingMethodService', new ShippingMethodApiService(httpClient))
+        .addProvider('paymentMethodService', new PaymentMethodApiService(httpClient))
+        .addProvider('customerService', new CustomerApiService(httpClient))
+        .addProvider('customerGroupService', new CustomerGroupApiService(httpClient))
+        .addProvider('productManufacturerService', new ProductManufacturerApiService(httpClient))
+        .addProvider('taxService', new TaxApiService(httpClient))
+        .addProvider('categoryService', new CategoryApiService(httpClient))
+        .addProvider('mediaService', new MediaApiService(httpClient))
         .addProvider('loginService', LoginService(httpClient))
         .addProvider('applicationState', applicationState)
         .addProvider('menuService', MenuService);

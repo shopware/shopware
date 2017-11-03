@@ -61,7 +61,7 @@ export default Shopware.ComponentFactory.register('core-order-detail', {
             const uuid = this.$route.params.uuid;
 
             this.isWorking = true;
-            this.orderService.readByUuid(uuid).then((response) => {
+            this.orderService.getByUuid(uuid).then((response) => {
                 this.notModifiedOrder = { ...response.data };
                 this.order = response.data;
                 this.isWorking = false;
@@ -69,37 +69,37 @@ export default Shopware.ComponentFactory.register('core-order-detail', {
         },
 
         getCustomerData() {
-            this.customerService.readAll().then((response) => {
+            this.customerService.getList().then((response) => {
                 this.customers = response.data;
             });
         },
 
         getPaymentMethodData() {
-            this.paymentMethodService.readAll().then((response) => {
+            this.paymentMethodService.getList().then((response) => {
                 this.paymentMethods = response.data;
             });
         },
 
         getCountryData() {
-            this.countryService.readAll().then((response) => {
+            this.countryService.getList().then((response) => {
                 this.countries = response.data;
             });
         },
 
         getShopData() {
-            this.shopService.readAll().then((response) => {
+            this.shopService.getList().then((response) => {
                 this.shops = response.data;
             });
         },
 
         getCurrencyData() {
-            this.currencyService.readAll().then((response) => {
+            this.currencyService.getList().then((response) => {
                 this.currencies = response.data;
             });
         },
 
         getOrderStateData() {
-            this.orderStateService.readAll().then((response) => {
+            this.orderStateService.getList().then((response) => {
                 this.orderStates = response.data;
             });
         },

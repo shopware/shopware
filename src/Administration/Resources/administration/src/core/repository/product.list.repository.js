@@ -26,7 +26,7 @@ function initProductList(dataKey = 'productList') {
 }
 
 function getProductList(offset, limit) {
-    return this.productService.getList(limit, offset).then((response) => {
+    return this.productService.getList(offset, limit).then((response) => {
         this.productListProxy = ProxyFactory.create(response.data);
         this[this.productListDataKey] = this.productListProxy.data;
         this.total = response.total;

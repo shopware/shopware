@@ -38,7 +38,7 @@ export default Shopware.ComponentFactory.register('core-order-delivery-list', {
         getDeliveryList(offset = this.offset, limit = this.limit) {
             this.isWorking = true;
             this.orderDeliveryService
-                .readAll(this.$route.params.uuid, limit, offset)
+                .getList(offset, limit, this.$route.params.uuid)
                 .then((response) => {
                     this.deliveryList = response.data;
                     this.errors = response.errors;

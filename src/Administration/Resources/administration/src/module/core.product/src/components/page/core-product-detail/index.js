@@ -73,13 +73,13 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
         },
 
         getManufacturerData() {
-            this.productManufacturerService.readAll().then((response) => {
+            this.productManufacturerService.getList().then((response) => {
                 this.manufacturers = response.data;
             });
         },
 
         getTaxData() {
-            this.taxService.readAll().then((response) => {
+            this.taxService.getList().then((response) => {
                 this.taxRates = response.data;
             });
         },

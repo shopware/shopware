@@ -128,6 +128,8 @@ class VoteAverageIndexer implements IndexerInterface
             $name = $this->getIndexName($timestamp);
             $this->connection->executeUpdate('DROP TABLE ' . self::TABLE);
             $this->connection->executeUpdate('ALTER TABLE ' . $name . ' RENAME TO ' . self::TABLE);
+            $this->connection->executeUpdate('ALTER TABLE ' . self::TABLE . ' ADD PRIMARY KEY (uuid)');
+            $this->connection->executeUpdate('ALTER TABLE ' . self::TABLE . ' ADD CONSTRAINT `fk_product_vote_average_ro.product_uuid` FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE');
         });
     }
 

@@ -171,6 +171,9 @@ class ProductCategoryIndexer implements IndexerInterface
             $name = $this->getIndexName($timestamp);
             $this->connection->executeUpdate('DROP TABLE ' . self::TABLE);
             $this->connection->executeUpdate('ALTER TABLE ' . $name . ' RENAME TO ' . self::TABLE);
+            $this->connection->executeUpdate('ALTER TABLE ' . self::TABLE . ' ADD PRIMARY KEY (product_uuid, category_uuid)');
+            $this->connection->executeUpdate('ALTER TABLE ' . self::TABLE . ' ADD CONSTRAINT `fk_product_category_ro.product_uuid` FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE');
+            $this->connection->executeUpdate('ALTER TABLE ' . self::TABLE . ' ADD CONSTRAINT `fk_product_category_ro.category_uuid` FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE');
         });
     }
 

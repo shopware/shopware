@@ -36,6 +36,7 @@ use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Order\OrderPersisterInterface;
 use Shopware\CartBridge\View\ViewCart;
 use Shopware\CartBridge\View\ViewCartTransformer;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Storefront\Context\StorefrontContextServiceInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -184,9 +185,7 @@ class StoreFrontCartService
             $this->contextService->getShopContext()
         );
 
-        $this->save(
-            $this->createNewCart()
-        );
+        $this->createNewCart();
     }
 
     public function getCartContainer(): CartContainer
@@ -202,7 +201,10 @@ class StoreFrontCartService
 
         try {
             //try to access existing cartContainer, identified by session token
-            return $this->cartContainer = $this->persister->load($this->getCartToken());
+            return $this->cartContainer = $this->persister->load(
+                $this->getCartToken(),
+                self::CART_NAME
+            );
         } catch (\Exception $e) {
             $this->logger->error(
                 sprintf('Cart with token %s can not be loaded with message: %s', $this->getCartToken(), $e->getMessage())
@@ -224,20 +226,23 @@ class StoreFrontCartService
     {
         $context = $this->contextService->getShopContext();
         $calculated = $this->calculation->calculate($cartContainer, $context);
-        $this->save($calculated->getCartContainer());
+
+        $this->save($calculated, $context);
 
         return $calculated;
     }
 
-    private function save(CartContainer $cartContainer): void
+    private function save(CalculatedCart $calculatedCart, ShopContext $context): void
     {
-        $this->persister->save($cartContainer);
-        $this->session->set(self::CART_TOKEN_KEY, $cartContainer->getToken());
-        $this->cartContainer = $cartContainer;
+        $this->persister->save($calculatedCart, $context);
+        $this->session->set(self::CART_TOKEN_KEY, $calculatedCart->getToken());
+        $this->cartContainer = $calculatedCart->getCartContainer();
     }
 
     private function createNewCart(): CartContainer
     {
+        $this->persister->delete($this->getCartToken());
+
         $this->cartContainer = CartContainer::createNew(self::CART_NAME);
         $this->session->set(self::CART_TOKEN_KEY, $this->cartContainer->getToken());
         $this->viewCart = null;

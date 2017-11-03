@@ -1008,12 +1008,20 @@ INSERT INTO `s_campaigns_templates` (`id`, `path`, `description`) VALUES
   (2,	'indexh.tpl',	'Händler');
 
 DROP TABLE IF EXISTS `s_cart`;
-CREATE TABLE `s_cart` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `cart` (
   `token` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `content` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`id`),
+  `container` json COLLATE utf8mb4_unicode_ci NOT NULL,
+  `calculated` json COLLATE utf8mb4_unicode_ci NOT NULL,
+  `currency_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `shipping_method_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payment_method_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `country_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `customer_uuid` varchar(42) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `shop_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `price` float NOT NULL,
+  `line_item_count` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime NOT NULL,
   UNIQUE KEY `token` (`token`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

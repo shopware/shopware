@@ -91,4 +91,9 @@ class CalculatedLineItemCollection extends Collection
     {
         return $element->getIdentifier();
     }
+
+    public function current(): CalculatedLineItemInterface
+    {
+        return parent::current();
+    }
 }

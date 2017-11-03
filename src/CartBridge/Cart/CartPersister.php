@@ -26,9 +26,11 @@ declare(strict_types=1);
 namespace Shopware\CartBridge\Cart;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Cart\CartContainer;
 use Shopware\Cart\Cart\CartPersisterInterface;
 use Shopware\Cart\Exception\CartTokenNotFoundException;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Serializer\JsonSerializer;
 
 class CartPersister implements CartPersisterInterface
@@ -49,31 +51,63 @@ class CartPersister implements CartPersisterInterface
         $this->serializer = $serializer;
     }
 
-    public function load(string $token): CartContainer
+    public function load(string $token, string $name): CartContainer
     {
         $content = $this->connection->fetchColumn(
-            'SELECT content FROM s_cart WHERE `token` = :token',
-            [':token' => $token]
+            'SELECT container FROM cart WHERE `token` = :token AND `name` = :name',
+            ['token' => $token, 'name' => $name]
         );
 
         if ($content === false) {
             throw new CartTokenNotFoundException($token);
         }
 
-        return $this->serializer->deserialize($content);
+        return $this->serializer->deserialize((string) $content);
     }
 
-    public function save(CartContainer $cartContainer): void
+    public function save(CalculatedCart $cart, ShopContext $context): void
     {
+        //prevent empty carts
+        if ($cart->getCalculatedLineItems()->count() <= 0) {
+            return;
+        }
+
         $this->connection->executeUpdate(
-            'INSERT INTO `s_cart` (`token`, `name`, `content`) 
-             VALUES (:token, :name, :content)
-             ON DUPLICATE KEY UPDATE `name` = :name, `content` = :content',
-            [
-                ':token' => $cartContainer->getToken(),
-                ':name' => $cartContainer->getName(),
-                ':content' => $this->serializer->serialize($cartContainer),
-            ]
+            'DELETE FROM cart WHERE `token` = :token AND `name` = :name',
+            ['token' => $cart->getToken(), 'name' => $cart->getName()]
+        );
+        
+        $this->connection->insert('cart', [
+            'token' => $cart->getToken(),
+            'name' => $cart->getName(),
+            'calculated' => $this->serializer->serialize($cart),
+            'container' => $this->serializer->serialize($cart->getCartContainer()),
+            'currency_uuid' => $context->getCurrency()->getUuid(),
+            'shipping_method_uuid' => $context->getShippingMethod()->getUuid(),
+            'payment_method_uuid' => $context->getPaymentMethod()->getUuid(),
+            'country_uuid' => $context->getShippingLocation()->getCountry()->getUuid(),
+            'customer_uuid' => $context->getCustomer() ? $context->getCustomer()->getUuid() : null,
+            'shop_uuid' => $context->getShop()->getUuid(),
+            'price' => $cart->getPrice()->getTotalPrice(),
+            'line_item_count' => $cart->getCalculatedLineItems()->count(),
+            'created_at' => (new \DateTime())->format('Y-m-d H:i:s')
+        ]);
+    }
+
+    public function delete(string $token, string $name = null): void
+    {
+        if ($name === null) {
+            $this->connection->executeUpdate(
+                'DELETE FROM cart WHERE `token` = :token',
+                ['token' => $token]
+            );
+
+            return;
+        }
+
+        $this->connection->executeUpdate(
+            'DELETE FROM cart WHERE `token` = :token AND `name` = :name',
+            ['token' => $token, 'name' => $name]
         );
     }
 }

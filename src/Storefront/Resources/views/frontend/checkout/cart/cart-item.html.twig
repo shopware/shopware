@@ -1,46 +1,214 @@
-{# Constants for the different line item types #}
-{#{$IS_PRODUCT = 0}#}
-{#{$IS_PREMIUM_PRODUCT = 1}#}
-{#{$IS_VOUCHER = 2}#}
-{#{$IS_REBATE = 3}#}
-{#{$IS_SURCHARGE_DISCOUNT = 4}#}
 {% set TYPE_PRODUCT = 'product' %}
 {% set TYPE_VOUCHER = 'voucher' %}
 {% set TYPE_DISCOUNT = 'discount' %}
-{% if viewLineItem.type == TYPE_PRODUCT %}
 
-{# Product #}
-{% block frontend_checkout_cart_item_product %}
-    {% sw_include '@Shopware/frontend/checkout/cart/items/product.html.twig' %}
-{% endblock %}
-{#{elseif $sBasketItem.modus == $IS_PREMIUM_PRODUCT}#}
+<div class="table--tr block-group row--product{% if isLast %} is--last-row{% endif %}">
 
-{#{* Chosen premium products *}#}
-{#{block name='frontend_checkout_cart_item_premium_product'}#}
-{#{include file="frontend/checkout/items/premium-product.tpl" isLast=$isLast}#}
-{#{/block}#}
-{% elseif viewLineItem.type == TYPE_VOUCHER %}
+    {% if viewLineItem.type == TYPE_PRODUCT %}
+        {% if viewLineItem.canonicalUrl %}
+            {% set detailUrl = viewLineItem.canonicalUrl.url %}
+        {% else %}
+            {% set detailUrl = url('detail_page', { 'uuid': viewLineItem.uuid }) %}
+        {% endif %}
+    {% endif %}
 
-{# Voucher #}
-{% block frontend_checkout_cart_item_voucher %}
-{#{include file="frontend/checkout/items/voucher.tpl" isLast=$isLast}#}
-    {% sw_include '@Shopware/frontend/checkout/cart/items/voucher.html.twig' %}
-{% endblock %}
-{#{elseif $sBasketItem.modus == $IS_REBATE}#}
+    {# Item information column #}
+    {% block frontend_checkout_cart_item_name %}
 
-{#{* Basket rebate *}#}
-{#{block name='frontend_checkout_cart_item_rebate'}#}
-{#{include file="frontend/checkout/items/rebate.tpl" isLast=$isLast}#}
-{#{/block}#}
-{% elseif viewLineItem.type == TYPE_DISCOUNT %}
+        <div class="column--product">
+            {# Item image #}
+            {% block frontend_checkout_cart_item_image %}
+                <div class="panel--td column--image">
+                    <div class="table--media">
+                        {% block frontend_checkout_cart_item_image_container %}
+                            <div class="table--media-outer">
+                                {% block frontend_checkout_cart_item_image_container_outer %}
+                                    <div class="table--media-inner">
+                                        {% block frontend_checkout_cart_item_image_container_inner %}
 
-{# Surcharge / discount #}
-{% block frontend_checkout_cart_item_surcharge_discount %}
-{#{include file="frontend/checkout/items/rebate.tpl" isLast=$isLast}#}
-    {% sw_include '@Shopware/frontend/checkout/cart/items/discount.html.twig' %}
-{% endblock%}
-{% else %}
+                                            {% set image = viewLineItem.cover %}
+                                            {% set desc = viewLineItem.name|striptags|escape %}
 
-{# Custom line item type #}
-{% block frontend_cart_item_additional_type %}{% endblock %}
-{% endif %}
+                                            {% if image.thumbnails[0] %}
+                                                <a href="{{ detailUrl }}" title="{{ desc }}" class="table--media-link">
+                                                    {#{if {config name=detailmodal} && {controllerAction|lower} === 'confirm'}#}
+                                                    {#data-modalbox="true"#}
+                                                    {#data-content="{url controller="detail" action="productQuickView" ordernumber="{{ sBasketItem.ordernumber }}" fullPath forceSecure}"#}
+                                                    {#data-mode="ajax"#}
+                                                    {#data-width="750"#}
+                                                    {#data-sizing="content"#}
+                                                    {#data-title="{$sBasketItem.articlename|strip_tags|escape}"#}
+                                                    {#data-updateImages="true"#}
+                                                    {#{% endif %}>#}
+                                                    {#{% if image.description %}#}
+                                                    {#{$desc = $image.description|escape}#}
+                                                    {#{% endif %}#}
+                                                    <img src="{{ image.thumbnails[0].url }}" alt="{{ desc }}" title="{{ desc|truncate(160) }}" />
+                                                </a>
+                                                {#{% else %}#}
+                                                {#<img src="{link file='frontend/_public/src/img/no-picture.jpg'}" alt="{{ desc }}" title="{$desc|truncate:160}" />#}
+                                            {% endif %}
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                </div>
+            {% endblock %}
+
+            {# Product information #}
+            {% block frontend_checkout_cart_item_details %}
+                <div class="panel--td table--content">
+
+                    {# Product name #}
+                    {% block frontend_checkout_cart_item_details_title %}
+
+                        {% if viewLineItem.type == TYPE_PRODUCT %}
+                            <a class="content--title" href="{{ detailUrl }}" title="{{ viewLineItem.name|striptags|escape }}">
+                                {#{if {config name=detailmodal} && {controllerAction|lower} === 'confirm'}#}
+                                {#data-modalbox="true"#}
+                                {#data-content="{url controller="detail" action="productQuickView" ordernumber="{{ sBasketItem.ordernumber }}" fullPath forceSecure}"#}
+                                {#data-mode="ajax"#}
+                                {#data-width="750"#}
+                                {#data-sizing="content"#}
+                                {#data-title="{$sBasketItem.articlename|strip_tags|escape}"#}
+                                {#data-updateImages="true"#}
+                                {#{% endif %}>#}
+                                {{ viewLineItem.name|striptags|truncate(60) }}
+                            </a>
+                        {% elseif viewLineItem.type == TYPE_DISCOUNT or viewLineItem.type == TYPE_VOUCHER %}
+                            <span class="content--title">{{ viewLineItem.label|striptags|truncate(60) }}</span>
+                        {% else %}
+                            {{ viewLineItem.name|striptags|truncate(60) }}
+                        {% endif %}
+                    {% endblock %}
+
+                    {# Product SKU number #}
+                    {% block frontend_checkout_cart_item_details_sku %}
+
+                        {% if viewLineItem.type == TYPE_PRODUCT %}
+                            <p class="content--sku content">
+                                {% trans from 'frontend/checkout/cart_item' %}CartItemInfoId{% endtrans %}
+                                {{ viewLineItem.calculatedLineItem.identifier }}
+                            </p>
+                        {% endif %}
+
+                    {% endblock %}
+
+                    {# Product delivery information #}
+                    {% block frontend_checkout_cart_item_delivery_informations %}
+                        {#{if {config name=BasketShippingInfo} && $sBasketItem.shippinginfo}#}
+                        {% if shopware.config.basketshippinginfo and viewLineItem.calculatedLineItem.deliveryInformation %}
+                            {#{% include "frontend/plugins/index/delivery_informations.tpl" with {'sArticle' : viewLineItem} %}#}
+                            {#{% sw_include '@Shopware/frontend/checkout/cart/items/delivery-information.html.twig' with {'product' : viewLineItem} %}#}
+                        {% endif %}
+                    {% endblock %}
+
+                    {# Additional product information #}
+                    {% block frontend_checkout_cart_item_details_inline %}{% endblock %}
+
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {# Product quantity #}
+    {% block frontend_checkout_cart_item_quantity %}
+        <div class="panel--td column--quantity is--align-right">
+
+            {# Label #}
+            {% block frontend_checkout_cart_item_quantity_label %}
+
+                {% if viewLineItem.type == TYPE_PRODUCT %}
+                    <div class="column--label quantity--label">
+                        {% trans from 'frontend/checkout/cart_header' %}CartColumnQuantity{% endtrans %}
+                    </div>
+                {% endif %}
+
+            {% endblock %}
+
+            {% block frontend_checkout_cart_item_quantity_selection %}
+
+                {% if viewLineItem.type == TYPE_PRODUCT %}
+
+                    {% if not viewLineItem.lastStock or (viewLineItem.lastStock and viewLineItem.calculatedLineItem.stock > 0) %}
+                        {% set action = path('cart_set_line_item_quantity') %}
+                        <form name="cart_product_change_quantity" class="select-field" method="post" action="{{ action }}">
+                            <select name="quantity" data-auto-submit="true">
+                                {% set minPurchase = viewLineItem.variant.minPurchase ?? 1 %}
+                                {# TODO CONFIG AUSLESEN #}
+                                {% set maxPurchase = viewLineItem.variant.maxPurchase ?? 25 %}
+                                {% set purchaseSteps = viewLineItem.variant.purchaseSteps ?? 1 %}
+                                {% for quantity in range(minPurchase, maxPurchase, purchaseSteps) %}
+                                    <option value="{{ quantity }}" {% if quantity==viewLineItem.calculatedLineItem.quantity %}selected="selected"{% endif %}>
+                                        {{ quantity }}
+                                    </option>
+                                    {/section}
+                                {% endfor %}
+                            </select>
+                            <input type="hidden" name="identifier" value="{{ viewLineItem.calculatedLineItem.identifier }}" />
+                            {% block frontend_checkout_cart_item_quantity_target %}
+                                <input type="hidden" name="target" value="checkout_cart" />
+                            {% endblock %}
+                        </form>
+                    {% else %}
+                        {% trans from 'frontend/checkout/cart_item' %}CartColumnQuantityEmpty{% endtrans %}
+                    {% endif %}
+
+                {% endif %}
+
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {# Product unit price #}
+    {% block frontend_checkout_cart_item_price %}
+        <div class="panel--td column--unit-price is--align-right">
+            {% if viewLineItem.type == 'product' %}
+                {% block frontend_checkout_cart_item_unit_price_label %}
+                    <div class="column--label unit-price--label">
+                        {% trans from 'frontend/checkout/cart_header' %}CartColumnPrice{% endtrans %}
+                    </div>
+                {% endblock %}
+                {{ viewLineItem.calculatedLineItem.price.unitPrice|localizedcurrency(context.currency.shortName) }}
+                {% block frontend_checkout_cart_tax_symbol %}
+                    {% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
+                {% endblock %}
+            {% endif %}
+        </div>
+    {% endblock %}
+
+    {# Product tax rate #}
+    {% block frontend_checkout_cart_item_tax_price %}{% endblock %}
+
+    {# Accumulated product price #}
+    {% block frontend_checkout_cart_item_total_sum %}
+        <div class="panel--td column--total-price is--align-right">
+            {% block frontend_checkout_cart_item_total_price_label %}
+                <div class="column--label total-price--label">
+                    {% trans from 'frontend/checkout/cart_header' %}CartColumnTotal{% endtrans %}
+                </div>
+            {% endblock %}
+
+            {{ viewLineItem.calculatedLineItem.price.totalPrice|localizedcurrency(context.currency.shortName) }}
+            {{ block('frontend_checkout_cart_tax_symbol') }}
+        </div>
+    {% endblock %}
+
+    {# Remove product from basket #}
+    {% block frontend_checkout_cart_item_delete_article %}
+        <div class="panel--td column--actions">
+            {#<form action="{url action='deleteArticle' sDelete=$sBasketItem.id sTargetAction=$sTargetAction}"#}
+            {% set action = path('cart_delete_line_item') %}
+            <form action="{{ action }}" method="post">
+                <button type="submit" class="btn is--small column--actions-link"
+                        title="{% trans from 'frontend/checkout/cart_item' %}CartItemLinkDelete{% endtrans %}">
+                    <i class="icon--cross"></i>
+                </button>
+                <input type="hidden" name="identifier" value="{{ viewLineItem.calculatedLineItem.identifier }}" />
+                <input type="hidden" name="target" value="{{ 'cart_index' }}" />
+            </form>
+        </div>
+    {% endblock %}
+</div>

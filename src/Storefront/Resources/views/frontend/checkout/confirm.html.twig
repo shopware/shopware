@@ -698,7 +698,7 @@
                                 {% block frontend_checkout_confirm_item_outer %}
                                     {% for viewPosition in delivery.viewPositions %}
                                         {% block frontend_checkout_confirm_item %}
-                                            {% sw_include "frontend/checkout/confirm/items/delivery-item.html.twig"
+                                            {% sw_include "frontend/checkout/confirm/delivery-item.html.twig"
                                             with {
                                             'isLast': loop.last,
                                             'viewLineItem': viewPosition.viewLineItem,

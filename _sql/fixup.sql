@@ -126,6 +126,7 @@ ALTER TABLE s_articles_also_bought_ro
     RENAME TO product_also_bought_ro,
     CHANGE article_id product_id INT(11) unsigned NOT NULL,
     CHANGE related_article_id related_product_id INT(11) NOT NULL,
+    ADD uuid VARCHAR(42) NOT NULL AFTER id,
     ADD related_product_uuid VARCHAR(42) NOT NULL AFTER related_product_id,
     ADD product_uuid VARCHAR(42) NOT NULL AFTER product_id
 ;
@@ -1629,10 +1630,6 @@ ALTER TABLE `unit`
 ALTER TABLE `filter`
     CHANGE `sortmode` `sort_mode` int(1) NOT NULL DEFAULT '0' AFTER `comparable`;
 
-ALTER TABLE `product_category_seo`
-    ADD `uuid` varchar(42) COLLATE 'utf8mb4_unicode_ci' NOT NULL FIRST;
-
-
 
 
 
@@ -1878,7 +1875,6 @@ UPDATE `snippet` snippets
 
 UPDATE premium_product SET shop_id = (SELECT id FROM shop LIMIT 1), shop_uuid = concat('SWAG-SHOP-UUID-', shop_id);
 UPDATE product_media SET media_uuid = CONCAT('SWAG-MEDIA-UUID-', media_id) WHERE media_id IS NOT NULL;
-UPDATE product_category_seo SET uuid = CONCAT('SWAG-PRODUCT-CATEGORY-SEO-UUID-', id);
 UPDATE shop SET uuid = CONCAT('SWAG-SHOP-UUID-', id);
 UPDATE shop SET parent_uuid = CONCAT('SWAG-SHOP-UUID-', main_id) WHERE main_id IS NOT NULL;
 UPDATE shop SET shop_template_uuid  = CONCAT('SWAG-SHOP-TEMPLATE-UUID-', shop_template_id) WHERE shop_template_id  IS NOT NULL;
@@ -2097,15 +2093,824 @@ DELETE a FROM config_form_field_translation a LEFT JOIN config_form_field b on a
 DELETE a FROM config_form_translation a LEFT JOIN config_form b on a.config_form_uuid = b.uuid WHERE b.uuid IS NULL;
 
 
+-- set uuid as primary key
 
+ALTER TABLE `album`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
 
+ALTER TABLE `area`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
 
+ALTER TABLE `area_country`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
 
+ALTER TABLE `area_country_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
 
+ALTER TABLE `area_country_state`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
 
+ALTER TABLE `area_country_state_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
 
+ALTER TABLE `attribute_configuration`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
 
+ALTER TABLE `blog`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
 
+ALTER TABLE `blog_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `blog_comment`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `blog_media`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `blog_tag`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `category_attribute`
+    DROP FOREIGN KEY category_attribute_ibfk_1
+;
+
+ALTER TABLE `category`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `category_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`, `category_uuid`)
+;
+
+ALTER TABLE `config_form`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `config_form_field`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `config_form_field_translation`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `config_form_field_value`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `config_form_field_value`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `config_form_translation`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `currency`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `customer_address`
+    DROP FOREIGN KEY customer_address_ibfk_3
+;
+
+ALTER TABLE `customer_attribute`
+    DROP FOREIGN KEY customer_attribute_ibfk_1
+;
+
+ALTER TABLE `customer`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `customer_address_attribute`
+    DROP FOREIGN KEY customer_address_attribute_ibfk_1
+;
+
+ALTER TABLE `customer_address`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `customer_address_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `customer_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `customer_group`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `customer_group_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `customer_group_discount`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`, `customer_group_uuid`)
+;
+
+ALTER TABLE `filter_attribute`
+    DROP FOREIGN KEY filter_attribute_ibfk_1
+;
+
+ALTER TABLE filter_option_attribute
+    DROP FOREIGN KEY `filter_option_attribute_ibfk_1`
+;
+
+ALTER TABLE filter_value_attribute
+    DROP FOREIGN KEY `filter_value_attribute_ibfk_1`
+;
+
+ALTER TABLE `filter`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `filter_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `filter_option`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `filter_option_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`, `filter_option_uuid`)
+;
+
+ALTER TABLE `filter_product`
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (`product_uuid`, `filter_value_uuid`),
+    ADD INDEX (`filter_value_uuid`, `product_uuid`)
+;
+
+ALTER TABLE `filter_relation`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `filter_value`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `holiday`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `listing_facet`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`, `unique_key`)
+;
+
+ALTER TABLE `listing_sorting`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `locale`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`, `code`)
+;
+
+ALTER TABLE `log`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `mail_attribute`
+    DROP FOREIGN KEY mail_attribute_ibfk_1
+;
+
+ALTER TABLE `mail`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`, `name`)
+;
+
+ALTER TABLE `mail_attachment`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `mail_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `media_attribute`
+    DROP FOREIGN KEY media_attribute_ibfk_1
+;
+
+ALTER TABLE `media`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `media_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `order_state`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE payment_method_attribute
+    DROP FOREIGN KEY `payment_method_attribute_ibfk_1`
+;
+
+ALTER TABLE `payment_method`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`, `name`)
+;
+
+ALTER TABLE `payment_method_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `payment_method_country`
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (`payment_method_uuid`, `area_country_uuid`)
+;
+
+ALTER TABLE `payment_method_shop`
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (`payment_method_uuid`, `shop_uuid`)
+;
+
+ALTER TABLE `plugin`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`, `name`)
+;
+
+ALTER TABLE `plugin_category`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`, `locale`)
+;
+
+ALTER TABLE `premium_product`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `price_group`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `price_group_discount`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE product_stream_tab
+    DROP FOREIGN KEY `s_product_streams_articles_fk_article_id`,
+    DROP FOREIGN KEY `s_product_streams_articles_fk_stream_id`
+;
+ALTER TABLE product_stream_assignment
+    DROP FOREIGN KEY `s_product_streams_selection_fk_article_id`,
+    DROP FOREIGN KEY `s_product_streams_selection_fk_stream_id`
+;
+
+ALTER TABLE `product`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_accessory`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_also_bought_ro`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_attachment_attribute`
+    DROP FOREIGN KEY product_attachment_attribute_ibfk_1
+;
+
+ALTER TABLE `product_attachment`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_attachment_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_avoid_customer_group`
+    ADD PRIMARY KEY (`product_uuid`, `customer_group_uuid`)
+;
+
+ALTER TABLE `product_category_seo`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`shop_uuid`, `product_uuid`, `category_uuid`)
+;
+
+-- TODO: product_configurator tables
+
+ALTER TABLE `product_detail`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_detail_price_attribute`
+    DROP FOREIGN KEY product_detail_price_attribute_ibfk_1
+;
+
+ALTER TABLE `product_detail_price`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_detail_price_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_esd_attribute`
+    DROP FOREIGN KEY `product_esd_attribute_ibfk_1`
+;
+
+ALTER TABLE `product_esd`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_esd_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_esd_serial`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_link_attribute`
+    DROP FOREIGN KEY `product_link_attribute_ibfk_1`
+;
+
+ALTER TABLE `product_link`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_link_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_manufacturer_attribute`
+    DROP FOREIGN KEY product_manufacturer_attribute_ibfk_1
+;
+
+ALTER TABLE `product_manufacturer`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_manufacturer_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_media_attribute`
+    DROP FOREIGN KEY product_media_attribute_ibfk_1
+;
+
+ALTER TABLE `product_media`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_media_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_media_mapping`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_media_mapping_rule`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_notification`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_similar`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_similar_shown_ro`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_stream_attribute`
+    DROP FOREIGN KEY product_stream_attribute_ibfk_1
+;
+
+ALTER TABLE category
+    DROP FOREIGN KEY `s_categories_fk_stream_id`
+;
+
+ALTER TABLE `product_stream`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_stream_assignment`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_stream_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_stream_tab`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_vote`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `seo_url`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `shipping_method_attribute`
+    DROP FOREIGN KEY shipping_method_attribute_ibfk_1
+;
+
+ALTER TABLE `shipping_method`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `shipping_method_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`, `shipping_method_uuid`)
+;
+
+ALTER TABLE `shipping_method_category`
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (`shipping_method_uuid`, `category_uuid`)
+;
+
+ALTER TABLE `shipping_method_country`
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (`shipping_method_uuid`, `area_country_uuid`)
+;
+
+ALTER TABLE `shipping_method_holiday`
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (`shipping_method_uuid`, `holiday_uuid`)
+;
+
+ALTER TABLE `shipping_method_payment_method`
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (`shipping_method_uuid`, `payment_method_uuid`)
+;
+
+ALTER TABLE `shipping_method_price`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `shop`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `shop_currency`
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (`shop_uuid`, `currency_uuid`)
+;
+
+ALTER TABLE `shop_form_attribute`
+    DROP FOREIGN KEY shop_form_attribute_ibfk_1
+;
+
+ALTER TABLE `shop_form`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `shop_form_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `shop_form_field`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`),
+    ADD UNIQUE `name_shop_form` (`name`, `shop_form_uuid`),
+    DROP INDEX `name`
+;
+
+ALTER TABLE `shop_page_attribute`
+    DROP FOREIGN KEY shop_page_attribute_ibfk_1
+;
+
+ALTER TABLE `shop_page`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `shop_page_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`, `shop_page_uuid`)
+;
+
+ALTER TABLE `shop_page_group`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `shop_page_group_mapping`
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (`shop_uuid`, `shop_page_group_uuid`)
+;
+
+ALTER TABLE `shop_template`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `shop_template_config_form`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `shop_template_config_form_field`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `shop_template_config_form_field_value`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `shop_template_config_preset`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `shopping_world_component`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `shopping_world_component_field`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `snippet`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `statistic_address_pool`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `statistic_current_customer`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `statistic_product_impression`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `statistic_referer`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `statistic_search`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `statistic_visitor`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `tax`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `tax_area_rule`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `unit`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `user_attribute`
+    DROP FOREIGN KEY user_attribute_ibfk_1
+;
+
+ALTER TABLE `user`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `user_attribute`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
 
 
 
@@ -2117,98 +2922,6 @@ DELETE a FROM config_form_translation a LEFT JOIN config_form b on a.config_form
 
 CREATE INDEX product_by_category_sort_name ON product (name, id);
 CREATE INDEX product_by_category_sort_release ON product (created_at, id);
-CREATE UNIQUE INDEX `ui_premium_product` ON premium_product (uuid);
-CREATE UNIQUE INDEX `ui_attribute_configuration` ON attribute_configuration (uuid);
-CREATE UNIQUE INDEX `ui_blog` ON blog (uuid);
-CREATE UNIQUE INDEX `ui_blog_attribute` ON blog_attribute (uuid);
-CREATE UNIQUE INDEX `ui_blog_comment` ON blog_comment (uuid);
-CREATE UNIQUE INDEX `ui_blog_media` ON blog_media (uuid);
-CREATE UNIQUE INDEX `ui_blog_tag` ON blog_tag (uuid);
-CREATE UNIQUE INDEX `ui_shop_page` ON shop_page (uuid);
-CREATE UNIQUE INDEX `ui_shop_page_attribute` ON shop_page_attribute (uuid);
-CREATE UNIQUE INDEX `ui_shop_page_group` ON shop_page_group (uuid);
-CREATE UNIQUE INDEX `ui_shop_form` ON shop_form (uuid);
-CREATE UNIQUE INDEX `ui_shop_form_attribute` ON shop_form_attribute (uuid);
-CREATE UNIQUE INDEX `ui_shop_form_field` ON shop_form_field (uuid);
-CREATE UNIQUE INDEX `ui_user` ON user (uuid);
-CREATE UNIQUE INDEX `ui_user_attribute` ON user_attribute (uuid);
-CREATE UNIQUE INDEX `ui_config_form_field` ON config_form_field (uuid);
-CREATE UNIQUE INDEX `ui_config_form_field_translation` ON config_form_field_translation (uuid);
-CREATE UNIQUE INDEX `ui_config_form` ON config_form (uuid);
-CREATE UNIQUE INDEX `ui_config_form_translation` ON config_form_translation (uuid);
-CREATE UNIQUE INDEX `ui_mail` ON mail (uuid);
-CREATE UNIQUE INDEX `ui_mail_attachment` ON mail_attachment (uuid);
-CREATE UNIQUE INDEX `ui_mail_attribute` ON mail_attribute (uuid);
-CREATE UNIQUE INDEX `ui_config_form_field_value` ON config_form_field_value (uuid);
-CREATE UNIQUE INDEX `ui_area` ON area (uuid);
-CREATE UNIQUE INDEX `ui_area_country_attribute` ON area_country_attribute (uuid);
-CREATE UNIQUE INDEX `ui_area_country_state` ON area_country_state (uuid);
-CREATE UNIQUE INDEX `ui_area_country_state_attribute` ON area_country_state_attribute (uuid);
-CREATE UNIQUE INDEX `ui_currency` ON currency (uuid);
-CREATE UNIQUE INDEX `ui_customer_group` ON customer_group (uuid);
-CREATE UNIQUE INDEX `ui_customer_group_attribute` ON customer_group_attribute (uuid);
-CREATE UNIQUE INDEX `ui_customer_group_discount` ON customer_group_discount (uuid);
-CREATE UNIQUE INDEX `ui_locale` ON locale (uuid);
-CREATE UNIQUE INDEX `ui_media_attribute.uuid` ON media_attribute (uuid);
-CREATE UNIQUE INDEX `ui_media.uuid` ON media (uuid);
-CREATE UNIQUE INDEX `ui_album.uuid` ON album (uuid);
-CREATE UNIQUE INDEX `ui_area_country.uuid` ON area_country (uuid);
-CREATE UNIQUE INDEX `ui_shopping_world_component.uuid` ON shopping_world_component (uuid);
-CREATE UNIQUE INDEX `ui_shopping_world_component_field.uuid` ON shopping_world_component_field (uuid);
-CREATE UNIQUE INDEX `ui_shipping_method.uuid` ON shipping_method (uuid);
-CREATE UNIQUE INDEX `ui_shipping_method_attribute.uuid` ON shipping_method_attribute (uuid);
-CREATE UNIQUE INDEX `ui_shipping_method_attribute.shipping_method_id` ON shipping_method_attribute (shipping_method_id);
-CREATE UNIQUE INDEX `ui_shipping_method_category.uuid` ON shipping_method_category (shipping_method_uuid, category_uuid);
-CREATE UNIQUE INDEX `ui_shipping_method_country.uuid` ON shipping_method_country (shipping_method_uuid, area_country_uuid);
-CREATE UNIQUE INDEX `ui_shipping_method_holiday.uuid` ON shipping_method_holiday (shipping_method_uuid, holiday_uuid);
-CREATE UNIQUE INDEX `ui_shipping_method_payment_method.uuid` ON shipping_method_payment_method (shipping_method_uuid, payment_method_uuid);
-CREATE UNIQUE INDEX `ui_holiday.uuid` ON holiday (uuid);
-CREATE UNIQUE INDEX `ui_shipping_method_price.uuid` ON shipping_method_price (uuid);
-CREATE UNIQUE INDEX `ui_product_stream.uuid` ON product_stream (uuid);
-CREATE UNIQUE INDEX `ui_product_stream_tab.uuid` ON product_stream_tab (uuid);
-CREATE UNIQUE INDEX `ui_product_stream_attribute.uuid` ON product_stream_attribute (uuid);
-CREATE UNIQUE INDEX `ui_product_stream_assignment.uuid` ON product_stream_assignment (uuid);
-CREATE UNIQUE INDEX `ui_listing_facet.uuid` ON listing_facet (uuid);
-CREATE UNIQUE INDEX `ui_listing_sorting.uuid` ON listing_sorting (uuid);
-CREATE UNIQUE INDEX `ui_statistic_product_impression.uuid` ON statistic_product_impression (uuid);
-CREATE UNIQUE INDEX `ui_statistic_current_customer.uuid` ON statistic_current_customer (uuid);
-CREATE UNIQUE INDEX `ui_statistic_address_pool.uuid` ON statistic_address_pool (uuid);
-CREATE UNIQUE INDEX `ui_statistic_referer.uuid` ON statistic_referer (uuid);
-CREATE UNIQUE INDEX `ui_statistic_search.uuid` ON statistic_search (uuid);
-CREATE UNIQUE INDEX `ui_statistic_visitor.uuid` ON statistic_visitor (uuid);
-CREATE UNIQUE INDEX `ui_customer.uuid` ON customer (uuid);
-CREATE UNIQUE INDEX `ui_customer_address.uuid` ON customer_address (uuid);
-CREATE UNIQUE INDEX `ui_customer_address_attribute.uuid` ON customer_address_attribute (uuid);
-CREATE UNIQUE INDEX `ui_customer_attribute.uuid` ON customer_attribute (uuid);
-CREATE UNIQUE INDEX `ui_category.uuid` ON category (uuid);
-CREATE UNIQUE INDEX `ui_filter.uuid` ON filter (uuid);
-CREATE UNIQUE INDEX `ui_filter_value.uuid` ON filter_value (uuid);
-CREATE UNIQUE INDEX `ui_filter_option.uuid` ON filter_option (uuid);
-CREATE UNIQUE INDEX `ui_product.uuid` ON product (uuid);
-CREATE UNIQUE INDEX `ui_product_attachment.uuid` ON product_attachment (uuid);
-CREATE UNIQUE INDEX `ui_product_esd.uuid` ON product_esd (uuid);
-CREATE UNIQUE INDEX `ui_product_media.uuid` ON product_media (uuid);
-CREATE UNIQUE INDEX `ui_product_media_mapping.uuid` ON product_media_mapping (uuid);
-CREATE UNIQUE INDEX `ui_product_link.uuid` ON product_link (uuid);
-CREATE UNIQUE INDEX `ui_product_manufacturer.uuid` ON product_manufacturer (uuid);
-CREATE UNIQUE INDEX `ui_product_price.uuid` ON product_price (uuid);
-CREATE UNIQUE INDEX `ui_log.uuid` ON log (uuid);
-CREATE UNIQUE INDEX `ui_payment_method.uuid` ON payment_method (uuid);
-CREATE UNIQUE INDEX `ui_payment_method_attribute.uuid` ON payment_method_attribute (uuid);
-CREATE UNIQUE INDEX `ui_plugin.uuid` ON plugin (uuid);
-CREATE UNIQUE INDEX `ui_plugin_category.uuid` ON plugin_category (uuid);
-CREATE UNIQUE INDEX `ui_price_group.uuid` ON price_group (uuid);
-CREATE UNIQUE INDEX `ui_price_group_discount.uuid` ON price_group_discount (uuid);
-CREATE UNIQUE INDEX `ui_snippet.uuid` ON snippet (uuid);
-CREATE UNIQUE INDEX `ui_order_state.uuid` ON order_state (uuid);
-CREATE UNIQUE INDEX `ui_tax.uuid` ON tax (uuid);
-CREATE UNIQUE INDEX `ui_tax_area_rule.uuid` ON tax_area_rule (uuid);
-CREATE UNIQUE INDEX `ui_shop_template.uuid` ON shop_template (uuid);
-CREATE UNIQUE INDEX `ui_shop_template_config_preset.uuid` ON shop_template_config_preset (uuid);
-CREATE UNIQUE INDEX `ui_shop_template_config_form_field.uuid` ON shop_template_config_form_field (uuid);
-CREATE UNIQUE INDEX `ui_shop_template_config_form.uuid` ON shop_template_config_form (uuid);
-CREATE UNIQUE INDEX `ui_shop_template_config_form_field_value.uuid` ON shop_template_config_form_field_value (uuid);
-CREATE UNIQUE INDEX `ui_unit.uuid` ON unit (uuid);
 
 ALTER TABLE `plugin_category`
     ADD INDEX `parent_uuid` (`parent_uuid`);
@@ -2233,9 +2946,6 @@ ALTER TABLE `customer_address`
     ADD INDEX `customer_uuid` (`customer_uuid`),
     ADD INDEX `area_country_state_uuid` (`area_country_state_uuid`),
     ADD INDEX `area_country_uuid` (`area_country_uuid`);
-
-ALTER TABLE `product_avoid_customer_group`
-    ADD UNIQUE `product_uuid_customer_group_uuid` (`product_uuid`, `customer_group_uuid`);
 
 ALTER TABLE `customer_address_attribute`
     ADD UNIQUE `customer_address_uuid` (`customer_address_uuid`);
@@ -2267,9 +2977,6 @@ ALTER TABLE `shop`
     ADD INDEX `parent_uuid` (`parent_uuid`),
     ADD UNIQUE `uuid` (`uuid`);
 
-ALTER TABLE `statistic_search`
-    ADD INDEX `shop_uuid` (`shop_uuid`);
-
 ALTER TABLE `mail_attachment`
     ADD UNIQUE `mail_uuid` (`mail_uuid`),
     ADD INDEX `media_uuid` (`media_uuid`),
@@ -2286,7 +2993,6 @@ ALTER TABLE `media`
     ADD INDEX `album_uuid` (`album_uuid`),
     ADD INDEX `user_uuid` (`user_uuid`);
 
-
 ALTER TABLE `album`
     ADD INDEX `parent_uuid` (`parent_uuid`);
 
@@ -2296,17 +3002,9 @@ ALTER TABLE `product`
     ADD INDEX `main_detail_uuid` (`main_detail_uuid`),
     ADD INDEX `filter_group_uuid` (`filter_group_uuid`);
 
-ALTER TABLE `category_attribute`
-    ADD INDEX `category_uuid` (`category_uuid`);
-
-ALTER TABLE `filter_product`
-    ADD INDEX `product_uuid` (`product_uuid`),
-    ADD INDEX `filter_value_uuid` (`filter_value_uuid`);
-
 ALTER TABLE `filter_relation`
     ADD INDEX `filter_group_uuid` (`filter_group_uuid`),
     ADD INDEX `filter_option_uuid` (`filter_option_uuid`);
-
 
 ALTER TABLE `filter_value`
     ADD INDEX `option_uuid` (`option_uuid`),
@@ -2550,13 +3248,10 @@ FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCA
 FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
-
 ALTER TABLE product_attachment_attribute
     ADD CONSTRAINT `fk_product_attachment_attribute.product_uuid`
 FOREIGN KEY (product_attachment_uuid) REFERENCES product_attachment (uuid) ON DELETE CASCADE ON UPDATE CASCADE
 ;
-
-
 
 ALTER TABLE product_esd_attribute
     ADD CONSTRAINT `fk_product_esd_attribute.product_uuid`
@@ -2568,8 +3263,6 @@ ALTER TABLE product_esd_serial
 FOREIGN KEY (product_esd_uuid) REFERENCES product_esd (uuid) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
-
-
 ALTER TABLE product_media_attribute
     ADD CONSTRAINT `fk_product_media_attribute.product_uuid`
 FOREIGN KEY (product_media_uuid) REFERENCES product_media (uuid) ON DELETE CASCADE ON UPDATE CASCADE
@@ -2580,7 +3273,6 @@ ALTER TABLE product_media_mapping
 FOREIGN KEY (product_media_uuid) REFERENCES product_media (uuid) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
-
 ALTER TABLE product_link_attribute
     ADD CONSTRAINT `fk_product_link_attribute.product_uuid`
 FOREIGN KEY (product_link_uuid) REFERENCES product_link (uuid) ON DELETE CASCADE ON UPDATE CASCADE
@@ -2590,7 +3282,6 @@ ALTER TABLE product_manufacturer_attribute
     ADD CONSTRAINT `fk_product_manufacturer_attribute.product_uuid`
 FOREIGN KEY (product_manufacturer_uuid) REFERENCES product_manufacturer (uuid) ON DELETE CASCADE ON UPDATE CASCADE
 ;
-
 
 ALTER TABLE product_price_attribute
     ADD CONSTRAINT `fk_product_price_attribute.product_uuid`

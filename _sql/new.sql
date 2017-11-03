@@ -9,6 +9,11 @@ CREATE TABLE `product_listing_price_ro` (
   PRIMARY KEY (`uuid`)
 );
 
+ALTER TABLE `product_listing_price_ro`
+  ADD FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD FOREIGN KEY (`customer_group_uuid`) REFERENCES `customer_group` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
+;
+
 CREATE TABLE `product_vote_average_ro` (
   `uuid` varchar(42) NOT NULL,
   `product_uuid` varchar(42) NOT NULL,
@@ -19,10 +24,13 @@ CREATE TABLE `product_vote_average_ro` (
   `four_point_count` int NOT NULL,
   `three_point_count` int NOT NULL,
   `two_point_count` int NOT NULL,
-  `one_point_count` int NOT NULL
+  `one_point_count` int NOT NULL,
+  PRIMARY KEY (`uuid`)
 );
+
 ALTER TABLE `product_vote_average_ro`
-  ADD FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_product_vote_average_ro.product_uuid` FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
+;
 
 DROP TABLE product_category_ro;
 CREATE TABLE `product_category_ro` (
@@ -1050,7 +1058,7 @@ CREATE TABLE `order_address` (
   `phone_number` varchar(40) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
   `additional_address_line1` varchar(255) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
   `additional_address_line2` varchar(255) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
-  UNIQUE KEY `ui_order_address.uuid` (`uuid`),
+  PRIMARY KEY (`uuid`),
   KEY `area_country_state_uuid` (`area_country_state_uuid`),
   KEY `area_country_uuid` (`area_country_uuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

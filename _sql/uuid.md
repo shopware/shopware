@@ -10,6 +10,7 @@ filter_relation                         SWAG-FILTER-RELATION-UUID-
 filter_option                           SWAG-FILTER-OPTION-UUID-
 filter_option_attribute                 SWAG-FILTER-OPTION-ATTRIBUTE-UUID-
 product                                 SWAG-PRODUCT-UUID-
+product_also_bought_ro                  SWAG-PRODUCT-ALSO-BOUGHT-RO-UUID-
 product_attribute                       SWAG-PRODUCT-ATTRIBUTE-UUID-
 product_category                        SWAG-PRODUCT-CATEGORY-UUID-
 product_category_ro                     SWAG-PRODUCT-CATEGORY-RO-UUID-

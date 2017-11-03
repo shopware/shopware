@@ -33,10 +33,6 @@ ALTER TABLE blog_attribute
     DROP FOREIGN KEY `blog_attribute_ibfk_1`
 ;
 
-ALTER TABLE category
-    DROP FOREIGN KEY `s_categories_fk_stream_id`
-;
-
 ALTER TABLE category_attribute
     DROP FOREIGN KEY `category_attribute_ibfk_1`
 ;
@@ -47,48 +43,12 @@ ALTER TABLE customer_address
     DROP FOREIGN KEY `customer_address_ibfk_3`
 ;
 
-ALTER TABLE customer_address_attribute
-    DROP FOREIGN KEY `customer_address_attribute_ibfk_1`
-;
-
-ALTER TABLE customer_attribute
-    DROP FOREIGN KEY `customer_attribute_ibfk_1`
-;
-
 ALTER TABLE customer_group_attribute
     DROP FOREIGN KEY `customer_group_attribute_ibfk_1`
 ;
 
-ALTER TABLE filter_attribute
-    DROP FOREIGN KEY `filter_attribute_ibfk_1`
-;
-
-ALTER TABLE filter_option_attribute
-    DROP FOREIGN KEY `filter_option_attribute_ibfk_1`
-;
-
-ALTER TABLE filter_value_attribute
-    DROP FOREIGN KEY `filter_value_attribute_ibfk_1`
-;
-
-ALTER TABLE mail_attribute
-    DROP FOREIGN KEY `mail_attribute_ibfk_1`
-;
-
 ALTER TABLE mail
     DROP FOREIGN KEY `mail_ibfk_1`
-;
-
-ALTER TABLE media_attribute
-    DROP FOREIGN KEY `media_attribute_ibfk_1`
-;
-
-ALTER TABLE payment_method_attribute
-    DROP FOREIGN KEY `payment_method_attribute_ibfk_1`
-;
-
-ALTER TABLE product_attachment_attribute
-    DROP FOREIGN KEY `product_attachment_attribute_ibfk_1`
 ;
 
 -- ALTER TABLE product_configurator_group_attribute
@@ -106,40 +66,6 @@ ALTER TABLE product_attachment_attribute
 -- ALTER TABLE product_configurator_template_price_attribute
 --     DROP FOREIGN KEY `product_configurator_template_price_attribute_ibfk_1`
 -- ;
-
-ALTER TABLE product_esd_attribute
-    DROP FOREIGN KEY `product_esd_attribute_ibfk_1`
-;
-
-ALTER TABLE product_link_attribute
-    DROP FOREIGN KEY `product_link_attribute_ibfk_1`
-;
-
-ALTER TABLE product_manufacturer_attribute
-    DROP FOREIGN KEY `product_manufacturer_attribute_ibfk_1`
-;
-
-ALTER TABLE product_media_attribute
-    DROP FOREIGN KEY `product_media_attribute_ibfk_1`
-;
-
-ALTER TABLE product_price_attribute
-    DROP FOREIGN KEY `product_price_attribute_ibfk_1`
-;
-
-ALTER TABLE product_stream_assignment
-    DROP FOREIGN KEY `s_product_streams_selection_fk_article_id`,
-    DROP FOREIGN KEY `s_product_streams_selection_fk_stream_id`
-;
-
-ALTER TABLE product_stream_attribute
-    DROP FOREIGN KEY `product_stream_attribute_ibfk_1`
-;
-
-ALTER TABLE product_stream_tab
-    DROP FOREIGN KEY `s_product_streams_articles_fk_article_id`,
-    DROP FOREIGN KEY `s_product_streams_articles_fk_stream_id`
-;
 
 -- DROP IDs
 ALTER TABLE album
@@ -450,7 +376,8 @@ ALTER TABLE product
     DROP `description`,
     DROP `description_long`,
     DROP `keywords`,
-    DROP `meta_title`
+    DROP `meta_title`,
+    DROP `id`
 ;
 
 ALTER TABLE product_accessory
@@ -459,7 +386,11 @@ ALTER TABLE product_accessory
     DROP `related_product`
 ;
 
---     product_also_bought_ro missing here // todo: migrate?
+ALTER TABLE product_also_bought_ro
+    DROP `id`,
+    DROP `product_id`,
+    DROP `related_product_id`
+;
 
 ALTER TABLE product_attachment
     DROP `id`,
@@ -491,7 +422,7 @@ ALTER TABLE product_category
 ;
 
 ALTER TABLE product_category_seo
--- todo: id not migrated to uuid yet
+    DROP `id`,
     DROP `shop_id`,
     DROP `product_id`,
     DROP `category_id`
@@ -729,9 +660,6 @@ ALTER TABLE `price_group`
 ALTER TABLE `product_attachment`
     DROP `description`;
 
-ALTER TABLE `product_category_seo`
-    DROP `id`;
-
 ALTER TABLE `product_detail`
     DROP `additional_text`,
     DROP `pack_unit`,
@@ -759,13 +687,16 @@ ALTER TABLE `product_media`
     DROP `parent_id`,
     DROP `media_id`;
 
-ALTER TABLE `product_price` DROP `pricegroup`;
+ALTER TABLE `product_price`
+    DROP `pricegroup`
+;
 
 # ALTER TABLE `product_stream`
 #     DROP `name`,
 #     DROP `description`;
 
 ALTER TABLE `shipping_method`
+    DROP `id`,
     DROP `name`,
     DROP `description`,
     DROP `comment`,
@@ -790,11 +721,18 @@ ALTER TABLE `shipping_method_payment_method`
 
 ALTER TABLE `shipping_method_price`
     ADD UNIQUE `shipping_method_uuid_quantity_from` (`shipping_method_uuid`, `quantity_from`),
-    DROP INDEX `from`;
+    DROP INDEX `from`
+;
 
 ALTER TABLE `shipping_method_price`
     DROP `id`,
-    DROP `shipping_method_id`;
+    DROP `shipping_method_id`
+;
+
+ALTER TABLE `shipping_method_attribute`
+    DROP `id`,
+    DROP `shipping_method_id`
+;
 
 ALTER TABLE `shop_currency`
     DROP `shop_id`,
@@ -812,12 +750,125 @@ ALTER TABLE `shop`
     DROP `fallback_id`,
     DROP `payment_method_id`,
     DROP `shipping_method_id`,
-    DROP `area_country_id`;
+    DROP `area_country_id`
+;
+
+ALTER TABLE `shop_form`
+    DROP `id`
+;
+
+ALTER TABLE `shop_form_attribute`
+    DROP `id`,
+    DROP `shop_form_id`
+;
+
+ALTER TABLE `shop_form_field`
+    DROP `id`,
+    DROP `shop_form_id`
+;
+
+ALTER TABLE `shop_page`
+    DROP `id`,
+    DROP `parent_id`
+;
+
+ALTER TABLE `shop_page_attribute`
+    DROP `id`,
+    DROP `shop_page_id`
+;
+
+ALTER TABLE `shop_page_group`
+    DROP `id`
+-- todo: mapping_id conversion?
+;
+
+ALTER TABLE `shop_page_group_mapping`
+    DROP `shop_id`,
+    DROP `shop_page_group_id`
+;
+
+ALTER TABLE `shop_template`
+    DROP `id`,
+    DROP `plugin_id`,
+    DROP `parent_id`
+;
+
+ALTER TABLE `shop_template_config_form`
+    DROP `id`,
+    DROP `parent_id`,
+    DROP `shop_template_id`
+;
+
+ALTER TABLE `shop_template_config_form_field`
+    DROP `id`,
+    DROP `shop_template_id`,
+    DROP `shop_template_config_form_id`
+;
+
+ALTER TABLE `shop_template_config_form_field_value`
+    DROP `id`,
+    DROP`shop_template_config_form_field_id`,
+    DROP `shop_id`
+;
+
+ALTER TABLE `shop_template_config_preset`
+    DROP `id`,
+    DROP `shop_template_id`
+;
+
+ALTER TABLE `shopping_world_component`
+    DROP `id`,
+    DROP `plugin_id`
+;
+
+ALTER TABLE `shopping_world_component_field`
+    DROP `id`,
+    DROP `shopping_world_component_id`
+;
+
+ALTER TABLE `snippet`
+    DROP `id`
+#     DROP `shop_id` Todo: removal produces error on snippet import
+;
+
+ALTER TABLE `statistic_address_pool`
+    DROP `id`
+;
+
+ALTER TABLE `statistic_current_customer`
+    DROP `id`,
+    DROP `customer_id`
+;
+
+ALTER TABLE `statistic_product_impression`
+    DROP `id`,
+    DROP `product_id`,
+    DROP `shop_id`
+;
+
+ALTER TABLE `statistic_referer`
+    DROP `id`
+;
+
+ALTER TABLE `statistic_search`
+    DROP `id`,
+    DROP `shop_id`
+;
+
+ALTER TABLE `statistic_visitor`
+    DROP `id`,
+    DROP `shop_id`
+;
+
+ALTER TABLE `tax`
+    DROP `id`
+;
 
 ALTER TABLE `tax_area_rule`
     DROP `name`;
 
 ALTER TABLE `unit`
+    DROP `id`,
     DROP `short_code`,
     DROP `name`;
 
@@ -831,7 +882,19 @@ ALTER TABLE `tax_area_rule`
     DROP `area_country_id`,
     DROP `area_country_state_id`,
     DROP `tax_id`,
-    DROP `customer_group_id`;
+    DROP `customer_group_id`
+;
+
+ALTER TABLE `user`
+    DROP `id`,
+    DROP `user_role_id`,
+    DROP `locale_id`
+;
+
+ALTER TABLE `user_attribute`
+    DROP `id`,
+    DROP `user_id`
+;
 
 DROP TABLE `s_order_attributes`;
 DROP TABLE `s_order`;
@@ -851,5 +914,5 @@ DROP TABLE `s_order_notes`;
 DROP TABLE `s_order_number`;
 DROP TABLE `s_order_shippingaddress_attributes`;
 DROP TABLE `s_order_shippingaddress`;
-DROP TABLE product_detail;
+DROP TABLE `product_detail`;
 

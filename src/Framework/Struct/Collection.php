@@ -51,6 +51,7 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
     public function clear(): void
     {
         $this->elements = [];
+        $this->_pointer = 0;
     }
 
     public function count(): int
@@ -158,7 +159,8 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
 
     public function current()
     {
-        return $this->elements[$this->getKeyOfPointer()];
+        $tmp = array_values($this->elements);
+        return $tmp[$this->_pointer];
     }
 
     public function next()
@@ -168,12 +170,13 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
 
     public function key()
     {
-        return $this->getKeyOfPointer();
+        return $this->_pointer;
     }
 
     public function valid()
     {
-        return isset($this->elements[$this->getKeyOfPointer()]);
+        $tmp = array_values($this->elements);
+        return isset($tmp[$this->_pointer]);
     }
 
     public function rewind()
@@ -194,15 +197,5 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
     protected function doMerge(Collection $collection)
     {
         return new static(array_merge($this->elements, $collection->getElements()));
-    }
-
-    private function getKeyOfPointer()
-    {
-        $keys = $this->getKeys();
-        if (array_key_exists($this->_pointer, $keys)) {
-            return $keys[$this->_pointer];
-        }
-
-        return $this->_pointer;
     }
 }

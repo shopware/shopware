@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\CartBridge\Rule\Data\ProductOfCategoriesRuleData;
 use Shopware\CartBridge\Rule\ProductOfCategoriesRule;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 use Shopware\Context\Struct\ShopContext;
 
 class ProductOfCategoriesRuleTest extends TestCase
@@ -41,7 +41,7 @@ class ProductOfCategoriesRuleTest extends TestCase
 
         $context = $this->createMock(ShopContext::class);
 
-        $collection = new StructCollection([
+        $collection = new IndexedCollection([
             ProductOfCategoriesRuleData::class => new ProductOfCategoriesRuleData([
                 1 => ['SW1'],
             ]),
@@ -58,7 +58,7 @@ class ProductOfCategoriesRuleTest extends TestCase
 
         $context = $this->createMock(ShopContext::class);
 
-        $collection = new StructCollection([
+        $collection = new IndexedCollection([
             ProductOfCategoriesRuleData::class => new ProductOfCategoriesRuleData([
                 1 => ['SW1', 'SW2'],
                 2 => ['SW3'],
@@ -76,7 +76,7 @@ class ProductOfCategoriesRuleTest extends TestCase
 
         $context = $this->createMock(ShopContext::class);
 
-        $collection = new StructCollection([
+        $collection = new IndexedCollection([
             ProductOfCategoriesRuleData::class => new ProductOfCategoriesRuleData([
                 1 => ['SW1', 'SW2'],
                 2 => ['SW3'],
@@ -94,7 +94,7 @@ class ProductOfCategoriesRuleTest extends TestCase
 
         $context = $this->createMock(ShopContext::class);
 
-        $collection = new StructCollection([
+        $collection = new IndexedCollection([
             ProductOfCategoriesRuleData::class => new ProductOfCategoriesRuleData([
                 4 => ['SW1', 'SW2'],
                 5 => ['SW3'],
@@ -112,6 +112,6 @@ class ProductOfCategoriesRuleTest extends TestCase
 
         $context = $this->createMock(ShopContext::class);
 
-        $this->assertFalse($rule->match($cart, $context, new StructCollection())->matches());
+        $this->assertFalse($rule->match($cart, $context, new IndexedCollection())->matches());
     }
 }

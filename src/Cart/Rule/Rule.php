@@ -27,7 +27,7 @@ namespace Shopware\Cart\Rule;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\Struct;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 abstract class Rule extends Struct
 {
@@ -44,13 +44,13 @@ abstract class Rule extends Struct
      *
      * @param \Shopware\Cart\Cart\CalculatedCart          $calculatedCart
      * @param ShopContext                                 $context
-     * @param \Shopware\Framework\Struct\StructCollection $collection
+     * @param \Shopware\Framework\Struct\IndexedCollection $collection
      *
      * @return Match
      */
     abstract public function match(
         CalculatedCart $calculatedCart,
         ShopContext $context,
-        StructCollection $collection
+        IndexedCollection $collection
     ): Match;
 }

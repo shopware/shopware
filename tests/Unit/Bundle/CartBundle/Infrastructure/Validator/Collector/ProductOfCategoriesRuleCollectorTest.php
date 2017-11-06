@@ -32,7 +32,7 @@ use Shopware\Cart\Product\ProductFetchDefinition;
 use Shopware\CartBridge\Rule\Collector\ProductOfCategoriesRuleCollector;
 use Shopware\CartBridge\Rule\Data\ProductOfCategoriesRuleData;
 use Shopware\CartBridge\Rule\ProductOfCategoriesRule;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Tests\Unit\Bundle\CartBundle\Common\ValidatableDefinition;
 
@@ -46,9 +46,9 @@ class ProductOfCategoriesRuleCollectorTest extends TestCase
 
         $collector = new ProductOfCategoriesRuleCollector($connection);
 
-        $dataCollection = new StructCollection();
+        $dataCollection = new IndexedCollection();
 
-        $collector->fetch($dataCollection, new StructCollection(), $context);
+        $collector->fetch($dataCollection, new IndexedCollection(), $context);
 
         $this->assertSame(0, $dataCollection->count());
     }
@@ -61,11 +61,11 @@ class ProductOfCategoriesRuleCollectorTest extends TestCase
 
         $collector = new ProductOfCategoriesRuleCollector($connection);
 
-        $dataCollection = new StructCollection([
+        $dataCollection = new IndexedCollection([
             new ValidatableDefinition(new ProductOfCategoriesRule([1])),
         ]);
 
-        $collector->fetch($dataCollection, new StructCollection(), $context);
+        $collector->fetch($dataCollection, new IndexedCollection(), $context);
 
         $this->assertSame(1, $dataCollection->count());
     }
@@ -81,11 +81,11 @@ class ProductOfCategoriesRuleCollectorTest extends TestCase
 
         $collector = new ProductOfCategoriesRuleCollector($connection);
 
-        $dataCollection = new StructCollection([
+        $dataCollection = new IndexedCollection([
             new ValidatableDefinition(new ProductOfCategoriesRule([1])),
         ]);
 
-        $collector->fetch($dataCollection, new StructCollection([
+        $collector->fetch($dataCollection, new IndexedCollection([
             new ProductFetchDefinition(['SW1', 'SW2']),
         ]), $context);
 
@@ -112,12 +112,12 @@ class ProductOfCategoriesRuleCollectorTest extends TestCase
 
         $collector = new ProductOfCategoriesRuleCollector($connection);
 
-        $dataCollection = new StructCollection([
+        $dataCollection = new IndexedCollection([
             new ValidatableDefinition(new ProductOfCategoriesRule([1, 2])),
             new ValidatableDefinition(new ProductOfCategoriesRule([3, 4])),
         ]);
 
-        $fetchDefinition = new StructCollection([
+        $fetchDefinition = new IndexedCollection([
             new ProductFetchDefinition(['SW1', 'SW2']),
         ]);
 

@@ -2,14 +2,14 @@
 
 namespace Shopware\Traceable\Cart;
 
+use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Cart\CartContainer;
 use Shopware\Cart\Cart\CartProcessorInterface;
-use Shopware\Cart\Cart\ProcessorCart;
 use Shopware\Cart\Delivery\Delivery;
 use Shopware\Cart\Delivery\DeliveryPosition;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class ProcessorTracer implements CartProcessorInterface
 {
@@ -33,13 +33,13 @@ class ProcessorTracer implements CartProcessorInterface
 
     public function process(
         CartContainer $cartContainer,
-        ProcessorCart $processorCart,
-        StructCollection $dataCollection,
+        CalculatedCart $calculatedCart,
+        IndexedCollection $dataCollection,
         ShopContext $context
     ): void {
-        $before = clone $processorCart;
+        $before = clone $calculatedCart;
 
-        $this->decorated->process($cartContainer, $processorCart, $dataCollection, $context);
+        $this->decorated->process($cartContainer, $calculatedCart, $dataCollection, $context);
 
         $lineItems = $before->getCalculatedLineItems();
         $deliveries = $before->getDeliveries();
@@ -47,7 +47,7 @@ class ProcessorTracer implements CartProcessorInterface
         $class = get_class($this->decorated);
 
         /** @var CalculatedLineItemInterface $lineItem */
-        foreach ($processorCart->getCalculatedLineItems() as $lineItem) {
+        foreach ($calculatedCart->getCalculatedLineItems() as $lineItem) {
             if (!$lineItems->has($lineItem->getIdentifier())) {
                 $this->actions->actions[$class][] = [
                     'action' => sprintf(
@@ -63,7 +63,7 @@ class ProcessorTracer implements CartProcessorInterface
         }
 
         /** @var Delivery $delivery */
-        foreach ($processorCart->getDeliveries() as $delivery) {
+        foreach ($calculatedCart->getDeliveries() as $delivery) {
             $exists = $deliveries->getDelivery(
                 $delivery->getDeliveryDate(),
                 $delivery->getLocation()

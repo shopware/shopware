@@ -33,7 +33,7 @@ use Shopware\Cart\Rule\Validatable;
 use Shopware\CartBridge\Rule\Data\RecentOrderRuleData;
 use Shopware\CartBridge\Rule\RecentOrderRule;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class RecentOrderRuleCollector implements CollectorInterface
 {
@@ -51,15 +51,15 @@ class RecentOrderRuleCollector implements CollectorInterface
     }
 
     public function prepare(
-        StructCollection $fetchDefinition,
+        IndexedCollection $fetchDefinition,
         CartContainer $cartContainer,
         ShopContext $context
     ): void {
     }
 
     public function fetch(
-        StructCollection $dataCollection,
-        StructCollection $fetchCollection,
+        IndexedCollection $dataCollection,
+        IndexedCollection $fetchCollection,
         ShopContext $context
     ): void {
         $rules = $dataCollection->filterInstance(Validatable::class);

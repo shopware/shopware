@@ -24,23 +24,39 @@
 
 namespace Shopware\Cart\Error;
 
-use Shopware\Framework\Struct\Struct;
+use Shopware\Framework\Struct\AssignArrayTrait;
+use Shopware\Framework\Struct\CreateFromTrait;
+use Shopware\Framework\Struct\JsonSerializableTrait;
 
-abstract class Error extends Struct
+abstract class Error extends \Exception implements \JsonSerializable
 {
-    const LEVEL_WARNING = 0;
+    //allows json_encode and to decode object via \Shopware\SerializerRegistry\SerializerRegistry\JsonSerializer
+    use JsonSerializableTrait;
 
-    const LEVEL_ERROR = 1;
+    //allows to assign array data to this object
+    use AssignArrayTrait;
+
+    //allows to create a new instance with all data of the provided object
+    use CreateFromTrait;
+
+    const LEVEL_NOTICE = 0;
+
+    const LEVEL_WARNING = 10;
+
+    const LEVEL_ERROR = 20;
+
+    abstract public function getIdentifier(): string;
 
     abstract public function getMessageKey(): string;
 
-    abstract public function getMessage(): string;
-
     abstract public function getLevel(): int;
+
+    abstract public function blockOrder(): bool;
 
     public function jsonSerialize(): array
     {
-        $data = parent::jsonSerialize();
+        $data = get_object_vars($this);
+        $data['identifier'] = $this->getIdentifier();
         $data['level'] = $this->getLevel();
         $data['message'] = $this->getMessage();
         $data['messageKey'] = $this->getMessageKey();

@@ -25,51 +25,38 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Voucher;
 
+use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Cart\CartContainer;
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\ProcessorCart;
 use Shopware\Cart\Error\VoucherNotFoundError;
+use Shopware\Cart\LineItem\Discount;
 use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Price\PercentagePriceCalculator;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\PriceDefinition;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class VoucherProcessor implements CartProcessorInterface
 {
     const TYPE_VOUCHER = 'voucher';
 
     /**
-     * @var PercentagePriceCalculator
+     * @var VoucherCalculator
      */
-    private $percentagePriceCalculator;
+    private $calculator;
 
-    /**
-     * @var PriceCalculator
-     */
-    private $priceCalculator;
-
-    /**
-     * @var PercentageTaxRuleBuilder
-     */
-    private $percentageTaxRuleBuilder;
-
-    public function __construct(
-        PercentagePriceCalculator $percentagePriceCalculator,
-        PriceCalculator $priceCalculator,
-        PercentageTaxRuleBuilder $percentageTaxRuleBuilder
-    ) {
-        $this->percentagePriceCalculator = $percentagePriceCalculator;
-        $this->priceCalculator = $priceCalculator;
-        $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
+    public function __construct(VoucherCalculator $calculator)
+    {
+        $this->calculator = $calculator;
     }
 
     public function process(
         CartContainer $cartContainer,
-        ProcessorCart $processorCart,
-        StructCollection $dataCollection,
+        CalculatedCart $calculatedCart,
+        IndexedCollection $dataCollection,
         ShopContext $context
     ): void {
         $lineItems = $cartContainer->getLineItems()->filterType(self::TYPE_VOUCHER);
@@ -78,7 +65,7 @@ class VoucherProcessor implements CartProcessorInterface
             return;
         }
 
-        $prices = $processorCart->getCalculatedLineItems()->filterGoods()->getPrices();
+        $prices = $calculatedCart->getCalculatedLineItems()->filterGoods()->getPrices();
         if ($prices->count() === 0) {
             return;
         }
@@ -89,58 +76,14 @@ class VoucherProcessor implements CartProcessorInterface
 
             /** @var VoucherData $voucher */
             if (!$voucher = $dataCollection->get($code)) {
-                $cartContainer->getErrors()->add(new VoucherNotFoundError($code));
+//                $cartContainer->getErrors()->add(new VoucherNotFoundError($code));
                 $cartContainer->getLineItems()->remove($code);
                 continue;
             }
 
-            $this->calculate($processorCart, $context, $voucher, $lineItem);
-        }
-    }
+            $calculatedVoucher = $this->calculator->calculate($calculatedCart, $context, $voucher, $lineItem);
 
-    private function calculate(
-        ProcessorCart $processorCart,
-        ShopContext $context,
-        VoucherData $voucher,
-        LineItemInterface $lineItem
-    ): void {
-        $prices = $processorCart->getCalculatedLineItems()->filterGoods()->getPrices();
-
-        switch (true) {
-            case $voucher instanceof PercentageVoucherData:
-                /** @var PercentageVoucherData $voucher */
-                $discount = $this->percentagePriceCalculator->calculate(
-                    abs($voucher->getPercent()) * -1,
-                    $prices,
-                    $context
-                );
-
-                $processorCart->getCalculatedLineItems()->add(
-                    new CalculatedVoucher($lineItem->getIdentifier(), $lineItem, $discount, $voucher->getRule())
-                );
-
-                return;
-
-            case $voucher instanceof AbsoluteVoucherData:
-
-                /** @var AbsoluteVoucherData $voucher */
-                $discount = $this->priceCalculator->calculate(
-                    new PriceDefinition(
-                        $voucher->getPrice()->getPrice(),
-                        $this->percentageTaxRuleBuilder->buildRules(
-                            $prices->sum()
-                        ),
-                        1,
-                        $voucher->getPrice()->isCalculated()
-                    ),
-                    $context
-                );
-
-                $processorCart->getCalculatedLineItems()->add(
-                    new CalculatedVoucher($lineItem->getIdentifier(), $lineItem, $discount, $voucher->getRule())
-                );
-
-                return;
+            $calculatedCart->getCalculatedLineItems()->add($calculatedVoucher);
         }
     }
 }

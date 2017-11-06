@@ -33,5 +33,5 @@ interface CartPersisterInterface
 
     public function save(CalculatedCart $cart, ShopContext $context): void;
 
-    public function delete(string $token, string $name = null): void;
+    public function delete(string $token, ?string $name = null): void;
 }

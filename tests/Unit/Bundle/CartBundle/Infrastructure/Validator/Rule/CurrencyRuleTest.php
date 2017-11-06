@@ -27,7 +27,7 @@ namespace Shopware\Tests\Unit\Bundle\CartBundle\Infrastructure\Validator\Rule;
 use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\CartBridge\Rule\CurrencyRule;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Currency\Struct\Currency;
 
@@ -49,7 +49,7 @@ class CurrencyRuleTest extends TestCase
             ->will($this->returnValue($currency));
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -69,7 +69,7 @@ class CurrencyRuleTest extends TestCase
             ->will($this->returnValue($currency));
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -89,7 +89,7 @@ class CurrencyRuleTest extends TestCase
             ->will($this->returnValue($currency));
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 }

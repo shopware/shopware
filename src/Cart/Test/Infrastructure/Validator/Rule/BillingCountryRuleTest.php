@@ -32,7 +32,7 @@ use Shopware\Context\Struct\ShopContext;
 use Shopware\Country\Struct\Country;
 use Shopware\Customer\Struct\CustomerBasicStruct;
 use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class BillingCountryRuleTest extends TestCase
 {
@@ -59,7 +59,7 @@ class BillingCountryRuleTest extends TestCase
             ->will($this->returnValue($customer));
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -86,7 +86,7 @@ class BillingCountryRuleTest extends TestCase
             ->will($this->returnValue($customer));
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -113,7 +113,7 @@ class BillingCountryRuleTest extends TestCase
             ->will($this->returnValue($customer));
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -130,7 +130,7 @@ class BillingCountryRuleTest extends TestCase
             ->will($this->returnValue(null));
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 }

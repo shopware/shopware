@@ -241,7 +241,9 @@ class StoreFrontCartService
 
     private function createNewCart(): CartContainer
     {
-        $this->persister->delete($this->getCartToken());
+        if ($token = $this->getCartToken()) {
+            $this->persister->delete($token);
+        }
 
         $this->cartContainer = CartContainer::createNew(self::CART_NAME);
         $this->session->set(self::CART_TOKEN_KEY, $this->cartContainer->getToken());

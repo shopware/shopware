@@ -27,7 +27,7 @@ namespace Shopware\Cart\Voucher;
 use Shopware\Cart\Cart\CartContainer;
 use Shopware\Cart\Cart\CollectorInterface;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class VoucherCollector implements CollectorInterface
 {
@@ -45,7 +45,7 @@ class VoucherCollector implements CollectorInterface
     }
 
     public function prepare(
-        StructCollection $fetchDefinition,
+        IndexedCollection $fetchDefinition,
         CartContainer $cartContainer,
         ShopContext $context
     ): void {
@@ -60,8 +60,8 @@ class VoucherCollector implements CollectorInterface
     }
 
     public function fetch(
-        StructCollection $dataCollection,
-        StructCollection $fetchCollection,
+        IndexedCollection $dataCollection,
+        IndexedCollection $fetchCollection,
         ShopContext $context
     ): void {
         $definitions = $fetchCollection->filterInstance(VoucherFetchDefinition::class);
@@ -71,7 +71,7 @@ class VoucherCollector implements CollectorInterface
         }
 
         $codes = [];
-        /** @var VoucherFetchDefinition $definition */
+        /** @var VoucherFetchDefinition[] $definitions */
         foreach ($definitions as $definition) {
             $codes = array_merge($codes, $definition->getCodes());
         }

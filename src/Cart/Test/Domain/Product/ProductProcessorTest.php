@@ -53,7 +53,7 @@ use Shopware\Cart\Tax\TaxRuleCollection;
 use Shopware\Cart\Test\Common\Generator;
 use Shopware\CartBridge\Product\ProductPriceGateway;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class ProductProcessorTest extends TestCase
 {
@@ -77,7 +77,7 @@ class ProductProcessorTest extends TestCase
         $processor->process(
             CartContainer::createExisting('test', 'test', []),
             $processorCart,
-            new StructCollection(),
+            new IndexedCollection(),
             Generator::createContext()
         );
 
@@ -107,7 +107,7 @@ class ProductProcessorTest extends TestCase
                 new LineItem('SW1', ProductProcessor::TYPE_PRODUCT, 1),
             ]),
             $cart,
-            new StructCollection([
+            new IndexedCollection([
                 'SW1' => new ProductData(
                     'SW1',
                     new PriceDefinitionCollection([
@@ -146,7 +146,7 @@ class ProductProcessorTest extends TestCase
             new DeliveryCollection()
         );
 
-        $data = new StructCollection([
+        $data = new IndexedCollection([
             'SW1' => new ProductData('SW1', new PriceDefinitionCollection([new PriceDefinition(0, new TaxRuleCollection())]), new DefaultDeliveryInformation(), new AndRule()),
             'SW2' => new ProductData('SW2', new PriceDefinitionCollection([new PriceDefinition(0, new TaxRuleCollection())]), new DefaultDeliveryInformation(), new AndRule()),
             'SW3' => new ProductData('SW3', new PriceDefinitionCollection([new PriceDefinition(0, new TaxRuleCollection())]), new DefaultDeliveryInformation(), new AndRule()),
@@ -209,7 +209,7 @@ class ProductProcessorTest extends TestCase
 
         $context = $this->createMock(ShopContext::class);
 
-        $data = new StructCollection([]);
+        $data = new IndexedCollection([]);
 
         $productCollection = $productCalculator->calculate($lineItemCollection, $context, $data);
 
@@ -246,7 +246,7 @@ class ProductProcessorTest extends TestCase
             ),
         ]);
 
-        $data = new StructCollection([
+        $data = new IndexedCollection([
             'sw1' => new ProductData(
                 'sw1',
                 new PriceDefinitionCollection(),

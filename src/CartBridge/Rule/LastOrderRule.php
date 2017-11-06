@@ -29,7 +29,7 @@ use Shopware\Cart\Rule\Match;
 use Shopware\Cart\Rule\Rule;
 use Shopware\CartBridge\Rule\Data\LastOrderRuleData;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class LastOrderRule extends Rule
 {
@@ -46,7 +46,7 @@ class LastOrderRule extends Rule
     public function match(
         CalculatedCart $calculatedCart,
         ShopContext $context,
-        StructCollection $collection
+        IndexedCollection $collection
     ): Match {
         if (!$collection->has(LastOrderRuleData::class)) {
             return new Match(false, ['No last order data found']);

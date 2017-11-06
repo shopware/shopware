@@ -26,159 +26,56 @@ declare(strict_types=1);
 namespace Shopware\CartBridge\Product;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Cart\Delivery\DeliveryDate;
 use Shopware\Cart\Delivery\DeliveryInformation;
-use Shopware\Cart\Product\ProductData;
 use Shopware\Cart\Product\ProductDataCollection;
 use Shopware\Cart\Product\ProductGatewayInterface;
-use Shopware\Cart\Rule\Container\OrRule;
-use Shopware\Cart\Rule\Rule;
-use Shopware\CartBridge\Rule\CustomerGroupRule;
-use Shopware\CartBridge\Rule\ShopRule;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\ProductDetail\Repository\ProductDetailRepository;
+use Shopware\ProductDetail\Struct\ProductDetailBasicCollection;
+use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
+use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicCollection;
 
 class ProductGateway implements ProductGatewayInterface
 {
     /**
-     * @var ProductPriceGatewayInterface
+     * @var ProductDetailRepository
      */
-    private $priceGateway;
+    private $repository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    public function __construct(ProductPriceGatewayInterface $priceGateway, Connection $connection)
+    public function __construct(ProductDetailRepository $repository)
     {
-        $this->priceGateway = $priceGateway;
-        $this->connection = $connection;
+        $this->repository = $repository;
     }
 
-    public function get(array $numbers, ShopContext $context): ProductDataCollection
+    public function get(array $numbers, ShopContext $context): ProductDetailBasicCollection
     {
-        $prices = $this->priceGateway->get($numbers, $context);
+        $details = $this->repository->readBasic(
+            $numbers,
+            $context->getTranslationContext()
+        );
 
-        $details = $this->getDetails($numbers, $context);
-
-        $productCollection = new ProductDataCollection();
-
-        foreach ($numbers as $number) {
-            if (!$prices->has($number)) {
-                continue;
-            }
-
-            if (!array_key_exists($number, $details)) {
-                continue;
-            }
-
-            $deliveryInformation = $this->buildDeliveryInformation($details[$number]);
-
-            $rule = $this->buildRule($details[$number]);
-
-            $productCollection->add(
-                new ProductData($number, $prices->get($number), $deliveryInformation, $rule)
+        foreach ($details as $detail) {
+            $detail->setPrices(
+                $this->filterCustomerGroupPrices($detail, $context)
             );
         }
 
-        return $productCollection;
+        return $details;
     }
 
-    private function getDetails(array $numbers, ShopContext $context): array
+    private function filterCustomerGroupPrices(ProductDetailBasicStruct $detail, ShopContext $context): ProductDetailPriceBasicCollection
     {
-        /** @var QueryBuilder $query */
-        $query = $this->connection->createQueryBuilder();
-
-        $query->select([
-            'product.uuid',
-            'product.stock',
-            'product.weight',
-            'product.width',
-            'product.height',
-            'product.length',
-            '(
-                SELECT GROUP_CONCAT(DISTINCT c.customer_group_uuid SEPARATOR \'|\')
-                FROM product_avoid_customer_group as c
-                WHERE c.product_uuid = product.uuid
-            ) as blocked_groups',
-            'product.is_closeout as closeout',
-        ]);
-        $query->from('product', 'product');
-        $query->where('product.uuid IN (:numbers)');
-        $query->setParameter('numbers', $numbers, Connection::PARAM_STR_ARRAY);
-
-        $data = $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
-
-        $query = $this->connection->createQueryBuilder();
-        $query->select([
-            'categories_ro.product_uuid',
-            'GROUP_CONCAT(DISTINCT shop.uuid SEPARATOR \'|\')', ]);
-        $query->from('shop');
-        $query->innerJoin('shop', 'product_category_ro', 'categories_ro', 'shop.category_uuid = categories_ro.category_uuid');
-        $query->andWhere('categories_ro.product_uuid IN (:uuids)');
-        $query->setParameter('uuids', $numbers, Connection::PARAM_STR_ARRAY);
-        $query->groupBy('categories_ro.product_uuid');
-
-        $shopIds = $query->execute()->fetchAll(\PDO::FETCH_KEY_PAIR);
-
-        foreach ($data as $uuid => &$row) {
-            $row['allowed_shops'] = array_key_exists($uuid, $shopIds) ? $shopIds[$uuid] : '';
-        }
-
-        return $data;
-    }
-
-    private function buildDeliveryInformation(array $row): DeliveryInformation
-    {
-        $earliestInterval = new \DateInterval('P1D');
-        $deliveryTimeInterval = new \DateInterval('P3D');
-        $delayInterval = new \DateInterval('P10D');
-
-        return new DeliveryInformation(
-            (int) $row['stock'],
-            (float) $row['height'],
-            (float) $row['width'],
-            (float) $row['length'],
-            (float) $row['weight'],
-            new DeliveryDate(
-                (new \DateTime())
-                    ->add($earliestInterval),
-                (new \DateTime())
-                    ->add($earliestInterval)
-                    ->add($deliveryTimeInterval)
-            ),
-            new DeliveryDate(
-                (new \DateTime())
-                    ->add($delayInterval)
-                    ->add($earliestInterval),
-                (new \DateTime())
-                    ->add($delayInterval)
-                    ->add($earliestInterval)
-                    ->add($deliveryTimeInterval)
-            )
+        $customerPrices = $detail->getPrices()->filterByCustomerGroupUuid(
+            $context->getCurrentCustomerGroup()->getUuid()
         );
-    }
 
-    /**
-     * @param array $row
-     *
-     * @return Rule
-     */
-    private function buildRule(array $row): Rule
-    {
-        $rule = new OrRule();
-
-        if (!empty($row['blocked_groups'])) {
-            $uuids = array_filter(explode('|', $row['blocked_groups']));
-            $rule->addRule(new CustomerGroupRule($uuids));
+        if ($customerPrices->count() > 0) {
+            return $customerPrices;
         }
 
-        if ($row['allowed_shops']) {
-            $uuids = array_filter(explode('|', $row['allowed_shops']));
-            $rule->addRule(new ShopRule($uuids, Rule::OPERATOR_NEQ));
-        }
-
-        return $rule;
+        return $detail->getPrices()->filterByCustomerGroupUuid(
+            $context->getFallbackCustomerGroup()->getUuid()
+        );
     }
 }

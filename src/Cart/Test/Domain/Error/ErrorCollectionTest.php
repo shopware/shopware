@@ -65,10 +65,16 @@ class OtherError extends \Shopware\Cart\Error\Error
         return '';
     }
 
-    public function getMessage(): string
+    public function getIdentifier(): string
     {
-        return '';
+        return '2';
     }
+
+    public function blockOrder(): bool
+    {
+        return true;
+    }
+
 
     public function getLevel(): int
     {
@@ -83,6 +89,16 @@ class Error extends \Shopware\Cart\Error\Error
      */
     private $level;
 
+    public function getIdentifier(): string
+    {
+        return '1';
+    }
+
+    public function blockOrder(): bool
+    {
+        return false;
+    }
+
     /**
      * @param int $level
      */
@@ -92,11 +108,6 @@ class Error extends \Shopware\Cart\Error\Error
     }
 
     public function getMessageKey(): string
-    {
-        return '';
-    }
-
-    public function getMessage(): string
     {
         return '';
     }

@@ -36,23 +36,15 @@ class ErrorCollection extends Collection
 
     public function add(Error $error): void
     {
-        parent::doAdd($error);
+        $this->elements[$error->getIdentifier()] = $error;
     }
 
-    public function get($index): ? Error
+    public function blockOrder(): bool
     {
-        return $this->elements[$index];
-    }
-
-    public function has($errorClass): bool
-    {
-        foreach ($this->elements as $element) {
-            if ($element instanceof $errorClass) {
-                return true;
-            }
-        }
-
-        return false;
+        $states = $this->map(function(Error $error) {
+            return $error->blockOrder();
+        });
+        return max($states);
     }
 
     public function hasLevel(int $errorLevel): bool

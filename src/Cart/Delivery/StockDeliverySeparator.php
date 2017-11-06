@@ -51,7 +51,7 @@ class StockDeliverySeparator
         DeliveryCollection $deliveries,
         CalculatedLineItemCollection $items,
         ShopContext $context
-    ): DeliveryCollection {
+    ): void {
         foreach ($items as $item) {
             if (!$item instanceof DeliverableLineItemInterface) {
                 continue;
@@ -131,8 +131,6 @@ class StockDeliverySeparator
                 $context->getShippingMethod()
             );
         }
-
-        return clone $deliveries;
     }
 
     private function recalculatePosition(

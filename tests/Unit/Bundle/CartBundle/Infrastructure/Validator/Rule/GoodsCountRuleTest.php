@@ -36,7 +36,7 @@ use Shopware\Cart\Tax\TaxRuleCollection;
 use Shopware\Cart\Voucher\CalculatedVoucher;
 use Shopware\Cart\Voucher\VoucherProcessor;
 use Shopware\CartBridge\Rule\GoodsCountRule;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Tests\Unit\Bundle\CartBundle\Common\DummyProduct;
 
@@ -60,7 +60,7 @@ class GoodsCountRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -88,7 +88,7 @@ class GoodsCountRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -109,7 +109,7 @@ class GoodsCountRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -131,7 +131,7 @@ class GoodsCountRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -159,7 +159,7 @@ class GoodsCountRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -182,7 +182,7 @@ class GoodsCountRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -202,7 +202,7 @@ class GoodsCountRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 

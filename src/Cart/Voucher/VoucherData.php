@@ -24,11 +24,12 @@
 
 namespace Shopware\Cart\Voucher;
 
+use Shopware\Cart\Price\PriceDefinition;
 use Shopware\Cart\Rule\Rule;
 use Shopware\Cart\Rule\Validatable;
 use Shopware\Framework\Struct\Struct;
 
-abstract class VoucherData extends Struct implements Validatable
+class VoucherData extends Struct implements Validatable
 {
     /**
      * @var string
@@ -40,10 +41,26 @@ abstract class VoucherData extends Struct implements Validatable
      */
     protected $rule;
 
-    public function __construct(string $code, Rule $rule)
+    /**
+     * @var float|null
+     */
+    protected $percentage;
+
+    /**
+     * @var PriceDefinition|null
+     */
+    protected $absolute;
+
+    public function __construct($code, ?Rule $rule, ?float $percentage, ?PriceDefinition $absolute)
     {
         $this->code = $code;
         $this->rule = $rule;
+        $this->percentage = $percentage;
+        $this->absolute = $absolute;
+
+        if ($absolute === null && $percentage === null) {
+            throw new \RuntimeException('Voucher data requires at least absoulte or percentage value');
+        }
     }
 
     public function getCode(): string
@@ -54,5 +71,15 @@ abstract class VoucherData extends Struct implements Validatable
     public function getRule(): Rule
     {
         return $this->rule;
+    }
+
+    public function getPercentage(): ?float
+    {
+        return $this->percentage;
+    }
+
+    public function getAbsolute(): ?PriceDefinition
+    {
+        return $this->absolute;
     }
 }

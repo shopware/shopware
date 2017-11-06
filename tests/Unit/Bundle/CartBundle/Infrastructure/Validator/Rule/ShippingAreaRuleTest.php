@@ -29,7 +29,7 @@ use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Delivery\ShippingLocation;
 use Shopware\Cart\Rule\Rule;
 use Shopware\CartBridge\Rule\ShippingAreaRule;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\CountryArea\Struct\CountryArea;
 use Shopware\Country\Struct\Country;
@@ -58,7 +58,7 @@ class ShippingAreaRuleTest extends TestCase
             );
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -92,7 +92,7 @@ class ShippingAreaRuleTest extends TestCase
             );
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -119,7 +119,7 @@ class ShippingAreaRuleTest extends TestCase
 
         $context = $this->createMock(ShopContext::class);
 
-        $rule->match($cart, $context, new StructCollection())->matches();
+        $rule->match($cart, $context, new IndexedCollection())->matches();
     }
 
     public function unsupportedOperators(): array

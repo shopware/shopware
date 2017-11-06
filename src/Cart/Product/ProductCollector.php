@@ -28,7 +28,7 @@ namespace Shopware\Cart\Product;
 use Shopware\Cart\Cart\CartContainer;
 use Shopware\Cart\Cart\CollectorInterface;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class ProductCollector implements CollectorInterface
 {
@@ -42,7 +42,7 @@ class ProductCollector implements CollectorInterface
         $this->productGateway = $productGateway;
     }
 
-    public function prepare(StructCollection $fetchDefinition, CartContainer $cartContainer, ShopContext $context): void
+    public function prepare(IndexedCollection $fetchDefinition, CartContainer $cartContainer, ShopContext $context): void
     {
         $lineItems = $cartContainer->getLineItems()->filterType(ProductProcessor::TYPE_PRODUCT);
         if ($lineItems->count() === 0) {
@@ -52,7 +52,7 @@ class ProductCollector implements CollectorInterface
         $fetchDefinition->add(new ProductFetchDefinition($lineItems->getIdentifiers()));
     }
 
-    public function fetch(StructCollection $dataCollection, StructCollection $fetchCollection, ShopContext $context): void
+    public function fetch(IndexedCollection $dataCollection, IndexedCollection $fetchCollection, ShopContext $context): void
     {
         $definitions = $fetchCollection->filterInstance(ProductFetchDefinition::class);
         if ($definitions->count() === 0) {
@@ -65,14 +65,8 @@ class ProductCollector implements CollectorInterface
             $numbers = array_merge($numbers, $definition->getNumbers());
         }
 
-        //fast array unique
         $numbers = array_keys(array_flip($numbers));
-
-        $definitions = $this->productGateway->get($numbers, $context);
-
-        /** @var ProductData $definition */
-        foreach ($definitions as $definition) {
-            $dataCollection->add($definition, $definition->getNumber());
-        }
+        $products = $this->productGateway->get($numbers, $context);
+        $dataCollection->fill($products->getElements());
     }
 }

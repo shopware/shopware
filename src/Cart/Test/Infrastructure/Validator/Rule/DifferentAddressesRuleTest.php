@@ -32,7 +32,7 @@ use Shopware\Context\Struct\ShopContext;
 use Shopware\Customer\Struct\Customer;
 use Shopware\Customer\Struct\CustomerBasicStruct;
 use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class DifferentAddressesRuleTest extends TestCase
 {
@@ -59,7 +59,7 @@ class DifferentAddressesRuleTest extends TestCase
             ->will($this->returnValue($customer));
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -86,7 +86,7 @@ class DifferentAddressesRuleTest extends TestCase
             ->will($this->returnValue($customer));
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -103,7 +103,7 @@ class DifferentAddressesRuleTest extends TestCase
             ->will($this->returnValue(null));
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 }

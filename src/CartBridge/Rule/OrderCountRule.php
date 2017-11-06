@@ -29,7 +29,7 @@ use Shopware\Cart\Rule\Match;
 use Shopware\Cart\Rule\Rule;
 use Shopware\CartBridge\Rule\Data\OrderCountRuleData;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class OrderCountRule extends Rule
 {
@@ -46,7 +46,7 @@ class OrderCountRule extends Rule
     public function match(
         CalculatedCart $calculatedCart,
         ShopContext $context,
-        StructCollection $collection
+        IndexedCollection $collection
     ): Match {
         if (!$collection->has(OrderCountRuleData::class)) {
             return new Match(

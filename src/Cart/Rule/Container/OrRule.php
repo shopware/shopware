@@ -29,7 +29,7 @@ namespace Shopware\Cart\Rule\Container;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Rule\Match;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 /**
  * OrRule returns true, if at least one child rule is true
@@ -39,7 +39,7 @@ class OrRule extends Container
     public function match(
         CalculatedCart $calculatedCart,
         ShopContext $context,
-        StructCollection $collection
+        IndexedCollection $collection
     ): Match {
         $messages = [];
 

@@ -27,7 +27,7 @@ namespace Shopware\CartBridge\Rule;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Rule\Match;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class CustomerGroupRule extends \Shopware\Cart\Rule\Rule
 {
@@ -47,7 +47,7 @@ class CustomerGroupRule extends \Shopware\Cart\Rule\Rule
     public function match(
         CalculatedCart $calculatedCart,
         ShopContext $context,
-        StructCollection $collection
+        IndexedCollection $collection
     ): Match {
         return new Match(
             in_array($context->getCurrentCustomerGroup()->getUuid(), $this->customerGroupIds, true),

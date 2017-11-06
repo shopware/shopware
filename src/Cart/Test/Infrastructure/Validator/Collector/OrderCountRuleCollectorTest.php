@@ -33,7 +33,7 @@ use Shopware\CartBridge\Rule\OrderCountRule;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Customer\Struct\Customer;
 use Shopware\Customer\Struct\CustomerBasicStruct;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class OrderCountRuleCollectorTest extends TestCase
 {
@@ -45,9 +45,9 @@ class OrderCountRuleCollectorTest extends TestCase
 
         $collector = new OrderCountRuleCollector($connection);
 
-        $dataCollection = new StructCollection();
+        $dataCollection = new IndexedCollection();
 
-        $collector->fetch($dataCollection, new StructCollection(), $context);
+        $collector->fetch($dataCollection, new IndexedCollection(), $context);
 
         $this->assertSame(0, $dataCollection->count());
     }
@@ -60,11 +60,11 @@ class OrderCountRuleCollectorTest extends TestCase
 
         $collector = new OrderCountRuleCollector($connection);
 
-        $dataCollection = new StructCollection([
+        $dataCollection = new IndexedCollection([
             new ValidatableDefinition(new OrderCountRule(10)),
         ]);
 
-        $collector->fetch($dataCollection, new StructCollection(), $context);
+        $collector->fetch($dataCollection, new IndexedCollection(), $context);
 
         $this->assertSame(1, $dataCollection->count());
     }
@@ -86,11 +86,11 @@ class OrderCountRuleCollectorTest extends TestCase
 
         $collector = new OrderCountRuleCollector($connection);
 
-        $dataCollection = new StructCollection([
+        $dataCollection = new IndexedCollection([
             new ValidatableDefinition(new OrderCountRule(10)),
         ]);
 
-        $collector->fetch($dataCollection, new StructCollection(), $context);
+        $collector->fetch($dataCollection, new IndexedCollection(), $context);
 
         $this->assertSame(2, $dataCollection->count());
 
@@ -118,11 +118,11 @@ class OrderCountRuleCollectorTest extends TestCase
 
         $collector = new OrderCountRuleCollector($connection);
 
-        $dataCollection = new StructCollection([
+        $dataCollection = new IndexedCollection([
             new ValidatableDefinition(new OrderCountRule(10)),
         ]);
 
-        $collector->fetch($dataCollection, new StructCollection(), $context);
+        $collector->fetch($dataCollection, new IndexedCollection(), $context);
 
         $this->assertSame(2, $dataCollection->count());
 

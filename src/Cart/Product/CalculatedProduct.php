@@ -27,7 +27,6 @@ namespace Shopware\Cart\Product;
 
 use Shopware\Cart\Delivery\Delivery;
 use Shopware\Cart\Delivery\DeliveryDate;
-use Shopware\Cart\Delivery\DeliveryInformation;
 use Shopware\Cart\LineItem\DeliverableLineItemInterface;
 use Shopware\Cart\LineItem\GoodsInterface;
 use Shopware\Cart\LineItem\LineItemInterface;
@@ -59,34 +58,55 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
     protected $quantity;
 
     /**
-     * @var DeliveryInformation
-     */
-    protected $deliveryInformation;
-
-    /**
      * @var null|Delivery
      */
     protected $delivery;
 
     /**
-     * @var null|\Shopware\Cart\Rule\Rule
+     * @var null|Rule
      */
-    private $rule;
+    protected $rule;
+
+    /**
+     * @var int
+     */
+    protected $stock;
+
+    /**
+     * @var float
+     */
+    protected $weight;
+
+    /**
+     * @var DeliveryDate
+     */
+    protected $inStockDeliveryDate;
+
+    /**
+     * @var DeliveryDate
+     */
+    protected $outOfStockDeliveryDate;
 
     public function __construct(
-        string $identifier,
-        int $quantity,
         LineItemInterface $lineItem,
         Price $price,
-        DeliveryInformation $deliveryInformation,
+        string $identifier,
+        int $quantity,
+        int $stock,
+        float $weight,
+        DeliveryDate $inStockDeliveryDate,
+        DeliveryDate $outOfStockDeliveryDate,
         ?Rule $rule
     ) {
-        $this->identifier = $identifier;
-        $this->price = $price;
-        $this->quantity = $quantity;
         $this->lineItem = $lineItem;
-        $this->deliveryInformation = $deliveryInformation;
+        $this->price = $price;
+        $this->identifier = $identifier;
+        $this->quantity = $quantity;
         $this->rule = $rule;
+        $this->stock = $stock;
+        $this->weight = $weight;
+        $this->inStockDeliveryDate = $inStockDeliveryDate;
+        $this->outOfStockDeliveryDate = $outOfStockDeliveryDate;
     }
 
     public function getIdentifier(): string
@@ -101,22 +121,22 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
 
     public function getStock(): int
     {
-        return $this->deliveryInformation->getStock();
+        return $this->stock;
     }
 
     public function getInStockDeliveryDate(): DeliveryDate
     {
-        return $this->deliveryInformation->getInStockDeliveryDate();
+        return $this->inStockDeliveryDate;
     }
 
     public function getOutOfStockDeliveryDate(): DeliveryDate
     {
-        return $this->deliveryInformation->getOutOfStockDeliveryDate();
+        return $this->outOfStockDeliveryDate;
     }
 
     public function getWeight(): float
     {
-        return $this->deliveryInformation->getWeight();
+        return $this->weight;
     }
 
     public function getQuantity(): int
@@ -139,17 +159,9 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
         $this->delivery = $delivery;
     }
 
-    /**
-     * @return null|\Shopware\Cart\Rule\Rule
-     */
     public function getRule(): ? Rule
     {
         return $this->rule;
-    }
-
-    public function getDeliveryInformation(): DeliveryInformation
-    {
-        return $this->deliveryInformation;
     }
 
     public function getType(): string

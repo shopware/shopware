@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\CartBridge\Rule\Data\OrderCountRuleData;
 use Shopware\CartBridge\Rule\OrderCountRule;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 use Shopware\Context\Struct\ShopContext;
 
 class OrderCountRuleTest extends TestCase
@@ -42,7 +42,7 @@ class OrderCountRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection([
+            $rule->match($cart, $context, new IndexedCollection([
                 OrderCountRuleData::class => new OrderCountRuleData(1),
             ]))->matches()
         );
@@ -57,7 +57,7 @@ class OrderCountRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection([
+            $rule->match($cart, $context, new IndexedCollection([
                 OrderCountRuleData::class => new OrderCountRuleData(1),
             ]))->matches()
         );
@@ -72,7 +72,7 @@ class OrderCountRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -85,7 +85,7 @@ class OrderCountRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection([
+            $rule->match($cart, $context, new IndexedCollection([
                 OrderCountRuleData::class => new OrderCountRuleData(10),
             ]))->matches()
         );

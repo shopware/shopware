@@ -26,8 +26,9 @@ declare(strict_types=1);
 namespace Shopware\Cart\Product;
 
 use Shopware\Context\Struct\ShopContext;
+use Shopware\ProductDetail\Struct\ProductDetailBasicCollection;
 
 interface ProductGatewayInterface
 {
-    public function get(array $numbers, ShopContext $context): ProductDataCollection;
+    public function get(array $numbers, ShopContext $context): ProductDetailBasicCollection;
 }

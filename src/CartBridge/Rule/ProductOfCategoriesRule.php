@@ -29,7 +29,7 @@ use Shopware\Cart\Rule\Match;
 use Shopware\Cart\Rule\Rule;
 use Shopware\CartBridge\Rule\Data\ProductOfCategoriesRuleData;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class ProductOfCategoriesRule extends Rule
 {
@@ -49,7 +49,7 @@ class ProductOfCategoriesRule extends Rule
     public function match(
         CalculatedCart $calculatedCart,
         ShopContext $context,
-        StructCollection $collection
+        IndexedCollection $collection
     ): Match {
         /** @var ProductOfCategoriesRuleData $data */
         $data = $collection->get(ProductOfCategoriesRuleData::class);

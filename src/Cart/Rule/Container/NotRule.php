@@ -29,7 +29,7 @@ use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Rule\Match;
 use Shopware\Cart\Rule\Rule;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 /**
  * NotRule inverses the return value of the child rule. Only one child is possible
@@ -51,7 +51,7 @@ class NotRule extends Container
     public function match(
         CalculatedCart $calculatedCart,
         ShopContext $context,
-        StructCollection $collection
+        IndexedCollection $collection
     ): Match {
         $rule = array_shift($this->rules);
 

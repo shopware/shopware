@@ -62,11 +62,11 @@ class CalculatedVoucher extends Struct implements CalculatedLineItemInterface, V
     protected $identifier;
 
     /**
-     * @var \Shopware\Cart\Rule\Rule
+     * @var Rule|null
      */
     protected $rule;
 
-    public function __construct(string $code, LineItemInterface $lineItem, Price $price, Rule $rule)
+    public function __construct(string $code, LineItemInterface $lineItem, Price $price, ?Rule $rule)
     {
         $this->price = $price;
         $this->lineItem = $lineItem;

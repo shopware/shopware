@@ -94,7 +94,7 @@ class CartPersister implements CartPersisterInterface
         ]);
     }
 
-    public function delete(string $token, string $name = null): void
+    public function delete(string $token, ?string $name = null): void
     {
         if ($name === null) {
             $this->connection->executeUpdate(

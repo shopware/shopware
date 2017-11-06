@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\CartBridge\Rule\BillingAreaRule;
 use Shopware\Address\Struct\Address;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\CountryArea\Struct\CountryArea;
 use Shopware\Country\Struct\Country;
@@ -61,7 +61,7 @@ class BillingAreaRuleTest extends TestCase
             ->will($this->returnValue($customer));
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -90,7 +90,7 @@ class BillingAreaRuleTest extends TestCase
             ->will($this->returnValue($customer));
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -119,7 +119,7 @@ class BillingAreaRuleTest extends TestCase
             ->will($this->returnValue($customer));
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -136,7 +136,7 @@ class BillingAreaRuleTest extends TestCase
             ->will($this->returnValue(null));
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 }

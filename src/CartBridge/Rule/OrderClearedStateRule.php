@@ -28,7 +28,7 @@ use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Rule\Match;
 use Shopware\CartBridge\Rule\Data\OrderClearedStateRuleData;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class OrderClearedStateRule extends \Shopware\Cart\Rule\Rule
 {
@@ -48,7 +48,7 @@ class OrderClearedStateRule extends \Shopware\Cart\Rule\Rule
     public function match(
         CalculatedCart $calculatedCart,
         ShopContext $context,
-        StructCollection $collection
+        IndexedCollection $collection
     ): Match {
         if (!$collection->has(OrderClearedStateRuleData::class)) {
             return new Match(

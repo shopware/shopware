@@ -49,7 +49,7 @@ use Shopware\Cart\Voucher\CalculatedVoucher;
 use Shopware\Cart\Voucher\PercentageVoucherData;
 use Shopware\Cart\Voucher\VoucherProcessor;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class VoucherProcessorTest extends TestCase
 {
@@ -74,7 +74,7 @@ class VoucherProcessorTest extends TestCase
         $processor->process(
             $cart,
             $processorCart,
-            new StructCollection(),
+            new IndexedCollection(),
             $this->createMock(ShopContext::class)
         );
 
@@ -111,7 +111,7 @@ class VoucherProcessorTest extends TestCase
         $processor->process(
             $cart,
             $processorCart,
-            new StructCollection(),
+            new IndexedCollection(),
             $this->createMock(ShopContext::class)
         );
 
@@ -141,7 +141,7 @@ class VoucherProcessorTest extends TestCase
             new ErrorCollection()
         );
 
-        $data = new StructCollection();
+        $data = new IndexedCollection();
         $processor->process($cart, $processorCart, $data, $this->createMock(ShopContext::class));
 
         $this->assertSame(0, $cart->getErrors()->count());
@@ -175,7 +175,7 @@ class VoucherProcessorTest extends TestCase
             new PercentageTaxRuleBuilder()
         );
 
-        $data = new StructCollection();
+        $data = new IndexedCollection();
         $processor->process($cart, $processorCart, $data, $this->createMock(ShopContext::class));
 
         $this->assertSame(1, $cart->getErrors()->count());
@@ -227,7 +227,7 @@ class VoucherProcessorTest extends TestCase
             new PercentageTaxRuleBuilder()
         );
 
-        $data = new StructCollection([
+        $data = new IndexedCollection([
             'test' => new PercentageVoucherData('test', new AndRule(), 10),
         ]);
         $processor->process($cartContainer, $processorCart, $data, $this->createMock(ShopContext::class));
@@ -284,7 +284,7 @@ class VoucherProcessorTest extends TestCase
             new PercentageTaxRuleBuilder()
         );
 
-        $data = new StructCollection();
+        $data = new IndexedCollection();
         $data->add(new AbsoluteVoucherData('test', new AndRule(), new PriceDefinition(1, new TaxRuleCollection())), 'test');
         $processor->process($cartContainer, $processorCart, $data, $this->createMock(ShopContext::class));
 

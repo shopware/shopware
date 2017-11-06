@@ -28,7 +28,7 @@ namespace Shopware\Cart\Rule\Container;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Rule\Match;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 /**
  * XorRule returns true, if exactly one child rule is true
@@ -38,7 +38,7 @@ class XorRule extends Container
     public function match(
         CalculatedCart $calculatedCart,
         ShopContext $context,
-        StructCollection $collection
+        IndexedCollection $collection
     ): Match {
         $matches = 0;
         $messages = [];

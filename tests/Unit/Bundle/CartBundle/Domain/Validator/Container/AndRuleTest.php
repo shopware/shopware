@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Rule\Container\AndRule;
 use Shopware\Cart\Rule\Match;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Tests\Unit\Bundle\CartBundle\Common\FalseRule;
 use Shopware\Tests\Unit\Bundle\CartBundle\Common\TrueRule;
@@ -47,7 +47,7 @@ class AndRuleTest extends TestCase
             $rule->match(
                 $this->createMock(CalculatedCart::class),
                 $this->createMock(ShopContext::class),
-                new StructCollection()
+                new IndexedCollection()
             )
         );
     }
@@ -64,7 +64,7 @@ class AndRuleTest extends TestCase
             $rule->match(
                 $this->createMock(CalculatedCart::class),
                 $this->createMock(ShopContext::class),
-                new StructCollection()
+                new IndexedCollection()
             )
         );
     }

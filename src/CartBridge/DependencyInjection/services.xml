@@ -33,12 +33,7 @@
         </service>
 
         <service id="shopware.cart.product.gateway" class="Shopware\CartBridge\Product\ProductGateway" >
-            <argument id="shopware.cart.product.price_gateway" type="service"/>
-            <argument id="dbal_connection" type="service"/>
-        </service>
-
-        <service id="shopware.cart.product.price_gateway" class="Shopware\CartBridge\Product\ProductPriceGateway">
-            <argument type="service" id="dbal_connection" />
+            <argument type="service" id="shopware.product_detail.repository"/>
         </service>
 
         <service id="shopware.cart.storefront_service" class="Shopware\CartBridge\Service\StoreFrontCartService">

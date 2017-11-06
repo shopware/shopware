@@ -24,12 +24,12 @@
 
 namespace Shopware\Cart\Dynamic;
 
+use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Cart\CalculatedCartGenerator;
 use Shopware\Cart\Cart\CartContainer;
 use Shopware\Cart\Cart\CartProcessorInterface;
-use Shopware\Cart\Cart\ProcessorCart;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class DynamicProcessor implements CartProcessorInterface
 {
@@ -39,30 +39,22 @@ class DynamicProcessor implements CartProcessorInterface
     private $gateway;
 
     /**
-     * @var CalculatedCartGenerator
-     */
-    private $generator;
-
-    /**
      * @param DynamicLineItemGatewayInterface $gateway
      * @param CalculatedCartGenerator         $generator
      */
-    public function __construct(DynamicLineItemGatewayInterface $gateway, CalculatedCartGenerator $generator)
+    public function __construct(DynamicLineItemGatewayInterface $gateway)
     {
         $this->gateway = $gateway;
-        $this->generator = $generator;
     }
 
     public function process(
         CartContainer $cartContainer,
-        ProcessorCart $processorCart,
-        StructCollection $dataCollection,
+        CalculatedCart $calculatedCart,
+        IndexedCollection $dataCollection,
         ShopContext $context
     ): void {
-        $calculatedCart = $this->generator->create($cartContainer, $context, $processorCart);
-
         $lineItems = $this->gateway->get($calculatedCart, $context);
 
-        $processorCart->getCalculatedLineItems()->fill($lineItems->getElements());
+        $calculatedCart->getCalculatedLineItems()->fill($lineItems->getElements());
     }
 }

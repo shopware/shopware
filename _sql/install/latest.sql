@@ -1011,8 +1011,8 @@ DROP TABLE IF EXISTS `s_cart`;
 CREATE TABLE `cart` (
   `token` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `container` json COLLATE utf8mb4_unicode_ci NOT NULL,
-  `calculated` json COLLATE utf8mb4_unicode_ci NOT NULL,
+  `container` json NOT NULL,
+  `calculated` json NOT NULL,
   `currency_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
   `shipping_method_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
   `payment_method_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,

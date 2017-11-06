@@ -88,12 +88,12 @@ class CalculatedCart extends Struct
 
     public function getCalculatedLineItems(): CalculatedLineItemCollection
     {
-        return clone $this->calculatedLineItems;
+        return $this->calculatedLineItems;
     }
 
     public function getDeliveries(): DeliveryCollection
     {
-        return clone $this->deliveries;
+        return $this->deliveries;
     }
 
     public function getErrors(): ErrorCollection

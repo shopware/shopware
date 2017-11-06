@@ -26,14 +26,19 @@ declare(strict_types=1);
 namespace Shopware\Cart\Cart;
 
 use Shopware\Cart\Delivery\DeliveryCollection;
+use Shopware\Cart\Error\ChangeLineItemQuantityValidationError;
+use Shopware\Cart\Error\RemoveLineItemValidationError;
+use Shopware\Cart\Error\ValidationErrorCollection;
 use Shopware\Cart\Exception\CircularCartCalculationException;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Cart\LineItem\CalculatedLineItemInterface;
+use Shopware\Cart\Price\AmountCalculator;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class CartCalculator
 {
-    const MAX_ITERATION = 5;
+    const MAX_ITERATION = 10;
 
     /**
      * @var CartProcessorInterface[]
@@ -41,30 +46,23 @@ class CartCalculator
     private $processors;
 
     /**
-     * @var CalculatedCartGenerator
-     */
-    private $calculatedCartGenerator;
-
-    /**
      * @var CollectorInterface[]
      */
     private $collectors;
 
     /**
-     * @var ValidatorInterface[]
+     * @var AmountCalculator
      */
-    private $validators;
+    private $calculator;
 
     public function __construct(
         iterable $processors,
         iterable $collectors,
-        iterable $validators,
-        CalculatedCartGenerator $calculatedCartGenerator
+        AmountCalculator $calculator
     ) {
         $this->processors = $processors;
         $this->collectors = $collectors;
-        $this->calculatedCartGenerator = $calculatedCartGenerator;
-        $this->validators = $validators;
+        $this->calculator = $calculator;
     }
 
     public function calculate(CartContainer $cartContainer, ShopContext $context): CalculatedCart
@@ -74,14 +72,14 @@ class CartCalculator
         return $this->process($cartContainer, $context, $dataCollection, 0);
     }
 
-    private function prepare(CartContainer $cartContainer, ShopContext $context): StructCollection
+    private function prepare(CartContainer $cartContainer, ShopContext $context): IndexedCollection
     {
-        $fetchCollection = new StructCollection();
+        $fetchCollection = new IndexedCollection();
         foreach ($this->collectors as $collector) {
             $collector->prepare($fetchCollection, $cartContainer, $context);
         }
 
-        $dataCollection = new StructCollection();
+        $dataCollection = new IndexedCollection();
         foreach ($this->collectors as $collector) {
             $collector->fetch($dataCollection, $fetchCollection, $context);
         }
@@ -92,30 +90,41 @@ class CartCalculator
     private function process(
         CartContainer $cartContainer,
         ShopContext $context,
-        StructCollection $dataCollection,
+        IndexedCollection $dataCollection,
         int $iteration
     ): CalculatedCart {
         if ($iteration >= self::MAX_ITERATION) {
             throw new CircularCartCalculationException();
         }
 
-        $processorCart = new ProcessorCart(
-            new CalculatedLineItemCollection(),
-            new DeliveryCollection()
+        $lineItems = new CalculatedLineItemCollection(
+            $cartContainer->getLineItems()->filterInstance(
+                CalculatedLineItemInterface::class
+            )->getElements()
         );
 
-        foreach ($this->processors as $processor) {
-            $processor->process($cartContainer, $processorCart, $dataCollection, $context);
-        }
-
-        $calculatedCart = $this->calculatedCartGenerator->create($cartContainer, $context, $processorCart);
+        $calculatedCart = $this->createCalculatedCart(
+            $lineItems,
+            new DeliveryCollection(),
+            $cartContainer,
+            $context
+        );
 
         $recalculate = false;
-        foreach ($this->validators as $validator) {
-            if ($validator->validate($calculatedCart, $context, $dataCollection)) {
-                continue;
+
+        foreach ($this->processors as $processor) {
+            try {
+                $processor->process($cartContainer, $calculatedCart, $dataCollection, $context);
+            } catch (RecalculateCartException $e) {
+                $recalculate = true;
             }
-            $recalculate = true;
+
+            $calculatedCart = $this->createCalculatedCart(
+                $calculatedCart->getCalculatedLineItems(),
+                $calculatedCart->getDeliveries(),
+                $cartContainer,
+                $context
+            );
         }
 
         if ($recalculate) {
@@ -123,5 +132,24 @@ class CartCalculator
         }
 
         return $calculatedCart;
+    }
+
+    private function createCalculatedCart(
+        CalculatedLineItemCollection $lineItems,
+        DeliveryCollection $deliveries,
+        CartContainer $container,
+        ShopContext $context
+    ): CalculatedCart {
+
+        return new CalculatedCart(
+            $container,
+            $lineItems,
+            $this->calculator->calculateAmount(
+                $lineItems->getPrices(),
+                $deliveries->getShippingCosts(),
+                $context
+            ),
+            $deliveries
+        );
     }
 }

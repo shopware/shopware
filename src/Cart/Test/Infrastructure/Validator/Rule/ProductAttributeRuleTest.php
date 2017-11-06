@@ -29,7 +29,7 @@ use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\CartBridge\Rule\Data\ProductAttributeRuleData;
 use Shopware\CartBridge\Rule\ProductAttributeRule;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class ProductAttributeRuleTest extends TestCase
 {
@@ -42,7 +42,7 @@ class ProductAttributeRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection([
+            $rule->match($cart, $context, new IndexedCollection([
                 ProductAttributeRuleData::class => new ProductAttributeRuleData([
                     'attr1' => [2, 3, 1],
                 ]),
@@ -59,7 +59,7 @@ class ProductAttributeRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection([
+            $rule->match($cart, $context, new IndexedCollection([
                 ProductAttributeRuleData::class => new ProductAttributeRuleData([
                     'attr2' => [2, 3, 1],
                     'attr3' => [2, 3, 1],
@@ -78,7 +78,7 @@ class ProductAttributeRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection([
+            $rule->match($cart, $context, new IndexedCollection([
                 ProductAttributeRuleData::class => new ProductAttributeRuleData([
                     'attr2' => [2, 3, 1],
                     'attr3' => [2, 3, 1],
@@ -97,7 +97,7 @@ class ProductAttributeRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection([
+            $rule->match($cart, $context, new IndexedCollection([
                 ProductAttributeRuleData::class => new ProductAttributeRuleData([
                     'attr3' => [2, 3, 1],
                     'attr1' => [2, 3, 1],
@@ -115,7 +115,7 @@ class ProductAttributeRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 }

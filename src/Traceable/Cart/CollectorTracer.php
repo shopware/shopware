@@ -5,7 +5,7 @@ namespace Shopware\Traceable\Cart;
 use Shopware\Cart\Cart\CartContainer;
 use Shopware\Cart\Cart\CollectorInterface;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class CollectorTracer implements CollectorInterface
 {
@@ -26,7 +26,7 @@ class CollectorTracer implements CollectorInterface
     }
 
     public function prepare(
-        StructCollection $fetchDefinition,
+        IndexedCollection $fetchDefinition,
         CartContainer $cartContainer,
         ShopContext $context
     ): void {
@@ -51,8 +51,8 @@ class CollectorTracer implements CollectorInterface
     }
 
     public function fetch(
-        StructCollection $dataCollection,
-        StructCollection $fetchCollection,
+        IndexedCollection $dataCollection,
+        IndexedCollection $fetchCollection,
         ShopContext $context
     ): void {
         $before = clone $dataCollection;

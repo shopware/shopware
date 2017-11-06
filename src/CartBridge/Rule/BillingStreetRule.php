@@ -28,7 +28,7 @@ use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Rule\Match;
 use Shopware\Cart\Rule\Rule;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class BillingStreetRule extends Rule
 {
@@ -45,7 +45,7 @@ class BillingStreetRule extends Rule
     public function match(
         CalculatedCart $calculatedCart,
         ShopContext $context,
-        StructCollection $collection
+        IndexedCollection $collection
     ): Match {
         if (!$context->getCustomer()) {
             return new Match(false, ['Not logged in customer']);

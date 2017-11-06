@@ -27,7 +27,7 @@ namespace Shopware\Tests\Unit\Bundle\CartBundle\Infrastructure\Validator\Rule;
 use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\CartBridge\Rule\IsNewCustomerRule;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Customer\Struct\Customer;
 
@@ -49,7 +49,7 @@ class IsNewCustomerRuleTest extends TestCase
             ->will($this->returnValue($customer));
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -73,7 +73,7 @@ class IsNewCustomerRuleTest extends TestCase
             ->will($this->returnValue($customer));
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -97,7 +97,7 @@ class IsNewCustomerRuleTest extends TestCase
             ->will($this->returnValue($customer));
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -114,7 +114,7 @@ class IsNewCustomerRuleTest extends TestCase
             ->will($this->returnValue(null));
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 }

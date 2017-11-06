@@ -29,14 +29,14 @@ use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Cart\ValidatorInterface;
 use Shopware\Cart\Error\PaymentBlockedError;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class PaymentValidatorProcessor implements ValidatorInterface
 {
     public function validate(
         CalculatedCart $cart,
         ShopContext $context,
-        StructCollection $dataCollection
+        IndexedCollection $dataCollection
     ): bool {
         if (!$context->getCustomer()) {
             return true;

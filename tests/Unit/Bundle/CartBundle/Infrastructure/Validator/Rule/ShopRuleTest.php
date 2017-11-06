@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Rule\Rule;
 use Shopware\CartBridge\Rule\ShopRule;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Shop\Struct\Shop;
 
@@ -49,7 +49,7 @@ class ShopRuleTest extends TestCase
             ->method('getShop')
             ->will($this->returnValue($shop));
 
-        $this->assertTrue($rule->match($cart, $context, new StructCollection())->matches());
+        $this->assertTrue($rule->match($cart, $context, new IndexedCollection())->matches());
     }
 
     public function testEqualsWithMultipleShops(): void
@@ -68,7 +68,7 @@ class ShopRuleTest extends TestCase
             ->will($this->returnValue($shop));
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -88,7 +88,7 @@ class ShopRuleTest extends TestCase
             ->will($this->returnValue($shop));
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -108,7 +108,7 @@ class ShopRuleTest extends TestCase
             ->will($this->returnValue($shop));
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -127,7 +127,7 @@ class ShopRuleTest extends TestCase
             ->method('getShop')
             ->will($this->returnValue($shop));
 
-        $this->assertFalse($rule->match($cart, $context, new StructCollection())->matches());
+        $this->assertFalse($rule->match($cart, $context, new IndexedCollection())->matches());
     }
 
     public function testNotEqualsWithMultipleShops(): void
@@ -145,7 +145,7 @@ class ShopRuleTest extends TestCase
             ->method('getShop')
             ->will($this->returnValue($shop));
 
-        $this->assertFalse($rule->match($cart, $context, new StructCollection())->matches());
+        $this->assertFalse($rule->match($cart, $context, new IndexedCollection())->matches());
     }
 
     public function testNotEqualsNotMatchWithSingleShop(): void
@@ -163,7 +163,7 @@ class ShopRuleTest extends TestCase
             ->method('getShop')
             ->will($this->returnValue($shop));
 
-        $this->assertTrue($rule->match($cart, $context, new StructCollection())->matches());
+        $this->assertTrue($rule->match($cart, $context, new IndexedCollection())->matches());
     }
 
     public function testNotEqualsNotMatchWithMultipleShops(): void
@@ -181,7 +181,7 @@ class ShopRuleTest extends TestCase
             ->method('getShop')
             ->will($this->returnValue($shop));
 
-        $this->assertTrue($rule->match($cart, $context, new StructCollection())->matches());
+        $this->assertTrue($rule->match($cart, $context, new IndexedCollection())->matches());
     }
 
     /**
@@ -205,7 +205,7 @@ class ShopRuleTest extends TestCase
             ->method('getShop')
             ->will($this->returnValue($shop));
 
-        $rule->match($cart, $context, new StructCollection());
+        $rule->match($cart, $context, new IndexedCollection());
     }
 
     public function unsupportedOperators(): array

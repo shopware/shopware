@@ -75,16 +75,18 @@ class VoucherGateway implements VoucherGatewayInterface
         $price = (float) $row['value'];
 
         if ($row['percental']) {
-            return new PercentageVoucherData(
+            return new VoucherData(
                 $row['code'],
                 $this->buildRule($row),
-                $price
+                (float) $price,
+                null
             );
         }
 
-        return new AbsoluteVoucherData(
+        return new VoucherData(
             $row['code'],
             $this->buildRule($row),
+            null,
             new PriceDefinition($price * -1, new TaxRuleCollection(), 1, true)
         );
     }

@@ -28,7 +28,7 @@ use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Cart\Rule\Match;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class ShippingAreaRule extends \Shopware\Cart\Rule\Rule
 {
@@ -51,7 +51,7 @@ class ShippingAreaRule extends \Shopware\Cart\Rule\Rule
     public function match(
         CalculatedCart $calculatedCart,
         ShopContext $context,
-        StructCollection $collection
+        IndexedCollection $collection
     ): Match {
         switch ($this->operator) {
             case self::OPERATOR_EQ:

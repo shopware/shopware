@@ -31,7 +31,7 @@ use Shopware\Cart\Rule\Match;
 use Shopware\Cart\Test\Common\FalseRule;
 use Shopware\Cart\Test\Common\TrueRule;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class XorRuleTest extends TestCase
 {
@@ -48,7 +48,7 @@ class XorRuleTest extends TestCase
             $rule->match(
                 $this->createMock(CalculatedCart::class),
                 $this->createMock(ShopContext::class),
-                new StructCollection()
+                new IndexedCollection()
             )
         );
     }
@@ -65,7 +65,7 @@ class XorRuleTest extends TestCase
             $rule->match(
                 $this->createMock(CalculatedCart::class),
                 $this->createMock(ShopContext::class),
-                new StructCollection()
+                new IndexedCollection()
             )
         );
     }
@@ -83,7 +83,7 @@ class XorRuleTest extends TestCase
             $rule->match(
                 $this->createMock(CalculatedCart::class),
                 $this->createMock(ShopContext::class),
-                new StructCollection()
+                new IndexedCollection()
             )
         );
     }

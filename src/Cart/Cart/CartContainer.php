@@ -60,16 +60,9 @@ class CartContainer extends Struct
         $this->errors = $errors;
     }
 
-    //todo remove this function, only used in unit tests
     public static function createNew(string $name): CartContainer
     {
         return new self($name, Uuid::uuid4()->toString(), new LineItemCollection(), new ErrorCollection());
-    }
-
-    //todo remove this function, only used in unit tests
-    public static function createExisting(string $name, string $token, array $items): CartContainer
-    {
-        return new self($name, $token, new LineItemCollection($items), new ErrorCollection());
     }
 
     public function getName(): string

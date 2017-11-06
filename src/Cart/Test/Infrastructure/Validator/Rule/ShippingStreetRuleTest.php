@@ -33,7 +33,7 @@ use Shopware\CartBridge\Rule\ShippingStreetRule;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Country\Struct\Country;
 use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class ShippingStreetRuleTest extends TestCase
 {
@@ -54,7 +54,7 @@ class ShippingStreetRuleTest extends TestCase
             ));
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -75,7 +75,7 @@ class ShippingStreetRuleTest extends TestCase
             ));
 
         $this->assertTrue(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -96,7 +96,7 @@ class ShippingStreetRuleTest extends TestCase
             ));
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 
@@ -117,7 +117,7 @@ class ShippingStreetRuleTest extends TestCase
             ));
 
         $this->assertFalse(
-            $rule->match($cart, $context, new StructCollection())->matches()
+            $rule->match($cart, $context, new IndexedCollection())->matches()
         );
     }
 

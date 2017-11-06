@@ -34,7 +34,7 @@ class FalseRule extends Rule
     public function match(
         CalculatedCart $calculatedCart,
         ShopContext $context,
-        \Shopware\Framework\Struct\StructCollection $collection
+        \Shopware\Framework\Struct\IndexedCollection $collection
     ): Match {
         return new Match(false);
     }

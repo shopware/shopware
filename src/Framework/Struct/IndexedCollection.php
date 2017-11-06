@@ -23,19 +23,38 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Cart\Product;
+namespace Shopware\Framework\Struct;
 
-use Shopware\Cart\Delivery\DeliveryInformationCollection;
-use Shopware\Cart\LineItem\LineItemCollection;
-use Shopware\Context\Struct\ShopContext;
-
-interface ProductDeliveryGatewayInterface
+class IndexedCollection extends Collection
 {
     /**
-     * @param LineItemCollection                   $collection
-     * @param \Shopware\Context\Struct\ShopContext $context
-     *
-     * @return DeliveryInformationCollection
+     * @var Struct[]
      */
-    public function get(LineItemCollection $collection, ShopContext $context): DeliveryInformationCollection;
+    protected $elements = [];
+
+    public function add(Struct $struct, $key = null): void
+    {
+        if ($key !== null) {
+            $this->elements[$key] = $struct;
+        } else {
+            $this->elements[] = $struct;
+        }
+    }
+
+    public function fill(array $elements): void
+    {
+        foreach ($elements as $key => $element) {
+            $this->add($element, $key);
+        }
+    }
+
+    public function removeByKey($key): void
+    {
+        $this->doRemoveByKey($key);
+    }
+
+    public function get($key): ? Struct
+    {
+        return $this->elements[$key] ?? null;
+    }
 }

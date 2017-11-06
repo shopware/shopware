@@ -34,7 +34,7 @@ use Shopware\Cart\Rule\Validatable;
 use Shopware\CartBridge\Rule\Data\ProductOfCategoriesRuleData;
 use Shopware\CartBridge\Rule\ProductOfCategoriesRule;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class ProductOfCategoriesRuleCollector implements CollectorInterface
 {
@@ -52,15 +52,15 @@ class ProductOfCategoriesRuleCollector implements CollectorInterface
     }
 
     public function prepare(
-        StructCollection $fetchDefinition,
+        IndexedCollection $fetchDefinition,
         CartContainer $cartContainer,
         ShopContext $context
     ): void {
     }
 
     public function fetch(
-        StructCollection $dataCollection,
-        StructCollection $fetchCollection,
+        IndexedCollection $dataCollection,
+        IndexedCollection $fetchCollection,
         ShopContext $context
     ): void {
         $rules = $dataCollection->filterInstance(Validatable::class);
@@ -96,7 +96,7 @@ class ProductOfCategoriesRuleCollector implements CollectorInterface
         );
     }
 
-    private function getNumbers(StructCollection $fetchDefinition): array
+    private function getNumbers(IndexedCollection $fetchDefinition): array
     {
         $definitions = $fetchDefinition->filterInstance(ProductFetchDefinition::class);
         if ($definitions->count() === 0) {

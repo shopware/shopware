@@ -25,11 +25,11 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Product;
 
+use Shopware\Cart\Cart\CalculatedCart;
 use Shopware\Cart\Cart\CartContainer;
 use Shopware\Cart\Cart\CartProcessorInterface;
-use Shopware\Cart\Cart\ProcessorCart;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
 
 class ProductProcessor implements CartProcessorInterface
 {
@@ -50,8 +50,8 @@ class ProductProcessor implements CartProcessorInterface
 
     public function process(
         CartContainer $cartContainer,
-        ProcessorCart $processorCart,
-        StructCollection $dataCollection,
+        CalculatedCart $calculatedCart,
+        IndexedCollection $dataCollection,
         ShopContext $context
     ): void {
         $collection = $cartContainer->getLineItems()->filterType(self::TYPE_PRODUCT);
@@ -62,9 +62,7 @@ class ProductProcessor implements CartProcessorInterface
 
         $products = $this->calculator->calculate($collection, $context, $dataCollection);
 
-        $cartContainer->getErrors()->fill($products->getErrors());
-
-        $processorCart->getCalculatedLineItems()->fill(
+        $calculatedCart->getCalculatedLineItems()->fill(
             $products->getElements()
         );
     }

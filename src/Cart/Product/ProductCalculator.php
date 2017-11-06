@@ -25,12 +25,18 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Product;
 
+use Shopware\Cart\Delivery\DeliveryDate;
+use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\LineItemCollection;
 use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\PriceDefinition;
+use Shopware\Cart\Tax\TaxRule;
+use Shopware\Cart\Tax\TaxRuleCollection;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
+use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicStruct;
 
 class ProductCalculator
 {
@@ -47,9 +53,10 @@ class ProductCalculator
     public function calculate(
         LineItemCollection $collection,
         ShopContext $context,
-        StructCollection $dataCollection
-    ): CalculatedProductCollection {
-        $products = new CalculatedProductCollection();
+        IndexedCollection $dataCollection
+    ): CalculatedLineItemCollection {
+
+        $products = new CalculatedLineItemCollection();
 
         /** @var LineItemInterface $lineItem */
         foreach ($collection as $lineItem) {
@@ -57,12 +64,12 @@ class ProductCalculator
                 continue;
             }
 
-            /** @var ProductData $definition */
-            $definition = $dataCollection->get($lineItem->getIdentifier());
+            /** @var ProductDetailBasicStruct $detail */
+            $detail = $dataCollection->get($lineItem->getIdentifier());
 
             $priceDefinition = $lineItem->getPriceDefinition();
             if (!$priceDefinition) {
-                $priceDefinition = $definition->getPrice($lineItem->getQuantity());
+                $priceDefinition = $this->getQuantityPrice($lineItem->getQuantity(), $detail);
             }
 
             $priceDefinition = new PriceDefinition(
@@ -72,22 +79,72 @@ class ProductCalculator
                 $priceDefinition->isCalculated()
             );
 
-            $deliveryInformation = $definition->getDeliveryInformation();
-
             $price = $this->priceCalculator->calculate($priceDefinition, $context);
 
             $products->add(
                 new CalculatedProduct(
-                    $lineItem->getIdentifier(),
-                    $lineItem->getQuantity(),
                     $lineItem,
                     $price,
-                    $deliveryInformation,
-                    $definition->getRule()
+                    $lineItem->getIdentifier(),
+                    $lineItem->getQuantity(),
+                    $detail->getStock(),
+                    $detail->getWeight(),
+                    $this->getInstockDeliveryDate(),
+                    $this->getOutOfStockDeliveryDate(),
+                    null
                 )
             );
         }
 
         return $products;
+    }
+
+    private function getInstockDeliveryDate(): DeliveryDate
+    {
+        return new DeliveryDate(
+            (new \DateTime())
+                ->add(new \DateInterval('P1D')),
+            (new \DateTime())
+                ->add(new \DateInterval('P1D'))
+                ->add(new \DateInterval('P3D'))
+        );
+    }
+
+    private function getOutOfStockDeliveryDate(): DeliveryDate
+    {
+        return new DeliveryDate(
+            (new \DateTime())
+                ->add(new \DateInterval('P10D'))
+                ->add(new \DateInterval('P1D')),
+            (new \DateTime())
+                ->add(new \DateInterval('P10D'))
+                ->add(new \DateInterval('P1D'))
+                ->add(new \DateInterval('P3D'))
+        );
+    }
+
+    private function getQuantityPrice(int $quantity, ProductDetailBasicStruct $detail): ?PriceDefinition
+    {
+        $detail->getPrices()->sort(
+            function(ProductDetailPriceBasicStruct $a, ProductDetailPriceBasicStruct $b) {
+                return $a->getQuantityStart() < $b->getQuantityStart();
+            }
+        );
+
+        foreach ($detail->getPrices() as $price) {
+            if ($price->getQuantityStart() <= $quantity) {
+                return new PriceDefinition(
+                    $price->getPrice(),
+
+                    //todo@dr use taxes of product after product and detail merged
+                    new TaxRuleCollection([
+                        new TaxRule(19)
+                    ]),
+                    $quantity
+                );
+            }
+        }
+
+        return null;
     }
 }

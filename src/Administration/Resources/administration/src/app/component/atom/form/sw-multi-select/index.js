@@ -58,7 +58,7 @@ export default Shopware.ComponentFactory.register('sw-multi-select', {
 
     created() {
         // Get data from the service provider
-        this.serviceProvider.readAll(100, 0).then((response) => {
+        this.serviceProvider.getList(100, 0).then((response) => {
             this.entries = response.data;
         });
     },

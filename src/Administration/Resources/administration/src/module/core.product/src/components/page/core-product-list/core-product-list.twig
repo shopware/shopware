@@ -8,77 +8,37 @@
 
             <div class="toolbar--primary-actions">
                 <router-link :to="{ name: 'core.product.create' }">
-                    <sw-button :isPrimary="true">
-                        Neues Produkt anlegen
-                    </sw-button>
+                    <sw-button :isPrimary="true">Neues Produkt anlegen</sw-button>
                 </router-link>
             </div>
         </header>
 
         <div class="core-product--list">
-            <sw-grid>
-                {% block grid_header %}
-                <sw-grid-header>
-                    {% block grid_header_columns %}
-                    <sw-grid-col :width="50">&nbsp;</sw-grid-col>
-                    <sw-grid-col :width="50">#</sw-grid-col>
-                    <sw-grid-col :width="500">Name</sw-grid-col>
-                    <sw-grid-col :width="450">Hersteller</sw-grid-col>
-                    <sw-grid-col :width="100">Aktiv</sw-grid-col>
-                    <sw-grid-col :width="100">Preis</sw-grid-col>
-                    <sw-grid-col :width="150">Lager</sw-grid-col>
-                    <sw-grid-col :width="100">Info</sw-grid-col>
+            {% block core_product_list_grid %}
+                <sw-grid :items="productList" :pagination="true" v-on:edit="onEdit">
+                    {% block core_product_list_grid_slots %}
+
+                        <template slot="columns" slot-scope="{ item }">
+                            {% block core_product_list_grid_columns %}
+                                <sw-grid-column flex="50px" label="#"></sw-grid-column>
+                                <sw-grid-column flex="1" label="Name">{{ item.name }}</sw-grid-column>
+                                <sw-grid-column flex="1" label="Manufacturer">{{ item.manufacturer.name }}</sw-grid-column>
+                                <sw-grid-column flex="100px" label="Active"><i class="icon-checkmark" v-if="item.active"></i><i class="icon-cross" v-else></i></sw-grid-column>
+                                <sw-grid-column flex="100px" label="Price">{{ item.mainDetail.prices[0].price | currency }}</sw-grid-column>
+                                <sw-grid-column flex="200px" label="Stock">{{ item.mainDetail.stock }} in stock</sw-grid-column>
+                            {% endblock %}
+                        </template>
+
+                        <template slot="pagination">
+                            {% block core_product_list_grid_pagination %}
+                                <sw-pagination :page="page" :max-page="maxPage" :limit="limit" :total="total" v-on:page-change="pageChange"></sw-pagination>
+                            {% endblock %}
+                        </template>
                     {% endblock %}
-                </sw-grid-header>
-                {% endblock %}
+                </sw-grid>
+            {% endblock %}
 
-                {% block grid_body %}
-                <sw-grid-body>
-                    {% block grid_item %}
-                    <sw-grid-row v-for="(item, index) in productList" :key="item.uuid" :editable="false" :item="item">
-                        {% block grid_columns %}
-                        <sw-grid-col :width="50">
-                            <input type="checkbox" readonly="true" />
-                        </sw-grid-col>
-                        <sw-grid-col :width="50">
-                            {{index + 1}}
-                        </sw-grid-col>
-                        <sw-grid-col :width="500" data-index="name" editor="text">
-                            {{item.name}}
-                        </sw-grid-col>
-                        <sw-grid-col :width="450">
-                            {{item.manufacturer.name}}
-                        </sw-grid-col>
-                        <sw-grid-col :width="100">
-                            <i class="icon-checkmark" v-if="item.active"></i>
-                            <i class="icon-cross" v-else></i>
-                        </sw-grid-col>
-                        <sw-grid-col :width="100">
-                           <template v-if="item.listingPrices.length > 0">
-                               <span class="product--price">{{ item.listingPrices[0].price | currency }}</span>
-                           </template>
-                        </sw-grid-col>
-                        <sw-grid-col :width="150" data-index="pseudoSales" editor="number">
-                            {{item.stock}} auf Lager
-                        </sw-grid-col>
-
-                        <sw-grid-col :width="100">
-                            <router-link class="action--edit" :to="{ name: 'core.product.detail', params: { uuid: item.uuid }}">
-                                <i class="icon-document-edit"></i>
-                            </router-link>
-                        </sw-grid-col>
-                        {% endblock %}
-                    </sw-grid-row>
-                    {% endblock %}
-                </sw-grid-body>
-                {% endblock %}
-
-                {% block grid_pagination %}
-                <sw-pagination :page="page" :max-page="maxPage" :limit="limit" :total="total" v-on:page-change="pageChange"></sw-pagination>
-                {% endblock %}
-
-                <sw-loader v-if="isWorking"></sw-loader>
-            </sw-grid>
+            <sw-loader v-if="isWorking"></sw-loader>
         </div>
     </sw-workspace>
 {% endblock %}

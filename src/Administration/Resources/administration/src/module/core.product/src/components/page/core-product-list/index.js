@@ -26,6 +26,12 @@ export default Shopware.ComponentFactory.register('core-product-list', {
     },
 
     methods: {
+        onEdit(product) {
+            if (product && product.uuid) {
+                this.$router.push({ path: `/core/product/detail/${product.uuid}` });
+            }
+        },
+
         handlePagination(offset, limit) {
             this.isWorking = true;
             this.getProductList(offset, limit).then(() => {

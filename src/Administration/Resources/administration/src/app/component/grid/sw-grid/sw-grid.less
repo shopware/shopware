@@ -1,0 +1,131 @@
+.sw-grid {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns: auto;
+    grid-template-rows: 100%;
+
+    &.has--sidebar {
+        grid-template-columns: auto 64px;
+    }
+
+    .sw-grid--content {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        grid-template-rows: auto;
+
+        &.has--header {
+            grid-template-rows: 64px auto;
+        }
+
+        &.has--pagination {
+            grid-template-rows: auto 64px;
+        }
+
+        &.has--header.has--pagination {
+            grid-template-rows: 64px auto 64px;
+        }
+    }
+
+    .sw-grid--sidebar {
+        width: 64px;
+        height: 100%;
+        background-color: #fff;
+        border-left: 1px solid #DEE7ED;
+
+        button {
+            width: 64px;
+            height: 64px;
+            font-size: 22px;
+            line-height: 12px;
+            text-align: center;
+            border-width: 0 0 1px 0;
+            border-style: solid;
+            border-color: #dadde4;
+            color: #788a9e;
+            background: none;
+            cursor: pointer;
+            outline: none;
+
+            &:hover {
+                background: #e8f6ff;
+                color: #179dfe;
+            }
+        }
+    }
+
+    .sw-grid--header {
+        height: 64px;
+        display: grid;
+        grid-auto-flow: column;
+        background-color: #F3F6F8;
+        border-bottom: 1px solid #D2DEE6;
+        padding-right: 17px;
+
+        .sw-grid--cell {
+            font-size: 16px;
+            font-weight: bold;
+            color: #353E47;
+        }
+    }
+
+    .sw-grid--body {
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .sw-grid--item {
+        display: grid;
+        grid-auto-flow: column;
+        border-bottom: 1px solid #D2DEE6;
+        background: #fff;
+
+        &:nth-child(even) {
+            background: #f5f8fa;
+        }
+
+        &:last-child {
+            border-bottom: 0 none;
+        }
+
+        &:hover {
+            background: #f1f9fe;
+        }
+
+        &.is--selected {
+            background: #e8f6ff;
+            border-bottom: 1px solid #1b9dfb;
+        }
+    }
+
+    .sw-grid--cell {
+        min-height: 64px;
+        line-height: 24px;
+        padding: 20px 20px;
+        text-align: left;
+        cursor: default;
+    }
+
+    .sw-grid--actions {
+        button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            outline: none;
+            font-size: 20px;
+            color: #788b9c;
+
+            &:hover {
+                color: #169fff;
+            }
+        }
+    }
+
+    .sw-grid--pagination {
+        height: 64px;
+        background: #fff;
+        border-top: 1px solid #D2DEE6;
+    }
+}

@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+import utils from 'src/core/service/util.service';
 import 'src/app/component/components';
 import VueMoment from 'vue-moment';
 
@@ -15,6 +16,10 @@ export default function VueAdapter(context) {
         }
 
         return `${context.assetsPath}${value}`;
+    });
+
+    Vue.filter('currency', (value, format = 'EUR') => {
+        return utils.currency(value, format);
     });
 
     return {

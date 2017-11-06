@@ -1,0 +1,50 @@
+<div class="sw-grid" :class="{ 'has--sidebar': sidebar  }">
+
+    <slot name="content">
+        <div class="sw-grid--content" :class="{ 'has--header': header, 'has--pagination': pagination }">
+
+            <slot name="header" v-if="header">
+                <div class="sw-grid--header" :style="columnFlex">
+                    <div class="sw-grid--cell" v-if="selectable"><input type="checkbox" v-on:change="selectAll($event.target.checked)"></div>
+                    <div class="sw-grid--cell" v-for="column in columns">{{ column.label }}</div>
+                    <div class="sw-grid--cell" v-if="actions.length > 0">Actions</div>
+                </div>
+            </slot>
+
+            <slot name="body">
+                <div class="sw-grid--body">
+
+                    <slot name="items" v-for="item in items">
+                        <div class="sw-grid--item" :style="columnFlex" :class="{ 'is--selected': item.selected }">
+
+                            <div class="sw-grid--cell" v-if="selectable"><input type="checkbox" v-model="item.selected"></div>
+
+                            <slot name="columns" :item="item"></slot>
+
+                            <slot name="actions" v-if="actions.length > 0">
+                                <div class="sw-grid--cell sw-grid--actions">
+                                    <button v-on:click="$emit('edit', item)" v-if="actions.indexOf('edit') !== -1"><i class="icon-document-edit"></i></button>
+                                    <button v-on:click="$emit('delete', item)" v-if="actions.indexOf('delete') !== -1"><i class="icon-document-delete"></i></button>
+                                    <button v-on:click="$emit('duplicate', item)" v-if="actions.indexOf('duplicate') !== -1"><i class="icon-copy"></i></button>
+                                </div>
+                            </slot>
+                        </div>
+                    </slot>
+
+                </div>
+            </slot>
+
+            <div class="sw-grid--pagination" v-if="pagination">
+                <slot name="pagination"></slot>
+            </div>
+        </div>
+    </slot>
+
+    <div class="sw-grid--sidebar" v-if="sidebar">
+        <slot name="sidebar">
+            <button><i class="icon-gear"></i></button>
+            <button><i class="icon-clockwise"></i></button>
+            <button><i class="icon-experiment"></i></button>
+        </slot>
+    </div>
+</div>

@@ -50,7 +50,7 @@
         {% block core_product_detail_workspace_additional %}{% endblock %}
 
         <sw-card title="Preise">
-            <sw-form-grid :columns="priceColumns" :items="productMainDetails.prices"></sw-form-grid>
+            <sw-form-grid :columns="priceColumns" :items="product.prices"></sw-form-grid>
             <sw-loader v-if="isWorking"></sw-loader>
         </sw-card>
     </div>

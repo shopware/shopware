@@ -94,14 +94,14 @@ class Generate
             'product' => [
                 'seo_url_name' => 'detail_page',
                 'associations' => [
+                    self::createAssociation('unit', self::ManyToOne, true, false, 'unit', 'unit_uuid'),
+                    self::createAssociation('product_price', self::OneToMany, true, true, 'price', 'product_uuid'),
                     self::createAssociation('product_manufacturer', self::ManyToOne, true, false, 'manufacturer', 'product_manufacturer_uuid', '', '', false),
-                    self::createAssociation('product_detail', self::OneToOne, true, true, 'mainDetail', 'main_detail_uuid', '', '', false),
                     self::createAssociation('tax', self::ManyToOne, true, false, 'tax', 'tax_uuid', '', '', false),
                     self::createAssociation('seo_url', self::ManyToOne, true, false, 'canonicalUrl', ''),
                     self::createAssociation('product_media', self::OneToMany, false, true, 'media', 'product_uuid'),
                     self::createAssociation('price_group', self::ManyToOne, true, false, 'priceGroup', 'price_group_uuid'),
                     self::createAssociation('customer_group', self::ManyToMany, true, true, 'blockedCustomerGroups', '', 'product_avoid_customer_group'),
-                    self::createAssociation('product_detail', self::OneToMany, false, true, 'detail', 'product_uuid', '', '', true, false),
                     self::createAssociation('category', self::ManyToMany, false, true, 'category', 'product_uuid', 'product_category', '', true, false, '', file_get_contents(__DIR__ . '/special_case/product/category_association_assign.txt')),
                     self::createAssociation('category', self::ManyToMany, false, true, 'categoryTree', 'product_uuid', 'product_category_ro'),
                     self::createAssociation('product_vote', self::OneToMany, false, true, 'vote', 'product_uuid'),
@@ -109,7 +109,7 @@ class Generate
                     self::createAssociation('product_vote_average_ro', self::OneToMany, false, true, 'voteAverage', 'product_uuid')
                 ]
             ],
-            'product_detail_price' => [
+            'product_price' => [
                 'associatons' => [
                     self::createAssociation('customer_group', self::ManyToOne, true, false, 'customerGroup', 'customer_group_uuid', '', '', false)
                 ]
@@ -117,12 +117,11 @@ class Generate
             'product_vote' => [
                 self::createAssociation('shop', self::ManyToOne, true, false, 'shop', 'shop_uuid'),
             ],
-            'product_detail' => [
-                'associations' => [
-                    self::createAssociation('unit', self::ManyToOne, true, false, 'unit', 'unit_uuid'),
-                    self::createAssociation('product_detail_price', self::OneToMany, true, true, 'price', 'product_detail_uuid'),
-                ],
-            ],
+//            'product_detail' => [
+//                'associations' => [
+//
+//                ],
+//            ],
             'product_manufacturer' => [],
             'product_vote_average_ro' => [],
             'product_listing_price_ro' => [],

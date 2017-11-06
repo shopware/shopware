@@ -48,7 +48,12 @@ class CoreMenuWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): CoreMenuWrittenEvent
     {
-        $event = new CoreMenuWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new CoreMenuWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

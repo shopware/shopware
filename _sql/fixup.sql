@@ -304,7 +304,7 @@ ALTER TABLE s_articles_prices CHANGE COLUMN `to` `to` VARCHAR(50) NULL DEFAULT N
 
 
 ALTER TABLE s_articles_prices
-    RENAME TO product_detail_price,
+    RENAME TO product_price,
     ADD COLUMN uuid VARCHAR(42) NOT NULL AFTER id,
     CHANGE COLUMN articledetailsID product_detail_id INT(11) NOT NULL DEFAULT '0',
     CHANGE COLUMN articleID product_id INT(11) NOT NULL DEFAULT '0',
@@ -316,10 +316,10 @@ ALTER TABLE s_articles_prices
 
 
 ALTER TABLE s_articles_prices_attributes
-    RENAME TO product_detail_price_attribute,
+    RENAME TO product_price_attribute,
     ADD uuid VARCHAR(42) NOT NULL AFTER id,
     CHANGE priceID price_id INT(11) unsigned,
-    ADD product_detail_price_uuid VARCHAR(42) NOT NULL AFTER price_id
+    ADD product_price_uuid VARCHAR(42) NOT NULL AFTER price_id
 ;
 
 
@@ -871,20 +871,18 @@ ALTER TABLE `s_user_addresses_attributes`
     ADD `customer_address_uuid` varchar(42) NOT NULL AFTER `address_id`
 ;
 
-
 ALTER TABLE `s_user_attributes`
     ADD `uuid` varchar(42) NOT NULL AFTER `id`,
     CHANGE `userID` `customer_id` int NULL AFTER `uuid`,
     ADD `customer_uuid` varchar(42) NOT NULL,
     RENAME TO `customer_attribute`;
 
-
 ALTER TABLE `s_addon_premiums`
     ADD `uuid` varchar(42) NOT NULL AFTER `id`,
     CHANGE `startprice` `amount` double NOT NULL DEFAULT '0' AFTER `uuid`,
     CHANGE `ordernumber` `product_order_number` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT '0' AFTER `amount`,
-    ADD `product_detail_uuid` varchar(42) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `product_order_number`,
-    CHANGE `ordernumber_export` `premium_order_number` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `product_detail_uuid`,
+    ADD `product_uuid` varchar(42) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `product_order_number`,
+    CHANGE `ordernumber_export` `premium_order_number` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `product_uuid`,
     CHANGE `subshopID` `shop_id` int NOT NULL AFTER `premium_order_number`,
     ADD `shop_uuid` varchar(42) NOT NULL,
     RENAME TO `premium_product`;
@@ -1552,7 +1550,7 @@ ALTER TABLE `product_media`
     ADD `media_uuid` varchar(42) NOT NULL,
     ADD `parent_uuid` varchar(42) NULL AFTER `media_uuid`;
 
-ALTER TABLE `product_detail_price`
+ALTER TABLE `product_price`
     ADD `customer_group_uuid` varchar(42) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `pricegroup`,
     CHANGE `from` `quantity_start` int(11) NOT NULL DEFAULT '0' AFTER `customer_group_uuid`,
     CHANGE `to` `quantity_end` int(11) NULL AFTER `quantity_start`,
@@ -1655,26 +1653,9 @@ DROP INDEX article_images_query ON product_media;
 DROP INDEX article_detail_id ON product_media;
 DROP INDEX article_cover_image_query ON product_media;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 -- cleanup inconsistent data
 
-UPDATE product_detail_price SET `quantity_end` = NULL WHERE `quantity_end` = 0;
+UPDATE product_price SET `quantity_end` = NULL WHERE `quantity_end` = 0;
 
 INSERT IGNORE INTO `shop_template` (`id`, `template`, `name`, `description`, `author`, `license`, `esi`, `style_support`, `emotion`, `version`, `plugin_id`, `parent_id`) VALUES
     (11,    'Responsive',    '__theme_name__',    '__theme_description__',    '__author__',    '__license__',    1,    1,    1,    3,    NULL,    NULL);
@@ -1685,139 +1666,63 @@ DELETE FROM product_esd_serial WHERE esd_id = 1;
 
 UPDATE product_media SET `is_cover` = 0 WHERE `is_cover` = 2;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 -- create uuid data
 
-
-
 UPDATE product_avoid_customer_group pac SET
-    pac.product_uuid = CONCAT('SWAG-PRODUCT-UUID-', pac.product_id),
     pac.customer_group_uuid = CONCAT('SWAG-CUSTOMER-GROUP-UUID-', pac.customer_group_id)
 ;
 
-
 UPDATE product_category pc SET
     pc.uuid          = CONCAT('SWAG-PRODUCT-CATEGORY-UUID-', pc.id),
-    pc.product_uuid  = CONCAT('SWAG-PRODUCT-UUID-', pc.product_id),
     pc.category_uuid = CONCAT('SWAG-CATEGORY-UUID-', pc.category_id)
 ;
 
-
-
 UPDATE product_category_ro pcr SET
     pcr.uuid = CONCAT('SWAG-PRODUCT-CATEGORY-RO-UUID-', pcr.id),
-    pcr.product_uuid = CONCAT('SWAG-PRODUCT-UUID-', pcr.product_id),
     pcr.category_uuid = CONCAT('SWAG-CATEGORY-UUID-', pcr.category_id)
 ;
 
-
-
 UPDATE product_category_seo pcs SET
     pcs.shop_uuid     = CONCAT('SWAG-SHOP-UUID-', pcs.shop_id),
-    pcs.product_uuid  = CONCAT('SWAG-PRODUCT-UUID-', pcs.product_id),
     pcs.category_uuid = CONCAT('SWAG-CATEGORY-UUID-', pcs.product_id)
 ;
 
-
-
-
 UPDATE product_detail pd SET
-    pd.uuid = pd.order_number,
-    pd.product_uuid = CONCAT('SWAG-PRODUCT-UUID-', pd.product_id)
+    pd.uuid = pd.order_number
 ;
 UPDATE product_detail SET unit_uuid = CONCAT('SWAG-UNIT-UUID-', unit_id) WHERE unit_id IS NOT NULL;
 
-
-
 UPDATE product_attachment pd SET
-    pd.uuid         = CONCAT('SWAG-PRODUCT-DOWNLOAD-UUID-', pd.id),
-    pd.product_uuid = CONCAT('SWAG-PRODUCT-UUID-', pd.product_id)
+    pd.uuid         = CONCAT('SWAG-PRODUCT-DOWNLOAD-UUID-', pd.id)
 ;
-
-
-
 
 UPDATE product_attachment_attribute pda SET
     pda.uuid          = CONCAT('SWAG-PRODUCT-DOWNLOAD-ATTRIBUTE-UUID-', pda.id),
     pda.product_attachment_uuid = CONCAT('SWAG-PRODUCT-DOWNLOAD-UUID-', pda.product_attachment)
 ;
 
-
-
 UPDATE product_esd pe SET
-    pe.uuid                = CONCAT('SWAG-PRODUCT-ES-UUID-', pe.id),
-    pe.product_uuid        = CONCAT('SWAG-PRODUCT-UUID-', pe.product_id),
-    pe.product_detail_uuid = (SELECT sub.order_number FROM product_detail sub WHERE sub.id = pe.product_detail_id LIMIT 1)
+    pe.uuid                = CONCAT('SWAG-PRODUCT-ES-UUID-', pe.id)
 ;
-
-
-
 
 UPDATE product_esd_attribute pea SET
     pea.uuid = CONCAT('SWAG-PRODUCT-ES-ATTRIBUTE-UUID-', pea.id),
     pea.product_esd_uuid = CONCAT('SWAG-PRODUCT-ES-UUID-', pea.esd_id)
 ;
 
-
-
-
 UPDATE product_esd_serial pes SET
     pes.uuid = CONCAT('SWAG-PRODUCT-ES-SERIAL-UUID-', pes.id),
     pes.product_esd_uuid = CONCAT('SWAG-PRODUCT-ES-UUID-', pes.esd_id)
 ;
 
-
 UPDATE product_media p SET
-    p.uuid                = CONCAT('SWAG-PRODUCT-IMAGE-UUID-', p.id),
-    p.product_uuid        = CONCAT('SWAG-PRODUCT-UUID-', p.product_id),
-    p.product_detail_uuid = (SELECT sub.order_number FROM product_detail sub WHERE sub.id = p.product_detail_id LIMIT 1)
+    p.uuid                = CONCAT('SWAG-PRODUCT-IMAGE-UUID-', p.id)
 ;
-
 
 UPDATE product_media_attribute p SET
     p.uuid = CONCAT('SWAG-PRODUCT-IMAGE-ATTRIBUTE-UUID-', p.id),
     p.product_media_uuid = CONCAT('SWAG-PRODUCT-IMAGE-UUID-', p.image_id)
 ;
-
 
 UPDATE product_media_mapping p SET
     p.uuid = CONCAT('SWAG-PRODUCT-IMAGE-MAPPING-UUID-', p.id),
@@ -1829,85 +1734,54 @@ UPDATE product_media_mapping_rule p SET
     p.product_media_mapping_uuid = CONCAT('SWAG-PRODUCT-IMAGE-MAPPING-UUID-', p.mapping_id)
 ;
 
-
-
 UPDATE product_link p SET
-    p.uuid = CONCAT('SWAG-PRODUCT-INFORMATION-UUID-', p.id),
-    p.product_uuid = CONCAT('SWAG-PRODUCT-UUID-', p.product_id)
+    p.uuid = CONCAT('SWAG-PRODUCT-INFORMATION-UUID-', p.id)
 ;
-
-
-
-
 
 UPDATE product_link_attribute p SET
     p.uuid             = CONCAT('SWAG-PRODUCT-INFORMATION-ATTRIBUTE-UUID-', p.id),
     p.product_link_uuid = CONCAT('SWAG-PRODUCT-INFORMATION-UUID-', p.information_id)
 ;
 
-
-
 UPDATE product_notification p SET
     p.uuid = CONCAT('SWAG-PRODUCT-NOTIFICATION-UUID-', p.id)
 ;
 
-
-UPDATE product_detail_price p SET
-    p.uuid = CONCAT('SWAG-PRODUCT-PRICE-UUID-', p.id),
-    p.product_uuid = CONCAT('SWAG-PRODUCT-UUID-', p.product_id),
-    p.product_detail_uuid = (SELECT sub.order_number FROM product_detail sub WHERE sub.id = p.product_detail_id LIMIT 1)
+UPDATE product_price p SET
+    p.uuid = CONCAT('SWAG-PRODUCT-PRICE-UUID-', p.id)
 ;
 
-
-UPDATE product_detail_price_attribute p SET
+UPDATE product_price_attribute p SET
     p.uuid       = CONCAT('SWAG-PRODUCT-PRICE-ATTRIBUTE-UUID-', p.id),
-    p.product_detail_price_uuid = CONCAT('SWAG-PRODUCT-PRICE-UUID-', p.price_id)
+    p.product_price_uuid = CONCAT('SWAG-PRODUCT-PRICE-UUID-', p.price_id)
 ;
-
 
 UPDATE product_accessory p SET
-    p.uuid                 = CONCAT('SWAG-PRODUCT-RELATIONSHIP-UUID-', p.id),
-    p.product_uuid         = CONCAT('SWAG-PRODUCT-UUID-', p.product_id),
-    p.related_product_uuid = CONCAT('SWAG-PRODUCT-UUID-', p.related_product)
+    p.uuid                 = CONCAT('SWAG-PRODUCT-RELATIONSHIP-UUID-', p.id)
 ;
-
 
 UPDATE product_similar p SET
-    p.uuid                 = CONCAT('SWAG-PRODUCT-RELATIONSHIP-UUID-', p.id),
-    p.product_uuid         = CONCAT('SWAG-PRODUCT-UUID-', p.product_id),
-    p.related_product_uuid = CONCAT('SWAG-PRODUCT-UUID-', p.related_product)
+    p.uuid                 = CONCAT('SWAG-PRODUCT-RELATIONSHIP-UUID-', p.id)
 ;
-
 
 UPDATE product_similar_shown_ro p SET
-    p.uuid                 = CONCAT('SWAG-PRODUCT-RELATIONSHIP-UUID-', p.id),
-    p.product_uuid         = CONCAT('SWAG-PRODUCT-UUID-', p.product_id),
-    p.related_product_uuid = CONCAT('SWAG-PRODUCT-UUID-', p.related_product_uuid)
+    p.uuid                 = CONCAT('SWAG-PRODUCT-RELATIONSHIP-UUID-', p.id)
 ;
-
-
 
 UPDATE product_manufacturer p SET
     p.uuid = CONCAT('SWAG-PRODUCT-MANUFACTURER-UUID-', p.id)
 ;
-
 
 UPDATE product_manufacturer_attribute p SET
     p.uuid             = CONCAT('SWAG-PRODUCT-MANUFACTURER-ATTRIBUTE-UUID-', p.id),
     p.product_manufacturer_uuid = CONCAT('SWAG-PRODUCT-MANUFACTURER-UUID-', p.manufacturer_id)
 ;
 
-
-
 UPDATE product_top_seller_ro p SET
-    p.uuid         = CONCAT('SWAG-PRODUCT-TOP-SELLER-RO-UUID-', p.id),
-    p.product_uuid = CONCAT('SWAG-PRODUCT-UUID-', p.product_id)
+    p.uuid         = CONCAT('SWAG-PRODUCT-TOP-SELLER-RO-UUID-', p.id)
 ;
 
-
-
 UPDATE customer_group s SET s.uuid = CONCAT('SWAG-CUSTOMER-GROUP-UUID-', s.id);
-
 
 UPDATE category c SET
     c.uuid = CONCAT('SWAG-CATEGORY-UUID-', c.id),
@@ -1916,37 +1790,24 @@ UPDATE category c SET
 
 UPDATE category c SET c.parent_uuid = CONCAT('SWAG-CATEGORY-UUID-', c.parent_id) WHERE c.parent_id IS NOT NULL;
 
-
-
 UPDATE category_attribute c SET
     c.uuid = CONCAT('SWAG-CATEGORY-ATTRIBUTE-UUID-', c.id),
     c.category_uuid = CONCAT('SWAG-CATEGORY-UUID-', c.category_id)
 ;
-
-
 
 UPDATE category_avoid_customer_group c SET
     c.customer_group_uuid = CONCAT('SWAG-CUSTOMER-GROUP-UUID-', c.customer_group_id),
     c.category_uuid = CONCAT('SWAG-CATEGORY-UUID-', c.category_id)
 ;
 
-
-
-
 UPDATE filter f SET
     f.uuid = CONCAT('SWAG-FILTER-UUID-', f.id)
 ;
-
-
 
 UPDATE filter_attribute f SET
     f.uuid = CONCAT('SWAG-FILTER-ATTRIBUTE-UUID-', f.id),
     f.filter_uuid = CONCAT('SWAG-FILTER-UUID-', f.filter_id)
 ;
-
-
-
-
 
 UPDATE filter_value f SET
     f.uuid = CONCAT('SWAG-FILTER-VALUE-UUID-', f.id),
@@ -1954,33 +1815,23 @@ UPDATE filter_value f SET
     f.media_uuid = CONCAT('SWAG-MEDIA-UUID-', f.media_id)
 ;
 
-
 UPDATE filter_value_attribute f SET
     f.uuid = CONCAT('SWAG-FILTER-VALUE-ATTRIBUTE-UUID-', f.id),
     f.filter_value_uuid = CONCAT('SWAG-FILTER-VALUE-UUID-', f.value_id)
 ;
 
-
-
 UPDATE filter_option f SET
     f.uuid = CONCAT('SWAG-FILTER-OPTION-UUID-', f.id)
 ;
-
-
 
 UPDATE filter_option_attribute f SET
     f.uuid = CONCAT('SWAG-FILTER-OPTION-ATTRIBUTE-UUID-', f.id),
     f.filter_option_uuid = CONCAT('SWAG-FILTER-OPTION-UUID-', f.option_id)
 ;
 
-
-
 UPDATE filter_product f SET
-    f.product_uuid = CONCAT('SWAG-PRODUCT-UUID-', f.product_id),
     f.filter_value_uuid = CONCAT('SWAG-FILTER-VALUE-UUID-', f.value_id)
 ;
-
-
 
 UPDATE filter_relation f SET
     f.uuid = CONCAT('SWAG-FILTER-RELATION-UUID-', f.id),
@@ -1991,7 +1842,6 @@ UPDATE filter_relation f SET
 UPDATE product_manufacturer p, media m
     SET p.media_uuid = CONCAT('SWAG-MEDIA-UUID-', m.id)
 WHERE p.img = m.file_name;
-
 
 UPDATE album a, s_media_album_settings s
     SET a.create_thumbnails = s.create_thumbnails,
@@ -2071,16 +1921,16 @@ UPDATE product_configurator_option SET product_configurator_group_uuid = CONCAT(
 UPDATE product_stream SET uuid = CONCAT('SWAG-PRODUCT-STREAM-UUID-', id) WHERE id IS NOT NULL;
 UPDATE product_stream SET listing_sorting_uuid = CONCAT('SWAG-LISTING-SORTING-UUID-', listing_sorting_id) WHERE listing_sorting_id IS NOT NULL;
 UPDATE product_stream_tab SET product_stream_uuid = CONCAT('SWAG-PRODUCT-STREAM-UUID-', product_stream_id) WHERE product_stream_id IS NOT NULL;
-UPDATE product_stream_tab SET product_uuid = CONCAT('SWAG-PRODUCT-UUID-', product_id) WHERE product_id IS NOT NULL;
+
 UPDATE product_stream_tab SET uuid = CONCAT('SWAG-PRODUCT-STREAM-TAB-UUID-', id) WHERE id IS NOT NULL;
 UPDATE product_stream_attribute SET product_stream_uuid = CONCAT('SWAG-PRODUCT-STREAM-UUID-', product_stream_id) WHERE product_stream_id IS NOT NULL;
 UPDATE product_stream_attribute SET uuid = CONCAT('SWAG-PRODUCT-STREAM-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
 UPDATE product_stream_assignment SET product_stream_uuid = CONCAT('SWAG-PRODUCT-STREAM-UUID-', product_stream_id) WHERE product_stream_id IS NOT NULL;
-UPDATE product_stream_assignment SET product_uuid = CONCAT('SWAG-PRODUCT-UUID-', product_id) WHERE product_id IS NOT NULL;
+
 UPDATE product_stream_assignment SET uuid = CONCAT('SWAG-PRODUCT-STREAM-ASSIGNMENT-UUID-', id) WHERE id IS NOT NULL;
 UPDATE listing_facet SET uuid = CONCAT('SWAG-LISTING-FACET-UUID-', id) WHERE id IS NOT NULL;
 UPDATE listing_sorting SET uuid = CONCAT('SWAG-LISTING-SORTING-UUID-', id) WHERE id IS NOT NULL;
-UPDATE statistic_product_impression SET product_uuid = CONCAT('SWAG-PRODUCT-UUID-', product_id) WHERE product_id IS NOT NULL;
+
 UPDATE statistic_product_impression SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
 UPDATE statistic_product_impression SET uuid = CONCAT('SWAG-STATISTIC-PRODUCT-IMPRESSION-UUID-', id) WHERE id IS NOT NULL;
 UPDATE statistic_current_customer SET uuid = CONCAT('SWAG-CUSTOMER-UUID-', customer_id) WHERE customer_id IS NOT NULL;
@@ -2114,7 +1964,6 @@ UPDATE media_attribute SET uuid = CONCAT('SWAG-MEDIA-ATTRIBUTE-UUID-', id);
 UPDATE media_attribute SET media_uuid = CONCAT('SWAG-MEDIA-UUID-', media_id);
 UPDATE premium_product SET uuid = CONCAT('SWAG-PREMIUM-PRODUCT-UUID-', id) WHERE id IS NOT NULL;
 UPDATE premium_product SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL AND shop_id > 0;
-UPDATE premium_product SET product_detail_uuid = (SELECT p.order_number FROM product_detail p WHERE p.order_number = product_order_number);
 UPDATE attribute_configuration SET uuid = CONCAT('SWAG-ATTRIBUTE-CONFIGURATION-UUID-', id) WHERE id IS NOT NULL;
 UPDATE blog SET uuid = CONCAT('SWAG-BLOG-UUID-', id) WHERE id IS NOT NULL;
 UPDATE blog SET category_uuid = CONCAT('SWAG-CATEGORY-UUID-', category_id) WHERE category_id IS NOT NULL;
@@ -2128,7 +1977,6 @@ UPDATE blog_media SET blog_uuid = CONCAT('SWAG-BLOG-UUID-', blog_id) WHERE blog_
 UPDATE blog_tag SET uuid = CONCAT('SWAG-BLOG-TAG-UUID-', id) WHERE id IS NOT NULL;
 UPDATE blog_tag SET blog_uuid = CONCAT('SWAG-BLOG-UUID-', blog_id) WHERE blog_id IS NOT NULL;
 UPDATE blog_product SET blog_uuid = CONCAT('SWAG-BLOG-UUID-', blog_id) WHERE blog_id IS NOT NULL;
-UPDATE blog_product SET product_uuid = CONCAT('SWAG-PRODUCT-UUID-', product_id) WHERE blog_id IS NOT NULL;
 UPDATE shop_page SET uuid = CONCAT('SWAG-SHOP-PAGE-UUID-', id) WHERE id IS NOT NULL;
 UPDATE shop_page SET parent_uuid = CONCAT('SWAG-SHOP-PAGE-UUID-', parent_id) WHERE parent_id IS NOT NULL AND parent_id > 0;
 UPDATE shop_page_attribute SET uuid = CONCAT('SWAG-SHOP-PAGE-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
@@ -2186,10 +2034,7 @@ UPDATE product p SET p.tax_uuid = CONCAT('SWAG-TAX-UUID-', p.tax_id) WHERE tax_i
 UPDATE product p SET p.main_detail_uuid = (SELECT sub.order_number FROM product_detail sub WHERE sub.id = p.main_detail_id LIMIT 1);
 UPDATE product p SET p.filter_group_uuid = CONCAT('SWAG-FILTER-UUID-', p.filter_group_id) WHERE filter_group_id IS NOT NULL;
 UPDATE `product` SET price_group_uuid = CONCAT('SWAG-PRICE-GROUP-UUID-', price_group_id) WHERE price_group_id IS NOT NULL;
-UPDATE product_also_bought_ro pabr SET pabr.product_uuid = CONCAT('SWAG-PRODUCT-UUID-',pabr.product_id) WHERE pabr.product_id  IS NOT NULL;
-UPDATE product_also_bought_ro pabr SET pabr.related_product_uuid = CONCAT('SWAG-PRODUCT-UUID-',pabr.related_product_id) WHERE related_product_id  IS NOT NULL;
 UPDATE product_attribute pa SET pa.uuid = CONCAT('SWAG-PRODUCT-ATTRIBUTE-UUID-', pa.id);
-UPDATE product_attribute pa SET pa.product_detail_uuid = (SELECT sub.order_number FROM product_detail sub WHERE sub.id = pa.product_details_id LIMIT 1);
 UPDATE log SET uuid = CONCAT('SWAG-LOG-UUID-', id) WHERE id IS NOT NULL;
 UPDATE payment_method SET uuid = CONCAT('SWAG-PAYMENT-METHOD-UUID-', id) WHERE id IS NOT NULL;
 UPDATE payment_method_attribute SET uuid = CONCAT('SWAG-PAYMENT-METHOD-ATTRIBUTE-UUID-', id) WHERE id IS NOT NULL;
@@ -2238,7 +2083,6 @@ UPDATE shop_template_config_form_field_value SET shop_template_config_form_field
 UPDATE customer_group SET uuid = '3294e6f6-372b-415f-ac73-71cbc191548f' WHERE group_key = 'EK';
 UPDATE shop SET customer_group_uuid = '3294e6f6-372b-415f-ac73-71cbc191548f' WHERE customer_group_id = 1;
 UPDATE product_vote SET uuid = CONCAT('SWAG-PRODUCT-VOTE-UUID-', id) WHERE id IS NOT NULL;
-UPDATE product_vote SET product_uuid = CONCAT('SWAG-PRODUCT-UUID-', product_id) WHERE product_id IS NOT NULL;
 UPDATE product_vote SET shop_uuid = CONCAT('SWAG-SHOP-UUID-', shop_id) WHERE shop_id IS NOT NULL;
 
 
@@ -2347,7 +2191,7 @@ CREATE UNIQUE INDEX `ui_product_media.uuid` ON product_media (uuid);
 CREATE UNIQUE INDEX `ui_product_media_mapping.uuid` ON product_media_mapping (uuid);
 CREATE UNIQUE INDEX `ui_product_link.uuid` ON product_link (uuid);
 CREATE UNIQUE INDEX `ui_product_manufacturer.uuid` ON product_manufacturer (uuid);
-CREATE UNIQUE INDEX `ui_product_detail_price.uuid` ON product_detail_price (uuid);
+CREATE UNIQUE INDEX `ui_product_price.uuid` ON product_price (uuid);
 CREATE UNIQUE INDEX `ui_log.uuid` ON log (uuid);
 CREATE UNIQUE INDEX `ui_payment_method.uuid` ON payment_method (uuid);
 CREATE UNIQUE INDEX `ui_payment_method_attribute.uuid` ON payment_method_attribute (uuid);
@@ -2376,8 +2220,7 @@ ALTER TABLE `shop_template_config_form`
     ADD INDEX `parent_uuid` (`parent_uuid`);
 
 ALTER TABLE `product_media`
-    ADD INDEX `product_uuid` (`product_uuid`),
-    ADD INDEX `product_detail_uuid` (`product_detail_uuid`);
+    ADD INDEX `product_uuid` (`product_uuid`);
 
 ALTER TABLE `blog_product`
     ADD INDEX `blog_uuid` (`blog_uuid`),
@@ -2401,19 +2244,12 @@ ALTER TABLE `product_category_seo`
     ADD INDEX `shop_uuid_product_uuid` (`shop_uuid`, `product_uuid`),
     ADD INDEX `category_uuid` (`category_uuid`);
 
-ALTER TABLE `product_detail_price`
-    ADD INDEX `product_detail_uuid_from` (`product_detail_uuid`, `quantity_start`),
-    ADD INDEX `product_uuid` (`product_uuid`),
-    ADD INDEX `product_detail_uuid` (`product_detail_uuid`),
-    ADD INDEX `pricegroup_from_product_detail_uuid` (`pricegroup`, `quantity_start`, `product_detail_uuid`),
-    ADD INDEX `pricegroup_to_product_detail_uuid` (`pricegroup`, `quantity_end`, `product_detail_uuid`);
-
-ALTER TABLE `product_detail`
-    ADD UNIQUE `uuid` (`uuid`);
+ALTER TABLE `product_price`
+    ADD INDEX `product_uuid` (`product_uuid`)
+;
 
 ALTER TABLE `premium_product`
-    ADD INDEX `shop_uuid` (`shop_uuid`),
-    ADD INDEX `product_detail_uuid` (`product_detail_uuid`);
+    ADD INDEX `shop_uuid` (`shop_uuid`);
 
 ALTER TABLE `shop_page`
     ADD INDEX `parent_uuid` (`parent_uuid`);
@@ -2627,9 +2463,6 @@ ALTER TABLE product_stream_tab
     ADD CONSTRAINT `fk_product_stream_tab.product_stream_uuid`
 FOREIGN KEY (product_stream_uuid) REFERENCES product_stream (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE product_stream_tab
-    ADD CONSTRAINT `fk_product_stream_tab.product_uuid`
-FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE product_stream_attribute
     ADD CONSTRAINT `fk_product_stream_attribute.product_stream_uuid`
@@ -2639,13 +2472,6 @@ ALTER TABLE product_stream_assignment
     ADD CONSTRAINT `fk_product_stream_assignment.product_stream_uuid`
 FOREIGN KEY (product_stream_uuid) REFERENCES product_stream (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE product_stream_assignment
-    ADD CONSTRAINT `fk_product_stream_assignment.product_uuid`
-FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE statistic_product_impression
-    ADD CONSTRAINT `fk_statistic_product_impression.product_uuid`
-FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE statistic_product_impression
     ADD CONSTRAINT `fk_statistic_product_impression.shop_uuid`
@@ -2707,17 +2533,11 @@ ALTER TABLE customer_attribute
     ADD CONSTRAINT `fk_customer_attribute.customer_uuid`
 FOREIGN KEY (customer_uuid) REFERENCES customer (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE product_avoid_customer_group
-    ADD CONSTRAINT `fk_product_avoid_customer_group.product_uuid`
-FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-    ADD CONSTRAINT `fk_product_avoid_customer_group.customer_group_uuid`
+ALTER TABLE product_avoid_customer_group ADD CONSTRAINT `fk_product_avoid_customer_group.customer_group_uuid`
 FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
 
 
 ALTER TABLE product_category
-    ADD CONSTRAINT `fk_product_category.product_uuid`
-FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-
     ADD CONSTRAINT `fk_product_category.category_uuid`
 FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE
 ;
@@ -2726,32 +2546,17 @@ ALTER TABLE product_category_seo
     ADD CONSTRAINT `fk_product_category_seo.shop_uuid`
 FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
 
-    ADD CONSTRAINT `fk_product_category_seo.product_uuid`
-FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-
     ADD CONSTRAINT `fk_product_category_seo.category_uuid`
 FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
-ALTER TABLE product_detail
-    ADD CONSTRAINT `fk_product_detail.product_uuid`
-FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-;
-
-ALTER TABLE product_attachment
-    ADD CONSTRAINT `fk_product_attachment.product_uuid`
-FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-;
 
 ALTER TABLE product_attachment_attribute
     ADD CONSTRAINT `fk_product_attachment_attribute.product_uuid`
 FOREIGN KEY (product_attachment_uuid) REFERENCES product_attachment (uuid) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
-ALTER TABLE product_esd
-    ADD CONSTRAINT `fk_product_esd.product_uuid`
-FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-;
+
 
 ALTER TABLE product_esd_attribute
     ADD CONSTRAINT `fk_product_esd_attribute.product_uuid`
@@ -2763,10 +2568,7 @@ ALTER TABLE product_esd_serial
 FOREIGN KEY (product_esd_uuid) REFERENCES product_esd (uuid) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
-ALTER TABLE product_media
-    ADD CONSTRAINT `fk_product_media.product_uuid`
-FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-;
+
 
 ALTER TABLE product_media_attribute
     ADD CONSTRAINT `fk_product_media_attribute.product_uuid`
@@ -2778,10 +2580,6 @@ ALTER TABLE product_media_mapping
 FOREIGN KEY (product_media_uuid) REFERENCES product_media (uuid) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
-ALTER TABLE product_link
-    ADD CONSTRAINT `fk_product_link.product_uuid`
-FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-;
 
 ALTER TABLE product_link_attribute
     ADD CONSTRAINT `fk_product_link_attribute.product_uuid`
@@ -2793,46 +2591,10 @@ ALTER TABLE product_manufacturer_attribute
 FOREIGN KEY (product_manufacturer_uuid) REFERENCES product_manufacturer (uuid) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
-ALTER TABLE product_detail_price
-    ADD CONSTRAINT `fk_product_detail_price.product_uuid`
-FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
 
-    ADD CONSTRAINT `fk_product_detail_price.product_detail_uuid`
-FOREIGN KEY (product_detail_uuid) REFERENCES product_detail (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-;
-
-ALTER TABLE product_detail_price_attribute
-    ADD CONSTRAINT `fk_product_detail_price_attribute.product_uuid`
-FOREIGN KEY (product_detail_price_uuid) REFERENCES product_detail_price (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-;
-
-ALTER TABLE product_accessory
-    ADD CONSTRAINT `fk_product_accessory.product_uuid`
-FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-
-    ADD CONSTRAINT `fk_product_accessory.related_product_uuid`
-FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-;
-
-ALTER TABLE product_similar
-    ADD CONSTRAINT `fk_product_similar.product_uuid`
-FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-
-    ADD CONSTRAINT `fk_product_similar.related_product_uuid`
-FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-;
-
-ALTER TABLE product_similar_shown_ro
-    ADD CONSTRAINT `fk_product_similar_shown_ro.product_uuid`
-FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-
-    ADD CONSTRAINT `fk_product_similar_shown_ro.related_product_uuid`
-FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-;
-
-ALTER TABLE product_top_seller_ro
-    ADD CONSTRAINT `fk_product_top_seller_ro.product_uuid`
-FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+ALTER TABLE product_price_attribute
+    ADD CONSTRAINT `fk_product_price_attribute.product_uuid`
+FOREIGN KEY (product_price_uuid) REFERENCES product_price (uuid) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
 ALTER TABLE filter_attribute
@@ -2850,25 +2612,9 @@ ALTER TABLE filter_option_attribute
 FOREIGN KEY (filter_option_uuid) REFERENCES filter_option (uuid) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
-ALTER TABLE product_attribute
-    ADD CONSTRAINT `fk_product_attribute.product_detail_uuid`
-FOREIGN KEY (product_detail_uuid) REFERENCES product_detail (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-;
-
-ALTER TABLE product_also_bought_ro
-    ADD CONSTRAINT `fk_product_also_bought_ro.product_uuid`
-FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-    ADD CONSTRAINT `fk_product_also_bought_ro.related_product_uuid`
-FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-;
-
 ALTER TABLE premium_product
     ADD CONSTRAINT `fk_premium_product.shop_uuid`
 FOREIGN KEY (shop_uuid) REFERENCES shop (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE premium_product
-    ADD CONSTRAINT `fk_premium_product.product_detail_uuid`
-FOREIGN KEY (product_detail_uuid) REFERENCES product_detail (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE blog
     ADD CONSTRAINT `fk_blog.category_uuid`
@@ -3021,8 +2767,7 @@ ALTER TABLE shop_template_config_form_field_value ADD CONSTRAINT `fk_shop_templa
 ALTER TABLE `blog` ADD FOREIGN KEY (`user_uuid`) REFERENCES `user` (`uuid`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE `blog_product`
-    ADD FOREIGN KEY (`blog_uuid`) REFERENCES `blog` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
-    ADD FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+    ADD FOREIGN KEY (`blog_uuid`) REFERENCES `blog` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `category`
     ADD FOREIGN KEY (`media_uuid`) REFERENCES `media` (`uuid`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -3032,20 +2777,13 @@ ALTER TABLE `category_avoid_customer_group`
     ADD FOREIGN KEY (`category_uuid`) REFERENCES `category` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD FOREIGN KEY (`customer_group_uuid`) REFERENCES `customer_group` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE `product`
-    ADD FOREIGN KEY (`product_manufacturer_uuid`) REFERENCES `product_manufacturer` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
-    ADD FOREIGN KEY (`tax_uuid`) REFERENCES `tax` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
-    ADD FOREIGN KEY (`filter_group_uuid`) REFERENCES `filter` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
-
 ALTER TABLE `category_attribute`
     ADD FOREIGN KEY (`category_uuid`) REFERENCES `category` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `customer_address`
     ADD FOREIGN KEY (`area_country_state_uuid`) REFERENCES `area_country_state` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-
 ALTER TABLE `filter_product`
-    ADD FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD FOREIGN KEY (`filter_value_uuid`) REFERENCES `filter_value` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `filter_relation`
@@ -3056,16 +2794,329 @@ ALTER TABLE `filter_value`
     ADD FOREIGN KEY (`media_uuid`) REFERENCES `media` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD FOREIGN KEY (`option_uuid`) REFERENCES `filter_option` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE `product_media`
-    ADD FOREIGN KEY (`product_detail_uuid`) REFERENCES `product_detail` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE `product_detail_price`
-    ADD FOREIGN KEY (`product_detail_uuid`) REFERENCES `product_detail` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
-
 ALTER TABLE `product_vote`
-    ADD FOREIGN KEY (`shop_uuid`) REFERENCES `shop` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
-    ADD FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+    ADD FOREIGN KEY (`shop_uuid`) REFERENCES `shop` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 
 UPDATE `payment_method` SET absolute_surcharge = NULL WHERE absolute_surcharge = 0;
 UPDATE `payment_method` SET percentage_surcharge = NULL WHERE percentage_surcharge = 0;
+
+
+CREATE TABLE `product_new` (
+    `original_id` int(11),
+    `original_detail_id` int(11),
+
+    #identification
+    `uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `container_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NULL,
+    `is_main` tinyint(1) unsigned NOT NULL DEFAULT '1',
+    `active` tinyint(1) unsigned NOT NULL DEFAULT '1',
+
+    #foreign key columns
+    `tax_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+    `product_manufacturer_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+    `price_group_uuid` varchar(42) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `filter_group_uuid` varchar(42) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `unit_uuid` varchar(42) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+
+    `supplier_number` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `ean` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `stock` int(11) NOT NULL DEFAULT '0',
+    `is_closeout` tinyint(1) NOT NULL DEFAULT '0',
+    `min_stock` int(11) unsigned DEFAULT NULL,
+    `purchase_steps` int(11) unsigned DEFAULT NULL,
+    `max_purchase` int(11) unsigned DEFAULT NULL,
+    `min_purchase` int(11) unsigned NOT NULL DEFAULT '1',
+    `purchase_unit` decimal(11,4) unsigned DEFAULT NULL,
+    `reference_unit` decimal(10,3) unsigned DEFAULT NULL,
+    `shipping_free` tinyint(4) NOT NULL DEFAULT '0',
+    `purchase_price` double NOT NULL DEFAULT '0',
+    `pseudo_sales` int(11) NOT NULL DEFAULT '0',
+    `mark_as_topseller` tinyint(1) unsigned NOT NULL DEFAULT '0',
+    `sales` int(11) NOT NULL DEFAULT '0',
+    `position` int(11) unsigned NOT NULL DEFAULT '1',
+    `weight` decimal(10,3) unsigned DEFAULT NULL,
+    `width` decimal(10,3) unsigned DEFAULT NULL,
+    `height` decimal(10,3) unsigned DEFAULT NULL,
+    `length` decimal(10,3) unsigned DEFAULT NULL,
+    `template` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `allow_notification` tinyint(1) unsigned NOT NULL DEFAULT '0',
+    `release_date` datetime DEFAULT NULL,
+    `pack_unit` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `additional_text` LONGTEXT COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+    `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `description` mediumtext COLLATE utf8mb4_unicode_ci,
+    `description_long` mediumtext COLLATE utf8mb4_unicode_ci,
+    `meta_title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `keywords` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`uuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO product_new
+(
+    uuid,
+    container_uuid,
+    tax_uuid,
+    is_main,
+    product_manufacturer_uuid,
+    pseudo_sales,
+    mark_as_topseller,
+    price_group_uuid,
+    filter_group_uuid,
+    is_closeout,
+    allow_notification,
+    template,
+    created_at,
+    updated_at,
+    supplier_number,
+    sales,
+    active,
+    stock,
+    min_stock,
+    weight,
+    position,
+    width,
+    height,
+    length,
+    ean,
+    unit_uuid,
+    purchase_steps,
+    max_purchase,
+    min_purchase,
+    purchase_unit,
+    reference_unit,
+    release_date,
+    shipping_free,
+    purchase_price,
+    additional_text,
+    pack_unit,
+    name,
+    description,
+    description_long,
+    meta_title,
+    keywords,
+    original_id,
+    original_detail_id
+)
+SELECT
+    d.uuid as uuid,
+    p.uuid as container_uuid,
+    p.tax_uuid,
+    d.is_main,
+    p.product_manufacturer_uuid,
+    p.pseudo_sales,
+    p.mark_as_topseller,
+    p.price_group_uuid,
+    p.filter_group_uuid,
+    p.is_closeout,
+    p.allow_notification,
+    p.template,
+    p.created_at,
+    p.updated_at,
+    d.supplier_number,
+    d.sales,
+    d.active,
+    d.stock,
+    d.min_stock,
+    d.weight,
+    d.position,
+    d.width,
+    d.height,
+    d.length,
+    d.ean,
+    d.unit_uuid,
+    d.purchase_steps,
+    d.max_purchase,
+    d.min_purchase,
+    d.purchase_unit,
+    d.reference_unit,
+    d.release_date,
+    d.shipping_free,
+    d.purchase_price,
+    d.additional_text,
+    d.pack_unit,
+    p.name,
+    p.description,
+    p.description_long,
+    p.meta_title,
+    p.keywords,
+    d.product_id as original_id,
+    d.id as original_detail_id
+FROM product_detail d
+    INNER JOIN product p
+        ON p.id = d.product_id
+;
+
+DROP TABLE IF EXISTS product;
+ALTER TABLE product_new RENAME TO `product`;
+
+# product tables merged > update product_uuid references with new order number uuid
+
+UPDATE product_avoid_customer_group pac SET
+    pac.product_uuid = (SELECT uuid FROM product p WHERE p.original_id = product_id AND p.is_main = 1 LIMIT 1);
+
+UPDATE product_category pc SET pc.product_uuid  = (SELECT uuid FROM product p WHERE p.original_id = product_id AND p.is_main = 1 LIMIT 1);
+
+DELETE FROM product_category_ro;
+
+UPDATE product_attachment pd SET
+    pd.product_uuid = (SELECT uuid FROM product p WHERE p.original_id = product_id AND p.is_main = 1 LIMIT 1)
+;
+
+UPDATE product_link p SET
+    p.product_uuid = (SELECT uuid FROM product WHERE product.original_id = product_id AND product.is_main LIMIT 1)
+;
+
+UPDATE product_price p SET
+    p.product_uuid = (SELECT sub.uuid FROM product sub WHERE sub.original_detail_id = p.product_detail_id LIMIT 1)
+;
+
+UPDATE product_accessory p SET
+    p.product_uuid         = (SELECT uuid FROM product WHERE original_id = p.product_id AND product.is_main LIMIT 1),
+    p.related_product_uuid = (SELECT uuid FROM product WHERE original_id = p.related_product AND product.is_main LIMIT 1)
+;
+
+UPDATE product_similar p SET
+    p.product_uuid         = (SELECT uuid FROM product WHERE original_id = p.product_id AND product.is_main LIMIT 1),
+    p.related_product_uuid = (SELECT uuid FROM product WHERE original_id = p.related_product AND product.is_main LIMIT 1)
+;
+
+UPDATE product_category_seo pcs SET
+    pcs.product_uuid  = (SELECT uuid FROM product p WHERE original_id = product_id AND is_main = 1 LIMIT 1)
+;
+
+UPDATE product_media p SET
+    p.product_uuid = (SELECT uuid FROM product WHERE product.original_id = product_id AND is_main = 1 LIMIT 1)
+;
+
+UPDATE product_esd pe SET pe.product_uuid  = (SELECT uuid FROM product WHERE product.original_detail_id = product_detail_id LIMIT 1);
+
+UPDATE filter_product f SET
+    f.product_uuid = (SELECT uuid FROM product WHERE product.original_id = product_id AND is_main = 1 LIMIT 1)
+;
+
+UPDATE product_stream_tab SET product_uuid = (SELECT uuid FROM product WHERE product.original_id = product_id AND is_main = 1 LIMIT 1) WHERE product_id IS NOT NULL;
+UPDATE product_stream_assignment SET product_uuid = (SELECT uuid FROM product WHERE product.original_id = product_id AND is_main = 1 LIMIT 1) WHERE product_id IS NOT NULL;
+UPDATE statistic_product_impression SET product_uuid = (SELECT uuid FROM product WHERE product.original_id = product_id AND is_main = 1 LIMIT 1) WHERE product_id IS NOT NULL;
+UPDATE blog_product SET product_uuid = (SELECT uuid FROM product WHERE product.original_id = product_id AND is_main = 1 LIMIT 1) WHERE blog_id IS NOT NULL;
+UPDATE product_also_bought_ro pabr SET pabr.product_uuid = (SELECT uuid FROM product WHERE product.original_id = product_id AND is_main = 1 LIMIT 1) WHERE pabr.product_id  IS NOT NULL;
+UPDATE product_also_bought_ro pabr SET pabr.related_product_uuid = (SELECT uuid FROM product WHERE product.original_id = product_id AND is_main = 1 LIMIT 1) WHERE related_product_id  IS NOT NULL;
+UPDATE product_vote SET product_uuid = (SELECT uuid FROM product WHERE product.original_id = product_id AND is_main = 1 LIMIT 1) WHERE product_id IS NOT NULL;
+
+UPDATE premium_product SET product_uuid = product_order_number;
+
+UPDATE product_price p SET
+    p.product_uuid = (SELECT uuid FROM product WHERE product.original_detail_id = product_detail_id LIMIT 1)
+;
+
+
+
+ALTER TABLE `product`
+    ADD FOREIGN KEY (`product_manufacturer_uuid`) REFERENCES `product_manufacturer` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD FOREIGN KEY (`tax_uuid`) REFERENCES `tax` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD FOREIGN KEY (`filter_group_uuid`) REFERENCES `filter` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+# references to product table
+ALTER TABLE product_stream_tab
+    ADD CONSTRAINT `fk_product_stream_tab.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE product_stream_assignment
+    ADD CONSTRAINT `fk_product_stream_assignment.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE statistic_product_impression
+    ADD CONSTRAINT `fk_statistic_product_impression.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE product_avoid_customer_group
+    ADD CONSTRAINT `fk_product_avoid_customer_group.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE product_category
+    ADD CONSTRAINT `fk_product_category.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE product_category_seo
+    ADD CONSTRAINT `fk_product_category_seo.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+# ALTER TABLE product_detail
+#     ADD CONSTRAINT `fk_product_detail.product_uuid`
+# FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE product_attachment
+    ADD CONSTRAINT `fk_product_attachment.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE product_esd
+    ADD CONSTRAINT `fk_product_esd.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE product_media
+    ADD CONSTRAINT `fk_product_media.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE product_link
+    ADD CONSTRAINT `fk_product_link.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE product_accessory
+    ADD CONSTRAINT `fk_product_accessory.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+
+    ADD CONSTRAINT `fk_product_accessory.related_product_uuid`
+FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE product_similar
+    ADD CONSTRAINT `fk_product_similar.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_product_similar.related_product_uuid`
+FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE product_similar_shown_ro
+    ADD CONSTRAINT `fk_product_similar_shown_ro.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_product_similar_shown_ro.related_product_uuid`
+FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE product_top_seller_ro
+    ADD CONSTRAINT `fk_product_top_seller_ro.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE product_also_bought_ro
+    ADD CONSTRAINT `fk_product_also_bought_ro.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_product_also_bought_ro.related_product_uuid`
+FOREIGN KEY (related_product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `filter_product`
+    ADD FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `blog_product`
+    ADD FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `product_vote`
+    ADD FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+# ALTER TABLE `product_media`
+#     ADD FOREIGN KEY (`product_detail_uuid`) REFERENCES `product_detail` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `product_price`
+    ADD FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+# references to product_detail
+#
+# ALTER TABLE product_attribute
+#     ADD CONSTRAINT `fk_product_attribute.product_detail_uuid`
+# FOREIGN KEY (product_detail_uuid) REFERENCES product_detail (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+# ;
+#
+
+ALTER TABLE premium_product
+    ADD CONSTRAINT `fk_premium_product.product_uuid`
+FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+

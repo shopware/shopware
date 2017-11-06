@@ -44,7 +44,12 @@ class ShopTemplateConfigPresetWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ShopTemplateConfigPresetWrittenEvent
     {
-        $event = new ShopTemplateConfigPresetWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new ShopTemplateConfigPresetWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

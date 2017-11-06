@@ -71,7 +71,12 @@ class CustomerAddressWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): CustomerAddressWrittenEvent
     {
-        $event = new CustomerAddressWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new CustomerAddressWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

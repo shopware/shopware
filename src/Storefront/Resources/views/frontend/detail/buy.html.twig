@@ -16,7 +16,7 @@
             {% endif %}
         {% endblock %}
 
-        <input type="hidden" name="identifier" value="{{ product.mainDetailUuid }}"/>
+        <input type="hidden" name="identifier" value="{{ product.uuid }}"/>
 
         {#{$sCountConfigurator=$sArticle.sConfigurator|@count}#}
 
@@ -29,20 +29,20 @@
                             {# Quantity selection #}
                             {% block frontend_detail_buy_quantity %}
                                 <div class="buybox--quantity block">
-                                    {% set maxPurchase = product.mainDetail.maxPurchase ?? shopware.config.maxpurchase %}
+                                    {% set maxPurchase = product.maxPurchase ?? shopware.config.maxpurchase %}
                                     {% set maxQuantity = maxPurchase %}
-                                    {% if product.isCloseout() and product.mainDetail.stock < maxPurchase %}
-                                        {% set maxQuantity = product.mainDetail.stock %}
+                                    {% if product.isCloseout() and product.stock < maxPurchase %}
+                                        {% set maxQuantity = product.stock %}
                                     {% endif %}
 
-                                    {% set purchaseSteps = product.mainDetail.purchaseSteps ?? 1 %}
+                                    {% set purchaseSteps = product.purchaseSteps ?? 1 %}
 
                                     {% block frontend_detail_buy_quantity_select %}
                                         <div class="select-field">
                                             <select id="sQuantity" name="quantity" class="quantity--select">
-                                                {% for i in range(product.mainDetail.minPurchase, maxQuantity) %}
-                                                    {% if i == product.mainDetail.minPurchase or purchaseSteps > 0 and i % purchaseSteps == 0 %}
-                                                        <option value="{{ i }}">{{ i }}{% if product.mainDetail.packUnit %} {{ product.mainDetail.packUnit }}{% endif %}</option>
+                                                {% for i in range(product.minPurchase, maxQuantity) %}
+                                                    {% if i == product.minPurchase or purchaseSteps > 0 and i % purchaseSteps == 0 %}
+                                                        <option value="{{ i }}">{{ i }}{% if product.packUnit %} {{ product.packUnit }}{% endif %}</option>
                                                     {% endif %}
                                                 {% endfor %}
                                             </select>

@@ -40,7 +40,12 @@ class CampaignsHtmlWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): CampaignsHtmlWrittenEvent
     {
-        $event = new CampaignsHtmlWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new CampaignsHtmlWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

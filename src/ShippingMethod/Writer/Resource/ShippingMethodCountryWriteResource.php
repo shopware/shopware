@@ -33,7 +33,12 @@ class ShippingMethodCountryWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ShippingMethodCountryWrittenEvent
     {
-        $event = new ShippingMethodCountryWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new ShippingMethodCountryWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

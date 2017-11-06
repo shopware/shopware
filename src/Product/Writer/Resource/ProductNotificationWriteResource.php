@@ -40,7 +40,12 @@ class ProductNotificationWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductNotificationWrittenEvent
     {
-        $event = new ProductNotificationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new ProductNotificationWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

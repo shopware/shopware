@@ -60,7 +60,7 @@ class ProductCollector implements CollectorInterface
         }
 
         $numbers = [];
-        /** @var ProductFetchDefinition $definition */
+        /** @var ProductFetchDefinition[] $definitions */
         foreach ($definitions as $definition) {
             $numbers = array_merge($numbers, $definition->getNumbers());
         }

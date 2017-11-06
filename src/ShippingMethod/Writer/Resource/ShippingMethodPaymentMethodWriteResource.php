@@ -33,7 +33,12 @@ class ShippingMethodPaymentMethodWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ShippingMethodPaymentMethodWrittenEvent
     {
-        $event = new ShippingMethodPaymentMethodWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new ShippingMethodPaymentMethodWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

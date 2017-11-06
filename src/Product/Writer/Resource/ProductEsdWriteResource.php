@@ -17,7 +17,6 @@ use Shopware\Product\Event\ProductEsdWrittenEvent;
 class ProductEsdWriteResource extends WriteResource
 {
     protected const UUID_FIELD = 'uuid';
-    protected const PRODUCT_DETAIL_UUID_FIELD = 'productDetailUuid';
     protected const FILE_FIELD = 'file';
     protected const HAS_SERIALS_FIELD = 'hasSerials';
     protected const ALLOW_NOTIFICATION_FIELD = 'allowNotification';
@@ -28,7 +27,6 @@ class ProductEsdWriteResource extends WriteResource
         parent::__construct('product_esd');
 
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
-        $this->fields[self::PRODUCT_DETAIL_UUID_FIELD] = (new StringField('product_detail_uuid'))->setFlags(new Required());
         $this->fields[self::FILE_FIELD] = (new StringField('file'))->setFlags(new Required());
         $this->fields[self::HAS_SERIALS_FIELD] = new BoolField('has_serials');
         $this->fields[self::ALLOW_NOTIFICATION_FIELD] = new BoolField('allow_notification');
@@ -49,7 +47,12 @@ class ProductEsdWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductEsdWrittenEvent
     {
-        $event = new ProductEsdWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new ProductEsdWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

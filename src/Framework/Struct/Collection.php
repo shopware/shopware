@@ -160,6 +160,7 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
     public function current()
     {
         $tmp = array_values($this->elements);
+
         return $tmp[$this->_pointer];
     }
 
@@ -176,6 +177,7 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
     public function valid()
     {
         $tmp = array_values($this->elements);
+
         return isset($tmp[$this->_pointer]);
     }
 

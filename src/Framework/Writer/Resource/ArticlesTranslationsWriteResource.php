@@ -43,7 +43,12 @@ class ArticlesTranslationsWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ArticlesTranslationsWrittenEvent
     {
-        $event = new ArticlesTranslationsWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new ArticlesTranslationsWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

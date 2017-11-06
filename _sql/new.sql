@@ -282,7 +282,9 @@ CREATE table `product_translation` (
   `keywords` MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
   `description` MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
   `description_long` MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
-  `meta_title` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci'
+  `meta_title` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+  `additional_text` LONGTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+  `pack_unit` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci'
 )
 COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
@@ -366,15 +368,6 @@ CREATE TABLE `blog_tag_translation` (
   COLLATE='utf8mb4_unicode_ci'
   ENGINE=InnoDB
 ;
-CREATE TABLE `product_detail_translation` (
-  `product_detail_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `additional_text` VARCHAR(255) NOT NULL DEFAULT '' COLLATE 'utf8mb4_unicode_ci',
-  `pack_unit` VARCHAR(255) NULL DEFAULT NULL DEFAULT '' COLLATE 'utf8mb4_unicode_ci'
-)
-  COLLATE='utf8mb4_unicode_ci'
-  ENGINE=InnoDB
-;
 CREATE TABLE `product_link_translation` (
   `product_link_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
   `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
@@ -422,7 +415,6 @@ ALTER TABLE `order_state_translation` ADD FOREIGN KEY (`language_uuid`) REFERENC
 ALTER TABLE `payment_method_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
 ALTER TABLE `price_group_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
 ALTER TABLE `product_attachment_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
-ALTER TABLE `product_detail_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
 ALTER TABLE `product_link_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
 ALTER TABLE `product_manufacturer_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
 ALTER TABLE `shipping_method_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
@@ -454,7 +446,6 @@ ALTER TABLE `order_state_translation` ADD INDEX `language_uuid` (`language_uuid`
 ALTER TABLE `payment_method_translation` ADD INDEX `language_uuid` (`language_uuid`);
 ALTER TABLE `price_group_translation` ADD INDEX `language_uuid` (`language_uuid`);
 ALTER TABLE `product_attachment_translation` ADD INDEX `language_uuid` (`language_uuid`);
-ALTER TABLE `product_detail_translation` ADD INDEX `language_uuid` (`language_uuid`);
 ALTER TABLE `product_link_translation` ADD INDEX `language_uuid` (`language_uuid`);
 ALTER TABLE `product_manufacturer_translation` ADD INDEX `language_uuid` (`language_uuid`);
 ALTER TABLE `shipping_method_translation` ADD INDEX `language_uuid` (`language_uuid`);
@@ -486,7 +477,6 @@ ALTER TABLE `order_state_translation` ADD PRIMARY KEY `order_state_uuid_language
 ALTER TABLE `payment_method_translation` ADD PRIMARY KEY `payment_method_uuid_language_uuid` (`payment_method_uuid`, `language_uuid`);
 ALTER TABLE `price_group_translation` ADD PRIMARY KEY `price_group_uuid_language_uuid` (`price_group_uuid`, `language_uuid`);
 ALTER TABLE `product_attachment_translation` ADD PRIMARY KEY `product_attachment_uuid_language_uuid` (`product_attachment_uuid`, `language_uuid`);
-ALTER TABLE `product_detail_translation` ADD PRIMARY KEY `product_detail_uuid_language_uuid` (`product_detail_uuid`, `language_uuid`);
 ALTER TABLE `product_link_translation` ADD PRIMARY KEY `product_link_uuid_language_uuid` (`product_link_uuid`, `language_uuid`);
 ALTER TABLE `product_manufacturer_translation` ADD PRIMARY KEY `product_manufacturer_uuid_language_uuid` (`product_manufacturer_uuid`, `language_uuid`);
 ALTER TABLE `shipping_method_translation` ADD PRIMARY KEY `shipping_method_uuid_language_uuid` (`shipping_method_uuid`, `language_uuid`);
@@ -517,7 +507,6 @@ ALTER TABLE `order_state_translation` ADD FOREIGN KEY (`order_state_uuid`) REFER
 ALTER TABLE `payment_method_translation` ADD FOREIGN KEY (`payment_method_uuid`) REFERENCES `payment_method` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `price_group_translation` ADD FOREIGN KEY (`price_group_uuid`) REFERENCES `price_group` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `product_attachment_translation` ADD FOREIGN KEY (`product_attachment_uuid`) REFERENCES `product_attachment` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE `product_detail_translation` ADD FOREIGN KEY (`product_detail_uuid`) REFERENCES `product_detail` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `product_link_translation` ADD FOREIGN KEY (`product_link_uuid`) REFERENCES `product_link` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `product_manufacturer_translation` ADD FOREIGN KEY (`product_manufacturer_uuid`) REFERENCES `product_manufacturer` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `shipping_method_translation` ADD FOREIGN KEY (`shipping_method_uuid`) REFERENCES `shipping_method` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -838,20 +827,6 @@ INSERT INTO product_configurator_option_translation (language_uuid, product_conf
     );
 
 
-INSERT INTO product_detail_translation (language_uuid, product_detail_uuid,  additional_text, pack_unit)
-    (
-        SELECT
-            CONCAT('SWAG-SHOP-UUID-', s.id)          AS language_uuid,
-            p.uuid                                          AS product_detail_uuid,
-            IFNULL(p.additional_text, '')                   AS additional_text,
-            IFNULL(p.pack_unit, '')                         AS pack_unit
-        FROM
-            product_detail p
-        JOIN
-            shop s ON s.fallback_id IS NULL
-    );
-
-
 INSERT INTO product_link_translation (language_uuid, product_link_uuid, description, link)
     (
         SELECT
@@ -883,7 +858,7 @@ INSERT INTO product_manufacturer_translation (language_uuid, product_manufacture
             shop s ON s.fallback_locale_uuid IS NULL
     );
 
-INSERT INTO product_translation (product_uuid, language_uuid, name, keywords, description, description_long, meta_title)
+INSERT INTO product_translation (product_uuid, language_uuid, name, keywords, description, description_long, meta_title, additional_text, pack_unit)
   (
     SELECT
       p.uuid                                            AS product_uuid,
@@ -892,7 +867,9 @@ INSERT INTO product_translation (product_uuid, language_uuid, name, keywords, de
       p.keywords                                        AS keywords,
       p.description                                     AS description,
       p.description_long                                AS description_long,
-      p.meta_title                                      AS meta_title
+      p.meta_title                                      AS meta_title,
+      p.additional_text as additional_text,
+      p.pack_unit as pack_unit
     FROM
       product p
   )
@@ -1011,7 +988,7 @@ ALTER TABLE `payment_method_translation`
 ALTER TABLE `price_group_translation`
   CHANGE `description` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `language_uuid`;
 
-ALTER TABLE `product_detail_translation`
+ALTER TABLE `product_translation`
   CHANGE `additional_text` `additional_text` varchar(255) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `language_uuid`;
 
 ALTER TABLE `shipping_method_translation`
@@ -1197,9 +1174,9 @@ ALTER TABLE `product_configurator_template`  ADD COLUMN `created_at`     DATETIM
 ALTER TABLE `product_configurator_template_attribute`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `product_configurator_template_price`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `product_configurator_template_price_attribute`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
-ALTER TABLE `product_detail`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
-ALTER TABLE `product_detail_price`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
-ALTER TABLE `product_detail_price_attribute`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `product_detail` ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `product_price` ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `product_price_attribute`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `product_esd_attribute`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `product_esd_serial`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `product_link`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
@@ -1334,8 +1311,8 @@ ALTER TABLE `product_configurator_template_attribute` ADD COLUMN `updated_at` DA
 ALTER TABLE `product_configurator_template_price` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `product_configurator_template_price_attribute` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `product_detail` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
-ALTER TABLE `product_detail_price` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
-ALTER TABLE `product_detail_price_attribute` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
+ALTER TABLE `product_price` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
+ALTER TABLE `product_price_attribute` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `product_esd` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `product_esd_attribute` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `product_esd_serial` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;

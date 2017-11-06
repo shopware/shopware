@@ -5,11 +5,12 @@ namespace Shopware\Product\Struct;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicCollection;
 use Shopware\Framework\Struct\Struct;
 use Shopware\PriceGroup\Struct\PriceGroupBasicStruct;
-use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
 use Shopware\ProductListingPrice\Struct\ProductListingPriceBasicCollection;
 use Shopware\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
+use Shopware\ProductPrice\Struct\ProductPriceBasicCollection;
 use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
 use Shopware\Tax\Struct\TaxBasicStruct;
+use Shopware\Unit\Struct\UnitBasicStruct;
 
 class ProductBasicStruct extends Struct
 {
@@ -19,14 +20,14 @@ class ProductBasicStruct extends Struct
     protected $uuid;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected $taxUuid;
+    protected $containerUuid;
 
     /**
-     * @var string
+     * @var bool
      */
-    protected $manufacturerUuid;
+    protected $isMain;
 
     /**
      * @var bool
@@ -34,14 +35,14 @@ class ProductBasicStruct extends Struct
     protected $active;
 
     /**
-     * @var int
+     * @var string|null
      */
-    protected $pseudoSales;
+    protected $taxUuid;
 
     /**
-     * @var bool
+     * @var string|null
      */
-    protected $markAsTopseller;
+    protected $manufacturerUuid;
 
     /**
      * @var string|null
@@ -54,14 +55,109 @@ class ProductBasicStruct extends Struct
     protected $filterGroupUuid;
 
     /**
+     * @var string|null
+     */
+    protected $unitUuid;
+
+    /**
+     * @var string|null
+     */
+    protected $supplierNumber;
+
+    /**
+     * @var string|null
+     */
+    protected $ean;
+
+    /**
+     * @var int
+     */
+    protected $stock;
+
+    /**
      * @var bool
      */
     protected $isCloseout;
 
     /**
+     * @var int|null
+     */
+    protected $minStock;
+
+    /**
+     * @var int|null
+     */
+    protected $purchaseSteps;
+
+    /**
+     * @var int|null
+     */
+    protected $maxPurchase;
+
+    /**
+     * @var int
+     */
+    protected $minPurchase;
+
+    /**
+     * @var float|null
+     */
+    protected $purchaseUnit;
+
+    /**
+     * @var float|null
+     */
+    protected $referenceUnit;
+
+    /**
      * @var bool
      */
-    protected $allowNotification;
+    protected $shippingFree;
+
+    /**
+     * @var float
+     */
+    protected $purchasePrice;
+
+    /**
+     * @var int
+     */
+    protected $pseudoSales;
+
+    /**
+     * @var bool
+     */
+    protected $markAsTopseller;
+
+    /**
+     * @var int
+     */
+    protected $sales;
+
+    /**
+     * @var int
+     */
+    protected $position;
+
+    /**
+     * @var float|null
+     */
+    protected $weight;
+
+    /**
+     * @var float|null
+     */
+    protected $width;
+
+    /**
+     * @var float|null
+     */
+    protected $height;
+
+    /**
+     * @var float|null
+     */
+    protected $length;
 
     /**
      * @var string|null
@@ -69,9 +165,14 @@ class ProductBasicStruct extends Struct
     protected $template;
 
     /**
-     * @var int|null
+     * @var bool
      */
-    protected $configuratorSetId;
+    protected $allowNotification;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $releaseDate;
 
     /**
      * @var \DateTime|null
@@ -79,14 +180,14 @@ class ProductBasicStruct extends Struct
     protected $createdAt;
 
     /**
-     * @var string
-     */
-    protected $mainDetailUuid;
-
-    /**
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var string|null
+     */
+    protected $additionalText;
 
     /**
      * @var string
@@ -114,14 +215,24 @@ class ProductBasicStruct extends Struct
     protected $metaTitle;
 
     /**
+     * @var string|null
+     */
+    protected $packUnit;
+
+    /**
+     * @var UnitBasicStruct|null
+     */
+    protected $unit;
+
+    /**
+     * @var ProductPriceBasicCollection
+     */
+    protected $prices;
+
+    /**
      * @var ProductManufacturerBasicStruct
      */
     protected $manufacturer;
-
-    /**
-     * @var ProductDetailBasicStruct
-     */
-    protected $mainDetail;
 
     /**
      * @var TaxBasicStruct
@@ -163,24 +274,24 @@ class ProductBasicStruct extends Struct
         $this->uuid = $uuid;
     }
 
-    public function getTaxUuid(): string
+    public function getContainerUuid(): ?string
     {
-        return $this->taxUuid;
+        return $this->containerUuid;
     }
 
-    public function setTaxUuid(string $taxUuid): void
+    public function setContainerUuid(?string $containerUuid): void
     {
-        $this->taxUuid = $taxUuid;
+        $this->containerUuid = $containerUuid;
     }
 
-    public function getManufacturerUuid(): string
+    public function getIsMain(): bool
     {
-        return $this->manufacturerUuid;
+        return $this->isMain;
     }
 
-    public function setManufacturerUuid(string $manufacturerUuid): void
+    public function setIsMain(bool $isMain): void
     {
-        $this->manufacturerUuid = $manufacturerUuid;
+        $this->isMain = $isMain;
     }
 
     public function getActive(): bool
@@ -193,24 +304,24 @@ class ProductBasicStruct extends Struct
         $this->active = $active;
     }
 
-    public function getPseudoSales(): int
+    public function getTaxUuid(): ?string
     {
-        return $this->pseudoSales;
+        return $this->taxUuid;
     }
 
-    public function setPseudoSales(int $pseudoSales): void
+    public function setTaxUuid(?string $taxUuid): void
     {
-        $this->pseudoSales = $pseudoSales;
+        $this->taxUuid = $taxUuid;
     }
 
-    public function getMarkAsTopseller(): bool
+    public function getManufacturerUuid(): ?string
     {
-        return $this->markAsTopseller;
+        return $this->manufacturerUuid;
     }
 
-    public function setMarkAsTopseller(bool $markAsTopseller): void
+    public function setManufacturerUuid(?string $manufacturerUuid): void
     {
-        $this->markAsTopseller = $markAsTopseller;
+        $this->manufacturerUuid = $manufacturerUuid;
     }
 
     public function getPriceGroupUuid(): ?string
@@ -233,6 +344,46 @@ class ProductBasicStruct extends Struct
         $this->filterGroupUuid = $filterGroupUuid;
     }
 
+    public function getUnitUuid(): ?string
+    {
+        return $this->unitUuid;
+    }
+
+    public function setUnitUuid(?string $unitUuid): void
+    {
+        $this->unitUuid = $unitUuid;
+    }
+
+    public function getSupplierNumber(): ?string
+    {
+        return $this->supplierNumber;
+    }
+
+    public function setSupplierNumber(?string $supplierNumber): void
+    {
+        $this->supplierNumber = $supplierNumber;
+    }
+
+    public function getEan(): ?string
+    {
+        return $this->ean;
+    }
+
+    public function setEan(?string $ean): void
+    {
+        $this->ean = $ean;
+    }
+
+    public function getStock(): int
+    {
+        return $this->stock;
+    }
+
+    public function setStock(int $stock): void
+    {
+        $this->stock = $stock;
+    }
+
     public function getIsCloseout(): bool
     {
         return $this->isCloseout;
@@ -243,14 +394,164 @@ class ProductBasicStruct extends Struct
         $this->isCloseout = $isCloseout;
     }
 
-    public function getAllowNotification(): bool
+    public function getMinStock(): ?int
     {
-        return $this->allowNotification;
+        return $this->minStock;
     }
 
-    public function setAllowNotification(bool $allowNotification): void
+    public function setMinStock(?int $minStock): void
     {
-        $this->allowNotification = $allowNotification;
+        $this->minStock = $minStock;
+    }
+
+    public function getPurchaseSteps(): ?int
+    {
+        return $this->purchaseSteps;
+    }
+
+    public function setPurchaseSteps(?int $purchaseSteps): void
+    {
+        $this->purchaseSteps = $purchaseSteps;
+    }
+
+    public function getMaxPurchase(): ?int
+    {
+        return $this->maxPurchase;
+    }
+
+    public function setMaxPurchase(?int $maxPurchase): void
+    {
+        $this->maxPurchase = $maxPurchase;
+    }
+
+    public function getMinPurchase(): int
+    {
+        return $this->minPurchase;
+    }
+
+    public function setMinPurchase(int $minPurchase): void
+    {
+        $this->minPurchase = $minPurchase;
+    }
+
+    public function getPurchaseUnit(): ?float
+    {
+        return $this->purchaseUnit;
+    }
+
+    public function setPurchaseUnit(?float $purchaseUnit): void
+    {
+        $this->purchaseUnit = $purchaseUnit;
+    }
+
+    public function getReferenceUnit(): ?float
+    {
+        return $this->referenceUnit;
+    }
+
+    public function setReferenceUnit(?float $referenceUnit): void
+    {
+        $this->referenceUnit = $referenceUnit;
+    }
+
+    public function getShippingFree(): bool
+    {
+        return $this->shippingFree;
+    }
+
+    public function setShippingFree(bool $shippingFree): void
+    {
+        $this->shippingFree = $shippingFree;
+    }
+
+    public function getPurchasePrice(): float
+    {
+        return $this->purchasePrice;
+    }
+
+    public function setPurchasePrice(float $purchasePrice): void
+    {
+        $this->purchasePrice = $purchasePrice;
+    }
+
+    public function getPseudoSales(): int
+    {
+        return $this->pseudoSales;
+    }
+
+    public function setPseudoSales(int $pseudoSales): void
+    {
+        $this->pseudoSales = $pseudoSales;
+    }
+
+    public function getMarkAsTopseller(): bool
+    {
+        return $this->markAsTopseller;
+    }
+
+    public function setMarkAsTopseller(bool $markAsTopseller): void
+    {
+        $this->markAsTopseller = $markAsTopseller;
+    }
+
+    public function getSales(): int
+    {
+        return $this->sales;
+    }
+
+    public function setSales(int $sales): void
+    {
+        $this->sales = $sales;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
+    }
+
+    public function getWeight(): ?float
+    {
+        return $this->weight;
+    }
+
+    public function setWeight(?float $weight): void
+    {
+        $this->weight = $weight;
+    }
+
+    public function getWidth(): ?float
+    {
+        return $this->width;
+    }
+
+    public function setWidth(?float $width): void
+    {
+        $this->width = $width;
+    }
+
+    public function getHeight(): ?float
+    {
+        return $this->height;
+    }
+
+    public function setHeight(?float $height): void
+    {
+        $this->height = $height;
+    }
+
+    public function getLength(): ?float
+    {
+        return $this->length;
+    }
+
+    public function setLength(?float $length): void
+    {
+        $this->length = $length;
     }
 
     public function getTemplate(): ?string
@@ -263,14 +564,24 @@ class ProductBasicStruct extends Struct
         $this->template = $template;
     }
 
-    public function getConfiguratorSetId(): ?int
+    public function getAllowNotification(): bool
     {
-        return $this->configuratorSetId;
+        return $this->allowNotification;
     }
 
-    public function setConfiguratorSetId(?int $configuratorSetId): void
+    public function setAllowNotification(bool $allowNotification): void
     {
-        $this->configuratorSetId = $configuratorSetId;
+        $this->allowNotification = $allowNotification;
+    }
+
+    public function getReleaseDate(): ?\DateTime
+    {
+        return $this->releaseDate;
+    }
+
+    public function setReleaseDate(?\DateTime $releaseDate): void
+    {
+        $this->releaseDate = $releaseDate;
     }
 
     public function getCreatedAt(): ?\DateTime
@@ -283,16 +594,6 @@ class ProductBasicStruct extends Struct
         $this->createdAt = $createdAt;
     }
 
-    public function getMainDetailUuid(): string
-    {
-        return $this->mainDetailUuid;
-    }
-
-    public function setMainDetailUuid(string $mainDetailUuid): void
-    {
-        $this->mainDetailUuid = $mainDetailUuid;
-    }
-
     public function getUpdatedAt(): ?\DateTime
     {
         return $this->updatedAt;
@@ -301,6 +602,16 @@ class ProductBasicStruct extends Struct
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getAdditionalText(): ?string
+    {
+        return $this->additionalText;
+    }
+
+    public function setAdditionalText(?string $additionalText): void
+    {
+        $this->additionalText = $additionalText;
     }
 
     public function getName(): string
@@ -353,6 +664,36 @@ class ProductBasicStruct extends Struct
         $this->metaTitle = $metaTitle;
     }
 
+    public function getPackUnit(): ?string
+    {
+        return $this->packUnit;
+    }
+
+    public function setPackUnit(?string $packUnit): void
+    {
+        $this->packUnit = $packUnit;
+    }
+
+    public function getUnit(): ?UnitBasicStruct
+    {
+        return $this->unit;
+    }
+
+    public function setUnit(?UnitBasicStruct $unit): void
+    {
+        $this->unit = $unit;
+    }
+
+    public function getPrices(): ProductPriceBasicCollection
+    {
+        return $this->prices;
+    }
+
+    public function setPrices(ProductPriceBasicCollection $prices): void
+    {
+        $this->prices = $prices;
+    }
+
     public function getManufacturer(): ProductManufacturerBasicStruct
     {
         return $this->manufacturer;
@@ -361,16 +702,6 @@ class ProductBasicStruct extends Struct
     public function setManufacturer(ProductManufacturerBasicStruct $manufacturer): void
     {
         $this->manufacturer = $manufacturer;
-    }
-
-    public function getMainDetail(): ProductDetailBasicStruct
-    {
-        return $this->mainDetail;
-    }
-
-    public function setMainDetail(ProductDetailBasicStruct $mainDetail): void
-    {
-        $this->mainDetail = $mainDetail;
     }
 
     public function getTax(): TaxBasicStruct

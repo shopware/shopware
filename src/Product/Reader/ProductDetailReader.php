@@ -13,13 +13,12 @@ use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\Product\Factory\ProductDetailFactory;
 use Shopware\Product\Struct\ProductDetailCollection;
 use Shopware\Product\Struct\ProductDetailStruct;
-use Shopware\ProductDetail\Reader\ProductDetailBasicReader;
-use Shopware\ProductDetail\Searcher\ProductDetailSearcher;
-use Shopware\ProductDetail\Searcher\ProductDetailSearchResult;
 use Shopware\ProductListingPrice\Searcher\ProductListingPriceSearcher;
 use Shopware\ProductListingPrice\Searcher\ProductListingPriceSearchResult;
 use Shopware\ProductMedia\Searcher\ProductMediaSearcher;
 use Shopware\ProductMedia\Searcher\ProductMediaSearchResult;
+use Shopware\ProductPrice\Searcher\ProductPriceSearcher;
+use Shopware\ProductPrice\Searcher\ProductPriceSearchResult;
 use Shopware\ProductVote\Searcher\ProductVoteSearcher;
 use Shopware\ProductVote\Searcher\ProductVoteSearchResult;
 use Shopware\ProductVoteAverage\Searcher\ProductVoteAverageSearcher;
@@ -35,9 +34,9 @@ class ProductDetailReader implements DetailReaderInterface
     private $factory;
 
     /**
-     * @var ProductDetailBasicReader
+     * @var ProductPriceSearcher
      */
-    private $productDetailBasicReader;
+    private $productPriceSearcher;
 
     /**
      * @var CustomerGroupBasicReader
@@ -53,11 +52,6 @@ class ProductDetailReader implements DetailReaderInterface
      * @var ProductMediaSearcher
      */
     private $productMediaSearcher;
-
-    /**
-     * @var ProductDetailSearcher
-     */
-    private $productDetailSearcher;
 
     /**
      * @var CategoryBasicReader
@@ -76,21 +70,19 @@ class ProductDetailReader implements DetailReaderInterface
 
     public function __construct(
         ProductDetailFactory $factory,
-        ProductDetailBasicReader $productDetailBasicReader,
+        ProductPriceSearcher $productPriceSearcher,
         CustomerGroupBasicReader $customerGroupBasicReader,
         ProductListingPriceSearcher $productListingPriceSearcher,
         ProductMediaSearcher $productMediaSearcher,
-        ProductDetailSearcher $productDetailSearcher,
         CategoryBasicReader $categoryBasicReader,
         ProductVoteSearcher $productVoteSearcher,
         ProductVoteAverageSearcher $productVoteAverageSearcher
     ) {
         $this->factory = $factory;
-        $this->productDetailBasicReader = $productDetailBasicReader;
+        $this->productPriceSearcher = $productPriceSearcher;
         $this->customerGroupBasicReader = $customerGroupBasicReader;
         $this->productListingPriceSearcher = $productListingPriceSearcher;
         $this->productMediaSearcher = $productMediaSearcher;
-        $this->productDetailSearcher = $productDetailSearcher;
         $this->categoryBasicReader = $categoryBasicReader;
         $this->productVoteSearcher = $productVoteSearcher;
         $this->productVoteAverageSearcher = $productVoteAverageSearcher;
@@ -104,7 +96,10 @@ class ProductDetailReader implements DetailReaderInterface
 
         $productsCollection = $this->read($uuids, $context);
 
-        $mainDetails = $this->productDetailBasicReader->readBasic($productsCollection->getMainDetailUuids(), $context);
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermsQuery('product_price.productUuid', $uuids));
+        /** @var ProductPriceSearchResult $prices */
+        $prices = $this->productPriceSearcher->search($criteria, $context);
 
         $blockedCustomerGroups = $this->customerGroupBasicReader->readBasic($productsCollection->getBlockedCustomerGroupsUuids(), $context);
 
@@ -117,11 +112,6 @@ class ProductDetailReader implements DetailReaderInterface
         $criteria->addFilter(new TermsQuery('product_media.productUuid', $uuids));
         /** @var ProductMediaSearchResult $media */
         $media = $this->productMediaSearcher->search($criteria, $context);
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('product_detail.productUuid', $uuids));
-        /** @var ProductDetailSearchResult $details */
-        $details = $this->productDetailSearcher->search($criteria, $context);
 
         $categoryTree = $this->categoryBasicReader->readBasic($productsCollection->getCategoryTreeUuids(), $context);
 
@@ -137,16 +127,12 @@ class ProductDetailReader implements DetailReaderInterface
 
         /** @var ProductDetailStruct $product */
         foreach ($productsCollection as $product) {
-            if ($product->getMainDetailUuid()) {
-                $product->setMainDetail($mainDetails->get($product->getMainDetailUuid()));
-            }
+            $product->setPrices($prices->filterByProductUuid($product->getUuid()));
 
             $product->setBlockedCustomerGroups($blockedCustomerGroups->getList($product->getBlockedCustomerGroupsUuids()));
             $product->setListingPrices($listingPrices->filterByProductUuid($product->getUuid()));
 
             $product->setMedia($media->filterByProductUuid($product->getUuid()));
-
-            $product->setDetails($details->filterByProductUuid($product->getUuid()));
 
             $product->setCategories($categoryTree->getList($product->getCategoryUuids()));
             $product->setCategoryTree($categoryTree->getList($product->getCategoryTreeUuids()));

@@ -41,7 +41,12 @@ class ProductCategorySeoWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductCategorySeoWrittenEvent
     {
-        $event = new ProductCategorySeoWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new ProductCategorySeoWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

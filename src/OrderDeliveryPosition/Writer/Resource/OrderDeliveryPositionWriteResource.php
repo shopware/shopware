@@ -48,7 +48,12 @@ class OrderDeliveryPositionWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): OrderDeliveryPositionWrittenEvent
     {
-        $event = new OrderDeliveryPositionWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new OrderDeliveryPositionWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

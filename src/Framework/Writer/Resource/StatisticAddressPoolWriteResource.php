@@ -34,7 +34,12 @@ class StatisticAddressPoolWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): StatisticAddressPoolWrittenEvent
     {
-        $event = new StatisticAddressPoolWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new StatisticAddressPoolWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

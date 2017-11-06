@@ -44,7 +44,12 @@ class ProductConfiguratorGroupWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductConfiguratorGroupWrittenEvent
     {
-        $event = new ProductConfiguratorGroupWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new ProductConfiguratorGroupWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

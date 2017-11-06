@@ -33,27 +33,17 @@ use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\Product\CalculatedProduct;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Product\Repository\ProductRepository;
-use Shopware\ProductDetail\Repository\ProductDetailRepository;
 use Shopware\ProductMedia\Repository\ProductMediaRepository;
 use Shopware\ProductMedia\Searcher\ProductMediaSearchResult;
 use Shopware\ProductMedia\Struct\ProductMediaBasicStruct;
 
 class ViewProductTransformer implements ViewLineItemTransformerInterface
 {
-    //    /**
-//     * @var MediaServiceInterface
-//     */
-//    private $mediaService;
-
     /**
      * @var ProductRepository
      */
     private $productRepository;
 
-    /**
-     * @var ProductDetailRepository
-     */
-    private $productDetailRepository;
     /**
      * @var ProductMediaRepository
      */
@@ -61,11 +51,9 @@ class ViewProductTransformer implements ViewLineItemTransformerInterface
 
     public function __construct(
         ProductRepository $productRepository,
-        ProductDetailRepository $productDetailRepository,
         ProductMediaRepository $productMediaRepository
     ) {
         $this->productRepository = $productRepository;
-        $this->productDetailRepository = $productDetailRepository;
         $this->productMediaRepository = $productMediaRepository;
     }
 
@@ -83,28 +71,22 @@ class ViewProductTransformer implements ViewLineItemTransformerInterface
             return;
         }
 
-        $variants = $this->productDetailRepository->readBasic(
+        $products = $this->productRepository->readBasic(
             $collection->getIdentifiers(),
             $context->getTranslationContext()
         );
 
-        $products = $this->productRepository->readBasic(
-            $variants->getProductUuids(),
-            $context->getTranslationContext()
-        );
-
-        $covers = $this->fetchCovers($variants->getProductUuids(), $context);
+        $covers = $this->fetchCovers($products->getUuids(), $context);
 
         /** @var CalculatedLineItemCollection $collection */
+        /** @var CalculatedProduct $calculated */
         foreach ($collection as $calculated) {
-            $variant = $variants->get($calculated->getIdentifier());
-
-            $product = $products->get($variant->getProductUuid());
+            $product = $products->get($calculated->getIdentifier());
 
             /** @var ProductMediaBasicStruct $cover */
             $cover = $covers->filterByProductUuid($product->getUuid())->first();
 
-            $template = ViewProduct::createFromProducts($product, $variant, $calculated);
+            $template = ViewProduct::createFromProducts($product, $calculated);
 
             if ($cover) {
                 $template->setCover($cover->getMedia());

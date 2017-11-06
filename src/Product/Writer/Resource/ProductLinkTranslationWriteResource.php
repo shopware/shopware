@@ -39,7 +39,12 @@ class ProductLinkTranslationWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductLinkTranslationWrittenEvent
     {
-        $event = new ProductLinkTranslationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new ProductLinkTranslationWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

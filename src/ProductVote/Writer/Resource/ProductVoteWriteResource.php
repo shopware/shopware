@@ -59,7 +59,12 @@ class ProductVoteWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductVoteWrittenEvent
     {
-        $event = new ProductVoteWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new ProductVoteWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

@@ -45,7 +45,12 @@ class ShopTemplateConfigFormFieldValueWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ShopTemplateConfigFormFieldValueWrittenEvent
     {
-        $event = new ShopTemplateConfigFormFieldValueWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new ShopTemplateConfigFormFieldValueWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

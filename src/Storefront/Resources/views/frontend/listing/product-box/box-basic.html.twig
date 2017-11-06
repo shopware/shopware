@@ -4,7 +4,7 @@
 {% block frontend_listing_box_article %}
     <div class="product--box box--{{ productBoxLayout }}"
          data-page-index="{{ pageIndex }}"
-         data-ordernumber="{{ product.mainDetail.uuid }}"
+         data-ordernumber="{{ product.uuid }}"
          {% if shopware.config.disableArticleNavigation == false %}data-category-uuid="{{ navigation.activeCategory.uuid }}"{% endif %}>
 
         {% block frontend_listing_box_article_content %}

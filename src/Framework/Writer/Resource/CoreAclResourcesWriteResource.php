@@ -31,7 +31,12 @@ class CoreAclResourcesWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): CoreAclResourcesWrittenEvent
     {
-        $event = new CoreAclResourcesWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new CoreAclResourcesWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

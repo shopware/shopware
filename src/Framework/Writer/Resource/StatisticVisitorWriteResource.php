@@ -44,7 +44,12 @@ class StatisticVisitorWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): StatisticVisitorWrittenEvent
     {
-        $event = new StatisticVisitorWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new StatisticVisitorWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

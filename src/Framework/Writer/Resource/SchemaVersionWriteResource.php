@@ -38,7 +38,12 @@ class SchemaVersionWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): SchemaVersionWrittenEvent
     {
-        $event = new SchemaVersionWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new SchemaVersionWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

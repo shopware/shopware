@@ -29,7 +29,12 @@ class ProductConfiguratorSetOptionRelationWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductConfiguratorSetOptionRelationWrittenEvent
     {
-        $event = new ProductConfiguratorSetOptionRelationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new ProductConfiguratorSetOptionRelationWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

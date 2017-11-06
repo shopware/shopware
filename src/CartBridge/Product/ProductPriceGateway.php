@@ -111,7 +111,7 @@ class ProductPriceGateway implements ProductPriceGatewayInterface
     {
         $query = $this->connection->createQueryBuilder();
 
-        $query->select('variant.uuid as arrayKey');
+        $query->select('product.uuid as arrayKey');
 
         $query->addSelect([
             'price.customer_group_uuid',
@@ -121,11 +121,10 @@ class ProductPriceGateway implements ProductPriceGatewayInterface
             'tax.tax_rate as __tax_tax',
         ]);
 
-        $query->from('product_detail_price', 'price');
-        $query->innerJoin('price', 'product_detail', 'variant', 'variant.uuid = price.product_detail_uuid');
-        $query->innerJoin('variant', 'product', 'product', 'product.uuid = variant.product_uuid');
-        $query->innerJoin('variant', 'tax', 'tax', 'tax.uuid = product.tax_uuid');
-        $query->where('variant.uuid IN (:numbers)');
+        $query->from('product_price', 'price');
+        $query->innerJoin('price', 'product', 'product', 'product.uuid = price.product_uuid');
+        $query->innerJoin('product', 'tax', 'tax', 'tax.uuid = product.tax_uuid');
+        $query->where('product.uuid IN (:numbers)');
         $query->setParameter('numbers', $numbers, Connection::PARAM_STR_ARRAY);
 
         $customerGroups = array_unique([

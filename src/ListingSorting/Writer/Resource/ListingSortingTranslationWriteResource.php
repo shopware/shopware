@@ -37,7 +37,12 @@ class ListingSortingTranslationWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ListingSortingTranslationWrittenEvent
     {
-        $event = new ListingSortingTranslationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new ListingSortingTranslationWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

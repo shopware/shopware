@@ -113,10 +113,10 @@
                     {% set action = path('cart_set_line_item_quantity') %}
                     <form name="cart_product_change_quantity" class="select-field" method="post" action="{{ action }}">
                         <select name="quantity" data-auto-submit="true">
-                            {% set minPurchase = viewLineItem.variant.minPurchase ?? 1 %}
+                            {% set minPurchase = viewLineItem.product.minPurchase ?? 1 %}
                             {# TODO CONFIG AUSLESEN #}
-                            {% set maxPurchase = viewLineItem.variant.maxPurchase ?? 25 %}
-                            {% set purchaseSteps = viewLineItem.variant.purchaseSteps ?? 1 %}
+                            {% set maxPurchase = viewLineItem.product.maxPurchase ?? 25 %}
+                            {% set purchaseSteps = viewLineItem.product.purchaseSteps ?? 1 %}
                             {% for quantity in range(minPurchase, maxPurchase, purchaseSteps) %}
                             <option value="{{ quantity }}" {% if quantity==viewLineItem.calculatedLineItem.quantity %}selected="selected"{% endif %}>
                                 {{ quantity }}

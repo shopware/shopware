@@ -12,9 +12,10 @@ use Shopware\Framework\Struct\SortArrayByKeysTrait;
 use Shopware\Product\Factory\ProductBasicFactory;
 use Shopware\Product\Struct\ProductBasicCollection;
 use Shopware\Product\Struct\ProductBasicStruct;
-use Shopware\ProductDetail\Reader\ProductDetailBasicReader;
 use Shopware\ProductListingPrice\Searcher\ProductListingPriceSearcher;
 use Shopware\ProductListingPrice\Searcher\ProductListingPriceSearchResult;
+use Shopware\ProductPrice\Searcher\ProductPriceSearcher;
+use Shopware\ProductPrice\Searcher\ProductPriceSearchResult;
 
 class ProductBasicReader implements BasicReaderInterface
 {
@@ -26,9 +27,9 @@ class ProductBasicReader implements BasicReaderInterface
     private $factory;
 
     /**
-     * @var ProductDetailBasicReader
+     * @var ProductPriceSearcher
      */
-    private $productDetailBasicReader;
+    private $productPriceSearcher;
 
     /**
      * @var CustomerGroupBasicReader
@@ -42,12 +43,12 @@ class ProductBasicReader implements BasicReaderInterface
 
     public function __construct(
         ProductBasicFactory $factory,
-        ProductDetailBasicReader $productDetailBasicReader,
+        ProductPriceSearcher $productPriceSearcher,
         CustomerGroupBasicReader $customerGroupBasicReader,
         ProductListingPriceSearcher $productListingPriceSearcher
     ) {
         $this->factory = $factory;
-        $this->productDetailBasicReader = $productDetailBasicReader;
+        $this->productPriceSearcher = $productPriceSearcher;
         $this->customerGroupBasicReader = $customerGroupBasicReader;
         $this->productListingPriceSearcher = $productListingPriceSearcher;
     }
@@ -60,7 +61,10 @@ class ProductBasicReader implements BasicReaderInterface
 
         $productsCollection = $this->read($uuids, $context);
 
-        $mainDetails = $this->productDetailBasicReader->readBasic($productsCollection->getMainDetailUuids(), $context);
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermsQuery('product_price.productUuid', $uuids));
+        /** @var ProductPriceSearchResult $prices */
+        $prices = $this->productPriceSearcher->search($criteria, $context);
 
         $blockedCustomerGroups = $this->customerGroupBasicReader->readBasic($productsCollection->getBlockedCustomerGroupsUuids(), $context);
 
@@ -71,9 +75,7 @@ class ProductBasicReader implements BasicReaderInterface
 
         /** @var ProductBasicStruct $product */
         foreach ($productsCollection as $product) {
-            if ($product->getMainDetailUuid()) {
-                $product->setMainDetail($mainDetails->get($product->getMainDetailUuid()));
-            }
+            $product->setPrices($prices->filterByProductUuid($product->getUuid()));
 
             $product->setBlockedCustomerGroups($blockedCustomerGroups->getList($product->getBlockedCustomerGroupsUuids()));
             $product->setListingPrices($listingPrices->filterByProductUuid($product->getUuid()));

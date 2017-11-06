@@ -28,11 +28,6 @@ class ProductMediaBasicStruct extends Struct
     protected $position;
 
     /**
-     * @var string|null
-     */
-    protected $productDetailUuid;
-
-    /**
      * @var string
      */
     protected $mediaUuid;
@@ -95,16 +90,6 @@ class ProductMediaBasicStruct extends Struct
     public function setPosition(int $position): void
     {
         $this->position = $position;
-    }
-
-    public function getProductDetailUuid(): ?string
-    {
-        return $this->productDetailUuid;
-    }
-
-    public function setProductDetailUuid(?string $productDetailUuid): void
-    {
-        $this->productDetailUuid = $productDetailUuid;
     }
 
     public function getMediaUuid(): string

@@ -37,7 +37,12 @@ class TaxAreaRuleTranslationWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): TaxAreaRuleTranslationWrittenEvent
     {
-        $event = new TaxAreaRuleTranslationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new TaxAreaRuleTranslationWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

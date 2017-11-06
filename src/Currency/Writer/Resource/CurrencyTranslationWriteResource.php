@@ -39,7 +39,12 @@ class CurrencyTranslationWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): CurrencyTranslationWrittenEvent
     {
-        $event = new CurrencyTranslationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new CurrencyTranslationWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

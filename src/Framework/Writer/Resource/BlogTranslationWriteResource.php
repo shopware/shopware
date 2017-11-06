@@ -48,7 +48,12 @@ class BlogTranslationWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): BlogTranslationWrittenEvent
     {
-        $event = new BlogTranslationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new BlogTranslationWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

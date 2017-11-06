@@ -30,7 +30,12 @@ class EmotionShopsWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): EmotionShopsWrittenEvent
     {
-        $event = new EmotionShopsWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new EmotionShopsWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

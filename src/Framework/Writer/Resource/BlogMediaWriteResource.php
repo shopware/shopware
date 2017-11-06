@@ -40,7 +40,12 @@ class BlogMediaWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): BlogMediaWrittenEvent
     {
-        $event = new BlogMediaWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new BlogMediaWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

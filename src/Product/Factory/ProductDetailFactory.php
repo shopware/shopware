@@ -12,14 +12,15 @@ use Shopware\CustomerGroup\Factory\CustomerGroupBasicFactory;
 use Shopware\PriceGroup\Factory\PriceGroupBasicFactory;
 use Shopware\Product\Struct\ProductBasicStruct;
 use Shopware\Product\Struct\ProductDetailStruct;
-use Shopware\ProductDetail\Factory\ProductDetailBasicFactory;
 use Shopware\ProductListingPrice\Factory\ProductListingPriceBasicFactory;
 use Shopware\ProductManufacturer\Factory\ProductManufacturerBasicFactory;
 use Shopware\ProductMedia\Factory\ProductMediaBasicFactory;
+use Shopware\ProductPrice\Factory\ProductPriceBasicFactory;
 use Shopware\ProductVote\Factory\ProductVoteBasicFactory;
 use Shopware\ProductVoteAverage\Factory\ProductVoteAverageBasicFactory;
 use Shopware\SeoUrl\Factory\SeoUrlBasicFactory;
 use Shopware\Tax\Factory\TaxBasicFactory;
+use Shopware\Unit\Factory\UnitBasicFactory;
 
 class ProductDetailFactory extends ProductBasicFactory
 {
@@ -27,11 +28,6 @@ class ProductDetailFactory extends ProductBasicFactory
      * @var ProductMediaBasicFactory
      */
     protected $productMediaFactory;
-
-    /**
-     * @var ProductDetailBasicFactory
-     */
-    protected $productDetailFactory;
 
     /**
      * @var CategoryBasicFactory
@@ -52,10 +48,11 @@ class ProductDetailFactory extends ProductBasicFactory
         Connection $connection,
         ExtensionRegistryInterface $registry,
         ProductMediaBasicFactory $productMediaFactory,
-        ProductDetailBasicFactory $productDetailFactory,
         CategoryBasicFactory $categoryFactory,
         ProductVoteBasicFactory $productVoteFactory,
         ProductVoteAverageBasicFactory $productVoteAverageFactory,
+        UnitBasicFactory $unitFactory,
+        ProductPriceBasicFactory $productPriceFactory,
         ProductManufacturerBasicFactory $productManufacturerFactory,
         TaxBasicFactory $taxFactory,
         SeoUrlBasicFactory $seoUrlFactory,
@@ -63,9 +60,8 @@ class ProductDetailFactory extends ProductBasicFactory
         CustomerGroupBasicFactory $customerGroupFactory,
         ProductListingPriceBasicFactory $productListingPriceFactory
     ) {
-        parent::__construct($connection, $registry, $productManufacturerFactory, $productDetailFactory, $taxFactory, $seoUrlFactory, $priceGroupFactory, $customerGroupFactory, $productListingPriceFactory);
+        parent::__construct($connection, $registry, $unitFactory, $productPriceFactory, $productManufacturerFactory, $taxFactory, $seoUrlFactory, $priceGroupFactory, $customerGroupFactory, $productListingPriceFactory);
         $this->productMediaFactory = $productMediaFactory;
-        $this->productDetailFactory = $productDetailFactory;
         $this->categoryFactory = $categoryFactory;
         $this->productVoteFactory = $productVoteFactory;
         $this->productVoteAverageFactory = $productVoteAverageFactory;
@@ -106,7 +102,6 @@ class ProductDetailFactory extends ProductBasicFactory
         parent::joinDependencies($selection, $query, $context);
 
         $this->joinMedia($selection, $query, $context);
-        $this->joinDetails($selection, $query, $context);
         $this->joinCategories($selection, $query, $context);
         $this->joinCategoryTree($selection, $query, $context);
         $this->joinVotes($selection, $query, $context);
@@ -117,7 +112,6 @@ class ProductDetailFactory extends ProductBasicFactory
     {
         $fields = parent::getAllFields();
         $fields['media'] = $this->productMediaFactory->getAllFields();
-        $fields['details'] = $this->productDetailFactory->getAllFields();
         $fields['categories'] = $this->categoryFactory->getAllFields();
         $fields['categoryTree'] = $this->categoryFactory->getAllFields();
         $fields['votes'] = $this->productVoteFactory->getAllFields();
@@ -156,26 +150,6 @@ class ProductDetailFactory extends ProductBasicFactory
         );
 
         $this->productMediaFactory->joinDependencies($media, $query, $context);
-
-        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
-    }
-
-    private function joinDetails(
-        QuerySelection $selection,
-        QueryBuilder $query,
-        TranslationContext $context
-    ): void {
-        if (!($details = $selection->filter('details'))) {
-            return;
-        }
-        $query->leftJoin(
-            $selection->getRootEscaped(),
-            'product_detail',
-            $details->getRootEscaped(),
-            sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $details->getRootEscaped())
-        );
-
-        $this->productDetailFactory->joinDependencies($details, $query, $context);
 
         $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
     }

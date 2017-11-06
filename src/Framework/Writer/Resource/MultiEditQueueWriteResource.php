@@ -45,7 +45,12 @@ class MultiEditQueueWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): MultiEditQueueWrittenEvent
     {
-        $event = new MultiEditQueueWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new MultiEditQueueWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

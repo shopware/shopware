@@ -37,7 +37,12 @@ class CampaignsLinksWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): CampaignsLinksWrittenEvent
     {
-        $event = new CampaignsLinksWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new CampaignsLinksWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

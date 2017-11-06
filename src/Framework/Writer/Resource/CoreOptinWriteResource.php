@@ -36,7 +36,12 @@ class CoreOptinWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): CoreOptinWrittenEvent
     {
-        $event = new CoreOptinWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new CoreOptinWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

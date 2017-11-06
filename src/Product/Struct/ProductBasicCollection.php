@@ -5,11 +5,12 @@ namespace Shopware\Product\Struct;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicCollection;
 use Shopware\Framework\Struct\Collection;
 use Shopware\PriceGroup\Struct\PriceGroupBasicCollection;
-use Shopware\ProductDetail\Struct\ProductDetailBasicCollection;
 use Shopware\ProductListingPrice\Struct\ProductListingPriceBasicCollection;
 use Shopware\ProductManufacturer\Struct\ProductManufacturerBasicCollection;
+use Shopware\ProductPrice\Struct\ProductPriceBasicCollection;
 use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
 use Shopware\Tax\Struct\TaxBasicCollection;
+use Shopware\Unit\Struct\UnitBasicCollection;
 
 class ProductBasicCollection extends Collection
 {
@@ -71,6 +72,20 @@ class ProductBasicCollection extends Collection
         }
     }
 
+    public function getContainerUuids(): array
+    {
+        return $this->fmap(function (ProductBasicStruct $product) {
+            return $product->getContainerUuid();
+        });
+    }
+
+    public function filterByContainerUuid(string $uuid): ProductBasicCollection
+    {
+        return $this->filter(function (ProductBasicStruct $product) use ($uuid) {
+            return $product->getContainerUuid() === $uuid;
+        });
+    }
+
     public function getTaxUuids(): array
     {
         return $this->fmap(function (ProductBasicStruct $product) {
@@ -127,18 +142,49 @@ class ProductBasicCollection extends Collection
         });
     }
 
-    public function getMainDetailUuids(): array
+    public function getUnitUuids(): array
     {
         return $this->fmap(function (ProductBasicStruct $product) {
-            return $product->getMainDetailUuid();
+            return $product->getUnitUuid();
         });
     }
 
-    public function filterByMainDetailUuid(string $uuid): ProductBasicCollection
+    public function filterByUnitUuid(string $uuid): ProductBasicCollection
     {
         return $this->filter(function (ProductBasicStruct $product) use ($uuid) {
-            return $product->getMainDetailUuid() === $uuid;
+            return $product->getUnitUuid() === $uuid;
         });
+    }
+
+    public function getUnits(): UnitBasicCollection
+    {
+        return new UnitBasicCollection(
+            $this->fmap(function (ProductBasicStruct $product) {
+                return $product->getUnit();
+            })
+        );
+    }
+
+    public function getPriceUuids(): array
+    {
+        $uuids = [];
+        foreach ($this->elements as $element) {
+            foreach ($element->getPrices()->getUuids() as $uuid) {
+                $uuids[] = $uuid;
+            }
+        }
+
+        return $uuids;
+    }
+
+    public function getPrices(): ProductPriceBasicCollection
+    {
+        $collection = new ProductPriceBasicCollection();
+        foreach ($this->elements as $element) {
+            $collection->fill($element->getPrices()->getElements());
+        }
+
+        return $collection;
     }
 
     public function getManufacturers(): ProductManufacturerBasicCollection
@@ -146,15 +192,6 @@ class ProductBasicCollection extends Collection
         return new ProductManufacturerBasicCollection(
             $this->fmap(function (ProductBasicStruct $product) {
                 return $product->getManufacturer();
-            })
-        );
-    }
-
-    public function getMainDetails(): ProductDetailBasicCollection
-    {
-        return new ProductDetailBasicCollection(
-            $this->fmap(function (ProductBasicStruct $product) {
-                return $product->getMainDetail();
             })
         );
     }

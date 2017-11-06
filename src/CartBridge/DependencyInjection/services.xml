@@ -64,7 +64,6 @@
         <service id="shopware.cart.view.product_transformer" class="Shopware\CartBridge\View\ViewProductTransformer">
             <tag name="view.line_item_transformer"/>
             <argument type="service" id="shopware.product.repository" />
-            <argument type="service" id="shopware.product_detail.repository" />
             <argument type="service" id="shopware.product_media.repository" />
         </service>
 

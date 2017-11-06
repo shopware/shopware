@@ -5,20 +5,6 @@ export default {
 
     inject: ['productService'],
 
-    computed: {
-        productMainDetails() {
-            const product = this[this.productDataKey];
-
-            if (!product || product.details.length <= 0) {
-                return {};
-            }
-
-            return product.details.find((item) => {
-                return item.isMain === true;
-            });
-        }
-    },
-
     methods: {
         initProduct,
         saveProduct,
@@ -27,7 +13,6 @@ export default {
         createProduct,
         getDefaultProduct,
         getNewProduct,
-        getProductMainDetails,
         addProductPrice
     }
 };
@@ -127,57 +112,35 @@ function createProduct(proxy) {
 function getDefaultProduct() {
     return {
         attribute: {},
-        mainDetail: {},
-        categories: [],
-        details: []
+        categories: []
     };
 }
 
 function getNewProduct() {
-    const uuid = utils.createUuid();
     const product = {
         uuid: null,
         taxUuid: 'SWAG-TAX-UUID-1',
-        mainDetailUuid: uuid,
+        isMain: true,
         manufacturerUuid: null,
-        details: [{
-            uuid,
-            isMain: true,
-            prices: [{
-                uuid: null,
-                price: 0,
-                basePrice: 0,
-                pseudoPrice: null,
-                quantityStart: 1,
-                quantityEnd: null,
-                percentage: 0,
-                customerGroupUuid: '3294e6f6-372b-415f-ac73-71cbc191548f'
-            }]
+        prices: [{
+            uuid: null,
+            price: 0,
+            basePrice: 0,
+            pseudoPrice: null,
+            quantityStart: 1,
+            quantityEnd: null,
+            percentage: 0,
+            customerGroupUuid: '3294e6f6-372b-415f-ac73-71cbc191548f'
         }]
     };
 
     return ProxyFactory.create(product);
 }
 
-function getProductMainDetails() {
-    if (!this.productProxy || this.productProxy.data.details.length <= 0) {
-        return {};
-    }
-
-    return this.productProxy.data.details.find((item) => {
-        return item.isMain === true;
-    });
-}
-
 function addProductPrice() {
     const uuid = utils.createUuid();
-    const mainDetails = this.getProductMainDetails();
 
-    if (!mainDetails.prices) {
-        mainDetails.prices = [];
-    }
-
-    mainDetails.prices.push({
+    this[this.productDataKey].prices.push({
         uuid,
         price: 0,
         basePrice: 0,

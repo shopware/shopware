@@ -30,7 +30,12 @@ class CampaignsSenderWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): CampaignsSenderWrittenEvent
     {
-        $event = new CampaignsSenderWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new CampaignsSenderWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

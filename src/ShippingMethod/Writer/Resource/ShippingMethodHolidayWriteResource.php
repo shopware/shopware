@@ -33,7 +33,12 @@ class ShippingMethodHolidayWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ShippingMethodHolidayWrittenEvent
     {
-        $event = new ShippingMethodHolidayWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new ShippingMethodHolidayWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

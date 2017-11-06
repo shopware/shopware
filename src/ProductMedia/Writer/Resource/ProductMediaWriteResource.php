@@ -14,7 +14,6 @@ use Shopware\Api\Write\WriteResource;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Media\Writer\Resource\MediaWriteResource;
 use Shopware\Product\Writer\Resource\ProductWriteResource;
-use Shopware\ProductDetail\Writer\Resource\ProductDetailWriteResource;
 use Shopware\ProductMedia\Event\ProductMediaWrittenEvent;
 
 class ProductMediaWriteResource extends WriteResource
@@ -34,8 +33,6 @@ class ProductMediaWriteResource extends WriteResource
         $this->fields[self::PARENT_UUID_FIELD] = new StringField('parent_uuid');
         $this->fields['product'] = new ReferenceField('productUuid', 'uuid', ProductWriteResource::class);
         $this->fields['productUuid'] = (new FkField('product_uuid', ProductWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['productDetail'] = new ReferenceField('productDetailUuid', 'uuid', ProductDetailWriteResource::class);
-        $this->fields['productDetailUuid'] = (new FkField('product_detail_uuid', ProductDetailWriteResource::class, 'uuid'));
         $this->fields['media'] = new ReferenceField('mediaUuid', 'uuid', MediaWriteResource::class);
         $this->fields['mediaUuid'] = (new FkField('media_uuid', MediaWriteResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['mappings'] = new SubresourceField(ProductMediaMappingWriteResource::class);
@@ -45,7 +42,6 @@ class ProductMediaWriteResource extends WriteResource
     {
         return [
             ProductWriteResource::class,
-            ProductDetailWriteResource::class,
             MediaWriteResource::class,
             self::class,
             ProductMediaMappingWriteResource::class,
@@ -54,7 +50,12 @@ class ProductMediaWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductMediaWrittenEvent
     {
-        $event = new ProductMediaWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new ProductMediaWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

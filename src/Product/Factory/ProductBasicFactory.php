@@ -13,15 +13,16 @@ use Shopware\PriceGroup\Factory\PriceGroupBasicFactory;
 use Shopware\PriceGroup\Struct\PriceGroupBasicStruct;
 use Shopware\Product\Extension\ProductExtension;
 use Shopware\Product\Struct\ProductBasicStruct;
-use Shopware\ProductDetail\Factory\ProductDetailBasicFactory;
-use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
 use Shopware\ProductListingPrice\Factory\ProductListingPriceBasicFactory;
 use Shopware\ProductManufacturer\Factory\ProductManufacturerBasicFactory;
 use Shopware\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
+use Shopware\ProductPrice\Factory\ProductPriceBasicFactory;
 use Shopware\SeoUrl\Factory\SeoUrlBasicFactory;
 use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
 use Shopware\Tax\Factory\TaxBasicFactory;
 use Shopware\Tax\Struct\TaxBasicStruct;
+use Shopware\Unit\Factory\UnitBasicFactory;
+use Shopware\Unit\Struct\UnitBasicStruct;
 
 class ProductBasicFactory extends Factory
 {
@@ -30,36 +31,62 @@ class ProductBasicFactory extends Factory
 
     const FIELDS = [
        'uuid' => 'uuid',
+       'containerUuid' => 'container_uuid',
+       'isMain' => 'is_main',
+       'active' => 'active',
        'taxUuid' => 'tax_uuid',
        'manufacturerUuid' => 'product_manufacturer_uuid',
-       'active' => 'active',
-       'pseudoSales' => 'pseudo_sales',
-       'markAsTopseller' => 'mark_as_topseller',
        'priceGroupUuid' => 'price_group_uuid',
        'filterGroupUuid' => 'filter_group_uuid',
+       'unitUuid' => 'unit_uuid',
+       'supplierNumber' => 'supplier_number',
+       'ean' => 'ean',
+       'stock' => 'stock',
        'isCloseout' => 'is_closeout',
-       'allowNotification' => 'allow_notification',
+       'minStock' => 'min_stock',
+       'purchaseSteps' => 'purchase_steps',
+       'maxPurchase' => 'max_purchase',
+       'minPurchase' => 'min_purchase',
+       'purchaseUnit' => 'purchase_unit',
+       'referenceUnit' => 'reference_unit',
+       'shippingFree' => 'shipping_free',
+       'purchasePrice' => 'purchase_price',
+       'pseudoSales' => 'pseudo_sales',
+       'markAsTopseller' => 'mark_as_topseller',
+       'sales' => 'sales',
+       'position' => 'position',
+       'weight' => 'weight',
+       'width' => 'width',
+       'height' => 'height',
+       'length' => 'length',
        'template' => 'template',
-       'configuratorSetId' => 'configurator_set_id',
+       'allowNotification' => 'allow_notification',
+       'releaseDate' => 'release_date',
        'createdAt' => 'created_at',
-       'mainDetailUuid' => 'main_detail_uuid',
        'updatedAt' => 'updated_at',
+       'additionalText' => 'translation.additional_text',
        'name' => 'translation.name',
        'keywords' => 'translation.keywords',
        'description' => 'translation.description',
        'descriptionLong' => 'translation.description_long',
        'metaTitle' => 'translation.meta_title',
+       'packUnit' => 'translation.pack_unit',
     ];
+
+    /**
+     * @var UnitBasicFactory
+     */
+    protected $unitFactory;
+
+    /**
+     * @var ProductPriceBasicFactory
+     */
+    protected $productPriceFactory;
 
     /**
      * @var ProductManufacturerBasicFactory
      */
     protected $productManufacturerFactory;
-
-    /**
-     * @var ProductDetailBasicFactory
-     */
-    protected $productDetailFactory;
 
     /**
      * @var TaxBasicFactory
@@ -89,8 +116,9 @@ class ProductBasicFactory extends Factory
     public function __construct(
         Connection $connection,
         ExtensionRegistryInterface $registry,
+        UnitBasicFactory $unitFactory,
+        ProductPriceBasicFactory $productPriceFactory,
         ProductManufacturerBasicFactory $productManufacturerFactory,
-        ProductDetailBasicFactory $productDetailFactory,
         TaxBasicFactory $taxFactory,
         SeoUrlBasicFactory $seoUrlFactory,
         PriceGroupBasicFactory $priceGroupFactory,
@@ -98,8 +126,9 @@ class ProductBasicFactory extends Factory
         ProductListingPriceBasicFactory $productListingPriceFactory
     ) {
         parent::__construct($connection, $registry);
+        $this->unitFactory = $unitFactory;
+        $this->productPriceFactory = $productPriceFactory;
         $this->productManufacturerFactory = $productManufacturerFactory;
-        $this->productDetailFactory = $productDetailFactory;
         $this->taxFactory = $taxFactory;
         $this->seoUrlFactory = $seoUrlFactory;
         $this->priceGroupFactory = $priceGroupFactory;
@@ -114,35 +143,56 @@ class ProductBasicFactory extends Factory
         TranslationContext $context
     ): ProductBasicStruct {
         $product->setUuid((string) $data[$selection->getField('uuid')]);
-        $product->setTaxUuid((string) $data[$selection->getField('taxUuid')]);
-        $product->setManufacturerUuid((string) $data[$selection->getField('manufacturerUuid')]);
+        $product->setContainerUuid(isset($data[$selection->getField('containerUuid')]) ? (string) $data[$selection->getField('containerUuid')] : null);
+        $product->setIsMain((bool) $data[$selection->getField('isMain')]);
         $product->setActive((bool) $data[$selection->getField('active')]);
-        $product->setPseudoSales((int) $data[$selection->getField('pseudoSales')]);
-        $product->setMarkAsTopseller((bool) $data[$selection->getField('markAsTopseller')]);
+        $product->setTaxUuid(isset($data[$selection->getField('taxUuid')]) ? (string) $data[$selection->getField('taxUuid')] : null);
+        $product->setManufacturerUuid(isset($data[$selection->getField('manufacturerUuid')]) ? (string) $data[$selection->getField('manufacturerUuid')] : null);
         $product->setPriceGroupUuid(isset($data[$selection->getField('priceGroupUuid')]) ? (string) $data[$selection->getField('priceGroupUuid')] : null);
         $product->setFilterGroupUuid(isset($data[$selection->getField('filterGroupUuid')]) ? (string) $data[$selection->getField('filterGroupUuid')] : null);
+        $product->setUnitUuid(isset($data[$selection->getField('unitUuid')]) ? (string) $data[$selection->getField('unitUuid')] : null);
+        $product->setSupplierNumber(isset($data[$selection->getField('supplierNumber')]) ? (string) $data[$selection->getField('supplierNumber')] : null);
+        $product->setEan(isset($data[$selection->getField('ean')]) ? (string) $data[$selection->getField('ean')] : null);
+        $product->setStock((int) $data[$selection->getField('stock')]);
         $product->setIsCloseout((bool) $data[$selection->getField('isCloseout')]);
-        $product->setAllowNotification((bool) $data[$selection->getField('allowNotification')]);
+        $product->setMinStock(isset($data[$selection->getField('minStock')]) ? (int) $data[$selection->getField('minStock')] : null);
+        $product->setPurchaseSteps(isset($data[$selection->getField('purchaseSteps')]) ? (int) $data[$selection->getField('purchaseSteps')] : null);
+        $product->setMaxPurchase(isset($data[$selection->getField('maxPurchase')]) ? (int) $data[$selection->getField('maxPurchase')] : null);
+        $product->setMinPurchase((int) $data[$selection->getField('minPurchase')]);
+        $product->setPurchaseUnit(isset($data[$selection->getField('purchaseUnit')]) ? (float) $data[$selection->getField('purchaseUnit')] : null);
+        $product->setReferenceUnit(isset($data[$selection->getField('referenceUnit')]) ? (float) $data[$selection->getField('referenceUnit')] : null);
+        $product->setShippingFree((bool) $data[$selection->getField('shippingFree')]);
+        $product->setPurchasePrice((float) $data[$selection->getField('purchasePrice')]);
+        $product->setPseudoSales((int) $data[$selection->getField('pseudoSales')]);
+        $product->setMarkAsTopseller((bool) $data[$selection->getField('markAsTopseller')]);
+        $product->setSales((int) $data[$selection->getField('sales')]);
+        $product->setPosition((int) $data[$selection->getField('position')]);
+        $product->setWeight(isset($data[$selection->getField('weight')]) ? (float) $data[$selection->getField('weight')] : null);
+        $product->setWidth(isset($data[$selection->getField('width')]) ? (float) $data[$selection->getField('width')] : null);
+        $product->setHeight(isset($data[$selection->getField('height')]) ? (float) $data[$selection->getField('height')] : null);
+        $product->setLength(isset($data[$selection->getField('length')]) ? (float) $data[$selection->getField('length')] : null);
         $product->setTemplate(isset($data[$selection->getField('template')]) ? (string) $data[$selection->getField('template')] : null);
-        $product->setConfiguratorSetId(isset($data[$selection->getField('configuratorSetId')]) ? (int) $data[$selection->getField('configuratorSetId')] : null);
+        $product->setAllowNotification((bool) $data[$selection->getField('allowNotification')]);
+        $product->setReleaseDate(isset($data[$selection->getField('releaseDate')]) ? new \DateTime($data[$selection->getField('releaseDate')]) : null);
         $product->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
-        $product->setMainDetailUuid((string) $data[$selection->getField('mainDetailUuid')]);
         $product->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);
+        $product->setAdditionalText(isset($data[$selection->getField('additionalText')]) ? (string) $data[$selection->getField('additionalText')] : null);
         $product->setName((string) $data[$selection->getField('name')]);
         $product->setKeywords(isset($data[$selection->getField('keywords')]) ? (string) $data[$selection->getField('keywords')] : null);
         $product->setDescription(isset($data[$selection->getField('description')]) ? (string) $data[$selection->getField('description')] : null);
         $product->setDescriptionLong(isset($data[$selection->getField('descriptionLong')]) ? (string) $data[$selection->getField('descriptionLong')] : null);
         $product->setMetaTitle(isset($data[$selection->getField('metaTitle')]) ? (string) $data[$selection->getField('metaTitle')] : null);
+        $product->setPackUnit(isset($data[$selection->getField('packUnit')]) ? (string) $data[$selection->getField('packUnit')] : null);
+        $unit = $selection->filter('unit');
+        if ($unit && !empty($data[$unit->getField('uuid')])) {
+            $product->setUnit(
+                $this->unitFactory->hydrate($data, new UnitBasicStruct(), $unit, $context)
+            );
+        }
         $productManufacturer = $selection->filter('manufacturer');
         if ($productManufacturer && !empty($data[$productManufacturer->getField('uuid')])) {
             $product->setManufacturer(
                 $this->productManufacturerFactory->hydrate($data, new ProductManufacturerBasicStruct(), $productManufacturer, $context)
-            );
-        }
-        $productDetail = $selection->filter('mainDetail');
-        if ($productDetail && !empty($data[$productDetail->getField('uuid')])) {
-            $product->setMainDetail(
-                $this->productDetailFactory->hydrate($data, new ProductDetailBasicStruct(), $productDetail, $context)
             );
         }
         $tax = $selection->filter('tax');
@@ -180,8 +230,8 @@ class ProductBasicFactory extends Factory
     {
         $fields = array_merge(self::FIELDS, parent::getFields());
 
+        $fields['unit'] = $this->unitFactory->getFields();
         $fields['manufacturer'] = $this->productManufacturerFactory->getFields();
-        $fields['mainDetail'] = $this->productDetailFactory->getFields();
         $fields['tax'] = $this->taxFactory->getFields();
         $fields['canonicalUrl'] = $this->seoUrlFactory->getFields();
         $fields['priceGroup'] = $this->priceGroupFactory->getFields();
@@ -192,8 +242,9 @@ class ProductBasicFactory extends Factory
 
     public function joinDependencies(QuerySelection $selection, QueryBuilder $query, TranslationContext $context): void
     {
+        $this->joinUnit($selection, $query, $context);
+        $this->joinPrices($selection, $query, $context);
         $this->joinManufacturer($selection, $query, $context);
-        $this->joinMainDetail($selection, $query, $context);
         $this->joinTax($selection, $query, $context);
         $this->joinCanonicalUrl($selection, $query, $context);
         $this->joinPriceGroup($selection, $query, $context);
@@ -207,8 +258,9 @@ class ProductBasicFactory extends Factory
     public function getAllFields(): array
     {
         $fields = array_merge(self::FIELDS, $this->getExtensionFields());
+        $fields['unit'] = $this->unitFactory->getAllFields();
+        $fields['prices'] = $this->productPriceFactory->getAllFields();
         $fields['manufacturer'] = $this->productManufacturerFactory->getAllFields();
-        $fields['mainDetail'] = $this->productDetailFactory->getAllFields();
         $fields['tax'] = $this->taxFactory->getAllFields();
         $fields['canonicalUrl'] = $this->seoUrlFactory->getAllFields();
         $fields['priceGroup'] = $this->priceGroupFactory->getAllFields();
@@ -228,6 +280,43 @@ class ProductBasicFactory extends Factory
         return self::EXTENSION_NAMESPACE;
     }
 
+    private function joinUnit(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($unit = $selection->filter('unit'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'unit',
+            $unit->getRootEscaped(),
+            sprintf('%s.uuid = %s.unit_uuid', $unit->getRootEscaped(), $selection->getRootEscaped())
+        );
+        $this->unitFactory->joinDependencies($unit, $query, $context);
+    }
+
+    private function joinPrices(
+        QuerySelection $selection,
+        QueryBuilder $query,
+        TranslationContext $context
+    ): void {
+        if (!($prices = $selection->filter('prices'))) {
+            return;
+        }
+        $query->leftJoin(
+            $selection->getRootEscaped(),
+            'product_price',
+            $prices->getRootEscaped(),
+            sprintf('%s.uuid = %s.product_uuid', $selection->getRootEscaped(), $prices->getRootEscaped())
+        );
+
+        $this->productPriceFactory->joinDependencies($prices, $query, $context);
+
+        $query->groupBy(sprintf('%s.uuid', $selection->getRootEscaped()));
+    }
+
     private function joinManufacturer(
         QuerySelection $selection,
         QueryBuilder $query,
@@ -243,23 +332,6 @@ class ProductBasicFactory extends Factory
             sprintf('%s.uuid = %s.product_manufacturer_uuid', $productManufacturer->getRootEscaped(), $selection->getRootEscaped())
         );
         $this->productManufacturerFactory->joinDependencies($productManufacturer, $query, $context);
-    }
-
-    private function joinMainDetail(
-        QuerySelection $selection,
-        QueryBuilder $query,
-        TranslationContext $context
-    ): void {
-        if (!($productDetail = $selection->filter('mainDetail'))) {
-            return;
-        }
-        $query->leftJoin(
-            $selection->getRootEscaped(),
-            'product_detail',
-            $productDetail->getRootEscaped(),
-            sprintf('%s.uuid = %s.main_detail_uuid', $productDetail->getRootEscaped(), $selection->getRootEscaped())
-        );
-        $this->productDetailFactory->joinDependencies($productDetail, $query, $context);
     }
 
     private function joinTax(

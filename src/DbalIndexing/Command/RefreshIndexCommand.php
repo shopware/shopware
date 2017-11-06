@@ -30,6 +30,8 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
+use Shopware\DbalIndexing\Indexer\IndexerInterface;
+use Shopware\Shop\Repository\ShopRepository;
 use Shopware\Shop\Struct\ShopBasicStruct;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -43,6 +45,23 @@ class RefreshIndexCommand extends ContainerAwareCommand implements EventSubscrib
      * @var SymfonyStyle
      */
     private $io;
+
+    /**
+     * @var ShopRepository
+     */
+    private $shopRepository;
+
+    /**
+     * @var IndexerInterface
+     */
+    private $indexer;
+
+    public function __construct(ShopRepository $shopRepository, IndexerInterface $indexer)
+    {
+        parent::__construct('dbal:refresh:index');
+        $this->shopRepository = $shopRepository;
+        $this->indexer = $indexer;
+    }
 
     public static function getSubscribedEvents()
     {
@@ -84,13 +103,11 @@ class RefreshIndexCommand extends ContainerAwareCommand implements EventSubscrib
     {
         $this->io = new SymfonyStyle($input, $output);
 
-        $indexer = $this->getContainer()->get('shopware.dbal_indexing.indexer.shop_indexer');
-
         $contexts = $this->createContexts();
 
         $timestamp = new \DateTime();
         foreach ($contexts as $context) {
-            $indexer->index($context, $timestamp);
+            $this->indexer->index($context, $timestamp);
         }
     }
 
@@ -99,12 +116,11 @@ class RefreshIndexCommand extends ContainerAwareCommand implements EventSubscrib
      */
     protected function createContexts(): array
     {
-        $repo = $this->getContainer()->get('shopware.shop.repository');
         $context = new TranslationContext('SWAG-SHOP-UUID-1', true, null);
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('shop.is_default'));
         $criteria->addSorting(new FieldSorting('shop.parent_uuid'));
-        $shops = $repo->search(new Criteria(), $context);
+        $shops = $this->shopRepository->search(new Criteria(), $context);
 
         return $shops->map(function (ShopBasicStruct $shop) {
             return TranslationContext::createFromShop($shop);

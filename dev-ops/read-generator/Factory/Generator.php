@@ -58,6 +58,26 @@ class Generator
             $detailFactory = 'shopware.' . $association['table'] . '.detail_factory';
 
             switch ($association['type']) {
+                case Util::ONE_TO_ONE:
+                    $associationClass = Util::snakeCaseToCamelCase($association['table']);
+                    if (!in_array($detailFactory, $requiredFactories, true)) {
+                        $requiredFactories[] = 'shopware.' . $association['table'] . '.basic_factory';
+                        $type = 'Basic';
+                    } else {
+                        $type = 'Detail';
+                    }
+                    $constructor[] = str_replace(
+                        ['#classUc#', '#classLc#', '#type#'],
+                        [ucfirst($associationClass), lcfirst($associationClass), $type],
+                        '        #classUc##type#Factory $#classLc#Factory'
+                    );
+                    $uses[] = str_replace(
+                        ['#classUc#', '#type#'],
+                        [ucfirst($associationClass), $type],
+                        'use Shopware\#classUc#\Factory\#classUc##type#Factory;'
+                    );
+                    break;
+
                 case Util::MANY_TO_ONE:
                     $associationClass = Util::snakeCaseToCamelCase($association['table']);
                     if (!in_array($detailFactory, $requiredFactories, true)) {

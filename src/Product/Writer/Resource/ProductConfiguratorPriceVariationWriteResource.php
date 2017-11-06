@@ -39,7 +39,12 @@ class ProductConfiguratorPriceVariationWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductConfiguratorPriceVariationWrittenEvent
     {
-        $event = new ProductConfiguratorPriceVariationWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new ProductConfiguratorPriceVariationWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

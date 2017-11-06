@@ -44,7 +44,12 @@ class EmarketingBannersWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): EmarketingBannersWrittenEvent
     {
-        $event = new EmarketingBannersWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new EmarketingBannersWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

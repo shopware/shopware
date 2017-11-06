@@ -3,7 +3,6 @@
 namespace Shopware\Product\Struct;
 
 use Shopware\Category\Struct\CategoryBasicCollection;
-use Shopware\ProductDetail\Struct\ProductDetailBasicCollection;
 use Shopware\ProductMedia\Struct\ProductMediaBasicCollection;
 use Shopware\ProductVote\Struct\ProductVoteBasicCollection;
 use Shopware\ProductVoteAverage\Struct\ProductVoteAverageBasicCollection;
@@ -14,11 +13,6 @@ class ProductDetailStruct extends ProductBasicStruct
      * @var ProductMediaBasicCollection
      */
     protected $media;
-
-    /**
-     * @var ProductDetailBasicCollection
-     */
-    protected $details;
 
     /**
      * @var string[]
@@ -53,7 +47,6 @@ class ProductDetailStruct extends ProductBasicStruct
     public function __construct()
     {
         $this->media = new ProductMediaBasicCollection();
-        $this->details = new ProductDetailBasicCollection();
         $this->categories = new CategoryBasicCollection();
         $this->categoryTree = new CategoryBasicCollection();
         $this->votes = new ProductVoteBasicCollection();
@@ -68,16 +61,6 @@ class ProductDetailStruct extends ProductBasicStruct
     public function setMedia(ProductMediaBasicCollection $media): void
     {
         $this->media = $media;
-    }
-
-    public function getDetails(): ProductDetailBasicCollection
-    {
-        return $this->details;
-    }
-
-    public function setDetails(ProductDetailBasicCollection $details): void
-    {
-        $this->details = $details;
     }
 
     public function getCategoryUuids(): array

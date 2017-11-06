@@ -36,7 +36,12 @@ class CoreDocumentsBoxWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): CoreDocumentsBoxWrittenEvent
     {
-        $event = new CoreDocumentsBoxWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new CoreDocumentsBoxWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

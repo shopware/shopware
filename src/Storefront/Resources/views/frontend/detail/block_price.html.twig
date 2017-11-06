@@ -41,7 +41,7 @@
                         <tbody class="block-prices--body">
                             {% block frontend_detail_data_block_prices_table_body_inner %}
                                 {% set cylceClasses = ['is--primary', 'is--secondary'] %}
-                                {% for price in product.mainDetail.prices %}
+                                {% for price in product.prices %}
                                     {# @var price \Shopware\ProductPrice\Struct\ProductPriceBasicStruct #}
                                     {% block frontend_detail_data_block_prices %}
                                         <tr class="block-prices--row {{ cycle(cylceClasses, loop.index) }}" itemprop="offers" itemscope itemtype="http://schema.org/Offer">

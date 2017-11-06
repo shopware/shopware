@@ -24,18 +24,17 @@ class ListingPriceLoader
         $query = $this->connection->createQueryBuilder();
         $query->addSelect([
             'product.uuid',
-            'product_detail_price.customer_group_uuid as customer_group_uuid',
-            'MIN(product_detail_price.price) as price',
-            'COUNT(DISTINCT(product_detail_price.price)) as display_from_price',
+            'product_price.customer_group_uuid as customer_group_uuid',
+            'MIN(product_price.price) as price',
+            'COUNT(DISTINCT(product_price.price)) as display_from_price',
         ]);
 
         $query->from('product');
-        $query->innerJoin('product', 'product_detail', 'product_detail', 'product_detail.product_uuid = product.uuid AND product_detail.active = 1');
-        $query->innerJoin('product', 'product_detail_price', 'product_detail_price', 'product_detail_price.product_detail_uuid = product_detail.uuid');
+        $query->innerJoin('product', 'product_price', 'product_price', 'product_price.product_uuid = product.uuid');
         $query->andWhere('product.uuid IN (:uuids)');
         $query->setParameter(':uuids', $productUuids, Connection::PARAM_STR_ARRAY);
         $query->addGroupBy('product.uuid');
-        $query->addGroupBy('product_detail_price.customer_group_uuid');
+        $query->addGroupBy('product_price.customer_group_uuid');
 
         $rows = $query->execute()->fetchAll();
         $collection = new ProductListingPriceBasicCollection();

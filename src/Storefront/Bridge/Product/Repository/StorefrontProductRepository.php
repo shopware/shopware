@@ -13,11 +13,11 @@ use Shopware\Context\Struct\ShopContext;
 use Shopware\Product\Repository\ProductRepository;
 use Shopware\Product\Searcher\ProductSearchResult;
 use Shopware\Product\Struct\ProductBasicCollection;
-use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicCollection;
-use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicStruct;
 use Shopware\ProductListingPrice\Struct\ProductListingPriceBasicCollection;
 use Shopware\ProductMedia\Repository\ProductMediaRepository;
 use Shopware\ProductMedia\Searcher\ProductMediaSearchResult;
+use Shopware\ProductPrice\Struct\ProductDetailPriceBasicCollection;
+use Shopware\ProductPrice\Struct\ProductPriceBasicCollection;
 use Shopware\Storefront\Bridge\Product\Struct\ProductBasicStruct;
 
 class StorefrontProductRepository
@@ -58,7 +58,24 @@ class StorefrontProductRepository
         foreach ($products as $base) {
             $product = ProductBasicStruct::createFrom($base);
 
-            $this->updatePrices($product, $context);
+            $taxRules = new TaxRuleCollection([
+                new PercentageTaxRule($product->getTax()->getRate(), 100),
+            ]);
+
+            $product->setPrices(
+                $this->calculatePrices(
+                    $taxRules,
+                    $this->filterCustomerPrices($product->getPrices(), $context),
+                    $context
+                )
+            );
+            $product->setListingPrices(
+                $this->calculatePrices(
+                    $taxRules,
+                    $this->filterCustomerPrices($product->getListingPrices(), $context),
+                    $context
+                )
+            );
 
             $product->setMedia($media->filterByProductUuid($product->getUuid()));
 
@@ -118,36 +135,23 @@ class StorefrontProductRepository
     }
 
     /**
-     * @param ProductBasicStruct                                                   $product
-     * @param ProductDetailPriceBasicCollection|ProductListingPriceBasicCollection $prices
-     * @param ShopContext                                                          $context
+     * @param TaxRuleCollection                                              $taxRules
+     * @param ProductPriceBasicCollection|ProductListingPriceBasicCollection $prices
+     * @param ShopContext                                                    $context
      *
-     * @return ProductDetailPriceBasicCollection|ProductListingPriceBasicCollection
+     * @return ProductListingPriceBasicCollection|ProductPriceBasicCollection
      */
-    private function calculatePrices(ProductBasicStruct $product, $prices, ShopContext $context)
+    private function calculatePrices(TaxRuleCollection $taxRules, $prices, ShopContext $context)
     {
-        $taxRules = new TaxRuleCollection([
-            new PercentageTaxRule($product->getTax()->getRate(), 100),
-        ]);
-
-        /** @var ProductDetailPriceBasicStruct $price */
         foreach ($prices as $price) {
-            $definition = new PriceDefinition($price->getPrice(), $taxRules);
-            $calculated = $this->priceCalculator->calculate($definition, $context);
+            $calculated = $this->priceCalculator->calculate(
+                new PriceDefinition($price->getPrice(), $taxRules),
+                $context
+            );
+
             $price->setPrice($calculated->getTotalPrice());
         }
 
         return $prices;
-    }
-
-    private function updatePrices(ProductBasicStruct $product, ShopContext $context): void
-    {
-        $prices = $this->filterCustomerPrices($product->getMainDetail()->getPrices(), $context);
-        $prices = $this->calculatePrices($product, $prices, $context);
-        $product->getMainDetail()->setPrices($prices);
-
-        $prices = $this->filterCustomerPrices($product->getListingPrices(), $context);
-        $prices = $this->calculatePrices($product, $prices, $context);
-        $product->setListingPrices($prices);
     }
 }

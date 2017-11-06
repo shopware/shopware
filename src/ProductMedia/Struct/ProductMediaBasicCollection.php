@@ -79,20 +79,6 @@ class ProductMediaBasicCollection extends Collection
         });
     }
 
-    public function getProductDetailUuids(): array
-    {
-        return $this->fmap(function (ProductMediaBasicStruct $productMedia) {
-            return $productMedia->getProductDetailUuid();
-        });
-    }
-
-    public function filterByProductDetailUuid(string $uuid): ProductMediaBasicCollection
-    {
-        return $this->filter(function (ProductMediaBasicStruct $productMedia) use ($uuid) {
-            return $productMedia->getProductDetailUuid() === $uuid;
-        });
-    }
-
     public function getMediaUuids(): array
     {
         return $this->fmap(function (ProductMediaBasicStruct $productMedia) {

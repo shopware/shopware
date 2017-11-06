@@ -12,9 +12,8 @@ export default Shopware.ComponentFactory.register('core-product-detail', {
             isWorking: false,
             product: {
                 attribute: {},
-                mainDetail: {},
                 categories: [],
-                details: []
+                prices: []
             },
             taxRates: [],
             manufacturers: [],

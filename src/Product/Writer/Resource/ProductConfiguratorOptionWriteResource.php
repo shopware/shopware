@@ -44,7 +44,12 @@ class ProductConfiguratorOptionWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductConfiguratorOptionWrittenEvent
     {
-        $event = new ProductConfiguratorOptionWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new ProductConfiguratorOptionWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

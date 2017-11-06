@@ -34,7 +34,12 @@ class ProductMediaMappingRuleWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductMediaMappingRuleWrittenEvent
     {
-        $event = new ProductMediaMappingRuleWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new ProductMediaMappingRuleWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

@@ -13,9 +13,9 @@ ALTER TABLE `product_vote_average_ro`
 
 
 ## fixes prices without existing customer group association
-UPDATE product_detail_price p SET p.pricegroup = 'EK' WHERE p.pricegroup NOT IN (SELECT group_key FROM customer_group);
-UPDATE product_detail_price p SET p.customer_group_uuid = (SELECT c.uuid FROM customer_group c WHERE c.group_key = p.pricegroup LIMIT 1);
-ALTER TABLE `product_detail_price`
+UPDATE product_price p SET p.pricegroup = 'EK' WHERE p.pricegroup NOT IN (SELECT group_key FROM customer_group);
+UPDATE product_price p SET p.customer_group_uuid = (SELECT c.uuid FROM customer_group c WHERE c.group_key = p.pricegroup LIMIT 1);
+ALTER TABLE `product_price`
     ADD FOREIGN KEY (`customer_group_uuid`) REFERENCES `customer_group` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 
@@ -123,8 +123,8 @@ ALTER TABLE product_media_attribute
     DROP FOREIGN KEY `product_media_attribute_ibfk_1`
 ;
 
-ALTER TABLE product_detail_price_attribute
-    DROP FOREIGN KEY `product_detail_price_attribute_ibfk_1`
+ALTER TABLE product_price_attribute
+    DROP FOREIGN KEY `product_price_attribute_ibfk_1`
 ;
 
 ALTER TABLE product_stream_assignment
@@ -446,21 +446,11 @@ ALTER TABLE price_group_discount
 ;
 
 ALTER TABLE product
--- `price_group_id` // todo: not migrated yet > still required?
--- `configurator_set_id` // todo: not migrated yet > still required?
-    DROP `manufacturer_id`,
-    DROP `tax_id`,
-    DROP `main_detail_id`,
-    DROP `filter_group_id`,
     DROP `name`,
     DROP `description`,
     DROP `description_long`,
     DROP `keywords`,
-    DROP `meta_title`,
-    DROP PRIMARY KEY,
-    DROP `id`,
-    DROP INDEX `ui_product.uuid`,
-    ADD PRIMARY KEY (`uuid`)
+    DROP `meta_title`
 ;
 
 ALTER TABLE product_accessory
@@ -515,16 +505,6 @@ ALTER TABLE product_category_seo
 --     DROP `id`
 -- ;
 
-UPDATE product_detail SET
-  uuid = order_number
-;
-
-ALTER TABLE product_detail
-    DROP `id`,
-    DROP `unit_id`,
-    DROP `product_id`,
-    DROP `order_number`
-;
 
 ALTER TABLE product_esd
     DROP `id`,
@@ -561,6 +541,10 @@ ALTER TABLE product_manufacturer_attribute
     DROP `manufacturer_id`
 ;
 
+DELETE FROM product_media WHERE parent_uuid IS NOT NULL;
+
+ALTER TABLE product_media DROP product_detail_uuid;
+
 ALTER TABLE product_media
     DROP `id`,
     DROP `product_id`,
@@ -589,16 +573,14 @@ ALTER TABLE product_notification
     DROP `id`
 ;
 
-ALTER TABLE product_detail_price
+ALTER TABLE product_price
     DROP `id`,
     DROP `product_id`,
-    DROP FOREIGN KEY `fk_product_detail_price.product_uuid`,
-    DROP FOREIGN KEY `fk_product_detail_price.product_detail_uuid`,
-    DROP `product_uuid`,
+    DROP `product_detail_uuid`,
     DROP `product_detail_id`
 ;
 
-ALTER TABLE product_detail_price_attribute
+ALTER TABLE product_price_attribute
     DROP `id`,
     DROP `price_id`
 ;
@@ -729,15 +711,20 @@ ALTER TABLE `payment_method`
     DROP `name`,
     DROP `additional_description`;
 
+ALTER TABLE `product`
+    DROP original_id,
+    DROP pack_unit,
+    DROP additional_text,
+    DROP original_detail_id
+;
+
+ALTER TABLE product_esd DROP product_detail_uuid;
+
+ALTER TABLE premium_product DROP product_order_number;
+
+
 ALTER TABLE `price_group`
     DROP `name`;
-
-ALTER TABLE `product`
-    DROP `shipping_time`,
-    DROP `price_group_id`,
-    DROP `available_from`,
-    DROP `available_to`,
-    DROP `mode`;
 
 ALTER TABLE `product_attachment`
     DROP `description`;
@@ -772,8 +759,7 @@ ALTER TABLE `product_media`
     DROP `parent_id`,
     DROP `media_id`;
 
-ALTER TABLE `product_detail_price`
-    DROP `pricegroup`;
+ALTER TABLE `product_price` DROP `pricegroup`;
 
 # ALTER TABLE `product_stream`
 #     DROP `name`,
@@ -865,4 +851,5 @@ DROP TABLE `s_order_notes`;
 DROP TABLE `s_order_number`;
 DROP TABLE `s_order_shippingaddress_attributes`;
 DROP TABLE `s_order_shippingaddress`;
+DROP TABLE product_detail;
 

@@ -41,7 +41,12 @@ class EmotionElementWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): EmotionElementWrittenEvent
     {
-        $event = new EmotionElementWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new EmotionElementWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

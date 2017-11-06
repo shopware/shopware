@@ -67,7 +67,12 @@ class ShoppingWorldComponentFieldWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ShoppingWorldComponentFieldWrittenEvent
     {
-        $event = new ShoppingWorldComponentFieldWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new ShoppingWorldComponentFieldWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

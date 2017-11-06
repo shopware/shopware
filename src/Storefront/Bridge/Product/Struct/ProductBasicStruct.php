@@ -3,10 +3,10 @@
 namespace Shopware\Storefront\Bridge\Product\Struct;
 
 use Shopware\Product\Struct\ProductBasicStruct as ApiBasicStruct;
-use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicStruct;
 use Shopware\ProductListingPrice\Struct\ProductListingPriceBasicStruct;
 use Shopware\ProductMedia\Struct\ProductMediaBasicCollection;
 use Shopware\ProductMedia\Struct\ProductMediaBasicStruct;
+use Shopware\ProductPrice\Struct\ProductPriceBasicStruct;
 
 class ProductBasicStruct extends ApiBasicStruct
 {
@@ -45,19 +45,18 @@ class ProductBasicStruct extends ApiBasicStruct
             return $this->listingPrices->first();
         }
         $price = ProductListingPriceBasicStruct::createFrom(
-            $this->mainDetail->getPrices()->last()
+            $this->getPrices()->last()
         );
         $price->setDisplayFromPrice(
-            $this->mainDetail->getPrices()->count() > 1
+            $this->getPrices()->count() > 1
         );
 
         return $price;
     }
 
-    public function getPrice(int $quantity): ?ProductDetailPriceBasicStruct
+    public function getPrice(int $quantity): ?ProductPriceBasicStruct
     {
-        /** @var ProductDetailPriceBasicStruct $price */
-        foreach ($this->mainDetail->getPrices() as $price) {
+        foreach ($this->getPrices() as $price) {
             if ($price->getQuantityStart() > $quantity) {
                 continue;
             }
@@ -77,6 +76,6 @@ class ProductBasicStruct extends ApiBasicStruct
             return true;
         }
 
-        return $this->getMainDetail()->getStock() >= $this->getMainDetail()->getMinPurchase();
+        return $this->getStock() >= $this->getMinPurchase();
     }
 }

@@ -44,7 +44,12 @@ class BillingTemplateWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): BillingTemplateWrittenEvent
     {
-        $event = new BillingTemplateWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new BillingTemplateWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

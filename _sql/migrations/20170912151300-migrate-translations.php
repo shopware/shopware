@@ -77,7 +77,9 @@ VALUES ('SWAG-PRODUCT-UUID-" . $translation['objectkey'] . "', 'SWAG-SHOP-UUID-"
         $this->addSql($sql);
 
         if (!empty($translationData['txtpackunit'])) {
-            $sql = "INSERT IGNORE INTO `product_detail_translation` (product_detail_uuid, language_uuid, pack_unit) VALUES ((SELECT product_detail.uuid as product_detail_uuid FROM product_detail LEFT JOIN product ON product.id = product_detail.product_id WHERE product_detail.is_main = 1 AND product.id = '" . $translation['objectkey'] . "'), 'SWAG-SHOP-UUID-" . $translation['objectlanguage'] ."', ". $translationData['txtpackunit'] .")";
+            $sql = "INSERT IGNORE INTO `product_translation` (product_uuid, language_uuid, pack_unit) VALUES (
+                    (SELECT product.uuid as product_uuid FROM product WHERE product.original_id = '" . $translation['objectkey'] . "'), 
+                    'SWAG-SHOP-UUID-" . $translation['objectlanguage'] . "', ". $translationData['txtpackunit'] .")";
 
             $this->addSql($sql);
         }
@@ -93,8 +95,8 @@ VALUES ('SWAG-PRODUCT-UUID-" . $translation['objectkey'] . "', 'SWAG-SHOP-UUID-"
         $translationData = array_merge($translationData, $objectData);
         $translationData = $this->fixQuotes($translationData);
 
-        $sql = "INSERT IGNORE INTO `product_detail_translation` (product_detail_uuid, language_uuid, additional_text, pack_unit) 
-VALUES ((SELECT product_detail.uuid as product_detail_uuid FROM product_detail WHERE product_detail.id = '" . $translation['objectkey'] . "'), 'SWAG-SHOP-UUID-" . $translation['objectlanguage'] ."', ". $translationData['txtzusatztxt'] .", ". $translationData['txtpackunit'] .")";
+        $sql = "INSERT IGNORE INTO `product_translation` (product_uuid, language_uuid, additional_text, pack_unit) 
+VALUES ((SELECT product.uuid as product_uuid FROM product WHERE product.original_detail_id = '" . $translation['objectkey'] . "'), 'SWAG-SHOP-UUID-" . $translation['objectlanguage'] ."', ". $translationData['txtzusatztxt'] .", ". $translationData['txtpackunit'] .")";
 
         $this->addSql($sql);
     }

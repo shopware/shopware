@@ -56,7 +56,12 @@ class CrontabWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): CrontabWrittenEvent
     {
-        $event = new CrontabWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new CrontabWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

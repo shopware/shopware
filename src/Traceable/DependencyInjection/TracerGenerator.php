@@ -28,7 +28,6 @@ public function #name#(#parameters#) #returnType# {
 
         $functions = [];
         foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
-
             if ($method->name === '__construct') {
                 continue;
             }

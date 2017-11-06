@@ -23,7 +23,6 @@ class ProductMediaBasicFactory extends Factory
        'productUuid' => 'product_uuid',
        'isCover' => 'is_cover',
        'position' => 'position',
-       'productDetailUuid' => 'product_detail_uuid',
        'mediaUuid' => 'media_uuid',
        'parentUuid' => 'parent_uuid',
        'createdAt' => 'created_at',
@@ -54,7 +53,6 @@ class ProductMediaBasicFactory extends Factory
         $productMedia->setProductUuid((string) $data[$selection->getField('productUuid')]);
         $productMedia->setIsCover((bool) $data[$selection->getField('isCover')]);
         $productMedia->setPosition((int) $data[$selection->getField('position')]);
-        $productMedia->setProductDetailUuid(isset($data[$selection->getField('productDetailUuid')]) ? (string) $data[$selection->getField('productDetailUuid')] : null);
         $productMedia->setMediaUuid((string) $data[$selection->getField('mediaUuid')]);
         $productMedia->setParentUuid(isset($data[$selection->getField('parentUuid')]) ? (string) $data[$selection->getField('parentUuid')] : null);
         $productMedia->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);

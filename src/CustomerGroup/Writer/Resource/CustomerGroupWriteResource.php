@@ -16,7 +16,7 @@ use Shopware\CustomerGroup\Event\CustomerGroupWrittenEvent;
 use Shopware\CustomerGroupDiscount\Writer\Resource\CustomerGroupDiscountWriteResource;
 use Shopware\PriceGroupDiscount\Writer\Resource\PriceGroupDiscountWriteResource;
 use Shopware\Product\Writer\Resource\ProductAvoidCustomerGroupWriteResource;
-use Shopware\ProductDetailPrice\Writer\Resource\ProductDetailPriceWriteResource;
+use Shopware\ProductPrice\Writer\Resource\ProductPriceWriteResource;
 use Shopware\ShippingMethod\Writer\Resource\ShippingMethodWriteResource;
 use Shopware\Shop\Writer\Resource\ShopWriteResource;
 use Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleWriteResource;
@@ -50,7 +50,7 @@ class CustomerGroupWriteResource extends WriteResource
         $this->fields['discounts'] = new SubresourceField(CustomerGroupDiscountWriteResource::class);
         $this->fields['priceGroupDiscounts'] = new SubresourceField(PriceGroupDiscountWriteResource::class);
         $this->fields['productAvoidCustomerGroups'] = new SubresourceField(ProductAvoidCustomerGroupWriteResource::class);
-        $this->fields['productDetailPrices'] = new SubresourceField(ProductDetailPriceWriteResource::class);
+        $this->fields['productPrices'] = new SubresourceField(ProductPriceWriteResource::class);
         $this->fields['shippingMethods'] = new SubresourceField(ShippingMethodWriteResource::class);
         $this->fields['shops'] = new SubresourceField(ShopWriteResource::class);
         $this->fields['taxAreaRules'] = new SubresourceField(TaxAreaRuleWriteResource::class);
@@ -66,7 +66,7 @@ class CustomerGroupWriteResource extends WriteResource
             CustomerGroupDiscountWriteResource::class,
             PriceGroupDiscountWriteResource::class,
             ProductAvoidCustomerGroupWriteResource::class,
-            ProductDetailPriceWriteResource::class,
+            ProductPriceWriteResource::class,
             ShippingMethodWriteResource::class,
             ShopWriteResource::class,
             TaxAreaRuleWriteResource::class,
@@ -75,7 +75,12 @@ class CustomerGroupWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): CustomerGroupWrittenEvent
     {
-        $event = new CustomerGroupWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new CustomerGroupWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

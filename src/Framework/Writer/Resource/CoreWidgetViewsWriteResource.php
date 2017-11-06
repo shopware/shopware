@@ -34,7 +34,12 @@ class CoreWidgetViewsWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): CoreWidgetViewsWrittenEvent
     {
-        $event = new CoreWidgetViewsWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new CoreWidgetViewsWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

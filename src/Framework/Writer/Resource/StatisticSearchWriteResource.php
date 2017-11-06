@@ -42,7 +42,12 @@ class StatisticSearchWriteResource extends WriteResource
 
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): StatisticSearchWrittenEvent
     {
-        $event = new StatisticSearchWrittenEvent($updates[self::class] ?? [], $context, $rawData, $errors);
+        $uuids = [];
+        if ($updates[self::class]) {
+            $uuids = array_column($updates[self::class], 'uuid');
+        }
+
+        $event = new StatisticSearchWrittenEvent($uuids, $context, $rawData, $errors);
 
         unset($updates[self::class]);
 

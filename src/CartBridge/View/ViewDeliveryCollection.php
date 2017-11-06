@@ -24,7 +24,7 @@
 
 namespace Shopware\CartBridge\View;
 
-use Shopware\Cart\Price\PriceCollection;
+use Shopware\Cart\Price\Struct\PriceCollection;
 use Shopware\Framework\Struct\Collection;
 
 class ViewDeliveryCollection extends Collection

@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Cart;
 
+use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Context\Struct\ShopContext;
 
 interface CartPersisterInterface

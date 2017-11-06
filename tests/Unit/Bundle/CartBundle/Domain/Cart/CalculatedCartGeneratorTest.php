@@ -25,23 +25,23 @@
 namespace Shopware\Tests\Unit\Bundle\CartBundle\Domain\Cart;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\CalculatedCartGenerator;
-use Shopware\Cart\Cart\CartContainer;
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Cart\ProcessorCart;
-use Shopware\Cart\Delivery\Delivery;
-use Shopware\Cart\Delivery\DeliveryCollection;
-use Shopware\Cart\Delivery\DeliveryDate;
-use Shopware\Cart\Delivery\DeliveryPositionCollection;
-use Shopware\Cart\Delivery\ShippingLocation;
+use Shopware\Cart\Delivery\Struct\Delivery;
+use Shopware\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Cart\Delivery\Struct\DeliveryPositionCollection;
+use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\Error\ErrorCollection;
 use Shopware\Cart\Error\VoucherNotFoundError;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\Price\AmountCalculator;
-use Shopware\Cart\Price\CartPrice;
-use Shopware\Cart\Price\Price;
-use Shopware\Cart\Tax\CalculatedTaxCollection;
-use Shopware\Cart\Tax\TaxRuleCollection;
+use Shopware\Cart\Price\Struct\CartPrice;
+use Shopware\Cart\Price\Struct\Price;
+use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\ShippingMethod\Struct\ShippingMethod;
 use Shopware\Tests\Unit\Bundle\CartBundle\Common\DummyProduct;
@@ -67,7 +67,7 @@ class CalculatedCartGeneratorTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertCalculatedCart(
-            new \Shopware\Cart\Cart\CalculatedCart(
+            new \Shopware\Cart\Cart\Struct\CalculatedCart(
                 $container,
                 new CalculatedLineItemCollection(),
                 $price,
@@ -95,12 +95,12 @@ class CalculatedCartGeneratorTest extends TestCase
 
         $generator = new CalculatedCartGenerator($amountCalculator);
 
-        $container = CartContainer::createNew('test');
+        $container = \Shopware\Cart\Cart\Struct\CartContainer::createNew('test');
 
         $context = $this->createMock(ShopContext::class);
 
         $this->assertCalculatedCart(
-            new CalculatedCart(
+            new \Shopware\Cart\Cart\Struct\CalculatedCart(
                 $container,
                 new CalculatedLineItemCollection([
                     new DummyProduct('SW1'),
@@ -140,7 +140,7 @@ class CalculatedCartGeneratorTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertCalculatedCart(
-            new \Shopware\Cart\Cart\CalculatedCart(
+            new \Shopware\Cart\Cart\Struct\CalculatedCart(
                 $container,
                 new CalculatedLineItemCollection(),
                 $price,
@@ -156,7 +156,7 @@ class CalculatedCartGeneratorTest extends TestCase
             new CalculatedLineItemCollection(),
             new DeliveryCollection()
         );
-        $container = CartContainer::createNew('test');
+        $container = \Shopware\Cart\Cart\Struct\CartContainer::createNew('test');
 
         $container->getErrors()->add(new VoucherNotFoundError('1'));
 
@@ -170,7 +170,7 @@ class CalculatedCartGeneratorTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertCalculatedCart(
-            new CalculatedCart(
+            new \Shopware\Cart\Cart\Struct\CalculatedCart(
                 $container,
                 new CalculatedLineItemCollection(),
                 $price,
@@ -180,7 +180,7 @@ class CalculatedCartGeneratorTest extends TestCase
         );
     }
 
-    private function assertCalculatedCart(CalculatedCart $expected, CalculatedCart $actual): void
+    private function assertCalculatedCart(CalculatedCart $expected, \Shopware\Cart\Cart\Struct\CalculatedCart $actual): void
     {
         $this->assertEquals($expected->getErrors(), $actual->getErrors());
         $this->assertEquals($expected->getName(), $actual->getName());

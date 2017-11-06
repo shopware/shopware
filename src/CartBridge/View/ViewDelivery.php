@@ -24,13 +24,13 @@
 
 namespace Shopware\CartBridge\View;
 
-use Shopware\Cart\Delivery\Delivery;
+use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Framework\Struct\Struct;
 
 class ViewDelivery extends Struct
 {
     /**
-     * @var Delivery
+     * @var \Shopware\Cart\Delivery\Struct\Delivery
      */
     protected $delivery;
 

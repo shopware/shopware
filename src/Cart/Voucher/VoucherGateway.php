@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace Shopware\Cart\Voucher;
 
 use Shopware\Cart\Exception\NotImplementedException;
+use Shopware\Cart\Voucher\Struct\VoucherDataCollection;
 use Shopware\Context\Struct\ShopContext;
 
 class VoucherGateway implements VoucherGatewayInterface

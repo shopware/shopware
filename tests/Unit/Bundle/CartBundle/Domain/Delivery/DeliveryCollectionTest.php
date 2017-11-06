@@ -25,14 +25,14 @@
 namespace Shopware\Tests\Unit\Bundle\CartBundle\Domain\Delivery;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Delivery\Delivery;
-use Shopware\Cart\Delivery\DeliveryCollection;
-use Shopware\Cart\Delivery\DeliveryDate;
-use Shopware\Cart\Delivery\DeliveryPositionCollection;
-use Shopware\Cart\Delivery\ShippingLocation;
-use Shopware\Cart\Price\Price;
-use Shopware\Cart\Tax\CalculatedTaxCollection;
-use Shopware\Cart\Tax\TaxRuleCollection;
+use Shopware\Cart\Delivery\Struct\Delivery;
+use Shopware\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Cart\Delivery\Struct\DeliveryPositionCollection;
+use Shopware\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Cart\Price\Struct\Price;
+use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\CountryArea\Struct\CountryArea;
 use Shopware\Country\Struct\Country;
 use Shopware\ShippingMethod\Struct\ShippingMethod;
@@ -48,11 +48,11 @@ class DeliveryCollectionTest extends TestCase
 
     public function testAddFunctionAddsANewDelivery(): void
     {
-        $collection = new DeliveryCollection();
+        $collection = new \Shopware\Cart\Delivery\Struct\DeliveryCollection();
         $collection->add(
-            new Delivery(
+            new \Shopware\Cart\Delivery\Struct\Delivery(
                 new DeliveryPositionCollection(),
-                new DeliveryDate(
+                new \Shopware\Cart\Delivery\Struct\DeliveryDate(
                     new \DateTime(),
                     new \DateTime()
                 ),
@@ -67,9 +67,9 @@ class DeliveryCollectionTest extends TestCase
     public function testCollectionCanBeFilledByConstructor(): void
     {
         $collection = new DeliveryCollection([
-            new Delivery(
-                new DeliveryPositionCollection(),
-                new DeliveryDate(
+            new \Shopware\Cart\Delivery\Struct\Delivery(
+                new \Shopware\Cart\Delivery\Struct\DeliveryPositionCollection(),
+                new \Shopware\Cart\Delivery\Struct\DeliveryDate(
                     new \DateTime(),
                     new \DateTime()
                 ),
@@ -77,9 +77,9 @@ class DeliveryCollectionTest extends TestCase
                 self::createShippingLocation(),
                 new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
             ),
-            new Delivery(
+            new \Shopware\Cart\Delivery\Struct\Delivery(
                 new DeliveryPositionCollection(),
-                new DeliveryDate(
+                new \Shopware\Cart\Delivery\Struct\DeliveryDate(
                     new \DateTime(),
                     new \DateTime()
                 ),
@@ -93,8 +93,8 @@ class DeliveryCollectionTest extends TestCase
 
     public function testCollectionCanBeCleared(): void
     {
-        $collection = new DeliveryCollection([
-            new Delivery(
+        $collection = new \Shopware\Cart\Delivery\Struct\DeliveryCollection([
+            new \Shopware\Cart\Delivery\Struct\Delivery(
                 new DeliveryPositionCollection(),
                 new DeliveryDate(
                     new \DateTime(),
@@ -104,9 +104,9 @@ class DeliveryCollectionTest extends TestCase
                 self::createShippingLocation(),
                 new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
             ),
-            new Delivery(
+            new \Shopware\Cart\Delivery\Struct\Delivery(
                 new DeliveryPositionCollection(),
-                new DeliveryDate(
+                new \Shopware\Cart\Delivery\Struct\DeliveryDate(
                     new \DateTime(),
                     new \DateTime()
                 ),
@@ -124,6 +124,6 @@ class DeliveryCollectionTest extends TestCase
         $country = new Country();
         $country->setArea(new CountryArea());
 
-        return \Shopware\Cart\Delivery\ShippingLocation::createFromCountry($country);
+        return \Shopware\Cart\Delivery\Struct\ShippingLocation::createFromCountry($country);
     }
 }

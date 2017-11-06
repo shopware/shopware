@@ -25,21 +25,22 @@
 namespace Shopware\Tests\Unit\Bundle\CartBundle\Domain\Price;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Price\Price;
-use Shopware\Cart\Tax\CalculatedTax;
-use Shopware\Cart\Tax\CalculatedTaxCollection;
-use Shopware\Cart\Tax\TaxRuleCollection;
+use Shopware\Cart\Price\Struct\Price;
+use Shopware\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 
 class PriceTest extends TestCase
 {
     /**
      * @dataProvider addCases
      *
-     * @param Price $a
-     * @param Price $b
-     * @param Price $expected
+     * @param \Shopware\Cart\Price\Struct\Price $a
+     * @param \Shopware\Cart\Price\Struct\Price $b
+     * @param \Shopware\Cart\Price\Struct\Price $expected
      */
-    public function testAdd(Price $a, Price $b, Price $expected): void
+    public function testAdd(
+        \Shopware\Cart\Price\Struct\Price $a, \Shopware\Cart\Price\Struct\Price $b, \Shopware\Cart\Price\Struct\Price $expected): void
     {
         $a->add($b);
         $this->assertEquals($expected->getQuantity(), $a->getQuantity());
@@ -54,11 +55,12 @@ class PriceTest extends TestCase
     /**
      * @dataProvider subCases
      *
-     * @param Price $a
-     * @param Price $b
-     * @param Price $expected
+     * @param \Shopware\Cart\Price\Struct\Price $a
+     * @param \Shopware\Cart\Price\Struct\Price $b
+     * @param \Shopware\Cart\Price\Struct\Price $expected
      */
-    public function testSub(Price $a, Price $b, Price $expected): void
+    public function testSub(
+        \Shopware\Cart\Price\Struct\Price $a, \Shopware\Cart\Price\Struct\Price $b, \Shopware\Cart\Price\Struct\Price $expected): void
     {
         $a->sub($b);
         $this->assertEquals($expected->getQuantity(), $a->getQuantity());
@@ -74,19 +76,19 @@ class PriceTest extends TestCase
     {
         return [
             [
-                new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                new Price(2, 2, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new \Shopware\Cart\Price\Struct\Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new \Shopware\Cart\Price\Struct\Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new \Shopware\Cart\Price\Struct\Price(2, 2, new CalculatedTaxCollection(), new TaxRuleCollection()),
             ],
             [
-                new Price(1, 1, new CalculatedTaxCollection([new CalculatedTax(0.55, 19, 1)]), new TaxRuleCollection()),
-                new Price(1, 1, new CalculatedTaxCollection([new CalculatedTax(0.55, 19, 1)]), new TaxRuleCollection()),
-                new Price(2, 2, new CalculatedTaxCollection([new CalculatedTax(1.10, 19, 2)]), new TaxRuleCollection()),
+                new \Shopware\Cart\Price\Struct\Price(1, 1, new CalculatedTaxCollection([new CalculatedTax(0.55, 19, 1)]), new TaxRuleCollection()),
+                new \Shopware\Cart\Price\Struct\Price(1, 1, new CalculatedTaxCollection([new CalculatedTax(0.55, 19, 1)]), new TaxRuleCollection()),
+                new \Shopware\Cart\Price\Struct\Price(2, 2, new CalculatedTaxCollection([new CalculatedTax(1.10, 19, 2)]), new TaxRuleCollection()),
             ],
             [
-                new Price(1, 1, new CalculatedTaxCollection([new CalculatedTax(0.55, 19, 1)]), new TaxRuleCollection()),
-                new Price(-0.5, -0.5, new CalculatedTaxCollection([new CalculatedTax(-0.5, 19, -0.5)]), new TaxRuleCollection()),
-                new Price(0.5, 0.5, new CalculatedTaxCollection([new CalculatedTax(0.05, 19, 0.5)]), new TaxRuleCollection()),
+                new \Shopware\Cart\Price\Struct\Price(1, 1, new CalculatedTaxCollection([new CalculatedTax(0.55, 19, 1)]), new TaxRuleCollection()),
+                new \Shopware\Cart\Price\Struct\Price(-0.5, -0.5, new CalculatedTaxCollection([new CalculatedTax(-0.5, 19, -0.5)]), new TaxRuleCollection()),
+                new \Shopware\Cart\Price\Struct\Price(0.5, 0.5, new CalculatedTaxCollection([new CalculatedTax(0.05, 19, 0.5)]), new TaxRuleCollection()),
             ],
         ];
     }
@@ -95,9 +97,9 @@ class PriceTest extends TestCase
     {
         return [
             [
-                new Price(2, 2, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new \Shopware\Cart\Price\Struct\Price(2, 2, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new \Shopware\Cart\Price\Struct\Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new \Shopware\Cart\Price\Struct\Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
             ],
         ];
     }

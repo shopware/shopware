@@ -25,17 +25,17 @@
 namespace Shopware\Tests\Unit\Bundle\CartBundle\Domain\Price;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Price\PriceDefinition;
+use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Price\PriceDefinitionCollection;
-use Shopware\Cart\Tax\TaxRuleCollection;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 
 class PriceDefinitionCollectionTest extends TestCase
 {
     public function testCreateWithKeys(): void
     {
         $collection = new PriceDefinitionCollection([
-            'a' => new PriceDefinition(1, new TaxRuleCollection()),
-            'b' => new PriceDefinition(2, new TaxRuleCollection()),
+            'a' => new \Shopware\Cart\Price\Struct\PriceDefinition(1, new TaxRuleCollection()),
+            'b' => new \Shopware\Cart\Price\Struct\PriceDefinition(2, new TaxRuleCollection()),
         ]);
 
         $this->assertTrue($collection->has('a'));
@@ -59,16 +59,16 @@ class PriceDefinitionCollectionTest extends TestCase
     public function testGetByKey(): void
     {
         $collection = new PriceDefinitionCollection([
-            'a' => new PriceDefinition(1, new TaxRuleCollection()),
-            'b' => new PriceDefinition(2, new TaxRuleCollection()),
+            'a' => new \Shopware\Cart\Price\Struct\PriceDefinition(1, new TaxRuleCollection()),
+            'b' => new \Shopware\Cart\Price\Struct\PriceDefinition(2, new TaxRuleCollection()),
         ]);
 
         $this->assertEquals(
-            new PriceDefinition(1, new TaxRuleCollection()),
+            new \Shopware\Cart\Price\Struct\PriceDefinition(1, new TaxRuleCollection()),
             $collection->get('a')
         );
         $this->assertEquals(
-            new PriceDefinition(2, new TaxRuleCollection()),
+            new \Shopware\Cart\Price\Struct\PriceDefinition(2, new TaxRuleCollection()),
             $collection->get('b')
         );
     }
@@ -76,7 +76,7 @@ class PriceDefinitionCollectionTest extends TestCase
     public function testRemoveWithKey(): void
     {
         $collection = new PriceDefinitionCollection([
-            'a' => new PriceDefinition(1, new TaxRuleCollection()),
+            'a' => new \Shopware\Cart\Price\Struct\PriceDefinition(1, new TaxRuleCollection()),
             'b' => new PriceDefinition(2, new TaxRuleCollection()),
         ]);
 

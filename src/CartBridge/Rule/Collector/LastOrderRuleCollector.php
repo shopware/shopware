@@ -26,14 +26,14 @@ declare(strict_types=1);
 namespace Shopware\CartBridge\Rule\Collector;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Cart\Cart\CartContainer;
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Cart\CollectorInterface;
 use Shopware\Cart\Rule\RuleCollection;
 use Shopware\Cart\Rule\Validatable;
 use Shopware\CartBridge\Rule\Data\LastOrderRuleData;
 use Shopware\CartBridge\Rule\LastOrderRule;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 
 class LastOrderRuleCollector implements CollectorInterface
 {
@@ -51,15 +51,15 @@ class LastOrderRuleCollector implements CollectorInterface
     }
 
     public function prepare(
-        IndexedCollection $fetchDefinition,
+        StructCollection $fetchDefinition,
         CartContainer $cartContainer,
         ShopContext $context
     ): void {
     }
 
     public function fetch(
-        IndexedCollection $dataCollection,
-        IndexedCollection $fetchCollection,
+        StructCollection $dataCollection,
+        StructCollection $fetchCollection,
         ShopContext $context
     ): void {
         $rules = $dataCollection->filterInstance(Validatable::class);

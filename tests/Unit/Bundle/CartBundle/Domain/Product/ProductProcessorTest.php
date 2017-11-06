@@ -25,33 +25,33 @@
 namespace Shopware\Tests\Unit\Bundle\CartBundle\Domain\Product;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Cart\CartContainer;
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Cart\ProcessorCart;
-use Shopware\Cart\Delivery\DeliveryCollection;
-use Shopware\Cart\Delivery\DeliveryDate;
+use Shopware\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Cart\Delivery\DeliveryInformation;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\LineItem;
 use Shopware\Cart\LineItem\LineItemCollection;
-use Shopware\Cart\Price\Price;
+use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Price\PriceCalculator;
-use Shopware\Cart\Price\PriceDefinition;
+use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Price\PriceDefinitionCollection;
 use Shopware\Cart\Price\PriceRounding;
-use Shopware\Cart\Product\CalculatedProduct;
+use Shopware\Cart\Product\Struct\CalculatedProduct;
 use Shopware\Cart\Product\ProductCalculator;
 use Shopware\Cart\Product\ProductData;
 use Shopware\Cart\Product\ProductProcessor;
 use Shopware\Cart\Rule\Container\AndRule;
-use Shopware\Cart\Tax\CalculatedTax;
-use Shopware\Cart\Tax\CalculatedTaxCollection;
+use Shopware\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\TaxCalculator;
 use Shopware\Cart\Tax\TaxDetector;
-use Shopware\Cart\Tax\TaxRule;
+use Shopware\Cart\Tax\Struct\TaxRule;
 use Shopware\Cart\Tax\TaxRuleCalculator;
-use Shopware\Cart\Tax\TaxRuleCollection;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\CartBridge\Product\ProductPriceGateway;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Tests\Unit\Bundle\CartBundle\Common\Generator;
@@ -78,7 +78,7 @@ class ProductProcessorTest extends TestCase
         $processor->process(
             CartContainer::createExisting('test', 'test', []),
             $processorCart,
-            new IndexedCollection(),
+            new StructCollection(),
             Generator::createContext()
         );
 
@@ -108,7 +108,7 @@ class ProductProcessorTest extends TestCase
                 new LineItem('SW1', ProductProcessor::TYPE_PRODUCT, 1),
             ]),
             $cart,
-            new IndexedCollection([
+            new StructCollection([
                 'SW1' => new ProductData(
                     'SW1',
                     new PriceDefinitionCollection([
@@ -147,7 +147,7 @@ class ProductProcessorTest extends TestCase
             new DeliveryCollection()
         );
 
-        $data = new IndexedCollection([
+        $data = new StructCollection([
             'SW1' => new ProductData('SW1', new PriceDefinitionCollection([new PriceDefinition(0, new TaxRuleCollection())]), new DefaultDeliveryInformation(), new AndRule()),
             'SW2' => new ProductData('SW2', new PriceDefinitionCollection([new PriceDefinition(0, new TaxRuleCollection())]), new DefaultDeliveryInformation(), new AndRule()),
             'SW3' => new ProductData('SW3', new PriceDefinitionCollection([new PriceDefinition(0, new TaxRuleCollection())]), new DefaultDeliveryInformation(), new AndRule()),
@@ -210,7 +210,7 @@ class ProductProcessorTest extends TestCase
 
         $context = $this->createMock(ShopContext::class);
 
-        $data = new IndexedCollection([]);
+        $data = new StructCollection([]);
 
         $productCollection = $productCalculator->calculate($lineItemCollection, $context, $data);
 
@@ -247,7 +247,7 @@ class ProductProcessorTest extends TestCase
             ),
         ]);
 
-        $data = new IndexedCollection([
+        $data = new StructCollection([
             'sw1' => new ProductData(
                 'sw1',
                 new PriceDefinitionCollection(),

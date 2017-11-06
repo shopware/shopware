@@ -26,14 +26,14 @@ namespace Shopware\CartBridge\Voucher;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Shopware\Cart\Price\PriceDefinition;
+use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Rule\Container\AndRule;
 use Shopware\Cart\Rule\Rule;
-use Shopware\Cart\Tax\TaxRuleCollection;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Cart\Voucher\AbsoluteVoucherData;
 use Shopware\Cart\Voucher\PercentageVoucherData;
-use Shopware\Cart\Voucher\VoucherData;
-use Shopware\Cart\Voucher\VoucherDataCollection;
+use Shopware\Cart\Voucher\Struct\VoucherData;
+use Shopware\Cart\Voucher\Struct\VoucherDataCollection;
 use Shopware\Cart\Voucher\VoucherGatewayInterface;
 use Shopware\CartBridge\Rule\CustomerGroupRule;
 use Shopware\CartBridge\Rule\DateRangeRule;
@@ -75,7 +75,7 @@ class VoucherGateway implements VoucherGatewayInterface
         $price = (float) $row['value'];
 
         if ($row['percental']) {
-            return new VoucherData(
+            return new \Shopware\Cart\Voucher\Struct\VoucherData(
                 $row['code'],
                 $this->buildRule($row),
                 (float) $price,

@@ -2,14 +2,14 @@
 
 namespace Shopware\Traceable\Cart;
 
-use Shopware\Cart\Cart\CalculatedCart;
-use Shopware\Cart\Cart\CartContainer;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Cart\CartProcessorInterface;
-use Shopware\Cart\Delivery\Delivery;
-use Shopware\Cart\Delivery\DeliveryPosition;
+use Shopware\Cart\Delivery\Struct\Delivery;
+use Shopware\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 
 class ProcessorTracer implements CartProcessorInterface
 {
@@ -32,9 +32,9 @@ class ProcessorTracer implements CartProcessorInterface
     }
 
     public function process(
-        CartContainer $cartContainer,
-        CalculatedCart $calculatedCart,
-        IndexedCollection $dataCollection,
+        \Shopware\Cart\Cart\Struct\CartContainer $cartContainer,
+        \Shopware\Cart\Cart\Struct\CalculatedCart $calculatedCart,
+        StructCollection $dataCollection,
         ShopContext $context
     ): void {
         $before = clone $calculatedCart;

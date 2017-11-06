@@ -25,10 +25,11 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Product;
 
-use Shopware\Cart\Cart\CartContainer;
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Cart\CollectorInterface;
+use Shopware\Cart\Product\Struct\ProductFetchDefinition;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 
 class ProductCollector implements CollectorInterface
 {
@@ -42,7 +43,7 @@ class ProductCollector implements CollectorInterface
         $this->productGateway = $productGateway;
     }
 
-    public function prepare(IndexedCollection $fetchDefinition, CartContainer $cartContainer, ShopContext $context): void
+    public function prepare(StructCollection $fetchDefinition, CartContainer $cartContainer, ShopContext $context): void
     {
         $lineItems = $cartContainer->getLineItems()->filterType(ProductProcessor::TYPE_PRODUCT);
         if ($lineItems->count() === 0) {
@@ -52,7 +53,7 @@ class ProductCollector implements CollectorInterface
         $fetchDefinition->add(new ProductFetchDefinition($lineItems->getIdentifiers()));
     }
 
-    public function fetch(IndexedCollection $dataCollection, IndexedCollection $fetchCollection, ShopContext $context): void
+    public function fetch(StructCollection $dataCollection, StructCollection $fetchCollection, ShopContext $context): void
     {
         $definitions = $fetchCollection->filterInstance(ProductFetchDefinition::class);
         if ($definitions->count() === 0) {

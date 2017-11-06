@@ -2,8 +2,8 @@
 
 namespace Shopware\Traceable\DataCollector;
 
-use Shopware\Cart\Cart\CalculatedCart;
-use Shopware\Cart\Cart\CartContainer;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Traceable\Cart\TracedCartActions;
 use Symfony\Component\HttpFoundation\Request;

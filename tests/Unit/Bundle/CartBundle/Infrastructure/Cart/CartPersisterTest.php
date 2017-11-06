@@ -26,7 +26,7 @@ namespace Shopware\Tests\Unit\Bundle\CartBundle\Infrastructure\Cart;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Cart\CartContainer;
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Error\ErrorCollection;
 use Shopware\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Cart\LineItem\LineItemCollection;

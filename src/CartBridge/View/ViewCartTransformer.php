@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\View;
 
-use Shopware\Cart\Cart\CalculatedCart;
-use Shopware\Cart\Delivery\Delivery;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Context\Struct\ShopContext;
 
 class ViewCartTransformer
@@ -53,7 +53,7 @@ class ViewCartTransformer
             $calculatedCart->getCalculatedLineItems()->getIdentifiers()
         );
 
-        /** @var Delivery $delivery */
+        /** @var \Shopware\Cart\Delivery\Struct\Delivery $delivery */
         foreach ($calculatedCart->getDeliveries() as $delivery) {
             $positions = new ViewDeliveryPositionCollection();
 

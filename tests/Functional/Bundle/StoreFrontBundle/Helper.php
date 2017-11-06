@@ -25,7 +25,7 @@
 namespace Shopware\Tests\Functional\Bundle\StoreFrontBundle;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Cart\Delivery\ShippingLocation;
+use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Bundle\ESIndexingBundle\Console\ProgressHelperInterface;
 use Shopware\Bundle\StoreFrontBundle;
 use Shopware\Bundle\StoreFrontBundle\Configurator\ConfiguratorGateway;

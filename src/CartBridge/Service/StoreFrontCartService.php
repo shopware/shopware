@@ -26,9 +26,9 @@ declare(strict_types=1);
 namespace Shopware\CartBridge\Service;
 
 use Psr\Log\LoggerInterface;
-use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\CartCalculator;
-use Shopware\Cart\Cart\CartContainer;
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Cart\CartPersisterInterface;
 use Shopware\Cart\Exception\LineItemNotFoundException;
 use Shopware\Cart\LineItem\LineItemCollection;
@@ -82,7 +82,7 @@ class StoreFrontCartService
     private $orderPersister;
 
     /**
-     * @var CartContainer
+     * @var \Shopware\Cart\Cart\Struct\CartContainer
      */
     private $cartContainer;
 

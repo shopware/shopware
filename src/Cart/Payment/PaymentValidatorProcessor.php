@@ -25,18 +25,18 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Payment;
 
-use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\ValidatorInterface;
 use Shopware\Cart\Error\PaymentBlockedError;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 
 class PaymentValidatorProcessor implements ValidatorInterface
 {
     public function validate(
         CalculatedCart $cart,
         ShopContext $context,
-        IndexedCollection $dataCollection
+        StructCollection $dataCollection
     ): bool {
         if (!$context->getCustomer()) {
             return true;

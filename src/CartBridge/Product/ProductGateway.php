@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace Shopware\CartBridge\Product;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Cart\Delivery\DeliveryDate;
+use Shopware\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Cart\Delivery\DeliveryInformation;
 use Shopware\Cart\Product\ProductDataCollection;
 use Shopware\Cart\Product\ProductGatewayInterface;

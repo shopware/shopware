@@ -24,12 +24,12 @@
 
 namespace Shopware\CartBridge\Dynamic;
 
-use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Cart\LineItem\Discount;
 use Shopware\Cart\Price\PercentagePriceCalculator;
 use Shopware\Cart\Price\PriceCalculator;
-use Shopware\Cart\Price\PriceDefinition;
+use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Context\Struct\ShopContext;
 

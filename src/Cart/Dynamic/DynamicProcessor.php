@@ -24,12 +24,12 @@
 
 namespace Shopware\Cart\Dynamic;
 
-use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\CalculatedCartGenerator;
-use Shopware\Cart\Cart\CartContainer;
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 
 class DynamicProcessor implements CartProcessorInterface
 {
@@ -50,7 +50,7 @@ class DynamicProcessor implements CartProcessorInterface
     public function process(
         CartContainer $cartContainer,
         CalculatedCart $calculatedCart,
-        IndexedCollection $dataCollection,
+        StructCollection $dataCollection,
         ShopContext $context
     ): void {
         $lineItems = $this->gateway->get($calculatedCart, $context);

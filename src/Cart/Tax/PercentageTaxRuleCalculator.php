@@ -25,6 +25,11 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Tax;
 
+use Shopware\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Cart\Tax\Struct\PercentageTaxRule;
+use Shopware\Cart\Tax\Struct\TaxRule;
+use Shopware\Cart\Tax\Struct\TaxRuleInterface;
+
 class PercentageTaxRuleCalculator implements TaxRuleCalculatorInterface
 {
     /**

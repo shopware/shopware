@@ -25,9 +25,9 @@
 namespace Shopware\CartBridge\Order;
 
 use Ramsey\Uuid\Uuid;
-use Shopware\Cart\Cart\CalculatedCart;
-use Shopware\Cart\Delivery\Delivery;
-use Shopware\Cart\Delivery\DeliveryPosition;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Cart\Delivery\Struct\Delivery;
+use Shopware\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Cart\Order\OrderPersisterInterface;
 use Shopware\Cart\Tax\TaxDetector;

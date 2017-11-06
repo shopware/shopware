@@ -24,6 +24,7 @@
 
 namespace Shopware\Cart\Voucher;
 
+use Shopware\Cart\Voucher\Struct\VoucherDataCollection;
 use Shopware\Context\Struct\ShopContext;
 
 interface VoucherGatewayInterface

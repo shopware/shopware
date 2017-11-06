@@ -26,19 +26,19 @@ namespace Shopware\Tests\Unit\Bundle\CartBundle\Domain\Price;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Price\PercentagePriceCalculator;
-use Shopware\Cart\Price\Price;
+use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Price\PriceCalculator;
-use Shopware\Cart\Price\PriceCollection;
+use Shopware\Cart\Price\Struct\PriceCollection;
 use Shopware\Cart\Price\PriceRounding;
-use Shopware\Cart\Tax\CalculatedTax;
-use Shopware\Cart\Tax\CalculatedTaxCollection;
-use Shopware\Cart\Tax\PercentageTaxRule;
+use Shopware\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Cart\Tax\PercentageTaxRuleCalculator;
 use Shopware\Cart\Tax\TaxCalculator;
-use Shopware\Cart\Tax\TaxRule;
+use Shopware\Cart\Tax\Struct\TaxRule;
 use Shopware\Cart\Tax\TaxRuleCalculator;
-use Shopware\Cart\Tax\TaxRuleCollection;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Tests\Unit\Bundle\CartBundle\Common\Generator;
 
 class PercentagePriceCalculatorTest extends TestCase
@@ -52,8 +52,8 @@ class PercentagePriceCalculatorTest extends TestCase
      */
     public function testCalculatePercentagePriceOfGrossPrices(
         $percentage,
-        Price $expected,
-        PriceCollection $prices
+        \Shopware\Cart\Price\Struct\Price $expected,
+        \Shopware\Cart\Price\Struct\PriceCollection $prices
     ): void {
         $rounding = new PriceRounding(2);
 

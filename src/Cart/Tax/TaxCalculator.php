@@ -27,6 +27,9 @@ namespace Shopware\Cart\Tax;
 
 use Shopware\Cart\Exception\TaxRuleNotSupportedException;
 use Shopware\Cart\Price\PriceRounding;
+use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Cart\Tax\Struct\TaxRuleInterface;
 
 class TaxCalculator
 {

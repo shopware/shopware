@@ -25,11 +25,11 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Delivery;
 
-use Shopware\Cart\Cart\CalculatedCart;
-use Shopware\Cart\Cart\CartContainer;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 
 class DeliveryCalculatorProcessor implements CartProcessorInterface
 {
@@ -49,7 +49,7 @@ class DeliveryCalculatorProcessor implements CartProcessorInterface
     public function process(
         CartContainer $cartContainer,
         CalculatedCart $calculatedCart,
-        IndexedCollection $dataCollection,
+        StructCollection $dataCollection,
         ShopContext $context
     ): void {
         foreach ($calculatedCart->getDeliveries() as $delivery) {

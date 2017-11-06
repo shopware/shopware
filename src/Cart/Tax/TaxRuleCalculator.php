@@ -26,6 +26,9 @@ declare(strict_types=1);
 namespace Shopware\Cart\Tax;
 
 use Shopware\Cart\Price\PriceRounding;
+use Shopware\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Cart\Tax\Struct\TaxRule;
+use Shopware\Cart\Tax\Struct\TaxRuleInterface;
 
 class TaxRuleCalculator implements TaxRuleCalculatorInterface
 {

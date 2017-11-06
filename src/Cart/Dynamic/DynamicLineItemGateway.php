@@ -24,7 +24,7 @@
 
 namespace Shopware\Cart\Dynamic;
 
-use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Exception\NotImplementedException;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Context\Struct\ShopContext;

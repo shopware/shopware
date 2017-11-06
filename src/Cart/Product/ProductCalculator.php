@@ -25,16 +25,17 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Product;
 
-use Shopware\Cart\Delivery\DeliveryDate;
+use Shopware\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\LineItemCollection;
 use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Price\PriceCalculator;
-use Shopware\Cart\Price\PriceDefinition;
-use Shopware\Cart\Tax\TaxRule;
-use Shopware\Cart\Tax\TaxRuleCollection;
+use Shopware\Cart\Price\Struct\PriceDefinition;
+use Shopware\Cart\Product\Struct\CalculatedProduct;
+use Shopware\Cart\Tax\Struct\TaxRule;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
 use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicStruct;
 
@@ -53,7 +54,7 @@ class ProductCalculator
     public function calculate(
         LineItemCollection $collection,
         ShopContext $context,
-        IndexedCollection $dataCollection
+        StructCollection $dataCollection
     ): CalculatedLineItemCollection {
 
         $products = new CalculatedLineItemCollection();

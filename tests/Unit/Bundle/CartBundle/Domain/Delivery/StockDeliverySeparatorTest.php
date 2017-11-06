@@ -25,29 +25,29 @@
 namespace Shopware\Tests\Unit\Bundle\CartBundle\Domain\Delivery;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Delivery\Delivery;
-use Shopware\Cart\Delivery\DeliveryCollection;
-use Shopware\Cart\Delivery\DeliveryDate;
+use Shopware\Cart\Delivery\Struct\Delivery;
+use Shopware\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Cart\Delivery\DeliveryInformation;
-use Shopware\Cart\Delivery\DeliveryPosition;
-use Shopware\Cart\Delivery\DeliveryPositionCollection;
-use Shopware\Cart\Delivery\ShippingLocation;
+use Shopware\Cart\Delivery\Struct\DeliveryPosition;
+use Shopware\Cart\Delivery\Struct\DeliveryPositionCollection;
+use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\Delivery\StockDeliverySeparator;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\LineItem;
-use Shopware\Cart\Price\Price;
+use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\PriceRounding;
-use Shopware\Cart\Product\CalculatedProduct;
+use Shopware\Cart\Product\Struct\CalculatedProduct;
 use Shopware\Cart\Product\ProductProcessor;
 use Shopware\Cart\Rule\Container\AndRule;
-use Shopware\Cart\Tax\CalculatedTax;
-use Shopware\Cart\Tax\CalculatedTaxCollection;
+use Shopware\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\TaxCalculator;
-use Shopware\Cart\Tax\TaxRule;
+use Shopware\Cart\Tax\Struct\TaxRule;
 use Shopware\Cart\Tax\TaxRuleCalculator;
-use Shopware\Cart\Tax\TaxRuleCollection;
-use Shopware\Cart\Voucher\CalculatedVoucher;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Cart\Voucher\Struct\CalculatedVoucher;
 use Shopware\Address\Struct\Address;
 use Shopware\CountryArea\Struct\CountryArea;
 use Shopware\Country\Struct\Country;
@@ -108,9 +108,9 @@ class StockDeliverySeparatorTest extends TestCase
         );
 
         static::assertEquals(
-            new DeliveryCollection([
+            new \Shopware\Cart\Delivery\Struct\DeliveryCollection([
                 new Delivery(
-                    new DeliveryPositionCollection([
+                    new \Shopware\Cart\Delivery\Struct\DeliveryPositionCollection([
                         DeliveryPosition::createByLineItemForInStockDate($item),
                     ]),
                     new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-02')),
@@ -120,7 +120,7 @@ class StockDeliverySeparatorTest extends TestCase
                 ),
             ]),
             $this->separator->addItemsToDeliveries(
-                new DeliveryCollection(),
+                new \Shopware\Cart\Delivery\Struct\DeliveryCollection(),
                 new CalculatedLineItemCollection([$item]),
                 Generator::createContext(null, null, null, null, null, null, $location->getArea(), $location->getCountry(), $location->getState())
             )
@@ -152,17 +152,17 @@ class StockDeliverySeparatorTest extends TestCase
         );
 
         $result = $this->separator->addItemsToDeliveries(
-            new DeliveryCollection(),
+            new \Shopware\Cart\Delivery\Struct\DeliveryCollection(),
             new CalculatedLineItemCollection([$itemA, $itemB]),
             Generator::createContext(null, null, null, null, null, null, $location->getArea(), $location->getCountry(), $location->getState())
         );
 
         static::assertEquals(
-            new DeliveryCollection([
-                new Delivery(
-                    new DeliveryPositionCollection([
+            new \Shopware\Cart\Delivery\Struct\DeliveryCollection([
+                new \Shopware\Cart\Delivery\Struct\Delivery(
+                    new \Shopware\Cart\Delivery\Struct\DeliveryPositionCollection([
                         DeliveryPosition::createByLineItemForInStockDate($itemA),
-                        DeliveryPosition::createByLineItemForInStockDate($itemB),
+                        \Shopware\Cart\Delivery\Struct\DeliveryPosition::createByLineItemForInStockDate($itemB),
                     ]),
                     $deliveryInformation->getInStockDeliveryDate(),
                     new ShippingMethod(1, '', ShippingMethod::CALCULATION_BY_WEIGHT, true, 1),
@@ -183,7 +183,7 @@ class StockDeliverySeparatorTest extends TestCase
             new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
             new DeliveryInformation(
                 0, 0, 0, 0, 0,
-                new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-03')),
+                new \Shopware\Cart\Delivery\Struct\DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-03')),
                 new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-05'))
             ),
             new AndRule()
@@ -194,17 +194,17 @@ class StockDeliverySeparatorTest extends TestCase
             new DeliveryInformation(
                 0, 0, 0, 0, 0,
                 new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-02')),
-                new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-05'))
+                new \Shopware\Cart\Delivery\Struct\DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-05'))
             ),
             new AndRule()
         );
 
         static::assertEquals(
-            new DeliveryCollection([
-                new Delivery(
-                    new DeliveryPositionCollection([
-                        DeliveryPosition::createByLineItemForOutOfStockDate($itemA),
-                        DeliveryPosition::createByLineItemForOutOfStockDate($itemB),
+            new \Shopware\Cart\Delivery\Struct\DeliveryCollection([
+                new \Shopware\Cart\Delivery\Struct\Delivery(
+                    new \Shopware\Cart\Delivery\Struct\DeliveryPositionCollection([
+                        \Shopware\Cart\Delivery\Struct\DeliveryPosition::createByLineItemForOutOfStockDate($itemA),
+                        \Shopware\Cart\Delivery\Struct\DeliveryPosition::createByLineItemForOutOfStockDate($itemB),
                     ]),
                     new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-05')),
                     new ShippingMethod(1, '', ShippingMethod::CALCULATION_BY_WEIGHT, true, 1),
@@ -213,7 +213,7 @@ class StockDeliverySeparatorTest extends TestCase
                 ),
             ]),
             $this->separator->addItemsToDeliveries(
-                new DeliveryCollection(),
+                new \Shopware\Cart\Delivery\Struct\DeliveryCollection(),
                 new CalculatedLineItemCollection([$itemA, $itemB]),
                 Generator::createContext(null, null, null, null, null, null, $location->getArea(), $location->getCountry(), $location->getState())
             )
@@ -243,7 +243,7 @@ class StockDeliverySeparatorTest extends TestCase
         static::assertEquals(
             new DeliveryCollection([
                 new Delivery(
-                    new DeliveryPositionCollection([
+                    new \Shopware\Cart\Delivery\Struct\DeliveryPositionCollection([
                         DeliveryPosition::createByLineItemForInStockDate($product),
                     ]),
                     $product->getInStockDeliveryDate(),
@@ -275,9 +275,9 @@ class StockDeliverySeparatorTest extends TestCase
         );
 
         static::assertEquals(
-            new DeliveryCollection([
-                new Delivery(
-                    new DeliveryPositionCollection([
+            new \Shopware\Cart\Delivery\Struct\DeliveryCollection([
+                new \Shopware\Cart\Delivery\Struct\Delivery(
+                    new \Shopware\Cart\Delivery\Struct\DeliveryPositionCollection([
                         new DeliveryPosition('A', $product, 5,
                             new Price(1.19, 5.95, new CalculatedTaxCollection([new CalculatedTax(0.95, 19, 5.95)]), new TaxRuleCollection([new TaxRule(19)]), 5),
                             $product->getInStockDeliveryDate()
@@ -288,7 +288,7 @@ class StockDeliverySeparatorTest extends TestCase
                     $location,
                     new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
-                new Delivery(
+                new \Shopware\Cart\Delivery\Struct\Delivery(
                     new DeliveryPositionCollection([
                         new DeliveryPosition('A', $product, 7,
                             new Price(1.19, 8.33, new CalculatedTaxCollection([new CalculatedTax(1.33, 19, 8.33)]), new TaxRuleCollection([new TaxRule(19)]), 7),
@@ -320,6 +320,6 @@ class StockDeliverySeparatorTest extends TestCase
         $address->setCountry($country);
         $address->getState()->setCountry($country);
 
-        return ShippingLocation::createFromAddress($address);
+        return \Shopware\Cart\Delivery\Struct\ShippingLocation::createFromAddress($address);
     }
 }

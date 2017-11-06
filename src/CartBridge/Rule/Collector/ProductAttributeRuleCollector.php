@@ -25,15 +25,15 @@
 namespace Shopware\CartBridge\Rule\Collector;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Cart\Cart\CartContainer;
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Cart\CollectorInterface;
-use Shopware\Cart\Product\ProductFetchDefinition;
+use Shopware\Cart\Product\Struct\ProductFetchDefinition;
 use Shopware\Cart\Rule\RuleCollection;
 use Shopware\Cart\Rule\Validatable;
 use Shopware\CartBridge\Rule\Data\ProductAttributeRuleData;
 use Shopware\CartBridge\Rule\ProductAttributeRule;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 
 class ProductAttributeRuleCollector implements CollectorInterface
 {
@@ -48,15 +48,15 @@ class ProductAttributeRuleCollector implements CollectorInterface
     }
 
     public function prepare(
-        IndexedCollection $fetchDefinition,
+        StructCollection $fetchDefinition,
         CartContainer $cartContainer,
         ShopContext $context
     ): void {
     }
 
     public function fetch(
-        IndexedCollection $dataCollection,
-        IndexedCollection $fetchCollection,
+        StructCollection $dataCollection,
+        StructCollection $fetchCollection,
         ShopContext $context
     ): void {
         $rules = $dataCollection->filterInstance(Validatable::class);
@@ -95,7 +95,7 @@ class ProductAttributeRuleCollector implements CollectorInterface
         );
     }
 
-    private function getNumbers(IndexedCollection $fetchDefinition): array
+    private function getNumbers(StructCollection $fetchDefinition): array
     {
         $definitions = $fetchDefinition->filterInstance(ProductFetchDefinition::class);
         if ($definitions->count() === 0) {

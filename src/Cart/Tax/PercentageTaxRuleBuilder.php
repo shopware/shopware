@@ -24,7 +24,10 @@
 
 namespace Shopware\Cart\Tax;
 
-use Shopware\Cart\Price\Price;
+use Shopware\Cart\Price\Struct\Price;
+use Shopware\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Cart\Tax\Struct\PercentageTaxRule;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 
 class PercentageTaxRuleBuilder
 {

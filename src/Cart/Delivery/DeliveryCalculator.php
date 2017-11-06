@@ -26,10 +26,11 @@ declare(strict_types=1);
 namespace Shopware\Cart\Delivery;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Cart\Price\Price;
+use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Price\PriceCalculator;
-use Shopware\Cart\Price\PriceDefinition;
+use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;

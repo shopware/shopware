@@ -28,8 +28,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Area\Struct\AreaBasicStruct;
 use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\AreaCountryState\Struct\AreaCountryStateBasicStruct;
-use Shopware\Cart\Delivery\ShippingLocation;
-use Shopware\Cart\Price\PriceDefinition;
+use Shopware\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\CartBridge\Product\ProductPriceGateway;
 use Shopware\Context\Struct\ShopContext;
@@ -66,7 +66,9 @@ class Generator extends TestCase
             $shop->setFallbackLocaleUuid(null);
         }
 
-        $currency = $currency ?: new CurrencyBasicStruct();
+        $currency = $currency ?: (new CurrencyBasicStruct())->assign([
+            'uuid' => '1'
+        ]);
 
         if (!$currentCustomerGroup) {
             $currentCustomerGroup = new CustomerGroupBasicStruct();
@@ -115,6 +117,10 @@ class Generator extends TestCase
             $shipping->setState($state);
         }
 
+        $paymentMethod = (new PaymentMethodBasicStruct())->assign(['uuid' => '1']);
+        $shippingMethod = (new ShippingMethodBasicStruct())->assign(['uuid' => '1']);
+        $customer = (new CustomerBasicStruct())->assign(['uuid' => '1']);
+
         return new ShopContext(
             $shop,
             $currency,
@@ -122,10 +128,10 @@ class Generator extends TestCase
             $fallbackCustomerGroup,
             $taxes,
             $priceGroupDiscounts,
-            new PaymentMethodBasicStruct(),
-            new ShippingMethodBasicStruct(),
+            $paymentMethod,
+            $shippingMethod,
             ShippingLocation::createFromAddress($shipping),
-            new CustomerBasicStruct()
+            $customer
         );
     }
 
@@ -151,7 +157,7 @@ class Generator extends TestCase
     }
 
     /**
-     * @param PriceDefinition[] $priceDefinitions indexed by product number
+     * @param \Shopware\Cart\Price\Struct\PriceDefinition[] $priceDefinitions indexed by product number
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|ProductPriceGateway
      */

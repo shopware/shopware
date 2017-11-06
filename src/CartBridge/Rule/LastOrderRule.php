@@ -24,12 +24,12 @@
 
 namespace Shopware\CartBridge\Rule;
 
-use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Rule\Match;
 use Shopware\Cart\Rule\Rule;
 use Shopware\CartBridge\Rule\Data\LastOrderRuleData;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 
 class LastOrderRule extends Rule
 {
@@ -46,7 +46,7 @@ class LastOrderRule extends Rule
     public function match(
         CalculatedCart $calculatedCart,
         ShopContext $context,
-        IndexedCollection $collection
+        StructCollection $collection
     ): Match {
         if (!$collection->has(LastOrderRuleData::class)) {
             return new Match(false, ['No last order data found']);

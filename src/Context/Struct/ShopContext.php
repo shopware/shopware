@@ -24,7 +24,7 @@
 
 namespace Shopware\Context\Struct;
 
-use Shopware\Cart\Delivery\ShippingLocation;
+use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Customer\Struct\CustomerBasicStruct;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
@@ -88,7 +88,7 @@ class ShopContext extends Struct
     protected $shippingMethod;
 
     /**
-     * @var ShippingLocation
+     * @var \Shopware\Cart\Delivery\Struct\ShippingLocation
      */
     protected $shippingLocation;
 

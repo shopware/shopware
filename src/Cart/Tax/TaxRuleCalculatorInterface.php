@@ -25,6 +25,9 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Tax;
 
+use Shopware\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Cart\Tax\Struct\TaxRuleInterface;
+
 interface TaxRuleCalculatorInterface
 {
     public function supports(TaxRuleInterface $rule): bool;

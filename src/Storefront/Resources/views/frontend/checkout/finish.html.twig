@@ -330,7 +330,7 @@
                 {% for delivery in cart.deliveries %}
 
                     {# @var delivery \Shopware\CartBridge\View\ViewDelivery #}
-                    {# @var location \Shopware\Cart\Delivery\ShippingLocation #}
+                    {# @var location \Shopware\Cart\Delivery\Struct\ShippingLocation #}
                     {% set location = delivery.delivery.location %}
 
                     {% block frontend_checkout_finish_deliveries_headline %}

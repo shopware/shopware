@@ -26,7 +26,7 @@ namespace Shopware\Tests\Unit\Bundle\CartBundle\Infrastructure\Cart;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\CartBridge\Order\OrderPersister;
 use Shopware\Context\Struct\ShopContext;
 

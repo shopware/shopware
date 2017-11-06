@@ -25,7 +25,9 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Cart;
 
-use Shopware\Cart\Delivery\DeliveryCollection;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Cart\Error\ChangeLineItemQuantityValidationError;
 use Shopware\Cart\Error\RemoveLineItemValidationError;
 use Shopware\Cart\Error\ValidationErrorCollection;
@@ -34,7 +36,7 @@ use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Cart\Price\AmountCalculator;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 
 class CartCalculator
 {
@@ -72,14 +74,14 @@ class CartCalculator
         return $this->process($cartContainer, $context, $dataCollection, 0);
     }
 
-    private function prepare(CartContainer $cartContainer, ShopContext $context): IndexedCollection
+    private function prepare(CartContainer $cartContainer, ShopContext $context): StructCollection
     {
-        $fetchCollection = new IndexedCollection();
+        $fetchCollection = new StructCollection();
         foreach ($this->collectors as $collector) {
             $collector->prepare($fetchCollection, $cartContainer, $context);
         }
 
-        $dataCollection = new IndexedCollection();
+        $dataCollection = new StructCollection();
         foreach ($this->collectors as $collector) {
             $collector->fetch($dataCollection, $fetchCollection, $context);
         }
@@ -90,7 +92,7 @@ class CartCalculator
     private function process(
         CartContainer $cartContainer,
         ShopContext $context,
-        IndexedCollection $dataCollection,
+        StructCollection $dataCollection,
         int $iteration
     ): CalculatedCart {
         if ($iteration >= self::MAX_ITERATION) {

@@ -25,15 +25,17 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Cart;
 
+use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 
 interface CartProcessorInterface
 {
     public function process(
         CartContainer $cartContainer,
         CalculatedCart $calculatedCart,
-        IndexedCollection $dataCollection,
+        StructCollection $dataCollection,
         ShopContext $context
     ): void;
 }

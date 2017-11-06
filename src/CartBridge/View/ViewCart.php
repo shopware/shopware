@@ -25,12 +25,12 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\View;
 
-use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Error\ErrorCollection;
-use Shopware\Cart\Price\CartPrice;
-use Shopware\Cart\Price\Price;
-use Shopware\Cart\Tax\CalculatedTaxCollection;
-use Shopware\Cart\Tax\TaxRuleCollection;
+use Shopware\Cart\Price\Struct\CartPrice;
+use Shopware\Cart\Price\Struct\Price;
+use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Framework\Struct\Struct;
 
 class ViewCart extends Struct
@@ -41,7 +41,7 @@ class ViewCart extends Struct
     protected $viewLineItems;
 
     /**
-     * @var \Shopware\Cart\Cart\CalculatedCart
+     * @var \Shopware\Cart\Cart\Struct\CalculatedCart
      */
     protected $calculatedCart;
 

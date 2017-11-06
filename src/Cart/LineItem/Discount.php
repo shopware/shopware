@@ -24,7 +24,7 @@
 
 namespace Shopware\Cart\LineItem;
 
-use Shopware\Cart\Price\Price;
+use Shopware\Cart\Price\Struct\Price;
 use Shopware\CartBridge\View\ViewLineItemInterface;
 use Shopware\Framework\Struct\Struct;
 use Shopware\Media\Struct\MediaBasicStruct;

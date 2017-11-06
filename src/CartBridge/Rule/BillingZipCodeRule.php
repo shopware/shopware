@@ -24,11 +24,11 @@
 
 namespace Shopware\CartBridge\Rule;
 
-use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Rule\Match;
 use Shopware\Cart\Rule\Rule;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 
 class BillingZipCodeRule extends Rule
 {
@@ -48,7 +48,7 @@ class BillingZipCodeRule extends Rule
     public function match(
         CalculatedCart $calculatedCart,
         ShopContext $context,
-        IndexedCollection $collection
+        StructCollection $collection
     ): Match {
         if (!$customer = $context->getCustomer()) {
             return new Match(false, ['Not logged in customer']);

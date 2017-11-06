@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\LineItem;
 
-use Shopware\Cart\Delivery\Delivery;
-use Shopware\Cart\Delivery\DeliveryDate;
+use Shopware\Cart\Delivery\Struct\Delivery;
+use Shopware\Cart\Delivery\Struct\DeliveryDate;
 
 interface DeliverableLineItemInterface extends CalculatedLineItemInterface
 {

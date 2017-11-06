@@ -25,6 +25,9 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Price;
 
+use Shopware\Cart\Price\Struct\Price;
+use Shopware\Cart\Price\Struct\PriceCollection;
+use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Context\Struct\ShopContext;
 

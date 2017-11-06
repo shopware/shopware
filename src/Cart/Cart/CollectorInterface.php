@@ -25,20 +25,21 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Cart;
 
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 
 interface CollectorInterface
 {
     public function prepare(
-        IndexedCollection $fetchDefinition,
+        StructCollection $fetchDefinition,
         CartContainer $cartContainer,
         ShopContext $context
     ): void;
 
     public function fetch(
-        IndexedCollection $dataCollection,
-        IndexedCollection $fetchCollection,
+        StructCollection $dataCollection,
+        StructCollection $fetchCollection,
         ShopContext $context
     ): void;
 }

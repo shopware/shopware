@@ -2,13 +2,15 @@
 
 namespace Shopware\Cart\Voucher;
 
-use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Error\VoucherModeNotFoundError;
 use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Price\PercentagePriceCalculator;
 use Shopware\Cart\Price\PriceCalculator;
-use Shopware\Cart\Price\PriceDefinition;
+use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
+use Shopware\Cart\Voucher\Struct\CalculatedVoucher;
+use Shopware\Cart\Voucher\Struct\VoucherData;
 use Shopware\Context\Struct\ShopContext;
 
 class VoucherCalculator

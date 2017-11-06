@@ -25,7 +25,7 @@
 namespace Shopware\CartBridge\Dynamic;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Cart\LineItem\Discount;
 use Shopware\Cart\Price\PercentagePriceCalculator;

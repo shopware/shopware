@@ -24,7 +24,7 @@
 
 namespace Shopware\CartBridge\View;
 
-use Shopware\Cart\Delivery\DeliveryPosition;
+use Shopware\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Framework\Struct\Struct;
 
 class ViewDeliveryPosition extends Struct
@@ -35,7 +35,7 @@ class ViewDeliveryPosition extends Struct
     protected $viewLineItem;
 
     /**
-     * @var DeliveryPosition
+     * @var \Shopware\Cart\Delivery\Struct\DeliveryPosition
      */
     protected $deliveryPosition;
 

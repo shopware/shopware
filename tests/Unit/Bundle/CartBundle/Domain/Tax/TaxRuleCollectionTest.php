@@ -25,20 +25,20 @@
 namespace Shopware\Tests\Unit\Bundle\CartBundle\Domain\Tax;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Tax\TaxRule;
-use Shopware\Cart\Tax\TaxRuleCollection;
+use Shopware\Cart\Tax\Struct\TaxRule;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 
 class TaxRuleCollectionTest extends TestCase
 {
     public function testCollectionIsCountable(): void
     {
-        $collection = new TaxRuleCollection();
+        $collection = new \Shopware\Cart\Tax\Struct\TaxRuleCollection();
         static::assertCount(0, $collection);
     }
 
     public function testCountReturnsCorrectValue(): void
     {
-        $collection = new TaxRuleCollection([
+        $collection = new \Shopware\Cart\Tax\Struct\TaxRuleCollection([
             new TaxRule(19),
             new TaxRule(18),
             new TaxRule(17),
@@ -48,21 +48,21 @@ class TaxRuleCollectionTest extends TestCase
 
     public function testTaxRateIsUsedAsUniqueIdentifier(): void
     {
-        $collection = new TaxRuleCollection([
+        $collection = new \Shopware\Cart\Tax\Struct\TaxRuleCollection([
             new TaxRule(19),
             new TaxRule(19),
             new TaxRule(19),
         ]);
 
         static::assertEquals(
-            new TaxRuleCollection([new TaxRule(19)]),
+            new \Shopware\Cart\Tax\Struct\TaxRuleCollection([new TaxRule(19)]),
             $collection
         );
     }
 
     public function testElementCanBeAccessedByTaxRate(): void
     {
-        $collection = new TaxRuleCollection([
+        $collection = new \Shopware\Cart\Tax\Struct\TaxRuleCollection([
             new TaxRule(19),
             new TaxRule(18),
             new TaxRule(17),
@@ -75,30 +75,30 @@ class TaxRuleCollectionTest extends TestCase
 
     public function testTaxRateCanBeAddedToCollection(): void
     {
-        $collection = new TaxRuleCollection();
+        $collection = new \Shopware\Cart\Tax\Struct\TaxRuleCollection();
         $collection->add(new TaxRule(19));
 
         static::assertEquals(
-            new TaxRuleCollection([new TaxRule(19)]),
+            new \Shopware\Cart\Tax\Struct\TaxRuleCollection([new TaxRule(19)]),
             $collection
         );
     }
 
     public function testCollectionCanBeCleared(): void
     {
-        $collection = new TaxRuleCollection([
+        $collection = new \Shopware\Cart\Tax\Struct\TaxRuleCollection([
             new TaxRule(19),
             new TaxRule(18),
             new TaxRule(17),
         ]);
         $collection->clear();
 
-        static::assertEquals(new TaxRuleCollection(), $collection);
+        static::assertEquals(new \Shopware\Cart\Tax\Struct\TaxRuleCollection(), $collection);
     }
 
     public function testCollectionCanBeFilledWithMultipleElements(): void
     {
-        $collection = new TaxRuleCollection();
+        $collection = new \Shopware\Cart\Tax\Struct\TaxRuleCollection();
         $collection->fill([
             new TaxRule(19),
             new TaxRule(18),
@@ -106,7 +106,7 @@ class TaxRuleCollectionTest extends TestCase
         ]);
 
         static::assertEquals(
-            new TaxRuleCollection([
+            new \Shopware\Cart\Tax\Struct\TaxRuleCollection([
                 new TaxRule(19),
                 new TaxRule(18),
                 new TaxRule(17),
@@ -117,7 +117,7 @@ class TaxRuleCollectionTest extends TestCase
 
     public function testMergeFunctionReturnsNewInstance(): void
     {
-        $a = new TaxRuleCollection([new TaxRule(19)]);
+        $a = new \Shopware\Cart\Tax\Struct\TaxRuleCollection([new TaxRule(19)]);
         $b = new TaxRuleCollection([new TaxRule(18)]);
         $c = $a->merge($b);
 
@@ -127,12 +127,12 @@ class TaxRuleCollectionTest extends TestCase
 
     public function testMergeFunctionMergesAllTaxRules(): void
     {
-        $a = new TaxRuleCollection([new TaxRule(19)]);
-        $b = new TaxRuleCollection([new TaxRule(18)]);
+        $a = new \Shopware\Cart\Tax\Struct\TaxRuleCollection([new TaxRule(19)]);
+        $b = new \Shopware\Cart\Tax\Struct\TaxRuleCollection([new TaxRule(18)]);
         $c = $a->merge($b);
 
         static::assertEquals(
-            new TaxRuleCollection([
+            new \Shopware\Cart\Tax\Struct\TaxRuleCollection([
                 new TaxRule(19),
                 new TaxRule(18),
             ]),
@@ -142,14 +142,14 @@ class TaxRuleCollectionTest extends TestCase
 
     public function testTaxRuleCanBeRemovedByRate(): void
     {
-        $collection = new TaxRuleCollection([
+        $collection = new \Shopware\Cart\Tax\Struct\TaxRuleCollection([
             new TaxRule(19),
             new TaxRule(18),
             new TaxRule(17),
         ]);
         $collection->remove(19);
         static::assertEquals(
-            new TaxRuleCollection([
+            new \Shopware\Cart\Tax\Struct\TaxRuleCollection([
                 new TaxRule(18),
                 new TaxRule(17),
             ]),
@@ -159,7 +159,7 @@ class TaxRuleCollectionTest extends TestCase
 
     public function testGetOnEmptyCollection(): void
     {
-        $collection = new TaxRuleCollection([]);
+        $collection = new \Shopware\Cart\Tax\Struct\TaxRuleCollection([]);
         static::assertNull($collection->get(19));
     }
 
@@ -167,7 +167,7 @@ class TaxRuleCollectionTest extends TestCase
     {
         $toRemove = new TaxRule(18);
 
-        $collection = new TaxRuleCollection([
+        $collection = new \Shopware\Cart\Tax\Struct\TaxRuleCollection([
             new TaxRule(19),
             $toRemove,
             new TaxRule(17),
@@ -176,7 +176,7 @@ class TaxRuleCollectionTest extends TestCase
         $collection->removeElement($toRemove);
 
         $this->assertEquals(
-            new TaxRuleCollection([
+            new \Shopware\Cart\Tax\Struct\TaxRuleCollection([
                 new TaxRule(19),
                 new TaxRule(17),
             ]),

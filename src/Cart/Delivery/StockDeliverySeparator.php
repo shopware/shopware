@@ -25,13 +25,19 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Delivery;
 
+use Shopware\Cart\Delivery\Struct\Delivery;
+use Shopware\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Cart\Delivery\Struct\DeliveryPosition;
+use Shopware\Cart\Delivery\Struct\DeliveryPositionCollection;
+use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\DeliverableLineItemInterface;
-use Shopware\Cart\Price\Price;
+use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Price\PriceCalculator;
-use Shopware\Cart\Price\PriceDefinition;
-use Shopware\Cart\Tax\CalculatedTaxCollection;
-use Shopware\Cart\Tax\TaxRuleCollection;
+use Shopware\Cart\Price\Struct\PriceDefinition;
+use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
 

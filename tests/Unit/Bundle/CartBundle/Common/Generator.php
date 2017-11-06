@@ -25,8 +25,8 @@
 namespace Shopware\Tests\Unit\Bundle\CartBundle\Common;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Delivery\ShippingLocation;
-use Shopware\Cart\Price\PriceDefinition;
+use Shopware\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\CartBridge\Product\ProductPriceGateway;
 use Shopware\Address\Struct\Address;
@@ -132,7 +132,7 @@ class Generator extends TestCase
     }
 
     /**
-     * @param PriceDefinition[] $priceDefinitions indexed by product number
+     * @param \Shopware\Cart\Price\Struct\PriceDefinition[] $priceDefinitions indexed by product number
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|ProductPriceGateway
      */

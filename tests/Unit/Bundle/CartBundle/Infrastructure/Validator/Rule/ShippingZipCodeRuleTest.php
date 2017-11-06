@@ -25,11 +25,11 @@
 namespace Shopware\Tests\Unit\Bundle\CartBundle\Infrastructure\Validator\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Cart\CalculatedCart;
-use Shopware\Cart\Delivery\ShippingLocation;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\CartBridge\Rule\ShippingZipCodeRule;
 use Shopware\Address\Struct\Address;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Country\Struct\Country;
 use Shopware\CountryState\Struct\CountryState;
@@ -52,7 +52,7 @@ class ShippingZipCodeRuleTest extends TestCase
             ->will($this->returnValue($location));
 
         $this->assertTrue(
-            $rule->match($cart, $context, new IndexedCollection())->matches()
+            $rule->match($cart, $context, new StructCollection())->matches()
         );
     }
 
@@ -72,7 +72,7 @@ class ShippingZipCodeRuleTest extends TestCase
             ->will($this->returnValue($location));
 
         $this->assertTrue(
-            $rule->match($cart, $context, new IndexedCollection())->matches()
+            $rule->match($cart, $context, new StructCollection())->matches()
         );
     }
 
@@ -92,7 +92,7 @@ class ShippingZipCodeRuleTest extends TestCase
             ->will($this->returnValue($location));
 
         $this->assertFalse(
-            $rule->match($cart, $context, new IndexedCollection())->matches()
+            $rule->match($cart, $context, new StructCollection())->matches()
         );
     }
 
@@ -111,7 +111,7 @@ class ShippingZipCodeRuleTest extends TestCase
             ->will($this->returnValue($location));
 
         $this->assertFalse(
-            $rule->match($cart, $context, new IndexedCollection())->matches()
+            $rule->match($cart, $context, new StructCollection())->matches()
         );
     }
 

@@ -1,7 +1,7 @@
 {% sw_extends 'frontend/checkout/cart/cart-footer.html.twig' %}
 
 {# @var delivery \Shopware\CartBridge\View\ViewDelivery#}
-{# @var location \Shopware\Cart\Delivery\ShippingLocation #}
+{# @var location \Shopware\Cart\Delivery\Struct\ShippingLocation #}
 {% set location = delivery.delivery.location %}
 {% set deliveryDate = delivery.delivery.deliveryDate %}
 {% set shippingMethod = delivery.delivery.shippingMethod %}

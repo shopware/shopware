@@ -28,7 +28,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Api\Search\Criteria;
 use Shopware\AreaCountry\Repository\AreaCountryRepository;
 use Shopware\AreaCountryState\Repository\AreaCountryStateRepository;
-use Shopware\Cart\Delivery\ShippingLocation;
+use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Context\Struct\CheckoutScope;
 use Shopware\Context\Struct\CustomerScope;
 use Shopware\Context\Struct\ShopContext;

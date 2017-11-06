@@ -25,10 +25,10 @@
 namespace Shopware\Tests\Unit\Bundle\CartBundle\Infrastructure\Validator\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\CartBridge\Rule\Data\RecentOrderRuleData;
 use Shopware\CartBridge\Rule\RecentOrderRule;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 use Shopware\Context\Struct\ShopContext;
 
 class RecentOrderRuleTest extends TestCase
@@ -46,7 +46,7 @@ class RecentOrderRuleTest extends TestCase
         );
 
         $this->assertTrue(
-            $rule->match($cart, $context, new IndexedCollection([
+            $rule->match($cart, $context, new StructCollection([
                 RecentOrderRuleData::class => new RecentOrderRuleData($date),
             ]))->matches()
         );
@@ -65,7 +65,7 @@ class RecentOrderRuleTest extends TestCase
         );
 
         $this->assertFalse(
-            $rule->match($cart, $context, new IndexedCollection([
+            $rule->match($cart, $context, new StructCollection([
                 RecentOrderRuleData::class => new RecentOrderRuleData($date),
             ]))->matches()
         );
@@ -84,7 +84,7 @@ class RecentOrderRuleTest extends TestCase
         );
 
         $this->assertTrue(
-            $rule->match($cart, $context, new IndexedCollection([
+            $rule->match($cart, $context, new StructCollection([
                 RecentOrderRuleData::class => new RecentOrderRuleData($date),
             ]))->matches()
         );
@@ -99,7 +99,7 @@ class RecentOrderRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertFalse(
-            $rule->match($cart, $context, new IndexedCollection())->matches()
+            $rule->match($cart, $context, new StructCollection())->matches()
         );
     }
 }

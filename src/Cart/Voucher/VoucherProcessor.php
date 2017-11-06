@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Voucher;
 
-use Shopware\Cart\Cart\CalculatedCart;
-use Shopware\Cart\Cart\CartContainer;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\ProcessorCart;
 use Shopware\Cart\Error\VoucherNotFoundError;
@@ -34,10 +34,11 @@ use Shopware\Cart\LineItem\Discount;
 use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Price\PercentagePriceCalculator;
 use Shopware\Cart\Price\PriceCalculator;
-use Shopware\Cart\Price\PriceDefinition;
+use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
+use Shopware\Cart\Voucher\Struct\VoucherData;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 
 class VoucherProcessor implements CartProcessorInterface
 {
@@ -56,7 +57,7 @@ class VoucherProcessor implements CartProcessorInterface
     public function process(
         CartContainer $cartContainer,
         CalculatedCart $calculatedCart,
-        IndexedCollection $dataCollection,
+        StructCollection $dataCollection,
         ShopContext $context
     ): void {
         $lineItems = $cartContainer->getLineItems()->filterType(self::TYPE_VOUCHER);

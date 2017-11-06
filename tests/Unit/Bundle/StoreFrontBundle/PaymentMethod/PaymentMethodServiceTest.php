@@ -28,14 +28,14 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Cart\CalculatedCart;
-use Shopware\Cart\Cart\CartContainer;
-use Shopware\Cart\Delivery\DeliveryCollection;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Cart\Price\CartPrice;
+use Shopware\Cart\Price\Struct\CartPrice;
 use Shopware\Cart\Rule\ValidatableFilter;
-use Shopware\Cart\Tax\CalculatedTaxCollection;
-use Shopware\Cart\Tax\TaxRuleCollection;
+use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Framework\Struct\AttributeHydrator;
 use Shopware\Bundle\StoreFrontBundle\Common\CacheInterface;
 use Shopware\Framework\Struct\FieldHelper;
@@ -53,7 +53,7 @@ class PaymentMethodServiceTest extends TestCase
      *
      * @param array          $database
      * @param array          $expected
-     * @param CalculatedCart $cart
+     * @param \Shopware\Cart\Cart\Struct\CalculatedCart $cart
      */
     public function testPaymentSets(array $database, array $expected, CalculatedCart $cart)
     {

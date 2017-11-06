@@ -26,7 +26,7 @@ namespace Shopware\Framework\Struct;
 
 trait AssignArrayTrait
 {
-    public function assign(array $options): void
+    public function assign(array $options)
     {
         foreach ($options as $key => $value) {
             $setter = 'set' . ucfirst($key);
@@ -37,5 +37,6 @@ trait AssignArrayTrait
             } catch (\Error | \Exception $error) {
             }
         }
+        return $this;
     }
 }

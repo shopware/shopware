@@ -25,13 +25,13 @@
 namespace Shopware\Tests\Unit\Bundle\CartBundle\Infrastructure\Validator\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Cart\CalculatedCart;
-use Shopware\Cart\Price\CartPrice;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Cart\Price\Struct\CartPrice;
 use Shopware\Cart\Rule\Rule;
-use Shopware\Cart\Tax\CalculatedTaxCollection;
-use Shopware\Cart\Tax\TaxRuleCollection;
+use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\CartBridge\Rule\OrderAmountRule;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 use Shopware\Context\Struct\ShopContext;
 
 class OrderAmountRuleTest extends TestCase
@@ -50,7 +50,7 @@ class OrderAmountRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertTrue(
-            $rule->match($cart, $context, new IndexedCollection())->matches()
+            $rule->match($cart, $context, new StructCollection())->matches()
         );
     }
 
@@ -68,7 +68,7 @@ class OrderAmountRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertTrue(
-            $rule->match($cart, $context, new IndexedCollection())->matches()
+            $rule->match($cart, $context, new StructCollection())->matches()
         );
     }
 
@@ -86,7 +86,7 @@ class OrderAmountRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertFalse(
-            $rule->match($cart, $context, new IndexedCollection())->matches()
+            $rule->match($cart, $context, new StructCollection())->matches()
         );
     }
 
@@ -104,7 +104,7 @@ class OrderAmountRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertTrue(
-            $rule->match($cart, $context, new IndexedCollection())->matches()
+            $rule->match($cart, $context, new StructCollection())->matches()
         );
     }
 
@@ -122,7 +122,7 @@ class OrderAmountRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertTrue(
-            $rule->match($cart, $context, new IndexedCollection())->matches()
+            $rule->match($cart, $context, new StructCollection())->matches()
         );
     }
 
@@ -140,7 +140,7 @@ class OrderAmountRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertFalse(
-            $rule->match($cart, $context, new IndexedCollection())->matches()
+            $rule->match($cart, $context, new StructCollection())->matches()
         );
     }
 
@@ -165,7 +165,7 @@ class OrderAmountRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $this->assertFalse(
-            $rule->match($cart, $context, new IndexedCollection())->matches()
+            $rule->match($cart, $context, new StructCollection())->matches()
         );
     }
 

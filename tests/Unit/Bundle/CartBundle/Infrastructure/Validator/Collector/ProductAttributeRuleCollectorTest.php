@@ -28,11 +28,11 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Product\ProductFetchDefinition;
+use Shopware\Cart\Product\Struct\ProductFetchDefinition;
 use Shopware\CartBridge\Rule\Collector\ProductAttributeRuleCollector;
 use Shopware\CartBridge\Rule\Data\ProductAttributeRuleData;
 use Shopware\CartBridge\Rule\ProductAttributeRule;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Tests\Unit\Bundle\CartBundle\Common\ValidatableDefinition;
 
@@ -46,9 +46,9 @@ class ProductAttributeRuleCollectorTest extends TestCase
 
         $collector = new ProductAttributeRuleCollector($connection);
 
-        $dataCollection = new IndexedCollection();
+        $dataCollection = new StructCollection();
 
-        $collector->fetch($dataCollection, new IndexedCollection(), $context);
+        $collector->fetch($dataCollection, new StructCollection(), $context);
 
         $this->assertSame(0, $dataCollection->count());
     }
@@ -64,11 +64,11 @@ class ProductAttributeRuleCollectorTest extends TestCase
 
         $collector = new ProductAttributeRuleCollector($connection);
 
-        $dataCollection = new IndexedCollection([
+        $dataCollection = new StructCollection([
             new ValidatableDefinition(new ProductAttributeRule('attr1', 100)),
         ]);
 
-        $collector->fetch($dataCollection, new IndexedCollection([
+        $collector->fetch($dataCollection, new StructCollection([
             new ProductFetchDefinition(['SW1']),
         ]), $context);
 
@@ -93,11 +93,11 @@ class ProductAttributeRuleCollectorTest extends TestCase
 
         $collector = new ProductAttributeRuleCollector($connection);
 
-        $dataCollection = new IndexedCollection([
+        $dataCollection = new StructCollection([
             new ValidatableDefinition(new ProductAttributeRule('attr1', 100)),
         ]);
 
-        $collector->fetch($dataCollection, new IndexedCollection(), $context);
+        $collector->fetch($dataCollection, new StructCollection(), $context);
 
         $this->assertSame(1, $dataCollection->count());
     }

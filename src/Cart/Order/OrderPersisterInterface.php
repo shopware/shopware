@@ -24,7 +24,7 @@
 
 namespace Shopware\Cart\Order;
 
-use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Context\Struct\ShopContext;
 
 interface OrderPersisterInterface

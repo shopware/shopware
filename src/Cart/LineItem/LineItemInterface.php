@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\LineItem;
 
-use Shopware\Cart\Price\PriceDefinition;
+use Shopware\Cart\Price\Struct\PriceDefinition;
 
 interface LineItemInterface extends \JsonSerializable
 {
@@ -71,7 +71,7 @@ interface LineItemInterface extends \JsonSerializable
      * Allows to define a pre calculated price which should be used instead of live requested prices.
      * Used for example if an order has to be recalculated if the shop owner changes order data
      *
-     * @return null|PriceDefinition
+     * @return null|\Shopware\Cart\Price\Struct\PriceDefinition
      */
     public function getPriceDefinition(): ? PriceDefinition;
 
@@ -79,7 +79,7 @@ interface LineItemInterface extends \JsonSerializable
      * Allows to define a pre calculated price which should be used instead of live requested prices.
      * Used for example if an order has to be recalculated if the shop owner changes order data
      *
-     * @param PriceDefinition $priceDefinition
+     * @param \Shopware\Cart\Price\Struct\PriceDefinition $priceDefinition
      */
     public function setPriceDefinition(PriceDefinition $priceDefinition): void;
 }

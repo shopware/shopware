@@ -25,10 +25,10 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Rule\Container;
 
-use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Rule\Match;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 
 /**
  * AndRule returns true, if all child-rules are true
@@ -38,7 +38,7 @@ class AndRule extends Container
     public function match(
         CalculatedCart $calculatedCart,
         ShopContext $context,
-        IndexedCollection $collection
+        StructCollection $collection
     ): Match {
         $valid = true;
 

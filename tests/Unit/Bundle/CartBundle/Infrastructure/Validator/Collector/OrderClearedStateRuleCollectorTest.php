@@ -31,7 +31,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\CartBridge\Rule\Collector\OrderClearedStateRuleCollector;
 use Shopware\CartBridge\Rule\Data\OrderClearedStateRuleData;
 use Shopware\CartBridge\Rule\OrderClearedStateRule;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Customer\Struct\Customer;
 use Shopware\Tests\Unit\Bundle\CartBundle\Common\ValidatableDefinition;
@@ -46,9 +46,9 @@ class OrderClearedStateRuleCollectorTest extends TestCase
 
         $collector = new OrderClearedStateRuleCollector($connection);
 
-        $dataCollection = new IndexedCollection();
+        $dataCollection = new StructCollection();
 
-        $collector->fetch($dataCollection, new IndexedCollection(), $context);
+        $collector->fetch($dataCollection, new StructCollection(), $context);
 
         $this->assertSame(0, $dataCollection->count());
     }
@@ -61,11 +61,11 @@ class OrderClearedStateRuleCollectorTest extends TestCase
 
         $collector = new OrderClearedStateRuleCollector($connection);
 
-        $dataCollection = new IndexedCollection([
+        $dataCollection = new StructCollection([
             new ValidatableDefinition(new OrderClearedStateRule([10])),
         ]);
 
-        $collector->fetch($dataCollection, new IndexedCollection(), $context);
+        $collector->fetch($dataCollection, new StructCollection(), $context);
 
         $this->assertSame(1, $dataCollection->count());
     }
@@ -82,11 +82,11 @@ class OrderClearedStateRuleCollectorTest extends TestCase
 
         $collector = new OrderClearedStateRuleCollector($connection);
 
-        $dataCollection = new IndexedCollection([
+        $dataCollection = new StructCollection([
             new ValidatableDefinition(new OrderClearedStateRule([10])),
         ]);
 
-        $collector->fetch($dataCollection, new IndexedCollection(), $context);
+        $collector->fetch($dataCollection, new StructCollection(), $context);
 
         $this->assertSame(2, $dataCollection->count());
 

@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\LineItem;
 
-use Shopware\Cart\Price\PriceDefinition;
+use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Framework\Struct\Struct;
 
 class LineItem extends Struct implements LineItemInterface
@@ -51,7 +51,7 @@ class LineItem extends Struct implements LineItemInterface
     protected $extraData;
 
     /**
-     * @var null|PriceDefinition
+     * @var null|\Shopware\Cart\Price\Struct\PriceDefinition
      */
     protected $priceDefinition;
 

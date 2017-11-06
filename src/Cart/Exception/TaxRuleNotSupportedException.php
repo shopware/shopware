@@ -24,12 +24,12 @@
 
 namespace Shopware\Cart\Exception;
 
-use Shopware\Cart\Tax\TaxRuleInterface;
+use Shopware\Cart\Tax\Struct\TaxRuleInterface;
 
 class TaxRuleNotSupportedException extends \Exception
 {
     /**
-     * @var TaxRuleInterface
+     * @var \Shopware\Cart\Tax\Struct\TaxRuleInterface
      */
     protected $taxRule;
 

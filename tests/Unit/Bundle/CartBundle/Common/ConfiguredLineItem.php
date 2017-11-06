@@ -24,12 +24,12 @@
 
 namespace Shopware\Tests\Unit\Bundle\CartBundle\Common;
 
-use Shopware\Cart\Delivery\Delivery;
-use Shopware\Cart\Delivery\DeliveryDate;
+use Shopware\Cart\Delivery\Struct\Delivery;
+use Shopware\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Cart\Delivery\DeliveryInformation;
 use Shopware\Cart\LineItem\DeliverableLineItemInterface;
 use Shopware\Cart\LineItem\LineItemInterface;
-use Shopware\Cart\Price\Price;
+use Shopware\Cart\Price\Struct\Price;
 use Shopware\Framework\Struct\Struct;
 
 class ConfiguredLineItem extends \Shopware\Framework\Struct\Struct implements DeliverableLineItemInterface
@@ -45,7 +45,7 @@ class ConfiguredLineItem extends \Shopware\Framework\Struct\Struct implements De
     private $quantity;
 
     /**
-     * @var Price
+     * @var \Shopware\Cart\Price\Struct\Price
      */
     private $price;
 
@@ -60,14 +60,14 @@ class ConfiguredLineItem extends \Shopware\Framework\Struct\Struct implements De
     private $deliveryInformation;
 
     /**
-     * @var Delivery|null
+     * @var \Shopware\Cart\Delivery\Struct\Delivery|null
      */
     private $delivery;
 
     /**
      * @param string              $identifier
      * @param float               $quantity
-     * @param Price               $price
+     * @param \Shopware\Cart\Price\Struct\Price               $price
      * @param LineItemInterface   $lineItem
      * @param DeliveryInformation $deliveryInformation
      */

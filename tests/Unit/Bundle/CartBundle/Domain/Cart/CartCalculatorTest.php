@@ -25,10 +25,10 @@
 namespace Shopware\Tests\Unit\Bundle\CartBundle\Domain\Cart;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\CalculatedCartGenerator;
 use Shopware\Cart\Cart\CartCalculator;
-use Shopware\Cart\Cart\CartContainer;
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Product\ProductProcessor;
 use Shopware\Cart\Voucher\VoucherProcessor;
 use Shopware\Context\Struct\ShopContext;
@@ -37,7 +37,7 @@ class CartCalculatorTest extends TestCase
 {
     public function testIterateAllProcessors(): void
     {
-        $calculatedCart = $this->createMock(\Shopware\Cart\Cart\CalculatedCart::class);
+        $calculatedCart = $this->createMock(\Shopware\Cart\Cart\Struct\CalculatedCart::class);
         $generator = $this->createMock(CalculatedCartGenerator::class);
         $generator->expects($this->once())->method('create')->will($this->returnValue($calculatedCart));
 

@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\View;
 
-use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Context\Struct\ShopContext;
 
 interface ViewLineItemTransformerInterface

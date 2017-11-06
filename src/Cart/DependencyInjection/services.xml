@@ -88,32 +88,30 @@
 
 
         <!-- cart processors-->
-
-
         <service id="cart.product.processor" class="Shopware\Cart\Product\ProductProcessor">
             <argument type="service" id="cart.product.calculator" />
             <tag name="cart.processor" priority="1000" />
         </service>
 
-        <!--<service id="cart.voucher.processor" class="Shopware\Cart\Voucher\VoucherProcessor" >-->
-            <!--<argument id="shopware.cart.voucher.voucher_calculator" type="service"/>-->
-            <!--<tag name="cart.processor" priority="800"/>-->
-        <!--</service>-->
+        <service id="cart.voucher.processor" class="Shopware\Cart\Voucher\VoucherProcessor" >
+            <argument id="shopware.cart.voucher.voucher_calculator" type="service"/>
+            <tag name="cart.processor" priority="800"/>
+        </service>
 
-        <!--<service id="cart.dynamic.processor" class="Shopware\Cart\Dynamic\DynamicProcessor">-->
-            <!--<argument id="cart.dynamic.line_item_gateway" type="service"/>-->
-            <!--<tag name="cart.processor" priority="600" />-->
-        <!--</service>-->
+        <service id="cart.dynamic.processor" class="Shopware\Cart\Dynamic\DynamicProcessor">
+            <argument id="cart.dynamic.line_item_gateway" type="service"/>
+            <tag name="cart.processor" priority="600" />
+        </service>
 
-        <!--<service id="cart.delivery.separator_processor" class="Shopware\Cart\Delivery\DeliverySeparatorProcessor">-->
-            <!--<argument type="service" id="cart.delivery.stock_separator" />-->
-            <!--<tag name="cart.processor" priority="400" />-->
-        <!--</service>-->
+        <service id="cart.delivery.separator_processor" class="Shopware\Cart\Delivery\DeliverySeparatorProcessor">
+            <argument type="service" id="cart.delivery.stock_separator" />
+            <tag name="cart.processor" priority="400" />
+        </service>
 
-        <!--<service id="cart.delivery.calculator_processor" class="Shopware\Cart\Delivery\DeliveryCalculatorProcessor">-->
-            <!--<argument id="cart.delivery.calculator" type="service"/>-->
-            <!--<tag name="cart.processor" priority="200" />-->
-        <!--</service>-->
+        <service id="cart.delivery.calculator_processor" class="Shopware\Cart\Delivery\DeliveryCalculatorProcessor">
+            <argument id="cart.delivery.calculator" type="service"/>
+            <tag name="cart.processor" priority="200" />
+        </service>
 
         <!-- cart collectors -->
         <service id="cart.product.collector" class="Shopware\Cart\Product\ProductCollector">
@@ -121,21 +119,10 @@
             <tag name="cart.collector" priority="1000" />
         </service>
 
-        <!--<service id="cart.voucher.collector" class="Shopware\Cart\Voucher\VoucherCollector" >-->
-            <!--<argument id="cart.voucher.gateway" type="service"/>-->
-            <!--<tag name="cart.collector"/>-->
-        <!--</service>-->
-
-        <!-- cart validators -->
-        <!--<service id="cart.product.validator" class="Shopware\Cart\Product\ProductValidator" >-->
-            <!--<argument id="dbal_connection" type="service"/>-->
-            <!--<tag name="cart.validator" priority="2000"/>-->
-        <!--</service>-->
-
-        <!--<service id="cart.voucher.validator" class="Shopware\Cart\Voucher\VoucherValidator">-->
-            <!--<tag name="cart.validator" priority="1000"/>-->
-        <!--</service>-->
-
+        <service id="cart.voucher.collector" class="Shopware\Cart\Voucher\VoucherCollector" >
+            <argument id="cart.voucher.gateway" type="service"/>
+            <tag name="cart.collector"/>
+        </service>
 
         <!--requires implementation-->
         <service id="cart.product.gateway" class="Shopware\Cart\Product\ProductGateway" />

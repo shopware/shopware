@@ -24,17 +24,17 @@
 
 namespace Shopware\CartBridge\Rule;
 
-use Shopware\Cart\Cart\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Rule\Match;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\IndexedCollection;
+use Shopware\Framework\Struct\StructCollection;
 
 class IsNewCustomerRule extends \Shopware\Cart\Rule\Rule
 {
     public function match(
         CalculatedCart $calculatedCart,
         ShopContext $context,
-        IndexedCollection $collection
+        StructCollection $collection
     ): Match {
         if (!$customer = $context->getCustomer()) {
             return new Match(false, ['Not logged in customer']);

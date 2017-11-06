@@ -40,7 +40,7 @@ ALTER TABLE s_articles
     ADD filter_group_uuid VARCHAR(42) AFTER filter_group_id,
     CHANGE `topseller` `topseller` tinyint NOT NULL DEFAULT '0' AFTER `pseudo_sales`,
     DROP `crossbundlelook`,
-    CHANGE `notification` `notification` tinyint NOT NULL COMMENT 'send notification' AFTER `last_stock`,
+    CHANGE `notification` `notification` tinyint(1) NOT NULL COMMENT 'send notification' AFTER `last_stock`,
     CHANGE `active` `active` tinyint NOT NULL DEFAULT '0' AFTER `created_at`
 ;
 
@@ -197,8 +197,8 @@ ALTER TABLE s_articles_details
     CHANGE shippingfree shipping_free tinyint NOT NULL DEFAULT '0',
     CHANGE shippingtime shipping_time VARCHAR(11),
     CHANGE purchaseprice purchase_price DOUBLE NOT NULL DEFAULT '0',
-    CHANGE `active` `active` tinyint NOT NULL DEFAULT '1' AFTER `sales`,
-    CHANGE `kind` `is_main` tinyint NOT NULL DEFAULT '0' AFTER `supplier_number`,
+    CHANGE `active` `active` tinyint(1) NOT NULL DEFAULT '1' AFTER `sales`,
+    CHANGE `kind` `is_main` tinyint(1) NOT NULL DEFAULT '0' AFTER `supplier_number`,
     ADD `unit_uuid` varchar(42) NULL AFTER `unit_id`
 ;
 
@@ -543,7 +543,7 @@ ALTER TABLE `s_media_album`
     ADD `create_thumbnails` int(11) NOT NULL,
     ADD `thumbnail_size` text COLLATE utf8mb4_unicode_ci NOT NULL,
     ADD `icon` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-    ADD `thumbnail_high_dpi` tinyint NOT NULL DEFAULT 1,
+    ADD `thumbnail_high_dpi` tinyint(1) NOT NULL DEFAULT 1,
     ADD `thumbnail_quality` int(11) DEFAULT NULL,
     ADD `thumbnail_high_dpi_quality` int(11) DEFAULT NULL,
     CHANGE `parentID` `parent_id` int(11) NULL AFTER `parent_uuid`
@@ -626,8 +626,8 @@ ALTER TABLE `s_library_component_field`
     ADD `uuid` varchar(42) NULL AFTER `id`,
     CHANGE `componentID` `shopping_world_component_id` int(11) NOT NULL AFTER `uuid`,
     ADD `shopping_world_component_uuid` varchar(42) NOT NULL AFTER `shopping_world_component_id`,
-    CHANGE `allow_blank` `allow_blank` tinyint NOT NULL AFTER `default_value`,
-    CHANGE `translatable` `translatable` tinyint NOT NULL DEFAULT '0' AFTER `allow_blank`,
+    CHANGE `allow_blank` `allow_blank` tinyint(1) NOT NULL AFTER `default_value`,
+    CHANGE `translatable` `translatable` tinyint(1) NOT NULL DEFAULT '0' AFTER `allow_blank`,
     RENAME TO `shopping_world_component_field`;
 
 
@@ -891,15 +891,15 @@ ALTER TABLE `s_addon_premiums`
 ALTER TABLE `s_attribute_configuration`
     RENAME TO `attribute_configuration`,
     ADD `uuid` varchar(42) NOT NULL AFTER `id`,
-    CHANGE `translatable` `translatable` tinyint NOT NULL AFTER `position`,
-    CHANGE `display_in_backend` `display_in_backend` tinyint NOT NULL AFTER `translatable`,
-    CHANGE `custom` `custom` tinyint NOT NULL AFTER `display_in_backend`;
+    CHANGE `translatable` `translatable` tinyint(1) NOT NULL AFTER `position`,
+    CHANGE `display_in_backend` `display_in_backend` tinyint(1) NOT NULL AFTER `translatable`,
+    CHANGE `custom` `custom` tinyint(1) NOT NULL AFTER `display_in_backend`;
 
 ALTER TABLE `s_blog`
     ADD `uuid` varchar(42) NOT NULL AFTER `id`,
     CHANGE `author_id` `user_id` int(11) NULL AFTER `title`,
     ADD `user_uuid` varchar(42) NULL AFTER `user_id`,
-    CHANGE `active` `active` tinyint NOT NULL AFTER `user_uuid`,
+    CHANGE `active` `active` tinyint(1) NOT NULL AFTER `user_uuid`,
     ADD `category_uuid` varchar(42) NULL AFTER `category_id`,
     RENAME TO `blog`;
 
@@ -918,14 +918,14 @@ ALTER TABLE `s_blog_comments`
     ADD `uuid` varchar(42) NOT NULL AFTER `id`,
     ADD `blog_uuid` varchar(42) NULL AFTER `blog_id`,
     CHANGE `creation_date` `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    CHANGE `active` `active` tinyint NOT NULL AFTER `created_at`,
+    CHANGE `active` `active` tinyint(1) NOT NULL AFTER `created_at`,
     RENAME TO `blog_comment`;
 
 ALTER TABLE `s_blog_media`
     ADD `uuid` varchar(42) NOT NULL AFTER `id`,
     ADD `blog_uuid` varchar(42) NOT NULL AFTER `blog_id`,
     ADD `media_uuid` varchar(42)  NOT NULL AFTER `media_id`,
-    CHANGE `preview` `preview` tinyint NOT NULL AFTER `media_uuid`,
+    CHANGE `preview` `preview` tinyint(1) NOT NULL AFTER `media_uuid`,
     RENAME TO `blog_media`;
 
 ALTER TABLE `s_blog_tags`
@@ -955,7 +955,7 @@ ALTER TABLE `s_cms_static_attributes`
 
 ALTER TABLE `s_cms_static_groups`
     ADD `uuid` varchar(42) NOT NULL AFTER `id`,
-    CHANGE `active` `active` tinyint NOT NULL AFTER `key`,
+    CHANGE `active` `active` tinyint(1) NOT NULL AFTER `key`,
     RENAME TO `shop_page_group`;
 
 ALTER TABLE `s_cms_support`
@@ -979,7 +979,7 @@ ALTER TABLE `s_cms_support_fields`
     CHANGE `name` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `error_msg`,
     CHANGE `note` `note` varchar(255) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `name`,
     CHANGE `typ` `type` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `note`,
-    CHANGE `required` `required` tinyint NOT NULL AFTER `type`,
+    CHANGE `required` `required` tinyint(1) NOT NULL AFTER `type`,
     CHANGE `added` `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     RENAME TO `shop_form_field`;
 
@@ -993,7 +993,7 @@ ALTER TABLE `s_core_auth`
     ADD `locale_uuid` varchar(42) NOT NULL AFTER `locale_id`,
     CHANGE `sessionID` `session_id` varchar(128) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `locale_uuid`,
     CHANGE `lastlogin` `last_login` datetime NOT NULL,
-    CHANGE `active` `active` tinyint NOT NULL DEFAULT '0' AFTER `email`,
+    CHANGE `active` `active` tinyint(1) NOT NULL DEFAULT '0' AFTER `email`,
     CHANGE `failedlogins` `failed_logins` int(11) NOT NULL AFTER `active`,
     CHANGE `lockeduntil` `locked_until` datetime NULL,
     RENAME TO `user`;
@@ -1035,9 +1035,9 @@ ALTER TABLE `s_core_config_mails` CHANGE `stateId` `order_state_id` int(11) NULL
 ALTER TABLE `s_core_config_mails` CHANGE `frommail` `from_mail` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `name`;
 ALTER TABLE `s_core_config_mails` CHANGE `fromname` `from_name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `from_mail`;
 ALTER TABLE `s_core_config_mails` CHANGE `contentHTML` `content_html` mediumtext COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `content`;
-ALTER TABLE `s_core_config_mails` CHANGE `ishtml` `is_html` tinyint NOT NULL AFTER `content_html`;
+ALTER TABLE `s_core_config_mails` CHANGE `ishtml` `is_html` tinyint(1) NOT NULL AFTER `content_html`;
 ALTER TABLE `s_core_config_mails` CHANGE `mailtype` `mail_type` int(11) NOT NULL DEFAULT '1' AFTER `attachment`;
-ALTER TABLE `s_core_config_mails` CHANGE `dirty` `dirty` tinyint NULL AFTER `context`;
+ALTER TABLE `s_core_config_mails` CHANGE `dirty` `dirty` tinyint(1) NULL AFTER `context`;
 ALTER TABLE `s_core_config_mails` ADD `uuid` varchar(42) NOT NULL AFTER `id`;
 ALTER TABLE `s_core_config_mails` ADD `order_state_uuid` varchar(42) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `order_state_id`;
 ALTER TABLE `s_core_config_mails` RENAME TO `mail`;
@@ -1133,13 +1133,13 @@ ALTER TABLE `s_core_paymentmeans`
     CHANGE `hide` `hide` tinyint NOT NULL AFTER `table`,
     CHANGE `additionaldescription` `additional_description` mediumtext COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `hide`,
     CHANGE `surchargestring` `surcharge_string` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `surcharge`,
-    CHANGE `active` `active` tinyint NOT NULL DEFAULT '0' AFTER `position`,
+    CHANGE `active` `active` tinyint(1) NOT NULL DEFAULT '0' AFTER `position`,
     CHANGE `esdactive` `allow_esd` tinyint NOT NULL AFTER `active`,
     CHANGE `embediframe` `used_iframe` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `allow_esd`,
     CHANGE `hideprospect` `hide_prospect` tinyint NOT NULL AFTER `used_iframe`,
     CHANGE `pluginID` `plugin_id` int(11) unsigned NULL AFTER `action`,
     ADD `plugin_uuid` varchar(42) NULL AFTER `plugin_id`,
-    CHANGE `mobile_inactive` `mobile_inactive` tinyint NOT NULL DEFAULT '0' AFTER `source`,
+    CHANGE `mobile_inactive` `mobile_inactive` tinyint(1) NOT NULL DEFAULT '0' AFTER `source`,
     RENAME TO `payment_method`;
 
 ALTER TABLE `s_core_paymentmeans_attributes`
@@ -1165,8 +1165,12 @@ ALTER TABLE `s_core_paymentmeans_subshops`
 
 ALTER TABLE `s_core_plugins`
     ADD `uuid` varchar(42) NOT NULL AFTER `id`,
-    CHANGE `active` `active` tinyint NOT NULL AFTER `description_long`,
+    CHANGE `active` `active` tinyint(1) NOT NULL AFTER `description_long`,
     CHANGE `added` `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CHANGE `capability_update` `capability_update` tinyint(1) NOT NULL,
+    CHANGE `capability_install` `capability_install` tinyint(1) NOT NULL,
+    CHANGE `capability_enable` `capability_enable` tinyint(1) NOT NULL,
+    CHANGE `capability_secure_uninstall` `capability_secure_uninstall` tinyint(1) NOT NULL,
     RENAME TO `plugin`;
 
 ALTER TABLE `s_core_plugin_categories`
@@ -1204,7 +1208,7 @@ ALTER TABLE `s_core_shop_pages`
 
 ALTER TABLE `s_core_snippets`
     ADD `uuid` varchar(42) NOT NULL AFTER `id`,
-    CHANGE `dirty` `dirty` tinyint NULL DEFAULT '0' AFTER `updated_at`,
+    CHANGE `dirty` `dirty` tinyint(1) NULL DEFAULT '0' AFTER `updated_at`,
     CHANGE `shopID` `shop_id` int(11) unsigned NOT NULL AFTER `namespace`,
     ADD `shop_uuid` varchar(42) NOT NULL AFTER `shop_id`,
     CHANGE `localeID` `locale_id` int(11) unsigned NOT NULL AFTER `shop_uuid`,
@@ -1255,8 +1259,8 @@ ALTER TABLE `s_core_templates_config_elements`
     ADD `uuid` varchar(42) NOT NULL AFTER `id`,
     CHANGE `template_id` `shop_template_id` int NOT NULL AFTER `uuid`,
     ADD `shop_template_uuid` varchar(42) NOT NULL  AFTER `shop_template_id`,
-    CHANGE `allow_blank` `allow_blank` tinyint NOT NULL DEFAULT '1' AFTER `support_text`,
-    CHANGE `less_compatible` `less_compatible` tinyint NOT NULL DEFAULT '1' AFTER `attributes`,
+    CHANGE `allow_blank` `allow_blank` tinyint(1) NOT NULL DEFAULT '1' AFTER `support_text`,
+    CHANGE `less_compatible` `less_compatible` tinyint(1) NOT NULL DEFAULT '1' AFTER `attributes`,
     CHANGE `container_id` `shop_template_config_form_id` int NOT NULL AFTER `allow_blank`,
     ADD `shop_template_config_form_uuid` varchar(42) NOT NULL  AFTER `shop_template_config_form_id`,
     RENAME TO `shop_template_config_form_field`;
@@ -1293,7 +1297,7 @@ ALTER TABLE `product` CHANGE COLUMN `name` `name` VARCHAR(255) NOT NULL AFTER `p
 
 ALTER TABLE `album`
     CHANGE `position` `position` int(11) NOT NULL DEFAULT '1' AFTER `parent_uuid`,
-    CHANGE `create_thumbnails` `create_thumbnails` tinyint NOT NULL DEFAULT '0' AFTER `position`,
+    CHANGE `create_thumbnails` `create_thumbnails` tinyint(1) NOT NULL DEFAULT '0' AFTER `position`,
     CHANGE `thumbnail_size` `thumbnail_size` text COLLATE 'utf8mb4_unicode_ci' NULL AFTER `create_thumbnails`,
     CHANGE `icon` `icon` varchar(50) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `thumbnail_size`;
 
@@ -1408,7 +1412,7 @@ ALTER TABLE `customer_group`
     CHANGE `description` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `group_key`,
     CHANGE `display_gross_prices` `display_gross` tinyint(1) NOT NULL DEFAULT '1' AFTER `name`,
     CHANGE `input_gross_prices` `input_gross` tinyint(1) NOT NULL DEFAULT '1' AFTER `display_gross`,
-    CHANGE `mode` `has_global_discount` tinyint NOT NULL DEFAULT '0' AFTER `input_gross`,
+    CHANGE `mode` `has_global_discount` tinyint(1) NOT NULL DEFAULT '0' AFTER `input_gross`,
     CHANGE `discount` `percentage_global_discount` double NULL AFTER `has_global_discount`,
     CHANGE `minimum_order_amount` `minimum_order_amount` double NULL AFTER `percentage_global_discount`,
     CHANGE `minimum_order_amount_surcharge` `minimum_order_amount_surcharge` double NULL AFTER `minimum_order_amount`;
@@ -1419,11 +1423,11 @@ ALTER TABLE `customer_group_discount`
 
 ALTER TABLE `filter`
     CHANGE `position` `position` int(11) NOT NULL DEFAULT '1' AFTER `name`,
-    CHANGE `comparable` `comparable` tinyint NOT NULL DEFAULT '1' AFTER `position`,
+    CHANGE `comparable` `comparable` tinyint(1) NOT NULL DEFAULT '1' AFTER `position`,
     CHANGE `sortmode` `sortmode` int(1) NOT NULL DEFAULT '0' AFTER `comparable`;
 
 ALTER TABLE `filter_option`
-    CHANGE `filterable` `filterable` tinyint NOT NULL DEFAULT '1' AFTER `name`;
+    CHANGE `filterable` `filterable` tinyint(1) NOT NULL DEFAULT '1' AFTER `name`;
 
 ALTER TABLE `filter_relation`
     CHANGE `position` `position` int(11) NOT NULL DEFAULT '1' AFTER `filter_option_uuid`;
@@ -1526,11 +1530,11 @@ ALTER TABLE `product_detail` CHANGE `stock` `stock` int(11) NOT NULL DEFAULT '0'
 ALTER TABLE `product_detail`
     CHANGE `stockmin` `min_stock` int(11) unsigned NULL AFTER `stock`,
     CHANGE `position` `position` int(11) unsigned NOT NULL DEFAULT '1' AFTER `weight`,
-    CHANGE `shipping_free` `shipping_free` tinyint NOT NULL DEFAULT '0' AFTER `release_date`;
+    CHANGE `shipping_free` `shipping_free` tinyint(1) NOT NULL DEFAULT '0' AFTER `release_date`;
 
 ALTER TABLE `product_esd`
-    CHANGE `serials` `has_serials` tinyint NOT NULL DEFAULT '0' AFTER `file`,
-    CHANGE `notification` `allow_notification` tinyint NOT NULL DEFAULT '0' AFTER `has_serials`;
+    CHANGE `serials` `has_serials` tinyint(1) NOT NULL DEFAULT '0' AFTER `file`,
+    CHANGE `notification` `allow_notification` tinyint(1) NOT NULL DEFAULT '0' AFTER `has_serials`;
 
 ALTER TABLE `product_link`
     CHANGE `target` `target` varchar(30) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `link`;
@@ -1584,8 +1588,10 @@ ALTER TABLE `shipping_method`
     CHANGE `calculation` `calculation` int(1) unsigned NOT NULL DEFAULT '0' AFTER `position`,
     CHANGE `surcharge_calculation` `surcharge_calculation` int(1) unsigned NULL AFTER `calculation`,
     CHANGE `tax_calculation` `tax_calculation` int(11) unsigned NOT NULL DEFAULT '0' AFTER `surcharge_calculation`,
-    CHANGE `bind_instock` `bind_instock` tinyint NULL AFTER `bind_time_to`,
-    CHANGE `bind_laststock` `bind_laststock` tinyint NOT NULL AFTER `bind_instock`;
+    CHANGE `bind_instock` `bind_instock` tinyint(1) NULL AFTER `bind_time_to`,
+    CHANGE `bind_laststock` `bind_laststock` tinyint(1) NOT NULL AFTER `bind_instock`,
+    CHANGE `bind_shippingfree` `bind_shippingfree` tinyint(1) NOT NULL AFTER `customer_group_uuid`
+;
 
 ALTER TABLE `shipping_method_price`
     CHANGE `shipping_method_uuid` `shipping_method_uuid` varchar(42) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `uuid`,

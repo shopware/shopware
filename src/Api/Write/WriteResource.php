@@ -121,7 +121,7 @@ abstract class WriteResource
      *
      * @return array
      */
-    private function map(
+    protected function map(
         array $fields,
         array $rawData,
         string $type,

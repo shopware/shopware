@@ -83,6 +83,7 @@ class AppKernel extends Kernel
             new \Shopware\PriceGroup\PriceGroup(),
             new \Shopware\PriceGroupDiscount\PriceGroupDiscount(),
             new \Shopware\Product\Product(),
+            new \Shopware\ProductVariant\ProductVariant(),
             new \Shopware\ProductManufacturer\ProductManufacturer(),
             new \Shopware\ProductPrice\ProductPrice(),
             new \Shopware\ProductStream\ProductStream(),

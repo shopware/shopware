@@ -80,6 +80,18 @@ EOD;
         's_cart',
     ];
 
+    private $specialCases = [
+        'product.product_manufacturer_uuid' => [
+            '$this->fields[\'manufacturer\'] = new ReferenceField(\'manufacturerUuid\', \'uuid\', ProductManufacturerWriteResource::class);',
+            '$this->fields[\'manufacturerUuid\'] = (new FkField(\'product_manufacturer_uuid\', ProductManufacturerWriteResource::class, \'uuid\'))->setFlags(new Required());'
+        ],
+        'product.tax_uuid' => [
+            '$this->fields[\'tax\'] = new ReferenceField(\'taxUuid\', \'uuid\', TaxWriteResource::class);',
+            '$this->fields[\'taxUuid\'] = (new FkField(\'tax_uuid\', TaxWriteResource::class, \'uuid\'))->setFlags(new Required());'
+        ],
+        'product.container_uuid' => ''
+    ];
+
     /**
      * @var \Doctrine\DBAL\Connection
      */
@@ -384,6 +396,11 @@ EOD;
             $required = true;
         }
 
+        $key = $tableName . '.' . $column->getName();
+        if (array_key_exists($key, $this->specialCases)) {
+            return $this->specialCases[$key];
+        }
+        
         return [
             sprintf('$this->fields[\'%s\'] = new ReferenceField(\'%s\', \'%s\', %s::class);',
                 FieldName::getFieldName($withoutUuid, $tableName),
@@ -405,6 +422,11 @@ EOD;
     private function makeWritableColumn(Column $column, string $tableName, bool $isPrimary): string
     {
         $columnName = $column->getName();
+
+        $key = $tableName . '.' . $columnName;
+        if (array_key_exists($key, $this->specialCases)) {
+            return $this->specialCases[$key];
+        }
 
         switch ($column->getType()) {
             case 'Integer':
@@ -561,7 +583,7 @@ class %s extends WriteResource
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): %sWrittenEvent
     {
         $uuids = [];
-        if ($updates[self::class]) {
+        if (isset($updates[self::class])) {
             $uuids = array_column($updates[self::class], 'uuid');
         }
         

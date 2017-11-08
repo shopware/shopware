@@ -57,7 +57,7 @@ class ConfigFormWriteResource extends WriteResource
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ConfigFormWrittenEvent
     {
         $uuids = [];
-        if ($updates[self::class]) {
+        if (isset($updates[self::class])) {
             $uuids = array_column($updates[self::class], 'uuid');
         }
 

@@ -76,7 +76,7 @@ class CustomerGroupWriteResource extends WriteResource
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): CustomerGroupWrittenEvent
     {
         $uuids = [];
-        if ($updates[self::class]) {
+        if (isset($updates[self::class])) {
             $uuids = array_column($updates[self::class], 'uuid');
         }
 

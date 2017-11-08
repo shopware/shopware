@@ -43,7 +43,7 @@ class ShopPageGroupWriteResource extends WriteResource
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ShopPageGroupWrittenEvent
     {
         $uuids = [];
-        if ($updates[self::class]) {
+        if (isset($updates[self::class])) {
             $uuids = array_column($updates[self::class], 'uuid');
         }
 

@@ -33,7 +33,6 @@ use Shopware\Tax\Writer\Resource\TaxWriteResource;
 class ProductWriteResource extends WriteResource
 {
     protected const UUID_FIELD = 'uuid';
-    protected const CONTAINER_UUID_FIELD = 'containerUuid';
     protected const IS_MAIN_FIELD = 'isMain';
     protected const ACTIVE_FIELD = 'active';
     protected const PRICE_GROUP_UUID_FIELD = 'priceGroupUuid';
@@ -74,7 +73,6 @@ class ProductWriteResource extends WriteResource
         parent::__construct('product');
 
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
-        $this->fields[self::CONTAINER_UUID_FIELD] = new StringField('container_uuid');
         $this->fields[self::IS_MAIN_FIELD] = new BoolField('is_main');
         $this->fields[self::ACTIVE_FIELD] = new BoolField('active');
         $this->fields[self::PRICE_GROUP_UUID_FIELD] = new StringField('price_group_uuid');
@@ -106,9 +104,9 @@ class ProductWriteResource extends WriteResource
         $this->fields['filterProducts'] = new SubresourceField(FilterProductWriteResource::class);
         $this->fields['premiumProducts'] = new SubresourceField(PremiumProductWriteResource::class);
         $this->fields['tax'] = new ReferenceField('taxUuid', 'uuid', TaxWriteResource::class);
-        $this->fields['taxUuid'] = (new FkField('tax_uuid', TaxWriteResource::class, 'uuid'));
+        $this->fields['taxUuid'] = (new FkField('tax_uuid', TaxWriteResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['manufacturer'] = new ReferenceField('manufacturerUuid', 'uuid', ProductManufacturerWriteResource::class);
-        $this->fields['manufacturerUuid'] = (new FkField('product_manufacturer_uuid', ProductManufacturerWriteResource::class, 'uuid'));
+        $this->fields['manufacturerUuid'] = (new FkField('product_manufacturer_uuid', ProductManufacturerWriteResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['filterGroup'] = new ReferenceField('filterGroupUuid', 'uuid', FilterWriteResource::class);
         $this->fields['filterGroupUuid'] = (new FkField('filter_group_uuid', FilterWriteResource::class, 'uuid'));
         $this->fields[self::ADDITIONAL_TEXT_FIELD] = new TranslatedField('additionalText', ShopWriteResource::class, 'uuid');
@@ -166,7 +164,7 @@ class ProductWriteResource extends WriteResource
     public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = []): ProductWrittenEvent
     {
         $uuids = [];
-        if ($updates[self::class]) {
+        if (isset($updates[self::class])) {
             $uuids = array_column($updates[self::class], 'uuid');
         }
 

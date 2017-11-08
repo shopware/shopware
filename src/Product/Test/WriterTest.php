@@ -58,24 +58,10 @@ class WriterTest extends KernelTestCase
                 'template' => 'foo',
                 'updatedAt' => new \DateTime(),
                 'active' => true,
-                'mainDetailUuid' => 'detail-1',
-                'details' => [
-                    [
-                        'uuid' => 'detail-1',
-                        'ean' => '1',
-                        'orderNumber' => 'foo',
-                        'position' => 0,
-                    ],
-                    [
-                        'uuid' => 'detail-2',
-                        'ean' => '55',
-                        'orderNumber' => 'bar',
-                        'position' => 1,
-                    ],
-                ],
             ],
             $this->createWriteContext(),
-            $this->createExtender());
+            $this->createExtender()
+        );
 
         $product = $this->connection->fetchAssoc('SELECT * FROM product WHERE uuid=:uuid', [
             'uuid' => self::UUID,
@@ -89,16 +75,11 @@ class WriterTest extends KernelTestCase
         $productCountBefore = (int) $this->connection->fetchColumn('SELECT COUNT(*) FROM product');
 
         $this->getWriter()->insert(ProductWriteResource::class, [
+            'uuid' => 'detail-1',
             'the_unknown_field' => 'do nothing?',
             'taxUuid' => 'SWAG-TAX-UUID-1',
             'name' => 'foo',
             'manufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2'],
-            'mainDetailUuid' => 'detail-1',
-            'details' => [
-                [
-                    'uuid' => 'detail-1',
-                ],
-            ],
         ], $this->createWriteContext(), $this->createExtender());
 
         $productCountAfter = (int) $this->connection->fetchColumn('SELECT COUNT(*) FROM product');
@@ -126,50 +107,18 @@ class WriterTest extends KernelTestCase
             'notification' => false,
             'template' => 'foo',
             'active' => true,
+            'additionaltext' => 'S / Schwarz',
+            'inStock' => 15,
+            'isMain' => true,
 
             'categories' => [
                 ['categoryUuid' => 'SWAG-CATEGORY-UUID-25'],
             ],
 
-            'mainDetailUuid' => $firstDetailUuid,
-
-            'details' => [
+            'prices' => [
                 [
-                    'isMain' => true,
-                    'uuid' => $firstDetailUuid,
-                    'inStock' => 15,
-                    'additionaltext' => 'S / Schwarz',
-                    'position' => 0,
-                    'prices' => [
-                        [
-                            'price' => (float) 999,
-                            'customerGroupUuid' => StorefrontContextService::FALLBACK_CUSTOMER_GROUP,
-                        ],
-                    ],
-                ],
-                [
-                    'number' => Uuid::uuid4()->toString(),
-                    'inStock' => 10,
-                    'position' => 0,
-                    'additionaltext' => 'S / Weiß',
-                    'prices' => [
-                        [
-                            'customerGroupUuid' => StorefrontContextService::FALLBACK_CUSTOMER_GROUP,
-                            'price' => (float) 888,
-                        ],
-                    ],
-                ],
-                [
-                    'number' => Uuid::uuid4()->toString(),
-                    'inStock' => 5,
-                    'additionaltext' => 'XL / Blue',
-                    'position' => 0,
-                    'prices' => [
-                        [
-                            'customerGroupUuid' => StorefrontContextService::FALLBACK_CUSTOMER_GROUP,
-                            'price' => (float) 555,
-                        ],
-                    ],
+                    'price' => (float) 999,
+                    'customerGroupUuid' => StorefrontContextService::FALLBACK_CUSTOMER_GROUP,
                 ],
             ],
         ], $this->createWriteContext(), $this->createExtender());
@@ -197,27 +146,11 @@ class WriterTest extends KernelTestCase
                 'uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-1',
                 'link' => 'http://www.shopware.com',
             ],
-            'mainDetailUuid' => 'detail-1',
-            'details' => [
-                [
-                    'uuid' => 'detail-1',
-                    'ean' => '1',
-                    'orderNumber' => 'foo',
-                    'position' => 0,
-                ],
-                [
-                    'uuid' => 'detail-2',
-                    'ean' => '55',
-                    'orderNumber' => 'bar',
-                    'position' => 1,
-                ],
-            ],
         ], $this->createWriteContext(), $this->createExtender());
 
         $product = $this->connection->fetchAssoc('SELECT * FROM product WHERE uuid=:uuid', ['uuid' => self::UUID]);
         $productManufacturer = $this->connection->fetchAssoc('SELECT * FROM product_manufacturer WHERE uuid=:uuid', ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-1']);
         $productManufacturerTranslation = $this->connection->fetchAssoc('SELECT * FROM product_manufacturer_translation WHERE product_manufacturer_uuid=:uuid', ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-1']);
-        $productDetails = $this->connection->fetchAll('SELECT * FROM product_detail WHERE product_uuid = :uuid', ['uuid' => self::UUID]);
         $productTranslation = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_uuid=:uuid', ['uuid' => self::UUID]);
 
         self::assertSame(self::UUID, $product['uuid']);
@@ -227,7 +160,6 @@ class WriterTest extends KernelTestCase
         self::assertSame('SWAG-PRODUCT-MANUFACTURER-UUID-1', $product['product_manufacturer_uuid']);
         self::assertSame('shopware AG', $productManufacturerTranslation['name']);
         self::assertSame('http://www.shopware.com', $productManufacturer['link']);
-        self::assertCount(3, $productDetails, print_r($productDetails, true));
     }
 
     public function testUpdateWritesDefaultColumnsIfOmmitted()
@@ -363,16 +295,7 @@ class WriterTest extends KernelTestCase
                 'product_manufacturer_uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2',
                 'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
                 'updated_at' => (new \DateTime())->format('Y-m-d H:i:s'),
-                'main_detail_uuid' => 'SWT999',
             ]);
-
-        $this->connection->insert(
-            'product_detail',
-            [
-                'uuid' => 'SWT999',
-                'product_uuid' => self::UUID,
-            ]
-        );
     }
 
     private function getWriter(): SqlResourceWriter

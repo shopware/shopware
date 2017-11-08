@@ -27,11 +27,11 @@ namespace Shopware\Cart\Product;
 
 use Shopware\Cart\Exception\NotImplementedException;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\ProductDetail\Struct\ProductDetailBasicCollection;
+use Shopware\Product\Struct\ProductBasicCollection;
 
 class ProductGateway implements ProductGatewayInterface
 {
-    public function get(array $numbers, ShopContext $context): ProductDetailBasicCollection
+    public function get(array $numbers, ShopContext $context): ProductBasicCollection
     {
         throw new NotImplementedException(ProductGatewayInterface::class);
     }

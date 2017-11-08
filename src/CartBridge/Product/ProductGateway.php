@@ -25,48 +25,46 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\Product;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Cart\Delivery\DeliveryInformation;
 use Shopware\Cart\Product\ProductDataCollection;
 use Shopware\Cart\Product\ProductGatewayInterface;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\ProductDetail\Repository\ProductDetailRepository;
-use Shopware\ProductDetail\Struct\ProductDetailBasicCollection;
-use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
-use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicCollection;
+use Shopware\Product\Repository\ProductRepository;
+use Shopware\Product\Struct\ProductBasicCollection;
+use Shopware\Product\Struct\ProductBasicStruct;
+use Shopware\ProductPrice\Struct\ProductPriceBasicCollection;
 
 class ProductGateway implements ProductGatewayInterface
 {
     /**
-     * @var ProductDetailRepository
+     * @var ProductRepository
      */
     private $repository;
 
-    public function __construct(ProductDetailRepository $repository)
+    public function __construct(ProductRepository $repository)
     {
         $this->repository = $repository;
     }
 
-    public function get(array $numbers, ShopContext $context): ProductDetailBasicCollection
+    public function get(array $numbers, ShopContext $context): ProductBasicCollection
     {
-        $details = $this->repository->readBasic(
+        $products = $this->repository->readBasic(
             $numbers,
             $context->getTranslationContext()
         );
 
-        foreach ($details as $detail) {
-            $detail->setPrices(
-                $this->filterCustomerGroupPrices($detail, $context)
+        foreach ($products as $product) {
+            $product->setPrices(
+                $this->filterCustomerGroupPrices($product, $context)
             );
         }
 
-        return $details;
+        return $products;
     }
 
-    private function filterCustomerGroupPrices(ProductDetailBasicStruct $detail, ShopContext $context): ProductDetailPriceBasicCollection
+    private function filterCustomerGroupPrices(ProductBasicStruct $product, ShopContext $context): ProductPriceBasicCollection
     {
-        $customerPrices = $detail->getPrices()->filterByCustomerGroupUuid(
+        $customerPrices = $product->getPrices()->filterByCustomerGroupUuid(
             $context->getCurrentCustomerGroup()->getUuid()
         );
 
@@ -74,7 +72,7 @@ class ProductGateway implements ProductGatewayInterface
             return $customerPrices;
         }
 
-        return $detail->getPrices()->filterByCustomerGroupUuid(
+        return $product->getPrices()->filterByCustomerGroupUuid(
             $context->getFallbackCustomerGroup()->getUuid()
         );
     }

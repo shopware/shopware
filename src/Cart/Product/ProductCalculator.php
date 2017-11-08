@@ -36,8 +36,8 @@ use Shopware\Cart\Tax\Struct\TaxRule;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
-use Shopware\ProductDetail\Struct\ProductDetailBasicStruct;
-use Shopware\ProductDetailPrice\Struct\ProductDetailPriceBasicStruct;
+use Shopware\Product\Struct\ProductBasicStruct;
+use Shopware\ProductPrice\Struct\ProductPriceBasicStruct;
 
 class ProductCalculator
 {
@@ -65,12 +65,12 @@ class ProductCalculator
                 continue;
             }
 
-            /** @var ProductDetailBasicStruct $detail */
-            $detail = $dataCollection->get($lineItem->getIdentifier());
+            /** @var ProductBasicStruct $product */
+            $product = $dataCollection->get($lineItem->getIdentifier());
 
             $priceDefinition = $lineItem->getPriceDefinition();
             if (!$priceDefinition) {
-                $priceDefinition = $this->getQuantityPrice($lineItem->getQuantity(), $detail);
+                $priceDefinition = $this->getQuantityPrice($lineItem->getQuantity(), $product);
             }
 
             $priceDefinition = new PriceDefinition(
@@ -88,8 +88,8 @@ class ProductCalculator
                     $price,
                     $lineItem->getIdentifier(),
                     $lineItem->getQuantity(),
-                    $detail->getStock(),
-                    $detail->getWeight(),
+                    $product->getStock(),
+                    $product->getWeight(),
                     $this->getInstockDeliveryDate(),
                     $this->getOutOfStockDeliveryDate(),
                     null
@@ -124,22 +124,20 @@ class ProductCalculator
         );
     }
 
-    private function getQuantityPrice(int $quantity, ProductDetailBasicStruct $detail): ?PriceDefinition
+    private function getQuantityPrice(int $quantity, ProductBasicStruct $product): ?PriceDefinition
     {
-        $detail->getPrices()->sort(
-            function(ProductDetailPriceBasicStruct $a, ProductDetailPriceBasicStruct $b) {
+        $product->getPrices()->sort(
+            function(ProductPriceBasicStruct $a, ProductPriceBasicStruct $b) {
                 return $a->getQuantityStart() < $b->getQuantityStart();
             }
         );
 
-        foreach ($detail->getPrices() as $price) {
+        foreach ($product->getPrices() as $price) {
             if ($price->getQuantityStart() <= $quantity) {
                 return new PriceDefinition(
                     $price->getPrice(),
-
-                    //todo@dr use taxes of product after product and detail merged
                     new TaxRuleCollection([
-                        new TaxRule(19)
+                        new TaxRule($product->getTax()->getRate())
                     ]),
                     $quantity
                 );

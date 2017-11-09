@@ -376,8 +376,7 @@ ALTER TABLE product
     DROP `description`,
     DROP `description_long`,
     DROP `keywords`,
-    DROP `meta_title`,
-    DROP `id`
+    DROP `meta_title`
 ;
 
 ALTER TABLE product_accessory

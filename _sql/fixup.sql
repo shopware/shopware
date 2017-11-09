@@ -2321,12 +2321,6 @@ ALTER TABLE `filter_option_attribute`
     ADD PRIMARY KEY (`uuid`, `filter_option_uuid`)
 ;
 
-ALTER TABLE `filter_product`
-    DROP PRIMARY KEY,
-    ADD PRIMARY KEY (`product_uuid`, `filter_value_uuid`),
-    ADD INDEX (`filter_value_uuid`, `product_uuid`)
-;
-
 ALTER TABLE `filter_relation`
     DROP PRIMARY KEY,
     CHANGE `id` `id` int(11),
@@ -2530,23 +2524,17 @@ ALTER TABLE `product_category_seo`
 
 -- TODO: product_configurator tables
 
-ALTER TABLE `product_detail`
+ALTER TABLE `product_price_attribute`
+    DROP FOREIGN KEY product_price_attribute_ibfk_1
+;
+
+ALTER TABLE `product_price`
     DROP PRIMARY KEY,
     CHANGE `id` `id` int(11),
     ADD PRIMARY KEY (`uuid`)
 ;
 
-ALTER TABLE `product_detail_price_attribute`
-    DROP FOREIGN KEY product_detail_price_attribute_ibfk_1
-;
-
-ALTER TABLE `product_detail_price`
-    DROP PRIMARY KEY,
-    CHANGE `id` `id` int(11),
-    ADD PRIMARY KEY (`uuid`)
-;
-
-ALTER TABLE `product_detail_price_attribute`
+ALTER TABLE `product_price_attribute`
     DROP PRIMARY KEY,
     CHANGE `id` `id` int(11),
     ADD PRIMARY KEY (`uuid`)
@@ -2679,6 +2667,12 @@ ALTER TABLE `product_stream_attribute`
 ;
 
 ALTER TABLE `product_stream_tab`
+    DROP PRIMARY KEY,
+    CHANGE `id` `id` int(11),
+    ADD PRIMARY KEY (`uuid`)
+;
+
+ALTER TABLE `product_top_seller_ro`
     DROP PRIMARY KEY,
     CHANGE `id` `id` int(11),
     ADD PRIMARY KEY (`uuid`)
@@ -3692,6 +3686,12 @@ UPDATE product_esd pe SET pe.product_uuid  = (SELECT uuid FROM product WHERE pro
 
 UPDATE filter_product f SET
     f.product_uuid = (SELECT uuid FROM product WHERE product.original_id = product_id AND is_main = 1 LIMIT 1)
+;
+
+ALTER TABLE `filter_product`
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (`product_uuid`, `filter_value_uuid`),
+    ADD INDEX (`filter_value_uuid`, `product_uuid`)
 ;
 
 UPDATE product_stream_tab SET product_uuid = (SELECT uuid FROM product WHERE product.original_id = product_id AND is_main = 1 LIMIT 1) WHERE product_id IS NOT NULL;

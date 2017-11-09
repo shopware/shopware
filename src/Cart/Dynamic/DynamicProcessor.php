@@ -40,7 +40,6 @@ class DynamicProcessor implements CartProcessorInterface
 
     /**
      * @param DynamicLineItemGatewayInterface $gateway
-     * @param CalculatedCartGenerator         $generator
      */
     public function __construct(DynamicLineItemGatewayInterface $gateway)
     {

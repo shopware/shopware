@@ -59,15 +59,10 @@
             <argument type="service" id="cart.tax.detector" />
         </service>
 
-
         <service id="cart.calculator" class="Shopware\Cart\Cart\CartCalculator">
             <argument type="tagged" tag="cart.processor" />
             <argument type="tagged" tag="cart.collector" />
             <argument type="service" id="cart.price.amount_calculator" />
-        </service>
-
-        <service id="cart.product.calculator" class="Shopware\Cart\Product\ProductCalculator">
-            <argument id="cart.price.calculator" type="service"/>
         </service>
 
         <service id="cart.delivery.stock_separator" class="Shopware\Cart\Delivery\StockDeliverySeparator">
@@ -80,24 +75,7 @@
             <argument id="cart.tax.percentage_rule_builder" type="service"/>
         </service>
 
-        <service class="Shopware\Cart\Voucher\VoucherCalculator" id="shopware.cart.voucher.voucher_calculator">
-            <argument id="cart.price.percentage_calculator" type="service"/>
-            <argument id="cart.price.calculator" type="service"/>
-            <argument id="cart.tax.percentage_rule_builder" type="service"/>
-        </service>
-
-
         <!-- cart processors-->
-        <service id="cart.product.processor" class="Shopware\Cart\Product\ProductProcessor">
-            <argument type="service" id="cart.product.calculator" />
-            <tag name="cart.processor" priority="1000" />
-        </service>
-
-        <service id="cart.voucher.processor" class="Shopware\Cart\Voucher\VoucherProcessor" >
-            <argument id="shopware.cart.voucher.voucher_calculator" type="service"/>
-            <tag name="cart.processor" priority="800"/>
-        </service>
-
         <service id="cart.dynamic.processor" class="Shopware\Cart\Dynamic\DynamicProcessor">
             <argument id="cart.dynamic.line_item_gateway" type="service"/>
             <tag name="cart.processor" priority="600" />
@@ -113,20 +91,7 @@
             <tag name="cart.processor" priority="200" />
         </service>
 
-        <!-- cart collectors -->
-        <service id="cart.product.collector" class="Shopware\Cart\Product\ProductCollector">
-            <argument id="cart.product.gateway" type="service"/>
-            <tag name="cart.collector" priority="1000" />
-        </service>
-
-        <service id="cart.voucher.collector" class="Shopware\Cart\Voucher\VoucherCollector" >
-            <argument id="cart.voucher.gateway" type="service"/>
-            <tag name="cart.collector"/>
-        </service>
-
         <!--requires implementation-->
-        <service id="cart.product.gateway" class="Shopware\Cart\Product\ProductGateway" />
-        <service id="cart.voucher.gateway" class="Shopware\Cart\Voucher\VoucherGateway" />
         <service id="cart.dynamic.line_item_gateway" class="Shopware\Cart\Dynamic\DynamicLineItemGateway" />
     </services>
 </container>

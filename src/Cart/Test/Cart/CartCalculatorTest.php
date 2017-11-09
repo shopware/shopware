@@ -33,10 +33,10 @@ use Shopware\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\Price\AmountCalculator;
 use Shopware\Cart\Price\Struct\CartPrice;
-use Shopware\Cart\Product\ProductProcessor;
+use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Cart\Voucher\VoucherProcessor;
+use Shopware\CartBridge\Voucher\VoucherProcessor;
 use Shopware\Context\Struct\ShopContext;
 
 class CartCalculatorTest extends TestCase

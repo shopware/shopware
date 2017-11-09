@@ -27,10 +27,10 @@ namespace Shopware\Cart\Test\Delivery;
 use PHPUnit\Framework\TestCase;
 use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\Cart\Delivery\Struct\Delivery;
-use Shopware\Cart\Delivery\Struct\DeliveryCollection;
+
 use Shopware\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Cart\Delivery\Struct\DeliveryPositionCollection;
-use Shopware\Cart\Delivery\Struct\ShippingLocation;
+
 use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
@@ -40,17 +40,17 @@ class DeliveryCollectionTest extends TestCase
 {
     public function testCollectionIsCountable(): void
     {
-        $collection = new \Shopware\Cart\Delivery\Struct\DeliveryCollection();
+        $collection = new DeliveryCollection();
         static::assertCount(0, $collection);
         static::assertSame(0, $collection->count());
     }
 
     public function testAddFunctionAddsANewDelivery(): void
     {
-        $collection = new \Shopware\Cart\Delivery\Struct\DeliveryCollection();
+        $collection = new DeliveryCollection();
         $collection->add(
-            new \Shopware\Cart\Delivery\Struct\Delivery(
-                new \Shopware\Cart\Delivery\Struct\DeliveryPositionCollection(),
+            new Delivery(
+                new DeliveryPositionCollection(),
                 new DeliveryDate(
                     new \DateTime(),
                     new \DateTime()
@@ -65,10 +65,10 @@ class DeliveryCollectionTest extends TestCase
 
     public function testCollectionCanBeFilledByConstructor(): void
     {
-        $collection = new \Shopware\Cart\Delivery\Struct\DeliveryCollection([
+        $collection = new DeliveryCollection([
             new Delivery(
                 new DeliveryPositionCollection(),
-                new \Shopware\Cart\Delivery\Struct\DeliveryDate(
+                new DeliveryDate(
                     new \DateTime(),
                     new \DateTime()
                 ),
@@ -78,7 +78,7 @@ class DeliveryCollectionTest extends TestCase
             ),
             new Delivery(
                 new DeliveryPositionCollection(),
-                new \Shopware\Cart\Delivery\Struct\DeliveryDate(
+                new DeliveryDate(
                     new \DateTime(),
                     new \DateTime()
                 ),
@@ -92,10 +92,10 @@ class DeliveryCollectionTest extends TestCase
 
     public function testCollectionCanBeCleared(): void
     {
-        $collection = new \Shopware\Cart\Delivery\Struct\DeliveryCollection([
+        $collection = new DeliveryCollection([
             new Delivery(
                 new DeliveryPositionCollection(),
-                new \Shopware\Cart\Delivery\Struct\DeliveryDate(
+                new DeliveryDate(
                     new \DateTime(),
                     new \DateTime()
                 ),
@@ -103,9 +103,9 @@ class DeliveryCollectionTest extends TestCase
                 self::createShippingLocation(),
                 new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
             ),
-            new \Shopware\Cart\Delivery\Struct\Delivery(
+            new Delivery(
                 new DeliveryPositionCollection(),
-                new \Shopware\Cart\Delivery\Struct\DeliveryDate(
+                new DeliveryDate(
                     new \DateTime(),
                     new \DateTime()
                 ),
@@ -118,11 +118,11 @@ class DeliveryCollectionTest extends TestCase
         static::assertCount(0, $collection);
     }
 
-    private static function createShippingLocation(): \Shopware\Cart\Delivery\Struct\ShippingLocation
+    private static function createShippingLocation(): ShippingLocation
     {
         $country = new AreaCountryBasicStruct();
         $country->setAreaUuid('SWAG-AREA-UUID-1');
 
-        return \Shopware\Cart\Delivery\Struct\ShippingLocation::createFromCountry($country);
+        return ShippingLocation::createFromCountry($country);
     }
 }

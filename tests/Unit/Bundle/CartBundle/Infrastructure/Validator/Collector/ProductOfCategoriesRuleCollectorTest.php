@@ -28,7 +28,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Product\Struct\ProductFetchDefinition;
+use Shopware\CartBridge\Product\Struct\ProductFetchDefinition;
 use Shopware\CartBridge\Rule\Collector\ProductOfCategoriesRuleCollector;
 use Shopware\CartBridge\Rule\Data\ProductOfCategoriesRuleData;
 use Shopware\CartBridge\Rule\ProductOfCategoriesRule;

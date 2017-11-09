@@ -26,14 +26,14 @@ declare(strict_types=1);
 namespace Shopware\CartBridge\View;
 
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
-use Shopware\Cart\Product\Struct\CalculatedProduct;
+use Shopware\CartBridge\Product\Struct\CalculatedProduct;
 use Shopware\Media\Struct\MediaBasicStruct;
 use Shopware\Product\Struct\ProductBasicStruct;
 
 class ViewProduct extends ProductBasicStruct implements ViewLineItemInterface
 {
     /**
-     * @var \Shopware\Cart\Product\Struct\CalculatedProduct
+     * @var \Shopware\CartBridge\Product\Struct\CalculatedProduct
      */
     protected $product;
 

@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Price\PercentagePriceCalculator;
 use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Price\PriceCalculator;
-use Shopware\Cart\Price\Struct\PriceCollection;
+
 use Shopware\Cart\Price\PriceRounding;
 use Shopware\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -48,12 +48,12 @@ class PercentagePriceCalculatorTest extends TestCase
      *
      * @param float           $percentage
      * @param Price           $expected
-     * @param \Shopware\Cart\Price\Struct\PriceCollection $prices
+     * @param PriceCollection $prices
      */
     public function testCalculatePercentagePriceOfGrossPrices(
         $percentage,
         Price $expected,
-        \Shopware\Cart\Price\Struct\PriceCollection $prices
+        PriceCollection $prices
     ): void {
         $rounding = new PriceRounding(2);
 
@@ -108,8 +108,8 @@ class PercentagePriceCalculatorTest extends TestCase
                     ])
                 ),
                 //prices of cart line items
-                new \Shopware\Cart\Price\Struct\PriceCollection([
-                    new \Shopware\Cart\Price\Struct\Price(30.00, 30.00, new CalculatedTaxCollection([new CalculatedTax(4.79, 19, 30.00)]), $highTax),
+                new PriceCollection([
+                    new Price(30.00, 30.00, new CalculatedTaxCollection([new CalculatedTax(4.79, 19, 30.00)]), $highTax),
                     new Price(30.00, 30.00, new CalculatedTaxCollection([new CalculatedTax(1.96, 7, 30.00)]), $highTax),
                 ]),
             ],

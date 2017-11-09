@@ -1,12 +1,11 @@
 <?php
 
-namespace Shopware\Cart\Product;
+namespace Shopware\CartBridge\Product;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Cart\CartProcessorInterface;
-use Shopware\Cart\LineItem\LineItem;
-use Shopware\Cart\Product\Struct\CalculatedProduct;
+use Shopware\CartBridge\Product\Struct\CalculatedProduct;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 
@@ -48,12 +47,7 @@ class ProductPostValidator implements CartProcessorInterface
 
             $calculatedCart->getCalculatedLineItems()->remove($product->getIdentifier());
             $cartContainer->getLineItems()->remove($product->getIdentifier());
-//            $cartContainer->getErrors()->add()
             $throwException = true;
         }
-
-//        if ($throwException) {
-//            throw new RecalculateException();
-//        }
     }
 }

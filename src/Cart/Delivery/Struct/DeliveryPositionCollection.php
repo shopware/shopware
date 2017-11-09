@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Delivery\Struct;
 
-use Shopware\Cart\Delivery\Struct\DeliveryPosition;
+
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\DeliverableLineItemInterface;
 use Shopware\Cart\Price\Struct\PriceCollection;

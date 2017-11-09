@@ -29,8 +29,8 @@ use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\CalculatedCartGenerator;
 use Shopware\Cart\Cart\CartCalculator;
 use Shopware\Cart\Cart\Struct\CartContainer;
-use Shopware\Cart\Product\ProductProcessor;
-use Shopware\Cart\Voucher\VoucherProcessor;
+use Shopware\CartBridge\Product\ProductProcessor;
+use Shopware\CartBridge\Voucher\VoucherProcessor;
 use Shopware\Context\Struct\ShopContext;
 
 class CartCalculatorTest extends TestCase

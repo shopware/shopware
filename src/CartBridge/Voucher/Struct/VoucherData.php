@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Cart\Voucher\Struct;
+namespace Shopware\CartBridge\Voucher\Struct;
 
 use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Rule\Rule;

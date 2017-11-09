@@ -5,9 +5,44 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+
+        <!--calculations-->
+        <service id="shopware.cart.product.calculator" class="Shopware\CartBridge\Product\ProductCalculator">
+            <argument id="cart.price.calculator" type="service"/>
+        </service>
+
+        <service id="shopware.cart.voucher.voucher_calculator" class="Shopware\CartBridge\Voucher\VoucherCalculator" >
+            <argument id="cart.price.percentage_calculator" type="service"/>
+            <argument id="cart.price.calculator" type="service"/>
+            <argument id="cart.tax.percentage_rule_builder" type="service"/>
+        </service>
+
+        <!--cart processors-->
+        <service id="cart.product.processor" class="Shopware\CartBridge\Product\ProductProcessor">
+            <argument type="service" id="shopware.cart.product.calculator" />
+            <tag name="cart.processor" priority="1000" />
+        </service>
+
+        <service id="shopware.cart.voucher.processor" class="Shopware\CartBridge\Voucher\VoucherProcessor" >
+            <argument id="shopware.cart.voucher.voucher_calculator" type="service"/>
+            <tag name="cart.processor" priority="800"/>
+        </service>
+
+
+        <!--cart line item data collectors-->
+        <service id="shopware.cart.product.collector" class="Shopware\CartBridge\Product\ProductCollector">
+            <argument id="shopware.cart.product.gateway" type="service"/>
+            <tag name="cart.collector" priority="1000" />
+        </service>
+
+        <service id="shopware.cart.voucher.collector" class="Shopware\CartBridge\Voucher\VoucherCollector" >
+            <argument id="shopware.cart.voucher.gateway" type="service"/>
+            <tag name="cart.collector"/>
+        </service>
+
+
         <!--interface implementations of cart bundle-->
-        <service id="cart.product.gateway" alias="shopware.cart.product.gateway" />
-        <service id="cart.voucher.gateway" alias="shopware.cart.voucher.gateway" />
+
         <service id="cart.dynamic.line_item_gateway" alias="shopware.cart.dynamic.line_item_gateway" />
 
         <service id="shopware.cart.dynamic.line_item_gateway" class="Shopware\CartBridge\Dynamic\DynamicLineItemGateway">

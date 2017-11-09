@@ -23,9 +23,9 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Cart\Voucher\Struct;
+namespace Shopware\CartBridge\Voucher\Struct;
 
-use Shopware\Cart\Voucher\Struct\VoucherData;
+use Shopware\CartBridge\Voucher\Struct\VoucherData;
 use Shopware\Framework\Struct\Collection;
 
 class VoucherDataCollection extends Collection

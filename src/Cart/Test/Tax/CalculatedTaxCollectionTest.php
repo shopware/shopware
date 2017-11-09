@@ -65,7 +65,7 @@ class CalculatedTaxCollectionTest extends TestCase
 
     public function testFillFunctionFillsTheCollection(): void
     {
-        $collection = new \Shopware\Cart\Tax\Struct\CalculatedTaxCollection();
+        $collection = new CalculatedTaxCollection();
         $collection->fill([
             new CalculatedTax(5.50, 19, 1),
             new CalculatedTax(4.40, 18, 1),
@@ -84,7 +84,7 @@ class CalculatedTaxCollectionTest extends TestCase
 
     public function testTaxesCanBeGetterByTheirRate(): void
     {
-        $collection = new \Shopware\Cart\Tax\Struct\CalculatedTaxCollection([
+        $collection = new CalculatedTaxCollection([
             new CalculatedTax(5.50, 19, 1),
             new CalculatedTax(4.40, 18, 1),
             new CalculatedTax(3.30, 17, 1),
@@ -116,7 +116,7 @@ class CalculatedTaxCollectionTest extends TestCase
         );
 
         static::assertEquals(
-            new \Shopware\Cart\Tax\Struct\CalculatedTaxCollection([
+            new CalculatedTaxCollection([
                 new CalculatedTax(5.50, 19, 1),
                 new CalculatedTax(5.50, 18, 1),
             ]),
@@ -135,7 +135,7 @@ class CalculatedTaxCollectionTest extends TestCase
 
         static::assertEquals(
             new CalculatedTaxCollection([
-                new \Shopware\Cart\Tax\Struct\CalculatedTax(11.00, 19, 2),
+                new CalculatedTax(11.00, 19, 2),
             ]),
             $collection
         );
@@ -211,7 +211,7 @@ class CalculatedTaxCollectionTest extends TestCase
 
         static::assertEquals(new CalculatedTaxCollection([
             new CalculatedTax(5.50, 18, 1),
-            new \Shopware\Cart\Tax\Struct\CalculatedTax(5.50, 17, 1),
+            new CalculatedTax(5.50, 17, 1),
         ]), $collection);
     }
 

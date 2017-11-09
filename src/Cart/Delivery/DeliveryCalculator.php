@@ -108,6 +108,7 @@ class DeliveryCalculator
                 break;
 
             case self::CALCULATION_BY_CUSTOM:
+            default:
 
                 return;
         }

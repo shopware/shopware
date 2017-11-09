@@ -22,12 +22,12 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Cart\Voucher;
+namespace Shopware\CartBridge\Voucher;
 
 use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Cart\CollectorInterface;
-use Shopware\Cart\Voucher\Struct\VoucherData;
-use Shopware\Cart\Voucher\Struct\VoucherFetchDefinition;
+use Shopware\CartBridge\Voucher\Struct\VoucherData;
+use Shopware\CartBridge\Voucher\Struct\VoucherFetchDefinition;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 

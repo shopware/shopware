@@ -23,7 +23,7 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Cart\Product;
+namespace Shopware\CartBridge\Product;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\CartContainer;

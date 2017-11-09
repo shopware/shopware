@@ -38,15 +38,15 @@ use Shopware\Cart\Price\PercentagePriceCalculator;
 use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\Struct\PriceDefinition;
-use Shopware\Cart\Product\ProductProcessor;
+use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\Cart\Rule\Container\AndRule;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Cart\Voucher\AbsoluteVoucherData;
-use Shopware\Cart\Voucher\Struct\CalculatedVoucher;
-use Shopware\Cart\Voucher\PercentageVoucherData;
-use Shopware\Cart\Voucher\VoucherProcessor;
+use Shopware\CartBridge\Voucher\AbsoluteVoucherData;
+use Shopware\CartBridge\Voucher\Struct\CalculatedVoucher;
+use Shopware\CartBridge\Voucher\PercentageVoucherData;
+use Shopware\CartBridge\Voucher\VoucherProcessor;
 use Shopware\Framework\Struct\StructCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Tests\Unit\Bundle\CartBundle\Common\DummyProduct;
@@ -232,7 +232,7 @@ class VoucherProcessorTest extends TestCase
         ]);
         $processor->process($cartContainer, $processorCart, $data, $this->createMock(ShopContext::class));
         $this->assertSame(1, $processorCart->getCalculatedLineItems()->filterInstance(
-            \Shopware\Cart\Voucher\Struct\CalculatedVoucher::class)->count());
+            \Shopware\CartBridge\Voucher\Struct\CalculatedVoucher::class)->count());
 
         /** @var CalculatedVoucher $voucher */
         $voucher = $processorCart->getCalculatedLineItems()->get('voucher');
@@ -291,6 +291,6 @@ class VoucherProcessorTest extends TestCase
         $processor->process($cartContainer, $processorCart, $data, $this->createMock(ShopContext::class));
 
         $this->assertSame(1, $processorCart->getCalculatedLineItems()->filterInstance(
-            \Shopware\Cart\Voucher\Struct\CalculatedVoucher::class)->count());
+            \Shopware\CartBridge\Voucher\Struct\CalculatedVoucher::class)->count());
     }
 }

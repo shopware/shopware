@@ -29,12 +29,12 @@ use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\LineItem;
 use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Price\Struct\PriceCollection;
-use Shopware\Cart\Product\ProductProcessor;
+use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\Cart\Rule\Container\AndRule;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Cart\Voucher\Struct\CalculatedVoucher;
-use Shopware\Cart\Voucher\VoucherProcessor;
+use Shopware\CartBridge\Voucher\Struct\CalculatedVoucher;
+use Shopware\CartBridge\Voucher\VoucherProcessor;
 use Shopware\Tests\Unit\Bundle\CartBundle\Common\ConfiguredGoodsItem;
 use Shopware\Tests\Unit\Bundle\CartBundle\Common\ConfiguredLineItem;
 

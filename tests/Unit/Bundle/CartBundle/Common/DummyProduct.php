@@ -28,7 +28,7 @@ use Shopware\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Cart\Delivery\DeliveryInformation;
 use Shopware\Cart\LineItem\LineItem;
 use Shopware\Cart\Price\Struct\Price;
-use Shopware\Cart\Product\Struct\CalculatedProduct;
+use Shopware\CartBridge\Product\Struct\CalculatedProduct;
 use Shopware\Cart\Rule\Container\AndRule;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;

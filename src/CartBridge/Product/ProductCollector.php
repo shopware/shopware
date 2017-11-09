@@ -23,11 +23,11 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Cart\Product;
+namespace Shopware\CartBridge\Product;
 
 use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Cart\CollectorInterface;
-use Shopware\Cart\Product\Struct\ProductFetchDefinition;
+use Shopware\CartBridge\Product\Struct\ProductFetchDefinition;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 

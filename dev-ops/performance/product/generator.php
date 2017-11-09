@@ -7,12 +7,13 @@ use Symfony\Component\Dotenv\Dotenv;
 
 (new Dotenv())->load(__DIR__.'/../../../.env');
 
-const MAX_ROWS = 10000;
+const MAX_ROWS = 100000;
 
 $faker = Faker\Factory::create();
 
 $genTpl = function(int $i) use($faker): array {
     $ret = [
+        'uuid' => $faker->uuid(),
         'name' => $faker->name(),
         'description' => $faker->text(),
         'descriptionLong' => $faker->randomHtml(2,3),
@@ -24,63 +25,50 @@ $genTpl = function(int $i) use($faker): array {
             ['categoryUuid' => 'SWAG-CATEGORY-UUID-' . $faker->randomElement([16,17,19,20])],
             ['categoryUuid' => 'SWAG-CATEGORY-UUID-' . $faker->randomElement([13,14,15])]
         ],
-        'details' => []
-    ];
-
-    $detailCount = 2; //rand(1, 10);
-    $main = null;
-    for($i2 = 0; $i2 < $detailCount; $i2++) {
-        $uuid = $faker->uuid();
-        if ($main === null) $main = $uuid;
-        $ret['details'][] = [
-            'uuid' => $uuid,
-            'active' => true,
-            'stock' => $faker->randomNumber(),
-            'prices' => [
-                [
-                    'customerGroupUuid' => '3294e6f6-372b-415f-ac73-71cbc191548f',
-                    'price' => $faker->randomFloat(2, 60, 100),
-                    'quantityStart' => 1,
-                    'quantityEnd' => 4
-                ], [
-                    'customerGroupUuid' => '3294e6f6-372b-415f-ac73-71cbc191548f',
-                    'price' => $faker->randomFloat(2, 40, 59),
-                    'quantityStart' => 5,
-                    'quantityEnd' => 10
-                ], [
-                    'customerGroupUuid' => '3294e6f6-372b-415f-ac73-71cbc191548f',
-                    'price' => $faker->randomFloat(2, 30, 39),
-                    'quantityStart' => 11,
-                    'quantityEnd' => 15
-                ], [
-                    'customerGroupUuid' => '3294e6f6-372b-415f-ac73-71cbc191548f',
-                    'price' => $faker->randomFloat(2, 10, 29),
-                    'quantityStart' => 16
-                ],
-                [
-                    'customerGroupUuid' => 'SWAG-CUSTOMER-GROUP-UUID-2',
-                    'price' => $faker->randomFloat(2, 60, 100),
-                    'quantityStart' => 1,
-                    'quantityEnd' => 4
-                ], [
-                    'customerGroupUuid' => 'SWAG-CUSTOMER-GROUP-UUID-2',
-                    'price' => $faker->randomFloat(2, 40, 59),
-                    'quantityStart' => 5,
-                    'quantityEnd' => 10
-                ], [
-                    'customerGroupUuid' => 'SWAG-CUSTOMER-GROUP-UUID-2',
-                    'price' => $faker->randomFloat(2, 30, 39),
-                    'quantityStart' => 11,
-                    'quantityEnd' => 15
-                ], [
-                    'customerGroupUuid' => 'SWAG-CUSTOMER-GROUP-UUID-2',
-                    'price' => $faker->randomFloat(2, 10, 29),
-                    'quantityStart' => 16
-                ]
+        'stock' => $faker->randomNumber(),
+        'prices' => [
+            [
+                'customerGroupUuid' => '3294e6f6-372b-415f-ac73-71cbc191548f',
+                'price' => $faker->randomFloat(2, 60, 100),
+                'quantityStart' => 1,
+                'quantityEnd' => 4
+            ], [
+                'customerGroupUuid' => '3294e6f6-372b-415f-ac73-71cbc191548f',
+                'price' => $faker->randomFloat(2, 40, 59),
+                'quantityStart' => 5,
+                'quantityEnd' => 10
+            ], [
+                'customerGroupUuid' => '3294e6f6-372b-415f-ac73-71cbc191548f',
+                'price' => $faker->randomFloat(2, 30, 39),
+                'quantityStart' => 11,
+                'quantityEnd' => 15
+            ], [
+                'customerGroupUuid' => '3294e6f6-372b-415f-ac73-71cbc191548f',
+                'price' => $faker->randomFloat(2, 10, 29),
+                'quantityStart' => 16
             ],
-        ];
-    }
-    $ret['mainDetailUuid'] = $main;
+            [
+                'customerGroupUuid' => 'SWAG-CUSTOMER-GROUP-UUID-2',
+                'price' => $faker->randomFloat(2, 60, 100),
+                'quantityStart' => 1,
+                'quantityEnd' => 4
+            ], [
+                'customerGroupUuid' => 'SWAG-CUSTOMER-GROUP-UUID-2',
+                'price' => $faker->randomFloat(2, 40, 59),
+                'quantityStart' => 5,
+                'quantityEnd' => 10
+            ], [
+                'customerGroupUuid' => 'SWAG-CUSTOMER-GROUP-UUID-2',
+                'price' => $faker->randomFloat(2, 30, 39),
+                'quantityStart' => 11,
+                'quantityEnd' => 15
+            ], [
+                'customerGroupUuid' => 'SWAG-CUSTOMER-GROUP-UUID-2',
+                'price' => $faker->randomFloat(2, 10, 29),
+                'quantityStart' => 16
+            ]
+        ]
+    ];
 
     return $ret;
 };

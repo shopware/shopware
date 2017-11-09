@@ -22,15 +22,24 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Cart\Voucher;
+namespace Shopware\CartBridge\Voucher\Struct;
 
-use Shopware\Cart\Voucher\Struct\VoucherDataCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Struct\Struct;
 
-interface VoucherGatewayInterface
+class VoucherFetchDefinition extends Struct
 {
-    public function get(
-        array $codes,
-        ShopContext $context
-    ): VoucherDataCollection;
+    /**
+     * @var string[]
+     */
+    protected $codes;
+
+    public function __construct(array $codes)
+    {
+        $this->codes = $codes;
+    }
+
+    public function getCodes(): array
+    {
+        return $this->codes;
+    }
 }

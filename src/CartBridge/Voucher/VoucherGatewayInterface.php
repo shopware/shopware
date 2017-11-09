@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -23,41 +22,15 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Cart\Payment;
+namespace Shopware\CartBridge\Voucher;
 
-use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\ValidatorInterface;
-use Shopware\Cart\Error\PaymentBlockedError;
+use Shopware\CartBridge\Voucher\Struct\VoucherDataCollection;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
 
-class PaymentValidatorProcessor implements ValidatorInterface
+interface VoucherGatewayInterface
 {
-    public function validate(
-        CalculatedCart $cart,
-        ShopContext $context,
-        StructCollection $dataCollection
-    ): bool {
-        if (!$context->getCustomer()) {
-            return true;
-        }
-
-        $payment = $context->getPaymentMethod();
-
-        if (!$payment->getRule()) {
-            return true;
-        }
-
-        $valid = $payment->getRule()->match($cart, $context, $dataCollection);
-
-        if ($valid->matches()) {
-            return true;
-        }
-
-        $cart->getErrors()->add(
-            new PaymentBlockedError($payment->getId(), $payment->getLabel())
-        );
-
-        return true;
-    }
+    public function get(
+        array $codes,
+        ShopContext $context
+    ): VoucherDataCollection;
 }

@@ -30,7 +30,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Price\PriceDefinitionCollection;
-use Shopware\Cart\Product\ProductPriceCollection;
+use Shopware\CartBridge\Product\ProductPriceCollection;
 use Shopware\Cart\Tax\Struct\TaxRule;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\CartBridge\Product\ProductPriceGateway;

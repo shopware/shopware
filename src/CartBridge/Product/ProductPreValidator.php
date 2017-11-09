@@ -1,6 +1,6 @@
 <?php
 
-namespace Shopware\Cart\Product;
+namespace Shopware\CartBridge\Product;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\CartContainer;
@@ -30,7 +30,6 @@ class ProductPreValidator implements CartProcessorInterface
             }
 
             $cartContainer->getLineItems()->remove($product->getIdentifier());
-//            $cartContainer->getErrors()->add();
         }
     }
 }

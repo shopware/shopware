@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Tax\Struct;
 
-use Shopware\Cart\Tax\Struct\TaxRuleInterface;
+
 use Shopware\Framework\Struct\Collection;
 
 class TaxRuleCollection extends Collection

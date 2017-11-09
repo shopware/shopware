@@ -44,8 +44,8 @@ class TaxCalculator
     private $calculators;
 
     /**
-     * @param PriceRounding                $rounding
-     * @param TaxRuleCalculatorInterface[] $calculators
+     * @param PriceRounding $rounding
+     * @param iterable|TaxRuleCalculatorInterface[] $calculators
      */
     public function __construct(
         PriceRounding $rounding,

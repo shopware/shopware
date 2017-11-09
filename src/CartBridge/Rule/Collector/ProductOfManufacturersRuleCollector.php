@@ -27,7 +27,7 @@ namespace Shopware\CartBridge\Rule\Collector;
 use Doctrine\DBAL\Connection;
 use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Cart\CollectorInterface;
-use Shopware\Cart\Product\Struct\ProductFetchDefinition;
+use Shopware\CartBridge\Product\Struct\ProductFetchDefinition;
 use Shopware\Cart\Rule\RuleCollection;
 use Shopware\Cart\Rule\Validatable;
 use Shopware\CartBridge\Rule\Data\ProductOfManufacturerRuleData;
@@ -95,7 +95,7 @@ class ProductOfManufacturersRuleCollector implements CollectorInterface
 
         $numbers = [];
 
-        /** @var \Shopware\Cart\Product\Struct\ProductFetchDefinition $definition */
+        /** @var \Shopware\CartBridge\Product\Struct\ProductFetchDefinition $definition */
         foreach ($definitions as $definition) {
             $numbers = array_merge($numbers, $definition->getNumbers());
         }

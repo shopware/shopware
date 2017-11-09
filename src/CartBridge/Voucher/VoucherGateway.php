@@ -30,11 +30,11 @@ use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Rule\Container\AndRule;
 use Shopware\Cart\Rule\Rule;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Cart\Voucher\AbsoluteVoucherData;
-use Shopware\Cart\Voucher\PercentageVoucherData;
-use Shopware\Cart\Voucher\Struct\VoucherData;
-use Shopware\Cart\Voucher\Struct\VoucherDataCollection;
-use Shopware\Cart\Voucher\VoucherGatewayInterface;
+use Shopware\CartBridge\Voucher\AbsoluteVoucherData;
+use Shopware\CartBridge\Voucher\PercentageVoucherData;
+use Shopware\CartBridge\Voucher\Struct\VoucherData;
+use Shopware\CartBridge\Voucher\Struct\VoucherDataCollection;
+use Shopware\CartBridge\Voucher\VoucherGatewayInterface;
 use Shopware\CartBridge\Rule\CustomerGroupRule;
 use Shopware\CartBridge\Rule\DateRangeRule;
 use Shopware\CartBridge\Rule\GoodsPriceRule;
@@ -75,7 +75,7 @@ class VoucherGateway implements VoucherGatewayInterface
         $price = (float) $row['value'];
 
         if ($row['percental']) {
-            return new \Shopware\Cart\Voucher\Struct\VoucherData(
+            return new \Shopware\CartBridge\Voucher\Struct\VoucherData(
                 $row['code'],
                 $this->buildRule($row),
                 (float) $price,

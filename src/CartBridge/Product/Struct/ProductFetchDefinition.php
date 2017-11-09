@@ -23,16 +23,30 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Cart\Product;
+namespace Shopware\CartBridge\Product\Struct;
 
-use Shopware\Cart\Exception\NotImplementedException;
-use Shopware\Context\Struct\ShopContext;
-use Shopware\Product\Struct\ProductBasicCollection;
+use Shopware\Framework\Struct\Struct;
 
-class ProductGateway implements ProductGatewayInterface
+class ProductFetchDefinition extends Struct
 {
-    public function get(array $numbers, ShopContext $context): ProductBasicCollection
+    /**
+     * @var string[]
+     */
+    protected $numbers;
+
+    /**
+     * @param string[] $numbers
+     */
+    public function __construct(array $numbers)
     {
-        throw new NotImplementedException(ProductGatewayInterface::class);
+        $this->numbers = $numbers;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getNumbers(): array
+    {
+        return $this->numbers;
     }
 }

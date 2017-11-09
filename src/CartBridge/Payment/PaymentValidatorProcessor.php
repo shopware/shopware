@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -22,50 +23,41 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Cart\Voucher;
+namespace Shopware\CartBridge\Payment;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\ValidatorInterface;
-use Shopware\Cart\Error\Error;
-use Shopware\Cart\Error\ValidationError;
+use Shopware\Cart\Error\PaymentBlockedError;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 
-class VoucherValidator implements ValidatorInterface
+class PaymentValidatorProcessor implements ValidatorInterface
 {
     public function validate(
         CalculatedCart $cart,
         ShopContext $context,
         StructCollection $dataCollection
     ): bool {
-//        $vouchers = $cart->getCalculatedLineItems()->filterInstance(CalculatedVoucher::class);
-//
-//        if ($vouchers->count() === 0) {
-//            return true;
-//        }
-//
-//        $valid = true;
-//
-//        /** @var CalculatedVoucher[] $vouchers */
-//        foreach ($vouchers as $voucher) {
-//            $allowed = $voucher->getRule()->match($cart, $context, $dataCollection);
-//
-//            if ($allowed->matches()) {
-//                continue;
-//            }
-//
-//            $cart->getCartContainer()->getLineItems()->remove(
-//                $voucher->getLineItem()->getIdentifier()
-//            );
-//
-//            foreach ($allowed->getMessages() as $message) {
-//                $cart->getErrors()->add(
-//                    new ValidationError(Error::LEVEL_ERROR, $message, $voucher->getCode())
-//                );
-//            }
-//            $valid = false;
-//        }
-//
-//        return $valid;
+        if (!$context->getCustomer()) {
+            return true;
+        }
+
+        $payment = $context->getPaymentMethod();
+
+        if (!$payment->getRule()) {
+            return true;
+        }
+
+        $valid = $payment->getRule()->match($cart, $context, $dataCollection);
+
+        if ($valid->matches()) {
+            return true;
+        }
+
+        $cart->getErrors()->add(
+            new PaymentBlockedError($payment->getId(), $payment->getLabel())
+        );
+
+        return true;
     }
 }

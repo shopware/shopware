@@ -23,7 +23,7 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Cart\Voucher;
+namespace Shopware\CartBridge\Voucher;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\CartContainer;
@@ -36,7 +36,7 @@ use Shopware\Cart\Price\PercentagePriceCalculator;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
-use Shopware\Cart\Voucher\Struct\VoucherData;
+use Shopware\CartBridge\Voucher\Struct\VoucherData;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 

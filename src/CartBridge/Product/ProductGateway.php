@@ -26,8 +26,7 @@ declare(strict_types=1);
 namespace Shopware\CartBridge\Product;
 
 use Shopware\Cart\Delivery\DeliveryInformation;
-use Shopware\Cart\Product\ProductDataCollection;
-use Shopware\Cart\Product\ProductGatewayInterface;
+use Shopware\CartBridge\Product\ProductDataCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Product\Repository\ProductRepository;
 use Shopware\Product\Struct\ProductBasicCollection;

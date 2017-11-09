@@ -43,8 +43,8 @@ class DeliveryDate extends Struct
         \DateTime $earliest,
         \DateTime $latest
     ) {
-        $earliest->setTime(16, 0, 0);
-        $latest->setTime(16, 0, 0);
+        $earliest->setTime(16, 0);
+        $latest->setTime(16, 0);
 
         $this->earliest = $earliest;
         $this->latest = $latest;

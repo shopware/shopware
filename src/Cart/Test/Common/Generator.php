@@ -29,7 +29,7 @@ use Shopware\Area\Struct\AreaBasicStruct;
 use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\AreaCountryState\Struct\AreaCountryStateBasicStruct;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Cart\Price\Struct\PriceDefinition;
+
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\CartBridge\Product\ProductPriceGateway;
 use Shopware\Context\Struct\ShopContext;

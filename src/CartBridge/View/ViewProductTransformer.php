@@ -30,7 +30,7 @@ use Shopware\Api\Search\Query\TermQuery;
 use Shopware\Api\Search\Query\TermsQuery;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Cart\Product\Struct\CalculatedProduct;
+use Shopware\CartBridge\Product\Struct\CalculatedProduct;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Product\Repository\ProductRepository;
 use Shopware\ProductMedia\Repository\ProductMediaRepository;

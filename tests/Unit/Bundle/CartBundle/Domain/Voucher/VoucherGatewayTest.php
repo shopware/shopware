@@ -25,7 +25,7 @@
 namespace Shopware\Tests\Unit\Bundle\CartBundle\Domain\Voucher;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Voucher\VoucherGateway;
+use Shopware\CartBridge\Voucher\VoucherGateway;
 use Shopware\Context\Struct\ShopContext;
 
 class VoucherGatewayTest extends TestCase

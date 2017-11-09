@@ -31,13 +31,13 @@ use Shopware\Cart\LineItem\GoodsInterface;
 use Shopware\Cart\LineItem\LineItem;
 use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Price\Struct\PriceCollection;
-use Shopware\Cart\Product\ProductProcessor;
+use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\Cart\Rule\Container\AndRule;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Cart\Test\Common\ConfiguredLineItem;
-use Shopware\Cart\Voucher\Struct\CalculatedVoucher;
-use Shopware\Cart\Voucher\VoucherProcessor;
+use Shopware\CartBridge\Voucher\Struct\CalculatedVoucher;
+use Shopware\CartBridge\Voucher\VoucherProcessor;
 
 class CalculatedLineItemCollectionTest extends TestCase
 {
@@ -62,7 +62,7 @@ class CalculatedLineItemCollectionTest extends TestCase
     public function testCollectionOverwriteExistingIdentifierWithLastItem(): void
     {
         $collection = new CalculatedLineItemCollection([
-            self::createLineItem('A', 1),
+            self::createLineItem('A'),
             self::createLineItem('A', 2),
             self::createLineItem('A', 3),
         ]);
@@ -401,9 +401,7 @@ class ConfiguredGoodsItem extends CalculatedLineItem implements GoodsInterface
             $identifier,
             new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
             $quantity,
-            $identifier,
-            null,
-            null
+            $identifier
         );
     }
 }

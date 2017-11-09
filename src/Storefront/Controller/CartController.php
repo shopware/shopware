@@ -4,8 +4,8 @@ namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Shopware\Cart\LineItem\LineItem;
-use Shopware\Cart\Product\ProductProcessor;
-use Shopware\Cart\Voucher\VoucherProcessor;
+use Shopware\CartBridge\Product\ProductProcessor;
+use Shopware\CartBridge\Voucher\VoucherProcessor;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;

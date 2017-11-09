@@ -23,30 +23,12 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Cart\Product\Struct;
+namespace Shopware\CartBridge\Product;
 
-use Shopware\Framework\Struct\Struct;
+use Shopware\Context\Struct\ShopContext;
+use Shopware\Product\Struct\ProductBasicCollection;
 
-class ProductFetchDefinition extends Struct
+interface ProductGatewayInterface
 {
-    /**
-     * @var string[]
-     */
-    protected $numbers;
-
-    /**
-     * @param string[] $numbers
-     */
-    public function __construct(array $numbers)
-    {
-        $this->numbers = $numbers;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getNumbers(): array
-    {
-        return $this->numbers;
-    }
+    public function get(array $numbers, ShopContext $context): ProductBasicCollection;
 }

@@ -23,7 +23,7 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Cart\Product\Struct;
+namespace Shopware\CartBridge\Product\Struct;
 
 use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Cart\Delivery\Struct\DeliveryDate;
@@ -33,9 +33,9 @@ use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Rule\Rule;
 use Shopware\Cart\Rule\Validatable;
-use Shopware\Framework\Struct\Struct;
+use Shopware\Product\Struct\ProductBasicStruct;
 
-class CalculatedProduct extends Struct implements DeliverableLineItemInterface, GoodsInterface, Validatable
+class CalculatedProduct extends ProductBasicStruct implements DeliverableLineItemInterface, GoodsInterface, Validatable
 {
     /**
      * @var LineItemInterface

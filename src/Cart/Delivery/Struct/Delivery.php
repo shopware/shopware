@@ -25,9 +25,9 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Delivery\Struct;
 
-use Shopware\Cart\Delivery\Struct\DeliveryDate;
-use Shopware\Cart\Delivery\Struct\DeliveryPositionCollection;
-use Shopware\Cart\Delivery\Struct\ShippingLocation;
+
+
+
 use Shopware\Cart\Price\Struct\Price;
 use Shopware\Framework\Struct\Struct;
 use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;

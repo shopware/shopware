@@ -89,7 +89,7 @@ function extend(componentName, extendComponentName, componentConfiguration) {
         /**
          * Register the main template of the component based on the extended component.
          */
-        TemplateFactory.extendComponentTemplate(name, extendComponentName, config.template);
+        TemplateFactory.extendComponentTemplate(componentName, extendComponentName, config.template);
 
         /**
          * Delete the template string from the component config.

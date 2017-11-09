@@ -20,7 +20,7 @@ module.exports = {
             : config.dev.assetsPublicPath
     },
     resolve: {
-        extensions: [ '.js', '.vue', '.json', '.less' ],
+        extensions: [ '.js', '.vue', '.json', '.less', '.twig' ],
         alias: {
             'vue$': 'vue/dist/vue.esm.js',
             'src': resolve('src'),
@@ -55,7 +55,7 @@ module.exports = {
                 loader: 'babel-loader',
                 include: [resolve('src'), resolve('test')],
                 options: {
-                    presets: [['es2015', { modules: false }]]
+                    presets: [['env', { modules: false }]]
                 }
             },
             {

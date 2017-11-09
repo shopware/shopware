@@ -4,8 +4,7 @@ module.exports = {
     root: true,
     parser: 'babel-eslint',
     parserOptions: {
-        sourceType: 'module',
-        ecmaVersion: 6
+        sourceType: 'module'
     },
     env: {
         browser: true,
@@ -66,9 +65,14 @@ module.exports = {
 
         'no-prototype-builtins': 0,
 
+        'object-curly-newline': [ 'error', { 'consistent': true } ],
+
+        // TODO@STP - Consider using destruction for array and object access
+        "prefer-destructuring": [ 'off', { 'object': true, 'array': false } ],
+
         // allow optionalDependencies
         'import/no-extraneous-dependencies': ['error', {
             'optionalDependencies': ['test/unit/index.js']
         }]
     }
-}
+};

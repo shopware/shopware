@@ -3461,8 +3461,8 @@ ALTER TABLE `blog_product`
     ADD FOREIGN KEY (`blog_uuid`) REFERENCES `blog` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `category`
-    ADD FOREIGN KEY (`media_uuid`) REFERENCES `media` (`uuid`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    ADD FOREIGN KEY (`parent_uuid`) REFERENCES `category` (`uuid`) ON DELETE CASCADE ON UPDATE NO ACTION;
+    ADD FOREIGN KEY (`media_uuid`) REFERENCES `media` (`uuid`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD FOREIGN KEY (`parent_uuid`) REFERENCES `category` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `category_avoid_customer_group`
     ADD FOREIGN KEY (`category_uuid`) REFERENCES `category` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,

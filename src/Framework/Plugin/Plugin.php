@@ -137,7 +137,7 @@ class Plugin extends Bundle
             PrefixFilesystem::class,
             [
                 new Reference($parameterKey),
-                'pluginData/' . $this->getName(),
+                'plugins/' . $this->getContainerPrefix(),
             ]
         );
 

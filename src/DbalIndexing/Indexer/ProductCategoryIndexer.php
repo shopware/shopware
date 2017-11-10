@@ -157,7 +157,7 @@ class ProductCategoryIndexer implements IndexerInterface
         $uuids = [];
         /** @var ProductCategoryWrittenEvent $event */
         foreach ($events as $event) {
-            foreach ($event->getProductUuids() as $uuid) {
+            foreach ($event->getUuids() as $uuid) {
                 $uuids[] = $uuid;
             }
         }
@@ -171,9 +171,6 @@ class ProductCategoryIndexer implements IndexerInterface
             $name = $this->getIndexName($timestamp);
             $this->connection->executeUpdate('DROP TABLE ' . self::TABLE);
             $this->connection->executeUpdate('ALTER TABLE ' . $name . ' RENAME TO ' . self::TABLE);
-            $this->connection->executeUpdate('ALTER TABLE ' . self::TABLE . ' ADD PRIMARY KEY (product_uuid, category_uuid)');
-            $this->connection->executeUpdate('ALTER TABLE ' . self::TABLE . ' ADD CONSTRAINT `fk_product_category_ro.product_uuid` FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE');
-            $this->connection->executeUpdate('ALTER TABLE ' . self::TABLE . ' ADD CONSTRAINT `fk_product_category_ro.category_uuid` FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE');
         });
     }
 
@@ -184,5 +181,8 @@ class ProductCategoryIndexer implements IndexerInterface
             DROP TABLE IF EXISTS ' . $name . ';
             CREATE TABLE ' . $name . ' SELECT * FROM ' . self::TABLE . ' LIMIT 0
         ');
+        $this->connection->executeUpdate('ALTER TABLE ' . $name . ' ADD PRIMARY KEY (product_uuid, category_uuid)');
+        $this->connection->executeUpdate('ALTER TABLE ' . $name . ' ADD CONSTRAINT FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE ' . $name . ' ADD CONSTRAINT FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE');
     }
 }

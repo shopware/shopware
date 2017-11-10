@@ -230,9 +230,6 @@ class ListingPriceIndexer implements IndexerInterface
             $name = $this->getIndexName($timestamp);
             $this->connection->executeUpdate('DROP TABLE ' . self::TABLE);
             $this->connection->executeUpdate('ALTER TABLE ' . $name . ' RENAME TO ' . self::TABLE);
-            $this->connection->executeUpdate('ALTER TABLE ' . self::TABLE . ' ADD PRIMARY KEY (uuid)');
-            $this->connection->executeUpdate('ALTER TABLE ' . self::TABLE . ' ADD CONSTRAINT `fk_product_listing_price_ro.product_uuid` FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE');
-            $this->connection->executeUpdate('ALTER TABLE ' . self::TABLE . ' ADD CONSTRAINT `fk_product_listing_price_ro.customer_group_uuid` FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE');
         });
     }
 
@@ -243,5 +240,8 @@ class ListingPriceIndexer implements IndexerInterface
             DROP TABLE IF EXISTS ' . $name . ';
             CREATE TABLE ' . $name . ' SELECT * FROM ' . self::TABLE . ' LIMIT 0
         ');
+        $this->connection->executeUpdate('ALTER TABLE ' . $name . ' ADD PRIMARY KEY (uuid)');
+        $this->connection->executeUpdate('ALTER TABLE ' . $name . ' ADD CONSTRAINT FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE ' . $name . ' ADD CONSTRAINT FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE');
     }
 }

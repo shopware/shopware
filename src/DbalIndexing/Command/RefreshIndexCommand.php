@@ -74,18 +74,27 @@ class RefreshIndexCommand extends ContainerAwareCommand implements EventSubscrib
 
     public function finishProgress(ProgressFinishedEvent $event)
     {
+        if (!$this->io) {
+            return;
+        }
         $this->io->progressFinish();
         $this->io->success($event->getMessage());
     }
 
     public function startProgress(ProgressStartedEvent $event)
     {
+        if (!$this->io) {
+            return;
+        }
         $this->io->comment($event->getMessage());
         $this->io->progressStart($event->getTotal());
     }
 
     public function advanceProgress(ProgressAdvancedEvent $event)
     {
+        if (!$this->io) {
+            return;
+        }
         $this->io->progressAdvance($event->getStep());
     }
 

@@ -25,13 +25,66 @@
 namespace Shopware\Category\Command;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Category\Extension\CategoryPathBuilder;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
+use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class BuildCategoryPathCommand extends ContainerAwareCommand
+class BuildCategoryPathCommand extends ContainerAwareCommand implements EventSubscriberInterface
 {
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    /**
+     * @var CategoryPathBuilder
+     */
+    private $pathBuilder;
+
+    /**
+     * @var SymfonyStyle
+     */
+    private $io;
+
+    public function __construct(Connection $connection, CategoryPathBuilder $pathBuilder)
+    {
+        parent::__construct('category:build:path');
+        $this->connection = $connection;
+        $this->pathBuilder = $pathBuilder;
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return [
+            ProgressAdvancedEvent::NAME => 'advanceProgress',
+            ProgressFinishedEvent::NAME => 'finishProgress',
+        ];
+    }
+
+    public function finishProgress(ProgressFinishedEvent $event)
+    {
+        if (!$this->io) {
+            return;
+        }
+        $this->io->progressFinish();
+        $this->io->success($event->getMessage());
+    }
+
+    public function advanceProgress(ProgressAdvancedEvent $event)
+    {
+        if (!$this->io) {
+            return;
+        }
+        $this->io->progressAdvance($event->getStep());
+    }
+
+
     /**
      * {@inheritdoc}
      */
@@ -44,13 +97,15 @@ class BuildCategoryPathCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var Connection $connection */
-        $connection = $this->getContainer()->get('dbal_connection');
-        $connection->executeUpdate('UPDATE category SET path = NULL');
-
+        $this->io = new SymfonyStyle($input, $output);
         $context = new TranslationContext('SWAG-SHOP-UUID-1', true, null);
 
-        $builder = $this->getContainer()->get('shopware.category.path_builder');
-        $builder->update('SWAG-CATEGORY-UUID-1', $context);
+        $this->connection->executeUpdate('UPDATE category SET path = NULL');
+        $count = $this->connection->fetchColumn('SELECT COUNT(uuid) FROM category WHERE parent_uuid IS NOT NULL');
+
+        $this->io->writeln('Starting building category paths');
+        $this->io->progressStart($count);
+
+        $this->pathBuilder->update('SWAG-CATEGORY-UUID-1', $context);
     }
 }

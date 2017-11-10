@@ -14,10 +14,14 @@
         <service class="Shopware\Category\Extension\CategoryPathBuilder" id="shopware.category.path_builder">
             <argument id="shopware.category.repository" type="service"/>
             <argument id="dbal_connection" type="service"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service class="Shopware\Category\Command\BuildCategoryPathCommand" id="shopware.category.build_category_path_command">
+            <argument type="service" id="dbal_connection"/>
+            <argument type="service" id="shopware.category.path_builder"/>
             <tag name="console.command"/>
+            <tag name="kernel.event_subscriber" />
         </service>
     </services>
 </container>

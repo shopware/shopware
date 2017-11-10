@@ -9,6 +9,9 @@ use Shopware\Category\Repository\CategoryRepository;
 use Shopware\Category\Struct\CategoryBasicCollection;
 use Shopware\Category\Struct\CategoryBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
+use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CategoryPathBuilder
 {
@@ -22,10 +25,16 @@ class CategoryPathBuilder
      */
     private $connection;
 
-    public function __construct(CategoryRepository $repository, Connection $connection)
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    public function __construct(CategoryRepository $repository, Connection $connection, EventDispatcherInterface $eventDispatcher)
     {
         $this->repository = $repository;
         $this->connection = $connection;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function update(string $parentUuid, TranslationContext $context): void
@@ -33,6 +42,11 @@ class CategoryPathBuilder
         $parents = $this->loadParents($parentUuid, $context);
         $parent = $parents->get($parentUuid);
         $this->updateRecursive($parent, $parents, $context);
+
+        $this->eventDispatcher->dispatch(
+            ProgressFinishedEvent::NAME,
+            new ProgressFinishedEvent('Category path build')
+        );
     }
 
     private function updateRecursive(
@@ -60,7 +74,6 @@ class CategoryPathBuilder
         $pathUpdate = $this->connection->prepare('UPDATE category SET path = :path, level = :level WHERE uuid = :uuid');
         $nameUpdate = $this->connection->prepare('UPDATE category_translation SET path_names = :names WHERE category_uuid = :uuid');
 
-        $updates = [];
         /** @var CategoryBasicStruct $category */
         foreach ($categories as $category) {
             $uuidPath = implode('|', $parents->getUuids());
@@ -87,7 +100,10 @@ class CategoryPathBuilder
             ]);
         }
 
-        $this->repository->update($updates, $context);
+        $this->eventDispatcher->dispatch(
+            ProgressAdvancedEvent::NAME,
+            new ProgressAdvancedEvent(count($categories))
+        );
 
         return $categories;
     }

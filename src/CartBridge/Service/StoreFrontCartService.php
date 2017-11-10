@@ -206,10 +206,6 @@ class StoreFrontCartService
                 self::CART_NAME
             );
         } catch (\Exception $e) {
-            $this->logger->error(
-                sprintf('Cart with token %s can not be loaded with message: %s', $this->getCartToken(), $e->getMessage())
-            );
-
             //token not found, create new cartContainer
             return $this->cartContainer = $this->createNewCart();
         }

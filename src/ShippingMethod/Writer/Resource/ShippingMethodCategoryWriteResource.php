@@ -17,9 +17,9 @@ class ShippingMethodCategoryWriteResource extends WriteResource
         parent::__construct('shipping_method_category');
 
         $this->fields['shippingMethod'] = new ReferenceField('shippingMethodUuid', 'uuid', ShippingMethodWriteResource::class);
-        $this->fields['shippingMethodUuid'] = (new FkField('shipping_method_uuid', ShippingMethodWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->primaryKeyFields['shippingMethodUuid'] = (new FkField('shipping_method_uuid', ShippingMethodWriteResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['category'] = new ReferenceField('categoryUuid', 'uuid', CategoryWriteResource::class);
-        $this->fields['categoryUuid'] = (new FkField('category_uuid', CategoryWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->primaryKeyFields['categoryUuid'] = (new FkField('category_uuid', CategoryWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array

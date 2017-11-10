@@ -4,7 +4,6 @@ namespace Shopware\Framework\Writer\Resource;
 
 use Shopware\Api\Write\Field\BoolField;
 use Shopware\Api\Write\Field\DateField;
-use Shopware\Api\Write\Field\IntField;
 use Shopware\Api\Write\Field\LongTextField;
 use Shopware\Api\Write\Field\LongTextWithHtmlField;
 use Shopware\Api\Write\Field\StringField;
@@ -49,7 +48,7 @@ class PluginWriteResource extends WriteResource
         parent::__construct('plugin');
 
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
-        $this->fields[self::NAME_FIELD] = (new StringField('name'))->setFlags(new Required());
+        $this->primaryKeyFields[self::NAME_FIELD] = (new StringField('name'))->setFlags(new Required());
         $this->fields[self::LABEL_FIELD] = (new StringField('label'))->setFlags(new Required());
         $this->fields[self::DESCRIPTION_FIELD] = new LongTextField('description');
         $this->fields[self::DESCRIPTION_LONG_FIELD] = new LongTextWithHtmlField('description_long');
@@ -66,12 +65,12 @@ class PluginWriteResource extends WriteResource
         $this->fields[self::LINK_FIELD] = new StringField('link');
         $this->fields[self::STORE_VERSION_FIELD] = new StringField('store_version');
         $this->fields[self::STORE_DATE_FIELD] = new DateField('store_date');
-        $this->fields[self::CAPABILITY_UPDATE_FIELD] = (new IntField('capability_update'))->setFlags(new Required());
-        $this->fields[self::CAPABILITY_INSTALL_FIELD] = (new IntField('capability_install'))->setFlags(new Required());
-        $this->fields[self::CAPABILITY_ENABLE_FIELD] = (new IntField('capability_enable'))->setFlags(new Required());
+        $this->fields[self::CAPABILITY_UPDATE_FIELD] = (new BoolField('capability_update'))->setFlags(new Required());
+        $this->fields[self::CAPABILITY_INSTALL_FIELD] = (new BoolField('capability_install'))->setFlags(new Required());
+        $this->fields[self::CAPABILITY_ENABLE_FIELD] = (new BoolField('capability_enable'))->setFlags(new Required());
         $this->fields[self::UPDATE_SOURCE_FIELD] = new StringField('update_source');
         $this->fields[self::UPDATE_VERSION_FIELD] = new StringField('update_version');
-        $this->fields[self::CAPABILITY_SECURE_UNINSTALL_FIELD] = new IntField('capability_secure_uninstall');
+        $this->fields[self::CAPABILITY_SECURE_UNINSTALL_FIELD] = (new BoolField('capability_secure_uninstall'))->setFlags(new Required());
         $this->fields['configForms'] = new SubresourceField(ConfigFormWriteResource::class);
         $this->fields['paymentMethods'] = new SubresourceField(PaymentMethodWriteResource::class);
         $this->fields['shopTemplates'] = new SubresourceField(ShopTemplateWriteResource::class);

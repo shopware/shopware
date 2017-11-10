@@ -17,9 +17,9 @@ class ProductAvoidCustomerGroupWriteResource extends WriteResource
         parent::__construct('product_avoid_customer_group');
 
         $this->fields['product'] = new ReferenceField('productUuid', 'uuid', ProductWriteResource::class);
-        $this->fields['productUuid'] = (new FkField('product_uuid', ProductWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->primaryKeyFields['productUuid'] = (new FkField('product_uuid', ProductWriteResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['customerGroup'] = new ReferenceField('customerGroupUuid', 'uuid', CustomerGroupWriteResource::class);
-        $this->fields['customerGroupUuid'] = (new FkField('customer_group_uuid', CustomerGroupWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->primaryKeyFields['customerGroupUuid'] = (new FkField('customer_group_uuid', CustomerGroupWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array

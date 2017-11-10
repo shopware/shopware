@@ -18,7 +18,6 @@ class StatisticSearchWriteResource extends WriteResource
     protected const UUID_FIELD = 'uuid';
     protected const TERM_FIELD = 'term';
     protected const RESULT_COUNT_FIELD = 'resultCount';
-    protected const SHOP_ID_FIELD = 'shopId';
 
     public function __construct()
     {
@@ -27,7 +26,6 @@ class StatisticSearchWriteResource extends WriteResource
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
         $this->fields[self::TERM_FIELD] = (new StringField('term'))->setFlags(new Required());
         $this->fields[self::RESULT_COUNT_FIELD] = (new IntField('result_count'))->setFlags(new Required());
-        $this->fields[self::SHOP_ID_FIELD] = new IntField('shop_id');
         $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', ShopWriteResource::class);
         $this->fields['shopUuid'] = (new FkField('shop_uuid', ShopWriteResource::class, 'uuid'));
     }

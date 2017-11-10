@@ -7,11 +7,6 @@ use Shopware\Framework\Struct\Struct;
 class ShopTemplateBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
@@ -62,19 +57,9 @@ class ShopTemplateBasicStruct extends Struct
     protected $emotion;
 
     /**
-     * @var int|null
-     */
-    protected $pluginId;
-
-    /**
      * @var string|null
      */
     protected $pluginUuid;
-
-    /**
-     * @var int|null
-     */
-    protected $parentId;
 
     /**
      * @var string|null
@@ -90,16 +75,6 @@ class ShopTemplateBasicStruct extends Struct
      * @var \DateTime|null
      */
     protected $updatedAt;
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
 
     public function getUuid(): string
     {
@@ -201,16 +176,6 @@ class ShopTemplateBasicStruct extends Struct
         $this->emotion = $emotion;
     }
 
-    public function getPluginId(): ?int
-    {
-        return $this->pluginId;
-    }
-
-    public function setPluginId(?int $pluginId): void
-    {
-        $this->pluginId = $pluginId;
-    }
-
     public function getPluginUuid(): ?string
     {
         return $this->pluginUuid;
@@ -219,16 +184,6 @@ class ShopTemplateBasicStruct extends Struct
     public function setPluginUuid(?string $pluginUuid): void
     {
         $this->pluginUuid = $pluginUuid;
-    }
-
-    public function getParentId(): ?int
-    {
-        return $this->parentId;
-    }
-
-    public function setParentId(?int $parentId): void
-    {
-        $this->parentId = $parentId;
     }
 
     public function getParentUuid(): ?string

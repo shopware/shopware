@@ -15,7 +15,6 @@ use Shopware\Api\Write\WriteResource;
 use Shopware\AreaCountry\Writer\Resource\AreaCountryWriteResource;
 use Shopware\AreaCountryState\Event\AreaCountryStateWrittenEvent;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\CustomerAddress\Writer\Resource\CustomerAddressWriteResource;
 use Shopware\OrderAddress\Writer\Resource\OrderAddressWriteResource;
 use Shopware\Shop\Writer\Resource\ShopWriteResource;
 use Shopware\TaxAreaRule\Writer\Resource\TaxAreaRuleWriteResource;
@@ -40,7 +39,6 @@ class AreaCountryStateWriteResource extends WriteResource
         $this->fields['areaCountryUuid'] = (new FkField('area_country_uuid', AreaCountryWriteResource::class, 'uuid'))->setFlags(new Required());
         $this->fields[self::NAME_FIELD] = new TranslatedField('name', ShopWriteResource::class, 'uuid');
         $this->fields['translations'] = (new SubresourceField(AreaCountryStateTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());
-        $this->fields['customerAddresses'] = new SubresourceField(CustomerAddressWriteResource::class);
         $this->fields['orderAddresses'] = new SubresourceField(OrderAddressWriteResource::class);
         $this->fields['taxAreaRules'] = new SubresourceField(TaxAreaRuleWriteResource::class);
     }
@@ -51,7 +49,6 @@ class AreaCountryStateWriteResource extends WriteResource
             AreaCountryWriteResource::class,
             self::class,
             AreaCountryStateTranslationWriteResource::class,
-            CustomerAddressWriteResource::class,
             OrderAddressWriteResource::class,
             TaxAreaRuleWriteResource::class,
         ];

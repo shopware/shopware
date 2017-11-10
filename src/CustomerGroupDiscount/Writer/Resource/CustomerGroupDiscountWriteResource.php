@@ -26,7 +26,7 @@ class CustomerGroupDiscountWriteResource extends WriteResource
         $this->fields[self::PERCENTAGE_DISCOUNT_FIELD] = (new FloatField('percentage_discount'))->setFlags(new Required());
         $this->fields[self::MINIMUM_CART_AMOUNT_FIELD] = (new FloatField('minimum_cart_amount'))->setFlags(new Required());
         $this->fields['customerGroup'] = new ReferenceField('customerGroupUuid', 'uuid', CustomerGroupWriteResource::class);
-        $this->fields['customerGroupUuid'] = (new FkField('customer_group_uuid', CustomerGroupWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->primaryKeyFields['customerGroupUuid'] = (new FkField('customer_group_uuid', CustomerGroupWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array

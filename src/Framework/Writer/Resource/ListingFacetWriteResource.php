@@ -32,7 +32,7 @@ class ListingFacetWriteResource extends WriteResource
 
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
         $this->fields[self::ACTIVE_FIELD] = new BoolField('active');
-        $this->fields[self::UNIQUE_KEY_FIELD] = new StringField('unique_key');
+        $this->primaryKeyFields[self::UNIQUE_KEY_FIELD] = (new StringField('unique_key'))->setFlags(new Required());
         $this->fields[self::DISPLAY_IN_CATEGORIES_FIELD] = new BoolField('display_in_categories');
         $this->fields[self::DELETABLE_FIELD] = new BoolField('deletable');
         $this->fields[self::POSITION_FIELD] = new IntField('position');

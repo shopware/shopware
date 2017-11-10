@@ -41,7 +41,7 @@ class ProductPriceBasicReader implements BasicReaderInterface
         $query = $this->factory->createQuery($context);
 
         $query->andWhere('product_price.uuid IN (:ids)');
-        $query->setParameter(':ids', $uuids, Connection::PARAM_STR_ARRAY);
+        $query->setParameter('ids', $uuids, Connection::PARAM_STR_ARRAY);
 
         $rows = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
         $structs = [];

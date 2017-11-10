@@ -16,7 +16,6 @@ use Shopware\Shop\Writer\Resource\ShopWriteResource;
 class StatisticVisitorWriteResource extends WriteResource
 {
     protected const UUID_FIELD = 'uuid';
-    protected const SHOP_ID_FIELD = 'shopId';
     protected const PAGE_IMPRESSIONS_FIELD = 'pageImpressions';
     protected const UNIQUE_VISITS_FIELD = 'uniqueVisits';
     protected const DEVICE_TYPE_FIELD = 'deviceType';
@@ -26,7 +25,6 @@ class StatisticVisitorWriteResource extends WriteResource
         parent::__construct('statistic_visitor');
 
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
-        $this->fields[self::SHOP_ID_FIELD] = (new IntField('shop_id'))->setFlags(new Required());
         $this->fields[self::PAGE_IMPRESSIONS_FIELD] = new IntField('page_impressions');
         $this->fields[self::UNIQUE_VISITS_FIELD] = new IntField('unique_visits');
         $this->fields[self::DEVICE_TYPE_FIELD] = new StringField('device_type');

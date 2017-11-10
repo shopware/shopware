@@ -18,7 +18,6 @@ use Shopware\Shop\Event\ShopFormFieldWrittenEvent;
 class ShopFormFieldWriteResource extends WriteResource
 {
     protected const UUID_FIELD = 'uuid';
-    protected const SHOP_FORM_ID_FIELD = 'shopFormId';
     protected const ERROR_MSG_FIELD = 'errorMsg';
     protected const NAME_FIELD = 'name';
     protected const NOTE_FIELD = 'note';
@@ -35,7 +34,6 @@ class ShopFormFieldWriteResource extends WriteResource
         parent::__construct('shop_form_field');
 
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
-        $this->fields[self::SHOP_FORM_ID_FIELD] = (new IntField('shop_form_id'))->setFlags(new Required());
         $this->fields[self::ERROR_MSG_FIELD] = (new StringField('error_msg'))->setFlags(new Required());
         $this->fields[self::NAME_FIELD] = (new StringField('name'))->setFlags(new Required());
         $this->fields[self::NOTE_FIELD] = new StringField('note');

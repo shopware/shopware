@@ -7,11 +7,6 @@ use Shopware\Framework\Struct\Struct;
 class TaxBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
@@ -35,16 +30,6 @@ class TaxBasicStruct extends Struct
      * @var \DateTime|null
      */
     protected $updatedAt;
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
 
     public function getUuid(): string
     {

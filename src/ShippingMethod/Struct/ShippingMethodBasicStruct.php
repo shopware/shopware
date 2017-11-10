@@ -7,11 +7,6 @@ use Shopware\Framework\Struct\Struct;
 class ShippingMethodBasicStruct extends Struct
 {
     /**
-     * @var int
-     */
-    protected $id;
-
-    /**
      * @var string
      */
     protected $uuid;
@@ -62,7 +57,7 @@ class ShippingMethodBasicStruct extends Struct
     protected $customerGroupUuid;
 
     /**
-     * @var int
+     * @var bool
      */
     protected $bindShippingfree;
 
@@ -155,16 +150,6 @@ class ShippingMethodBasicStruct extends Struct
      * @var string|null
      */
     protected $comment;
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
 
     public function getUuid(): string
     {
@@ -266,12 +251,12 @@ class ShippingMethodBasicStruct extends Struct
         $this->customerGroupUuid = $customerGroupUuid;
     }
 
-    public function getBindShippingfree(): int
+    public function getBindShippingfree(): bool
     {
         return $this->bindShippingfree;
     }
 
-    public function setBindShippingfree(int $bindShippingfree): void
+    public function setBindShippingfree(bool $bindShippingfree): void
     {
         $this->bindShippingfree = $bindShippingfree;
     }

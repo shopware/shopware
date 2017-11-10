@@ -28,8 +28,6 @@ class ShopTemplateWriteResource extends WriteResource
     protected const STYLE_SUPPORT_FIELD = 'styleSupport';
     protected const VERSION_FIELD = 'version';
     protected const EMOTION_FIELD = 'emotion';
-    protected const PLUGIN_ID_FIELD = 'pluginId';
-    protected const PARENT_ID_FIELD = 'parentId';
 
     public function __construct()
     {
@@ -45,8 +43,6 @@ class ShopTemplateWriteResource extends WriteResource
         $this->fields[self::STYLE_SUPPORT_FIELD] = new BoolField('style_support');
         $this->fields[self::VERSION_FIELD] = new IntField('version');
         $this->fields[self::EMOTION_FIELD] = (new BoolField('emotion'))->setFlags(new Required());
-        $this->fields[self::PLUGIN_ID_FIELD] = new IntField('plugin_id');
-        $this->fields[self::PARENT_ID_FIELD] = new IntField('parent_id');
         $this->fields['shops'] = new SubresourceField(ShopWriteResource::class);
         $this->fields['plugin'] = new ReferenceField('pluginUuid', 'uuid', PluginWriteResource::class);
         $this->fields['pluginUuid'] = (new FkField('plugin_uuid', PluginWriteResource::class, 'uuid'));

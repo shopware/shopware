@@ -56,7 +56,7 @@ class ShopDetailReader implements DetailReaderInterface
         $query = $this->factory->createQuery($context);
 
         $query->andWhere('shop.uuid IN (:ids)');
-        $query->setParameter(':ids', $uuids, Connection::PARAM_STR_ARRAY);
+        $query->setParameter('ids', $uuids, Connection::PARAM_STR_ARRAY);
 
         $rows = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
         $structs = [];

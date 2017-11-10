@@ -17,7 +17,6 @@ use Shopware\Framework\Event\ShoppingWorldComponentFieldWrittenEvent;
 class ShoppingWorldComponentFieldWriteResource extends WriteResource
 {
     protected const UUID_FIELD = 'uuid';
-    protected const SHOPPING_WORLD_COMPONENT_ID_FIELD = 'shoppingWorldComponentId';
     protected const NAME_FIELD = 'name';
     protected const X_TYPE_FIELD = 'xType';
     protected const VALUE_TYPE_FIELD = 'valueType';
@@ -37,8 +36,7 @@ class ShoppingWorldComponentFieldWriteResource extends WriteResource
     {
         parent::__construct('shopping_world_component_field');
 
-        $this->primaryKeyFields[self::UUID_FIELD] = new UuidField('uuid');
-        $this->fields[self::SHOPPING_WORLD_COMPONENT_ID_FIELD] = (new IntField('shopping_world_component_id'))->setFlags(new Required());
+        $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
         $this->fields[self::NAME_FIELD] = (new StringField('name'))->setFlags(new Required());
         $this->fields[self::X_TYPE_FIELD] = (new StringField('x_type'))->setFlags(new Required());
         $this->fields[self::VALUE_TYPE_FIELD] = (new StringField('value_type'))->setFlags(new Required());

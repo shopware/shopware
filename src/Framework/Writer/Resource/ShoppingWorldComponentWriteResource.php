@@ -3,7 +3,6 @@
 namespace Shopware\Framework\Writer\Resource;
 
 use Shopware\Api\Write\Field\FkField;
-use Shopware\Api\Write\Field\IntField;
 use Shopware\Api\Write\Field\LongTextField;
 use Shopware\Api\Write\Field\ReferenceField;
 use Shopware\Api\Write\Field\StringField;
@@ -22,7 +21,6 @@ class ShoppingWorldComponentWriteResource extends WriteResource
     protected const DESCRIPTION_FIELD = 'description';
     protected const TEMPLATE_FIELD = 'template';
     protected const CLS_FIELD = 'cls';
-    protected const PLUGIN_ID_FIELD = 'pluginId';
     protected const UUID_FIELD = 'uuid';
 
     public function __construct()
@@ -35,8 +33,7 @@ class ShoppingWorldComponentWriteResource extends WriteResource
         $this->fields[self::DESCRIPTION_FIELD] = (new LongTextField('description'))->setFlags(new Required());
         $this->fields[self::TEMPLATE_FIELD] = (new StringField('template'))->setFlags(new Required());
         $this->fields[self::CLS_FIELD] = (new StringField('cls'))->setFlags(new Required());
-        $this->fields[self::PLUGIN_ID_FIELD] = new IntField('plugin_id');
-        $this->primaryKeyFields[self::UUID_FIELD] = new UuidField('uuid');
+        $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
         $this->fields['plugin'] = new ReferenceField('pluginUuid', 'uuid', PluginWriteResource::class);
         $this->fields['pluginUuid'] = (new FkField('plugin_uuid', PluginWriteResource::class, 'uuid'));
         $this->fields['fields'] = new SubresourceField(ShoppingWorldComponentFieldWriteResource::class);

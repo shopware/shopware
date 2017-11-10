@@ -60,7 +60,7 @@ class ShippingMethodWriteResource extends WriteResource
         $this->fields[self::SURCHARGE_CALCULATION_FIELD] = new IntField('surcharge_calculation');
         $this->fields[self::TAX_CALCULATION_FIELD] = new IntField('tax_calculation');
         $this->fields[self::SHIPPING_FREE_FIELD] = new FloatField('shipping_free');
-        $this->fields[self::BIND_SHIPPINGFREE_FIELD] = (new IntField('bind_shippingfree'))->setFlags(new Required());
+        $this->fields[self::BIND_SHIPPINGFREE_FIELD] = (new BoolField('bind_shippingfree'))->setFlags(new Required());
         $this->fields[self::BIND_TIME_FROM_FIELD] = new IntField('bind_time_from');
         $this->fields[self::BIND_TIME_TO_FIELD] = new IntField('bind_time_to');
         $this->fields[self::BIND_INSTOCK_FIELD] = new BoolField('bind_instock');

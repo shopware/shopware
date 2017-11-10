@@ -17,7 +17,6 @@ class UnitBasicFactory extends Factory
     const EXTENSION_NAMESPACE = 'unit';
 
     const FIELDS = [
-       'id' => 'id',
        'uuid' => 'uuid',
        'createdAt' => 'created_at',
        'updatedAt' => 'updated_at',
@@ -38,7 +37,6 @@ class UnitBasicFactory extends Factory
         QuerySelection $selection,
         TranslationContext $context
     ): UnitBasicStruct {
-        $unit->setId((int) $data[$selection->getField('id')]);
         $unit->setUuid((string) $data[$selection->getField('uuid')]);
         $unit->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
         $unit->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);

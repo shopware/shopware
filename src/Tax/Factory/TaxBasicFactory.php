@@ -17,7 +17,6 @@ class TaxBasicFactory extends Factory
     const EXTENSION_NAMESPACE = 'tax';
 
     const FIELDS = [
-       'id' => 'id',
        'uuid' => 'uuid',
        'rate' => 'tax_rate',
        'name' => 'name',
@@ -38,7 +37,6 @@ class TaxBasicFactory extends Factory
         QuerySelection $selection,
         TranslationContext $context
     ): TaxBasicStruct {
-        $tax->setId((int) $data[$selection->getField('id')]);
         $tax->setUuid((string) $data[$selection->getField('uuid')]);
         $tax->setRate((float) $data[$selection->getField('rate')]);
         $tax->setName((string) $data[$selection->getField('name')]);

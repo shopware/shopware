@@ -30,7 +30,6 @@ class ShopPageWriteResource extends WriteResource
     protected const POSITION_FIELD = 'position';
     protected const LINK_FIELD = 'link';
     protected const LINK_TARGET_FIELD = 'linkTarget';
-    protected const PARENT_ID_FIELD = 'parentId';
     protected const PAGE_TITLE_FIELD = 'pageTitle';
     protected const META_KEYWORDS_FIELD = 'metaKeywords';
     protected const META_DESCRIPTION_FIELD = 'metaDescription';
@@ -55,7 +54,6 @@ class ShopPageWriteResource extends WriteResource
         $this->fields[self::POSITION_FIELD] = (new IntField('position'))->setFlags(new Required());
         $this->fields[self::LINK_FIELD] = (new StringField('link'))->setFlags(new Required());
         $this->fields[self::LINK_TARGET_FIELD] = (new StringField('link_target'))->setFlags(new Required());
-        $this->fields[self::PARENT_ID_FIELD] = new IntField('parent_id');
         $this->fields[self::PAGE_TITLE_FIELD] = (new StringField('page_title'))->setFlags(new Required());
         $this->fields[self::META_KEYWORDS_FIELD] = (new StringField('meta_keywords'))->setFlags(new Required());
         $this->fields[self::META_DESCRIPTION_FIELD] = (new StringField('meta_description'))->setFlags(new Required());

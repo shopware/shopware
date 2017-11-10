@@ -25,7 +25,7 @@ class LocaleWriteResource extends WriteResource
         parent::__construct('locale');
 
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
-        $this->fields[self::CODE_FIELD] = (new StringField('code'))->setFlags(new Required());
+        $this->primaryKeyFields[self::CODE_FIELD] = (new StringField('code'))->setFlags(new Required());
         $this->fields[self::LANGUAGE_FIELD] = new TranslatedField('language', ShopWriteResource::class, 'uuid');
         $this->fields[self::TERRITORY_FIELD] = new TranslatedField('territory', ShopWriteResource::class, 'uuid');
         $this->fields['translations'] = (new SubresourceField(LocaleTranslationWriteResource::class, 'languageUuid'))->setFlags(new Required());

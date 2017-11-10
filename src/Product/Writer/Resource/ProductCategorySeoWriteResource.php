@@ -4,7 +4,6 @@ namespace Shopware\Product\Writer\Resource;
 
 use Shopware\Api\Write\Field\FkField;
 use Shopware\Api\Write\Field\ReferenceField;
-use Shopware\Api\Write\Field\UuidField;
 use Shopware\Api\Write\Flag\Required;
 use Shopware\Api\Write\WriteResource;
 use Shopware\Category\Writer\Resource\CategoryWriteResource;
@@ -14,19 +13,16 @@ use Shopware\Shop\Writer\Resource\ShopWriteResource;
 
 class ProductCategorySeoWriteResource extends WriteResource
 {
-    protected const UUID_FIELD = 'uuid';
-
     public function __construct()
     {
         parent::__construct('product_category_seo');
 
-        $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
         $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', ShopWriteResource::class);
-        $this->fields['shopUuid'] = (new FkField('shop_uuid', ShopWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->primaryKeyFields['shopUuid'] = (new FkField('shop_uuid', ShopWriteResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['product'] = new ReferenceField('productUuid', 'uuid', ProductWriteResource::class);
-        $this->fields['productUuid'] = (new FkField('product_uuid', ProductWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->primaryKeyFields['productUuid'] = (new FkField('product_uuid', ProductWriteResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['category'] = new ReferenceField('categoryUuid', 'uuid', CategoryWriteResource::class);
-        $this->fields['categoryUuid'] = (new FkField('category_uuid', CategoryWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->primaryKeyFields['categoryUuid'] = (new FkField('category_uuid', CategoryWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array

@@ -17,7 +17,6 @@ class ShippingMethodBasicFactory extends Factory
     const EXTENSION_NAMESPACE = 'shippingMethod';
 
     const FIELDS = [
-       'id' => 'id',
        'uuid' => 'uuid',
        'type' => 'type',
        'active' => 'active',
@@ -62,7 +61,6 @@ class ShippingMethodBasicFactory extends Factory
         QuerySelection $selection,
         TranslationContext $context
     ): ShippingMethodBasicStruct {
-        $shippingMethod->setId((int) $data[$selection->getField('id')]);
         $shippingMethod->setUuid((string) $data[$selection->getField('uuid')]);
         $shippingMethod->setType((int) $data[$selection->getField('type')]);
         $shippingMethod->setActive((bool) $data[$selection->getField('active')]);
@@ -73,7 +71,7 @@ class ShippingMethodBasicFactory extends Factory
         $shippingMethod->setShippingFree(isset($data[$selection->getField('shippingFree')]) ? (float) $data[$selection->getField('shippingFree')] : null);
         $shippingMethod->setShopUuid(isset($data[$selection->getField('shopUuid')]) ? (string) $data[$selection->getField('shopUuid')] : null);
         $shippingMethod->setCustomerGroupUuid(isset($data[$selection->getField('customerGroupUuid')]) ? (string) $data[$selection->getField('customerGroupUuid')] : null);
-        $shippingMethod->setBindShippingfree((int) $data[$selection->getField('bindShippingfree')]);
+        $shippingMethod->setBindShippingfree((bool) $data[$selection->getField('bindShippingfree')]);
         $shippingMethod->setBindTimeFrom(isset($data[$selection->getField('bindTimeFrom')]) ? (int) $data[$selection->getField('bindTimeFrom')] : null);
         $shippingMethod->setBindTimeTo(isset($data[$selection->getField('bindTimeTo')]) ? (int) $data[$selection->getField('bindTimeTo')] : null);
         $shippingMethod->setBindInstock(isset($data[$selection->getField('bindInstock')]) ? (bool) $data[$selection->getField('bindInstock')] : null);

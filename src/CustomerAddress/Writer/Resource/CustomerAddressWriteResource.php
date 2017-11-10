@@ -10,7 +10,6 @@ use Shopware\Api\Write\Field\UuidField;
 use Shopware\Api\Write\Flag\Required;
 use Shopware\Api\Write\WriteResource;
 use Shopware\AreaCountry\Writer\Resource\AreaCountryWriteResource;
-use Shopware\AreaCountryState\Writer\Resource\AreaCountryStateWriteResource;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Customer\Writer\Resource\CustomerWriteResource;
 use Shopware\CustomerAddress\Event\CustomerAddressWrittenEvent;
@@ -27,6 +26,7 @@ class CustomerAddressWriteResource extends WriteResource
     protected const STREET_FIELD = 'street';
     protected const ZIPCODE_FIELD = 'zipcode';
     protected const CITY_FIELD = 'city';
+    protected const AREA_COUNTRY_STATE_UUID_FIELD = 'areaCountryStateUuid';
     protected const VAT_ID_FIELD = 'vatId';
     protected const PHONE_NUMBER_FIELD = 'phoneNumber';
     protected const ADDITIONAL_ADDRESS_LINE1_FIELD = 'additionalAddressLine1';
@@ -46,6 +46,7 @@ class CustomerAddressWriteResource extends WriteResource
         $this->fields[self::STREET_FIELD] = new StringField('street');
         $this->fields[self::ZIPCODE_FIELD] = (new StringField('zipcode'))->setFlags(new Required());
         $this->fields[self::CITY_FIELD] = (new StringField('city'))->setFlags(new Required());
+        $this->fields[self::AREA_COUNTRY_STATE_UUID_FIELD] = new StringField('area_country_state_uuid');
         $this->fields[self::VAT_ID_FIELD] = new StringField('vat_id');
         $this->fields[self::PHONE_NUMBER_FIELD] = new StringField('phone_number');
         $this->fields[self::ADDITIONAL_ADDRESS_LINE1_FIELD] = new StringField('additional_address_line1');
@@ -55,8 +56,6 @@ class CustomerAddressWriteResource extends WriteResource
         $this->fields['customerUuid'] = (new FkField('customer_uuid', CustomerWriteResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['areaCountry'] = new ReferenceField('areaCountryUuid', 'uuid', AreaCountryWriteResource::class);
         $this->fields['areaCountryUuid'] = (new FkField('area_country_uuid', AreaCountryWriteResource::class, 'uuid'))->setFlags(new Required());
-        $this->fields['areaCountryState'] = new ReferenceField('areaCountryStateUuid', 'uuid', AreaCountryStateWriteResource::class);
-        $this->fields['areaCountryStateUuid'] = (new FkField('area_country_state_uuid', AreaCountryStateWriteResource::class, 'uuid'));
     }
 
     public function getWriteOrder(): array
@@ -64,7 +63,6 @@ class CustomerAddressWriteResource extends WriteResource
         return [
             CustomerWriteResource::class,
             AreaCountryWriteResource::class,
-            AreaCountryStateWriteResource::class,
             self::class,
         ];
     }

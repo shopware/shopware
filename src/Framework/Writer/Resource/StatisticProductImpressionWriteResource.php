@@ -18,8 +18,6 @@ use Shopware\Shop\Writer\Resource\ShopWriteResource;
 class StatisticProductImpressionWriteResource extends WriteResource
 {
     protected const UUID_FIELD = 'uuid';
-    protected const PRODUCT_ID_FIELD = 'productId';
-    protected const SHOP_ID_FIELD = 'shopId';
     protected const IMPRESSION_DATE_FIELD = 'impressionDate';
     protected const IMPRESSIONS_FIELD = 'impressions';
     protected const DEVICE_TYPE_FIELD = 'deviceType';
@@ -29,8 +27,6 @@ class StatisticProductImpressionWriteResource extends WriteResource
         parent::__construct('statistic_product_impression');
 
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
-        $this->fields[self::PRODUCT_ID_FIELD] = (new IntField('product_id'))->setFlags(new Required());
-        $this->fields[self::SHOP_ID_FIELD] = (new IntField('shop_id'))->setFlags(new Required());
         $this->fields[self::IMPRESSION_DATE_FIELD] = new DateField('impression_date');
         $this->fields[self::IMPRESSIONS_FIELD] = (new IntField('impressions'))->setFlags(new Required());
         $this->fields[self::DEVICE_TYPE_FIELD] = new StringField('device_type');

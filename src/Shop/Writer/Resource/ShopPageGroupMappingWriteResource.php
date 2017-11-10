@@ -3,7 +3,6 @@
 namespace Shopware\Shop\Writer\Resource;
 
 use Shopware\Api\Write\Field\FkField;
-use Shopware\Api\Write\Field\IntField;
 use Shopware\Api\Write\Field\ReferenceField;
 use Shopware\Api\Write\Flag\Required;
 use Shopware\Api\Write\WriteResource;
@@ -12,19 +11,14 @@ use Shopware\Shop\Event\ShopPageGroupMappingWrittenEvent;
 
 class ShopPageGroupMappingWriteResource extends WriteResource
 {
-    protected const SHOP_ID_FIELD = 'shopId';
-    protected const SHOP_PAGE_GROUP_ID_FIELD = 'shopPageGroupId';
-
     public function __construct()
     {
         parent::__construct('shop_page_group_mapping');
 
-        $this->primaryKeyFields[self::SHOP_ID_FIELD] = (new IntField('shop_id'))->setFlags(new Required());
-        $this->primaryKeyFields[self::SHOP_PAGE_GROUP_ID_FIELD] = (new IntField('shop_page_group_id'))->setFlags(new Required());
         $this->fields['shop'] = new ReferenceField('shopUuid', 'uuid', ShopWriteResource::class);
-        $this->fields['shopUuid'] = (new FkField('shop_uuid', ShopWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->primaryKeyFields['shopUuid'] = (new FkField('shop_uuid', ShopWriteResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['shopPageGroup'] = new ReferenceField('shopPageGroupUuid', 'uuid', ShopPageGroupWriteResource::class);
-        $this->fields['shopPageGroupUuid'] = (new FkField('shop_page_group_uuid', ShopPageGroupWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->primaryKeyFields['shopPageGroupUuid'] = (new FkField('shop_page_group_uuid', ShopPageGroupWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array

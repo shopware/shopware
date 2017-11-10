@@ -17,7 +17,6 @@ class ShopTemplateBasicFactory extends Factory
     const EXTENSION_NAMESPACE = 'shopTemplate';
 
     const FIELDS = [
-       'id' => 'id',
        'uuid' => 'uuid',
        'template' => 'template',
        'name' => 'name',
@@ -28,9 +27,7 @@ class ShopTemplateBasicFactory extends Factory
        'styleSupport' => 'style_support',
        'version' => 'version',
        'emotion' => 'emotion',
-       'pluginId' => 'plugin_id',
        'pluginUuid' => 'plugin_uuid',
-       'parentId' => 'parent_id',
        'parentUuid' => 'parent_uuid',
        'createdAt' => 'created_at',
        'updatedAt' => 'updated_at',
@@ -49,7 +46,6 @@ class ShopTemplateBasicFactory extends Factory
         QuerySelection $selection,
         TranslationContext $context
     ): ShopTemplateBasicStruct {
-        $shopTemplate->setId((int) $data[$selection->getField('id')]);
         $shopTemplate->setUuid((string) $data[$selection->getField('uuid')]);
         $shopTemplate->setTemplate((string) $data[$selection->getField('template')]);
         $shopTemplate->setName((string) $data[$selection->getField('name')]);
@@ -60,9 +56,7 @@ class ShopTemplateBasicFactory extends Factory
         $shopTemplate->setStyleSupport((bool) $data[$selection->getField('styleSupport')]);
         $shopTemplate->setVersion((int) $data[$selection->getField('version')]);
         $shopTemplate->setEmotion((bool) $data[$selection->getField('emotion')]);
-        $shopTemplate->setPluginId(isset($data[$selection->getField('pluginId')]) ? (int) $data[$selection->getField('pluginId')] : null);
         $shopTemplate->setPluginUuid(isset($data[$selection->getField('pluginUuid')]) ? (string) $data[$selection->getField('pluginUuid')] : null);
-        $shopTemplate->setParentId(isset($data[$selection->getField('parentId')]) ? (int) $data[$selection->getField('parentId')] : null);
         $shopTemplate->setParentUuid(isset($data[$selection->getField('parentUuid')]) ? (string) $data[$selection->getField('parentUuid')] : null);
         $shopTemplate->setCreatedAt(isset($data[$selection->getField('createdAt')]) ? new \DateTime($data[$selection->getField('createdAt')]) : null);
         $shopTemplate->setUpdatedAt(isset($data[$selection->getField('updatedAt')]) ? new \DateTime($data[$selection->getField('updatedAt')]) : null);

@@ -38,7 +38,7 @@ class MailWriteResource extends WriteResource
         parent::__construct('mail');
 
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
-        $this->fields[self::NAME_FIELD] = (new StringField('name'))->setFlags(new Required());
+        $this->primaryKeyFields[self::NAME_FIELD] = (new StringField('name'))->setFlags(new Required());
         $this->fields[self::FROM_MAIL_FIELD] = (new StringField('from_mail'))->setFlags(new Required());
         $this->fields[self::FROM_NAME_FIELD] = (new StringField('from_name'))->setFlags(new Required());
         $this->fields[self::SUBJECT_FIELD] = (new StringField('subject'))->setFlags(new Required());

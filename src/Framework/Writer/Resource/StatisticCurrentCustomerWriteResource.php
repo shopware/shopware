@@ -4,7 +4,6 @@ namespace Shopware\Framework\Writer\Resource;
 
 use Shopware\Api\Write\Field\DateField;
 use Shopware\Api\Write\Field\FkField;
-use Shopware\Api\Write\Field\IntField;
 use Shopware\Api\Write\Field\ReferenceField;
 use Shopware\Api\Write\Field\StringField;
 use Shopware\Api\Write\Field\UuidField;
@@ -20,7 +19,6 @@ class StatisticCurrentCustomerWriteResource extends WriteResource
     protected const REMOTE_ADDRESS_FIELD = 'remoteAddress';
     protected const PAGE_FIELD = 'page';
     protected const TRACKING_TIME_FIELD = 'trackingTime';
-    protected const CUSTOMER_ID_FIELD = 'customerId';
     protected const DEVICE_TYPE_FIELD = 'deviceType';
 
     public function __construct()
@@ -31,7 +29,6 @@ class StatisticCurrentCustomerWriteResource extends WriteResource
         $this->fields[self::REMOTE_ADDRESS_FIELD] = (new StringField('remote_address'))->setFlags(new Required());
         $this->fields[self::PAGE_FIELD] = (new StringField('page'))->setFlags(new Required());
         $this->fields[self::TRACKING_TIME_FIELD] = new DateField('tracking_time');
-        $this->fields[self::CUSTOMER_ID_FIELD] = new IntField('customer_id');
         $this->fields[self::DEVICE_TYPE_FIELD] = new StringField('device_type');
         $this->fields['customer'] = new ReferenceField('customerUuid', 'uuid', CustomerWriteResource::class);
         $this->fields['customerUuid'] = (new FkField('customer_uuid', CustomerWriteResource::class, 'uuid'))->setFlags(new Required());

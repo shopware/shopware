@@ -17,9 +17,9 @@ class ShippingMethodHolidayWriteResource extends WriteResource
         parent::__construct('shipping_method_holiday');
 
         $this->fields['shippingMethod'] = new ReferenceField('shippingMethodUuid', 'uuid', ShippingMethodWriteResource::class);
-        $this->fields['shippingMethodUuid'] = (new FkField('shipping_method_uuid', ShippingMethodWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->primaryKeyFields['shippingMethodUuid'] = (new FkField('shipping_method_uuid', ShippingMethodWriteResource::class, 'uuid'))->setFlags(new Required());
         $this->fields['holiday'] = new ReferenceField('holidayUuid', 'uuid', HolidayWriteResource::class);
-        $this->fields['holidayUuid'] = (new FkField('holiday_uuid', HolidayWriteResource::class, 'uuid'))->setFlags(new Required());
+        $this->primaryKeyFields['holidayUuid'] = (new FkField('holiday_uuid', HolidayWriteResource::class, 'uuid'))->setFlags(new Required());
     }
 
     public function getWriteOrder(): array

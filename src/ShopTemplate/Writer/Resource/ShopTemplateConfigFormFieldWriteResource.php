@@ -18,7 +18,6 @@ use Shopware\ShopTemplate\Event\ShopTemplateConfigFormFieldWrittenEvent;
 class ShopTemplateConfigFormFieldWriteResource extends WriteResource
 {
     protected const UUID_FIELD = 'uuid';
-    protected const SHOP_TEMPLATE_ID_FIELD = 'shopTemplateId';
     protected const TYPE_FIELD = 'type';
     protected const NAME_FIELD = 'name';
     protected const POSITION_FIELD = 'position';
@@ -27,7 +26,6 @@ class ShopTemplateConfigFormFieldWriteResource extends WriteResource
     protected const FIELD_LABEL_FIELD = 'fieldLabel';
     protected const SUPPORT_TEXT_FIELD = 'supportText';
     protected const ALLOW_BLANK_FIELD = 'allowBlank';
-    protected const SHOP_TEMPLATE_CONFIG_FORM_ID_FIELD = 'shopTemplateConfigFormId';
     protected const ATTRIBUTES_FIELD = 'attributes';
     protected const LESS_COMPATIBLE_FIELD = 'lessCompatible';
 
@@ -36,7 +34,6 @@ class ShopTemplateConfigFormFieldWriteResource extends WriteResource
         parent::__construct('shop_template_config_form_field');
 
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
-        $this->fields[self::SHOP_TEMPLATE_ID_FIELD] = (new IntField('shop_template_id'))->setFlags(new Required());
         $this->fields[self::TYPE_FIELD] = (new StringField('type'))->setFlags(new Required());
         $this->fields[self::NAME_FIELD] = (new StringField('name'))->setFlags(new Required());
         $this->fields[self::POSITION_FIELD] = new IntField('position');
@@ -45,7 +42,6 @@ class ShopTemplateConfigFormFieldWriteResource extends WriteResource
         $this->fields[self::FIELD_LABEL_FIELD] = new StringField('field_label');
         $this->fields[self::SUPPORT_TEXT_FIELD] = new StringField('support_text');
         $this->fields[self::ALLOW_BLANK_FIELD] = new BoolField('allow_blank');
-        $this->fields[self::SHOP_TEMPLATE_CONFIG_FORM_ID_FIELD] = (new IntField('shop_template_config_form_id'))->setFlags(new Required());
         $this->fields[self::ATTRIBUTES_FIELD] = new LongTextField('attributes');
         $this->fields[self::LESS_COMPATIBLE_FIELD] = new BoolField('less_compatible');
         $this->fields['shopTemplate'] = new ReferenceField('shopTemplateUuid', 'uuid', ShopTemplateWriteResource::class);

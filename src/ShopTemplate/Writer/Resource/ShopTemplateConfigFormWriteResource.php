@@ -3,7 +3,6 @@
 namespace Shopware\ShopTemplate\Writer\Resource;
 
 use Shopware\Api\Write\Field\FkField;
-use Shopware\Api\Write\Field\IntField;
 use Shopware\Api\Write\Field\LongTextField;
 use Shopware\Api\Write\Field\ReferenceField;
 use Shopware\Api\Write\Field\StringField;
@@ -17,8 +16,6 @@ use Shopware\ShopTemplate\Event\ShopTemplateConfigFormWrittenEvent;
 class ShopTemplateConfigFormWriteResource extends WriteResource
 {
     protected const UUID_FIELD = 'uuid';
-    protected const PARENT_ID_FIELD = 'parentId';
-    protected const SHOP_TEMPLATE_ID_FIELD = 'shopTemplateId';
     protected const TYPE_FIELD = 'type';
     protected const NAME_FIELD = 'name';
     protected const TITLE_FIELD = 'title';
@@ -29,8 +26,6 @@ class ShopTemplateConfigFormWriteResource extends WriteResource
         parent::__construct('shop_template_config_form');
 
         $this->primaryKeyFields[self::UUID_FIELD] = (new UuidField('uuid'))->setFlags(new Required());
-        $this->fields[self::PARENT_ID_FIELD] = new IntField('parent_id');
-        $this->fields[self::SHOP_TEMPLATE_ID_FIELD] = (new IntField('shop_template_id'))->setFlags(new Required());
         $this->fields[self::TYPE_FIELD] = (new StringField('type'))->setFlags(new Required());
         $this->fields[self::NAME_FIELD] = (new StringField('name'))->setFlags(new Required());
         $this->fields[self::TITLE_FIELD] = new StringField('title');

@@ -8,6 +8,7 @@ use Shopware\DbalIndexing\Common\RepositoryIterator;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
+use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Framework\Event\NestedEventCollection;
 use Shopware\Product\Event\ProductCategoryWrittenEvent;
 use Shopware\Product\Repository\ProductRepository;
@@ -94,9 +95,7 @@ class ProductCategoryIndexer implements IndexerInterface
 
         $table = $this->getIndexName($timestamp);
 
-        $insert = $this->connection->prepare(
-            'INSERT IGNORE INTO ' . $table . ' (product_uuid, category_uuid) VALUES (:product_uuid, :category_uuid)'
-        );
+        $queue = new MultiInsertQueryQueue($this->connection);
 
         foreach ($categories as $productUuid => $mapping) {
             $categoryUuids = array_merge(
@@ -107,12 +106,13 @@ class ProductCategoryIndexer implements IndexerInterface
             $categoryUuids = array_keys(array_flip(array_filter($categoryUuids)));
 
             foreach ($categoryUuids as $uuid) {
-                $insert->execute([
+                $queue->addInsert($table, [
                     'product_uuid' => $productUuid,
                     'category_uuid' => $uuid,
                 ]);
             }
         }
+        $queue->execute();
     }
 
     private function fetchCategories(array $uuids): array

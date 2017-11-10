@@ -33,9 +33,9 @@ use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Rule\Rule;
 use Shopware\Cart\Rule\Validatable;
-use Shopware\Product\Struct\ProductBasicStruct;
+use Shopware\Framework\Struct\Struct;
 
-class CalculatedProduct extends ProductBasicStruct implements DeliverableLineItemInterface, GoodsInterface, Validatable
+class CalculatedProduct extends Struct implements DeliverableLineItemInterface, GoodsInterface, Validatable
 {
     /**
      * @var LineItemInterface

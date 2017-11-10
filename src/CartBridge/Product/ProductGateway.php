@@ -44,7 +44,6 @@ class ProductGateway implements ProductGatewayInterface
     {
         $this->repository = $repository;
     }
-
     public function get(array $numbers, ShopContext $context): ProductBasicCollection
     {
         $products = $this->repository->readBasic(

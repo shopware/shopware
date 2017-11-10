@@ -34,7 +34,6 @@ use Shopware\CartBridge\Voucher\AbsoluteVoucherData;
 use Shopware\CartBridge\Voucher\PercentageVoucherData;
 use Shopware\CartBridge\Voucher\Struct\VoucherData;
 use Shopware\CartBridge\Voucher\Struct\VoucherDataCollection;
-use Shopware\CartBridge\Voucher\VoucherGatewayInterface;
 use Shopware\CartBridge\Rule\CustomerGroupRule;
 use Shopware\CartBridge\Rule\DateRangeRule;
 use Shopware\CartBridge\Rule\GoodsPriceRule;

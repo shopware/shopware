@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Cart\Test\Voucher;
+namespace Shopware\CartBridge\Test\Voucher;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\CartBridge\Voucher\VoucherGateway;

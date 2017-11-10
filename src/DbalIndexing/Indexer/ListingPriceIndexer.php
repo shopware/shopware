@@ -14,6 +14,7 @@ use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\DbalIndexing\Loader\ListingPriceLoader;
+use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Framework\Event\NestedEventCollection;
 use Shopware\Product\Event\ProductWrittenEvent;
 use Shopware\Product\Repository\ProductRepository;
@@ -133,25 +134,32 @@ class ListingPriceIndexer implements IndexerInterface
 
         $table = $this->getIndexName($timestamp);
 
-        $insert = $this->connection->prepare('
-            INSERT INTO ' . $table . ' (uuid, product_uuid, customer_group_uuid, price, display_from_price)
-            VALUES (:uuid, :product_uuid, :customer_group_uuid, :price, :display_from_price)
-        ');
+        $queue = new MultiInsertQueryQueue($this->connection);
 
         foreach ($uuids as $productUuid) {
             $prices = $this->prepareProductPrices($productUuid, $listingPrices, $customerGroupUuids);
 
             /** @var ProductListingPriceBasicStruct $price */
             foreach ($prices as $price) {
-                $insert->execute([
-                    'uuid' => $price->getUuid(),
-                    'product_uuid' => $price->getProductUuid(),
-                    'customer_group_uuid' => $price->getCustomerGroupUuid(),
-                    'price' => $price->getPrice(),
-                    'display_from_price' => $price->getDisplayFromPrice() ? 1 : 0,
-                ]);
+                $queue->addInsert(
+                    $table,
+                    [
+                        'uuid' => $price->getUuid(),
+                        'product_uuid' => $price->getProductUuid(),
+                        'customer_group_uuid' => $price->getCustomerGroupUuid(),
+                        'price' => $price->getPrice(),
+                        'display_from_price' => $price->getDisplayFromPrice() ? 1 : 0,
+                    ],
+                    [
+                        'uuid' => \PDO::PARAM_STR,
+                        'product_uuid' => \PDO::PARAM_STR,
+                        'customer_group_uuid' => \PDO::PARAM_STR,
+                        'display_from_price' => \PDO::PARAM_BOOL,
+                    ]
+                );
             }
         }
+        $queue->execute();
     }
 
     private function prepareProductPrices(

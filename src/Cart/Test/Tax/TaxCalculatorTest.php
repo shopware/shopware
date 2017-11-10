@@ -27,10 +27,10 @@ namespace Shopware\Cart\Test\Tax;
 use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Exception\TaxRuleNotSupportedException;
 use Shopware\Cart\Price\PriceRounding;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Cart\Tax\TaxCalculator;
 use Shopware\Cart\Tax\Struct\TaxRule;
 use Shopware\Cart\Tax\TaxRuleCalculator;
-
 use Shopware\Cart\Tax\Struct\TaxRuleInterface;
 
 class TaxCalculatorTest extends TestCase

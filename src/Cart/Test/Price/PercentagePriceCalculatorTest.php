@@ -30,6 +30,7 @@ use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Price\PriceCalculator;
 
 use Shopware\Cart\Price\PriceRounding;
+use Shopware\Cart\Price\Struct\PriceCollection;
 use Shopware\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\PercentageTaxRule;

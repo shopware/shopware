@@ -27,10 +27,10 @@ namespace Shopware\Cart\Test\Delivery;
 use PHPUnit\Framework\TestCase;
 use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\Cart\Delivery\Struct\Delivery;
-
+use Shopware\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Cart\Delivery\Struct\DeliveryPositionCollection;
-
+use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;

@@ -87,4 +87,18 @@ class CustomerGroupDiscountBasicCollection extends Collection
     {
         return $element->getUuid();
     }
+
+    public function getDiscountForCartAmount(float $totalPrice, string $customerGroupUuid): ?float
+    {
+        $discount = null;
+        foreach ($this->elements as $discountData) {
+            if ($discountData->getMinimumCartAmount() > $totalPrice) {
+                return $discount;
+            }
+            if ($discountData->getCustomerGroupUuid() === $customerGroupUuid) {
+                $discount = $discountData->getPercentageDiscount() * -1;
+            }
+        }
+        return null;
+    }
 }

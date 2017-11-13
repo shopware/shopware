@@ -2282,7 +2282,9 @@ ALTER TABLE `customer_group_attribute`
 ALTER TABLE `customer_group_discount`
     DROP PRIMARY KEY,
     CHANGE `id` `id` int(11),
-    ADD PRIMARY KEY (`uuid`, `customer_group_uuid`)
+    ADD PRIMARY KEY (`uuid`, `customer_group_uuid`),
+    ADD UNIQUE `customer_group_uuid_minimum_cart_amount`(`customer_group_uuid`, `minimum_cart_amount`),
+    DROP INDEX `groupID`;
 ;
 
 ALTER TABLE `filter_attribute`

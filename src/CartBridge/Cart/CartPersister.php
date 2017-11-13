@@ -69,6 +69,7 @@ class CartPersister implements CartPersisterInterface
     {
         //prevent empty carts
         if ($cart->getCalculatedLineItems()->count() <= 0) {
+            $this->delete($cart->getToken(), $cart->getName());
             return;
         }
 

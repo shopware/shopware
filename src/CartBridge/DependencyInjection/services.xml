@@ -27,6 +27,23 @@
             <tag name="cart.processor" priority="800"/>
         </service>
 
+        <service id="cart.customer_group.discount_processor" class="Shopware\CartBridge\CustomerGroup\CustomerGroupDiscountProcessor">
+            <argument id="cart.price.percentage_calculator" type="service"/>
+            <tag name="cart.processor" priority="675"/>
+        </service>
+
+        <service id="cart.order.minimum_order_amount_processor" class="Shopware\CartBridge\Order\MinimumOrderAmountProcessor">
+            <argument id="cart.price.calculator" type="service"/>
+            <argument id="cart.tax.percentage_rule_builder" type="service"/>
+            <tag name="cart.processor" priority="650"/>
+        </service>
+
+        <service id="cart.payment.payment_surcharge_processor" class="Shopware\CartBridge\Payment\PaymentSurchargeProcessor">
+            <argument id="cart.tax.percentage_rule_builder" type="service"/>
+            <argument id="cart.price.percentage_calculator" type="service"/>
+            <argument id="cart.price.calculator" type="service"/>
+            <tag name="cart.processor" priority="625"/>
+        </service>
 
         <!--cart line item data collectors-->
         <service id="shopware.cart.product.collector" class="Shopware\CartBridge\Product\ProductCollector">
@@ -41,30 +58,6 @@
 
 
         <!--interface implementations of cart bundle-->
-
-        <service id="cart.dynamic.line_item_gateway" alias="shopware.cart.dynamic.line_item_gateway" />
-
-        <service id="shopware.cart.dynamic.line_item_gateway" class="Shopware\CartBridge\Dynamic\DynamicLineItemGateway">
-            <argument id="shopware.cart.dynamic.customer_group_discount_gateway" type="service"/>
-            <argument id="shopware.cart.dynamic.minimum_order_value_gateway" type="service"/>
-            <argument id="shopware.cart.dynamic.payment_surcharge_gateway" type="service"/>
-        </service>
-
-        <service id="shopware.cart.dynamic.customer_group_discount_gateway" class="Shopware\CartBridge\Dynamic\CustomerGroupDiscountGateway">
-            <argument id="cart.price.percentage_calculator" type="service"/>
-            <argument id="dbal_connection" type="service"/>
-        </service>
-
-        <service id="shopware.cart.dynamic.minimum_order_value_gateway" class="Shopware\CartBridge\Dynamic\MinimumOrderValueGateway">
-            <argument id="cart.price.calculator" type="service"/>
-            <argument id="cart.tax.percentage_rule_builder" type="service"/>
-        </service>
-
-        <service id="shopware.cart.dynamic.payment_surcharge_gateway" class="Shopware\CartBridge\Dynamic\PaymentSurchargeGateway">
-            <argument id="cart.tax.percentage_rule_builder" type="service"/>
-            <argument id="cart.price.percentage_calculator" type="service"/>
-            <argument id="cart.price.calculator" type="service"/>
-        </service>
 
         <service id="shopware.cart.product.gateway" class="Shopware\CartBridge\Product\ProductGateway" >
             <argument type="service" id="shopware.product.repository"/>
@@ -135,6 +128,12 @@
             <tag name="cart.collector" priority="-1000" />
         </service>
 
+        <service id="shopware.cart.customer_group.customer_group_discount_collector" class="Shopware\CartBridge\CustomerGroup\CustomerGroupDiscountCollector">
+            <argument id="dbal_connection" type="service"/>
+            <tag name="cart.collector" priority="-1000"/>
+            <argument type="service" id="shopware.customer_group_discount.repository"/>
+            <argument type="service" id="shopware.customer_group_discount.basic_factory"/>
+        </service>
 
     </services>
 </container>

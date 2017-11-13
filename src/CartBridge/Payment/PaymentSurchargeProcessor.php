@@ -1,74 +1,64 @@
-<?php declare(strict_types=1);
-/**
- * Shopware 5
- * Copyright (c) shopware AG
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Shopware" is a registered trademark of shopware AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
+<?php
 
-namespace Shopware\CartBridge\Dynamic;
+namespace Shopware\CartBridge\Payment;
 
+
+use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\LineItem\CalculatedLineItem;
-use Shopware\Cart\LineItem\CalculatedLineItemInterface;
+use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\LineItem\Discount;
 use Shopware\Cart\Price\PercentagePriceCalculator;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Struct\StructCollection;
+use Shopware\Cart\LineItem\CalculatedLineItem;
+use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 
-class PaymentSurchargeGateway
+class PaymentSurchargeProcessor implements CartProcessorInterface
 {
-    /**
-     * @var PercentageTaxRuleBuilder
-     */
+
+    /** @var  PercentageTaxRuleBuilder */
     private $percentageTaxRuleBuilder;
 
-    /**
-     * @var PercentagePriceCalculator
-     */
+    /** @var  PercentagePriceCalculator */
     private $percentagePriceCalculator;
 
-    /**
-     * @var PriceCalculator
-     */
+    /** @var  PriceCalculator */
     private $priceCalculator;
 
+    /**
+     * PaymentSurchargeProcessor constructor.
+     */
     public function __construct(
         PercentageTaxRuleBuilder $percentageTaxRuleBuilder,
         PercentagePriceCalculator $percentagePriceCalculator,
-        PriceCalculator $priceCalculator
-    ) {
+        PriceCalculator $priceCalculator)
+    {
         $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
         $this->percentagePriceCalculator = $percentagePriceCalculator;
         $this->priceCalculator = $priceCalculator;
     }
 
-    public function get(CalculatedCart $cart, ShopContext $context): ? CalculatedLineItemInterface
+    public function process(
+        CartContainer $cartContainer,
+        CalculatedCart $calculatedCart,
+        StructCollection $dataCollection,
+        ShopContext $context
+    ): void
     {
         if (!$context->getCustomer()) {
-            return null;
+            return;
         }
 
         $payment = $context->getPaymentMethod();
 
-        $goods = $cart->getCalculatedLineItems()->filterGoods();
+        $goods = $calculatedCart->getCalculatedLineItems()->filterGoods();
+
+        if ($goods->count() === 0) {
+            return;
+        }
 
         switch (true) {
             case $payment->getAbsoluteSurcharge() !== null:
@@ -90,9 +80,11 @@ class PaymentSurchargeGateway
 
                 break;
             default:
-                return null;
+                return;
         }
 
-        return new CalculatedLineItem('payment', $surcharge, 1, 'surcharge');
+        $calculatedCart->getCalculatedLineItems()->add(
+            new CalculatedLineItem('payment', $surcharge, 1, 'surcharge')
+        );
     }
 }

@@ -173,7 +173,7 @@ class StoreFrontCartService
     {
         $this->viewCart = null;
 
-        $cartContainer = $this->getCart()->getCalculatedCart()->getCartContainer();
+        $cartContainer = $this->getCartContainer();
         $cartContainer->getLineItems()->remove($identifier);
         $this->calculate($cartContainer);
     }

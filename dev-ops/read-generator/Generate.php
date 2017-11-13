@@ -266,6 +266,9 @@ class Generate
                 ]
             ],
             'customer_group_discount' => [
+                'collection_functions' => [
+                    file_get_contents(__DIR__ . '/special_case/customer_group_discount/collection.txt')
+                ]
             ],
             'holiday' => [],
             'locale' => [],

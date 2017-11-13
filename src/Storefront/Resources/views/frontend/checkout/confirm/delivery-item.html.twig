@@ -2,7 +2,7 @@
 
 {# @var viewLineItem \Shopware\CartBridge\View\ViewLineItemInterface #}
 {% block frontend_checkout_cart_item_quantity_selection %}
-    {{ viewLineItem.calculatedLineItem.quantity }}
+    {{ deliveryPosition.quantity }}
 {% endblock %}
 
 {% block frontend_checkout_cart_item_tax_price %}
@@ -13,7 +13,21 @@
                 {/if}
             </div>
         {% endblock %}
-        {{ viewLineItem.calculatedLineItem.price.calculatedTaxes.amount|localizedcurrency(context.currency.shortName) }}
+        {{ deliveryPosition.price.calculatedTaxes.amount|localizedcurrency(context.currency.shortName) }}
+    </div>
+{% endblock %}
+
+{# Accumulated product price #}
+{% block frontend_checkout_cart_item_total_sum %}
+    <div class="panel--td column--total-price is--align-right">
+        {% block frontend_checkout_cart_item_total_price_label %}
+            <div class="column--label total-price--label">
+                {% trans from 'frontend/checkout/cart_header' %}CartColumnTotal{% endtrans %}
+            </div>
+        {% endblock %}
+
+        {{ deliveryPosition.price.totalPrice|localizedcurrency(context.currency.shortName) }}
+        {{ block('frontend_checkout_cart_tax_symbol') }}
     </div>
 {% endblock %}
 

@@ -156,6 +156,7 @@
                                 {#{* Delivery items *}#}
                                 {% block frontend_checkout_confirm_item_outer %}
                                     {% for viewPosition in delivery.viewPositions %}
+                                        {{ dump(viewPosition) }}
                                         {% block frontend_checkout_confirm_item %}
                                             {% sw_include "frontend/checkout/confirm/delivery-item.html.twig"
                                             with {

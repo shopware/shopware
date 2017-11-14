@@ -25,7 +25,6 @@
 namespace Shopware\Api\Write;
 
 use Doctrine\DBAL\Connection;
-use function GuzzleHttp\debug_resource;
 use Shopware\Api\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Api\Write\FieldException\FieldExceptionStack;
 use Shopware\Api\Write\Query\InsertQuery;
@@ -199,7 +198,6 @@ class SqlResourceWriter implements ResourceWriterInterface
         $pkMapping = $writeContext->getPrimaryKeyMapping();
 
         foreach ($pkMapping as $table => $definition) {
-
             $query = $this->connection->createQueryBuilder();
 
             $query->addSelect(array_keys($definition['columns']));
@@ -215,11 +213,8 @@ class SqlResourceWriter implements ResourceWriterInterface
                 }
                 $query->orWhere(implode(' AND ', $where));
             }
-
-
-            $existing = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
-
-            $writeContext->setExistingPrimaries($table, $existing);
+            $existingPrimaries = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
+            $writeContext->setExistingPrimaries($table, $existingPrimaries);
         }
     }
 }

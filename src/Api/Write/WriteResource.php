@@ -122,7 +122,7 @@ abstract class WriteResource
 
         $pkData = $this->map($this->primaryKeyFields, $rawData, self::FOR_INSERT, $exceptionStack, $extenderCollection);
 
-        $type = $this->determineType($writeContext, $pkData);
+        $type = $this->determineQueryType($writeContext, $pkData);
 
         $rawData = $this->integrateDefaults($rawData, $type);
 
@@ -324,18 +324,16 @@ abstract class WriteResource
     }
 
     /**
-     * @param SqlGateway $sqlGateway
-     * @param array      $pkData
+     * @param WriteContext  $context
+     * @param array         $pkData
      *
      * @return string
      */
-    private function determineType(WriteContext $context , array $pkData): string
+    private function determineQueryType(WriteContext $writeContext, array $pkData): string
     {
-        $exists = $context->isPrimaryKeyExists($this->tableName, $pkData);
+        $exists = $writeContext->primaryKeyExists($this->tableName, $pkData);
 
-        $type = $exists ? self::FOR_UPDATE : self::FOR_INSERT;
-
-        return $type;
+        return $exists ? self::FOR_UPDATE : self::FOR_INSERT;
     }
 
     /**

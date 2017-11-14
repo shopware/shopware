@@ -27,17 +27,17 @@ namespace Shopware\Api\Write;
 class WriteContext
 {
     private const SPACER = '::';
-
     private $paths = [];
-
-    private $pkMapping = [];
-
-    private $queryTypeMapping = [];
 
     /**
      * @var array[]
      */
-    public $primaryKeys;
+    private $pkMapping = [];
+
+    /**
+     * @var array[]
+     */
+    private $primaryKeys;
 
     /**
      * @param string $className
@@ -122,21 +122,27 @@ class WriteContext
         return $this->pkMapping[$tableName];
     }
 
-    public function addQueryTypeMapping(string $key, array $value)
+    /**
+     * @param string    $table
+     * @param array     $existingPrimaries
+     */
+    public function setExistingPrimaries(string $table, array $existingPrimaries)
     {
-
-    }
-
-    public function setExistingPrimaries($table, $existing)
-    {
-        foreach ($existing as $row) {
+        foreach ($existingPrimaries as $row) {
             ksort($row);
             $unique = md5(json_encode($row));
+
             $this->primaryKeys[$table][] = $unique;
         }
     }
 
-    public function isPrimaryKeyExists(string $table, $primaryKey): bool
+    /**
+     * @param string    $table
+     * @param array     $primaryKey
+     *
+     * @return bool
+     */
+    public function primaryKeyExists(string $table, array $primaryKey): bool
     {
         if (!array_key_exists($table, $this->primaryKeys)) {
             return false;
@@ -146,7 +152,6 @@ class WriteContext
         $unique = md5(json_encode($primaryKey));
 
         return array_key_exists($table, $this->primaryKeys)
-            &&
-            in_array($unique, $this->primaryKeys[$table]);
+            && in_array($unique, $this->primaryKeys[$table]);
     }
 }

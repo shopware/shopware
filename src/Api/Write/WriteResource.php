@@ -29,6 +29,7 @@ use Shopware\Api\Write\DataStack\ExceptionNoStackItemFound;
 use Shopware\Api\Write\DataStack\KeyValuePair;
 use Shopware\Api\Write\Field\DateField;
 use Shopware\Api\Write\Field\Field;
+use Shopware\Api\Write\Field\FkField;
 use Shopware\Api\Write\Field\ReferenceField;
 use Shopware\Api\Write\Field\SubresourceField;
 use Shopware\Api\Write\FieldAware\ExceptionStackAware;
@@ -95,8 +96,14 @@ abstract class WriteResource
 
         $writeContext->addPrimaryKeyMapping($this->tableName, $pkData);
 
-        $this->mapPrimaryKeys($this->fields, $rawData, self::FOR_INSERT, $exceptionStack, $extenderCollection);
+        $fields = array_filter(
+            $this->fields,
+            function(Field $field) {
+                return $field instanceof SubresourceField || $field instanceof FkField || $field instanceof ReferenceField;
+            }
+        );
 
+        $this->mapPrimaryKeys($fields, $rawData, self::FOR_INSERT, $exceptionStack, $extenderCollection);
     }
 
     public function extract(

@@ -33,7 +33,7 @@ echo "\nInserting\n\n";
 $measurement = new Measurement();
 $measurement->start(count($products));
 
-$size = 150;
+$size = 250;
 $products = array_chunk($products, $size);
 
 foreach ($products as $i => $product) {

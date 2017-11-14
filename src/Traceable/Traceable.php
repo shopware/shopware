@@ -21,6 +21,10 @@ class Traceable extends Theme
         $directory = $this->container->getParameter('kernel.cache_dir');
         $directory .= '/tracer';
 
+        if (!file_exists($directory)) {
+            return;
+        }
+        
         $finder = new Finder();
         $classes = $finder->in($directory);
         foreach ($classes->getIterator() as $file) {

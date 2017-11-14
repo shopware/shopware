@@ -2,8 +2,8 @@
 //   http://karma-runner.github.io/0.13/config/configuration-file.html
 // we are also using it with karma-webpack
 //   https://github.com/webpack/karma-webpack
-
 const webpackConfig = require('../../build/webpack.test.conf');
+const process = require('process');
 
 module.exports = function (config) {
     config.set({
@@ -11,12 +11,17 @@ module.exports = function (config) {
         // 1. install corresponding karma launcher
         //    http://karma-runner.github.io/0.13/config/browsers.html
         // 2. add it to the `browsers` array below.
-        browsers: ['PhantomJS'],
-        frameworks: ['mocha', 'sinon-chai'],
-        reporters: ['spec', 'coverage'],
-        files: ['./index.js'],
+        browsers: [ 'ChromeHeadless', 'PhantomJS' ],
+        frameworks: [ 'mocha', 'sinon-chai', 'chai' ],
+        reporters: [ 'spec', 'coverage', 'junit' ],
+        files: [
+            './index.js'
+        ],
+        client: {
+            captureConsole: (process.env.TESTING_ENV === 'watch' ? true : false)
+        },
         preprocessors: {
-            './index.js': ['webpack', 'sourcemap']
+            './index.js': [ 'webpack', 'sourcemap' ]
         },
         webpack: webpackConfig,
         webpackMiddleware: {
@@ -25,9 +30,9 @@ module.exports = function (config) {
         coverageReporter: {
             dir: './coverage',
             reporters: [
-                {type: 'lcov', subdir: '.'},
-                {type: 'text-summary'}
+                { type: 'lcov', subdir: '.' },
+                { type: 'text-summary' }
             ]
         }
     })
-}
+};

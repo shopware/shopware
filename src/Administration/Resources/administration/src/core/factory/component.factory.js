@@ -30,12 +30,19 @@ function getComponentRegistry() {
  *
  * @param {String} componentName
  * @param {Object} [componentConfiguration={}]
- * @returns {*}
+ * @returns {Boolean|Object}
  */
 function register(componentName, componentConfiguration = {}) {
     const config = componentConfiguration;
 
-    config.name = componentName;
+    if (!componentName || !componentName.length) {
+        utils.warn(
+            'ComponentFactory',
+            'A component always needs a name.',
+            componentConfiguration
+        );
+        return false;
+    }
 
     if (componentRegistry.has(componentName)) {
         utils.warn(
@@ -43,7 +50,7 @@ function register(componentName, componentConfiguration = {}) {
             `The component "${componentName}" is already registered. Please select a unique name for your component.`,
             config
         );
-        return config;
+        return false;
     }
 
     config.name = componentName;
@@ -66,7 +73,7 @@ function register(componentName, componentConfiguration = {}) {
             'Please add a "template" property to your component definition',
             config
         );
-        return config;
+        return false;
     }
 
     componentRegistry.set(componentName, config);

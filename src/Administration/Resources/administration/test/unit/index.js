@@ -1,5 +1,7 @@
 import Vue from 'vue';
 
+require('src/core/common.js');
+
 Vue.config.productionTip = false;
 
 // Polyfill fn.bind() for PhantomJS

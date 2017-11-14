@@ -33,10 +33,11 @@ echo "\nInserting\n\n";
 $measurement = new Measurement();
 $measurement->start(count($products));
 
+$size = 150;
+$products = array_chunk($products, $size);
+
 foreach ($products as $i => $product) {
-    if (!($i % 1000)) {
-        echo $measurement->tick($i) . "\n";
-    }
+    echo $measurement->tick($i * $size) . "\n";
 
     $extender = new \Shopware\Api\Write\FieldAware\FieldExtenderCollection();
     $extender->addExtender($kernel->getContainer()->get('shopware.framework.write.field_aware.default_extender'));
@@ -51,7 +52,7 @@ foreach ($products as $i => $product) {
 
     } catch (\Exception $e) {
         print_r([
-            $i,
+            1,
             $e->getMessage(),
             $e->getTraceAsString(),
             $product

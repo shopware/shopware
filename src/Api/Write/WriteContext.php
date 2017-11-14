@@ -27,7 +27,17 @@ namespace Shopware\Api\Write;
 class WriteContext
 {
     private const SPACER = '::';
+
     private $paths = [];
+
+    private $pkMapping = [];
+
+    private $queryTypeMapping = [];
+
+    /**
+     * @var array[]
+     */
+    public $primaryKeys;
 
     /**
      * @param string $className
@@ -78,5 +88,65 @@ class WriteContext
     private function buildPathName(string $className, string $propertyName): string
     {
         return $className . self::SPACER . $propertyName;
+    }
+
+    /**
+     * @param string    $tableName
+     * @param array     $primaryKeys
+     */
+    public function addPrimaryKeyMapping(string $tableName, array $primaryKeys)
+    {
+        if (!array_key_exists($tableName, $this->pkMapping)) {
+            $this->pkMapping[$tableName] = ['rows' => [], 'columns' => []];
+        }
+
+        $this->pkMapping[$tableName]['rows'][] = $primaryKeys;
+        $this->pkMapping[$tableName]['columns'] += array_flip(array_keys($primaryKeys));
+    }
+
+    /**
+     * @return array
+     */
+    public function getPrimaryKeyMapping(): array
+    {
+        return $this->pkMapping;
+    }
+
+    /**
+     * @param string $tableName
+     *
+     * @return array
+     */
+    public function getPrimaryKeysForTable(string $tableName): array
+    {
+        return $this->pkMapping[$tableName];
+    }
+
+    public function addQueryTypeMapping(string $key, array $value)
+    {
+
+    }
+
+    public function setExistingPrimaries($table, $existing)
+    {
+        foreach ($existing as $row) {
+            ksort($row);
+            $unique = md5(json_encode($row));
+            $this->primaryKeys[$table][] = $unique;
+        }
+    }
+
+    public function isPrimaryKeyExists(string $table, $primaryKey): bool
+    {
+        if (!array_key_exists($table, $this->primaryKeys)) {
+            return false;
+        }
+
+        ksort($primaryKey);
+        $unique = md5(json_encode($primaryKey));
+
+        return array_key_exists($table, $this->primaryKeys)
+            &&
+            in_array($unique, $this->primaryKeys[$table]);
     }
 }

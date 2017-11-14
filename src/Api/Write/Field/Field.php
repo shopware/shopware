@@ -37,10 +37,11 @@ abstract class Field
      * @param string $type
      * @param string $key
      * @param null   $value
+     * @param bool   $collect
      *
      * @return \Generator
      */
-    abstract public function __invoke(string $type, string $key, $value = null): \Generator;
+    abstract public function __invoke(string $type, string $key, $value = null, bool $collect = false): \Generator;
 
     /**
      * @param Flag[] ...$flags

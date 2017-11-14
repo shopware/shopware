@@ -64,7 +64,7 @@ class TranslatedField extends Field implements WriteContextAware
     /**
      * {@inheritdoc}
      */
-    public function __invoke(string $type, string $key, $value = null): \Generator
+    public function __invoke(string $type, string $key, $value = null, bool $collect = false): \Generator
     {
         if (is_string($value)) {
             // load from write context the default language

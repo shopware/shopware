@@ -72,7 +72,7 @@ class UuidField extends Field implements WriteContextAware, ResourceAware, UuidG
     /**
      * {@inheritdoc}
      */
-    public function __invoke(string $type, string $key, $value = null): \Generator
+    public function __invoke(string $type, string $key, $value = null, bool $collect = false): \Generator
     {
         if (!$value) {
             $value = $this->generatorRegistry

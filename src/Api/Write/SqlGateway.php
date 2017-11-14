@@ -52,8 +52,10 @@ class SqlGateway
             ->from(QuerySelection::escape($tableName));
 
         foreach ($pkData as $pkDatum => $pkValue) {
-            $qb->andWhere($pkDatum . '= :' . $pkDatum);
-            $qb->setParameter($pkDatum, $pkValue);
+            if (is_array($pkValue)) {
+                $qb->andWhere($pkDatum . ' IN (:' . $pkDatum . ')');
+                $qb->setParameter($pkDatum, implode( ',', $pkValue));
+            }
         }
 
         return (bool) $qb

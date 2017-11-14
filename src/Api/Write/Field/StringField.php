@@ -75,7 +75,7 @@ class StringField extends Field implements PathAware, ConstraintBuilderAware, Fi
     /**
      * {@inheritdoc}
      */
-    public function __invoke(string $type, string $key, $value = null): \Generator
+    public function __invoke(string $type, string $key, $value = null, bool $collect = false): \Generator
     {
         switch ($type) {
             case WriteResource::FOR_INSERT:

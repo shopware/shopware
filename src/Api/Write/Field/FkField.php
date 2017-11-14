@@ -78,7 +78,7 @@ class FkField extends Field implements WriteContextAware, ValidatorAware, PathAw
         $this->storageName = $storageName;
     }
 
-    public function __invoke(string $type, string $key, $value = null): \Generator
+    public function __invoke(string $type, string $key, $value = null, bool $collect = false): \Generator
     {
         if (!$value) {
             try {

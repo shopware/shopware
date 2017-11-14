@@ -98,7 +98,7 @@ class SubresourceField extends Field implements PathAware, FieldExtenderCollecti
     /**
      * {@inheritdoc}
      */
-    public function __invoke(string $type, string $key, $value = null): \Generator
+    public function __invoke(string $type, string $key, $value = null, bool $collect = false): \Generator
     {
         if (!is_array($value)) {
             throw new MalformatDataException($this->path . '/' . $key, 'Value must be an array.');
@@ -118,15 +118,25 @@ class SubresourceField extends Field implements PathAware, FieldExtenderCollecti
                 $subresources[$this->possibleKey] = $keyValue;
             }
 
-            $resource->extract(
-                $subresources,
-                $this->exceptionStack,
-                $this->queryQueue,
-                $this->sqlGateway,
-                $this->writeContext,
-                $this->fieldExtenderCollection,
-                $this->path . '/' . $key . '/' . $keyValue
-            );
+            if (true === $collect) {
+                $resource->collectPrimaryKeys(
+                    $subresources,
+                    $this->exceptionStack,
+                    $this->queryQueue,
+                    $this->writeContext,
+                    $this->fieldExtenderCollection,
+                    $this->path . '/' . $key . '/' . $keyValue
+                );
+            } else {
+                $resource->extract(
+                    $subresources,
+                    $this->exceptionStack,
+                    $this->queryQueue,
+                    $this->writeContext,
+                    $this->fieldExtenderCollection,
+                    $this->path . '/' . $key . '/' . $keyValue
+                );
+            }
         }
 
         return;

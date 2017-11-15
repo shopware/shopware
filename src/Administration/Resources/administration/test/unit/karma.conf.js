@@ -4,6 +4,9 @@
 //   https://github.com/webpack/karma-webpack
 const webpackConfig = require('../../build/webpack.test.conf');
 const process = require('process');
+const path = require('path');
+
+const artifactsPath = path.join(__dirname, '../../../../../../build/artifacts');
 
 module.exports = function (config) {
     config.set({
@@ -28,11 +31,17 @@ module.exports = function (config) {
             noInfo: true
         },
         coverageReporter: {
-            dir: './coverage',
+            dir: artifactsPath,
             reporters: [
                 { type: 'lcov', subdir: '.' },
+                { type: 'clover', subdir: '.', file: 'administration.clover.xml' },
                 { type: 'text-summary' }
             ]
+        },
+        junitReporter: {
+            useBrowserName: false,
+            outputDir: artifactsPath,
+            outputFile: 'administration.junit.xml'
         }
     })
 };

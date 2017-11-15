@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-vendor/bin/phpunit --log-junit build/artifacts/test-log.xml --coverage-clover build/artifacts/coverage.clover
+vendor/bin/phpunit --log-junit build/artifacts/phpunit.junit.xml --coverage-clover build/artifacts/phpunit.clover.xml

@@ -217,7 +217,7 @@ class LineItemCollectionTest extends TestCase
         $this->assertFalse($collection->exists($second));
     }
 
-    public function testGetCollectiveExtraData(): void
+    public function testGetCollectivePayload(): void
     {
         $collection = new LineItemCollection([
             new LineItem('A', 'temp', 1, ['foo' => 'bar']),
@@ -229,7 +229,7 @@ class LineItemCollectionTest extends TestCase
                 'A' => ['foo' => 'bar'],
                 'B' => ['bar' => 'foo'],
             ],
-            $collection->getExtraData()
+            $collection->getPayload()
         );
     }
 }

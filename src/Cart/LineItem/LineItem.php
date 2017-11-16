@@ -48,7 +48,7 @@ class LineItem extends Struct implements LineItemInterface
     /**
      * @var array
      */
-    protected $extraData;
+    protected $payload;
 
     /**
      * @var null|\Shopware\Cart\Price\Struct\PriceDefinition
@@ -59,13 +59,13 @@ class LineItem extends Struct implements LineItemInterface
         string $identifier,
         string $type,
         int $quantity,
-        array $extraData = [],
+        array $payload = [],
         ?PriceDefinition $priceDefinition = null
     ) {
         $this->identifier = $identifier;
         $this->quantity = $quantity;
         $this->type = $type;
-        $this->extraData = $extraData;
+        $this->payload = $payload;
         $this->priceDefinition = $priceDefinition;
     }
 
@@ -89,9 +89,9 @@ class LineItem extends Struct implements LineItemInterface
         return $this->type;
     }
 
-    public function getExtraData(): array
+    public function getPayload(): array
     {
-        return $this->extraData;
+        return $this->payload;
     }
 
     public function getPriceDefinition(): ?PriceDefinition

@@ -72,7 +72,7 @@ class VoucherProcessor implements CartProcessorInterface
 
         /** @var LineItemInterface $lineItem */
         foreach ($lineItems as $lineItem) {
-            $code = $lineItem->getExtraData()['code'];
+            $code = $lineItem->getPayload()['code'];
 
             /** @var VoucherData $voucher */
             if (!$voucher = $dataCollection->get($code)) {

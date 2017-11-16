@@ -54,11 +54,11 @@ interface LineItemInterface extends \JsonSerializable
     public function getType(): string;
 
     /**
-     * Allows to store extra data for an line item which not defined in the LineItemInterface
+     * Allows to store payload with extra data for an line item which is not defined in the LineItemInterface
      *
      * @return array
      */
-    public function getExtraData(): array;
+    public function getPayload(): array;
 
     /**
      * Sets the quantity of the line item which used to calculate to total amount

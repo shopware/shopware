@@ -78,10 +78,10 @@ class LineItemCollection extends Collection
         );
     }
 
-    public function getExtraData(): array
+    public function getPayload(): array
     {
         return $this->map(function (LineItem $lineItem) {
-            return $lineItem->getExtraData();
+            return $lineItem->getPayload();
         });
     }
 

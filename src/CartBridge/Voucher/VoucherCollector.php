@@ -57,7 +57,7 @@ class VoucherCollector implements CollectorInterface
             return;
         }
 
-        $data = array_column($vouchers->getExtraData(), 'code');
+        $data = array_column($vouchers->getPayload(), 'code');
         $fetchDefinition->add(new VoucherFetchDefinition($data));
     }
 

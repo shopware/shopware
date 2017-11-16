@@ -47,6 +47,8 @@ environments:
     paths:
       - "dev-ops/docker/actions"
   administration:
+    const:
+      DEVPORT: "8080"
     paths:
       - "dev-ops/administration/actions"
   bamboo:

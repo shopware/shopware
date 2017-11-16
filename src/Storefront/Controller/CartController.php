@@ -55,7 +55,7 @@ class CartController extends Controller
         }
         $cartService = $this->get('shopware.cart.storefront_service');
         $cartService->add(
-            new LineItem($identifier, ProductProcessor::TYPE_PRODUCT, $quantity)
+            new LineItem($identifier, ProductProcessor::TYPE_PRODUCT, $quantity, ['identifier' => $identifier])
         );
 
         return $this->conditionalResponse($request, $target);

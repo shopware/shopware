@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "axios": "^0.17.0",
+    "bottlejs": "^1.6.1",
     "expose-loader": "^0.7.3",
     "rxjs": "^5.5.2",
     "twig": "^1.10.5",

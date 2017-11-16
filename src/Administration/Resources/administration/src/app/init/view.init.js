@@ -1,11 +1,18 @@
+/* global Shopware */
+
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
 import ViewFactory from 'src/core/factory/view.factory';
 
-export default function initializeView(app, configuration, done) {
-    const vueAdapter = VueAdapter(configuration.context);
+/**
+ * Initializes the view of the application
+ *
+ * @param diContainer
+ * @returns {Bottle}
+ */
+export default function initializeView(container) {
+    const adapter = VueAdapter(container.contextService);
+    const viewFactory = ViewFactory(adapter);
 
-    configuration.view = ViewFactory(vueAdapter);
-    configuration.view.initComponents();
-
-    done(configuration);
+    viewFactory.initComponents();
+    return viewFactory;
 }

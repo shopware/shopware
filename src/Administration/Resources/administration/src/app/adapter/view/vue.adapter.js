@@ -1,7 +1,9 @@
+import 'src/app/component/components';
+
+
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import utils from 'src/core/service/util.service';
-import 'src/app/component/components';
 import VueMoment from 'vue-moment';
 
 const vueComponents = {};
@@ -99,7 +101,7 @@ export default function VueAdapter(context) {
      * Returns a final Vue component by its name.
      *
      * @param componentName
-     * @returns {*}
+     * @returns {null|Component}
      */
     function getComponent(componentName) {
         if (!vueComponents[componentName]) {
@@ -112,7 +114,7 @@ export default function VueAdapter(context) {
     /**
      * Returns the complete set of available Vue components.
      *
-     * @returns {{}}
+     * @returns {Object}
      */
     function getComponents() {
         return vueComponents;
@@ -123,6 +125,6 @@ export default function VueAdapter(context) {
     }
 
     function getName() {
-        return 'Vue';
+        return 'Vue.js';
     }
 }

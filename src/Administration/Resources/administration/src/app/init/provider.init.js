@@ -1,4 +1,4 @@
-import EventEmitter from 'src/core/factory/event-emitter.factory';
+/* eslint-disable */
 import LoginService from 'src/core/service/login.service';
 import MenuService from 'src/app/service/menu.service';
 import ShopApiService from 'src/core/service/api/shop.api.service';
@@ -18,35 +18,44 @@ import CurrencyApiService from 'src/core/service/api/currency.api.service';
 import TaxApiService from 'src/core/service/api/tax.api.service';
 import MediaApiService from 'src/core/service/api/media.api.service';
 
-export default function initializeProviders(app, configuration, done) {
-    const httpClient = configuration.httpClient;
-    const eventSystem = configuration.eventSystem;
-    const stateContainer = configuration.stateContainer;
-    const applicationState = configuration.applicationState;
+// Shopware.Container.httpClient;
+// Shopware.Component.register();
 
-    app.addProvider('httpClient', httpClient)
-        .addProvider('eventSystem', eventSystem)
-        .addProvider('eventEmitter', EventEmitter(eventSystem))
-        .addProvider('stateContainer', stateContainer)
-        .addProvider('productService', new ProductApiService(httpClient))
-        .addProvider('orderService', new OrderApiService(httpClient))
-        .addProvider('currencyService', new CurrencyApiService(httpClient))
-        .addProvider('shopService', new ShopApiService(httpClient))
-        .addProvider('orderStateService', new OrderStateApiService(httpClient))
-        .addProvider('countryService', new CountryApiService(httpClient))
-        .addProvider('orderLineItemService', new OrderLineItemApiService(httpClient))
-        .addProvider('orderDeliveryService', new OrderDeliveryApiService(httpClient))
-        .addProvider('shippingMethodService', new ShippingMethodApiService(httpClient))
-        .addProvider('paymentMethodService', new PaymentMethodApiService(httpClient))
-        .addProvider('customerService', new CustomerApiService(httpClient))
-        .addProvider('customerGroupService', new CustomerGroupApiService(httpClient))
-        .addProvider('productManufacturerService', new ProductManufacturerApiService(httpClient))
-        .addProvider('taxService', new TaxApiService(httpClient))
-        .addProvider('categoryService', new CategoryApiService(httpClient))
-        .addProvider('mediaService', new MediaApiService(httpClient))
-        .addProvider('loginService', LoginService(httpClient))
-        .addProvider('applicationState', applicationState)
-        .addProvider('menuService', MenuService);
+export default function initializeProviders() {
+    console.log(this);
 
-    done(configuration);
+    this.addServiceProvider('productService', (container) => {
+        return new ProductApiService(container.httpClient)
+    });
+
+    this.addServiceProvider('orderService', (container) => {
+        return new OrderApiService(container.httpClient);
+    });
+
+    this.addServiceProvider('menuService', () => {
+        return MenuService();
+    });
+
+    return {};
+    // Register the providers
+    /* return diContainer.service('provider.eventEmitter', EventEmitter, 'initializer.eventSystem')
+        .service('provider.productService', ProductApiService, 'initializer.httpClient')
+        .service('provider.orderService', OrderApiService, 'initializer.httpClient')
+        .service('provider.currencyService', CurrencyApiService, 'initializer.httpClient')
+        .service('provider.shopService', ShopApiService, 'initializer.httpClient')
+        .service('provider.orderStateService', OrderStateApiService, 'initializer.httpClient')
+        .service('provider.countryService', CountryApiService, 'initializer.httpClient')
+        .service('provider.orderDeliveryService', OrderDeliveryApiService, 'initializer.httpClient')
+        .service('provider.orderLineItemService', OrderLineItemApiService, 'initializer.httpClient')
+        .service('provider.shippingMethodService', ShippingMethodApiService, 'initializer.httpClient')
+        .service('provider.paymentMethodService', PaymentMethodApiService, 'initializer.httpClient')
+        .service('provider.customerService', CustomerApiService, 'initializer.httpClient')
+        .service('provider.customerGroupService', CustomerGroupApiService, 'initializer.httpClient')
+        .service('provider.productManufacturerService', ProductManufacturerApiService, 'initializer.httpClient')
+        .service('provider.taxService', TaxApiService, 'initializer.httpClient')
+        .service('provider.categoryService', CategoryApiService, 'initializer.httpClient')
+        .service('provider.mediaService', MediaApiService, 'initializer.httpClient')
+        .service('provider.loginService', LoginService, 'initializer.httpClient')
+        .service('provider.menuService', MenuService);
+        */
 }

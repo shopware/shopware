@@ -75,22 +75,6 @@ module.exports = {
                 }
             },
             {
-                enforce: 'post',
-                test: require.resolve('../src/core/factory/component.factory.js'),
-                use: [{
-                    loader: 'expose-loader',
-                    options: 'ComponentFactory'
-                }]
-            },
-            {
-                test: require.resolve('../src/core/factory/module.factory.js'),
-                use: [{
-                    loader: 'expose-loader',
-                    options: 'ModuleFactory'
-                }]
-            },
-            {
-                enforce: 'post',
                 test: require.resolve('../src/app/main.js'),
                 use: [{
                     loader: 'expose-loader',

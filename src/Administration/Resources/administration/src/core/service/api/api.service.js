@@ -46,11 +46,13 @@ class ApiService {
     }
 
     getApiBasePath(uuid) {
+        const returnFormat = (this.returnFormat.length) ? `.${this.returnFormat}` : '';
+
         if (uuid && uuid.length > 0) {
-            return `${this.apiEndpoint}/${uuid}.${this.returnFormat}`;
+            return `${this.apiEndpoint}/${uuid})${returnFormat}`;
         }
 
-        return `${this.apiEndpoint}.${this.returnFormat}`;
+        return `${this.apiEndpoint}${returnFormat}`;
     }
 
     get apiEndpoint() {

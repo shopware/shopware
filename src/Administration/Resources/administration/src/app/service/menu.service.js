@@ -1,11 +1,15 @@
 import utils from 'src/core/service/util.service';
 
-export default {
-    getMainMenu
-};
+const ModuleFactory = Shopware.ModuleFactory;
+
+export default function MenuService() {
+    return {
+        getMainMenu
+    };
+}
 
 function getMainMenu() {
-    const modules = Shopware.ModuleFactory.getModuleRegistry();
+    const modules = ModuleFactory.getModuleRegistry();
     const menuEntries = {};
 
     modules.forEach(module => {

@@ -1,12 +1,14 @@
+/* global Shopware */
 import coreModules from 'module';
 
-export default function initializeCoreModules(app, configuration, done) {
-    // Loop through the core modules
+const ModuleFactory = Shopware.ModuleFactory;
+
+export default function initializeCoreModules() {
+    // Loop through the core modules and register them in the application
     coreModules.forEach((module) => {
-        Shopware.ModuleFactory.registerModule(module, 'core');
+        ModuleFactory.registerModule(module, 'core');
     });
 
-    configuration.coreModuleRoutes = Shopware.ModuleFactory.getModuleRoutes();
-
-    done(configuration);
+    // Return the module routes for the router
+    return ModuleFactory.getModuleRoutes();
 }

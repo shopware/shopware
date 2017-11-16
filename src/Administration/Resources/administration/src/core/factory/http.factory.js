@@ -1,23 +1,11 @@
 import Axios from 'axios';
 
-export default {
-    createClientWithToken
-};
+export default function HTTPClient(context) {
+    return createClient(context);
+}
 
-/* function configureRequestCSRFInterceptor(httpClient, token) {
-    httpClient.interceptors.request.use((config) => {
-        config.headers['X-CSRF-TOKEN'] = token;
-
-        return config;
-    }, Promise.reject);
-} */
-
-function createClientWithToken(token, context) {
-    const httpClient = Axios.create({
+function createClient(context) {
+    return Axios.create({
         baseURL: context.apiPath
     });
-
-    // configureRequestCSRFInterceptor(httpClient, token);
-
-    return httpClient;
 }

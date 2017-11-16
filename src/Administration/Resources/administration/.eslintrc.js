@@ -67,6 +67,11 @@ module.exports = {
 
         'object-curly-newline': [ 'error', { 'consistent': true } ],
 
+        'no-underscore-dangle': [ 'error', {
+            'allowAfterThis': true,
+            'allowAfterSuper': true
+        }],
+
         // TODO@STP - Consider using destruction for array and object access
         "prefer-destructuring": [ 'off', { 'object': true, 'array': false } ],
 

@@ -1076,6 +1076,10 @@ boom@5.x.x:
   dependencies:
     hoek "4.x.x"
 
+bottlejs@^1.6.1:
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/bottlejs/-/bottlejs-1.6.1.tgz#d087df2d3d1009056609d6a1ef921da6d788247c"
+
 brace-expansion@^1.0.0, brace-expansion@^1.1.7:
   version "1.1.8"
   resolved "https://registry.yarnpkg.com/brace-expansion/-/brace-expansion-1.1.8.tgz#c07b211c7c952ec1f8efd51a77ef0d1d3990a292"

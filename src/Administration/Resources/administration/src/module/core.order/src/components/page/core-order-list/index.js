@@ -37,6 +37,12 @@ export default Shopware.ComponentFactory.register('core-order-list', {
                 });
         },
 
+        onEdit(order) {
+            if (order && order.uuid) {
+                this.$router.push({ name: 'core.order.detail', params: { uuid: order.uuid } });
+            }
+        },
+
         handlePagination(offset, limit) {
             this.getData(offset, limit);
         }

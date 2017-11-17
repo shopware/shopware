@@ -1,43 +1,28 @@
 {% block order_line_item_list %}
 
     <div class="core-order-line-item--list">
-        <sw-grid>
-            {% block grid_header %}
-                <sw-grid-header>
-                    {% block grid_header_columns %}
-                        <sw-grid-col :width="50">&nbsp;</sw-grid-col>
-                        <sw-grid-col :width="200">Nummer</sw-grid-col>
-                        <sw-grid-col :width="200">Type</sw-grid-col>
-                        <sw-grid-col :width="200">Stückpreis</sw-grid-col>
-                        <sw-grid-col :width="200">Anzahl</sw-grid-col>
-                        <sw-grid-col :width="200">Gesamtpreis</sw-grid-col>
-                    {% endblock %}
-                </sw-grid-header>
-            {% endblock %}
+        {% block order_line_item_list_grid %}
+            <sw-grid :items="lineItems" :pagination="true" :actions="[]" v-if="lineItems.length > 0">
+                {% block order_line_item_list_grid_slots %}
 
-            {% block grid_body %}
-                <sw-grid-body>
-                    {% block grid_item %}
-                        <sw-grid-row v-for="(item, index) in lineItemList" :key="item.uuid" :editable="true" :item="item">
-                            {% block grid_columns %}
-                                <sw-grid-col :width="50"><input type="checkbox" readonly="true" /></sw-grid-col>
-                                <sw-grid-col :width="200">{{ item.identifier }}</sw-grid-col>
-                                <sw-grid-col :width="200">{{ item.type }}</sw-grid-col>
-                                <sw-grid-col :width="200">{{ item.unitPrice | currency(order.currency.shortName) }}</sw-grid-col>
-                                <sw-grid-col :width="200">{{ item.quantity }}</sw-grid-col>
-                                <sw-grid-col :width="200">{{ item.totalPrice | currency(order.currency.shortName) }}</sw-grid-col>
-                            {% endblock %}
-                        </sw-grid-row>
-                    {% endblock %}
-                </sw-grid-body>
-            {% endblock %}
+                    <template slot="columns" slot-scope="{ item }">
+                        {% block order_line_lineItem_list_grid_columns %}
+                            <sw-grid-column flex="1" label="Type">{{ item.type }}</sw-grid-column>
+                            <sw-grid-column flex="1" label="Stückpreis">{{ item.unitPrice | currency(order.currency.shortName) }}</sw-grid-column>
+                            <sw-grid-column flex="1" label="Anzahl">{{ item.quantity }}</sw-grid-column>
+                            <sw-grid-column flex="1" label="Gesamtpreis">{{ item.totalPrice | currency(order.currency.shortName) }}</sw-grid-column>
+                        {% endblock %}
+                    </template>
 
-            {% block grid_pagination %}
-                <sw-pagination :page="page" :max-page="maxPage" :limit="limit" :total="total" v-on:page-change="pageChange"></sw-pagination>
-            {% endblock %}
+                    <template slot="pagination">
+                        {% block order_line_item_list_grid_pagination %}
+                            <sw-pagination :page="page" :max-page="maxPage" :limit="limit" :total="total" v-on:page-change="pageChange"></sw-pagination>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </sw-grid>
+        {% endblock %}
 
-            <sw-loader v-if="isWorking"></sw-loader>
-        </sw-grid>
+        <sw-loader v-if="isWorking"></sw-loader>
     </div>
-
 {% endblock %}

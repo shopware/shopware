@@ -1,55 +1,38 @@
 {% block order_delivery_list %}
 
     <div class="core-order-delivery--list">
-        <sw-grid>
-            {% block grid_header %}
-                <sw-grid-header>
-                    {% block grid_header_columns %}
-                        <sw-grid-col :width="50">&nbsp;</sw-grid-col>
-                        <sw-grid-col :width="50">#</sw-grid-col>
-                        <sw-grid-col :width="400">Lieferadresse</sw-grid-col>
-                        <sw-grid-col :width="300">Versandart</sw-grid-col>
-                        <sw-grid-col :width="400">Lieferdatum</sw-grid-col>
-                        <sw-grid-col :width="200">Lieferstatus</sw-grid-col>
-                        <sw-grid-col :width="200">Trackingcode</sw-grid-col>
-                    {% endblock %}
-                </sw-grid-header>
-            {% endblock %}
+        {% block order_delivery_list_grid %}
+            <sw-grid :items="deliveryList" :pagination="true" :actions="[]">
+                {% block order_delivery_list_grid_slots %}
 
-            {% block grid_body %}
-                <sw-grid-body>
-                    {% block grid_item %}
-                        <sw-grid-row v-for="(item, index) in deliveryList" :key="item.uuid" :editable="true" :item="item">
-                            {% block grid_columns %}
-                                <sw-grid-col :width="50"><input type="checkbox" readonly="true" /></sw-grid-col>
-                                <sw-grid-col :width="50">{{index + 1}}</sw-grid-col>
-                                <sw-grid-col :width="400">
-                                    {{ item.shippingAddress.street }}
-                                    <br>
-                                    {{ item.shippingAddress.zipcode }} {{ item.shippingAddress.city }}
-                                    <br>
-                                    {{ item.shippingAddress.country.name }}
-                                </sw-grid-col>
-                                <sw-grid-col :width="300">{{ item.shippingMethod.name}}</sw-grid-col>
-                                <sw-grid-col :width="400">
-                                    {{ item.shippingDateEarliest.date | moment('lll') }}
-                                    <br /> bis <br />
-                                    {{ item.shippingDateLatest.date | moment('lll') }}
-                                </sw-grid-col>
-                                <sw-grid-col :width="200">{{ item.state.description }}</sw-grid-col>
-                                <sw-grid-col :width="200">{{ item.tackingCode }}</sw-grid-col>
-                            {% endblock %}
-                        </sw-grid-row>
-                    {% endblock %}
-                </sw-grid-body>
-            {% endblock %}
+                    <template slot="columns" slot-scope="{ item }">
+                        {% block order_delivery_list_grid_columns %}
+                            <sw-grid-column flex="2" label="Lieferadresse">
+                                {{ item.shippingAddress.street }}<br>
+                                {{ item.shippingAddress.zipcode }} {{ item.shippingAddress.city }}<br>
+                                {{ item.shippingAddress.country.name }}
+                            </sw-grid-column>
+                            <sw-grid-column flex="2" label="Versandart">{{ item.shippingMethod.name}}</sw-grid-column>
+                            <sw-grid-column flex="2" label="Lieferdatum">
+                                {{ item.shippingDateEarliest.date | moment('lll') }}
+                                <br> bis <br>
+                                {{ item.shippingDateLatest.date | moment('lll') }}
+                            </sw-grid-column>
+                            <sw-grid-column flex="1" label="Lieferstatus">{{ item.state.description }}</sw-grid-column>
+                            <sw-grid-column flex="1" label="Trackingcode">{{ item.tackingCode }}</sw-grid-column>
+                        {% endblock %}
+                    </template>
 
-            {% block grid_pagination %}
-                <sw-pagination :page="page" :max-page="maxPage" :limit="limit" :total="total" v-on:page-change="pageChange"></sw-pagination>
-            {% endblock %}
+                    <template slot="pagination">
+                        {% block order_delivery_list_grid_pagination %}
+                            <sw-pagination :page="page" :max-page="maxPage" :limit="limit" :total="total" v-on:page-change="pageChange"></sw-pagination>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </sw-grid>
+        {% endblock %}
 
-            <sw-loader v-if="isWorking"></sw-loader>
-        </sw-grid>
+        <sw-loader v-if="isWorking"></sw-loader>
     </div>
 
 {% endblock %}

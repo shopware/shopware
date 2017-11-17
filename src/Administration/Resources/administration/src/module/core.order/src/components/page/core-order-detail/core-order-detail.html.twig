@@ -6,32 +6,22 @@
         </h1>
 
         <div class="toolbar--primary-actions">
-            <sw-button :isDisabled="isWorking" link="core.order.index">
-                Abbrechen
-            </sw-button>
+            <sw-button :isDisabled="isWorking" link="core.order.index">Abbrechen</sw-button>
 
-            <sw-button :isPrimary="true" :isDisabled="isWorking" @click.prevent="onSaveForm">
-                Speichern
-            </sw-button>
+            <sw-button :isPrimary="true" :isDisabled="isWorking" @click.prevent="onSaveForm">Speichern</sw-button>
         </div>
     </header>
 
     <div class="sw-core-order--detail" slot="default">
         <ul class="container--tabs">
             <li class="tabs--item router-link-active">
-                <a href="#" class="item--link">
-                    Allgemein
-                </a>
+                <a href="#" class="item--link">Allgemein</a>
             </li>
             <li class="tabs--item">
-                <a href="#" class="item--link">
-                    Positionen
-                </a>
+                <a href="#" class="item--link">Positionen</a>
             </li>
             <li class="tabs--item">
-                <a href="#" class="item--link">
-                    Lieferungen
-                </a>
+                <a href="#" class="item--link">Lieferungen</a>
             </li>
         </ul>
 

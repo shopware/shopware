@@ -22,6 +22,10 @@ export default function VueAdapter(context) {
         return utils.currency(value, format);
     });
 
+    Vue.filter('date', (value) => {
+        return utils.date(value);
+    });
+
     return {
         createInstance,
         initComponents,

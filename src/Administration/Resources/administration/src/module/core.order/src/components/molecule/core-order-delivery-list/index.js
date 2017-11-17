@@ -1,5 +1,4 @@
 import PaginationMixin from 'src/app/component/mixin/pagination.mixin';
-import utils from 'src/core/service/util.service';
 import template from './core-order-delivery-list.html.twig';
 
 export default Shopware.ComponentFactory.register('core-order-delivery-list', {
@@ -25,11 +24,6 @@ export default Shopware.ComponentFactory.register('core-order-delivery-list', {
         order: 'getData'
     },
 
-    filters: {
-        currency: utils.currency,
-        date: utils.date
-    },
-
     methods: {
         getData() {
             this.getDeliveryList();
@@ -38,7 +32,7 @@ export default Shopware.ComponentFactory.register('core-order-delivery-list', {
         getDeliveryList(offset = this.offset, limit = this.limit) {
             this.isWorking = true;
             this.orderDeliveryService
-                .getList(offset, limit, this.$route.params.uuid)
+                .getList(offset, limit, this.order.uuid)
                 .then((response) => {
                     this.deliveryList = response.data;
                     this.errors = response.errors;

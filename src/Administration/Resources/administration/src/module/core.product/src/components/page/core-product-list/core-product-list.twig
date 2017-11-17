@@ -24,8 +24,8 @@
                                 <sw-grid-column flex="1" label="Name">{{ item.name }}</sw-grid-column>
                                 <sw-grid-column flex="1" label="Manufacturer">{{ item.manufacturer.name }}</sw-grid-column>
                                 <sw-grid-column flex="100px" label="Active"><i class="icon-checkmark" v-if="item.active"></i><i class="icon-cross" v-else></i></sw-grid-column>
-                                <sw-grid-column flex="100px" label="Price">{{ item.mainDetail.prices[0].price | currency }}</sw-grid-column>
-                                <sw-grid-column flex="200px" label="Stock">{{ item.mainDetail.stock }} in stock</sw-grid-column>
+                                <sw-grid-column flex="100px" label="Price">{{ item.listingPrices[0].price | currency }}</sw-grid-column>
+                                <sw-grid-column flex="200px" label="Stock">{{ item.stock }} in stock</sw-grid-column>
                             {% endblock %}
                         </template>
 

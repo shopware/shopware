@@ -26,6 +26,7 @@ namespace Shopware\Cart\Test\Price;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Price\PercentagePriceCalculator;
+use Shopware\Cart\Price\Struct\DerivedPrice;
 use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Price\PriceCalculator;
 
@@ -48,12 +49,12 @@ class PercentagePriceCalculatorTest extends TestCase
      * @dataProvider calculatePercentagePriceOfGrossPricesProvider
      *
      * @param float           $percentage
-     * @param Price           $expected
+     * @param DerivedPrice    $expected
      * @param PriceCollection $prices
      */
     public function testCalculatePercentagePriceOfGrossPrices(
         $percentage,
-        Price $expected,
+        DerivedPrice $expected,
         PriceCollection $prices
     ): void {
         $rounding = new PriceRounding(2);
@@ -90,13 +91,18 @@ class PercentagePriceCalculatorTest extends TestCase
     public function calculatePercentagePriceOfGrossPricesProvider(): array
     {
         $highTax = new TaxRuleCollection([new TaxRule(19)]);
+        //prices of cart line items
+        $prices = new PriceCollection([
+            new Price(30.00, 30.00, new CalculatedTaxCollection([new CalculatedTax(4.79, 19, 30.00)]), $highTax),
+            new Price(30.00, 30.00, new CalculatedTaxCollection([new CalculatedTax(1.96, 7, 30.00)]), $highTax),
+        ]);
 
         return [
             [
                 //10% discount
                 -10,
                 //expected calculated "discount" price
-                new Price(
+                new DerivedPrice(
                     -6.0,
                     -6.0,
                     new CalculatedTaxCollection([
@@ -106,13 +112,11 @@ class PercentagePriceCalculatorTest extends TestCase
                     new TaxRuleCollection([
                         new PercentageTaxRule(19, 50),
                         new PercentageTaxRule(7, 50),
-                    ])
+                    ]),
+                    1,
+                    $prices
                 ),
-                //prices of cart line items
-                new PriceCollection([
-                    new Price(30.00, 30.00, new CalculatedTaxCollection([new CalculatedTax(4.79, 19, 30.00)]), $highTax),
-                    new Price(30.00, 30.00, new CalculatedTaxCollection([new CalculatedTax(1.96, 7, 30.00)]), $highTax),
-                ]),
+                $prices
             ],
         ];
     }

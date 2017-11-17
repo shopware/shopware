@@ -25,8 +25,8 @@
 namespace Shopware\CartBridge\Dynamic;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Cart\LineItem\CalculatedLineItem;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
-use Shopware\Cart\LineItem\Discount;
 use Shopware\Cart\Price\PercentagePriceCalculator;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\Struct\PriceDefinition;
@@ -93,6 +93,6 @@ class PaymentSurchargeGateway
                 return null;
         }
 
-        return new Discount('payment', $surcharge, 'Payment surcharge');
+        return new CalculatedLineItem('payment', $surcharge, 1, 'surcharge');
     }
 }

@@ -26,8 +26,8 @@ namespace Shopware\CartBridge\Dynamic;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Cart\LineItem\CalculatedLineItem;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
-use Shopware\Cart\LineItem\Discount;
 use Shopware\Cart\Price\PercentagePriceCalculator;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
@@ -75,7 +75,7 @@ class CustomerGroupDiscountGateway
 
         $discount = $this->percentagePriceCalculator->calculate($discount, $prices, $context);
 
-        return new Discount('customer-group-discount', $discount, 'Customer group discount');
+        return new CalculatedLineItem('customer-group-discount', $discount, 1,'discount');
     }
 
     private function getDiscount(CustomerGroupBasicStruct $customerGroup, float $price): ? float

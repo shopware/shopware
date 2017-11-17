@@ -25,8 +25,8 @@
 namespace Shopware\CartBridge\Dynamic;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Cart\LineItem\CalculatedLineItem;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
-use Shopware\Cart\LineItem\Discount;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
@@ -85,10 +85,11 @@ class MinimumOrderValueGateway
             $context
         );
 
-        return new Discount(
+        return new CalculatedLineItem(
             'minimum-order-value',
             $surcharge,
-            sprintf('Minimum order value of %s', $customerGroup->getMinimumOrderAmount())
+            1,
+            'surcharge'
         );
     }
 }

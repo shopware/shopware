@@ -30,7 +30,6 @@ use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\ProcessorCart;
 use Shopware\Cart\Error\VoucherNotFoundError;
-use Shopware\Cart\LineItem\Discount;
 use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Price\PercentagePriceCalculator;
 use Shopware\Cart\Price\PriceCalculator;

@@ -13,8 +13,7 @@
 
         <service id="shopware.cart.voucher.voucher_calculator" class="Shopware\CartBridge\Voucher\VoucherCalculator" >
             <argument id="cart.price.percentage_calculator" type="service"/>
-            <argument id="cart.price.calculator" type="service"/>
-            <argument id="cart.tax.percentage_rule_builder" type="service"/>
+            <argument id="cart.price.absolute_calculator" type="service"/>
         </service>
 
         <!--cart processors-->

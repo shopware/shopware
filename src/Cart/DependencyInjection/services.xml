@@ -33,6 +33,11 @@
             <argument type="service" id="cart.tax.percentage_rule_builder"/>
         </service>
 
+        <service id="cart.price.absolute_calculator" class="Shopware\Cart\Price\AbsolutePriceCalculator">
+            <argument type="service" id="cart.price.calculator"/>
+            <argument type="service" id="cart.tax.percentage_rule_builder"/>
+        </service>
+
         <!-- tax calculation -->
         <service id="cart.tax.percentage_rule_builder" class="Shopware\Cart\Tax\PercentageTaxRuleBuilder" />
 

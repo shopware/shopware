@@ -3,12 +3,10 @@
 namespace Shopware\CartBridge\Voucher;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Error\VoucherModeNotFoundError;
 use Shopware\Cart\LineItem\LineItemInterface;
+use Shopware\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Cart\Price\PercentagePriceCalculator;
-use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\Struct\PriceDefinition;
-use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\CartBridge\Voucher\Struct\CalculatedVoucher;
 use Shopware\CartBridge\Voucher\Struct\VoucherData;
 use Shopware\Context\Struct\ShopContext;
@@ -21,23 +19,16 @@ class VoucherCalculator
     private $percentagePriceCalculator;
 
     /**
-     * @var PriceCalculator
+     * @var AbsolutePriceCalculator
      */
-    private $priceCalculator;
-
-    /**
-     * @var PercentageTaxRuleBuilder
-     */
-    private $percentageTaxRuleBuilder;
+    private $absolutePriceCalculator;
 
     public function __construct(
         PercentagePriceCalculator $percentagePriceCalculator,
-        PriceCalculator $priceCalculator,
-        PercentageTaxRuleBuilder $percentageTaxRuleBuilder
+        AbsolutePriceCalculator $absolutePriceCalculator
     ) {
         $this->percentagePriceCalculator = $percentagePriceCalculator;
-        $this->priceCalculator = $priceCalculator;
-        $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
+        $this->absolutePriceCalculator = $absolutePriceCalculator;
     }
 
     public function calculate(
@@ -50,7 +41,7 @@ class VoucherCalculator
         $prices = $calculatedCart->getCalculatedLineItems()->filterGoods()->getPrices();
 
         if ($voucher->getPercentage() !== null) {
-            /** @var PercentageVoucherData $voucher */
+            /** @var VoucherData $voucher */
             $discount = $this->percentagePriceCalculator->calculate(
                 abs($voucher->getPercentage()) * -1,
                 $prices,
@@ -60,16 +51,9 @@ class VoucherCalculator
         } else {
             $price = $voucher->getAbsolute();
 
-            /** @var VoucherData $voucher */
-            $discount = $this->priceCalculator->calculate(
-                new PriceDefinition(
-                    $price->getPrice(),
-                    $this->percentageTaxRuleBuilder->buildRules(
-                        $prices->sum()
-                    ),
-                    1,
-                    $price->isCalculated()
-                ),
+            $discount = $this->absolutePriceCalculator->calculate(
+                $price,
+                $prices,
                 $context
             );
         }

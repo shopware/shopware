@@ -50,7 +50,10 @@ class ProductCollector implements CollectorInterface
             return;
         }
 
-        $fetchDefinition->add(new ProductFetchDefinition($lineItems->getIdentifiers()));
+        $payloads = $lineItems->getPayload();
+        $identifiers = array_column($payloads, 'uuid');
+
+        $fetchDefinition->add(new ProductFetchDefinition($identifiers));
     }
 
     public function fetch(StructCollection $dataCollection, StructCollection $fetchCollection, ShopContext $context): void

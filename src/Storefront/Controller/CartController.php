@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Shopware\Cart\LineItem\LineItem;
 use Shopware\CartBridge\Product\ProductProcessor;
+use Shopware\CartBridge\Service\StoreFrontCartService;
 use Shopware\CartBridge\Voucher\VoucherProcessor;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -53,9 +54,10 @@ class CartController extends Controller
                 'message' => 'Invalid identifier or quantity',
             ]);
         }
+        /** @var StoreFrontCartService $cartService */
         $cartService = $this->get('shopware.cart.storefront_service');
         $cartService->add(
-            new LineItem($identifier, ProductProcessor::TYPE_PRODUCT, $quantity, ['identifier' => $identifier])
+            new LineItem($identifier, ProductProcessor::TYPE_PRODUCT, $quantity, ['uuid' => $identifier])
         );
 
         return $this->conditionalResponse($request, $target);

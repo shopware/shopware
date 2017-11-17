@@ -61,12 +61,15 @@ class ProductCalculator
 
         /** @var LineItemInterface $lineItem */
         foreach ($collection as $lineItem) {
-            if (!$dataCollection->has($lineItem->getIdentifier())) {
+            $payload = $lineItem->getPayload();
+            $identifier = $payload['uuid'];
+
+            if (!$dataCollection->has($identifier)) {
                 continue;
             }
 
             /** @var ProductBasicStruct $product */
-            $product = $dataCollection->get($lineItem->getIdentifier());
+            $product = $dataCollection->get($identifier);
 
             $priceDefinition = $lineItem->getPriceDefinition();
             if (!$priceDefinition) {
@@ -86,7 +89,7 @@ class ProductCalculator
                 new CalculatedProduct(
                     $lineItem,
                     $price,
-                    $lineItem->getIdentifier(),
+                    $identifier,
                     $lineItem->getQuantity(),
                     $product->getStock(),
                     $product->getWeight(),

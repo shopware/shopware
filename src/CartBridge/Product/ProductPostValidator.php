@@ -26,8 +26,6 @@ class ProductPostValidator implements CartProcessorInterface
             return;
         }
 
-        $throwException = false;
-
         /** @var CalculatedProduct[] $products */
         foreach ($products as $product) {
 
@@ -47,7 +45,6 @@ class ProductPostValidator implements CartProcessorInterface
 
             $calculatedCart->getCalculatedLineItems()->remove($product->getIdentifier());
             $cartContainer->getLineItems()->remove($product->getIdentifier());
-            $throwException = true;
         }
     }
 }

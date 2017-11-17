@@ -25,11 +25,14 @@ class ProductPreValidator implements CartProcessorInterface
 
         /** @var LineItem $product */
         foreach ($products as $product) {
-            if ($dataCollection->has($product->getIdentifier())) {
+            $payload = $product->getPayload();
+            $identifier = $payload['uuid'];
+
+            if ($dataCollection->has($identifier)) {
                 continue;
             }
 
-            $cartContainer->getLineItems()->remove($product->getIdentifier());
+            $cartContainer->getLineItems()->remove($identifier);
         }
     }
 }

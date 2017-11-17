@@ -14,8 +14,6 @@ paths:
   - dev-ops/common/actions
 
 templates:
-  - source: "dev-ops/docker/templates/php-dockerfile.tpl"
-    destination: "dev-ops/docker/containers/php7/Dockerfile"
   - source: "dev-ops/docker/docker-compose.override.yml"
     destination: "docker-compose.override.yml"
   - source: ".env.dist"
@@ -29,7 +27,7 @@ const:
   DB_HOST: "mysql"
   DB_PORT: "3306"
   DB_NAME: "shopware"
-  SW_HOST: "10.101.101.56"
+  SW_HOST: "127.0.0.1:8088"
   SW_BASE_PATH: ""
   PHP_VERSION: "7.1"
   APP_DEBUG: "1"
@@ -54,6 +52,9 @@ environments:
   bamboo:
     paths:
       - "dev-ops/bamboo.shopware.com/actions"
+    templates:
+      - source: "dev-ops/bamboo.shopware.com/docker-compose.override.yml"
+        destination: "docker-compose.override.yml"
     dynamic:
       REVISION: echo "${SW_REVISION}"
       PARENT_REVISION: echo "${SW_PARENT_REVISION}"

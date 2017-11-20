@@ -31,25 +31,21 @@
   },
   "require": {
     "php": ">=7.1.0",
-    "symfony/symfony": "3.4.0-BETA1",
-    "symfony/swiftmailer-bundle": "^2.5",
+    "symfony/symfony": "~3.4",
+    "symfony/swiftmailer-bundle": "^3.1",
     "symfony/monolog-bundle": "^3.1",
     "symfony/assetic-bundle": "^2.8",
-    "symfony/dotenv": "^3.4.0-BETA1",
-    "doctrine/doctrine-bundle": "^1.6",
+    "symfony/dotenv": "~3.4",
+    "doctrine/doctrine-bundle": "^1.8",
     "doctrine/doctrine-cache-bundle": "^1.3",
     "sensio/distribution-bundle": "^5.0",
-    "sensio/framework-extra-bundle": "^5.0",
+    "sensio/framework-extra-bundle": "^5.1",
     "twig/twig": "^2.4",
     "twig/extensions": "^1.5",
     "oyejorge/less.php": "1.7.0.14",
     "linkorb/jsmin-php": "1.0.0",
-    "guzzlehttp/guzzle": "^6.3",
-    "egulias/email-validator": "1.2.12",
-    "elasticsearch/elasticsearch": "^5.3",
-    "ongr/elasticsearch-dsl": "^5.0",
+    "egulias/email-validator": "~2.1",
     "cocur/slugify": "^3.0",
-    "bcremer/line-reader": "^0.2.0",
     "superbalist/flysystem-google-storage": "^5.0",
     "league/flysystem": "^1.0",
     "league/flysystem-aws-s3-v3": "^1.0",
@@ -57,18 +53,15 @@
     "ramsey/uuid": "^3.7"
   },
   "require-dev": {
-    "sensio/generator-bundle": "^3.1",
-    "symfony/phpunit-bridge": "^3.4.0-BETA1",
+    "symfony/phpunit-bridge": "~3.4",
     "fzaninotto/faker": "^1.7",
-    "phpunit/phpunit": "^6.4"
+    "phpunit/phpunit": "~6.5"
   },
   "scripts": {
     "symfony-scripts": [
       "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap",
       "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::clearCache",
-      "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::installAssets",
-      "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::installRequirementsFile",
-      "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::prepareDeploymentTarget"
+      "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::installAssets"
     ],
     "post-install-cmd": [
       "@symfony-scripts"
@@ -82,7 +75,6 @@
     "symfony-bin-dir": "bin",
     "symfony-var-dir": "var",
     "symfony-web-dir": "web",
-    "symfony-tests-dir": "tests",
     "symfony-assets-install": "relative",
     "branch-alias": null
   }

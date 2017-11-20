@@ -48,12 +48,12 @@ class AbsolutePriceCalculatorTest extends TestCase
     /**
      * @dataProvider calculateAbsolutePriceOfGrossPricesProvider
      *
-     * @param float           $percentage
-     * @param DerivedPrice    $expected
+     * @param float $price
+     * @param DerivedPrice $expected
      * @param PriceCollection $prices
      */
     public function testCalculateAbsolutePriceOfGrossPrices(
-        PriceDefinition $price,
+        float $price,
         DerivedPrice $expected,
         PriceCollection $prices
     ): void {
@@ -105,12 +105,7 @@ class AbsolutePriceCalculatorTest extends TestCase
 
         return [
             [
-                new PriceDefinition(
-                    -6,
-                    $taxRules,
-                    1,
-                    true
-                ),
+                -6,
                 //expected calculated "discount" price
                 new DerivedPrice(
                     -6,

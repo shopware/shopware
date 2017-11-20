@@ -47,15 +47,9 @@ class VoucherCalculator
                 $prices,
                 $context
             );
-
         } else {
             $price = $voucher->getAbsolute();
-
-            $discount = $this->absolutePriceCalculator->calculate(
-                $price,
-                $prices,
-                $context
-            );
+            $discount = $this->absolutePriceCalculator->calculate($price->getPrice(), $prices, $context);
         }
 
         return new CalculatedVoucher($lineItem->getIdentifier(), $lineItem, $discount, $voucher->getRule());

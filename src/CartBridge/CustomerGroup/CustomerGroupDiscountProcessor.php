@@ -29,6 +29,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\LineItem\CalculatedLineItem;
 use Shopware\Cart\LineItem\Discount;
 use Shopware\Cart\Price\PercentagePriceCalculator;
 use Shopware\CartBridge\CustomerGroup\Data\CustomerGroupDiscountData;
@@ -39,7 +40,6 @@ use Shopware\Framework\Struct\StructCollection;
 
 class CustomerGroupDiscountProcessor implements CartProcessorInterface
 {
-
     /**
      * @var PercentagePriceCalculator
      */
@@ -88,7 +88,7 @@ class CustomerGroupDiscountProcessor implements CartProcessorInterface
 
         $discount = $this->percentagePriceCalculator->calculate($discount, $prices, $context);
         $calculatedCart->getCalculatedLineItems()->add(
-            new Discount('customer-group-discount', $discount, 'Customer group discount')
+            new CalculatedLineItem('customer-group-discount', $discount, 1, 'customer-group-discount')
         );
     }
 }

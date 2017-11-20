@@ -52,25 +52,19 @@ class AbsolutePriceCalculator
     }
 
     /**
-     * @param PriceDefinition $price
+     * @param float $price
      * @param PriceCollection $prices
      * @param ShopContext $context
-     *
      * @return DerivedPrice
      */
     public function calculate(
-        PriceDefinition $price,
+        float $price,
         PriceCollection $prices,
         ShopContext $context
     ): DerivedPrice {
         $taxRules = $this->percentageTaxRuleBuilder->buildRules($prices->sum());
 
-        $priceDefinition = new PriceDefinition(
-            $price->getPrice(),
-            $taxRules,
-            1,
-            $price->isCalculated()
-        );
+        $priceDefinition = new PriceDefinition($price, $taxRules, 1, true);
 
         $calculatedPrice = $this->priceCalculator->calculate($priceDefinition, $context);
 

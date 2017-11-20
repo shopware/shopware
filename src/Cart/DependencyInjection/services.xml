@@ -85,13 +85,12 @@
         <!--processors-->
         <service id="cart.delivery.separator_processor" class="Shopware\Cart\Delivery\DeliverySeparatorProcessor">
             <argument type="service" id="cart.delivery.stock_separator" />
-            <tag name="cart.processor" priority="400" />
+            <tag name="cart.processor" priority="-100" />
         </service>
 
         <service id="cart.delivery.calculator_processor" class="Shopware\Cart\Delivery\DeliveryCalculatorProcessor">
             <argument id="cart.delivery.calculator" type="service"/>
-            <tag name="cart.processor" priority="200" />
+            <tag name="cart.processor" priority="-200" />
         </service>
-
     </services>
 </container>

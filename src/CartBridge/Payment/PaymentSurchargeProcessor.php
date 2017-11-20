@@ -7,6 +7,7 @@ use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\LineItem\Discount;
+use Shopware\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Cart\Price\PercentagePriceCalculator;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\Struct\PriceDefinition;
@@ -18,27 +19,22 @@ use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 
 class PaymentSurchargeProcessor implements CartProcessorInterface
 {
-
-    /** @var  PercentageTaxRuleBuilder */
-    private $percentageTaxRuleBuilder;
-
-    /** @var  PercentagePriceCalculator */
+    /**
+     * @var PercentagePriceCalculator
+     */
     private $percentagePriceCalculator;
 
-    /** @var  PriceCalculator */
-    private $priceCalculator;
-
     /**
-     * PaymentSurchargeProcessor constructor.
+     * @var AbsolutePriceCalculator
      */
+    private $absolutePriceCalculator;
+
     public function __construct(
-        PercentageTaxRuleBuilder $percentageTaxRuleBuilder,
         PercentagePriceCalculator $percentagePriceCalculator,
-        PriceCalculator $priceCalculator)
-    {
-        $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
+        AbsolutePriceCalculator $absolutePriceCalculator
+    ) {
         $this->percentagePriceCalculator = $percentagePriceCalculator;
-        $this->priceCalculator = $priceCalculator;
+        $this->absolutePriceCalculator = $absolutePriceCalculator;
     }
 
     public function process(
@@ -62,11 +58,9 @@ class PaymentSurchargeProcessor implements CartProcessorInterface
 
         switch (true) {
             case $payment->getAbsoluteSurcharge() !== null:
-                $rules = $this->percentageTaxRuleBuilder->buildRules(
-                    $goods->getPrices()->sum()
-                );
-                $surcharge = $this->priceCalculator->calculate(
-                    new PriceDefinition($payment->getAbsoluteSurcharge(), $rules, 1, true),
+                $surcharge = $this->absolutePriceCalculator->calculate(
+                    $payment->getAbsoluteSurcharge(),
+                    $goods->getPrices(),
                     $context
                 );
 

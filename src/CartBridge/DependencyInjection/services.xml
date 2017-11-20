@@ -16,6 +16,7 @@
             <argument id="cart.price.absolute_calculator" type="service"/>
         </service>
 
+
         <!--cart processors-->
         <service id="cart.product.processor" class="Shopware\CartBridge\Product\ProductProcessor">
             <argument type="service" id="shopware.cart.product.calculator" />
@@ -24,25 +25,23 @@
 
         <service id="shopware.cart.voucher.processor" class="Shopware\CartBridge\Voucher\VoucherProcessor" >
             <argument id="shopware.cart.voucher.voucher_calculator" type="service"/>
-            <tag name="cart.processor" priority="800"/>
+            <tag name="cart.processor" priority="900"/>
         </service>
 
         <service id="cart.customer_group.discount_processor" class="Shopware\CartBridge\CustomerGroup\CustomerGroupDiscountProcessor">
             <argument id="cart.price.percentage_calculator" type="service"/>
-            <tag name="cart.processor" priority="675"/>
+            <tag name="cart.processor" priority="800"/>
         </service>
 
         <service id="cart.order.minimum_order_amount_processor" class="Shopware\CartBridge\Order\MinimumOrderAmountProcessor">
-            <argument id="cart.price.calculator" type="service"/>
-            <argument id="cart.tax.percentage_rule_builder" type="service"/>
-            <tag name="cart.processor" priority="650"/>
+            <argument type="service" id="cart.price.absolute_calculator"/>
+            <tag name="cart.processor" priority="700"/>
         </service>
 
         <service id="cart.payment.payment_surcharge_processor" class="Shopware\CartBridge\Payment\PaymentSurchargeProcessor">
-            <argument id="cart.tax.percentage_rule_builder" type="service"/>
-            <argument id="cart.price.percentage_calculator" type="service"/>
-            <argument id="cart.price.calculator" type="service"/>
-            <tag name="cart.processor" priority="625"/>
+            <tag name="cart.processor" priority="600"/>
+            <argument type="service" id="cart.price.percentage_calculator"/>
+            <argument type="service" id="cart.price.absolute_calculator"/>
         </service>
 
         <!--cart line item data collectors-->
@@ -55,7 +54,6 @@
             <argument id="shopware.cart.voucher.gateway" type="service"/>
             <tag name="cart.collector"/>
         </service>
-
 
         <!--interface implementations of cart bundle-->
 

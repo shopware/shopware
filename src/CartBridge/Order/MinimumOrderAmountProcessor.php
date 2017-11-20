@@ -2,33 +2,24 @@
 
 namespace Shopware\CartBridge\Order;
 
-
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\CartContainer;
-use Shopware\Cart\LineItem\Discount;
-use Shopware\Cart\Price\PriceCalculator;
-use Shopware\Cart\Price\Struct\PriceDefinition;
-use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
+use Shopware\Cart\LineItem\CalculatedLineItem;
+use Shopware\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class MinimumOrderAmountProcessor implements CartProcessorInterface
 {
-
-    /** @var  PriceCalculator */
-    private $priceCalculator;
-
-    /** @var  PercentageTaxRuleBuilder */
-    private $percentageTaxRuleBuilder;
-
     /**
-     * MinimumOrderAmountProcessor constructor.
+     * @var AbsolutePriceCalculator
      */
-    public function __construct(PriceCalculator $priceCalculator, PercentageTaxRuleBuilder $percentageTaxRuleBuilder)
+    private $calculator;
+
+    public function __construct(AbsolutePriceCalculator $calculator)
     {
-        $this->priceCalculator = $priceCalculator;
-        $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
+        $this->calculator = $calculator;
     }
 
     public function process(
@@ -52,23 +43,20 @@ class MinimumOrderAmountProcessor implements CartProcessorInterface
             return;
         }
 
-        $price = $goods->getPrices()->sum();
+        $prices = $goods->getPrices();
 
-        if ($customerGroup->getMinimumOrderAmount() <= $price->getTotalPrice()) {
+        if ($customerGroup->getMinimumOrderAmount() <= $prices->sum()->getTotalPrice()) {
             return;
         }
 
-        $rules = $this->percentageTaxRuleBuilder->buildRules($price);
-
-        $surcharge = $this->priceCalculator->calculate(
-            new PriceDefinition($customerGroup->getMinimumOrderAmountSurcharge(), $rules, 1, true),
+        $surcharge = $this->calculator->calculate(
+            $customerGroup->getMinimumOrderAmountSurcharge(),
+            $prices,
             $context
         );
 
-        $calculatedCart->getCalculatedLineItems()->add(new Discount(
-            'minimum-order-value',
-            $surcharge,
-            sprintf('Minimum order value of %s', $customerGroup->getMinimumOrderAmount())
-        ));
+        $calculatedCart->getCalculatedLineItems()->add(
+            new CalculatedLineItem('minimum-order-value', $surcharge, 1, 'minimum-order-value')
+        );
     }
 }

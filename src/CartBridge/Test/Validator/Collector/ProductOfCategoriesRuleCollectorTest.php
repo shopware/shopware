@@ -132,7 +132,7 @@ class ProductOfCategoriesRuleCollectorTest extends TestCase
         $this->assertTrue($data->hasCategory([2]));
     }
 
-    private function createConnection(?array $result, array $categoryIds = [], array $numbers = []): \PHPUnit_Framework_MockObject_MockObject
+    private function createConnection(?array $result, array $categoryIds = [], array $numbers = [])
     {
         $statement = $this->createMock(Statement::class);
         $statement->expects(static::any())

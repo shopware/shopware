@@ -42,17 +42,17 @@ class CartCollector extends DataCollector
         return $this->data['actions'];
     }
 
-    public function getCartContainer(): CartContainer
+    public function getCartContainer(): ?CartContainer
     {
         return $this->data['cartContainer'];
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ?ShopContext
     {
         return $this->data['context'];
     }
 
-    public function getCalculatedCart(): CalculatedCart
+    public function getCalculatedCart(): ?CalculatedCart
     {
         return $this->data['calculatedCart'];
     }

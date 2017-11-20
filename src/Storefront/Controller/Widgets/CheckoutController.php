@@ -26,21 +26,33 @@ namespace Shopware\Storefront\Controller\Widgets;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Storefront\Controller\Controller;
+use Shopware\CartBridge\Service\StoreFrontCartService;
+use Shopware\Storefront\Controller\StorefrontController;
 
-class CheckoutController extends Controller
+/**
+ * @Route(service="shopware.storefront.controller.widgets.checkout_controller")
+ */
+class CheckoutController extends StorefrontController
 {
+    /**
+     * @var StoreFrontCartService
+     */
+    private $cartService;
+
+    public function __construct(StoreFrontCartService $cartService)
+    {
+        $this->cartService = $cartService;
+    }
+
     /**
      * @Route("/widgets/checkout/info", name="widgets/checkout/info")
      * @Method({"GET"})
      */
-    public function shopMenuAction()
+    public function infoAction()
     {
-        $cartService = $this->get('shopware.cart.storefront_service');
-
-        return $this->render('@Shopware/widgets/checkout/info.html.twig', [
-            'cartQuantity' => $cartService->getCartContainer()->getLineItems()->count(),
-            'cartAmount' => $cartService->getCart()->getCalculatedCart()->getPrice()->getTotalPrice(),
+        return $this->render('@Storefront/widgets/checkout/info.html.twig', [
+            'cartQuantity' => $this->cartService->getCartContainer()->getLineItems()->count(),
+            'cartAmount' => $this->cartService->getCart()->getCalculatedCart()->getPrice()->getTotalPrice(),
             'sNotesQuantity' => 0,
             'sUserLoggedIn' => false,
         ]);

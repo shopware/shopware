@@ -19,7 +19,7 @@ class ClassNamespaceTest extends TestCase
         foreach ($phpFiles as $file) {
             $parts = $this->extractProductionNamespaceParts($file, $basePathParts);
 
-            $namespace = 'namespace Shopware\\' . implode('\\', $parts);
+            $namespace = rtrim('namespace Shopware\\' . implode('\\', $parts), '\\');
 
             if (strpos($file->getContents(), $namespace) === false) {
                 $relativePath = str_replace($basePath, '', $file->getPathname());

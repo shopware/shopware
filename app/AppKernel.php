@@ -143,8 +143,6 @@ class AppKernel extends Kernel
             $bundle->boot();
         }
 
-        $this->container->set('db_connection', self::getConnection());
-
         $this->booted = true;
     }
 

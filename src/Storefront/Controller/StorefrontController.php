@@ -24,21 +24,47 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Storefront\Navigation\Navigation;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 abstract class StorefrontController extends Controller
 {
-    protected function render($view, array $parameters = [], Response $response = null): Response
+    /**
+     * @inheritdoc
+     */
+    protected function renderStorefront($view, array $parameters = [], Response $response = null): Response
+    {
+        $view = $this->resolveView($view);
+        $parameters['navigation'] = $this->getNavigation();
+
+        return $this->render($view, $parameters, $response);
+    }
+
+    /**
+     * @return Navigation
+     */
+    private function getNavigation(): Navigation
     {
         $context = $this->get('shopware.storefront.context.storefront_context_service')->getShopContext();
-
         $navigationId = $this->get('request_stack')->getCurrentRequest()->attributes->get('active_category_uuid');
 
-        $navigation = $this->get('shopware.storefront.navigation.navigation_service')
-            ->load($navigationId, $context);
+        return $this->get('shopware.storefront.navigation.navigation_service')->load($navigationId, $context);
+    }
 
-        $parameters['navigation'] = $navigation;
+    /**
+     * @param string $view
+     * @return string
+     */
+    protected function resolveView(string $view): string
+    {
+        //remove static template inheritance prefix
+        if (strpos($view, '@') === 0) {
+            $view = explode('/', $view);
+            array_shift($view);
+            $view = implode('/', $view);
+        }
 
-        return parent::render($view, $parameters, $response);
+        return $this->get('shopware.storefront.twig.template_finder')->find($view, true);
     }
 }

@@ -124,5 +124,15 @@
             <argument id="shopware.product_media.repository" type="service"/>
         </service>
 
+        <service class="Shopware\Storefront\Controller\Widgets\IndexController" id="Shopware\Storefront\Controller\Widgets\IndexController">
+            <argument type="service" id="shopware.shop.repository" />
+        </service>
+
+        <service class="Shopware\Storefront\Controller\Widgets\CheckoutController" id="Shopware\Storefront\Controller\Widgets\CheckoutController">
+            <argument type="service" id="shopware.cart.storefront_service" />
+        </service>
+
+
+
     </services>
 </container>

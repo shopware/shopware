@@ -32,7 +32,7 @@
         {% block frontend_index_checkout_actions %}
             {# Include of the cart #}
             {% block frontend_index_checkout_actions_include %}
-                {{ render('widgets/checkout/info') }}
+                {{ render(controller('Storefront:Widgets/Checkout:info')) }}
             {% endblock %}
         {% endblock %}
     </ul>

@@ -31,7 +31,6 @@ use Shopware\CartBridge\Rule\Collector\RecentOrderRuleCollector;
 use Shopware\CartBridge\Rule\Data\RecentOrderRuleData;
 use Shopware\CartBridge\Rule\RecentOrderRule;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Customer\Struct\Customer;
 use Shopware\Customer\Struct\CustomerBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
 

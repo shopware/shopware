@@ -17,7 +17,7 @@
         <!-- database / doctrine -->
         <service id="dbal_connection" alias="doctrine.dbal.default_connection" />
 
-        <service id="db_connection" class="PDO" public="false">
+        <service id="db_connection" class="PDO" public="true" >
             <factory class="AppKernel" method="getConnection" />
         </service>
 

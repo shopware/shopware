@@ -29,6 +29,7 @@ security:
         account:
             pattern: .*
             anonymous: ~
+            logout_on_user_change: true
             form_login:
                 default_target_path: /account
                 login_path: /account/login

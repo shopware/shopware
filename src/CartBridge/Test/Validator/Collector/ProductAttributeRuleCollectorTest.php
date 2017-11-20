@@ -102,7 +102,7 @@ class ProductAttributeRuleCollectorTest extends TestCase
         $this->assertSame(1, $dataCollection->count());
     }
 
-    private function createConnection(?array $result): \PHPUnit_Framework_MockObject_MockObject
+    private function createConnection(?array $result)
     {
         $statement = $this->createMock(Statement::class);
         $statement->expects(static::any())

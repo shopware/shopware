@@ -10,7 +10,7 @@
                 {% block frontend_index_top_bar_nav %}
                     <nav class="top-bar--navigation block" role="menubar">
 
-                        {{ render('widgets/index/shopMenu') }}
+                        {{ render(controller('Storefront:Widgets/Index:shopMenu')) }}
 
                         {# Article Compare #}
                         {% block frontend_index_navigation_inline %}

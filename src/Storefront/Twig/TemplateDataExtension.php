@@ -28,6 +28,7 @@ use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Config\ConfigServiceInterface;
 use Shopware\Storefront\Session\ShopSubscriber;
 use Shopware\Storefront\Theme\ThemeConfigReader;
+use Symfony\Bundle\FrameworkBundle\Controller\ControllerNameParser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -89,7 +90,7 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
             return [];
         }
 
-        list($controllerName, $controllerAction) = $this->getControllerNameAndAction($request);
+        $controllerInfo = $this->getControllerInfo($request);
 
         return [
             'shopware' => [
@@ -99,8 +100,8 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
                 ),
                 'theme' => $this->getThemeConfig(),
             ],
-            'controllerName' => $controllerName,
-            'controllerAction' => $controllerAction,
+            'controllerName' => $controllerInfo->getName(),
+            'controllerAction' => $controllerInfo->getAction(),
             'context' => $context,
             'activeRoute' => $request->attributes->get('_route'),
         ];
@@ -126,12 +127,13 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
         return $themeConfig;
     }
 
-    private function getControllerNameAndAction(Request $request): array
+    private function getControllerInfo(Request $request): ControllerInfo
     {
+        $controllerInfo = new ControllerInfo();
         $controller = $request->attributes->get('_controller');
 
         if (!$controller) {
-            return ['', ''];
+            return $controllerInfo;
         }
 
         list($controllerName, $action) = explode(':', $controller);
@@ -139,8 +141,8 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
         $controllerNameParts = explode('\\', $controllerName);
         $controllerName = array_pop($controllerNameParts);
         $controllerName = substr($controllerName, 0, -10);
-        $action = substr($action, 0, -6);
+        $controllerInfo->setName($controllerName);
 
-        return [$controllerName, $action];
+        return $controllerInfo;
     }
 }

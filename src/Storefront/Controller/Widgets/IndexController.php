@@ -30,11 +30,25 @@ use Shopware\Api\Search\Criteria;
 use Shopware\Api\Search\Query\TermQuery;
 use Shopware\Api\Search\Query\TermsQuery;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Storefront\Controller\Controller;
+use Shopware\Shop\Repository\ShopRepository;
+use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\HttpFoundation\Request;
 
-class IndexController extends Controller
+/**
+ * @Route(service="shopware.storefront.controller.widgets.index_controller", path="/")
+ */
+class IndexController extends StorefrontController
 {
+    /**
+     * @var ShopRepository
+     */
+    private $shopRepository;
+
+    public function __construct(ShopRepository $shopRepository)
+    {
+        $this->shopRepository = $shopRepository;
+    }
+
     /**
      * @Route("/widgets/index/shopMenu", name="widgets/shopMenu")
      * @Method({"GET"})
@@ -46,7 +60,7 @@ class IndexController extends Controller
      */
     public function shopMenuAction(ShopContext $context, Request $request)
     {
-        return $this->render('@Shopware/widgets/index/shop_menu.html.twig', [
+        return $this->render('@Storefront/widgets/index/shop_menu.html.twig', [
             'shop' => $context->getShop(),
             'currency' => $context->getCurrency(),
             'shops' => $this->loadShops($context),
@@ -62,9 +76,7 @@ class IndexController extends Controller
         $criteria->addFilter(new TermsQuery('shop.parentUuid', $uuids));
         $criteria->addFilter(new TermQuery('shop.active', 1));
 
-        $repo = $this->get('shopware.shop.repository');
-        $shops = $repo->search($criteria, $context->getTranslationContext());
-
+        $shops = $this->shopRepository->search($criteria, $context->getTranslationContext());
         $shops->add($context->getShop());
         $shops = $shops->sortByPosition();
 

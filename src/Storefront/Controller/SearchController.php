@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Config\ConfigServiceInterface;
 use Shopware\Storefront\Exception\MinimumSearchTermLengthNotGiven;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,6 +12,22 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SearchController extends StorefrontController
 {
+    /**
+     * @var ConfigServiceInterface
+     */
+    private $configService;
+
+    /**
+     * @var SearchPageLoader
+     */
+    private $searchPageLoader;
+
+    public function __construct(ConfigServiceInterface $configService, SearchPageLoader $searchPageLoader)
+    {
+        $this->configService = $configService;
+        $this->searchPageLoader = $searchPageLoader;
+    }
+
     /**
      * @Route("/search", name="search_index", options={"seo"=true})
      *
@@ -24,7 +41,7 @@ class SearchController extends StorefrontController
     public function indexAction(ShopContext $context, Request $request): Response
     {
         $searchTerm = $request->get('search');
-        $config = $this->get('shopware.config.cached_config_service')->getByShop(
+        $config = $this->configService->getByShop(
             $context->getShop()->getUuid(),
             $context->getShop()->getParentUuid()
         );
@@ -36,11 +53,9 @@ class SearchController extends StorefrontController
             );
         }
 
-        /** @var SearchPageLoader $searchPageLoader */
-        $searchPageLoader = $this->get('shopware.storefront.page.search.search_page_loader');
-        $listing = $searchPageLoader->load($searchTerm, $request, $context);
+        $listing = $this->searchPageLoader->load($searchTerm, $request, $context);
 
-        return $this->render(
+        return $this->renderStorefront(
             '@Storefront/frontend/search/index.html.twig',
             [
                 'listing' => $listing,
@@ -66,13 +81,10 @@ class SearchController extends StorefrontController
             return $this->render('');
         }
 
-        /** @var SearchPageLoader $searchPageLoader */
-        $searchPageLoader = $this->get('shopware.storefront.page.search.search_page_loader');
-
-        return $this->render(
+        return $this->renderStorefront(
             '@Storefront/frontend/search/ajax.html.twig',
             [
-                'listing' => $searchPageLoader->load($searchTerm, $request, $context),
+                'listing' => $this->searchPageLoader->load($searchTerm, $request, $context),
                 'searchTerm' => $searchTerm,
             ]
         );

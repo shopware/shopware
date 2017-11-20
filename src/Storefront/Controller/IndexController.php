@@ -37,6 +37,6 @@ class IndexController extends StorefrontController
      */
     public function indexAction(Request $request, ShopContext $context)
     {
-        return $this->render('@Storefront/frontend/home/index.html.twig', []);
+        return $this->renderStorefront('@Storefront/frontend/home/index.html.twig', []);
     }
 }

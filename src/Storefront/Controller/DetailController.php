@@ -25,21 +25,30 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Storefront\Page\Detail\DetailPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DetailController extends StorefrontController
 {
     /**
+     * @var DetailPageLoader
+     */
+    private $detailPageLoader;
+
+    public function __construct(DetailPageLoader $detailPageLoader)
+    {
+        $this->detailPageLoader = $detailPageLoader;
+    }
+
+    /**
      * @Route("/detail/{uuid}", name="detail_page", options={"seo"="true"})
      */
     public function indexAction(string $uuid, ShopContext $context, Request $request)
     {
-        $loader = $this->get('shopware.storefront.page.detail.detail_page_loader');
+        $product = $this->detailPageLoader->load($uuid, $context);
 
-        $product = $loader->load($uuid, $context);
-
-        return $this->render('@Storefront/frontend/detail/index.html.twig', [
+        return $this->renderStorefront('@Storefront/frontend/detail/index.html.twig', [
             'product' => $product,
         ]);
     }

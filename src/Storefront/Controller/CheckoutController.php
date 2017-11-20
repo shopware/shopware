@@ -4,12 +4,23 @@ namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Shopware\CartBridge\Service\StoreFrontCartService;
 use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckoutController extends StorefrontController
 {
+    /**
+     * @var StoreFrontCartService
+     */
+    private $cartService;
+
+    public function __construct(StoreFrontCartService $cartService)
+    {
+        $this->cartService = $cartService;
+    }
+
     /**
      * @Route("/checkout", name="checkout_index", options={"seo"="false"})
      */
@@ -23,10 +34,8 @@ class CheckoutController extends StorefrontController
      */
     public function cartAction(): Response
     {
-        $cartService = $this->get('shopware.cart.storefront_service');
-
-        return $this->render('frontend/checkout/cart.html.twig', [
-            'cart' => $cartService->getCart(),
+        return $this->renderStorefront('@Storefront/frontend/checkout/cart.html.twig', [
+            'cart' => $this->cartService->getCart(),
         ]);
     }
 
@@ -39,17 +48,15 @@ class CheckoutController extends StorefrontController
      */
     public function confirmAction(ShopContext $context): Response
     {
-        $cartService = $this->get('shopware.cart.storefront_service');
-
         if (!$context->getCustomer()) {
             return $this->redirectToRoute('account_login');
         }
-        if ($cartService->getCart()->getCalculatedCart()->getCalculatedLineItems()->count() === 0) {
+        if ($this->cartService->getCart()->getCalculatedCart()->getCalculatedLineItems()->count() === 0) {
             return $this->redirectToRoute('checkout_cart');
         }
 
-        return $this->render('frontend/checkout/confirm.html.twig', [
-            'cart' => $cartService->getCart(),
+        return $this->renderStorefront('@Storefront/frontend/checkout/confirm.html.twig', [
+            'cart' => $this->cartService->getCart(),
             'customer' => $context->getCustomer(),
         ]);
     }
@@ -64,20 +71,18 @@ class CheckoutController extends StorefrontController
      */
     public function finishAction(ShopContext $context): Response
     {
-        $cartService = $this->get('shopware.cart.storefront_service');
-
         if (!$context->getCustomer()) {
             return $this->redirectToRoute('account_login');
         }
-        if ($cartService->getCart()->getCalculatedCart()->getCalculatedLineItems()->count() === 0) {
+        if ($this->cartService->getCart()->getCalculatedCart()->getCalculatedLineItems()->count() === 0) {
             return $this->redirectToRoute('checkout_cart');
         }
 
-        $cart = $cartService->getCart();
+        $cart = $this->cartService->getCart();
         $clonedCart = clone $cart;
-        $cartService->order();
+        $this->cartService->order();
 
-        return $this->render('frontend/checkout/finish.html.twig', [
+        return $this->renderStorefront('@Storefront/frontend/checkout/finish.html.twig', [
             'cart' => $clonedCart,
             'customer' => $context->getCustomer(),
         ]);

@@ -26,7 +26,7 @@ class AccountController extends StorefrontController
      */
     public function indexAction()
     {
-        return $this->render('frontend/account/index.html.twig');
+        return $this->renderStorefront('frontend/account/index.html.twig');
     }
 
     /**
@@ -40,7 +40,7 @@ class AccountController extends StorefrontController
         // last username entered by the user
         $lastEmail = $this->authUtils->getLastUsername();
 
-        return $this->render('frontend/register/index.html.twig', [
+        return $this->renderStorefront('frontend/register/index.html.twig', [
             'last_email' => $lastEmail,
             'error' => $error,
         ]);

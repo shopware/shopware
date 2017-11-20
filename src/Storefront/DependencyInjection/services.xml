@@ -28,7 +28,7 @@
             <argument>%assetic.write_to%</argument>
         </service>
 
-        <service id="shopware.storefront.twig.template_finder" class="Shopware\Storefront\Twig\TemplateFinder" >
+        <service id="shopware.storefront.twig.template_finder" class="Shopware\Storefront\Twig\TemplateFinder" public="true">
             <argument id="kernel" type="service"/>
             <argument id="twig.loader" type="service"/>
         </service>
@@ -80,7 +80,7 @@
             <tag name="controller.argument_value_resolver"/>
         </service>
 
-        <service class="Shopware\Storefront\Context\StorefrontContextService" id="shopware.storefront.context.storefront_context_service">
+        <service class="Shopware\Storefront\Context\StorefrontContextService" id="shopware.storefront.context.storefront_context_service" public="true">
             <argument id="request_stack" type="service"/>
             <argument id="shopware.context.service.context_factory" type="service"/>
             <argument id="shopware.cache" type="service"/>
@@ -93,7 +93,7 @@
             <argument id="shopware.storefront.context.storefront_context_service" type="service"/>
         </service>
 
-        <service class="Shopware\Storefront\Navigation\NavigationService" id="shopware.storefront.navigation.navigation_service">
+        <service class="Shopware\Storefront\Navigation\NavigationService" id="shopware.storefront.navigation.navigation_service" public="true">
             <argument id="shopware.category.repository" type="service"/>
         </service>
 
@@ -114,7 +114,7 @@
             <argument type="service" id="shopware.customer.repository" />
         </service>
 
-        <service class="Shopware\Storefront\Controller\AccountController" id="shopware.storefront.controller.account">
+        <service class="Shopware\Storefront\Controller\AccountController" public="true" id="shopware.storefront.controller.account">
             <argument type="service" id="security.authentication_utils" />
         </service>
 
@@ -124,13 +124,31 @@
             <argument id="shopware.product_media.repository" type="service"/>
         </service>
 
-        <service class="Shopware\Storefront\Controller\Widgets\IndexController" id="Shopware\Storefront\Controller\Widgets\IndexController">
+        <service class="Shopware\Storefront\Controller\Widgets\IndexController" public="true" id="Shopware\Storefront\Controller\Widgets\IndexController">
             <argument type="service" id="shopware.shop.repository" />
         </service>
 
-        <service class="Shopware\Storefront\Controller\Widgets\CheckoutController" id="Shopware\Storefront\Controller\Widgets\CheckoutController">
+        <service class="Shopware\Storefront\Controller\Widgets\CheckoutController" public="true" id="Shopware\Storefront\Controller\Widgets\CheckoutController">
             <argument type="service" id="shopware.cart.storefront_service" />
         </service>
+
+        <service class="Shopware\Storefront\Controller\ListingController" public="true" id="Shopware\Storefront\Controller\ListingController">
+            <argument type="service" id="shopware.storefront.page.listing.listing_page_loader" />
+        </service>
+
+        <service class="Shopware\Storefront\Controller\DetailController" public="true" id="Shopware\Storefront\Controller\DetailController">
+            <argument type="service" id="shopware.storefront.page.detail.detail_page_loader" />
+        </service>
+
+        <service class="Shopware\Storefront\Controller\CheckoutController" public="true" id="Shopware\Storefront\Controller\CheckoutController">
+            <argument type="service" id="shopware.cart.storefront_service" />
+        </service>
+
+        <service class="Shopware\Storefront\Controller\SearchController" public="true" id="Shopware\Storefront\Controller\SearchController">
+            <argument id="shopware.config.config_service" type="service"/>
+            <argument id="shopware.storefront.page.search.search_page_loader" type="service"/>
+        </service>
+
 
 
 

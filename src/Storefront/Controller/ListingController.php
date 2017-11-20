@@ -25,21 +25,30 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Storefront\Page\Listing\ListingPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ListingController extends StorefrontController
 {
     /**
+     * @var ListingPageLoader
+     */
+    private $lisingPageLoader;
+
+    public function __construct(ListingPageLoader $lisingPageLoader)
+    {
+        $this->lisingPageLoader = $lisingPageLoader;
+    }
+
+    /**
      * @Route("/listing/{uuid}", name="listing_page", options={"seo"=true})
      */
     public function indexAction(string $uuid, ShopContext $context, Request $request)
     {
-        $listingPageLoader = $this->get('shopware.storefront.page.listing.listing_page_loader');
+        $listingPage = $this->lisingPageLoader->load($uuid, $request, $context);
 
-        $listingPage = $listingPageLoader->load($uuid, $request, $context);
-
-        return $this->render('frontend/listing/index.html.twig', [
+        return $this->renderStorefront('@Storefront/frontend/listing/index.html.twig', [
             'listing' => $listingPage,
         ]);
     }

@@ -2,7 +2,6 @@
 
 namespace Shopware\Administration;
 
-use Shopware\Administration\DependencyInjection\ExtensionCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -18,7 +17,5 @@ class Administration extends Bundle
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('api_extensions.xml');
-
-        $container->addCompilerPass(new ExtensionCompilerPass());
     }
 }

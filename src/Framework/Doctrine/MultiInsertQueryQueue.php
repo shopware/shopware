@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Framework\Doctrine;
 
@@ -40,7 +40,7 @@ class MultiInsertQueryQueue
         $this->inserts[$table][] = [
             'data' => $data,
             'columns' => array_keys($data),
-            'types' => $types
+            'types' => $types,
         ];
     }
 
@@ -85,6 +85,7 @@ class MultiInsertQueryQueue
                 $columns[$column] = 1;
             }
         }
+
         return array_keys($columns);
     }
 
@@ -103,6 +104,7 @@ class MultiInsertQueryQueue
             }
             $stackedValues[] = '(' . implode(',', $values) . ')';
         }
+
         return $stackedValues;
     }
 }

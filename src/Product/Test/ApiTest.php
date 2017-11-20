@@ -34,7 +34,7 @@ class ApiTest extends WebTestCase
 
     public function testProductListRoute()
     {
-        $this->client->request('GET', '/api/product.json');
+        $this->client->request('GET', '/api/product');
 
         self::assertSame(
             200,
@@ -46,14 +46,13 @@ class ApiTest extends WebTestCase
     {
         $this->client->request(
             'POST',
-            '/api/product.json',
+            '/api/product',
             [
-                [
-                    'uuid' => 'abc',
-                    'the_unknown_field' => 'do nothing?',
-                    'taxUuid' => 'SWAG-CONFIG-TAX-UUID-1',
-                    'productManufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2'],
-                ],
+                'uuid' => 'abc',
+                'name' => 'test123',
+                'the_unknown_field' => 'do nothing?',
+                'taxUuid' => 'SWAG-TAX-UUID-1',
+                'productManufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2'],
             ]
         );
 

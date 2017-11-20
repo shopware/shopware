@@ -31,7 +31,6 @@ use Shopware\Cart\Price\PriceRounding;
 use Shopware\Cart\Price\Struct\DerivedPrice;
 use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Price\Struct\PriceCollection;
-use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Cart\Tax\PercentageTaxRuleCalculator;
 use Shopware\Cart\Tax\Struct\CalculatedTax;
@@ -48,8 +47,8 @@ class AbsolutePriceCalculatorTest extends TestCase
     /**
      * @dataProvider calculateAbsolutePriceOfGrossPricesProvider
      *
-     * @param float $price
-     * @param DerivedPrice $expected
+     * @param float           $price
+     * @param DerivedPrice    $expected
      * @param PriceCollection $prices
      */
     public function testCalculateAbsolutePriceOfGrossPrices(
@@ -118,7 +117,7 @@ class AbsolutePriceCalculatorTest extends TestCase
                     1,
                     $prices
                 ),
-                $prices
+                $prices,
             ],
         ];
     }

@@ -30,8 +30,8 @@ use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\CartBridge\Order\OrderPersister;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Customer\Struct\CustomerBasicStruct;
-use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Order\Repository\OrderRepository;
 
 class OrderPersisterTest extends TestCase
@@ -51,7 +51,7 @@ class OrderPersisterTest extends TestCase
         $billingAddress->setLastName($faker->lastName);
         $billingAddress->setZipcode($faker->postcode);
         $billingAddress->setCity($faker->city);
-        $billingAddress->setAreaCountryUuid('SWAG-AREA-COUNTRY-UUID-1');
+        $billingAddress->setCountryUuid('SWAG-AREA-COUNTRY-UUID-1');
 
         $customer = new CustomerBasicStruct();
         $customer->setUuid('SWAG-CUSTOMER-UUID-1');

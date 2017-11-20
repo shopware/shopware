@@ -4,8 +4,8 @@
 
 <div class="table--tr block-group row--product{% if isLast %} is--last-row{% endif %}">
 
-        {% if viewLineItem.canonicalUrl %}
-            {% set detailUrl = viewLineItem.canonicalUrl.url %}
+        {% if viewLineItem.extensions.canonicalUrl %}
+            {% set detailUrl = viewLineItem.extensions.canonicalUrl.url %}
         {% else %}
             {% if viewLineItem.uuid %}
                 {% set detailUrl = url('detail_page', { 'uuid': viewLineItem.uuid }) %}
@@ -33,9 +33,9 @@
                                             {% set image = viewLineItem.cover %}
                                             {% set desc = viewLineItem.name|striptags|escape %}
 
-                                            {% if image.thumbnails[0] %}
+                                            {% if image.extensions.thumbnails[0] %}
                                                 <a href="{{ detailUrl }}" title="{{ desc }}" class="table--media-link">
-                                                    <img src="{{ image.thumbnails[0].url }}" alt="{{ desc }}" title="{{ desc|truncate(160) }}" />
+                                                    <img src="{{ image.extensions.thumbnails[0].url }}" alt="{{ desc }}" title="{{ desc|truncate(160) }}" />
                                                 </a>
                                             {% endif %}
 

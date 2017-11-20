@@ -10,13 +10,13 @@ use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Product\Event\ProductCategoryWrittenEvent;
+use Shopware\Product\Event\ProductCategory\ProductCategoryWrittenEvent;
 use Shopware\Product\Repository\ProductRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductCategoryIndexer implements IndexerInterface
 {
-    const TABLE = 'product_category_ro';
+    const TABLE = 'product_category_tree';
 
     /**
      * @var ProductRepository
@@ -58,7 +58,7 @@ class ProductCategoryIndexer implements IndexerInterface
         );
 
         while ($uuids = $iterator->fetchUuids()) {
-            $this->indexCategoryAssignment($uuids, $context, $timestamp);
+            $this->indexCategoryAssignment($uuids, $timestamp);
 
             $this->eventDispatcher->dispatch(
                 ProgressAdvancedEvent::NAME,
@@ -82,14 +82,14 @@ class ProductCategoryIndexer implements IndexerInterface
         }
 
         $this->connection->executeUpdate(
-            'DELETE FROM product_category_ro WHERE product_uuid IN (:uuids)',
+            'DELETE FROM product_category_tree WHERE product_uuid IN (:uuids)',
             ['uuids' => $uuids],
             ['uuids' => Connection::PARAM_STR_ARRAY]
         );
-        $this->indexCategoryAssignment($uuids, $context, null);
+        $this->indexCategoryAssignment($uuids, null);
     }
 
-    private function indexCategoryAssignment(array $uuids, TranslationContext $context, ?\DateTime $timestamp): void
+    private function indexCategoryAssignment(array $uuids, ?\DateTime $timestamp): void
     {
         $categories = $this->fetchCategories($uuids);
 

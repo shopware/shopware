@@ -2,133 +2,153 @@
 
 namespace Shopware\Locale\Repository;
 
-use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\Read\EntityReaderInterface;
 use Shopware\Api\RepositoryInterface;
 use Shopware\Api\Search\AggregationResult;
 use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\EntityAggregatorInterface;
+use Shopware\Api\Search\EntitySearcherInterface;
 use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\EntityWriterInterface;
 use Shopware\Api\Write\GenericWrittenEvent;
-use Shopware\Api\Write\WriterInterface;
+use Shopware\Api\Write\WriteContext;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Locale\Event\LocaleBasicLoadedEvent;
-use Shopware\Locale\Event\LocaleWrittenEvent;
-use Shopware\Locale\Searcher\LocaleSearchResult;
-use Shopware\Locale\Struct\LocaleBasicCollection;
+use Shopware\Locale\Collection\LocaleBasicCollection;
+use Shopware\Locale\Collection\LocaleDetailCollection;
+use Shopware\Locale\Definition\LocaleDefinition;
+use Shopware\Locale\Event\Locale\LocaleAggregationResultLoadedEvent;
+use Shopware\Locale\Event\Locale\LocaleBasicLoadedEvent;
+use Shopware\Locale\Event\Locale\LocaleDetailLoadedEvent;
+use Shopware\Locale\Event\Locale\LocaleSearchResultLoadedEvent;
+use Shopware\Locale\Event\Locale\LocaleUuidSearchResultLoadedEvent;
+use Shopware\Locale\Struct\LocaleSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class LocaleRepository implements RepositoryInterface
 {
     /**
-     * @var BasicReaderInterface
+     * @var EntityReaderInterface
      */
-    private $basicReader;
+    private $reader;
+
+    /**
+     * @var EntityWriterInterface
+     */
+    private $writer;
+
+    /**
+     * @var EntitySearcherInterface
+     */
+    private $searcher;
+
+    /**
+     * @var EntityAggregatorInterface
+     */
+    private $aggregator;
 
     /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
-    /**
-     * @var SearcherInterface
-     */
-    private $searcher;
-
-    /**
-     * @var WriterInterface
-     */
-    private $writer;
-
     public function __construct(
-        BasicReaderInterface $basicReader,
-        EventDispatcherInterface $eventDispatcher,
-        SearcherInterface $searcher,
-        WriterInterface $writer
+        EntityReaderInterface $reader,
+        EntityWriterInterface $writer,
+        EntitySearcherInterface $searcher,
+        EntityAggregatorInterface $aggregator,
+        EventDispatcherInterface $eventDispatcher
     ) {
-        $this->basicReader = $basicReader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->searcher = $searcher;
+        $this->reader = $reader;
         $this->writer = $writer;
-    }
-
-    public function readBasic(array $uuids, TranslationContext $context): LocaleBasicCollection
-    {
-        if (empty($uuids)) {
-            return new LocaleBasicCollection();
-        }
-
-        /** @var LocaleBasicCollection $collection */
-        $collection = $this->basicReader->readBasic($uuids, $context);
-
-        $this->eventDispatcher->dispatch(
-            LocaleBasicLoadedEvent::NAME,
-            new LocaleBasicLoadedEvent($collection, $context)
-        );
-
-        return $collection;
-    }
-
-    public function readDetail(array $uuids, TranslationContext $context): LocaleBasicCollection
-    {
-        return $this->readBasic($uuids, $context);
+        $this->searcher = $searcher;
+        $this->aggregator = $aggregator;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function search(Criteria $criteria, TranslationContext $context): LocaleSearchResult
     {
-        /** @var LocaleSearchResult $result */
-        $result = $this->searcher->search($criteria, $context);
+        $uuids = $this->searchUuids($criteria, $context);
 
-        $this->eventDispatcher->dispatch(
-            LocaleBasicLoadedEvent::NAME,
-            new LocaleBasicLoadedEvent($result, $context)
-        );
+        $entities = $this->readBasic($uuids->getUuids(), $context);
+
+        $aggregations = null;
+        if ($criteria->getAggregations()) {
+            $aggregations = $this->aggregate($criteria, $context);
+        }
+
+        $result = LocaleSearchResult::createFromResults($uuids, $entities, $aggregations);
+
+        $event = new LocaleSearchResultLoadedEvent($result);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
+        return $result;
+    }
+
+    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    {
+        $result = $this->aggregator->aggregate(LocaleDefinition::class, $criteria, $context);
+
+        $event = new LocaleAggregationResultLoadedEvent($result);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
     public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
     {
-        return $this->searcher->searchUuids($criteria, $context);
-    }
+        $result = $this->searcher->search(LocaleDefinition::class, $criteria, $context);
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
-    {
-        $result = $this->searcher->aggregate($criteria, $context);
+        $event = new LocaleUuidSearchResultLoadedEvent($result);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function getEntityName(): string
+    public function readBasic(array $uuids, TranslationContext $context): LocaleBasicCollection
     {
-        return 'locale';
+        /** @var LocaleBasicCollection $entities */
+        $entities = $this->reader->readBasic(LocaleDefinition::class, $uuids, $context);
+
+        $event = new LocaleBasicLoadedEvent($entities, $context);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
+        return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): LocaleWrittenEvent
+    public function readDetail(array $uuids, TranslationContext $context): LocaleDetailCollection
     {
-        $event = $this->writer->update($data, $context);
+        /** @var LocaleDetailCollection $entities */
+        $entities = $this->reader->readDetail(LocaleDefinition::class, $uuids, $context);
 
-        $container = new GenericWrittenEvent($event, $context);
-        $this->eventDispatcher->dispatch($container::NAME, $container);
+        $event = new LocaleDetailLoadedEvent($entities, $context);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
+        return $entities;
+    }
+
+    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    {
+        $affected = $this->writer->update(LocaleDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $event = GenericWrittenEvent::createFromWriterResult($affected, $context, []);
+        $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): LocaleWrittenEvent
+    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
     {
-        $event = $this->writer->upsert($data, $context);
-
-        $container = new GenericWrittenEvent($event, $context);
-        $this->eventDispatcher->dispatch($container::NAME, $container);
+        $affected = $this->writer->upsert(LocaleDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $event = GenericWrittenEvent::createFromWriterResult($affected, $context, []);
+        $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): LocaleWrittenEvent
+    public function create(array $data, TranslationContext $context): GenericWrittenEvent
     {
-        $event = $this->writer->create($data, $context);
-
-        $container = new GenericWrittenEvent($event, $context);
-        $this->eventDispatcher->dispatch($container::NAME, $container);
+        $affected = $this->writer->insert(LocaleDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $event = GenericWrittenEvent::createFromWriterResult($affected, $context, []);
+        $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }

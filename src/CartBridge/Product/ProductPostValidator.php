@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\CartBridge\Product;
 
+use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\CartContainer;
-use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\CartBridge\Product\Struct\CalculatedProduct;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
@@ -17,7 +17,6 @@ class ProductPostValidator implements CartProcessorInterface
         StructCollection $dataCollection,
         ShopContext $context
     ): void {
-
         $products = $calculatedCart->getCalculatedLineItems()->filterInstance(
             CalculatedProduct::class
         );
@@ -28,7 +27,6 @@ class ProductPostValidator implements CartProcessorInterface
 
         /** @var CalculatedProduct[] $products */
         foreach ($products as $product) {
-
             if (!$product->getRule()) {
                 continue;
             }

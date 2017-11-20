@@ -2,15 +2,10 @@
 
 namespace Shopware\Tax\Struct;
 
-use Shopware\Framework\Struct\Struct;
+use Shopware\Api\Entity\Entity;
 
-class TaxBasicStruct extends Struct
+class TaxBasicStruct extends Entity
 {
-    /**
-     * @var string
-     */
-    protected $uuid;
-
     /**
      * @var float
      */
@@ -30,16 +25,6 @@ class TaxBasicStruct extends Struct
      * @var \DateTime|null
      */
     protected $updatedAt;
-
-    public function getUuid(): string
-    {
-        return $this->uuid;
-    }
-
-    public function setUuid(string $uuid): void
-    {
-        $this->uuid = $uuid;
-    }
 
     public function getRate(): float
     {

@@ -70,6 +70,11 @@ class TranslationContext extends Struct
         );
     }
 
+    public function hasFallback(): bool
+    {
+        return !$this->isDefaultShop() && $this->getFallbackUuid() !== $this->getShopUuid();
+    }
+
     public function getShopUuid(): string
     {
         return $this->shopUuid;

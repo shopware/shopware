@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Cart\Struct;
 
-
 use Shopware\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Cart\Error\ErrorCollection;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;

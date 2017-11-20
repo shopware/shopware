@@ -1,0 +1,32 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\#bundle#\Collection;
+
+use Shopware\Api\Entity\EntityCollection;
+use Shopware\#bundle#\Struct\#classUc#BasicStruct;
+#uses#
+
+class #classUc#BasicCollection extends EntityCollection
+{
+    /**
+     * @var #classUc#BasicStruct[]
+     */
+    protected $elements = [];
+
+    public function get(string $uuid): ? #classUc#BasicStruct
+    {
+        return parent::get($uuid);
+    }
+
+    public function current(): #classUc#BasicStruct
+    {
+        return parent::current();
+    }
+
+#collectiveUuidGetters#
+
+    protected function getExpectedClass(): string
+    {
+        return #classUc#BasicStruct::class;
+    }
+}

@@ -2,30 +2,48 @@
 
 namespace Shopware\Order\Struct;
 
+use Shopware\Api\Entity\Entity;
 use Shopware\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Customer\Struct\CustomerBasicStruct;
-use Shopware\Framework\Struct\Struct;
-use Shopware\OrderAddress\Struct\OrderAddressBasicStruct;
-use Shopware\OrderState\Struct\OrderStateBasicStruct;
-use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
+use Shopware\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Shop\Struct\ShopBasicStruct;
 
-class OrderBasicStruct extends Struct
+class OrderBasicStruct extends Entity
 {
     /**
      * @var string
      */
-    protected $uuid;
+    protected $customerUuid;
+
+    /**
+     * @var string
+     */
+    protected $stateUuid;
+
+    /**
+     * @var string
+     */
+    protected $paymentMethodUuid;
+
+    /**
+     * @var string
+     */
+    protected $currencyUuid;
+
+    /**
+     * @var string
+     */
+    protected $shopUuid;
+
+    /**
+     * @var string
+     */
+    protected $billingAddressUuid;
 
     /**
      * @var \DateTime
      */
     protected $date;
-
-    /**
-     * @var string
-     */
-    protected $customerUuid;
 
     /**
      * @var float
@@ -43,16 +61,6 @@ class OrderBasicStruct extends Struct
     protected $shippingTotal;
 
     /**
-     * @var string
-     */
-    protected $stateUuid;
-
-    /**
-     * @var string
-     */
-    protected $paymentMethodUuid;
-
-    /**
      * @var bool
      */
     protected $isNet;
@@ -61,21 +69,6 @@ class OrderBasicStruct extends Struct
      * @var bool
      */
     protected $isTaxFree;
-
-    /**
-     * @var string
-     */
-    protected $currencyUuid;
-
-    /**
-     * @var string
-     */
-    protected $shopUuid;
-
-    /**
-     * @var string
-     */
-    protected $billingAddressUuid;
 
     /**
      * @var string
@@ -127,14 +120,64 @@ class OrderBasicStruct extends Struct
      */
     protected $billingAddress;
 
-    public function getUuid(): string
+    public function getCustomerUuid(): string
     {
-        return $this->uuid;
+        return $this->customerUuid;
     }
 
-    public function setUuid(string $uuid): void
+    public function setCustomerUuid(string $customerUuid): void
     {
-        $this->uuid = $uuid;
+        $this->customerUuid = $customerUuid;
+    }
+
+    public function getStateUuid(): string
+    {
+        return $this->stateUuid;
+    }
+
+    public function setStateUuid(string $stateUuid): void
+    {
+        $this->stateUuid = $stateUuid;
+    }
+
+    public function getPaymentMethodUuid(): string
+    {
+        return $this->paymentMethodUuid;
+    }
+
+    public function setPaymentMethodUuid(string $paymentMethodUuid): void
+    {
+        $this->paymentMethodUuid = $paymentMethodUuid;
+    }
+
+    public function getCurrencyUuid(): string
+    {
+        return $this->currencyUuid;
+    }
+
+    public function setCurrencyUuid(string $currencyUuid): void
+    {
+        $this->currencyUuid = $currencyUuid;
+    }
+
+    public function getShopUuid(): string
+    {
+        return $this->shopUuid;
+    }
+
+    public function setShopUuid(string $shopUuid): void
+    {
+        $this->shopUuid = $shopUuid;
+    }
+
+    public function getBillingAddressUuid(): string
+    {
+        return $this->billingAddressUuid;
+    }
+
+    public function setBillingAddressUuid(string $billingAddressUuid): void
+    {
+        $this->billingAddressUuid = $billingAddressUuid;
     }
 
     public function getDate(): \DateTime
@@ -145,16 +188,6 @@ class OrderBasicStruct extends Struct
     public function setDate(\DateTime $date): void
     {
         $this->date = $date;
-    }
-
-    public function getCustomerUuid(): string
-    {
-        return $this->customerUuid;
-    }
-
-    public function setCustomerUuid(string $customerUuid): void
-    {
-        $this->customerUuid = $customerUuid;
     }
 
     public function getAmountTotal(): float
@@ -187,26 +220,6 @@ class OrderBasicStruct extends Struct
         $this->shippingTotal = $shippingTotal;
     }
 
-    public function getStateUuid(): string
-    {
-        return $this->stateUuid;
-    }
-
-    public function setStateUuid(string $stateUuid): void
-    {
-        $this->stateUuid = $stateUuid;
-    }
-
-    public function getPaymentMethodUuid(): string
-    {
-        return $this->paymentMethodUuid;
-    }
-
-    public function setPaymentMethodUuid(string $paymentMethodUuid): void
-    {
-        $this->paymentMethodUuid = $paymentMethodUuid;
-    }
-
     public function getIsNet(): bool
     {
         return $this->isNet;
@@ -225,36 +238,6 @@ class OrderBasicStruct extends Struct
     public function setIsTaxFree(bool $isTaxFree): void
     {
         $this->isTaxFree = $isTaxFree;
-    }
-
-    public function getCurrencyUuid(): string
-    {
-        return $this->currencyUuid;
-    }
-
-    public function setCurrencyUuid(string $currencyUuid): void
-    {
-        $this->currencyUuid = $currencyUuid;
-    }
-
-    public function getShopUuid(): string
-    {
-        return $this->shopUuid;
-    }
-
-    public function setShopUuid(string $shopUuid): void
-    {
-        $this->shopUuid = $shopUuid;
-    }
-
-    public function getBillingAddressUuid(): string
-    {
-        return $this->billingAddressUuid;
-    }
-
-    public function setBillingAddressUuid(string $billingAddressUuid): void
-    {
-        $this->billingAddressUuid = $billingAddressUuid;
     }
 
     public function getContext(): string

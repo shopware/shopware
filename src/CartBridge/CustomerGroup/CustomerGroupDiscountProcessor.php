@@ -25,17 +25,14 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\CustomerGroup;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\LineItem\CalculatedLineItem;
 use Shopware\Cart\LineItem\Discount;
 use Shopware\Cart\Price\PercentagePriceCalculator;
-use Shopware\CartBridge\CustomerGroup\Data\CustomerGroupDiscountData;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicCollection;
-use Shopware\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicStruct;
+use Shopware\Customer\Collection\CustomerGroupDiscountBasicCollection;
 use Shopware\Framework\Struct\StructCollection;
 
 class CustomerGroupDiscountProcessor implements CartProcessorInterface
@@ -55,9 +52,7 @@ class CustomerGroupDiscountProcessor implements CartProcessorInterface
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
         ShopContext $context
-    ): void
-    {
-
+    ): void {
         if (!$context->getCustomer()) {
             return;
         }
@@ -73,13 +68,13 @@ class CustomerGroupDiscountProcessor implements CartProcessorInterface
         /** @var CustomerGroupDiscountBasicCollection $discountCollection */
         $discountCollection = $dataCollection->get(self::class);
 
-        if(!$discountCollection) {
+        if (!$discountCollection) {
             return;
         }
 
         $discount = $discountCollection->getDiscountForCartAmount(
             $prices->sum()->getTotalPrice(),
-            $context->getCustomer()->getCustomerGroup()->getUuid()
+            $context->getCustomer()->getGroup()->getUuid()
         );
 
         if (!$discount) {

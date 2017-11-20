@@ -3,6 +3,7 @@
 namespace Shopware\Rest;
 
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\TranslationContext;
 
 class ApiContext
 {
@@ -53,6 +54,11 @@ class ApiContext
     public function getShopContext(): ShopContext
     {
         return $this->shopContext;
+    }
+
+    public function getTranslationContext(): TranslationContext
+    {
+        return $this->getShopContext()->getTranslationContext();
     }
 
     public function getResultFormat(): string

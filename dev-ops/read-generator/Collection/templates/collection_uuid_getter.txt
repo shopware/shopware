@@ -1,6 +1,0 @@
-    public function get#propertyUc#s(): array
-    {
-        return $this->fmap(function(#classUc#BasicStruct $#classLc#) {
-            return $#classLc#->get#propertyUc#();
-        });
-    }

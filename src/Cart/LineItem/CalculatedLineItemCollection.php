@@ -87,13 +87,13 @@ class CalculatedLineItemCollection extends Collection
         return $this->filterInstance(GoodsInterface::class);
     }
 
-    protected function getKey(CalculatedLineItemInterface $element): string
-    {
-        return $element->getIdentifier();
-    }
-
     public function current(): CalculatedLineItemInterface
     {
         return parent::current();
+    }
+
+    protected function getKey(CalculatedLineItemInterface $element): string
+    {
+        return $element->getIdentifier();
     }
 }

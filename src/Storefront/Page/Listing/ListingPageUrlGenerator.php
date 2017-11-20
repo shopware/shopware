@@ -30,15 +30,15 @@ use Shopware\Api\Search\Criteria;
 use Shopware\Api\Search\Query\MatchQuery;
 use Shopware\Api\Search\Query\TermQuery;
 use Shopware\Api\Search\Query\TermsQuery;
+use Shopware\Category\Collection\CategoryBasicCollection;
 use Shopware\Category\Repository\CategoryRepository;
-use Shopware\Category\Struct\CategoryBasicCollection;
 use Shopware\Category\Struct\CategoryBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Routing\Router;
-use Shopware\SeoUrl\Generator\SeoUrlGeneratorInterface;
-use Shopware\SeoUrl\Repository\SeoUrlRepository;
-use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
-use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
+use Shopware\Seo\Collection\SeoUrlBasicCollection;
+use Shopware\Seo\Generator\SeoUrlGeneratorInterface;
+use Shopware\Seo\Repository\SeoUrlRepository;
+use Shopware\Seo\Struct\SeoUrlBasicStruct;
 use Shopware\Shop\Struct\ShopBasicStruct;
 
 class ListingPageUrlGenerator implements SeoUrlGeneratorInterface

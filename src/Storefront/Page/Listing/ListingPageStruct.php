@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Page\Listing;
 
 use Shopware\Api\Search\Criteria;
 use Shopware\Framework\Struct\Struct;
-use Shopware\Product\Struct\ProductBasicCollection;
+use Shopware\Product\Collection\ProductBasicCollection;
 
 class ListingPageStruct extends Struct
 {

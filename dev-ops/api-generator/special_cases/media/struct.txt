@@ -1,0 +1,14 @@
+    /**
+     * @var string|null
+     */
+    protected $url;
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(?string $url)
+    {
+        $this->url = $url;
+    }

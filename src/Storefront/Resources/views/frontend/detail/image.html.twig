@@ -25,8 +25,8 @@
 
                             <span class="image--element"
                                   {% if product.cover %}
-                                  data-img-large="{{ product.media.first.media.thumbnails[2].url }}"
-                                  data-img-small="{{ product.media.first.media.thumbnails[0].url }}"
+                                  data-img-large="{{ product.media.first.media.extensions.thumbnails[2].url }}"
+                                  data-img-small="{{ product.media.first.media.extensions.thumbnails[0].url }}"
                                   data-img-original="{{ product.media.first.media.url }}"
                                   {% endif %}
                                   data-alt="{{ alt }}">
@@ -35,7 +35,7 @@
                                     <span class="image--media">
                                         {% if product.media|length %}
                                             {% block frontend_detail_image_default_picture_element %}
-                                                <img srcset="{{ product.media.first.media.thumbnails[1].url }}" alt="{{ alt }}" itemprop="image" />
+                                                <img srcset="{{ product.media.first.media.extensions.thumbnails[1].url }}" alt="{{ alt }}" itemprop="image" />
                                             {% endblock %}
                                         {% else %}
                                             {% block frontend_detail_image_fallback %}
@@ -62,16 +62,16 @@
                                 {% endif %}
 
                                 <span class="image--element"
-                                      data-img-large="{{ image.media.thumbnails[2].url }}"
-                                      data-img-small="{{ image.media.thumbnails[0].url }}"
+                                      data-img-large="{{ image.media.extensions.thumbnails[2].url }}"
+                                      data-img-small="{{ image.media.extensions.thumbnails[0].url }}"
                                       data-img-original="{{ image.media.url }}"
                                       data-alt="{{ alt }}">
 
                                     {% block frontend_detail_images_image_media %}
                                         <span class="image--media">
-                                            {% if image.media.thumbnails is defined %}
+                                            {% if image.media.extensions.thumbnails is defined %}
                                                 {% block frontend_detail_images_picture_element %}
-                                                    <img srcset="{{ image.media.thumbnails[1].url }}" alt="{{ alt }}" itemprop="image" />
+                                                    <img srcset="{{ image.media.extensions.thumbnails[1].url }}" alt="{{ alt }}" itemprop="image" />
                                                 {% endblock %}
                                             {% else %}
                                                 {% block frontend_detail_images_fallback %}

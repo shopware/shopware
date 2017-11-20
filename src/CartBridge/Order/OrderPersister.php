@@ -32,7 +32,7 @@ use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Cart\Order\OrderPersisterInterface;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Order\Repository\OrderRepository;
 
 class OrderPersister implements OrderPersisterInterface
@@ -152,8 +152,8 @@ class OrderPersister implements OrderPersisterInterface
             'phoneNumber' => $address->getPhoneNumber(),
             'additionalAddressLine1' => $address->getAdditionalAddressLine1(),
             'additionalAddressLine2' => $address->getAdditionalAddressLine2(),
-            'areaCountryUuid' => $address->getAreaCountryUuid(),
-            'areaCountryStateUuid' => $address->getAreaCountryStateUuid(),
+            'countryUuid' => $address->getCountryUuid(),
+            'countryStateUuid' => $address->getCountryStateUuid(),
         ]);
     }
 }

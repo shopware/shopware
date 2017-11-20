@@ -33,10 +33,10 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Routing\Router;
 use Shopware\Product\Repository\ProductRepository;
 use Shopware\Product\Struct\ProductBasicStruct;
-use Shopware\SeoUrl\Generator\SeoUrlGeneratorInterface;
-use Shopware\SeoUrl\Repository\SeoUrlRepository;
-use Shopware\SeoUrl\Struct\SeoUrlBasicCollection;
-use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
+use Shopware\Seo\Collection\SeoUrlBasicCollection;
+use Shopware\Seo\Generator\SeoUrlGeneratorInterface;
+use Shopware\Seo\Repository\SeoUrlRepository;
+use Shopware\Seo\Struct\SeoUrlBasicStruct;
 use Shopware\Shop\Struct\ShopBasicStruct;
 
 class DetailPageUrlGenerator implements SeoUrlGeneratorInterface

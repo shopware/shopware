@@ -84,7 +84,6 @@ class BuildCategoryPathCommand extends ContainerAwareCommand implements EventSub
         $this->io->progressAdvance($event->getStep());
     }
 
-
     /**
      * {@inheritdoc}
      */

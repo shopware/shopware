@@ -2,20 +2,19 @@
 
 namespace Shopware\Media\Struct;
 
-use Shopware\Album\Struct\AlbumBasicStruct;
-use Shopware\Framework\Struct\Struct;
+use Shopware\Api\Entity\Entity;
 
-class MediaBasicStruct extends Struct
+class MediaBasicStruct extends Entity
 {
     /**
      * @var string
      */
-    protected $uuid;
+    protected $albumUuid;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected $albumUuid;
+    protected $userUuid;
 
     /**
      * @var string
@@ -33,14 +32,14 @@ class MediaBasicStruct extends Struct
     protected $fileSize;
 
     /**
-     * @var string|null
+     * @var string
      */
-    protected $metaData;
+    protected $name;
 
     /**
      * @var string|null
      */
-    protected $userUuid;
+    protected $metaData;
 
     /**
      * @var \DateTime|null
@@ -53,39 +52,18 @@ class MediaBasicStruct extends Struct
     protected $updatedAt;
 
     /**
-     * @var string
-     */
-    protected $name;
-
-    /**
      * @var string|null
      */
     protected $description;
 
     /**
-     * @var AlbumBasicStruct|null
+     * @var MediaAlbumBasicStruct
      */
     protected $album;
-
     /**
-     * @var string
+     * @var string|null
      */
     protected $url;
-
-    /**
-     * @var ThumbnailStruct[]
-     */
-    protected $thumbnails = [];
-
-    public function getUuid(): string
-    {
-        return $this->uuid;
-    }
-
-    public function setUuid(string $uuid): void
-    {
-        $this->uuid = $uuid;
-    }
 
     public function getAlbumUuid(): string
     {
@@ -95,6 +73,16 @@ class MediaBasicStruct extends Struct
     public function setAlbumUuid(string $albumUuid): void
     {
         $this->albumUuid = $albumUuid;
+    }
+
+    public function getUserUuid(): ?string
+    {
+        return $this->userUuid;
+    }
+
+    public function setUserUuid(?string $userUuid): void
+    {
+        $this->userUuid = $userUuid;
     }
 
     public function getFileName(): string
@@ -127,6 +115,16 @@ class MediaBasicStruct extends Struct
         $this->fileSize = $fileSize;
     }
 
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
     public function getMetaData(): ?string
     {
         return $this->metaData;
@@ -135,16 +133,6 @@ class MediaBasicStruct extends Struct
     public function setMetaData(?string $metaData): void
     {
         $this->metaData = $metaData;
-    }
-
-    public function getUserUuid(): ?string
-    {
-        return $this->userUuid;
-    }
-
-    public function setUserUuid(?string $userUuid): void
-    {
-        $this->userUuid = $userUuid;
     }
 
     public function getCreatedAt(): ?\DateTime
@@ -167,16 +155,6 @@ class MediaBasicStruct extends Struct
         $this->updatedAt = $updatedAt;
     }
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
     public function getDescription(): ?string
     {
         return $this->description;
@@ -187,39 +165,23 @@ class MediaBasicStruct extends Struct
         $this->description = $description;
     }
 
-    public function getUrl(): string
-    {
-        return $this->url;
-    }
-
-    public function setUrl(string $url)
-    {
-        $this->url = $url;
-    }
-
-    /**
-     * @return ThumbnailStruct[]
-     */
-    public function getThumbnails(): array
-    {
-        return $this->thumbnails;
-    }
-
-    /**
-     * @param ThumbnailStruct[] $thumbnails
-     */
-    public function setThumbnails(array $thumbnails)
-    {
-        $this->thumbnails = $thumbnails;
-    }
-
-    public function getAlbum(): ?AlbumBasicStruct
+    public function getAlbum(): MediaAlbumBasicStruct
     {
         return $this->album;
     }
 
-    public function setAlbum(?AlbumBasicStruct $album): void
+    public function setAlbum(MediaAlbumBasicStruct $album): void
     {
         $this->album = $album;
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(?string $url)
+    {
+        $this->url = $url;
     }
 }

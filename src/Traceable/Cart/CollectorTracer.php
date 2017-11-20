@@ -2,8 +2,8 @@
 
 namespace Shopware\Traceable\Cart;
 
-use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Cart\CollectorInterface;
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 

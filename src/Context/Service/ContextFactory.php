@@ -26,27 +26,26 @@ namespace Shopware\Context\Service;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Api\Search\Criteria;
-use Shopware\AreaCountry\Repository\AreaCountryRepository;
-use Shopware\AreaCountryState\Repository\AreaCountryStateRepository;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Context\Struct\CheckoutScope;
 use Shopware\Context\Struct\CustomerScope;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\ShopScope;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Country\Repository\CountryRepository;
+use Shopware\Country\Repository\CountryStateRepository;
 use Shopware\Currency\Repository\CurrencyRepository;
 use Shopware\Currency\Struct\Currency;
 use Shopware\Currency\Struct\CurrencyBasicStruct;
+use Shopware\Customer\Repository\CustomerAddressRepository;
+use Shopware\Customer\Repository\CustomerGroupRepository;
 use Shopware\Customer\Repository\CustomerRepository;
 use Shopware\Customer\Struct\Customer;
 use Shopware\Customer\Struct\CustomerBasicStruct;
-use Shopware\CustomerAddress\Repository\CustomerAddressRepository;
-use Shopware\CustomerGroup\Repository\CustomerGroupRepository;
-use Shopware\PaymentMethod\Repository\PaymentMethodRepository;
-use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
-use Shopware\PriceGroupDiscount\Repository\PriceGroupDiscountRepository;
-use Shopware\ShippingMethod\Repository\ShippingMethodRepository;
-use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
+use Shopware\Payment\Repository\PaymentMethodRepository;
+use Shopware\Payment\Struct\PaymentMethodBasicStruct;
+use Shopware\Shipping\Repository\ShippingMethodRepository;
+use Shopware\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Shop\Repository\ShopRepository;
 use Shopware\Shop\Struct\Shop;
 use Shopware\Shop\Struct\ShopDetailStruct;
@@ -76,7 +75,7 @@ class ContextFactory implements ContextFactoryInterface
     private $customerGroupRepository;
 
     /**
-     * @var AreaCountryRepository
+     * @var CountryRepository
      */
     private $countryRepository;
 
@@ -84,11 +83,6 @@ class ContextFactory implements ContextFactoryInterface
      * @var TaxRepository
      */
     private $taxRepository;
-
-    /**
-     * @var PriceGroupDiscountRepository
-     */
-    private $priceGroupDiscountRepository;
 
     /**
      * @var CustomerAddressRepository
@@ -111,7 +105,7 @@ class ContextFactory implements ContextFactoryInterface
     private $connection;
 
     /**
-     * @var AreaCountryStateRepository
+     * @var CountryStateRepository
      */
     private $countryStateRepository;
 
@@ -120,14 +114,13 @@ class ContextFactory implements ContextFactoryInterface
         CurrencyRepository $currencyRepository,
         CustomerRepository $customerRepository,
         CustomerGroupRepository $customerGroupRepository,
-        AreaCountryRepository $countryRepository,
+        CountryRepository $countryRepository,
         TaxRepository $taxRepository,
-        PriceGroupDiscountRepository $priceGroupDiscountRepository,
         CustomerAddressRepository $addressRepository,
         PaymentMethodRepository $paymentMethodRepository,
         ShippingMethodRepository $shippingMethodRepository,
         Connection $connection,
-        AreaCountryStateRepository $countryStateRepository
+        CountryStateRepository $countryStateRepository
     ) {
         $this->shopRepository = $shopRepository;
         $this->currencyRepository = $currencyRepository;
@@ -135,7 +128,6 @@ class ContextFactory implements ContextFactoryInterface
         $this->customerGroupRepository = $customerGroupRepository;
         $this->countryRepository = $countryRepository;
         $this->taxRepository = $taxRepository;
-        $this->priceGroupDiscountRepository = $priceGroupDiscountRepository;
         $this->addressRepository = $addressRepository;
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->shippingMethodRepository = $shippingMethodRepository;
@@ -179,7 +171,7 @@ class ContextFactory implements ContextFactoryInterface
 
             $shippingLocation = ShippingLocation::createFromAddress($customer->getActiveShippingAddress());
 
-            $customerGroup = $customer->getCustomerGroup();
+            $customerGroup = $customer->getGroup();
         } else {
             //load not logged in customer with default shop configuration or with provided checkout scopes
             $shippingLocation = $this->loadShippingLocation($shop, $translationContext, $checkoutScope);
@@ -196,10 +188,6 @@ class ContextFactory implements ContextFactoryInterface
         $criteria = new Criteria();
         $taxRules = $this->taxRepository->search($criteria, $translationContext);
 
-        //price group discounts has to be loaded for current customer group, used for product graduations
-        $criteria = new Criteria();
-        $discounts = $this->priceGroupDiscountRepository->search($criteria, $translationContext);
-
         //detect active payment method, first check if checkout defined other payment method, otherwise validate if customer logged in, at least use shop default
         $payment = $this->getPaymentMethod($customer, $shop, $translationContext, $checkoutScope);
 
@@ -212,7 +200,6 @@ class ContextFactory implements ContextFactoryInterface
             $customerGroup,
             $fallbackGroup,
             $taxRules,
-            $discounts,
             $payment,
             $delivery,
             $shippingLocation,
@@ -272,7 +259,7 @@ class ContextFactory implements ContextFactoryInterface
     private function getTranslationContext(string $shopUuid): TranslationContext
     {
         $query = $this->connection->createQueryBuilder();
-        $query->select(['uuid', 'is_default', 'fallback_locale_uuid']);
+        $query->select(['uuid', 'is_default', 'fallback_translation_uuid']);
         $query->from('shop', 'shop');
         $query->where('shop.uuid = :uuid');
         $query->setParameter('uuid', $shopUuid);
@@ -282,7 +269,7 @@ class ContextFactory implements ContextFactoryInterface
         return new TranslationContext(
             $data['uuid'],
             (bool) $data['is_default'],
-            $data['fallback_locale_uuid'] ?: null
+            $data['fallback_translation_uuid'] ?: null
         );
     }
 
@@ -327,8 +314,8 @@ class ContextFactory implements ContextFactoryInterface
             $state = $this->countryStateRepository->readBasic([$checkoutScope->getStateUuid()], $translationContext)
                 ->get($checkoutScope->getStateUuid());
 
-            $country = $this->countryRepository->readBasic([$state->getAreaCountryUuid()], $translationContext)
-                ->get($state->getAreaCountryUuid());
+            $country = $this->countryRepository->readBasic([$state->getCountryUuid()], $translationContext)
+                ->get($state->getCountryUuid());
 
             return new ShippingLocation($country, $state, null);
         }

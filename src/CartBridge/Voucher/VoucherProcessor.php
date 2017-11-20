@@ -25,16 +25,11 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\Voucher;
 
+use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\CartContainer;
-use Shopware\Cart\Cart\CartProcessorInterface;
-use Shopware\Cart\Cart\ProcessorCart;
 use Shopware\Cart\Error\VoucherNotFoundError;
 use Shopware\Cart\LineItem\LineItemInterface;
-use Shopware\Cart\Price\PercentagePriceCalculator;
-use Shopware\Cart\Price\PriceCalculator;
-use Shopware\Cart\Price\Struct\PriceDefinition;
-use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\CartBridge\Voucher\Struct\VoucherData;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;

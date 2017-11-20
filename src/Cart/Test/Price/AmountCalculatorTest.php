@@ -26,20 +26,20 @@ namespace Shopware\Cart\Test\Price;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Price\AmountCalculator;
+use Shopware\Cart\Price\PriceRounding;
 use Shopware\Cart\Price\Struct\CartPrice;
 use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Price\Struct\PriceCollection;
-use Shopware\Cart\Price\PriceRounding;
-use Shopware\Cart\Tax\Struct\CalculatedTax;
-use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Cart\Tax\PercentageTaxRuleCalculator;
+use Shopware\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Cart\Tax\Struct\TaxRule;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Cart\Tax\TaxAmountCalculator;
 use Shopware\Cart\Tax\TaxCalculator;
 use Shopware\Cart\Tax\TaxDetector;
-use Shopware\Cart\Tax\Struct\TaxRule;
 use Shopware\Cart\Tax\TaxRuleCalculator;
-use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Shop\Struct\ShopDetailStruct;
 

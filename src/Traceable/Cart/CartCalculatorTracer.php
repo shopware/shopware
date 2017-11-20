@@ -2,8 +2,8 @@
 
 namespace Shopware\Traceable\Cart;
 
-use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\CartCalculator;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Context\Struct\ShopContext;
 

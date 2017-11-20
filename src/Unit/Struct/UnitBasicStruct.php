@@ -2,14 +2,19 @@
 
 namespace Shopware\Unit\Struct;
 
-use Shopware\Framework\Struct\Struct;
+use Shopware\Api\Entity\Entity;
 
-class UnitBasicStruct extends Struct
+class UnitBasicStruct extends Entity
 {
     /**
      * @var string
      */
-    protected $uuid;
+    protected $shortCode;
+
+    /**
+     * @var string
+     */
+    protected $name;
 
     /**
      * @var \DateTime|null
@@ -21,24 +26,24 @@ class UnitBasicStruct extends Struct
      */
     protected $updatedAt;
 
-    /**
-     * @var string
-     */
-    protected $shortCode;
-
-    /**
-     * @var string
-     */
-    protected $name;
-
-    public function getUuid(): string
+    public function getShortCode(): string
     {
-        return $this->uuid;
+        return $this->shortCode;
     }
 
-    public function setUuid(string $uuid): void
+    public function setShortCode(string $shortCode): void
     {
-        $this->uuid = $uuid;
+        $this->shortCode = $shortCode;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
     }
 
     public function getCreatedAt(): ?\DateTime
@@ -59,25 +64,5 @@ class UnitBasicStruct extends Struct
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-    }
-
-    public function getShortCode(): string
-    {
-        return $this->shortCode;
-    }
-
-    public function setShortCode(string $shortCode): void
-    {
-        $this->shortCode = $shortCode;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
     }
 }

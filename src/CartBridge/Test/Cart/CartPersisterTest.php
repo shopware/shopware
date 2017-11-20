@@ -99,7 +99,7 @@ class CartPersisterTest extends TestCase
     public function testEmptyCartShouldnBeSaved(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('executeUpdate');
+        $connection->expects($this->never())->method('insert');
 
         $persister = new CartPersister(
             $connection,
@@ -135,12 +135,11 @@ class CartPersisterTest extends TestCase
                     'test',
                     null,
                     null
-                )
+                ),
             ]),
             new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
             new DeliveryCollection()
         );
         $persister->save($calc, Generator::createContext());
     }
-
 }

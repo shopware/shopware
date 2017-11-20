@@ -25,28 +25,30 @@
 namespace Shopware\Api\Write\Query;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Search\QuerySelection;
+use Shopware\Api\Entity\EntityDefinition;
 
 class UpdateQuery extends WriteQuery
 {
     /**
-     * @var string
-     */
-    private $tableName;
-    /**
      * @var array
      */
     private $pkData;
+
     /**
      * @var array
      */
     private $payload;
 
-    public function __construct(string $tableName, array $pkData, array $payload)
+    /**
+     * @var string|EntityDefinition
+     */
+    private $definition;
+
+    public function __construct(string $definition, array $pkData, array $payload)
     {
-        $this->tableName = $tableName;
         $this->pkData = $pkData;
         $this->payload = $payload;
+        $this->definition = $definition;
     }
 
     public function isExecutable(): bool
@@ -56,7 +58,9 @@ class UpdateQuery extends WriteQuery
 
     public function execute(Connection $connection): int
     {
-        return $connection->update(QuerySelection::escape($this->tableName), $this->payload, $this->pkData);
+        $table = $this->definition::getEntityName();
+
+        return $connection->update('`' . $table . '`', $this->payload, $this->pkData);
     }
 
     public function getPayload(): array
@@ -66,6 +70,22 @@ class UpdateQuery extends WriteQuery
 
     public function getPrimaryKeyData(): array
     {
+        return $this->pkData;
+    }
+
+    public function getEntityDefinition(): string
+    {
+        return $this->definition;
+    }
+
+    public function getEntityPrimaryKey()
+    {
+        if (count($this->pkData) === 1) {
+            $tmp = array_values($this->pkData);
+
+            return $tmp[0];
+        }
+
         return $this->pkData;
     }
 }

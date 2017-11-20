@@ -26,6 +26,7 @@ namespace Shopware\Framework\Routing;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
+use Shopware\Api\Routing\RouteCollector;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Kernel;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -91,6 +92,11 @@ class Router implements RouterInterface, RequestMatcherInterface
      */
     private $container;
 
+    /**
+     * @var RouteCollector
+     */
+    private $apiCollector;
+
     public function __construct(
         ContainerInterface $container,
         $resource,
@@ -99,7 +105,8 @@ class Router implements RouterInterface, RequestMatcherInterface
         LoggerInterface $logger = null,
         UrlResolverInterface $urlResolver,
         ShopFinder $shopFinder,
-        CacheItemPoolInterface $cache
+        CacheItemPoolInterface $cache,
+        RouteCollector $apiCollector
     ) {
         $this->resource = $resource;
         $this->context = $context;
@@ -110,6 +117,7 @@ class Router implements RouterInterface, RequestMatcherInterface
         $this->shopFinder = $shopFinder;
         $this->cache = $cache;
         $this->container = $container;
+        $this->apiCollector = $apiCollector;
     }
 
     public function setContext(RequestContext $context): void
@@ -183,7 +191,7 @@ class Router implements RouterInterface, RequestMatcherInterface
         $translationContext = new TranslationContext(
             (string) $shop['uuid'],
             (bool) $shop['is_default'],
-            (string) $shop['fallback_locale_uuid']
+            (string) $shop['fallback_translation_uuid']
         );
 
         $seoUrl = $this->urlResolver->getUrl($shop['uuid'], $pathInfo, $translationContext);
@@ -192,7 +200,8 @@ class Router implements RouterInterface, RequestMatcherInterface
         $url = $generator->generate($name, $parameters, $referenceType);
 
         if ($seoUrl) {
-            $url = str_replace($pathInfo, $seoUrl->getSeoPathInfo(), $url);
+            $seoPathInfo = '/' . ltrim($seoUrl->getSeoPathInfo(), '/');
+            $url = str_replace($pathInfo, $seoPathInfo, $url);
         }
 
         return rtrim($url, '/');
@@ -254,7 +263,7 @@ class Router implements RouterInterface, RequestMatcherInterface
         $translationContext = new TranslationContext(
             (string) $shop['uuid'],
             (bool) $shop['is_default'],
-            (string) $shop['fallback_locale_uuid']
+            (string) $shop['fallback_translation_uuid']
         );
 
         if (strpos($pathInfo, '/widgets/') !== false) {
@@ -326,6 +335,10 @@ class Router implements RouterInterface, RequestMatcherInterface
                 $this->container->get('routing.loader')->import($bundle->getPath() . '/Controller/', 'annotation')
             );
         }
+
+        $routeCollection->addCollection(
+            $this->apiCollector->collect()
+        );
 
         return $routeCollection;
     }

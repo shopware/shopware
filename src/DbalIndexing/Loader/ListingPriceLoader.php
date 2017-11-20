@@ -4,8 +4,8 @@ namespace Shopware\DbalIndexing\Loader;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\ProductListingPrice\Struct\ProductListingPriceBasicCollection;
-use Shopware\ProductListingPrice\Struct\ProductListingPriceBasicStruct;
+use Shopware\Product\Collection\ProductListingPriceBasicCollection;
+use Shopware\Product\Struct\ProductListingPriceBasicStruct;
 
 class ListingPriceLoader
 {

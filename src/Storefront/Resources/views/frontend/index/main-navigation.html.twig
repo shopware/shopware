@@ -16,12 +16,14 @@
 
                 {% block frontend_index_navigation_categories_top_before %}{% endblock %}
 
-                {% for category in navigation.tree %}
+                {% for treeItem in navigation.tree %}
+                    {% set category = treeItem.category %}
+
                     {% block frontend_index_navigation_categories_top_entry %}
                         {% if not category.hideTop %}
 
-                            {% if category.canonicalUrl %}
-                                {% set url = category.canonicalUrl.url %}
+                            {% if category.extensions.canonicalUrl %}
+                                {% set url = category.extensions.canonicalUrl.url %}
                             {% else %}
                                 {% set url = url('listing_page', { 'uuid': category.uuid }) %}
                             {% endif %}

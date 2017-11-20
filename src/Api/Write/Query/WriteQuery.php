@@ -25,10 +25,18 @@
 namespace Shopware\Api\Write\Query;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Entity\EntityDefinition;
 
 abstract class WriteQuery
 {
     abstract public function isExecutable(): bool;
 
     abstract public function execute(Connection $connection): int;
+
+    /**
+     * @return string|EntityDefinition
+     */
+    abstract public function getEntityDefinition(): string;
+
+    abstract public function getEntityPrimaryKey();
 }

@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\CartBridge\Rule\CustomerGroupRule;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
+use Shopware\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
 
 class CustomerGroupRuleTest extends TestCase

@@ -25,12 +25,12 @@
 namespace Shopware\CartBridge\Test\Validator\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\CartBridge\Rule\ShippingZipCodeRule;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Country\Struct\CountryBasicStruct;
+use Shopware\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
 
 class ShippingZipCodeRuleTest extends TestCase
@@ -103,7 +103,7 @@ class ShippingZipCodeRuleTest extends TestCase
 
         $context = $this->createMock(ShopContext::class);
 
-        $location = ShippingLocation::createFromCountry(new AreaCountryBasicStruct());
+        $location = ShippingLocation::createFromCountry(new CountryBasicStruct());
 
         $context->expects($this->any())
             ->method('getShippingLocation')
@@ -118,7 +118,7 @@ class ShippingZipCodeRuleTest extends TestCase
     {
         $address = new CustomerAddressBasicStruct();
         $address->setZipcode($code);
-        $address->setCountry(new AreaCountryBasicStruct());
+        $address->setCountry(new CountryBasicStruct());
 
         return $address;
     }

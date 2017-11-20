@@ -24,157 +24,121 @@
 
 namespace Shopware\Api\Write;
 
+use Shopware\Api\Entity\EntityDefinition;
+use Shopware\Api\Entity\Field\DateField;
+use Shopware\Api\Entity\Field\Field;
+use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\ReferenceField;
+use Shopware\Api\Entity\Field\SubresourceField;
+use Shopware\Api\Entity\Field\TranslatedField;
+use Shopware\Api\Entity\Field\UuidField;
+use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Write\DataStack\DataStack;
 use Shopware\Api\Write\DataStack\ExceptionNoStackItemFound;
 use Shopware\Api\Write\DataStack\KeyValuePair;
-use Shopware\Api\Write\Field\DateField;
-use Shopware\Api\Write\Field\Field;
-use Shopware\Api\Write\Field\FkField;
-use Shopware\Api\Write\Field\ReferenceField;
-use Shopware\Api\Write\Field\SubresourceField;
-use Shopware\Api\Write\Field\UuidField;
+use Shopware\Api\Write\FieldAware\DefinitionAware;
 use Shopware\Api\Write\FieldAware\ExceptionStackAware;
 use Shopware\Api\Write\FieldAware\FieldExtender;
 use Shopware\Api\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Api\Write\FieldAware\PathAware;
-use Shopware\Api\Write\FieldAware\ResourceAware;
 use Shopware\Api\Write\FieldAware\WriteContextAware;
 use Shopware\Api\Write\FieldAware\WriteQueryQueueAware;
 use Shopware\Api\Write\FieldException\FieldExceptionStack;
 use Shopware\Api\Write\FieldException\WriteFieldException;
+use Shopware\Api\Write\Flag\PrimaryKey;
 use Shopware\Api\Write\Flag\Required;
 use Shopware\Api\Write\Query\InsertQuery;
 use Shopware\Api\Write\Query\UpdateQuery;
 use Shopware\Api\Write\Query\WriteQueryQueue;
-use Shopware\Context\Struct\TranslationContext;
 
-abstract class WriteResource
+class WriteResource
 {
     const FOR_INSERT = 'insert';
 
     const FOR_UPDATE = 'update';
 
-    /**
-     * @var Field[]
-     */
-    protected $fields = [];
-
-    /**
-     * @var Field[]
-     */
-    protected $primaryKeyFields = [];
-
-    /**
-     * @var string
-     */
-    private $tableName;
-
-    /**
-     * @param string $tableName
-     */
-    public function __construct(string $tableName)
-    {
-        $this->tableName = $tableName;
-    }
-
-    abstract public function getWriteOrder(): array;
-
-    public function collectPrimaryKeys(
+    public static function collectPrimaryKeys(
         array $rawData,
+        string $definition,
         FieldExceptionStack $exceptionStack,
         WriteQueryQueue $queryQueue,
         WriteContext $writeContext,
-        FieldExtenderCollection $extenderCollection,
+        FieldExtenderCollection $extender,
         string $path = ''
-    ) {
-        $extenderCollection = clone $extenderCollection;
+    ): void {
+        $extender = clone $extender;
+        self::extendExtender($exceptionStack, $definition, $queryQueue, $writeContext, $extender, $path);
 
-        $this->extendExtender($exceptionStack, $queryQueue, $writeContext, $extenderCollection, $path);
+        /* @var EntityDefinition $definition */
+        $queryQueue->updateOrder($definition, ...$definition::getWriteOrder());
 
-        $queryQueue->updateOrder(get_class($this), ...$this->getWriteOrder());
+        $pkData = self::mapPrimaryKeys($definition::getPrimaryKeys(), $rawData, self::FOR_INSERT, $exceptionStack, $extender);
 
-        $pkData = $this->mapPrimaryKeys($this->primaryKeyFields, $rawData, self::FOR_INSERT, $exceptionStack, $extenderCollection);
+        $writeContext->addPrimaryKeyMapping($definition::getEntityName(), $pkData);
 
-        $writeContext->addPrimaryKeyMapping($this->tableName, $pkData);
-
-        $fields = array_filter(
-            $this->fields,
-            function(Field $field) {
-                return $field instanceof SubresourceField || $field instanceof FkField || $field instanceof ReferenceField;
+        $fields = $definition::getFields()->filter(
+            function (Field $field) {
+                return $field instanceof SubresourceField
+                    || $field instanceof FkField
+                    || $field instanceof ReferenceField
+                    || $field instanceof TranslatedField;
             }
         );
 
-        $this->mapPrimaryKeys($fields, $rawData, self::FOR_INSERT, $exceptionStack, $extenderCollection);
+        self::mapPrimaryKeys($fields, $rawData, self::FOR_INSERT, $exceptionStack, $extender);
     }
 
-    public function extract(
+    public static function extract(
         array $rawData,
+        string $definition,
         FieldExceptionStack $exceptionStack,
         WriteQueryQueue $queryQueue,
         WriteContext $writeContext,
-        FieldExtenderCollection $extenderCollection,
+        FieldExtenderCollection $extender,
         string $path = ''
     ): array {
-        $extenderCollection = clone $extenderCollection;
+        $extender = clone $extender;
+        self::extendExtender($exceptionStack, $definition, $queryQueue, $writeContext, $extender, $path);
 
-        $this->extendExtender($exceptionStack, $queryQueue, $writeContext, $extenderCollection, $path);
+        /* @var EntityDefinition $definition */
+        $queryQueue->updateOrder($definition, ...$definition::getWriteOrder());
 
-        $queryQueue->updateOrder(get_class($this), ...$this->getWriteOrder());
+        $pkData = self::map($definition::getPrimaryKeys(), $rawData, self::FOR_INSERT, $exceptionStack, $extender);
 
-        $pkData = $this->map($this->primaryKeyFields, $rawData, self::FOR_INSERT, $exceptionStack, $extenderCollection);
+        $type = self::determineQueryType($definition::getEntityName(), $writeContext, $pkData);
 
-        $type = $this->determineQueryType($writeContext, $pkData);
+        $rawData = self::integrateDefaults($definition, $rawData, $type);
 
-        $rawData = $this->integrateDefaults($rawData, $type);
+        $fields = $definition::getFields()->getWritableFields();
+        $fields = $fields->filter(function (Field $field) {
+            return !$field->is(PrimaryKey::class);
+        });
 
-        $data = $this->map($this->fields, $rawData, $type, $exceptionStack, $extenderCollection);
+        $data = self::map($fields, $rawData, $type, $exceptionStack, $extender);
 
-        $this->updateQueryStack($queryQueue, $type, $pkData, $data);
+        self::updateQueryStack($definition, $queryQueue, $type, $pkData, $data);
 
         return $pkData;
     }
 
-    public function getDefaults(string $type): array
+    private static function map(FieldCollection $fields, array $rawData, string $type, FieldExceptionStack $exceptionStack, FieldExtenderCollection $extender): array
     {
-        return [];
-    }
-
-    public static function createWrittenEvent(array $updates, TranslationContext $context, array $rawData = [], array $errors = [])
-    {
-    }
-
-    /**
-     * @param array               $fields
-     * @param array               $rawData
-     * @param string              $type
-     * @param FieldExceptionStack $exceptionStack
-     * @param FieldExtender       $fieldExtender
-     *
-     * @return array
-     */
-    protected function map(
-        array $fields,
-        array $rawData,
-        string $type,
-        FieldExceptionStack $exceptionStack,
-        FieldExtender $fieldExtender
-    ): array {
         $stack = new DataStack($rawData);
 
-        foreach ($fields as $key => $field) {
+        foreach ($fields as $field) {
             try {
-                $kvPair = $stack->pop($key);
+                $kvPair = $stack->pop($field->getPropertyName());
             } catch (ExceptionNoStackItemFound $e) {
                 if (!$field->is(Required::class) || $type === self::FOR_UPDATE) {
                     continue;
                 }
 
-                $kvPair = new KeyValuePair($key, null, true);
+                $kvPair = new KeyValuePair($field->getPropertyName(), null, true);
             }
 
-            $kvPair = $this->convertValue($field, $kvPair);
+            $kvPair = self::convertValue($field, $kvPair);
 
-            $fieldExtender->extend($field);
+            $extender->extend($field);
 
             try {
                 foreach ($field($type, $kvPair->getKey(), $kvPair->getValue()) as $fieldKey => $fieldValue) {
@@ -188,26 +152,14 @@ abstract class WriteResource
         return $stack->getResultAsArray();
     }
 
-    /**
-     * @param array               $fields
-     * @param array               $rawData
-     * @param string              $type
-     * @param FieldExceptionStack $exceptionStack
-     * @param FieldExtender       $fieldExtender
-     *
-     * @return array
-     */
-    protected function mapPrimaryKeys(
-        array $fields,
-        array $rawData,
-        string $type,
-        FieldExceptionStack $exceptionStack,
-        FieldExtender $fieldExtender
-    ): array {
+    private static function mapPrimaryKeys(FieldCollection $fields, array $rawData, string $type, FieldExceptionStack $exceptionStack, FieldExtenderCollection $extender): array
+    {
         $stack = new DataStack($rawData);
 
         /** @var UuidField|SubresourceField|FkField|ReferenceField $field */
-        foreach ($fields as $key => $field) {
+        foreach ($fields as $field) {
+            $key = $field->getPropertyName();
+
             try {
                 $kvPair = $stack->pop($key);
             } catch (ExceptionNoStackItemFound $e) {
@@ -218,9 +170,9 @@ abstract class WriteResource
                 $kvPair = new KeyValuePair($key, null, true);
             }
 
-            $kvPair = $this->convertValue($field, $kvPair);
+            $kvPair = self::convertValue($field, $kvPair);
 
-            $fieldExtender->extend($field);
+            $extender->extend($field);
 
             try {
                 if ($field instanceof SubresourceField || $field instanceof ReferenceField) {
@@ -240,85 +192,10 @@ abstract class WriteResource
         return $stack->getResultAsArray();
     }
 
-    /**
-     * @param FieldExceptionStack     $exceptionStack
-     * @param WriteQueryQueue         $queryQueue
-     * @param WriteContext            $writeContext
-     * @param FieldExtenderCollection $extenderCollection
-     * @param string                  $path
-     */
-    private function extendExtender(FieldExceptionStack $exceptionStack, WriteQueryQueue $queryQueue, WriteContext $writeContext, FieldExtenderCollection $extenderCollection, string $path): void
+    private static function integrateDefaults(string $definition, array $rawData, $type): array
     {
-        $extenderCollection->addExtender(new class($this, $writeContext, $queryQueue, $exceptionStack, $path) extends FieldExtender {
-            /**
-             * @var resource
-             */
-            private $resource;
-            /**
-             * @var WriteContext
-             */
-            private $writeContext;
-            /**
-             * @var WriteQueryQueue
-             */
-            private $queryQueue;
-            /**
-             * @var FieldExceptionStack
-             */
-            private $exceptionStack;
-            /**
-             * @var string
-             */
-            private $path;
-
-            public function __construct(
-                WriteResource $resource,
-                WriteContext $writeContext,
-                WriteQueryQueue $queryQueue,
-                FieldExceptionStack $exceptionStack,
-                string $path
-            ) {
-                $this->resource = $resource;
-                $this->writeContext = $writeContext;
-                $this->queryQueue = $queryQueue;
-                $this->exceptionStack = $exceptionStack;
-                $this->path = $path;
-            }
-
-            public function extend(Field $field): void
-            {
-                if ($field instanceof ResourceAware) {
-                    $field->setResource($this->resource);
-                }
-
-                if ($field instanceof WriteContextAware) {
-                    $field->setWriteContext($this->writeContext);
-                }
-
-                if ($field instanceof WriteQueryQueueAware) {
-                    $field->setWriteQueryQueue($this->queryQueue);
-                }
-
-                if ($field instanceof ExceptionStackAware) {
-                    $field->setExceptionStack($this->exceptionStack);
-                }
-
-                if ($field instanceof PathAware) {
-                    $field->setPath($this->path);
-                }
-            }
-        });
-    }
-
-    /**
-     * @param array $rawData
-     * @param $type
-     *
-     * @return array
-     */
-    private function integrateDefaults(array $rawData, $type): array
-    {
-        $defaults = $this->getDefaults($type);
+        /** @var EntityDefinition $definition */
+        $defaults = $definition::getDefaults($type);
 
         foreach ($defaults as $key => $value) {
             if (array_key_exists($key, $rawData)) {
@@ -331,40 +208,104 @@ abstract class WriteResource
         return $rawData;
     }
 
-    /**
-     * @param WriteContext  $context
-     * @param array         $pkData
-     *
-     * @return string
-     */
-    private function determineQueryType(WriteContext $writeContext, array $pkData): string
+    private static function determineQueryType(string $tableName, WriteContext $writeContext, array $pkData): string
     {
-        $exists = $writeContext->primaryKeyExists($this->tableName, $pkData);
+        $exists = $writeContext->primaryKeyExists($tableName, $pkData);
 
         return $exists ? self::FOR_UPDATE : self::FOR_INSERT;
     }
 
-    /**
-     * @param WriteQueryQueue $queryQueue
-     * @param string          $type
-     * @param array           $pkData
-     * @param array           $data
-     */
-    private function updateQueryStack(WriteQueryQueue $queryQueue, string $type, array $pkData, array $data): void
+    private static function updateQueryStack(string $definition, WriteQueryQueue $queryQueue, string $type, array $pkData, array $data): void
     {
+        /* @var EntityDefinition $definition */
         if ($type === self::FOR_UPDATE) {
-            $queryQueue->add(get_class($this), new UpdateQuery($this->tableName, $pkData, $data));
+            $queryQueue->add($definition, new UpdateQuery($definition, $pkData, $data));
         } else {
-            $queryQueue->add(get_class($this), new InsertQuery($this->tableName, array_merge($pkData, $data)));
+            $queryQueue->add($definition, new InsertQuery($definition, array_merge($pkData, $data)));
         }
     }
 
-    private function convertValue(Field $field, KeyValuePair $kvPair): KeyValuePair
+    private static function convertValue(Field $field, KeyValuePair $kvPair): KeyValuePair
     {
         if ($field instanceof DateField && is_string($kvPair->getValue())) {
             $kvPair = new KeyValuePair($kvPair->getKey(), new \DateTime($kvPair->getValue()), $kvPair->isRaw());
         }
 
         return $kvPair;
+    }
+
+    private static function extendExtender(
+        FieldExceptionStack $exceptionStack,
+        string $definition,
+        WriteQueryQueue $queryQueue,
+        WriteContext $writeContext,
+        FieldExtenderCollection $extenderCollection,
+        string $path
+    ): void {
+        $extenderCollection->addExtender(
+            new class($definition, $writeContext, $queryQueue, $exceptionStack, $path) extends FieldExtender {
+                /**
+                 * @var WriteContext
+                 */
+                private $writeContext;
+
+                /**
+                 * @var WriteQueryQueue
+                 */
+                private $queryQueue;
+
+                /**
+                 * @var FieldExceptionStack
+                 */
+                private $exceptionStack;
+
+                /**
+                 * @var string
+                 */
+                private $path;
+
+                /**
+                 * @var string
+                 */
+                private $definition;
+
+                public function __construct(
+                    string $definition,
+                    WriteContext $writeContext,
+                    WriteQueryQueue $queryQueue,
+                    FieldExceptionStack $exceptionStack,
+                    string $path
+                ) {
+                    $this->writeContext = $writeContext;
+                    $this->queryQueue = $queryQueue;
+                    $this->exceptionStack = $exceptionStack;
+                    $this->path = $path;
+                    $this->definition = $definition;
+                }
+
+                public function extend(Field $field): void
+                {
+                    if ($field instanceof DefinitionAware) {
+                        $field->setDefinition($this->definition);
+                    }
+
+                    if ($field instanceof WriteContextAware) {
+                        $field->setWriteContext($this->writeContext);
+                    }
+
+                    if ($field instanceof WriteQueryQueueAware) {
+                        $field->setWriteQueryQueue($this->queryQueue);
+                    }
+
+                    if ($field instanceof ExceptionStackAware) {
+                        $field->setExceptionStack($this->exceptionStack);
+                    }
+
+                    if ($field instanceof PathAware) {
+                        $field->setPath($this->path);
+                    }
+                }
+            }
+        );
     }
 }

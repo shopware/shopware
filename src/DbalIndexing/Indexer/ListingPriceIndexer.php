@@ -8,7 +8,7 @@ use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Search\Criteria;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\CustomerGroup\Repository\CustomerGroupRepository;
+use Shopware\Customer\Repository\CustomerGroupRepository;
 use Shopware\DbalIndexing\Common\RepositoryIterator;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
@@ -16,16 +16,16 @@ use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\DbalIndexing\Loader\ListingPriceLoader;
 use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Product\Event\ProductWrittenEvent;
+use Shopware\Product\Collection\ProductListingPriceBasicCollection;
+use Shopware\Product\Event\Product\ProductWrittenEvent;
 use Shopware\Product\Repository\ProductRepository;
-use Shopware\ProductListingPrice\Struct\ProductListingPriceBasicCollection;
-use Shopware\ProductListingPrice\Struct\ProductListingPriceBasicStruct;
+use Shopware\Product\Struct\ProductListingPriceBasicStruct;
 use Shopware\Storefront\Context\StorefrontContextService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingPriceIndexer implements IndexerInterface
 {
-    const TABLE = 'product_listing_price_ro';
+    const TABLE = 'product_listing_price';
 
     /**
      * @var ProductRepository
@@ -116,7 +116,7 @@ class ListingPriceIndexer implements IndexerInterface
         $customerGroups = $this->customerGroupRepository->searchUuids(new Criteria(), $context);
 
         $this->connection->executeUpdate(
-            'DELETE FROM product_listing_price_ro WHERE product_uuid IN (:uuids)',
+            'DELETE FROM product_listing_price WHERE product_uuid IN (:uuids)',
             ['uuids' => $uuids],
             ['uuids' => Connection::PARAM_STR_ARRAY]
         );

@@ -2,77 +2,12 @@
 
 namespace Shopware\Shop\Struct;
 
+use Shopware\Api\Entity\Entity;
 use Shopware\Currency\Struct\CurrencyBasicStruct;
-use Shopware\Framework\Struct\Struct;
 use Shopware\Locale\Struct\LocaleBasicStruct;
 
-class ShopBasicStruct extends Struct
+class ShopBasicStruct extends Entity
 {
-    /**
-     * @var string
-     */
-    protected $uuid;
-
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var string|null
-     */
-    protected $title;
-
-    /**
-     * @var int
-     */
-    protected $position;
-
-    /**
-     * @var string
-     */
-    protected $host;
-
-    /**
-     * @var string
-     */
-    protected $basePath;
-
-    /**
-     * @var string
-     */
-    protected $baseUrl;
-
-    /**
-     * @var string|null
-     */
-    protected $hosts;
-
-    /**
-     * @var bool
-     */
-    protected $isSecure;
-
-    /**
-     * @var bool
-     */
-    protected $customerScope;
-
-    /**
-     * @var bool
-     */
-    protected $isDefault;
-
-    /**
-     * @var bool
-     */
-    protected $active;
-
-    /**
-     * @var string
-     */
-    protected $taxCalculationType;
-
     /**
      * @var string|null
      */
@@ -111,7 +46,7 @@ class ShopBasicStruct extends Struct
     /**
      * @var string|null
      */
-    protected $fallbackLocaleUuid;
+    protected $fallbackTranslationUuid;
 
     /**
      * @var string|null
@@ -126,7 +61,67 @@ class ShopBasicStruct extends Struct
     /**
      * @var string|null
      */
-    protected $areaCountryUuid;
+    protected $countryUuid;
+
+    /**
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * @var int
+     */
+    protected $position;
+
+    /**
+     * @var string
+     */
+    protected $host;
+
+    /**
+     * @var string
+     */
+    protected $basePath;
+
+    /**
+     * @var string
+     */
+    protected $baseUrl;
+
+    /**
+     * @var string|null
+     */
+    protected $title;
+
+    /**
+     * @var string|null
+     */
+    protected $hosts;
+
+    /**
+     * @var bool
+     */
+    protected $isSecure;
+
+    /**
+     * @var bool
+     */
+    protected $customerScope;
+
+    /**
+     * @var bool
+     */
+    protected $isDefault;
+
+    /**
+     * @var bool
+     */
+    protected $active;
+
+    /**
+     * @var string
+     */
+    protected $taxCalculationType;
 
     /**
      * @var \DateTime|null
@@ -139,144 +134,14 @@ class ShopBasicStruct extends Struct
     protected $updatedAt;
 
     /**
-     * @var CurrencyBasicStruct
-     */
-    protected $currency;
-
-    /**
      * @var LocaleBasicStruct
      */
     protected $locale;
 
-    public function getUuid(): string
-    {
-        return $this->uuid;
-    }
-
-    public function setUuid(string $uuid): void
-    {
-        $this->uuid = $uuid;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
-    public function setTitle(?string $title): void
-    {
-        $this->title = $title;
-    }
-
-    public function getPosition(): int
-    {
-        return $this->position;
-    }
-
-    public function setPosition(int $position): void
-    {
-        $this->position = $position;
-    }
-
-    public function getHost(): string
-    {
-        return $this->host;
-    }
-
-    public function setHost(string $host): void
-    {
-        $this->host = $host;
-    }
-
-    public function getBasePath(): string
-    {
-        return $this->basePath;
-    }
-
-    public function setBasePath(?string $basePath): void
-    {
-        $this->basePath = rtrim((string) $basePath, '/') . '/';
-    }
-
-    public function getBaseUrl(): string
-    {
-        return $this->baseUrl;
-    }
-
-    public function setBaseUrl(?string $baseUrl): void
-    {
-        $this->baseUrl = rtrim((string) $baseUrl, '/') . '/';
-    }
-
-    public function getHosts(): ?string
-    {
-        return $this->hosts;
-    }
-
-    public function setHosts(?string $hosts): void
-    {
-        $this->hosts = $hosts;
-    }
-
-    public function getIsSecure(): bool
-    {
-        return $this->isSecure;
-    }
-
-    public function setIsSecure(bool $isSecure): void
-    {
-        $this->isSecure = $isSecure;
-    }
-
-    public function getCustomerScope(): bool
-    {
-        return $this->customerScope;
-    }
-
-    public function setCustomerScope(bool $customerScope): void
-    {
-        $this->customerScope = $customerScope;
-    }
-
-    public function getIsDefault(): bool
-    {
-        return $this->isDefault;
-    }
-
-    public function setIsDefault(bool $isDefault): void
-    {
-        $this->isDefault = $isDefault;
-    }
-
-    public function getActive(): bool
-    {
-        return $this->active;
-    }
-
-    public function setActive(bool $active): void
-    {
-        $this->active = $active;
-    }
-
-    public function getTaxCalculationType(): string
-    {
-        return $this->taxCalculationType;
-    }
-
-    public function setTaxCalculationType(string $taxCalculationType): void
-    {
-        $this->taxCalculationType = $taxCalculationType;
-    }
+    /**
+     * @var CurrencyBasicStruct
+     */
+    protected $currency;
 
     public function getParentUuid(): ?string
     {
@@ -348,14 +213,14 @@ class ShopBasicStruct extends Struct
         $this->customerGroupUuid = $customerGroupUuid;
     }
 
-    public function getFallbackLocaleUuid(): ?string
+    public function getFallbackTranslationUuid(): ?string
     {
-        return $this->fallbackLocaleUuid;
+        return $this->fallbackTranslationUuid;
     }
 
-    public function setFallbackLocaleUuid(?string $fallbackLocaleUuid): void
+    public function setFallbackTranslationUuid(?string $fallbackTranslationUuid): void
     {
-        $this->fallbackLocaleUuid = $fallbackLocaleUuid;
+        $this->fallbackTranslationUuid = $fallbackTranslationUuid;
     }
 
     public function getPaymentMethodUuid(): ?string
@@ -378,14 +243,134 @@ class ShopBasicStruct extends Struct
         $this->shippingMethodUuid = $shippingMethodUuid;
     }
 
-    public function getAreaCountryUuid(): ?string
+    public function getCountryUuid(): ?string
     {
-        return $this->areaCountryUuid;
+        return $this->countryUuid;
     }
 
-    public function setAreaCountryUuid(?string $areaCountryUuid): void
+    public function setCountryUuid(?string $countryUuid): void
     {
-        $this->areaCountryUuid = $areaCountryUuid;
+        $this->countryUuid = $countryUuid;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
+    }
+
+    public function getHost(): string
+    {
+        return $this->host;
+    }
+
+    public function setHost(string $host): void
+    {
+        $this->host = $host;
+    }
+
+    public function getBasePath(): string
+    {
+        return $this->basePath;
+    }
+
+    public function setBasePath(string $basePath): void
+    {
+        $this->basePath = $basePath;
+    }
+
+    public function getBaseUrl(): string
+    {
+        return $this->baseUrl;
+    }
+
+    public function setBaseUrl(string $baseUrl): void
+    {
+        $this->baseUrl = $baseUrl;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): void
+    {
+        $this->title = $title;
+    }
+
+    public function getHosts(): ?string
+    {
+        return $this->hosts;
+    }
+
+    public function setHosts(?string $hosts): void
+    {
+        $this->hosts = $hosts;
+    }
+
+    public function getIsSecure(): bool
+    {
+        return $this->isSecure;
+    }
+
+    public function setIsSecure(bool $isSecure): void
+    {
+        $this->isSecure = $isSecure;
+    }
+
+    public function getCustomerScope(): bool
+    {
+        return $this->customerScope;
+    }
+
+    public function setCustomerScope(bool $customerScope): void
+    {
+        $this->customerScope = $customerScope;
+    }
+
+    public function getIsDefault(): bool
+    {
+        return $this->isDefault;
+    }
+
+    public function setIsDefault(bool $isDefault): void
+    {
+        $this->isDefault = $isDefault;
+    }
+
+    public function getActive(): bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): void
+    {
+        $this->active = $active;
+    }
+
+    public function getTaxCalculationType(): string
+    {
+        return $this->taxCalculationType;
+    }
+
+    public function setTaxCalculationType(string $taxCalculationType): void
+    {
+        $this->taxCalculationType = $taxCalculationType;
     }
 
     public function getCreatedAt(): ?\DateTime
@@ -408,16 +393,6 @@ class ShopBasicStruct extends Struct
         $this->updatedAt = $updatedAt;
     }
 
-    public function getCurrency(): CurrencyBasicStruct
-    {
-        return $this->currency;
-    }
-
-    public function setCurrency(CurrencyBasicStruct $currency): void
-    {
-        $this->currency = $currency;
-    }
-
     public function getLocale(): LocaleBasicStruct
     {
         return $this->locale;
@@ -426,5 +401,15 @@ class ShopBasicStruct extends Struct
     public function setLocale(LocaleBasicStruct $locale): void
     {
         $this->locale = $locale;
+    }
+
+    public function getCurrency(): CurrencyBasicStruct
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(CurrencyBasicStruct $currency): void
+    {
+        $this->currency = $currency;
     }
 }

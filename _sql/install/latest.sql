@@ -8,7 +8,6 @@ DROP TABLE IF EXISTS `seo_url`;
 CREATE TABLE `seo_url` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `seo_hash` char(40) COLLATE utf8mb4_unicode_ci NOT NULL,
   `shop_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `foreign_key` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,

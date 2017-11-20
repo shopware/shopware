@@ -2,19 +2,24 @@
 
 namespace Shopware\Locale\Struct;
 
-use Shopware\Framework\Struct\Struct;
+use Shopware\Api\Entity\Entity;
 
-class LocaleBasicStruct extends Struct
+class LocaleBasicStruct extends Entity
 {
     /**
      * @var string
      */
-    protected $uuid;
+    protected $code;
 
     /**
      * @var string
      */
-    protected $code;
+    protected $name;
+
+    /**
+     * @var string
+     */
+    protected $territory;
 
     /**
      * @var \DateTime|null
@@ -26,26 +31,6 @@ class LocaleBasicStruct extends Struct
      */
     protected $updatedAt;
 
-    /**
-     * @var string
-     */
-    protected $language;
-
-    /**
-     * @var string
-     */
-    protected $territory;
-
-    public function getUuid(): string
-    {
-        return $this->uuid;
-    }
-
-    public function setUuid(string $uuid): void
-    {
-        $this->uuid = $uuid;
-    }
-
     public function getCode(): string
     {
         return $this->code;
@@ -54,6 +39,26 @@ class LocaleBasicStruct extends Struct
     public function setCode(string $code): void
     {
         $this->code = $code;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function getTerritory(): string
+    {
+        return $this->territory;
+    }
+
+    public function setTerritory(string $territory): void
+    {
+        $this->territory = $territory;
     }
 
     public function getCreatedAt(): ?\DateTime
@@ -74,25 +79,5 @@ class LocaleBasicStruct extends Struct
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-    }
-
-    public function getLanguage(): string
-    {
-        return $this->language;
-    }
-
-    public function setLanguage(string $language): void
-    {
-        $this->language = $language;
-    }
-
-    public function getTerritory(): string
-    {
-        return $this->territory;
-    }
-
-    public function setTerritory(string $territory): void
-    {
-        $this->territory = $territory;
     }
 }

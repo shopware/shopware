@@ -10,34 +10,36 @@
 
         {% block frontend_index_categories_left_before %}{% endblock %}
 
-        {% for category in categories %}
+        {% for treeItem in categories %}
+            {% set category = treeItem.category %}
+            {% set children = treeItem.children %}
 
             {# @var category \Shopware\Category\Struct\CategoryBasicStruct #}
-            {% if category.canonicalUrl %}
-                {% set url = category.canonicalUrl.url %}
+            {% if category.extensions.canonicalUrl %}
+                {% set url = category.extensions.canonicalUrl.url %}
             {% else %}
                 {% set url = url('listing_page', { 'uuid': category.uuid }) %}
             {% endif %}
 
             {% block frontend_index_categories_left_entry %}
                 {# @var navigation \Shopware\Storefront\Navigation\Navigation #}
-                <li class="navigation--entry{% if navigation.isCategorySelected(category) %} is--active{% endif %}{% if category.children %} has--sub-categories{% endif %}{% if category.children|length > 0 %} has--sub-children{% endif %}" role="menuitem">
-                    <a class="navigation--link{% if navigation.isCategorySelected(category) %} is--active{% endif %}{% if category.children %} has--sub-categories{% endif %}{% if category.children|length > 0 %} link--go-forward{% endif %}"
+                <li class="navigation--entry{% if navigation.isCategorySelected(category) %} is--active{% endif %}{% if children %} has--sub-categories{% endif %}{% if children|length > 0 %} has--sub-children{% endif %}" role="menuitem">
+                    <a class="navigation--link{% if navigation.isCategorySelected(category) %} is--active{% endif %}{% if children %} has--sub-categories{% endif %}{% if children|length > 0 %} link--go-forward{% endif %}"
                        href="{{ url }}"
                        data-categoryId="{{ category.uuid }}"
                        data-fetchUrl="{url module=widgets controller=listing action=getCategory categoryId={$category.id}}"
                        title="{{ category.name|escape }}">
                         {{  category.name }}
 
-                        {% if category.children|length > 0 %}
+                        {% if children|length > 0 %}
                             <span class="is--icon-right">
                                 <i class="icon--arrow-right"></i>
                             </span>
                         {% endif %}
                     </a>
                     {% block frontend_index_categories_left_entry_subcategories %}
-                        {% if category.children|length > 0 %}
-                            {{ menu.categories(navigation, category.children, level + 1) }}
+                        {% if children|length > 0 %}
+                            {{ menu.categories(navigation, children, level + 1) }}
                         {% endif %}
                     {% endblock %}
                 </li>

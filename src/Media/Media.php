@@ -40,7 +40,6 @@ class Media extends Bundle
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('services.xml');
-        $loader->load('read-services.xml');
-        $loader->load('write-resources.xml');
+        $loader->load('api.xml');
     }
 }

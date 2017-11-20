@@ -26,27 +26,20 @@ abstract class WrittenEvent extends NestedEvent
     /**
      * @var array
      */
-    protected $rawData;
-
-    /**
-     * @var string[]
-     */
     protected $uuids = [];
 
     public function __construct(
         array $uuids,
         TranslationContext $context,
-        array $rawData = [],
         array $errors = []
     ) {
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
-        $this->rawData = $rawData;
         $this->uuids = $uuids;
     }
 
-    abstract public function getEntityName(): string;
+    abstract public function getDefinition(): string;
 
     public function getContext(): TranslationContext
     {
@@ -56,11 +49,6 @@ abstract class WrittenEvent extends NestedEvent
     public function getErrors(): array
     {
         return $this->errors;
-    }
-
-    public function getRawData(): array
-    {
-        return $this->rawData;
     }
 
     public function getUuids(): array

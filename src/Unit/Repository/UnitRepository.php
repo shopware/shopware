@@ -2,133 +2,153 @@
 
 namespace Shopware\Unit\Repository;
 
-use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\Read\EntityReaderInterface;
 use Shopware\Api\RepositoryInterface;
 use Shopware\Api\Search\AggregationResult;
 use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\EntityAggregatorInterface;
+use Shopware\Api\Search\EntitySearcherInterface;
 use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\EntityWriterInterface;
 use Shopware\Api\Write\GenericWrittenEvent;
-use Shopware\Api\Write\WriterInterface;
+use Shopware\Api\Write\WriteContext;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Unit\Event\UnitBasicLoadedEvent;
-use Shopware\Unit\Event\UnitWrittenEvent;
-use Shopware\Unit\Searcher\UnitSearchResult;
-use Shopware\Unit\Struct\UnitBasicCollection;
+use Shopware\Unit\Collection\UnitBasicCollection;
+use Shopware\Unit\Collection\UnitDetailCollection;
+use Shopware\Unit\Definition\UnitDefinition;
+use Shopware\Unit\Event\Unit\UnitAggregationResultLoadedEvent;
+use Shopware\Unit\Event\Unit\UnitBasicLoadedEvent;
+use Shopware\Unit\Event\Unit\UnitDetailLoadedEvent;
+use Shopware\Unit\Event\Unit\UnitSearchResultLoadedEvent;
+use Shopware\Unit\Event\Unit\UnitUuidSearchResultLoadedEvent;
+use Shopware\Unit\Struct\UnitSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UnitRepository implements RepositoryInterface
 {
     /**
-     * @var BasicReaderInterface
+     * @var EntityReaderInterface
      */
-    private $basicReader;
+    private $reader;
+
+    /**
+     * @var EntityWriterInterface
+     */
+    private $writer;
+
+    /**
+     * @var EntitySearcherInterface
+     */
+    private $searcher;
+
+    /**
+     * @var EntityAggregatorInterface
+     */
+    private $aggregator;
 
     /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
-    /**
-     * @var SearcherInterface
-     */
-    private $searcher;
-
-    /**
-     * @var WriterInterface
-     */
-    private $writer;
-
     public function __construct(
-        BasicReaderInterface $basicReader,
-        EventDispatcherInterface $eventDispatcher,
-        SearcherInterface $searcher,
-        WriterInterface $writer
+        EntityReaderInterface $reader,
+        EntityWriterInterface $writer,
+        EntitySearcherInterface $searcher,
+        EntityAggregatorInterface $aggregator,
+        EventDispatcherInterface $eventDispatcher
     ) {
-        $this->basicReader = $basicReader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->searcher = $searcher;
+        $this->reader = $reader;
         $this->writer = $writer;
-    }
-
-    public function readBasic(array $uuids, TranslationContext $context): UnitBasicCollection
-    {
-        if (empty($uuids)) {
-            return new UnitBasicCollection();
-        }
-
-        /** @var UnitBasicCollection $collection */
-        $collection = $this->basicReader->readBasic($uuids, $context);
-
-        $this->eventDispatcher->dispatch(
-            UnitBasicLoadedEvent::NAME,
-            new UnitBasicLoadedEvent($collection, $context)
-        );
-
-        return $collection;
-    }
-
-    public function readDetail(array $uuids, TranslationContext $context): UnitBasicCollection
-    {
-        return $this->readBasic($uuids, $context);
+        $this->searcher = $searcher;
+        $this->aggregator = $aggregator;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function search(Criteria $criteria, TranslationContext $context): UnitSearchResult
     {
-        /** @var UnitSearchResult $result */
-        $result = $this->searcher->search($criteria, $context);
+        $uuids = $this->searchUuids($criteria, $context);
 
-        $this->eventDispatcher->dispatch(
-            UnitBasicLoadedEvent::NAME,
-            new UnitBasicLoadedEvent($result, $context)
-        );
+        $entities = $this->readBasic($uuids->getUuids(), $context);
+
+        $aggregations = null;
+        if ($criteria->getAggregations()) {
+            $aggregations = $this->aggregate($criteria, $context);
+        }
+
+        $result = UnitSearchResult::createFromResults($uuids, $entities, $aggregations);
+
+        $event = new UnitSearchResultLoadedEvent($result);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
+        return $result;
+    }
+
+    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    {
+        $result = $this->aggregator->aggregate(UnitDefinition::class, $criteria, $context);
+
+        $event = new UnitAggregationResultLoadedEvent($result);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
     public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
     {
-        return $this->searcher->searchUuids($criteria, $context);
-    }
+        $result = $this->searcher->search(UnitDefinition::class, $criteria, $context);
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
-    {
-        $result = $this->searcher->aggregate($criteria, $context);
+        $event = new UnitUuidSearchResultLoadedEvent($result);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function getEntityName(): string
+    public function readBasic(array $uuids, TranslationContext $context): UnitBasicCollection
     {
-        return 'unit';
+        /** @var UnitBasicCollection $entities */
+        $entities = $this->reader->readBasic(UnitDefinition::class, $uuids, $context);
+
+        $event = new UnitBasicLoadedEvent($entities, $context);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
+        return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): UnitWrittenEvent
+    public function readDetail(array $uuids, TranslationContext $context): UnitDetailCollection
     {
-        $event = $this->writer->update($data, $context);
+        /** @var UnitDetailCollection $entities */
+        $entities = $this->reader->readDetail(UnitDefinition::class, $uuids, $context);
 
-        $container = new GenericWrittenEvent($event, $context);
-        $this->eventDispatcher->dispatch($container::NAME, $container);
+        $event = new UnitDetailLoadedEvent($entities, $context);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
+        return $entities;
+    }
+
+    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    {
+        $affected = $this->writer->update(UnitDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $event = GenericWrittenEvent::createFromWriterResult($affected, $context, []);
+        $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): UnitWrittenEvent
+    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
     {
-        $event = $this->writer->upsert($data, $context);
-
-        $container = new GenericWrittenEvent($event, $context);
-        $this->eventDispatcher->dispatch($container::NAME, $container);
+        $affected = $this->writer->upsert(UnitDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $event = GenericWrittenEvent::createFromWriterResult($affected, $context, []);
+        $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): UnitWrittenEvent
+    public function create(array $data, TranslationContext $context): GenericWrittenEvent
     {
-        $event = $this->writer->create($data, $context);
-
-        $container = new GenericWrittenEvent($event, $context);
-        $this->eventDispatcher->dispatch($container::NAME, $container);
+        $affected = $this->writer->insert(UnitDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $event = GenericWrittenEvent::createFromWriterResult($affected, $context, []);
+        $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }

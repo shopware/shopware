@@ -24,6 +24,7 @@ class ApiContextValueResolver implements ArgumentValueResolverInterface
         $outputFormat = $request->get(self::OUTPUT_FORMAT_PARAMETER_NAME);
         $resultFormat = $request->get(self::RESULT_FORMAT_PARAMETER_NAME, ResultFormat::BASIC);
 
+        $outputFormat = 'json';
         $payload = $this->getPayload($request, $outputFormat);
         $parameters = $request->query;
         $shopContext = $request->attributes->get(ShopSubscriber::SHOP_CONTEXT_PROPERTY);

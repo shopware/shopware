@@ -2,19 +2,23 @@
 
 namespace Shopware\Api;
 
-use Shopware\Api\Read\BasicReaderInterface;
-use Shopware\Api\Read\DetailReaderInterface;
+use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\SearcherInterface;
 use Shopware\Api\Search\SearchResultInterface;
 use Shopware\Api\Search\UuidSearchResult;
-use Shopware\Api\Write\WriterInterface;
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Write\GenericWrittenEvent;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Struct\Collection;
 
-interface RepositoryInterface extends SearcherInterface, BasicReaderInterface, DetailReaderInterface, WriterInterface
+interface RepositoryInterface
 {
+    /**
+     * @param Criteria           $criteria
+     * @param TranslationContext $context
+     *
+     * @return AggregationResult
+     */
+    public function aggregate(Criteria $criteria, TranslationContext $context);
+
     /**
      * @param Criteria           $criteria
      * @param TranslationContext $context
@@ -35,7 +39,7 @@ interface RepositoryInterface extends SearcherInterface, BasicReaderInterface, D
      * @param array              $uuids
      * @param TranslationContext $context
      *
-     * @return Collection
+     * @return EntityCollection
      */
     public function readBasic(array $uuids, TranslationContext $context);
 
@@ -43,33 +47,13 @@ interface RepositoryInterface extends SearcherInterface, BasicReaderInterface, D
      * @param array              $uuids
      * @param TranslationContext $context
      *
-     * @return Collection
+     * @return EntityCollection
      */
     public function readDetail(array $uuids, TranslationContext $context);
 
-    /**
-     * @param array              $data
-     * @param TranslationContext $context
-     *
-     * @return \Shopware\Api\Write\WrittenEvent
-     */
-    public function update(array $data, TranslationContext $context);
+    public function update(array $data, TranslationContext $context): GenericWrittenEvent;
 
-    /**
-     * @param array              $data
-     * @param TranslationContext $context
-     *
-     * @return \Shopware\Api\Write\WrittenEvent
-     */
-    public function upsert(array $data, TranslationContext $context);
+    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent;
 
-    /**
-     * @param array              $data
-     * @param TranslationContext $context
-     *
-     * @return WrittenEvent
-     */
-    public function create(array $data, TranslationContext $context);
-
-    public function getEntityName(): string;
+    public function create(array $data, TranslationContext $context): GenericWrittenEvent;
 }

@@ -16,7 +16,7 @@ $kernel->boot();
 function createWriteContext(): \Shopware\Api\Write\WriteContext
 {
     $context = new \Shopware\Api\Write\WriteContext();
-    $context->set(\Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid', 'SWAG-SHOP-UUID-1');
+    $context->set(\Shopware\Shop\Definition\ShopDefinition::class, 'uuid', 'SWAG-SHOP-UUID-1');
     return $context;
 }
 
@@ -27,27 +27,23 @@ $con = $container->get('dbal_connection');
 $con->executeUpdate('DELETE FROM product');
 
 echo "\nPreparing\n\n";
-$writer = $container->get('shopware.framework.write.writer');
+$writer = $container->get('shopware.api.entity_writer');
 
 echo "\nInserting\n\n";
 $measurement = new Measurement();
 $measurement->start(count($products));
 
-$size = 250;
+$size = 50;
 $products = array_chunk($products, $size);
 
 foreach ($products as $i => $product) {
     echo $measurement->tick($i * $size) . "\n";
 
-    $extender = new \Shopware\Api\Write\FieldAware\FieldExtenderCollection();
-    $extender->addExtender($kernel->getContainer()->get('shopware.framework.write.field_aware.default_extender'));
-
     try {
         $writer->insert(
-            \Shopware\Product\Writer\Resource\ProductWriteResource::class,
+            \Shopware\Product\Definition\ProductDefinition::class,
             $product,
-            createWriteContext(),
-            $extender
+            createWriteContext()
         );
 
     } catch (\Exception $e) {

@@ -1,0 +1,59 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Order\Event\OrderStateTranslation;
+
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Order\Collection\OrderStateTranslationDetailCollection;
+use Shopware\Order\Event\OrderState\OrderStateBasicLoadedEvent;
+use Shopware\Shop\Event\Shop\ShopBasicLoadedEvent;
+
+class OrderStateTranslationDetailLoadedEvent extends NestedEvent
+{
+    const NAME = 'order_state_translation.detail.loaded';
+
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    /**
+     * @var OrderStateTranslationDetailCollection
+     */
+    protected $orderStateTranslations;
+
+    public function __construct(OrderStateTranslationDetailCollection $orderStateTranslations, TranslationContext $context)
+    {
+        $this->context = $context;
+        $this->orderStateTranslations = $orderStateTranslations;
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
+    }
+
+    public function getOrderStateTranslations(): OrderStateTranslationDetailCollection
+    {
+        return $this->orderStateTranslations;
+    }
+
+    public function getEvents(): ?NestedEventCollection
+    {
+        $events = [];
+        if ($this->orderStateTranslations->getOrderStates()->count() > 0) {
+            $events[] = new OrderStateBasicLoadedEvent($this->orderStateTranslations->getOrderStates(), $this->context);
+        }
+        if ($this->orderStateTranslations->getLanguages()->count() > 0) {
+            $events[] = new ShopBasicLoadedEvent($this->orderStateTranslations->getLanguages(), $this->context);
+        }
+
+        return new NestedEventCollection($events);
+    }
+}

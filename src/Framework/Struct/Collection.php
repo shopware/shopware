@@ -32,7 +32,7 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
      */
     protected $elements = [];
 
-    private $_pointer;
+    protected $_pointer;
 
     /**
      * @param array $elements
@@ -48,7 +48,7 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
         array_map([$this, 'add'], $elements);
     }
 
-    public function clear(): void
+    public function clear()
     {
         $this->elements = [];
         $this->_pointer = 0;

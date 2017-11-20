@@ -5,15 +5,17 @@ namespace Shopware\Category\Extension;
 use Doctrine\DBAL\Connection;
 use Shopware\Api\Search\Criteria;
 use Shopware\Api\Search\Query\TermQuery;
+use Shopware\Category\Collection\CategoryBasicCollection;
+use Shopware\Category\Event\Category\CategoryWrittenEvent;
 use Shopware\Category\Repository\CategoryRepository;
-use Shopware\Category\Struct\CategoryBasicCollection;
 use Shopware\Category\Struct\CategoryBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class CategoryPathBuilder
+class CategoryPathBuilder implements EventSubscriberInterface
 {
     /**
      * @var CategoryRepository
@@ -37,6 +39,24 @@ class CategoryPathBuilder
         $this->eventDispatcher = $eventDispatcher;
     }
 
+    public static function getSubscribedEvents()
+    {
+        return [
+            CategoryWrittenEvent::NAME => 'categoryWritten',
+        ];
+    }
+
+    public function categoryWritten(CategoryWrittenEvent $event): void
+    {
+        $context = new TranslationContext('SWAG-SHOP-UUID-1', true, null);
+
+        $parentUuids = $this->fetchParentIds($event->getUuids());
+
+        foreach ($parentUuids as $uuid) {
+            $this->update($uuid, $context);
+        }
+    }
+
     public function update(string $parentUuid, TranslationContext $context): void
     {
         $parents = $this->loadParents($parentUuid, $context);
@@ -49,11 +69,8 @@ class CategoryPathBuilder
         );
     }
 
-    private function updateRecursive(
-        CategoryBasicStruct $parent,
-        CategoryBasicCollection $parents,
-        TranslationContext $context
-    ): void {
+    private function updateRecursive(CategoryBasicStruct $parent, CategoryBasicCollection $parents, TranslationContext $context): void
+    {
         $categories = $this->updateByParent($parent, $parents, $context);
         foreach ($categories as $category) {
             $nestedParents = clone $parents;
@@ -62,11 +79,8 @@ class CategoryPathBuilder
         }
     }
 
-    private function updateByParent(
-        CategoryBasicStruct $parent,
-        CategoryBasicCollection $parents,
-        TranslationContext $context
-    ): CategoryBasicCollection {
+    private function updateByParent(CategoryBasicStruct $parent, CategoryBasicCollection $parents, TranslationContext $context): CategoryBasicCollection
+    {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('category.parentUuid', $parent->getUuid()));
         $categories = $this->repository->search($criteria, $context);
@@ -114,11 +128,23 @@ class CategoryPathBuilder
         $parent = $parents->get($parentUuid);
 
         if ($parent->getParentUuid() !== null) {
-            $parents = $parents->merge(
+            $parents->merge(
                 $this->loadParents($parent->getParentUuid(), $context)
             );
         }
 
         return $parents;
+    }
+
+    private function fetchParentIds(array $uuids): array
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->select(['parent_uuid']);
+        $query->from('category');
+        $query->where('category.uuid IN (:uuids)');
+        $query->setParameter('uuids', $uuids, Connection::PARAM_STR_ARRAY);
+        $parents = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
+
+        return array_filter($parents);
     }
 }

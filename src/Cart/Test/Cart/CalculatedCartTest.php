@@ -37,7 +37,6 @@ use Shopware\Cart\Price\Struct\CartPrice;
 use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Cart\Test\Common\ConfiguredLineItem;
 
 class CalculatedCartTest extends TestCase
 {
@@ -74,7 +73,7 @@ class CalculatedCartTest extends TestCase
             new CartContainer('test', 'test', new LineItemCollection(), new ErrorCollection()),
             new CalculatedLineItemCollection([
                 new CalculatedLineItem('A', new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()), 1, 'A'),
-                new CalculatedLineItem('B', new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()), 1, 'B')
+                new CalculatedLineItem('B', new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()), 1, 'B'),
             ]),
             new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
             new DeliveryCollection()
@@ -86,5 +85,4 @@ class CalculatedCartTest extends TestCase
 
 class ConfiguredGoods extends CalculatedLineItem implements GoodsInterface
 {
-
 }

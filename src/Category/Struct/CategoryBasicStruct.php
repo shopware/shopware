@@ -2,23 +2,28 @@
 
 namespace Shopware\Category\Struct;
 
-use Shopware\Framework\Struct\Struct;
-use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
+use Shopware\Api\Entity\Entity;
+use Shopware\Media\Struct\MediaBasicStruct;
 
-class CategoryBasicStruct extends Struct
+class CategoryBasicStruct extends Entity
 {
-    /**
-     * @var string
-     */
-    protected $uuid;
-
     /**
      * @var string|null
      */
     protected $parentUuid;
 
     /**
-     * @var array
+     * @var string|null
+     */
+    protected $mediaUuid;
+
+    /**
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * @var string|null
      */
     protected $path;
 
@@ -65,11 +70,6 @@ class CategoryBasicStruct extends Struct
     /**
      * @var string|null
      */
-    protected $mediaUuid;
-
-    /**
-     * @var string|null
-     */
     protected $productBoxLayout;
 
     /**
@@ -103,12 +103,7 @@ class CategoryBasicStruct extends Struct
     protected $updatedAt;
 
     /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var array
+     * @var string|null
      */
     protected $pathNames;
 
@@ -138,24 +133,9 @@ class CategoryBasicStruct extends Struct
     protected $cmsDescription;
 
     /**
-     * @var SeoUrlBasicStruct|null
+     * @var MediaBasicStruct|null
      */
-    protected $canonicalUrl;
-
-    /**
-     * @var CategoryBasicStruct[]
-     */
-    protected $children = [];
-
-    public function getUuid(): string
-    {
-        return $this->uuid;
-    }
-
-    public function setUuid(string $uuid): void
-    {
-        $this->uuid = $uuid;
-    }
+    protected $media;
 
     public function getParentUuid(): ?string
     {
@@ -167,12 +147,32 @@ class CategoryBasicStruct extends Struct
         $this->parentUuid = $parentUuid;
     }
 
-    public function getPath(): array
+    public function getMediaUuid(): ?string
+    {
+        return $this->mediaUuid;
+    }
+
+    public function setMediaUuid(?string $mediaUuid): void
+    {
+        $this->mediaUuid = $mediaUuid;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function getPath(): ?string
     {
         return $this->path;
     }
 
-    public function setPath(array $path): void
+    public function setPath(?string $path): void
     {
         $this->path = $path;
     }
@@ -257,16 +257,6 @@ class CategoryBasicStruct extends Struct
         $this->hideTop = $hideTop;
     }
 
-    public function getMediaUuid(): ?string
-    {
-        return $this->mediaUuid;
-    }
-
-    public function setMediaUuid(?string $mediaUuid): void
-    {
-        $this->mediaUuid = $mediaUuid;
-    }
-
     public function getProductBoxLayout(): ?string
     {
         return $this->productBoxLayout;
@@ -337,22 +327,12 @@ class CategoryBasicStruct extends Struct
         $this->updatedAt = $updatedAt;
     }
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
-    public function getPathNames(): array
+    public function getPathNames(): ?string
     {
         return $this->pathNames;
     }
 
-    public function setPathNames(array $pathNames): void
+    public function setPathNames(?string $pathNames): void
     {
         $this->pathNames = $pathNames;
     }
@@ -407,23 +387,18 @@ class CategoryBasicStruct extends Struct
         $this->cmsDescription = $cmsDescription;
     }
 
-    public function setChildren(array $children)
+    public function getMedia(): ?MediaBasicStruct
     {
-        $this->children = $children;
+        return $this->media;
     }
 
-    public function getChildren(): array
+    public function setMedia(?MediaBasicStruct $media): void
     {
-        return $this->children;
+        $this->media = $media;
     }
 
-    public function getCanonicalUrl(): ?SeoUrlBasicStruct
+    public function getPathArray(): array
     {
-        return $this->canonicalUrl;
-    }
-
-    public function setCanonicalUrl(?SeoUrlBasicStruct $canonicalUrl): void
-    {
-        $this->canonicalUrl = $canonicalUrl;
+        return array_filter(explode('|', (string) $this->path));
     }
 }

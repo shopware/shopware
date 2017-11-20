@@ -1,0 +1,8 @@
+
+    public function sortByPosition(): CategoryBasicCollection
+    {
+        $this->sort(function(CategoryBasicStruct $a, CategoryBasicStruct $b) {
+            return $a->getPosition() <=> $b->getPosition();
+        });
+        return $this;
+    }

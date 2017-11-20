@@ -2,10 +2,17 @@
 
 namespace Shopware\Media\Extension;
 
-use Shopware\Media\Event\MediaBasicLoadedEvent;
+use Shopware\Api\Entity\EntityExtensionInterface;
+use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Write\Flag\Deferred;
+use Shopware\Api\Write\Flag\ReadOnly;
+use Shopware\Media\Definition\MediaDefinition;
+use Shopware\Media\Event\Media\MediaBasicLoadedEvent;
 use Shopware\Media\UrlGeneratorInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class UrlExtension extends MediaFactoryExtension
+class UrlExtension implements EntityExtensionInterface, EventSubscriberInterface
 {
     /**
      * @var UrlGeneratorInterface
@@ -17,7 +24,26 @@ class UrlExtension extends MediaFactoryExtension
         $this->urlGenerator = $urlGenerator;
     }
 
-    public function mediaBasicLoaded(MediaBasicLoadedEvent $event): void
+    public function extendFields(FieldCollection $collection)
+    {
+        $collection->add(
+            (new StringField('url', 'url'))->setFlags(new Deferred(), new ReadOnly())
+        );
+    }
+
+    public function getDefinitionClass(): string
+    {
+        return MediaDefinition::class;
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return [
+            MediaBasicLoadedEvent::NAME => 'mediaLoaded',
+        ];
+    }
+
+    public function mediaLoaded(MediaBasicLoadedEvent $event): void
     {
         foreach ($event->getMedia() as $media) {
             $media->setUrl($this->urlGenerator->getUrl($media->getFileName()));

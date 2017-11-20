@@ -10,14 +10,13 @@ use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Product\Collection\ProductBasicCollection;
+use Shopware\Product\Collection\ProductListingPriceBasicCollection;
+use Shopware\Product\Collection\ProductPriceBasicCollection;
+use Shopware\Product\Repository\ProductMediaRepository;
 use Shopware\Product\Repository\ProductRepository;
-use Shopware\Product\Searcher\ProductSearchResult;
-use Shopware\Product\Struct\ProductBasicCollection;
-use Shopware\ProductListingPrice\Struct\ProductListingPriceBasicCollection;
-use Shopware\ProductMedia\Repository\ProductMediaRepository;
-use Shopware\ProductMedia\Searcher\ProductMediaSearchResult;
-use Shopware\ProductPrice\Struct\ProductDetailPriceBasicCollection;
-use Shopware\ProductPrice\Struct\ProductPriceBasicCollection;
+use Shopware\Product\Struct\ProductMediaSearchResult;
+use Shopware\Product\Struct\ProductSearchResult;
 use Shopware\Storefront\Bridge\Product\Struct\ProductBasicStruct;
 
 class StorefrontProductRepository
@@ -49,61 +48,24 @@ class StorefrontProductRepository
 
     public function read(array $uuids, ShopContext $context): ProductBasicCollection
     {
-        $products = $this->repository->readBasic($uuids, $context->getTranslationContext());
+        $basics = $this->repository->readBasic($uuids, $context->getTranslationContext());
 
-        $media = $this->fetchMedia($uuids, $context);
-
-        $listingProducts = new ProductBasicCollection();
-
-        foreach ($products as $base) {
-            $product = ProductBasicStruct::createFrom($base);
-
-            $taxRules = new TaxRuleCollection([
-                new PercentageTaxRule($product->getTax()->getRate(), 100),
-            ]);
-
-            $product->setPrices(
-                $this->calculatePrices(
-                    $taxRules,
-                    $this->filterCustomerPrices($product->getPrices(), $context),
-                    $context
-                )
-            );
-            $product->setListingPrices(
-                $this->calculatePrices(
-                    $taxRules,
-                    $this->filterCustomerPrices($product->getListingPrices(), $context),
-                    $context
-                )
-            );
-
-            $product->setMedia($media->filterByProductUuid($product->getUuid()));
-
-            $listingProducts->add($product);
-        }
-
-        return $listingProducts;
+        return $this->loadListProducts($basics, $context);
     }
 
     public function search(Criteria $criteria, ShopContext $context): ProductSearchResult
     {
-        $uuids = $this->repository->searchUuids($criteria, $context->getTranslationContext());
+        $basics = $this->repository->search($criteria, $context->getTranslationContext());
 
-        $products = $this->read($uuids->getUuids(), $context);
+        $listProducts = $this->loadListProducts($basics, $context);
 
-        $result = new ProductSearchResult($products->getElements());
-        $result->setTotal($uuids->getTotal());
+        $basics->clear();
+        $basics->fill($listProducts->getElements());
 
-        return $result;
+        return $basics;
     }
 
-    /**
-     * @param array       $uuids
-     * @param ShopContext $context
-     *
-     * @return ProductMediaSearchResult
-     */
-    protected function fetchMedia(array $uuids, ShopContext $context): ProductMediaSearchResult
+    private function fetchMedia(array $uuids, ShopContext $context): ProductMediaSearchResult
     {
         /** @var ProductMediaSearchResult $media */
         $criteria = new Criteria();
@@ -115,8 +77,8 @@ class StorefrontProductRepository
     }
 
     /**
-     * @param ProductDetailPriceBasicCollection|ProductListingPriceBasicCollection $prices
-     * @param ShopContext                                                          $context
+     * @param ProductPriceBasicCollection|ProductListingPriceBasicCollection $prices
+     * @param ShopContext                                                    $context
      *
      * @return ProductDetailPriceBasicCollection|ProductListingPriceBasicCollection
      */
@@ -153,5 +115,44 @@ class StorefrontProductRepository
         }
 
         return $prices;
+    }
+
+    private function loadListProducts(ProductBasicCollection $products, ShopContext $context): ProductBasicCollection
+    {
+        $media = $this->fetchMedia($products->getUuids(), $context);
+
+        $listingProducts = new ProductBasicCollection();
+
+        foreach ($products as $base) {
+            /** @var ProductBasicStruct $product */
+            $product = ProductBasicStruct::createFrom($base);
+
+            $taxRules = new TaxRuleCollection([
+                new PercentageTaxRule($product->getTax()->getRate(), 100),
+            ]);
+
+            $product->setPrices(
+                $this->calculatePrices(
+                    $taxRules,
+                    $this->filterCustomerPrices($product->getPrices(), $context),
+                    $context
+                )
+            );
+            $product->setListingPrices(
+                $this->calculatePrices(
+                    $taxRules,
+                    $this->filterCustomerPrices($product->getListingPrices(), $context),
+                    $context
+                )
+            );
+
+            $product->setMedia(
+                $media->filterByProductUuid($product->getUuid())
+            );
+
+            $listingProducts->add($product);
+        }
+
+        return $listingProducts;
     }
 }

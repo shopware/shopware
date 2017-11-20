@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Price\Struct;
 
-
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Framework\Struct\Collection;

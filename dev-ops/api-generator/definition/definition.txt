@@ -1,0 +1,80 @@
+<?php
+
+namespace Shopware\#BundleName#\Definition;
+
+use Shopware\Api\Entity\EntityDefinition;
+use Shopware\Api\Entity\EntityExtensionInterface;
+use Shopware\Api\Entity\FieldCollection;
+use Shopware\#BundleName#\Repository\#TableDomainNameUc#Repository;
+use Shopware\#BundleName#\Collection\#TableDomainNameUc#BasicCollection;
+use Shopware\#BundleName#\Struct\#TableDomainNameUc#BasicStruct;
+use Shopware\#BundleName#\Event\#TableDomainNameUc#\#TableDomainNameUc#WrittenEvent;
+#uses#
+
+class #TableDomainNameUc#Definition extends EntityDefinition
+{
+    /**
+     * @var FieldCollection
+     */
+    protected static $primaryKeys;
+
+    /**
+     * @var FieldCollection
+     */
+    protected static $fields;
+
+    /**
+     * @var EntityExtensionInterface[]
+     */
+    protected static $extensions = [];
+
+    public static function getEntityName(): string
+    {
+        return '#table#';
+    }
+
+    public static function getFields(): FieldCollection
+    {
+        if (self::$fields) {
+            return self::$fields;
+        }
+
+        self::$fields = new FieldCollection([
+            #fields#
+        ]);
+
+        foreach (self::$extensions as $extension) {
+            $extension->extendFields(self::$fields);
+        }
+
+        return self::$fields;
+    }
+
+    public static function getRepositoryClass(): string
+    {
+        return #TableDomainNameUc#Repository::class;
+    }
+
+    public static function getBasicCollectionClass(): string
+    {
+        return #TableDomainNameUc#BasicCollection::class;
+    }
+
+    public static function getWrittenEventClass(): string
+    {
+        return #TableDomainNameUc#WrittenEvent::class;
+    }
+
+    public static function getBasicStructClass(): string
+    {
+        return #TableDomainNameUc#BasicStruct::class;
+    }
+
+    public static function getTranslationDefinitionClass(): ?string
+    {
+        return #TranslationDefinition#;
+    }
+
+#detailFunctions#
+#injection#
+}

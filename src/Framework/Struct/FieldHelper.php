@@ -548,7 +548,7 @@ class FieldHelper
             'shop.locale_uuid as __shop_locale_uuid',
             'shop.currency_uuid as __shop_currency_uuid',
             'shop.customer_group_uuid as __shop_customer_group_uuid',
-            'shop.fallback_locale_uuid as __shop_fallback_locale_uuid',
+            'shop.fallback_translation_uuid as __shop_fallback_translation_uuid',
             'shop.payment_method_uuid as __shop_payment_method_uuid',
             'shop.shipping_method_uuid as __shop_shipping_method_uuid',
             'shop.area_country_uuid as __shop_area_country_uuid',

@@ -2,133 +2,153 @@
 
 namespace Shopware\Tax\Repository;
 
-use Shopware\Api\Read\BasicReaderInterface;
+use Shopware\Api\Read\EntityReaderInterface;
 use Shopware\Api\RepositoryInterface;
 use Shopware\Api\Search\AggregationResult;
 use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\EntityAggregatorInterface;
+use Shopware\Api\Search\EntitySearcherInterface;
 use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\EntityWriterInterface;
 use Shopware\Api\Write\GenericWrittenEvent;
-use Shopware\Api\Write\WriterInterface;
+use Shopware\Api\Write\WriteContext;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Tax\Event\TaxBasicLoadedEvent;
-use Shopware\Tax\Event\TaxWrittenEvent;
-use Shopware\Tax\Searcher\TaxSearchResult;
-use Shopware\Tax\Struct\TaxBasicCollection;
+use Shopware\Tax\Collection\TaxBasicCollection;
+use Shopware\Tax\Collection\TaxDetailCollection;
+use Shopware\Tax\Definition\TaxDefinition;
+use Shopware\Tax\Event\Tax\TaxAggregationResultLoadedEvent;
+use Shopware\Tax\Event\Tax\TaxBasicLoadedEvent;
+use Shopware\Tax\Event\Tax\TaxDetailLoadedEvent;
+use Shopware\Tax\Event\Tax\TaxSearchResultLoadedEvent;
+use Shopware\Tax\Event\Tax\TaxUuidSearchResultLoadedEvent;
+use Shopware\Tax\Struct\TaxSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class TaxRepository implements RepositoryInterface
 {
     /**
-     * @var BasicReaderInterface
+     * @var EntityReaderInterface
      */
-    private $basicReader;
+    private $reader;
+
+    /**
+     * @var EntityWriterInterface
+     */
+    private $writer;
+
+    /**
+     * @var EntitySearcherInterface
+     */
+    private $searcher;
+
+    /**
+     * @var EntityAggregatorInterface
+     */
+    private $aggregator;
 
     /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
-    /**
-     * @var SearcherInterface
-     */
-    private $searcher;
-
-    /**
-     * @var WriterInterface
-     */
-    private $writer;
-
     public function __construct(
-        BasicReaderInterface $basicReader,
-        EventDispatcherInterface $eventDispatcher,
-        SearcherInterface $searcher,
-        WriterInterface $writer
+        EntityReaderInterface $reader,
+        EntityWriterInterface $writer,
+        EntitySearcherInterface $searcher,
+        EntityAggregatorInterface $aggregator,
+        EventDispatcherInterface $eventDispatcher
     ) {
-        $this->basicReader = $basicReader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->searcher = $searcher;
+        $this->reader = $reader;
         $this->writer = $writer;
-    }
-
-    public function readBasic(array $uuids, TranslationContext $context): TaxBasicCollection
-    {
-        if (empty($uuids)) {
-            return new TaxBasicCollection();
-        }
-
-        /** @var TaxBasicCollection $collection */
-        $collection = $this->basicReader->readBasic($uuids, $context);
-
-        $this->eventDispatcher->dispatch(
-            TaxBasicLoadedEvent::NAME,
-            new TaxBasicLoadedEvent($collection, $context)
-        );
-
-        return $collection;
-    }
-
-    public function readDetail(array $uuids, TranslationContext $context): TaxBasicCollection
-    {
-        return $this->readBasic($uuids, $context);
+        $this->searcher = $searcher;
+        $this->aggregator = $aggregator;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function search(Criteria $criteria, TranslationContext $context): TaxSearchResult
     {
-        /** @var TaxSearchResult $result */
-        $result = $this->searcher->search($criteria, $context);
+        $uuids = $this->searchUuids($criteria, $context);
 
-        $this->eventDispatcher->dispatch(
-            TaxBasicLoadedEvent::NAME,
-            new TaxBasicLoadedEvent($result, $context)
-        );
+        $entities = $this->readBasic($uuids->getUuids(), $context);
+
+        $aggregations = null;
+        if ($criteria->getAggregations()) {
+            $aggregations = $this->aggregate($criteria, $context);
+        }
+
+        $result = TaxSearchResult::createFromResults($uuids, $entities, $aggregations);
+
+        $event = new TaxSearchResultLoadedEvent($result);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
+        return $result;
+    }
+
+    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    {
+        $result = $this->aggregator->aggregate(TaxDefinition::class, $criteria, $context);
+
+        $event = new TaxAggregationResultLoadedEvent($result);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
     public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
     {
-        return $this->searcher->searchUuids($criteria, $context);
-    }
+        $result = $this->searcher->search(TaxDefinition::class, $criteria, $context);
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
-    {
-        $result = $this->searcher->aggregate($criteria, $context);
+        $event = new TaxUuidSearchResultLoadedEvent($result);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function getEntityName(): string
+    public function readBasic(array $uuids, TranslationContext $context): TaxBasicCollection
     {
-        return 'tax';
+        /** @var TaxBasicCollection $entities */
+        $entities = $this->reader->readBasic(TaxDefinition::class, $uuids, $context);
+
+        $event = new TaxBasicLoadedEvent($entities, $context);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
+        return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): TaxWrittenEvent
+    public function readDetail(array $uuids, TranslationContext $context): TaxDetailCollection
     {
-        $event = $this->writer->update($data, $context);
+        /** @var TaxDetailCollection $entities */
+        $entities = $this->reader->readDetail(TaxDefinition::class, $uuids, $context);
 
-        $container = new GenericWrittenEvent($event, $context);
-        $this->eventDispatcher->dispatch($container::NAME, $container);
+        $event = new TaxDetailLoadedEvent($entities, $context);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
+        return $entities;
+    }
+
+    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    {
+        $affected = $this->writer->update(TaxDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $event = GenericWrittenEvent::createFromWriterResult($affected, $context, []);
+        $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): TaxWrittenEvent
+    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
     {
-        $event = $this->writer->upsert($data, $context);
-
-        $container = new GenericWrittenEvent($event, $context);
-        $this->eventDispatcher->dispatch($container::NAME, $container);
+        $affected = $this->writer->upsert(TaxDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $event = GenericWrittenEvent::createFromWriterResult($affected, $context, []);
+        $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): TaxWrittenEvent
+    public function create(array $data, TranslationContext $context): GenericWrittenEvent
     {
-        $event = $this->writer->create($data, $context);
-
-        $container = new GenericWrittenEvent($event, $context);
-        $this->eventDispatcher->dispatch($container::NAME, $container);
+        $affected = $this->writer->insert(TaxDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $event = GenericWrittenEvent::createFromWriterResult($affected, $context, []);
+        $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }

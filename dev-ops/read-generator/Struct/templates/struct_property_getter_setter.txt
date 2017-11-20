@@ -1,9 +1,0 @@
-    public function get#nameUc#(): #type#
-    {
-        return $this->#nameLc#;
-    }
-
-    public function set#nameUc#(#type# $#nameLc#): void
-    {
-        $this->#nameLc# = $#nameLc#;
-    }

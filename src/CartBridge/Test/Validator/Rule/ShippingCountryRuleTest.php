@@ -25,13 +25,13 @@
 namespace Shopware\CartBridge\Test\Validator\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\Rule\Exception\UnsupportedOperatorException;
 use Shopware\CartBridge\Rule\ShippingCountryRule;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Country\Struct\Country;
+use Shopware\Country\Struct\CountryBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
 
 class ShippingCountryRuleTest extends TestCase
@@ -44,7 +44,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $context = $this->createMock(ShopContext::class);
 
-        $country = new AreaCountryBasicStruct();
+        $country = new CountryBasicStruct();
         $country->setUuid('SWAG-AREA-COUNTRY-UUID-1');
 
         $context->expects($this->any())
@@ -64,7 +64,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $context = $this->createMock(ShopContext::class);
 
-        $country = new AreaCountryBasicStruct();
+        $country = new CountryBasicStruct();
         $country->setUuid('SWAG-AREA-COUNTRY-UUID-1');
 
         $context->expects($this->any())
@@ -84,7 +84,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $context = $this->createMock(ShopContext::class);
 
-        $country = new AreaCountryBasicStruct();
+        $country = new CountryBasicStruct();
         $country->setUuid('SWAG-AREA-COUNTRY-UUID-2');
 
         $context->expects($this->any())
@@ -104,7 +104,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $context = $this->createMock(ShopContext::class);
 
-        $country = new AreaCountryBasicStruct();
+        $country = new CountryBasicStruct();
         $country->setUuid('SWAG-AREA-COUNTRY-UUID-2');
 
         $context->expects($this->any())
@@ -131,7 +131,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $context = $this->createMock(ShopContext::class);
 
-        $country = new AreaCountryBasicStruct();
+        $country = new CountryBasicStruct();
         $country->setUuid('SWAG-AREA-COUNTRY-UUID-2');
 
         $context->expects($this->any())
@@ -149,7 +149,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $context = $this->createMock(ShopContext::class);
 
-        $country = new AreaCountryBasicStruct();
+        $country = new CountryBasicStruct();
         $country->setUuid('SWAG-AREA-COUNTRY-UUID-2');
 
         $context->expects($this->any())

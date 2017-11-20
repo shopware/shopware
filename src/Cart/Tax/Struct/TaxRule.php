@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Tax\Struct;
 
-
 use Shopware\Framework\Struct\Struct;
 
 class TaxRule extends Struct implements TaxRuleInterface

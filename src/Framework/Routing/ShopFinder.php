@@ -116,7 +116,7 @@ class ShopFinder
             'shop.locale_uuid',
             'shop.currency_uuid',
             'shop.customer_group_uuid',
-            'shop.fallback_locale_uuid',
+            'shop.fallback_translation_uuid',
             'shop.customer_scope',
             'shop.is_default',
             'shop.active',

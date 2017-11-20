@@ -26,8 +26,8 @@ declare(strict_types=1);
 namespace Shopware\CartBridge\Rule\Collector;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Cart\CollectorInterface;
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Rule\RuleCollection;
 use Shopware\Cart\Rule\Validatable;
 use Shopware\CartBridge\Rule\Data\LastOrderRuleData;

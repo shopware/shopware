@@ -28,8 +28,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\CartBridge\Rule\BillingStreetRule;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Customer\Struct\CustomerBasicStruct;
-use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
 
 class BillingStreetRuleTest extends TestCase

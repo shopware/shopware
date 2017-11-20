@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\Voucher\Struct;
 
-use Shopware\CartBridge\Voucher\Struct\VoucherData;
 use Shopware\Framework\Struct\Collection;
 
 class VoucherDataCollection extends Collection

@@ -5986,7 +5986,7 @@ TRUNCATE TABLE `s_core_sessions_backend`;
 TRUNCATE TABLE `s_core_shops`;
 INSERT INTO `s_core_shops` (`id`, `main_id`, `name`, `title`, `position`, `host`, `base_path`, `base_url`, `hosts`, `secure`, `template_id`, `document_template_id`, `category_id`, `locale_id`, `currency_id`, `customer_group_id`, `fallback_id`, `customer_scope`, `default`, `active`, payment_id, dispatch_id, country_id) VALUES
 (1, NULL, 'Deutsch', NULL, 0, NULL, NULL, NULL, '', 0, 11, 11, 3, 1, 1, 1, NULL, 0, 1, 1, 3, 9, 2),
-(2, 1, 'English', 'English', 0, NULL, NULL, NULL, '', 0, NULL, NULL, 39, 2, 1, 1, 2, 0, 0, 1, 3, 9 ,2);
+(2, 1, 'English', 'English', 0, NULL, NULL, NULL, '', 0, NULL, NULL, 39, 2, 1, 1, 1, 0, 0, 1, 3, 9 ,2);
 
 TRUNCATE TABLE `s_core_shop_currencies`;
 INSERT INTO `s_core_shop_currencies` (`shop_id`, `currency_id`) VALUES

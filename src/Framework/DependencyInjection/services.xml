@@ -41,6 +41,7 @@
             <argument type="service" id="shopware.framework.routing.url_resolver" />
             <argument type="service" id="shopware.framework.routing.shop_finder" />
             <argument id="shopware.cache" type="service"/>
+            <argument type="service" id="shopware.api.route_collector"/>
         </service>
 
         <service class="Shopware\Framework\Struct\FieldHelper" id="shopware.framework.struct.field_helper">
@@ -77,13 +78,8 @@
         </service>
 
         <service class="Shopware\Framework\Routing\UrlResolver" id="shopware.framework.routing.url_resolver">
-            <argument id="shopware.seo_url.repository" type="service"/>
+            <argument type="service" id="Shopware\Seo\Repository\SeoUrlRepository"/>
         </service>
-
-        <!-- Validator -->
-        <service id="shopware.validation.constraint_builder" class="Shopware\Framework\Validation\ConstraintBuilder"/>
-
-        <service class="Shopware\Framework\Struct\AttributeHydrator" id="shopware.framework.struct.attribute_hydrator"/>
 
         <!-- Pluginsystem -->
         <service id="shopware.framework.plugin.manager" class="Shopware\Framework\Plugin\PluginManager">

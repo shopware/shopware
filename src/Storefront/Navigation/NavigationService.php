@@ -28,7 +28,8 @@ use Shopware\Api\Search\Criteria;
 use Shopware\Api\Search\Query\TermQuery;
 use Shopware\Api\Search\Query\TermsQuery;
 use Shopware\Category\Repository\CategoryRepository;
-use Shopware\Category\Searcher\CategorySearchResult;
+use Shopware\Category\Struct\CategorySearchResult;
+use Shopware\Category\Tree\TreeBuilder;
 use Shopware\Context\Struct\ShopContext;
 
 class NavigationService
@@ -50,7 +51,7 @@ class NavigationService
 
         $systemCategory = $context->getShop()->getCategory();
 
-        $uuids = array_merge($activeCategory->getPath(), [$activeCategory->getUuid()]);
+        $uuids = array_merge($activeCategory->getPathArray(), [$activeCategory->getUuid()]);
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('category.parentUuid', $uuids));
@@ -59,7 +60,10 @@ class NavigationService
         /** @var CategorySearchResult $categories */
         $categories = $this->repository->search($criteria, $context->getTranslationContext());
 
-        $tree = $categories->sortByPosition()->getTree($systemCategory->getUuid());
+        $tree = TreeBuilder::buildTree(
+            $systemCategory->getUuid(),
+            $categories->sortByPosition()
+        );
 
         return new Navigation($activeCategory, $tree);
     }

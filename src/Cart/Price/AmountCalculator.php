@@ -28,9 +28,9 @@ namespace Shopware\Cart\Price;
 use Shopware\Cart\Price\Struct\CartPrice;
 use Shopware\Cart\Price\Struct\PriceCollection;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Cart\Tax\TaxAmountCalculatorInterface;
 use Shopware\Cart\Tax\TaxDetector;
-use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Context\Struct\ShopContext;
 
 class AmountCalculator

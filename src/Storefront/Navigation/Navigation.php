@@ -25,11 +25,12 @@
 namespace Shopware\Storefront\Navigation;
 
 use Shopware\Category\Struct\CategoryBasicStruct;
+use Shopware\Category\Tree\TreeItem;
 
 class Navigation
 {
     /**
-     * @var CategoryBasicStruct[]
+     * @var TreeItem[]
      */
     protected $tree;
 
@@ -50,7 +51,7 @@ class Navigation
             return true;
         }
 
-        return in_array($category->getUuid(), $this->activeCategory->getPath(), true);
+        return in_array($category->getUuid(), $this->activeCategory->getPathArray(), true);
     }
 
     public function getTree(): array

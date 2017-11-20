@@ -2,10 +2,10 @@
 
 namespace Shopware\Product\Struct;
 
-use Shopware\Category\Struct\CategoryBasicCollection;
-use Shopware\ProductMedia\Struct\ProductMediaBasicCollection;
-use Shopware\ProductVote\Struct\ProductVoteBasicCollection;
-use Shopware\ProductVoteAverage\Struct\ProductVoteAverageBasicCollection;
+use Shopware\Category\Collection\CategoryBasicCollection;
+use Shopware\Product\Collection\ProductMediaBasicCollection;
+use Shopware\Product\Collection\ProductStreamBasicCollection;
+use Shopware\Product\Collection\ProductTranslationBasicCollection;
 
 class ProductDetailStruct extends ProductBasicStruct
 {
@@ -13,6 +13,11 @@ class ProductDetailStruct extends ProductBasicStruct
      * @var ProductMediaBasicCollection
      */
     protected $media;
+
+    /**
+     * @var ProductTranslationBasicCollection
+     */
+    protected $translations;
 
     /**
      * @var string[]
@@ -35,22 +40,50 @@ class ProductDetailStruct extends ProductBasicStruct
     protected $categoryTree;
 
     /**
-     * @var ProductVoteBasicCollection
+     * @var string[]
      */
-    protected $votes;
+    protected $seoCategoryUuids = [];
 
     /**
-     * @var ProductVoteAverageBasicCollection
+     * @var CategoryBasicCollection
      */
-    protected $voteAverages;
+    protected $seoCategories;
+
+    /**
+     * @var string[]
+     */
+    protected $tabUuids = [];
+
+    /**
+     * @var ProductStreamBasicCollection
+     */
+    protected $tabs;
+
+    /**
+     * @var string[]
+     */
+    protected $streamUuids = [];
+
+    /**
+     * @var ProductStreamBasicCollection
+     */
+    protected $streams;
 
     public function __construct()
     {
         $this->media = new ProductMediaBasicCollection();
+
+        $this->translations = new ProductTranslationBasicCollection();
+
         $this->categories = new CategoryBasicCollection();
+
         $this->categoryTree = new CategoryBasicCollection();
-        $this->votes = new ProductVoteBasicCollection();
-        $this->voteAverages = new ProductVoteAverageBasicCollection();
+
+        $this->seoCategories = new CategoryBasicCollection();
+
+        $this->tabs = new ProductStreamBasicCollection();
+
+        $this->streams = new ProductStreamBasicCollection();
     }
 
     public function getMedia(): ProductMediaBasicCollection
@@ -61,6 +94,16 @@ class ProductDetailStruct extends ProductBasicStruct
     public function setMedia(ProductMediaBasicCollection $media): void
     {
         $this->media = $media;
+    }
+
+    public function getTranslations(): ProductTranslationBasicCollection
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(ProductTranslationBasicCollection $translations): void
+    {
+        $this->translations = $translations;
     }
 
     public function getCategoryUuids(): array
@@ -103,23 +146,63 @@ class ProductDetailStruct extends ProductBasicStruct
         $this->categoryTree = $categoryTree;
     }
 
-    public function getVotes(): ProductVoteBasicCollection
+    public function getSeoCategoryUuids(): array
     {
-        return $this->votes;
+        return $this->seoCategoryUuids;
     }
 
-    public function setVotes(ProductVoteBasicCollection $votes): void
+    public function setSeoCategoryUuids(array $seoCategoryUuids): void
     {
-        $this->votes = $votes;
+        $this->seoCategoryUuids = $seoCategoryUuids;
     }
 
-    public function getVoteAverages(): ProductVoteAverageBasicCollection
+    public function getSeoCategories(): CategoryBasicCollection
     {
-        return $this->voteAverages;
+        return $this->seoCategories;
     }
 
-    public function setVoteAverages(ProductVoteAverageBasicCollection $voteAverages): void
+    public function setSeoCategories(CategoryBasicCollection $seoCategories): void
     {
-        $this->voteAverages = $voteAverages;
+        $this->seoCategories = $seoCategories;
+    }
+
+    public function getTabUuids(): array
+    {
+        return $this->tabUuids;
+    }
+
+    public function setTabUuids(array $tabUuids): void
+    {
+        $this->tabUuids = $tabUuids;
+    }
+
+    public function getTabs(): ProductStreamBasicCollection
+    {
+        return $this->tabs;
+    }
+
+    public function setTabs(ProductStreamBasicCollection $tabs): void
+    {
+        $this->tabs = $tabs;
+    }
+
+    public function getStreamUuids(): array
+    {
+        return $this->streamUuids;
+    }
+
+    public function setStreamUuids(array $streamUuids): void
+    {
+        $this->streamUuids = $streamUuids;
+    }
+
+    public function getStreams(): ProductStreamBasicCollection
+    {
+        return $this->streams;
+    }
+
+    public function setStreams(ProductStreamBasicCollection $streams): void
+    {
+        $this->streams = $streams;
     }
 }

@@ -1,0 +1,43 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Country\Event\CountryArea;
+
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Country\Collection\CountryAreaBasicCollection;
+use Shopware\Framework\Event\NestedEvent;
+
+class CountryAreaBasicLoadedEvent extends NestedEvent
+{
+    const NAME = 'country_area.basic.loaded';
+
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    /**
+     * @var CountryAreaBasicCollection
+     */
+    protected $countryAreas;
+
+    public function __construct(CountryAreaBasicCollection $countryAreas, TranslationContext $context)
+    {
+        $this->context = $context;
+        $this->countryAreas = $countryAreas;
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
+    }
+
+    public function getCountryAreas(): CountryAreaBasicCollection
+    {
+        return $this->countryAreas;
+    }
+}

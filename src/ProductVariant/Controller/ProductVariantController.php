@@ -7,14 +7,14 @@ use Shopware\Api\Search\Criteria;
 use Shopware\Api\Search\Parser\QueryStringParser;
 use Shopware\Product\Repository\ProductRepository;
 use Shopware\Rest\ApiContext;
-use Shopware\Rest\ApiController;
+use Shopware\Rest\RestController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @Route(service="shopware.variant.api_controller", path="/api")
  */
-class ProductVariantController extends ApiController
+class ProductVariantController extends RestController
 {
     /**
      * @var ProductRepository

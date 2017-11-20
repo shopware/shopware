@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\CartBridge\Order;
 
@@ -27,8 +27,7 @@ class MinimumOrderAmountProcessor implements CartProcessorInterface
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
         ShopContext $context
-    ): void
-    {
+    ): void {
         if (!$context->getCustomer()) {
             return;
         }

@@ -1,0 +1,50 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+         <service class="Shopware\Listing\Definition\ListingFacetDefinition" id="shopware.listing.listing_facet_definition" >
+            <tag name="shopware.entity.definition" entity="listing_facet" />
+        </service>
+        <service class="Shopware\Listing\Repository\ListingFacetRepository" id="Shopware\Listing\Repository\ListingFacetRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Listing\Definition\ListingFacetTranslationDefinition" id="shopware.listing.listing_facet_translation_definition" >
+            <tag name="shopware.entity.definition" entity="listing_facet_translation" />
+        </service>
+        <service class="Shopware\Listing\Repository\ListingFacetTranslationRepository" id="Shopware\Listing\Repository\ListingFacetTranslationRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Listing\Definition\ListingSortingDefinition" id="shopware.listing.listing_sorting_definition" >
+            <tag name="shopware.entity.definition" entity="listing_sorting" />
+        </service>
+        <service class="Shopware\Listing\Repository\ListingSortingRepository" id="Shopware\Listing\Repository\ListingSortingRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Listing\Definition\ListingSortingTranslationDefinition" id="shopware.listing.listing_sorting_translation_definition" >
+            <tag name="shopware.entity.definition" entity="listing_sorting_translation" />
+        </service>
+        <service class="Shopware\Listing\Repository\ListingSortingTranslationRepository" id="Shopware\Listing\Repository\ListingSortingTranslationRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+    </services>
+</container>                
+                

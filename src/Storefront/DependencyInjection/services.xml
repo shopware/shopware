@@ -62,17 +62,17 @@
         </service>
 
         <service class="Shopware\Storefront\Page\Detail\DetailPageUrlGenerator" id="shopware.storefront.detail_page.detail_page_url_generator">
-            <argument id="shopware.product.repository" type="service"/>
+            <argument id="Shopware\Product\Repository\ProductRepository" type="service"/>
             <argument id="slugify" type="service"/>
             <argument id="shopware.router" type="service"/>
-            <argument id="shopware.seo_url.repository" type="service" />
+            <argument id="Shopware\Seo\Repository\SeoUrlRepository" type="service" />
         </service>
 
         <service class="Shopware\Storefront\Page\Listing\ListingPageUrlGenerator" id="shopware.storefront.listing_page.listing_page_url_generator">
-            <argument id="shopware.category.repository" type="service"/>
+            <argument id="Shopware\Category\Repository\CategoryRepository" type="service"/>
             <argument id="slugify" type="service"/>
             <argument id="shopware.router" type="service"/>
-            <argument id="shopware.seo_url.repository" type="service" />
+            <argument id="Shopware\Seo\Repository\SeoUrlRepository" type="service" />
         </service>
 
         <service class="Shopware\Storefront\Context\ShopContextValueResolver" id="shopware.storefront.context.shop_context_value_resolver">
@@ -94,7 +94,7 @@
         </service>
 
         <service class="Shopware\Storefront\Navigation\NavigationService" id="shopware.storefront.navigation.navigation_service" public="true">
-            <argument id="shopware.category.repository" type="service"/>
+            <argument type="service" id="Shopware\Category\Repository\CategoryRepository"/>
         </service>
 
         <service class="Shopware\Storefront\Page\Detail\DetailPageLoader" id="shopware.storefront.page.detail.detail_page_loader">
@@ -111,7 +111,7 @@
         </service>
 
         <service class="Shopware\Storefront\Firewall\CustomerProvider" id="shopware.storefront.firewall.customer_provider">
-            <argument type="service" id="shopware.customer.repository" />
+            <argument type="service" id="Shopware\Customer\Repository\CustomerRepository"/>
         </service>
 
         <service class="Shopware\Storefront\Controller\AccountController" public="true" id="shopware.storefront.controller.account">
@@ -119,13 +119,13 @@
         </service>
 
         <service class="Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository" id="shopware.storefront.product_repository">
-            <argument id="shopware.product.repository" type="service"/>
-            <argument id="cart.price.calculator" type="service"/>
-            <argument id="shopware.product_media.repository" type="service"/>
+            <argument type="service" id="Shopware\Product\Repository\ProductRepository"/>
+            <argument type="service" id="cart.price.calculator"/>
+            <argument type="service" id="Shopware\Product\Repository\ProductMediaRepository"/>
         </service>
 
         <service class="Shopware\Storefront\Controller\Widgets\IndexController" public="true" id="Shopware\Storefront\Controller\Widgets\IndexController">
-            <argument type="service" id="shopware.shop.repository" />
+            <argument type="service" id="Shopware\Shop\Repository\ShopRepository" />
         </service>
 
         <service class="Shopware\Storefront\Controller\Widgets\CheckoutController" public="true" id="Shopware\Storefront\Controller\Widgets\CheckoutController">

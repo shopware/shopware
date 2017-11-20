@@ -1,7 +1,7 @@
 import ApiService from './api.service';
 
 class OrderLineItemApiService extends ApiService {
-    constructor(httpClient, apiEndpoint = 'orderLineItem', returnFormat = 'json') {
+    constructor(httpClient, apiEndpoint = 'order-line-item', returnFormat = 'json') {
         super(httpClient, apiEndpoint, returnFormat);
     }
 
@@ -15,7 +15,7 @@ class OrderLineItemApiService extends ApiService {
             queries: [
                 {
                     type: 'term',
-                    field: 'order_line_item.order_uuid',
+                    field: 'order_line_item.orderUuid',
                     value: orderUuid
                 }
             ]

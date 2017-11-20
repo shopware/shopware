@@ -25,14 +25,14 @@
 namespace Shopware\CartBridge\Test\Validator\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
-use Shopware\AreaCountryState\Struct\AreaCountryStateBasicStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\CartBridge\Rule\ShippingStreetRule;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Country\Struct\Country;
-use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Country\Struct\CountryBasicStruct;
+use Shopware\Country\Struct\CountryStateBasicStruct;
+use Shopware\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
 
 class ShippingStreetRuleTest extends TestCase
@@ -112,7 +112,7 @@ class ShippingStreetRuleTest extends TestCase
             ->method('getShippingLocation')
             ->will($this->returnValue(
                 ShippingLocation::createFromCountry(
-                    new AreaCountryBasicStruct()
+                    new CountryBasicStruct()
                 )
             ));
 
@@ -124,13 +124,13 @@ class ShippingStreetRuleTest extends TestCase
     private function createAddress(string $street): CustomerAddressBasicStruct
     {
         $address = new CustomerAddressBasicStruct();
-        $state = new AreaCountryStateBasicStruct();
-        $country = new AreaCountryBasicStruct();
-        $state->setAreaCountryUuid('SWAG-AREA-COUNTRY-UUID-1');
+        $state = new CountryStateBasicStruct();
+        $country = new CountryBasicStruct();
+        $state->setCountryUuid('SWAG-AREA-COUNTRY-UUID-1');
 
         $address->setStreet($street);
         $address->setCountry($country);
-        $address->setState($state);
+        $address->setCountryState($state);
 
         return $address;
     }

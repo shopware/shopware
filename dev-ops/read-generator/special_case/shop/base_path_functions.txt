@@ -1,9 +1,0 @@
-    public function getBasePath(): string
-    {
-        return $this->basePath;
-    }
-
-    public function setBasePath(?string $basePath): void
-    {
-        $this->basePath = rtrim((string) $basePath, '/') . '/';
-    }

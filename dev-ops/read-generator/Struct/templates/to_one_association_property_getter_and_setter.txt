@@ -1,9 +1,0 @@
-    public function get#propertyNameUc#(): #nullable##associationClassUc#BasicStruct
-    {
-        return $this->#propertyNameLc#;
-    }
-
-    public function set#propertyNameUc#(#nullable##associationClassUc#BasicStruct $#propertyNameLc#): void
-    {
-        $this->#propertyNameLc# = $#propertyNameLc#;
-    }

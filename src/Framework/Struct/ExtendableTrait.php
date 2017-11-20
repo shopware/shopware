@@ -33,73 +33,73 @@ namespace Shopware\Framework\Struct;
 trait ExtendableTrait
 {
     /**
-     * Contains an array of attribute structs.
+     * Contains an array of extension structs.
      *
-     * @var Attribute[]
+     * @var Struct[]
      */
-    protected $attributes = [];
+    protected $extensions = [];
 
     /**
-     * Adds a new attribute struct into the class storage.
+     * Adds a new extension struct into the class storage.
      * The passed name is used as unique identifier and has to be stored too.
      *
-     * @param string    $name
-     * @param Attribute $attribute
+     * @param string $name
+     * @param Struct $extension
      */
-    public function addAttribute(string $name, Attribute $attribute): void
+    public function addExtension(string $name, Struct $extension): void
     {
-        $this->attributes[$name] = $attribute;
+        $this->extensions[$name] = $extension;
     }
 
     /**
-     * @param Attribute[] $attributes
+     * @param Struct[] $extensions
      */
-    public function addAttributes(array $attributes): void
+    public function addExtensions(array $extensions): void
     {
-        foreach ($attributes as $key => $attribute) {
-            $this->addAttribute($key, $attribute);
+        foreach ($extensions as $key => $extension) {
+            $this->addExtension($key, $extension);
         }
     }
 
     /**
-     * Returns a single attribute struct element of this class.
+     * Returns a single extension struct element of this class.
      * The passed name is used as unique identifier.
      *
      * @param $name
      *
-     * @return Attribute
+     * @return Struct
      */
-    public function getAttribute(string $name): Attribute
+    public function getExtension(string $name): Struct
     {
-        return $this->attributes[$name];
+        return $this->extensions[$name];
     }
 
     /**
      * Helper function which checks if an associated
-     * attribute exists.
+     * extension exists.
      *
      * @param $name
      *
      * @return bool
      */
-    public function hasAttribute(string $name): bool
+    public function hasExtension(string $name): bool
     {
-        return array_key_exists($name, $this->attributes);
+        return array_key_exists($name, $this->extensions);
     }
 
     /**
-     * Returns all stored attribute structures of this class.
-     * The array has to be an associated array with name and attribute instance.
+     * Returns all stored extension structures of this class.
+     * The array has to be an associated array with name and extension instance.
      *
-     * @return Attribute[]
+     * @return Struct[]
      */
-    public function getAttributes(): array
+    public function getExtensions(): array
     {
-        return $this->attributes;
+        return $this->extensions;
     }
 
-    public function setAttributes(array $attributes): void
+    public function setExtensions(array $extensions): void
     {
-        $this->attributes = $attributes;
+        $this->extensions = $extensions;
     }
 }

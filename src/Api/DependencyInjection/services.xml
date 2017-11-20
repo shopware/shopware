@@ -5,19 +5,62 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Api\Search\Parser\SqlParser" id="shopware.search.sql_parser"/>
 
-        <service class="Shopware\Api\Read\RepositoryRegistry" id="shopware.api.repository_registry">
-            <argument type="tagged" tag="shopware.repository" />
+        <service class="Shopware\Api\Controller\ApiController" id="shopware.api.controller.api_controller">
+            <argument id="shopware.api.entity_definition_registry" type="service"/>
+            <call method="setContainer">
+                <argument id="service_container" type="service"/>
+            </call>
         </service>
 
-        <service class="Shopware\Api\Read\ExtensionRegistry" id="shopware.extension.registry">
+
+        <service class="Shopware\Api\Command\DumpRoutesCommand" id="shopware.api.command.dump_routes_command">
+            <tag name="console.command"/>
+        </service>
+
+        <service class="Shopware\Api\Routing\RouteCollector" id="shopware.api.route_collector">
+            <argument id="shopware.api.entity_definition_registry" type="service"/>
+        </service>
+
+        <service class="Shopware\Api\Entity\ExtensionRegistry" id="shopware.api.entity.extension_registry" public="true">
+            <argument type="tagged" tag="shopware.entity.extension" />
+        </service>
+
+        <service class="Shopware\Api\Entity\DefinitionRegistry" id="shopware.api.entity_definition_registry">
             <argument type="collection" />
         </service>
 
-        <service id="shopware.framework.write.sql_gateway" class="Shopware\Api\Write\SqlGateway">
-            <argument type="service" id="dbal_connection"/>
+        <service class="Shopware\Api\Dbal\EntityReader" id="shopware.api.entity_reader">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="service" id="shopware.api.entity_searcher"/>
         </service>
+
+        <service class="Shopware\Api\Dbal\EntityAggregator" id="shopware.api.entity_aggregator">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.api.entity_reader" type="service"/>
+        </service>
+
+        <service class="Shopware\Api\Dbal\EntitySearcher" id="shopware.api.entity_searcher" >
+            <argument id="dbal_connection" type="service"/>
+        </service>
+
+        <service class="Shopware\Api\Dbal\EntityWriter" id="shopware.api.entity_writer">
+            <argument type="service" id="dbal_connection"/>
+            <argument type="service" id="shopware.api.write.field_aware.default_extender"/>
+        </service>
+
+        <service id="shopware.validation.constraint_builder" class="Shopware\Api\Write\Validation\ConstraintBuilder"/>
+
+        <service class="Shopware\Api\Write\FieldAware\DefaultExtender" id="shopware.api.write.field_aware.default_extender">
+            <argument id="validator" type="service"/>
+            <argument id="shopware.validation.constraint_builder" type="service"/>
+            <argument id="shopware.framework.write.uuid_generator_registry" type="service"/>
+            <argument id="shopware.framework.write.filter_registry" type="service"/>
+            <argument id="shopware.framework.write.value_transformer_registry" type="service"/>
+        </service>
+
+
+        <service class="Shopware\Api\Search\Parser\SqlQueryParser" id="shopware.search.sql_parser"/>
 
         <!-- Value transformer -->
         <service class="Shopware\Api\Write\ValueTransformer\ValueTransformerRegistry"
@@ -60,28 +103,5 @@
 
             <tag name="shopware.framework.write.uuid_generator"/>
         </service>
-
-        <service class="Shopware\Api\Write\ResourceRegistry" id="shopware.framework.write.resource_registry">
-            <argument type="tagged" tag="shopware.framework.write.resource" />
-        </service>
-
-        <service class="Shopware\Api\Write\FieldAware\DefaultExtender" id="shopware.framework.write.field_aware.default_extender">
-            <argument type="service" id="shopware.framework.write.resource_registry"/>
-            <argument type="service" id="shopware.framework.write.sql_gateway"/>
-            <argument type="service" id="validator"/>
-            <argument type="service" id="shopware.validation.constraint_builder"/>
-            <argument type="service" id="shopware.framework.write.uuid_generator_registry"/>
-            <argument type="service" id="shopware.framework.write.filter_registry"/>
-            <argument type="service" id="shopware.framework.write.value_transformer_registry"/>
-        </service>
-
-        <service id="shopware.framework.write.field_extender_collection" class="Shopware\Api\Write\FieldAware\FieldExtenderCollection"/>
-
-        <service id="shopware.framework.write.writer" class="Shopware\Api\Write\SqlResourceWriter">
-            <argument type="service" id="shopware.framework.write.sql_gateway"/>
-            <argument type="service" id="shopware.framework.write.resource_registry"/>
-            <argument type="service" id="dbal_connection"/>
-        </service>
-
     </services>
 </container>

@@ -1,1 +1,0 @@
-new \DateTime($data[$selection->getField('#column#')])

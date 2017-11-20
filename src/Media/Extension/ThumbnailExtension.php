@@ -2,12 +2,18 @@
 
 namespace Shopware\Media\Extension;
 
-use Shopware\Media\Event\MediaBasicLoadedEvent;
+use Shopware\Api\Entity\EntityExtensionInterface;
+use Shopware\Api\Entity\Field\StructCollectionField;
+use Shopware\Api\Entity\FieldCollection;
+use Shopware\Framework\Struct\StructCollection;
+use Shopware\Media\Definition\MediaDefinition;
+use Shopware\Media\Event\Media\MediaBasicLoadedEvent;
 use Shopware\Media\Struct\MediaBasicStruct;
 use Shopware\Media\Struct\ThumbnailStruct;
 use Shopware\Media\UrlGeneratorInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class ThumbnailExtension extends MediaFactoryExtension
+class ThumbnailExtension implements EntityExtensionInterface, EventSubscriberInterface
 {
     /**
      * @var UrlGeneratorInterface
@@ -17,6 +23,25 @@ class ThumbnailExtension extends MediaFactoryExtension
     public function __construct(UrlGeneratorInterface $urlGenerator)
     {
         $this->urlGenerator = $urlGenerator;
+    }
+
+    public function extendFields(FieldCollection $collection)
+    {
+        $collection->add(
+            (new StructCollectionField('thumbnails', ThumbnailStruct::class, true))->setFlags(new Extension())
+        );
+    }
+
+    public function getDefinitionClass(): string
+    {
+        return MediaDefinition::class;
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return [
+            MediaBasicLoadedEvent::NAME => 'mediaBasicLoaded',
+        ];
     }
 
     public function mediaBasicLoaded(MediaBasicLoadedEvent $event): void
@@ -57,7 +82,8 @@ class ThumbnailExtension extends MediaFactoryExtension
         }
 
         $thumbnailSizes = explode(';', $media->getAlbum()->getThumbnailSize());
-        $thumbnails = [];
+
+        $collection = new StructCollection();
 
         foreach ($thumbnailSizes as $size) {
             list($width, $height) = explode('x', $size);
@@ -65,13 +91,17 @@ class ThumbnailExtension extends MediaFactoryExtension
             $width = (int) $width;
             $height = (int) $height;
 
-            $thumbnails[] = $this->createThumbnailStruct($media->getFileName(), $width, $height);
+            $collection->add(
+                $this->createThumbnailStruct($media->getFileName(), $width, $height)
+            );
 
             if ($media->getAlbum()->getThumbnailHighDpi()) {
-                $thumbnails[] = $this->createThumbnailStruct($media->getFileName(), $width, $height, true);
+                $collection->add(
+                    $this->createThumbnailStruct($media->getFileName(), $width, $height, true)
+                );
             }
         }
 
-        $media->setThumbnails($thumbnails);
+        $media->addExtension('thumbnails', $collection);
     }
 }

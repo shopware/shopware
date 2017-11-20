@@ -27,13 +27,12 @@ namespace Shopware\Context\Struct;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Customer\Struct\CustomerBasicStruct;
-use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
+use Shopware\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Framework\Struct\Struct;
-use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
-use Shopware\PriceGroupDiscount\Struct\PriceGroupDiscountBasicCollection;
-use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
+use Shopware\Payment\Struct\PaymentMethodBasicStruct;
+use Shopware\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Shop\Struct\ShopDetailStruct;
-use Shopware\Tax\Struct\TaxBasicCollection;
+use Shopware\Tax\Collection\TaxBasicCollection;
 
 /**
  * @category  Shopware
@@ -68,11 +67,6 @@ class ShopContext extends Struct
     protected $taxRules;
 
     /**
-     * @var PriceGroupDiscountBasicCollection
-     */
-    protected $priceGroupDiscounts;
-
-    /**
      * @var CustomerBasicStruct|null
      */
     protected $customer;
@@ -88,7 +82,7 @@ class ShopContext extends Struct
     protected $shippingMethod;
 
     /**
-     * @var \Shopware\Cart\Delivery\Struct\ShippingLocation
+     * @var ShippingLocation
      */
     protected $shippingLocation;
 
@@ -98,7 +92,6 @@ class ShopContext extends Struct
         CustomerGroupBasicStruct $currentCustomerGroup,
         CustomerGroupBasicStruct $fallbackCustomerGroup,
         TaxBasicCollection $taxRules,
-        PriceGroupDiscountBasicCollection $priceGroupDiscounts,
         PaymentMethodBasicStruct $paymentMethod,
         ShippingMethodBasicStruct $shippingMethod,
         ShippingLocation $shippingLocation,
@@ -109,7 +102,6 @@ class ShopContext extends Struct
         $this->currency = $currency;
         $this->shop = $shop;
         $this->taxRules = $taxRules;
-        $this->priceGroupDiscounts = $priceGroupDiscounts;
         $this->customer = $customer;
         $this->paymentMethod = $paymentMethod;
         $this->shippingMethod = $shippingMethod;
@@ -139,11 +131,6 @@ class ShopContext extends Struct
     public function getTaxRules(): TaxBasicCollection
     {
         return $this->taxRules;
-    }
-
-    public function getPriceGroupDiscounts(): PriceGroupDiscountBasicCollection
-    {
-        return $this->priceGroupDiscounts;
     }
 
     public function getCustomer(): ?CustomerBasicStruct

@@ -25,7 +25,6 @@
 namespace Shopware\Cart\Test\Delivery;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Cart\Delivery\Struct\DeliveryDate;
@@ -34,7 +33,8 @@ use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
+use Shopware\Country\Struct\CountryBasicStruct;
+use Shopware\Shipping\Struct\ShippingMethodBasicStruct;
 
 class DeliveryCollectionTest extends TestCase
 {
@@ -120,7 +120,7 @@ class DeliveryCollectionTest extends TestCase
 
     private static function createShippingLocation(): ShippingLocation
     {
-        $country = new AreaCountryBasicStruct();
+        $country = new CountryBasicStruct();
         $country->setAreaUuid('SWAG-AREA-UUID-1');
 
         return ShippingLocation::createFromCountry($country);

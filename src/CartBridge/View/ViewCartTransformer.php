@@ -26,7 +26,6 @@ declare(strict_types=1);
 namespace Shopware\CartBridge\View;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Context\Struct\ShopContext;
 
 class ViewCartTransformer

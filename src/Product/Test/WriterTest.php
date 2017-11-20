@@ -4,12 +4,11 @@ namespace Shopware\Product\Tests;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Api\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Api\Dbal\EntityWriter;
 use Shopware\Api\Write\FieldException\WriteStackException;
-use Shopware\Api\Write\SqlResourceWriter;
 use Shopware\Api\Write\WriteContext;
-use Shopware\Product\Writer\Resource\ProductWriteResource;
-use Shopware\Shop\Writer\Resource\ShopWriteResource;
+use Shopware\Product\Definition\ProductDefinition;
+use Shopware\Shop\Definition\ShopDefinition;
 use Shopware\Storefront\Context\StorefrontContextService;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -32,8 +31,6 @@ class WriterTest extends KernelTestCase
         self::bootKernel();
         $container = self::$kernel->getContainer();
         $this->connection = $container->get('dbal_connection');
-        $this->productResource = $container->get('shopware.product.product.resource');
-
         $this->connection->beginTransaction();
     }
 
@@ -45,22 +42,25 @@ class WriterTest extends KernelTestCase
 
     public function testInsertWithUuid()
     {
-        $this->getWriter()->insert(ProductWriteResource::class, [
-                'uuid' => self::UUID,
-                'name' => 'test',
-                'the_unknown_field' => 'do nothing?',
-                'taxUuid' => 'SWAG-TAX-UUID-1',
-                'manufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2'],
-                'mode' => 0,
-                'lastStock' => true,
-                'crossbundlelook' => 1,
-                'notification' => true,
-                'template' => 'foo',
-                'updatedAt' => new \DateTime(),
-                'active' => true,
+        $this->getWriter()->insert(
+            ProductDefinition::class,
+            [
+                [
+                    'uuid' => self::UUID,
+                    'name' => 'test',
+                    'the_unknown_field' => 'do nothing?',
+                    'taxUuid' => 'SWAG-TAX-UUID-1',
+                    'manufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2'],
+                    'mode' => 0,
+                    'lastStock' => true,
+                    'crossbundlelook' => 1,
+                    'notification' => true,
+                    'template' => 'foo',
+                    'updatedAt' => new \DateTime(),
+                    'active' => true,
+                ],
             ],
-            $this->createWriteContext(),
-            $this->createExtender()
+            $this->createWriteContext()
         );
 
         $product = $this->connection->fetchAssoc('SELECT * FROM product WHERE uuid=:uuid', [
@@ -74,13 +74,19 @@ class WriterTest extends KernelTestCase
     {
         $productCountBefore = (int) $this->connection->fetchColumn('SELECT COUNT(*) FROM product');
 
-        $this->getWriter()->insert(ProductWriteResource::class, [
-            'uuid' => 'detail-1',
-            'the_unknown_field' => 'do nothing?',
-            'taxUuid' => 'SWAG-TAX-UUID-1',
-            'name' => 'foo',
-            'manufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2'],
-        ], $this->createWriteContext(), $this->createExtender());
+        $this->getWriter()->insert(
+            ProductDefinition::class,
+            [
+                [
+                    'uuid' => 'detail-1',
+                    'the_unknown_field' => 'do nothing?',
+                    'taxUuid' => 'SWAG-TAX-UUID-1',
+                    'name' => 'foo',
+                    'manufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2'],
+                ],
+            ],
+            $this->createWriteContext()
+        );
 
         $productCountAfter = (int) $this->connection->fetchColumn('SELECT COUNT(*) FROM product');
         $product = $this->connection->fetchAssoc('SELECT * FROM product WHERE uuid NOT LIKE "SWAG-%"');
@@ -91,37 +97,41 @@ class WriterTest extends KernelTestCase
 
     public function testInsertFromDocs()
     {
-        $firstDetailUuid = Uuid::uuid4()->toString();
-
-        $this->getWriter()->insert(ProductWriteResource::class, [
-            'uuid' => self::UUID,
-            'name' => 'ConfiguratorTest',
-            'description' => 'A test article',
-            'descriptionLong' => '<p>I\'m a <b>test article</b></p>',
-            'taxUuid' => 'SWAG-TAX-UUID-1',
-            'manufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2'],
-            'updatedAt' => new \DateTime(),
-            'mode' => 0,
-            'lastStock' => true,
-            'crossbundlelook' => 1,
-            'notification' => false,
-            'template' => 'foo',
-            'active' => true,
-            'additionaltext' => 'S / Schwarz',
-            'inStock' => 15,
-            'isMain' => true,
-
-            'categories' => [
-                ['categoryUuid' => 'SWAG-CATEGORY-UUID-25'],
-            ],
-
-            'prices' => [
+        $this->getWriter()->insert(
+            ProductDefinition::class,
+            [
                 [
-                    'price' => (float) 999,
-                    'customerGroupUuid' => StorefrontContextService::FALLBACK_CUSTOMER_GROUP,
+                    'uuid' => self::UUID,
+                    'name' => 'ConfiguratorTest',
+                    'description' => 'A test article',
+                    'descriptionLong' => '<p>I\'m a <b>test article</b></p>',
+                    'taxUuid' => 'SWAG-TAX-UUID-1',
+                    'manufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2'],
+                    'updatedAt' => new \DateTime(),
+                    'mode' => 0,
+                    'lastStock' => true,
+                    'crossbundlelook' => 1,
+                    'notification' => false,
+                    'template' => 'foo',
+                    'active' => true,
+                    'additionaltext' => 'S / Schwarz',
+                    'inStock' => 15,
+                    'isMain' => true,
+
+                    'categories' => [
+                        ['categoryUuid' => 'SWAG-CATEGORY-UUID-25'],
+                    ],
+
+                    'prices' => [
+                        [
+                            'price' => (float) 999,
+                            'customerGroupUuid' => StorefrontContextService::FALLBACK_CUSTOMER_GROUP,
+                        ],
+                    ],
                 ],
             ],
-        ], $this->createWriteContext(), $this->createExtender());
+            $this->createWriteContext()
+        );
 
         $product = $this->connection->fetchAssoc('SELECT * FROM product WHERE uuid=:uuid', [
             'uuid' => self::UUID,
@@ -134,19 +144,25 @@ class WriterTest extends KernelTestCase
     {
         $this->insertEmptyProduct();
 
-        $this->getWriter()->update(ProductWriteResource::class, [
-            'uuid' => self::UUID,
-            'name' => '_THE_TITLE_',
-            'the_unknown_field' => 'do nothing?',
-            'description' => '<p>no html</p>',
-            'descriptionLong' => '<p>html</p>',
-            'availableFrom' => new \DateTime('2011-01-01T15:03:01.012345Z'),
-            'availableTo' => new \DateTime('2011-01-01T15:03:01.012345Z'),
-            'manufacturer' => [
-                'uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-1',
-                'link' => 'http://www.shopware.com',
+        $this->getWriter()->update(
+            ProductDefinition::class,
+            [
+                [
+                    'uuid' => self::UUID,
+                    'name' => '_THE_TITLE_',
+                    'the_unknown_field' => 'do nothing?',
+                    'description' => '<p>no html</p>',
+                    'descriptionLong' => '<p>html</p>',
+                    'availableFrom' => new \DateTime('2011-01-01T15:03:01.012345Z'),
+                    'availableTo' => new \DateTime('2011-01-01T15:03:01.012345Z'),
+                    'manufacturer' => [
+                        'uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-1',
+                        'link' => 'http://www.shopware.com',
+                    ],
+                ],
             ],
-        ], $this->createWriteContext(), $this->createExtender());
+            $this->createWriteContext()
+        );
 
         $product = $this->connection->fetchAssoc('SELECT * FROM product WHERE uuid=:uuid', ['uuid' => self::UUID]);
         $productManufacturer = $this->connection->fetchAssoc('SELECT * FROM product_manufacturer WHERE uuid=:uuid', ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-1']);
@@ -168,10 +184,13 @@ class WriterTest extends KernelTestCase
 
         $newProduct = $this->connection->fetchAssoc('SELECT * FROM product WHERE uuid=:uuid', ['uuid' => self::UUID]);
 
-        $this->getWriter()->update(ProductWriteResource::class, [
-            'uuid' => self::UUID,
-            'template' => 'ABC',
-        ], $this->createWriteContext(), $this->createExtender());
+        $this->getWriter()->update(
+            ProductDefinition::class,
+            [
+                ['uuid' => self::UUID, 'template' => 'ABC'],
+            ],
+            $this->createWriteContext()
+        );
 
         $product = $this->connection->fetchAssoc('SELECT * FROM product WHERE uuid=:uuid', ['uuid' => self::UUID]);
 
@@ -191,27 +210,33 @@ class WriterTest extends KernelTestCase
     {
         $this->insertEmptyProduct();
 
-        $this->getWriter()->update(ProductWriteResource::class, [
-            'uuid' => self::UUID,
-            'name' => [
-                'SWAG-SHOP-UUID-1' => '1ABC',
-                'SWAG-SHOP-UUID-2' => '2ABC',
-            ],
-            'description' => 'foo', // implicit SWAG-SHOP-UUID-1
-            'descriptionLong' => [
-                'SWAG-SHOP-UUID-2' => '2CBA',
-            ],
-            'translations' => [
-                'SWAG-SHOP-UUID-2' => [
-                    'name' => 'bar',
-                    'description' => 'foo',
-                    'keywords' => 'fiz,baz',
+        $this->getWriter()->update(
+            ProductDefinition::class,
+            [
+                [
+                    'uuid' => self::UUID,
+                    'name' => [
+                        'SWAG-SHOP-UUID-1' => '1ABC',
+                        'SWAG-SHOP-UUID-2' => '2ABC',
+                    ],
+                    'description' => 'foo', // implicit SWAG-SHOP-UUID-1
+                    'descriptionLong' => [
+                        'SWAG-SHOP-UUID-2' => '2CBA',
+                    ],
+                    'translations' => [
+                        'SWAG-SHOP-UUID-2' => [
+                            'name' => 'bar',
+                            'description' => 'foo',
+                            'keywords' => 'fiz,baz',
+                        ],
+                    ],
+                    'metaTitle' => [
+                        'SWAG-SHOP-UUID-2' => 'bar',
+                    ],
                 ],
             ],
-            'metaTitle' => [
-                'SWAG-SHOP-UUID-2' => 'bar',
-            ],
-        ], $this->createWriteContext(), $this->createExtender());
+            $this->createWriteContext()
+        );
 
 //        'POST auth/login' => [
 //            'localeList' => ''
@@ -268,10 +293,13 @@ class WriterTest extends KernelTestCase
         }
 
         $this->expectException(WriteStackException::class);
-        $this->getWriter()->update(ProductWriteResource::class, [
-            'uuid' => self::UUID,
-            'name' => $tooLongValue,
-        ], $this->createWriteContext(), $this->createExtender());
+        $this->getWriter()->update(
+            ProductDefinition::class,
+            [
+                ['uuid' => self::UUID, 'name' => $tooLongValue],
+            ],
+            $this->createWriteContext()
+        );
     }
 
     /**
@@ -280,7 +308,7 @@ class WriterTest extends KernelTestCase
     protected function createWriteContext(): WriteContext
     {
         $context = new WriteContext();
-        $context->set(ShopWriteResource::class, 'uuid', 'SWAG-SHOP-UUID-1');
+        $context->set(ShopDefinition::class, 'uuid', 'SWAG-SHOP-UUID-1');
 
         return $context;
     }
@@ -298,19 +326,8 @@ class WriterTest extends KernelTestCase
             ]);
     }
 
-    private function getWriter(): SqlResourceWriter
+    private function getWriter(): EntityWriter
     {
-        return self::$kernel->getContainer()->get('shopware.framework.write.writer');
-    }
-
-    /**
-     * @return FieldExtenderCollection
-     */
-    private function createExtender(): FieldExtenderCollection
-    {
-        $extender = new FieldExtenderCollection();
-        $extender->addExtender(self::$kernel->getContainer()->get('shopware.framework.write.field_aware.default_extender'));
-
-        return $extender;
+        return self::$kernel->getContainer()->get('shopware.api.entity_writer');
     }
 }

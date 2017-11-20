@@ -2,35 +2,26 @@
 
 namespace Shopware\Order\Struct;
 
-use Shopware\OrderDelivery\Struct\OrderDeliveryBasicCollection;
-use Shopware\OrderLineItem\Struct\OrderLineItemBasicCollection;
+use Shopware\Order\Collection\OrderDeliveryBasicCollection;
+use Shopware\Order\Collection\OrderLineItemBasicCollection;
 
 class OrderDetailStruct extends OrderBasicStruct
 {
-    /**
-     * @var OrderLineItemBasicCollection
-     */
-    protected $lineItems;
-
     /**
      * @var OrderDeliveryBasicCollection
      */
     protected $deliveries;
 
+    /**
+     * @var OrderLineItemBasicCollection
+     */
+    protected $lineItems;
+
     public function __construct()
     {
-        $this->lineItems = new OrderLineItemBasicCollection();
         $this->deliveries = new OrderDeliveryBasicCollection();
-    }
 
-    public function getLineItems(): OrderLineItemBasicCollection
-    {
-        return $this->lineItems;
-    }
-
-    public function setLineItems(OrderLineItemBasicCollection $lineItems): void
-    {
-        $this->lineItems = $lineItems;
+        $this->lineItems = new OrderLineItemBasicCollection();
     }
 
     public function getDeliveries(): OrderDeliveryBasicCollection
@@ -41,5 +32,15 @@ class OrderDetailStruct extends OrderBasicStruct
     public function setDeliveries(OrderDeliveryBasicCollection $deliveries): void
     {
         $this->deliveries = $deliveries;
+    }
+
+    public function getLineItems(): OrderLineItemBasicCollection
+    {
+        return $this->lineItems;
+    }
+
+    public function setLineItems(OrderLineItemBasicCollection $lineItems): void
+    {
+        $this->lineItems = $lineItems;
     }
 }

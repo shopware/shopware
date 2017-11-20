@@ -1,3 +1,0 @@
-            if ($#classLc#->get#propertyUc#Uuid()) {
-                $#classLc#->set#propertyUc#($#associationPlural#->get($#classLc#->get#propertyUc#Uuid()));
-            }

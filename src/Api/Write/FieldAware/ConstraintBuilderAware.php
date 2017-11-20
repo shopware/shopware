@@ -24,7 +24,7 @@
 
 namespace Shopware\Api\Write\FieldAware;
 
-use Shopware\Framework\Validation\ConstraintBuilder;
+use Shopware\Api\Write\Validation\ConstraintBuilder;
 
 interface ConstraintBuilderAware
 {

@@ -14,14 +14,14 @@
 
                     {% set desc = product.name %}
 
-                    {% if product.cover.media.thumbnails %}
+                    {% if product.cover.media.extensions.thumbnails %}
 
                         {% if product.image.description %}
                             {% set desc = product.image.description %}
                         {% endif %}
 
                         {% block frontend_listing_box_article_image_picture_element %}
-                            <img srcset="{{ product.cover.media.thumbnails[0].url }}"
+                            <img srcset="{{ product.cover.media.extensions.thumbnails[0].url }}"
                                  alt="{{ desc }}"
                                  title="{{ desc|truncate(160, true) }}" />
                         {% endblock %}

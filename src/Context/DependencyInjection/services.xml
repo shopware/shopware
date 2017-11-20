@@ -6,18 +6,17 @@
 
     <services>
         <service class="Shopware\Context\Service\ContextFactory" id="shopware.context.service.context_factory">
-            <argument id="shopware.shop.repository" type="service"/>
-            <argument id="shopware.currency.repository" type="service"/>
-            <argument id="shopware.customer.repository" type="service"/>
-            <argument id="shopware.customer_group.repository" type="service"/>
-            <argument id="shopware.area_country.repository" type="service"/>
-            <argument id="shopware.tax.repository" type="service"/>
-            <argument id="shopware.price_group_discount.repository" type="service"/>
-            <argument id="shopware.customer_address.repository" type="service"/>
-            <argument id="shopware.payment_method.repository" type="service"/>
-            <argument id="shopware.shipping_method.repository" type="service"/>
-            <argument id="dbal_connection" type="service"/>
-            <argument id="shopware.area_country_state.repository" type="service"/>
+            <argument type="service" id="Shopware\Shop\Repository\ShopRepository"/>
+            <argument type="service" id="Shopware\Currency\Repository\CurrencyRepository"/>
+            <argument type="service" id="Shopware\Customer\Repository\CustomerRepository"/>
+            <argument type="service" id="Shopware\Customer\Repository\CustomerGroupRepository"/>
+            <argument type="service" id="Shopware\Country\Repository\CountryRepository"/>
+            <argument type="service" id="Shopware\Tax\Repository\TaxRepository"/>
+            <argument type="service" id="Shopware\Customer\Repository\CustomerAddressRepository"/>
+            <argument type="service" id="Shopware\Payment\Repository\PaymentMethodRepository"/>
+            <argument type="service" id="Shopware\Shipping\Repository\ShippingMethodRepository"/>
+            <argument type="service" id="dbal_connection"/>
+            <argument type="service" id="Shopware\Country\Repository\CountryStateRepository"/>
         </service>
 
     </services>

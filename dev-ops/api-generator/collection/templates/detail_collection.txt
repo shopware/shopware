@@ -1,0 +1,21 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\#bundle#\Collection;
+
+use Shopware\#bundle#\Struct\#classUc#DetailStruct;
+#uses#
+
+class #classUc#DetailCollection extends #classUc#BasicCollection
+{
+    /**
+     * @var #classUc#DetailStruct[]
+     */
+    protected $elements = [];
+
+    protected function getExpectedClass(): string
+    {
+        return #classUc#DetailStruct::class;
+    }
+
+#collectiveUuidGetters#
+}

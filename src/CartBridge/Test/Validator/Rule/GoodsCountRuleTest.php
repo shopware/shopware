@@ -30,16 +30,14 @@ use Shopware\Cart\LineItem\CalculatedLineItem;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\GoodsInterface;
 use Shopware\Cart\LineItem\LineItem;
-use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Rule\Container\AndRule;
 use Shopware\Cart\Rule\Rule;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Cart\Test\Common\DummyProduct;
+use Shopware\CartBridge\Rule\GoodsCountRule;
 use Shopware\CartBridge\Voucher\Struct\CalculatedVoucher;
 use Shopware\CartBridge\Voucher\VoucherProcessor;
-use Shopware\CartBridge\Rule\GoodsCountRule;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 
@@ -234,5 +232,4 @@ class ItemForGoodsRule extends CalculatedLineItem implements GoodsInterface
             null
         );
     }
-
 }

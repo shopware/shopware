@@ -1,1 +1,0 @@
-array_values(array_filter(explode('|', (string) $data[$selection->getField('#column#')])))

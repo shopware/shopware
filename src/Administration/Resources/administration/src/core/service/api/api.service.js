@@ -1,8 +1,11 @@
+/* eslint-disable */
+
 class ApiService {
     constructor(httpClient, apiEndpoint, returnFormat = 'json') {
         this.httpClient = httpClient;
         this.apiEndpoint = apiEndpoint;
-        this.returnFormat = returnFormat;
+        // this.returnFormat = returnFormat;
+        this.returnFormat = '';
     }
 
     getList(offset = 0, limit = 25) {
@@ -49,7 +52,7 @@ class ApiService {
         const returnFormat = (this.returnFormat.length) ? `.${this.returnFormat}` : '';
 
         if (uuid && uuid.length > 0) {
-            return `${this.apiEndpoint}/${uuid})${returnFormat}`;
+            return `${this.apiEndpoint}/${uuid}${returnFormat}`;
         }
 
         return `${this.apiEndpoint}${returnFormat}`;

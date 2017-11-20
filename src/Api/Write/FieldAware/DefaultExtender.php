@@ -24,27 +24,15 @@
 
 namespace Shopware\Api\Write\FieldAware;
 
-use Shopware\Api\Write\Field\Field;
+use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Write\Filter\FilterRegistry;
-use Shopware\Api\Write\ResourceRegistry;
-use Shopware\Api\Write\SqlGateway;
 use Shopware\Api\Write\UuidGenerator\GeneratorRegistry;
+use Shopware\Api\Write\Validation\ConstraintBuilder;
 use Shopware\Api\Write\ValueTransformer\ValueTransformerRegistry;
-use Shopware\Framework\Validation\ConstraintBuilder;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class DefaultExtender extends FieldExtender
 {
-    /**
-     * @var ResourceRegistry
-     */
-    private $resourceRegistry;
-
-    /**
-     * @var SqlGateway
-     */
-    private $sqlGateway;
-
     /**
      * @var ValidatorInterface
      */
@@ -70,26 +58,13 @@ class DefaultExtender extends FieldExtender
      */
     private $valueTransformerRegistry;
 
-    /**
-     * @param ResourceRegistry         $resourceRegistry
-     * @param SqlGateway               $sqlGateway
-     * @param ValidatorInterface       $validator
-     * @param ConstraintBuilder        $constraintBuilder
-     * @param GeneratorRegistry        $generatorRegistry
-     * @param FilterRegistry           $filterRegistry
-     * @param ValueTransformerRegistry $valueTransformerRegistry
-     */
     public function __construct(
-        ResourceRegistry $resourceRegistry,
-        SqlGateway $sqlGateway,
         ValidatorInterface $validator,
         ConstraintBuilder $constraintBuilder,
         GeneratorRegistry $generatorRegistry,
         FilterRegistry $filterRegistry,
         ValueTransformerRegistry $valueTransformerRegistry
     ) {
-        $this->resourceRegistry = $resourceRegistry;
-        $this->sqlGateway = $sqlGateway;
         $this->validator = $validator;
         $this->constraintBuilder = $constraintBuilder;
         $this->generatorRegistry = $generatorRegistry;
@@ -99,19 +74,11 @@ class DefaultExtender extends FieldExtender
 
     public function extend(Field $field): void
     {
-        if ($field instanceof ResourceRegistryAware) {
-            $field->setResourceRegistry($this->resourceRegistry);
-        }
-
-        if ($field instanceof SqlGatewayAware) {
-            $field->setSqlGateway($this->sqlGateway);
-        }
-
         if ($field instanceof  ValidatorAware) {
             $field->setValidator($this->validator);
         }
 
-        if ($field instanceof  ConstraintBuilderAware) {
+        if ($field instanceof ConstraintBuilderAware) {
             $field->setConstraintBuilder($this->constraintBuilder);
         }
 

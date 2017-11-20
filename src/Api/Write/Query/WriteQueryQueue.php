@@ -52,12 +52,12 @@ class WriteQueryQueue
     }
 
     /**
-     * @param string   $resource
+     * @param string   $definition
      * @param string[] ...$identifierOrder
      */
-    public function setOrder(string $resource, string ...$identifierOrder): void
+    public function setOrder(string $definition, string ...$identifierOrder): void
     {
-        if (in_array($resource, $this->registeredResources, true)) {
+        if (in_array($definition, $this->registeredResources, true)) {
             return;
         }
 
@@ -67,27 +67,23 @@ class WriteQueryQueue
             $this->queries[$identifier] = [];
         }
 
-        $this->registeredResources[] = $resource;
+        $this->registeredResources[] = $definition;
     }
 
-    /**
-     * @param string   $resource
-     * @param string[] ...$identifierOrder
-     */
-    public function updateOrder(string $resource, string ...$identifierOrder): void
+    public function updateOrder(string $definition, string ...$identifierOrder): void
     {
-        if (in_array($resource, $this->registeredResources, true)) {
+        if (in_array($definition, $this->registeredResources, true)) {
             return;
         }
 
         $notAlreadyOrderedIdentifiers = [];
         foreach ($identifierOrder as $identifier) {
-            if ($identifier === $resource || array_search($identifier, $this->order) === false) {
+            if ($identifier === $definition || array_search($identifier, $this->order) === false) {
                 $notAlreadyOrderedIdentifiers[] = $identifier;
             }
         }
 
-        $localIndex = array_search($resource, $this->order);
+        $localIndex = array_search($definition, $this->order);
         $this->order = array_merge(
             array_slice($this->order, 0, $localIndex),
             $notAlreadyOrderedIdentifiers,
@@ -102,7 +98,7 @@ class WriteQueryQueue
             $this->queries[$identifier] = [];
         }
 
-        $this->registeredResources[] = $resource;
+        $this->registeredResources[] = $definition;
     }
 
     /**
@@ -147,15 +143,15 @@ class WriteQueryQueue
         return $this->queries;
     }
 
-    public function ensureIs($resourceClass, $class): void
+    public function ensureIs(string $definition, $class): void
     {
-        $queries = $this->queries[$resourceClass];
+        $queries = $this->queries[$definition];
 
         foreach ($queries as $query) {
             if (!$query instanceof $class) {
                 throw new WriteTypeIntendException(sprintf(
                     'Expected query for "%s" to be "%s".',
-                    $resourceClass,
+                    $definition,
                     $class
                 ));
             }

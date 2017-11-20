@@ -7,12 +7,18 @@ use Shopware\Traceable\DependencyInjection\CartTracerCompilerPass;
 use Shopware\Traceable\DependencyInjection\TracerCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\Finder\Finder;
 
 class Traceable extends Theme
 {
     protected $name = 'Traceable';
+
+    /**
+     * @var ContainerInterface
+     */
+    protected $container;
 
     public function boot()
     {
@@ -24,7 +30,7 @@ class Traceable extends Theme
         if (!file_exists($directory)) {
             return;
         }
-        
+
         $finder = new Finder();
         $classes = $finder->in($directory);
         foreach ($classes->getIterator() as $file) {

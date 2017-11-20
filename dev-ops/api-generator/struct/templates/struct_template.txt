@@ -1,0 +1,14 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\#bundle#\Struct;
+
+use Shopware\Api\Entity\Entity;
+
+#uses#
+
+class #classUc#BasicStruct extends Entity
+{
+#properties#
+
+#functions#
+}

@@ -28,8 +28,8 @@ use Shopware\Media\Event\MigrateAdvanceEvent;
 use Shopware\Media\Event\MigrateFinishEvent;
 use Shopware\Media\Event\MigrateStartEvent;
 use Shopware\Media\MediaMigration;
-use Shopware\Media\StrategyFactory;
-use Shopware\Media\StrategyFilesystem;
+use Shopware\Media\Strategy\StrategyFactory;
+use Shopware\Media\Strategy\StrategyFilesystem;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -43,12 +43,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class MediaMigrateCommand extends Command implements EventSubscriberInterface
 {
     /**
-     * @var StrategyFilesystem
+     * @var \Shopware\Media\Strategy\StrategyFilesystem
      */
     private $filesystem;
 
     /**
-     * @var StrategyFactory
+     * @var \Shopware\Media\Strategy\StrategyFactory
      */
     private $strategyFactory;
 

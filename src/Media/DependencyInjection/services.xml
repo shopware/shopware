@@ -6,23 +6,26 @@
 
     <services>
 
+        <service class="Shopware\Media\Extension\UrlExtension" id="shopware.media.extension.url_extension">
+            <argument id="shopware.media.url_generator" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.entity.extension"/>
+        </service>
+
+        <service class="Shopware\Media\Extension\ThumbnailExtension" id="shopware.media.extension.thumbnail_extension">
+            <argument id="shopware.media.url_generator" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+            <!--<tag name="shopware.entity.extension"/>-->
+        </service>
+
         <!-- ProductMedia Extension -->
-        <service id="shopware.media.extension.url" class="Shopware\Media\Extension\UrlExtension">
-            <tag name="shopware.extension" bundle="media" />
-            <argument type="service" id="shopware.media.url_generator" />
-        </service>
 
-        <service id="shopware.media.extension.thumbnail" class="Shopware\Media\Extension\ThumbnailExtension">
-            <tag name="shopware.extension" bundle="media" />
-            <argument type="service" id="shopware.media.url_generator" />
-        </service>
-
-        <service id="shopware.media.garbage_collector_factory" class="Shopware\Media\GarbageCollectorFactory">
+        <service id="shopware.media.garbage_collector_factory" class="Shopware\Media\GarbageCollector\GarbageCollectorFactory">
             <argument type="service" id="dbal_connection" />
             <argument type="service" id="shopware.media.strategy" />
         </service>
 
-        <service id="shopware.media.garbage_collector" class="Shopware\Media\GarbageCollector">
+        <service id="shopware.media.garbage_collector" class="Shopware\Media\GarbageCollector\GarbageCollector">
             <factory service="shopware.media.garbage_collector_factory" method="factory" />
         </service>
 
@@ -31,7 +34,7 @@
             <argument>media</argument>
         </service>
 
-        <service id="shopware.media.filesystem" class="Shopware\Media\StrategyFilesystem">
+        <service id="shopware.media.filesystem" class="Shopware\Media\Strategy\StrategyFilesystem">
             <argument type="service" id="shopware.media.direct_filesystem" />
             <argument type="service" id="shopware.media.strategy" />
         </service>
@@ -48,7 +51,7 @@
             <!--<argument type="service" id="models" />-->
         </service>
 
-        <service id="shopware.media.strategy_factory" class="Shopware\Media\StrategyFactory">
+        <service id="shopware.media.strategy_factory" class="Shopware\Media\Strategy\StrategyFactory">
             <argument type="tagged" tag="shopware.media.strategy" />
         </service>
 
@@ -87,12 +90,12 @@
         </service>
 
         <!-- Optimizer -->
-        <service id="shopware.media.optimizer_service" class="Shopware\Media\OptimizerService">
+        <service id="shopware.media.optimizer_service" class="Shopware\Media\Optimizer\OptimizerService">
             <argument type="tagged" tag="shopware.media.optimizer" />
             <argument type="service" id="shopware.media.filesystem" />
         </service>
 
-        <service id="shopware.media.cache_optimizer_service" class="Shopware\Media\CacheOptimizerService"
+        <service id="shopware.media.cache_optimizer_service" class="Shopware\Media\Optimizer\CacheOptimizerService"
                  decorates="shopware.media.optimizer_service" public="false">
             <argument type="service" id="shopware.media.cache_optimizer_service.inner" />
         </service>

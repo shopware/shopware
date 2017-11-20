@@ -48,7 +48,7 @@ layers:
   - name: CoreWriter
     collectors:
       - type: className
-        regex: ^Shopware\\Api\\Write\\SqlResourceWriter$
+        regex: ^Shopware\\Api\\Dbal\\EntityWriter$
 
   - name: PageLoader
     collectors:

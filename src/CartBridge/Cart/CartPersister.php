@@ -26,9 +26,9 @@ declare(strict_types=1);
 namespace Shopware\CartBridge\Cart;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Cart\Cart\CartPersisterInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\CartContainer;
-use Shopware\Cart\Cart\CartPersisterInterface;
 use Shopware\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Serializer\JsonSerializer;
@@ -70,6 +70,7 @@ class CartPersister implements CartPersisterInterface
         //prevent empty carts
         if ($cart->getCalculatedLineItems()->count() <= 0) {
             $this->delete($cart->getToken(), $cart->getName());
+
             return;
         }
 
@@ -77,7 +78,7 @@ class CartPersister implements CartPersisterInterface
             'DELETE FROM cart WHERE `token` = :token AND `name` = :name',
             ['token' => $cart->getToken(), 'name' => $cart->getName()]
         );
-        
+
         $this->connection->insert('cart', [
             'token' => $cart->getToken(),
             'name' => $cart->getName(),
@@ -91,17 +92,14 @@ class CartPersister implements CartPersisterInterface
             'shop_uuid' => $context->getShop()->getUuid(),
             'price' => $cart->getPrice()->getTotalPrice(),
             'line_item_count' => $cart->getCalculatedLineItems()->count(),
-            'created_at' => (new \DateTime())->format('Y-m-d H:i:s')
+            'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
         ]);
     }
 
     public function delete(string $token, ?string $name = null): void
     {
         if ($name === null) {
-            $this->connection->executeUpdate(
-                'DELETE FROM cart WHERE `token` = :token',
-                ['token' => $token]
-            );
+            $this->connection->executeUpdate('DELETE FROM cart WHERE `token` = :token', ['token' => $token]);
 
             return;
         }

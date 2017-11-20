@@ -25,13 +25,11 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\Product;
 
-use Shopware\Cart\Delivery\DeliveryInformation;
-use Shopware\CartBridge\Product\ProductDataCollection;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Product\Collection\ProductBasicCollection;
+use Shopware\Product\Collection\ProductPriceBasicCollection;
 use Shopware\Product\Repository\ProductRepository;
-use Shopware\Product\Struct\ProductBasicCollection;
 use Shopware\Product\Struct\ProductBasicStruct;
-use Shopware\ProductPrice\Struct\ProductPriceBasicCollection;
 
 class ProductGateway implements ProductGatewayInterface
 {
@@ -44,6 +42,7 @@ class ProductGateway implements ProductGatewayInterface
     {
         $this->repository = $repository;
     }
+
     public function get(array $numbers, ShopContext $context): ProductBasicCollection
     {
         $products = $this->repository->readBasic(

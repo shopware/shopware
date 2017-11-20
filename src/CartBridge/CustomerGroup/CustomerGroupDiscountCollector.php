@@ -25,68 +25,44 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\CustomerGroup;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Api\Search\Criteria;
 use Shopware\Api\Search\Query\TermQuery;
 use Shopware\Cart\Cart\CollectorInterface;
 use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\CustomerGroupDiscount\Factory\CustomerGroupDiscountBasicFactory;
-use Shopware\CustomerGroupDiscount\Repository\CustomerGroupDiscountRepository;
-use Shopware\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicCollection;
-use Shopware\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicStruct;
+use Shopware\Customer\Collection\CustomerGroupDiscountBasicCollection;
+use Shopware\Customer\Repository\CustomerGroupDiscountRepository;
+use Shopware\Customer\Struct\CustomerGroupDiscountBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
 
 class CustomerGroupDiscountCollector implements CollectorInterface
 {
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @var CustomerGroupDiscountRepository
      */
     private $customerGroupDiscountRepository;
 
-    /**
-     * @var CustomerGroupDiscountBasicFactory
-     */
-    private $customerGroupDiscountBasicFactory;
-
-    /**
-     * @param Connection $connection
-     */
-    public function __construct(
-        Connection $connection,
-        CustomerGroupDiscountRepository $customerGroupDiscountRepository,
-        CustomerGroupDiscountBasicFactory $customerGroupDiscountBasicFactory
-    )
+    public function __construct(CustomerGroupDiscountRepository $customerGroupDiscountRepository)
     {
-        $this->connection = $connection;
         $this->customerGroupDiscountRepository = $customerGroupDiscountRepository;
-        $this->customerGroupDiscountBasicFactory = $customerGroupDiscountBasicFactory;
     }
 
     public function prepare(
         StructCollection $fetchDefinition,
         CartContainer $cartContainer,
         ShopContext $context
-    ): void
-    {
+    ): void {
     }
 
     public function fetch(
         StructCollection $dataCollection,
         StructCollection $fetchCollection,
         ShopContext $context
-    ): void
-    {
-
+    ): void {
         $criteria = new Criteria();
         $criteria->addFilter(
             new TermQuery(
-                'customer_group_discount.customer_group_uuid',
+                'customer_group_discount.customerGroupUuid',
                 $context->getCurrentCustomerGroup()->getUuid()
             )
         );
@@ -96,6 +72,7 @@ class CustomerGroupDiscountCollector implements CollectorInterface
             if ($a->getMinimumCartAmount() !== $b->getMinimumCartAmount()) {
                 return -1;
             }
+
             return $a->getMinimumCartAmount() > $b->getMinimumCartAmount();
         });
 

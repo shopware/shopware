@@ -1,1 +1,0 @@
-(#type#) $data[$selection->getField('#column#')]

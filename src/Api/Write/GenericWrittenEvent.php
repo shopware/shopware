@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Write;
 
+use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -16,14 +17,20 @@ class GenericWrittenEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var NestedEvent
+     * @var NestedEventCollection
      */
-    protected $event;
+    private $events;
 
-    public function __construct(NestedEvent $event, TranslationContext $context)
+    /**
+     * @var array
+     */
+    private $errors;
+
+    public function __construct(TranslationContext $context, NestedEventCollection $events, array $errors)
     {
         $this->context = $context;
-        $this->event = $event;
+        $this->events = $events;
+        $this->errors = $errors;
     }
 
     public function getName(): string
@@ -38,6 +45,38 @@ class GenericWrittenEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        return new NestedEventCollection([$this->event]);
+        return $this->events;
+    }
+
+    public function getEventByDefinition(string $definition): ?WrittenEvent
+    {
+        foreach ($this->events as $event) {
+            if (!$event instanceof WrittenEvent) {
+                continue;
+            }
+            if ($event->getDefinition() === $definition) {
+                return $event;
+            }
+        }
+
+        return null;
+    }
+
+    public static function createFromWriterResult(array $identifiers, TranslationContext $context, array $errors)
+    {
+        $events = new NestedEventCollection();
+
+        /** @var EntityDefinition $definition */
+        foreach ($identifiers as $definition => $ids) {
+            $class = $definition::getWrittenEventClass();
+            $events->add(new $class($ids, $context, $errors));
+        }
+
+        return new self($context, $events, $errors);
+    }
+
+    public function getErrors(): array
+    {
+        return $this->errors;
     }
 }

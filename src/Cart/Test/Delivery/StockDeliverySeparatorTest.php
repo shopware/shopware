@@ -25,34 +25,33 @@
 namespace Shopware\Cart\Test\Delivery;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
-use Shopware\AreaCountryState\Struct\AreaCountryStateBasicStruct;
+use Shopware\Cart\Delivery\StockDeliverySeparator;
 use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Cart\Delivery\Struct\DeliveryDate;
-use Shopware\Cart\Delivery\DeliveryInformation;
 use Shopware\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Cart\Delivery\StockDeliverySeparator;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\LineItem;
-use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\PriceRounding;
-use Shopware\CartBridge\Product\Struct\CalculatedProduct;
-use Shopware\CartBridge\Product\ProductProcessor;
+use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Rule\Container\AndRule;
 use Shopware\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Cart\Tax\TaxCalculator;
 use Shopware\Cart\Tax\Struct\TaxRule;
-use Shopware\Cart\Tax\TaxRuleCalculator;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Cart\Tax\TaxCalculator;
+use Shopware\Cart\Tax\TaxRuleCalculator;
 use Shopware\Cart\Test\Common\Generator;
+use Shopware\CartBridge\Product\ProductProcessor;
+use Shopware\CartBridge\Product\Struct\CalculatedProduct;
 use Shopware\CartBridge\Voucher\Struct\CalculatedVoucher;
-use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
+use Shopware\Country\Struct\CountryBasicStruct;
+use Shopware\Country\Struct\CountryStateBasicStruct;
+use Shopware\Customer\Struct\CustomerAddressBasicStruct;
+use Shopware\Shipping\Struct\ShippingMethodBasicStruct;
 
 class StockDeliverySeparatorTest extends TestCase
 {
@@ -233,7 +232,7 @@ class StockDeliverySeparatorTest extends TestCase
                     (new ShippingMethodBasicStruct())->assign(['uuid' => '1']),
                     $location,
                     new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
-                )
+                ),
             ]),
             $deliveries
         );
@@ -277,7 +276,7 @@ class StockDeliverySeparatorTest extends TestCase
                     (new ShippingMethodBasicStruct())->assign(['uuid' => '1']),
                     $location,
                     new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
-                )
+                ),
             ]),
             $deliveries
         );
@@ -331,7 +330,7 @@ class StockDeliverySeparatorTest extends TestCase
                     (new ShippingMethodBasicStruct())->assign(['uuid' => '1']),
                     $location,
                     new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
-                )
+                ),
             ]),
             $deliveries
         );
@@ -340,13 +339,13 @@ class StockDeliverySeparatorTest extends TestCase
     private static function createShippingLocation(): ShippingLocation
     {
         $address = new CustomerAddressBasicStruct();
-        $address->setState(new AreaCountryStateBasicStruct());
+        $address->setCountryState(new CountryStateBasicStruct());
 
-        $country = new AreaCountryBasicStruct();
+        $country = new CountryBasicStruct();
         $country->setAreaUuid('SWAG-AREA-UUID-1');
 
         $address->setCountry($country);
-        $address->getState()->setAreaCountryUuid('SWAG-AREA-COUNTRY-UUID-1');
+        $address->getCountryState()->setCountryUuid('SWAG-AREA-COUNTRY-UUID-1');
 
         return ShippingLocation::createFromAddress($address);
     }

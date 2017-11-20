@@ -1,4 +1,0 @@
-        <service class="Shopware\#classUc#\Factory\#classUc##typeUc#Factory" id="shopware.#table#.#typeLc#_factory">
-            <argument id="dbal_connection" type="service"/>
-            <argument type="service" id="shopware.extension.registry" />#factories#
-        </service>

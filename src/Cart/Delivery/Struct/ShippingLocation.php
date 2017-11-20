@@ -25,20 +25,20 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Delivery\Struct;
 
-use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
-use Shopware\AreaCountryState\Struct\AreaCountryStateBasicStruct;
-use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Country\Struct\CountryBasicStruct;
+use Shopware\Country\Struct\CountryStateBasicStruct;
+use Shopware\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Framework\Struct\Struct;
 
 class ShippingLocation extends Struct
 {
     /**
-     * @var AreaCountryBasicStruct
+     * @var CountryBasicStruct
      */
     protected $country;
 
     /**
-     * @var null|AreaCountryStateBasicStruct
+     * @var null|CountryStateBasicStruct
      */
     protected $state;
 
@@ -47,7 +47,7 @@ class ShippingLocation extends Struct
      */
     protected $address;
 
-    public function __construct(AreaCountryBasicStruct $country, ?AreaCountryStateBasicStruct $state, ?CustomerAddressBasicStruct $address)
+    public function __construct(CountryBasicStruct $country, ?CountryStateBasicStruct $state, ?CustomerAddressBasicStruct $address)
     {
         $this->country = $country;
         $this->state = $state;
@@ -58,17 +58,17 @@ class ShippingLocation extends Struct
     {
         return new self(
             $address->getCountry(),
-            $address->getState(),
+            $address->getCountryState(),
             $address
         );
     }
 
-    public static function createFromCountry(AreaCountryBasicStruct $country): ShippingLocation
+    public static function createFromCountry(CountryBasicStruct $country): ShippingLocation
     {
         return new self($country, null, null);
     }
 
-    public function getCountry(): AreaCountryBasicStruct
+    public function getCountry(): CountryBasicStruct
     {
         if ($this->address) {
             return $this->address->getCountry();
@@ -77,10 +77,10 @@ class ShippingLocation extends Struct
         return $this->country;
     }
 
-    public function getState(): ?AreaCountryStateBasicStruct
+    public function getState(): ?CountryStateBasicStruct
     {
         if ($this->address) {
-            return $this->address->getState();
+            return $this->address->getCountryState();
         }
 
         return $this->state;

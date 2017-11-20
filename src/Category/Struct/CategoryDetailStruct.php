@@ -2,22 +2,26 @@
 
 namespace Shopware\Category\Struct;
 
-use Shopware\CustomerGroup\Struct\CustomerGroupBasicCollection;
-use Shopware\Media\Struct\MediaBasicStruct;
-use Shopware\Product\Struct\ProductBasicCollection;
-use Shopware\ProductStream\Struct\ProductStreamBasicStruct;
+use Shopware\Category\Collection\CategoryTranslationBasicCollection;
+use Shopware\Product\Collection\ProductBasicCollection;
+use Shopware\Shop\Collection\ShopBasicCollection;
 
 class CategoryDetailStruct extends CategoryBasicStruct
 {
     /**
-     * @var ProductStreamBasicStruct|null
+     * @var CategoryBasicStruct|null
      */
-    protected $productStream;
+    protected $parent;
 
     /**
-     * @var MediaBasicStruct|null
+     * @var CategoryTranslationBasicCollection
      */
-    protected $media;
+    protected $translations;
+
+    /**
+     * @var ShopBasicCollection
+     */
+    protected $shops;
 
     /**
      * @var string[]
@@ -32,37 +36,64 @@ class CategoryDetailStruct extends CategoryBasicStruct
     /**
      * @var string[]
      */
-    protected $blockedCustomerGroupsUuids = [];
+    protected $productTreeUuids = [];
 
     /**
-     * @var CustomerGroupBasicCollection
+     * @var ProductBasicCollection
      */
-    protected $blockedCustomerGroups;
+    protected $productTree;
+
+    /**
+     * @var string[]
+     */
+    protected $seoProductUuids = [];
+
+    /**
+     * @var ProductBasicCollection
+     */
+    protected $seoProducts;
 
     public function __construct()
     {
+        $this->translations = new CategoryTranslationBasicCollection();
+
+        $this->shops = new ShopBasicCollection();
+
         $this->products = new ProductBasicCollection();
-        $this->blockedCustomerGroups = new CustomerGroupBasicCollection();
+
+        $this->productTree = new ProductBasicCollection();
+
+        $this->seoProducts = new ProductBasicCollection();
     }
 
-    public function getProductStream(): ?ProductStreamBasicStruct
+    public function getParent(): ?CategoryBasicStruct
     {
-        return $this->productStream;
+        return $this->parent;
     }
 
-    public function setProductStream(?ProductStreamBasicStruct $productStream): void
+    public function setParent(?CategoryBasicStruct $parent): void
     {
-        $this->productStream = $productStream;
+        $this->parent = $parent;
     }
 
-    public function getMedia(): ?MediaBasicStruct
+    public function getTranslations(): CategoryTranslationBasicCollection
     {
-        return $this->media;
+        return $this->translations;
     }
 
-    public function setMedia(?MediaBasicStruct $media): void
+    public function setTranslations(CategoryTranslationBasicCollection $translations): void
     {
-        $this->media = $media;
+        $this->translations = $translations;
+    }
+
+    public function getShops(): ShopBasicCollection
+    {
+        return $this->shops;
+    }
+
+    public function setShops(ShopBasicCollection $shops): void
+    {
+        $this->shops = $shops;
     }
 
     public function getProductUuids(): array
@@ -85,23 +116,43 @@ class CategoryDetailStruct extends CategoryBasicStruct
         $this->products = $products;
     }
 
-    public function getBlockedCustomerGroupsUuids(): array
+    public function getProductTreeUuids(): array
     {
-        return $this->blockedCustomerGroupsUuids;
+        return $this->productTreeUuids;
     }
 
-    public function setBlockedCustomerGroupsUuids(array $blockedCustomerGroupsUuids): void
+    public function setProductTreeUuids(array $productTreeUuids): void
     {
-        $this->blockedCustomerGroupsUuids = $blockedCustomerGroupsUuids;
+        $this->productTreeUuids = $productTreeUuids;
     }
 
-    public function getBlockedCustomerGroups(): CustomerGroupBasicCollection
+    public function getProductTree(): ProductBasicCollection
     {
-        return $this->blockedCustomerGroups;
+        return $this->productTree;
     }
 
-    public function setBlockedCustomerGroups(CustomerGroupBasicCollection $blockedCustomerGroups): void
+    public function setProductTree(ProductBasicCollection $productTree): void
     {
-        $this->blockedCustomerGroups = $blockedCustomerGroups;
+        $this->productTree = $productTree;
+    }
+
+    public function getSeoProductUuids(): array
+    {
+        return $this->seoProductUuids;
+    }
+
+    public function setSeoProductUuids(array $seoProductUuids): void
+    {
+        $this->seoProductUuids = $seoProductUuids;
+    }
+
+    public function getSeoProducts(): ProductBasicCollection
+    {
+        return $this->seoProducts;
+    }
+
+    public function setSeoProducts(ProductBasicCollection $seoProducts): void
+    {
+        $this->seoProducts = $seoProducts;
     }
 }

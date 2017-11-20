@@ -10,15 +10,15 @@
         </service>
 
         <service class="Shopware\DbalIndexing\Indexer\ProductCategoryIndexer" id="shopware.dbal_indexing.product_category_indexer">
-            <argument id="shopware.product.repository" type="service"/>
+            <argument id="Shopware\Product\Repository\ProductRepository" type="service"/>
             <argument id="dbal_connection" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <tag name="shopware.dbal_indexing.indexer"/>
         </service>
 
         <service class="Shopware\DbalIndexing\Indexer\ListingPriceIndexer" id="shopware.dbal_indexing.listing_price_indexer">
-            <argument id="shopware.product.repository" type="service"/>
-            <argument id="shopware.customer_group.repository" type="service"/>
+            <argument id="Shopware\Product\Repository\ProductRepository" type="service"/>
+            <argument id="Shopware\Customer\Repository\CustomerGroupRepository" type="service"/>
             <argument id="shopware.dbal_indexing.listing_price_loader" type="service"/>
             <argument id="dbal_connection" type="service"/>
             <argument id="event_dispatcher" type="service"/>
@@ -26,13 +26,13 @@
             <tag name="shopware.dbal_indexing.indexer"/>
         </service>
 
-        <service class="Shopware\DbalIndexing\Indexer\VoteAverageIndexer" id="shopware.dbal_indexing.vote_average_inder">
-            <argument id="shopware.product.repository" type="service"/>
-            <argument id="shopware.dbal_indexing.loader.vote_average_loader" type="service"/>
-            <argument id="dbal_connection" type="service"/>
-            <argument id="event_dispatcher" type="service"/>
-            <tag name="shopware.dbal_indexing.indexer"/>
-        </service>
+        <!--<service class="Shopware\DbalIndexing\Indexer\VoteAverageIndexer" id="shopware.dbal_indexing.vote_average_inder">-->
+            <!--<argument id="shopware.product.product_repository" type="service"/>-->
+            <!--<argument id="shopware.dbal_indexing.loader.vote_average_loader" type="service"/>-->
+            <!--<argument id="dbal_connection" type="service"/>-->
+            <!--<argument id="event_dispatcher" type="service"/>-->
+            <!--<tag name="shopware.dbal_indexing.indexer"/>-->
+        <!--</service>-->
 
 
         <service class="Shopware\DbalIndexing\Loader\ListingPriceLoader" id="shopware.dbal_indexing.listing_price_loader">
@@ -42,7 +42,7 @@
         <service class="Shopware\DbalIndexing\Command\RefreshIndexCommand" id="shopware.dbal_indexing.command.refresh_index_command">
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
-            <argument type="service" id="shopware.shop.repository"/>
+            <argument type="service" id="Shopware\Shop\Repository\ShopRepository"/>
             <argument type="service" id="shopware.dbal_indexing.indexer.shop_indexer"/>
         </service>
 

@@ -1,4 +1,0 @@
-    /**
-     * @var #associationClassUc#BasicReader
-     */
-    private $#associationClassLc#BasicReader;

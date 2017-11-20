@@ -24,7 +24,7 @@
 
 namespace Shopware\Api\Write\FieldAware;
 
-use Shopware\Api\Write\Field\Field;
+use Shopware\Api\Entity\Field\Field;
 
 class FieldExtenderCollection extends FieldExtender
 {

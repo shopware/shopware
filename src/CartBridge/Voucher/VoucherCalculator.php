@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\CartBridge\Voucher;
 
@@ -6,7 +6,6 @@ use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Cart\Price\PercentagePriceCalculator;
-use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\CartBridge\Voucher\Struct\CalculatedVoucher;
 use Shopware\CartBridge\Voucher\Struct\VoucherData;
 use Shopware\Context\Struct\ShopContext;
@@ -37,7 +36,6 @@ class VoucherCalculator
         VoucherData $voucher,
         LineItemInterface $lineItem
     ): CalculatedVoucher {
-
         $prices = $calculatedCart->getCalculatedLineItems()->filterGoods()->getPrices();
 
         if ($voucher->getPercentage() !== null) {

@@ -25,23 +25,27 @@
 namespace Shopware\Api\Write\Query;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Search\QuerySelection;
+use Shopware\Api\Dbal\EntityDefinitionResolver;
+use Shopware\Api\Entity\EntityDefinition;
+use Shopware\Api\Entity\Field\Field;
+use Shopware\Api\Write\FieldAware\StorageAware;
 
 class InsertQuery extends WriteQuery
 {
-    /**
-     * @var string
-     */
-    private $tableName;
     /**
      * @var array
      */
     private $payload;
 
-    public function __construct(string $tableName, array $payload)
+    /**
+     * @var string|EntityDefinition
+     */
+    private $definition;
+
+    public function __construct(string $definition, array $payload)
     {
-        $this->tableName = $tableName;
         $this->payload = $payload;
+        $this->definition = $definition;
     }
 
     public function isExecutable(): bool
@@ -51,11 +55,38 @@ class InsertQuery extends WriteQuery
 
     public function execute(Connection $connection): int
     {
-        return $connection->insert(QuerySelection::escape($this->tableName), $this->payload);
+        $table = $this->definition::getEntityName();
+
+        return $connection->insert(EntityDefinitionResolver::escape($table), $this->payload);
     }
 
     public function getPayload(): array
     {
         return $this->payload;
+    }
+
+    public function getEntityDefinition(): string
+    {
+        return $this->definition;
+    }
+
+    public function getEntityPrimaryKey()
+    {
+        $pk = $this->definition::getPrimaryKeys();
+        $data = [];
+
+        if ($pk->count() === 1) {
+            /** @var StorageAware|Field $field */
+            $field = $pk->first();
+
+            return $this->payload[$field->getStorageName()];
+        }
+
+        /** @var StorageAware|Field $field */
+        foreach ($pk as $field) {
+            $data[$field->getPropertyName()] = $this->payload[$field->getStorageName()];
+        }
+
+        return $data;
     }
 }

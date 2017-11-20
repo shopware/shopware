@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\Product;
 
-use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Cart\CollectorInterface;
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\CartBridge\Product\Struct\ProductFetchDefinition;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;

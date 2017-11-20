@@ -2,24 +2,42 @@
 
 namespace Shopware\Customer\Struct;
 
-use Shopware\CustomerAddress\Struct\CustomerAddressBasicCollection;
+use Shopware\Customer\Collection\CustomerAddressBasicCollection;
+use Shopware\Order\Collection\OrderBasicCollection;
 use Shopware\Shop\Struct\ShopBasicStruct;
 
 class CustomerDetailStruct extends CustomerBasicStruct
 {
+    /**
+     * @var ShopBasicStruct
+     */
+    protected $mainShop;
+
     /**
      * @var CustomerAddressBasicCollection
      */
     protected $addresses;
 
     /**
-     * @var ShopBasicStruct
+     * @var OrderBasicCollection
      */
-    protected $shop;
+    protected $orders;
 
     public function __construct()
     {
         $this->addresses = new CustomerAddressBasicCollection();
+
+        $this->orders = new OrderBasicCollection();
+    }
+
+    public function getMainShop(): ShopBasicStruct
+    {
+        return $this->mainShop;
+    }
+
+    public function setMainShop(ShopBasicStruct $mainShop): void
+    {
+        $this->mainShop = $mainShop;
     }
 
     public function getAddresses(): CustomerAddressBasicCollection
@@ -32,13 +50,13 @@ class CustomerDetailStruct extends CustomerBasicStruct
         $this->addresses = $addresses;
     }
 
-    public function getShop(): ShopBasicStruct
+    public function getOrders(): OrderBasicCollection
     {
-        return $this->shop;
+        return $this->orders;
     }
 
-    public function setShop(ShopBasicStruct $shop): void
+    public function setOrders(OrderBasicCollection $orders): void
     {
-        $this->shop = $shop;
+        $this->orders = $orders;
     }
 }

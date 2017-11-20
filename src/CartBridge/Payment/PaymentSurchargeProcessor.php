@@ -1,21 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\CartBridge\Payment;
-
 
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\CartContainer;
-use Shopware\Cart\LineItem\Discount;
+use Shopware\Cart\LineItem\CalculatedLineItem;
 use Shopware\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Cart\Price\PercentagePriceCalculator;
-use Shopware\Cart\Price\PriceCalculator;
-use Shopware\Cart\Price\Struct\PriceDefinition;
-use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
-use Shopware\Cart\LineItem\CalculatedLineItem;
-use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 
 class PaymentSurchargeProcessor implements CartProcessorInterface
 {
@@ -42,8 +36,7 @@ class PaymentSurchargeProcessor implements CartProcessorInterface
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
         ShopContext $context
-    ): void
-    {
+    ): void {
         if (!$context->getCustomer()) {
             return;
         }

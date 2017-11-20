@@ -27,8 +27,8 @@ namespace Shopware\Framework\Routing;
 use Shopware\Api\Search\Criteria;
 use Shopware\Api\Search\Query\TermQuery;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\SeoUrl\Repository\SeoUrlRepository;
-use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
+use Shopware\Seo\Repository\SeoUrlRepository;
+use Shopware\Seo\Struct\SeoUrlBasicStruct;
 
 class UrlResolver implements UrlResolverInterface
 {
@@ -48,7 +48,7 @@ class UrlResolver implements UrlResolverInterface
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('seo_url.shopUuid', $shopUuid));
-        $criteria->addFilter(new TermQuery('seo_url.seoHash', sha1($url)));
+        $criteria->addFilter(new TermQuery('seo_url.seoPathInfo', $url));
         $urls = $this->seoUrlRepository->search($criteria, $context);
 
         return $urls->getBySeoPathInfo($url);

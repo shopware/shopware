@@ -1,1 +1,0 @@
-            $product->setCategories($categoryTree->getList($product->getCategoryUuids()));

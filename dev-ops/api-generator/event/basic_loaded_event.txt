@@ -1,0 +1,46 @@
+<?php
+
+namespace Shopware\#bundle#\Event\#classUc#;
+
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\#bundle#\Collection\#classUc#BasicCollection;
+#uses#
+
+class #classUc#BasicLoadedEvent extends NestedEvent
+{
+    const NAME = '#table#.basic.loaded';
+
+    /**
+     * @var TranslationContext
+     */
+    protected $context;
+
+    /**
+     * @var #classUc#BasicCollection
+     */
+    protected $#pluralLc#;
+
+    public function __construct(#classUc#BasicCollection $#pluralLc#, TranslationContext $context)
+    {
+        $this->context = $context;
+        $this->#pluralLc# = $#pluralLc#;
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->context;
+    }
+
+    public function get#pluralUc#(): #classUc#BasicCollection
+    {
+        return $this->#pluralLc#;
+    }
+#events#
+}

@@ -31,13 +31,13 @@ use Shopware\Cart\LineItem\LineItemCollection;
 use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\Struct\PriceDefinition;
-use Shopware\CartBridge\Product\Struct\CalculatedProduct;
 use Shopware\Cart\Tax\Struct\TaxRule;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\CartBridge\Product\Struct\CalculatedProduct;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 use Shopware\Product\Struct\ProductBasicStruct;
-use Shopware\ProductPrice\Struct\ProductPriceBasicStruct;
+use Shopware\Product\Struct\ProductPriceBasicStruct;
 
 class ProductCalculator
 {
@@ -56,7 +56,6 @@ class ProductCalculator
         ShopContext $context,
         StructCollection $dataCollection
     ): CalculatedLineItemCollection {
-
         $products = new CalculatedLineItemCollection();
 
         /** @var LineItemInterface $lineItem */
@@ -130,7 +129,7 @@ class ProductCalculator
     private function getQuantityPrice(int $quantity, ProductBasicStruct $product): ?PriceDefinition
     {
         $product->getPrices()->sort(
-            function(ProductPriceBasicStruct $a, ProductPriceBasicStruct $b) {
+            function (ProductPriceBasicStruct $a, ProductPriceBasicStruct $b) {
                 return $a->getQuantityStart() < $b->getQuantityStart();
             }
         );
@@ -140,7 +139,7 @@ class ProductCalculator
                 return new PriceDefinition(
                     $price->getPrice(),
                     new TaxRuleCollection([
-                        new TaxRule($product->getTax()->getRate())
+                        new TaxRule($product->getTax()->getRate()),
                     ]),
                     $quantity
                 );

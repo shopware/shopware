@@ -1,1 +1,0 @@
-<argument id="shopware.#table#.writer" type="service"/>

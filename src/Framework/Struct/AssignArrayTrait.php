@@ -37,6 +37,7 @@ trait AssignArrayTrait
             } catch (\Error | \Exception $error) {
             }
         }
+
         return $this;
     }
 }

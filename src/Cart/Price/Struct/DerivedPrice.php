@@ -31,7 +31,7 @@ use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 class DerivedPrice extends Price
 {
     /**
-     * @var PriceCollection $calculationBasePrices
+     * @var PriceCollection
      */
     private $calculationBasePrices;
 

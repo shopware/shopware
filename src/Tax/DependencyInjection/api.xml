@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+         <service class="Shopware\Tax\Definition\TaxDefinition" id="shopware.tax.tax_definition" >
+            <tag name="shopware.entity.definition" entity="tax" />
+        </service>
+        <service class="Shopware\Tax\Repository\TaxRepository" id="Shopware\Tax\Repository\TaxRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Tax\Definition\TaxAreaRuleDefinition" id="shopware.tax.tax_area_rule_definition" >
+            <tag name="shopware.entity.definition" entity="tax_area_rule" />
+        </service>
+        <service class="Shopware\Tax\Repository\TaxAreaRuleRepository" id="Shopware\Tax\Repository\TaxAreaRuleRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Tax\Definition\TaxAreaRuleTranslationDefinition" id="shopware.tax.tax_area_rule_translation_definition" >
+            <tag name="shopware.entity.definition" entity="tax_area_rule_translation" />
+        </service>
+        <service class="Shopware\Tax\Repository\TaxAreaRuleTranslationRepository" id="Shopware\Tax\Repository\TaxAreaRuleTranslationRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+    </services>
+</container>                
+                

@@ -32,10 +32,10 @@ use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\CartBridge\Product\Struct\CalculatedProduct;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Product\Repository\ProductMediaRepository;
 use Shopware\Product\Repository\ProductRepository;
-use Shopware\ProductMedia\Repository\ProductMediaRepository;
-use Shopware\ProductMedia\Searcher\ProductMediaSearchResult;
-use Shopware\ProductMedia\Struct\ProductMediaBasicStruct;
+use Shopware\Product\Struct\ProductMediaBasicStruct;
+use Shopware\Product\Struct\ProductMediaSearchResult;
 
 class ViewProductTransformer implements ViewLineItemTransformerInterface
 {
@@ -96,12 +96,6 @@ class ViewProductTransformer implements ViewLineItemTransformerInterface
         }
     }
 
-    /**
-     * @param array       $uuids
-     * @param ShopContext $context
-     *
-     * @return ProductMediaSearchResult
-     */
     protected function fetchCovers(array $uuids, ShopContext $context): ProductMediaSearchResult
     {
         /** @var ProductMediaSearchResult $media */

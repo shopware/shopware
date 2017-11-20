@@ -10,14 +10,13 @@ use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\DbalIndexing\Loader\VoteAverageLoader;
 use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Product\Event\ProductWrittenEvent;
+use Shopware\Product\Event\Product\ProductWrittenEvent;
 use Shopware\Product\Repository\ProductRepository;
-use Shopware\ProductVoteAverage\Struct\ProductVoteAverageBasicStruct;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class VoteAverageIndexer implements IndexerInterface
 {
-    const TABLE = 'product_vote_average_ro';
+    const TABLE = 'product_vote_average';
 
     /**
      * @var ProductRepository

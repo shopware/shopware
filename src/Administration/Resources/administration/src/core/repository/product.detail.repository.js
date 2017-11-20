@@ -100,7 +100,7 @@ function createProduct(proxy) {
         data.categories = mapCategories(data.categories);
     }
 
-    return this.productService.create([proxy.data]).then((response) => {
+    return this.productService.create(proxy.data).then((response) => {
         if (response.errors.length) {
             return Promise.reject(new Error('API error'));
         }
@@ -120,7 +120,6 @@ function getNewProduct() {
     const product = {
         uuid: null,
         taxUuid: 'SWAG-TAX-UUID-1',
-        isMain: true,
         manufacturerUuid: null,
         prices: [{
             uuid: null,

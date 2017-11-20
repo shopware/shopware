@@ -2,155 +2,153 @@
 
 namespace Shopware\Order\Repository;
 
-use Shopware\Api\Read\BasicReaderInterface;
-use Shopware\Api\Read\DetailReaderInterface;
+use Shopware\Api\Read\EntityReaderInterface;
 use Shopware\Api\RepositoryInterface;
 use Shopware\Api\Search\AggregationResult;
 use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\SearcherInterface;
+use Shopware\Api\Search\EntityAggregatorInterface;
+use Shopware\Api\Search\EntitySearcherInterface;
 use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Write\EntityWriterInterface;
 use Shopware\Api\Write\GenericWrittenEvent;
-use Shopware\Api\Write\WriterInterface;
+use Shopware\Api\Write\WriteContext;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Order\Event\OrderBasicLoadedEvent;
-use Shopware\Order\Event\OrderDetailLoadedEvent;
-use Shopware\Order\Event\OrderWrittenEvent;
-use Shopware\Order\Searcher\OrderSearchResult;
-use Shopware\Order\Struct\OrderBasicCollection;
-use Shopware\Order\Struct\OrderDetailCollection;
+use Shopware\Order\Collection\OrderBasicCollection;
+use Shopware\Order\Collection\OrderDetailCollection;
+use Shopware\Order\Definition\OrderDefinition;
+use Shopware\Order\Event\Order\OrderAggregationResultLoadedEvent;
+use Shopware\Order\Event\Order\OrderBasicLoadedEvent;
+use Shopware\Order\Event\Order\OrderDetailLoadedEvent;
+use Shopware\Order\Event\Order\OrderSearchResultLoadedEvent;
+use Shopware\Order\Event\Order\OrderUuidSearchResultLoadedEvent;
+use Shopware\Order\Struct\OrderSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderRepository implements RepositoryInterface
 {
     /**
-     * @var DetailReaderInterface
+     * @var EntityReaderInterface
      */
-    protected $detailReader;
+    private $reader;
 
     /**
-     * @var BasicReaderInterface
+     * @var EntityWriterInterface
      */
-    private $basicReader;
+    private $writer;
+
+    /**
+     * @var EntitySearcherInterface
+     */
+    private $searcher;
+
+    /**
+     * @var EntityAggregatorInterface
+     */
+    private $aggregator;
 
     /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
-    /**
-     * @var SearcherInterface
-     */
-    private $searcher;
-
-    /**
-     * @var WriterInterface
-     */
-    private $writer;
-
     public function __construct(
-        DetailReaderInterface $detailReader,
-        BasicReaderInterface $basicReader,
-        EventDispatcherInterface $eventDispatcher,
-        SearcherInterface $searcher,
-        WriterInterface $writer
+        EntityReaderInterface $reader,
+        EntityWriterInterface $writer,
+        EntitySearcherInterface $searcher,
+        EntityAggregatorInterface $aggregator,
+        EventDispatcherInterface $eventDispatcher
     ) {
-        $this->detailReader = $detailReader;
-        $this->basicReader = $basicReader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->searcher = $searcher;
+        $this->reader = $reader;
         $this->writer = $writer;
-    }
-
-    public function readBasic(array $uuids, TranslationContext $context): OrderBasicCollection
-    {
-        if (empty($uuids)) {
-            return new OrderBasicCollection();
-        }
-
-        /** @var OrderBasicCollection $collection */
-        $collection = $this->basicReader->readBasic($uuids, $context);
-
-        $this->eventDispatcher->dispatch(
-            OrderBasicLoadedEvent::NAME,
-            new OrderBasicLoadedEvent($collection, $context)
-        );
-
-        return $collection;
-    }
-
-    public function readDetail(array $uuids, TranslationContext $context): OrderDetailCollection
-    {
-        if (empty($uuids)) {
-            return new OrderDetailCollection();
-        }
-
-        /** @var OrderDetailCollection $collection */
-        $collection = $this->detailReader->readDetail($uuids, $context);
-
-        $this->eventDispatcher->dispatch(
-            OrderDetailLoadedEvent::NAME,
-            new OrderDetailLoadedEvent($collection, $context)
-        );
-
-        return $collection;
+        $this->searcher = $searcher;
+        $this->aggregator = $aggregator;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function search(Criteria $criteria, TranslationContext $context): OrderSearchResult
     {
-        /** @var OrderSearchResult $result */
-        $result = $this->searcher->search($criteria, $context);
+        $uuids = $this->searchUuids($criteria, $context);
 
-        $this->eventDispatcher->dispatch(
-            OrderBasicLoadedEvent::NAME,
-            new OrderBasicLoadedEvent($result, $context)
-        );
+        $entities = $this->readBasic($uuids->getUuids(), $context);
+
+        $aggregations = null;
+        if ($criteria->getAggregations()) {
+            $aggregations = $this->aggregate($criteria, $context);
+        }
+
+        $result = OrderSearchResult::createFromResults($uuids, $entities, $aggregations);
+
+        $event = new OrderSearchResultLoadedEvent($result);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
+        return $result;
+    }
+
+    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    {
+        $result = $this->aggregator->aggregate(OrderDefinition::class, $criteria, $context);
+
+        $event = new OrderAggregationResultLoadedEvent($result);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
     public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
     {
-        return $this->searcher->searchUuids($criteria, $context);
-    }
+        $result = $this->searcher->search(OrderDefinition::class, $criteria, $context);
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
-    {
-        $result = $this->searcher->aggregate($criteria, $context);
+        $event = new OrderUuidSearchResultLoadedEvent($result);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function getEntityName(): string
+    public function readBasic(array $uuids, TranslationContext $context): OrderBasicCollection
     {
-        return 'order';
+        /** @var OrderBasicCollection $entities */
+        $entities = $this->reader->readBasic(OrderDefinition::class, $uuids, $context);
+
+        $event = new OrderBasicLoadedEvent($entities, $context);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
+        return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): OrderWrittenEvent
+    public function readDetail(array $uuids, TranslationContext $context): OrderDetailCollection
     {
-        $event = $this->writer->update($data, $context);
+        /** @var OrderDetailCollection $entities */
+        $entities = $this->reader->readDetail(OrderDefinition::class, $uuids, $context);
 
-        $container = new GenericWrittenEvent($event, $context);
-        $this->eventDispatcher->dispatch($container::NAME, $container);
+        $event = new OrderDetailLoadedEvent($entities, $context);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
+        return $entities;
+    }
+
+    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    {
+        $affected = $this->writer->update(OrderDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $event = GenericWrittenEvent::createFromWriterResult($affected, $context, []);
+        $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): OrderWrittenEvent
+    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
     {
-        $event = $this->writer->upsert($data, $context);
-
-        $container = new GenericWrittenEvent($event, $context);
-        $this->eventDispatcher->dispatch($container::NAME, $container);
+        $affected = $this->writer->upsert(OrderDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $event = GenericWrittenEvent::createFromWriterResult($affected, $context, []);
+        $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): OrderWrittenEvent
+    public function create(array $data, TranslationContext $context): GenericWrittenEvent
     {
-        $event = $this->writer->create($data, $context);
-
-        $container = new GenericWrittenEvent($event, $context);
-        $this->eventDispatcher->dispatch($container::NAME, $container);
+        $affected = $this->writer->insert(OrderDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $event = GenericWrittenEvent::createFromWriterResult($affected, $context, []);
+        $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }

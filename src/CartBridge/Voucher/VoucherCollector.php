@@ -24,8 +24,8 @@
 
 namespace Shopware\CartBridge\Voucher;
 
-use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Cart\CollectorInterface;
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\CartBridge\Voucher\Struct\VoucherData;
 use Shopware\CartBridge\Voucher\Struct\VoucherFetchDefinition;
 use Shopware\Context\Struct\ShopContext;

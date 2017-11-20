@@ -6,4 +6,7 @@ use Shopware\Api\Search\CriteriaPartInterface;
 
 interface Aggregation extends CriteriaPartInterface
 {
+    public function getField(): string;
+
+    public function getName(): string;
 }

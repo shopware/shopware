@@ -2,22 +2,33 @@
 
 namespace Shopware\Product\Struct;
 
-use Shopware\CustomerGroup\Struct\CustomerGroupBasicCollection;
-use Shopware\Framework\Struct\Struct;
-use Shopware\PriceGroup\Struct\PriceGroupBasicStruct;
-use Shopware\ProductListingPrice\Struct\ProductListingPriceBasicCollection;
-use Shopware\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
-use Shopware\ProductPrice\Struct\ProductPriceBasicCollection;
-use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
+use Shopware\Api\Entity\Entity;
+use Shopware\Product\Collection\ProductListingPriceBasicCollection;
+use Shopware\Product\Collection\ProductPriceBasicCollection;
 use Shopware\Tax\Struct\TaxBasicStruct;
 use Shopware\Unit\Struct\UnitBasicStruct;
 
-class ProductBasicStruct extends Struct
+class ProductBasicStruct extends Entity
 {
+    /**
+     * @var string|null
+     */
+    protected $taxUuid;
+
+    /**
+     * @var string|null
+     */
+    protected $manufacturerUuid;
+
+    /**
+     * @var string|null
+     */
+    protected $unitUuid;
+
     /**
      * @var string
      */
-    protected $uuid;
+    protected $name;
 
     /**
      * @var string|null
@@ -37,27 +48,7 @@ class ProductBasicStruct extends Struct
     /**
      * @var string|null
      */
-    protected $taxUuid;
-
-    /**
-     * @var string|null
-     */
-    protected $manufacturerUuid;
-
-    /**
-     * @var string|null
-     */
     protected $priceGroupUuid;
-
-    /**
-     * @var string|null
-     */
-    protected $filterGroupUuid;
-
-    /**
-     * @var string|null
-     */
-    protected $unitUuid;
 
     /**
      * @var string|null
@@ -190,11 +181,6 @@ class ProductBasicStruct extends Struct
     protected $additionalText;
 
     /**
-     * @var string
-     */
-    protected $name;
-
-    /**
      * @var string|null
      */
     protected $keywords;
@@ -220,58 +206,68 @@ class ProductBasicStruct extends Struct
     protected $packUnit;
 
     /**
-     * @var UnitBasicStruct|null
-     */
-    protected $unit;
-
-    /**
-     * @var ProductPriceBasicCollection
-     */
-    protected $prices;
-
-    /**
-     * @var ProductManufacturerBasicStruct
-     */
-    protected $manufacturer;
-
-    /**
-     * @var TaxBasicStruct
+     * @var TaxBasicStruct|null
      */
     protected $tax;
 
     /**
-     * @var SeoUrlBasicStruct|null
+     * @var ProductManufacturerBasicStruct|null
      */
-    protected $canonicalUrl;
+    protected $manufacturer;
 
     /**
-     * @var PriceGroupBasicStruct|null
+     * @var UnitBasicStruct|null
      */
-    protected $priceGroup;
-
-    /**
-     * @var string[]
-     */
-    protected $blockedCustomerGroupsUuids = [];
-
-    /**
-     * @var CustomerGroupBasicCollection
-     */
-    protected $blockedCustomerGroups;
+    protected $unit;
 
     /**
      * @var ProductListingPriceBasicCollection
      */
     protected $listingPrices;
 
-    public function getUuid(): string
+    /**
+     * @var ProductPriceBasicCollection
+     */
+    protected $prices;
+
+    public function getTaxUuid(): ?string
     {
-        return $this->uuid;
+        return $this->taxUuid;
     }
 
-    public function setUuid(string $uuid): void
+    public function setTaxUuid(?string $taxUuid): void
     {
-        $this->uuid = $uuid;
+        $this->taxUuid = $taxUuid;
+    }
+
+    public function getManufacturerUuid(): ?string
+    {
+        return $this->manufacturerUuid;
+    }
+
+    public function setManufacturerUuid(?string $manufacturerUuid): void
+    {
+        $this->manufacturerUuid = $manufacturerUuid;
+    }
+
+    public function getUnitUuid(): ?string
+    {
+        return $this->unitUuid;
+    }
+
+    public function setUnitUuid(?string $unitUuid): void
+    {
+        $this->unitUuid = $unitUuid;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
     }
 
     public function getContainerUuid(): ?string
@@ -304,26 +300,6 @@ class ProductBasicStruct extends Struct
         $this->active = $active;
     }
 
-    public function getTaxUuid(): ?string
-    {
-        return $this->taxUuid;
-    }
-
-    public function setTaxUuid(?string $taxUuid): void
-    {
-        $this->taxUuid = $taxUuid;
-    }
-
-    public function getManufacturerUuid(): ?string
-    {
-        return $this->manufacturerUuid;
-    }
-
-    public function setManufacturerUuid(?string $manufacturerUuid): void
-    {
-        $this->manufacturerUuid = $manufacturerUuid;
-    }
-
     public function getPriceGroupUuid(): ?string
     {
         return $this->priceGroupUuid;
@@ -332,26 +308,6 @@ class ProductBasicStruct extends Struct
     public function setPriceGroupUuid(?string $priceGroupUuid): void
     {
         $this->priceGroupUuid = $priceGroupUuid;
-    }
-
-    public function getFilterGroupUuid(): ?string
-    {
-        return $this->filterGroupUuid;
-    }
-
-    public function setFilterGroupUuid(?string $filterGroupUuid): void
-    {
-        $this->filterGroupUuid = $filterGroupUuid;
-    }
-
-    public function getUnitUuid(): ?string
-    {
-        return $this->unitUuid;
-    }
-
-    public function setUnitUuid(?string $unitUuid): void
-    {
-        $this->unitUuid = $unitUuid;
     }
 
     public function getSupplierNumber(): ?string
@@ -614,16 +570,6 @@ class ProductBasicStruct extends Struct
         $this->additionalText = $additionalText;
     }
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
     public function getKeywords(): ?string
     {
         return $this->keywords;
@@ -674,6 +620,26 @@ class ProductBasicStruct extends Struct
         $this->packUnit = $packUnit;
     }
 
+    public function getTax(): ?TaxBasicStruct
+    {
+        return $this->tax;
+    }
+
+    public function setTax(?TaxBasicStruct $tax): void
+    {
+        $this->tax = $tax;
+    }
+
+    public function getManufacturer(): ?ProductManufacturerBasicStruct
+    {
+        return $this->manufacturer;
+    }
+
+    public function setManufacturer(?ProductManufacturerBasicStruct $manufacturer): void
+    {
+        $this->manufacturer = $manufacturer;
+    }
+
     public function getUnit(): ?UnitBasicStruct
     {
         return $this->unit;
@@ -684,76 +650,6 @@ class ProductBasicStruct extends Struct
         $this->unit = $unit;
     }
 
-    public function getPrices(): ProductPriceBasicCollection
-    {
-        return $this->prices;
-    }
-
-    public function setPrices(ProductPriceBasicCollection $prices): void
-    {
-        $this->prices = $prices;
-    }
-
-    public function getManufacturer(): ProductManufacturerBasicStruct
-    {
-        return $this->manufacturer;
-    }
-
-    public function setManufacturer(ProductManufacturerBasicStruct $manufacturer): void
-    {
-        $this->manufacturer = $manufacturer;
-    }
-
-    public function getTax(): TaxBasicStruct
-    {
-        return $this->tax;
-    }
-
-    public function setTax(TaxBasicStruct $tax): void
-    {
-        $this->tax = $tax;
-    }
-
-    public function getCanonicalUrl(): ?SeoUrlBasicStruct
-    {
-        return $this->canonicalUrl;
-    }
-
-    public function setCanonicalUrl(?SeoUrlBasicStruct $canonicalUrl): void
-    {
-        $this->canonicalUrl = $canonicalUrl;
-    }
-
-    public function getPriceGroup(): ?PriceGroupBasicStruct
-    {
-        return $this->priceGroup;
-    }
-
-    public function setPriceGroup(?PriceGroupBasicStruct $priceGroup): void
-    {
-        $this->priceGroup = $priceGroup;
-    }
-
-    public function getBlockedCustomerGroupsUuids(): array
-    {
-        return $this->blockedCustomerGroupsUuids;
-    }
-
-    public function setBlockedCustomerGroupsUuids(array $blockedCustomerGroupsUuids): void
-    {
-        $this->blockedCustomerGroupsUuids = $blockedCustomerGroupsUuids;
-    }
-
-    public function getBlockedCustomerGroups(): CustomerGroupBasicCollection
-    {
-        return $this->blockedCustomerGroups;
-    }
-
-    public function setBlockedCustomerGroups(CustomerGroupBasicCollection $blockedCustomerGroups): void
-    {
-        $this->blockedCustomerGroups = $blockedCustomerGroups;
-    }
-
     public function getListingPrices(): ProductListingPriceBasicCollection
     {
         return $this->listingPrices;
@@ -762,5 +658,15 @@ class ProductBasicStruct extends Struct
     public function setListingPrices(ProductListingPriceBasicCollection $listingPrices): void
     {
         $this->listingPrices = $listingPrices;
+    }
+
+    public function getPrices(): ProductPriceBasicCollection
+    {
+        return $this->prices;
+    }
+
+    public function setPrices(ProductPriceBasicCollection $prices): void
+    {
+        $this->prices = $prices;
     }
 }

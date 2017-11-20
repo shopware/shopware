@@ -25,11 +25,11 @@
 namespace Shopware\Cart\Test\Tax;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
+use Shopware\Country\Struct\CountryBasicStruct;
+use Shopware\Customer\Struct\CustomerGroupBasicStruct;
 
 class TaxDetectorTest extends TestCase
 {
@@ -59,7 +59,7 @@ class TaxDetectorTest extends TestCase
     {
         $context = $this->createMock(ShopContext::class);
 
-        $country = new AreaCountryBasicStruct();
+        $country = new CountryBasicStruct();
         $country->setTaxFree(true);
 
         $context->expects($this->once())->method('getShippingLocation')->will($this->returnValue(
@@ -74,7 +74,7 @@ class TaxDetectorTest extends TestCase
     {
         $context = $this->createMock(ShopContext::class);
 
-        $country = new AreaCountryBasicStruct();
+        $country = new CountryBasicStruct();
         $country->setTaxFree(false);
 
         $context->expects($this->once())->method('getShippingLocation')->will($this->returnValue(

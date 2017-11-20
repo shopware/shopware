@@ -25,24 +25,21 @@
 namespace Shopware\Cart\Test\Common;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Area\Struct\AreaBasicStruct;
-use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
-use Shopware\AreaCountryState\Struct\AreaCountryStateBasicStruct;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
-
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\CartBridge\Product\ProductPriceGateway;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Country\Struct\CountryAreaBasicStruct;
+use Shopware\Country\Struct\CountryBasicStruct;
+use Shopware\Country\Struct\CountryStateBasicStruct;
 use Shopware\Currency\Struct\CurrencyBasicStruct;
+use Shopware\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Customer\Struct\CustomerBasicStruct;
-use Shopware\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\CustomerGroup\Struct\CustomerGroupBasicStruct;
-use Shopware\PaymentMethod\Struct\PaymentMethodBasicStruct;
-use Shopware\PriceGroupDiscount\Struct\PriceGroupDiscountBasicCollection;
-use Shopware\PriceGroupDiscount\Struct\PriceGroupDiscountBasicStruct;
-use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
+use Shopware\Customer\Struct\CustomerGroupBasicStruct;
+use Shopware\Payment\Struct\PaymentMethodBasicStruct;
+use Shopware\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Shop\Struct\ShopDetailStruct;
-use Shopware\Tax\Struct\TaxBasicCollection;
+use Shopware\Tax\Collection\TaxBasicCollection;
 use Shopware\Tax\Struct\TaxBasicStruct;
 
 class Generator extends TestCase
@@ -63,11 +60,11 @@ class Generator extends TestCase
             $shop = new ShopDetailStruct();
             $shop->setUuid('SWAG-SHOP-UUID-1');
             $shop->setIsDefault(true);
-            $shop->setFallbackLocaleUuid(null);
+            $shop->setFallbackTranslationUuid(null);
         }
 
         $currency = $currency ?: (new CurrencyBasicStruct())->assign([
-            'uuid' => '1'
+            'uuid' => '1',
         ]);
 
         if (!$currentCustomerGroup) {
@@ -80,12 +77,6 @@ class Generator extends TestCase
             $fallbackCustomerGroup->setUuid('EK1');
         }
 
-        if (!$priceGroupDiscounts) {
-            $priceGroupDiscount = new PriceGroupDiscountBasicStruct();
-            $priceGroupDiscount->setUuid('SWAG-PRICE-GROUP-DISCOUNT-UUID-1');
-            $priceGroupDiscounts = new PriceGroupDiscountBasicCollection([$priceGroupDiscount]);
-        }
-
         if (!$taxes) {
             $tax = new TaxBasicStruct();
             $tax->setUuid('SWAG-TAX-UUID-1');
@@ -96,25 +87,25 @@ class Generator extends TestCase
         }
 
         if (!$area) {
-            $area = new AreaBasicStruct();
+            $area = new CountryAreaBasicStruct();
             $area->setUuid('SWAG-AREA-UUID-1');
         }
 
         if (!$country) {
-            $country = new AreaCountryBasicStruct();
+            $country = new CountryBasicStruct();
             $country->setUuid('SWAG-AREA-COUNTRY-UUID-1');
             $country->setAreaUuid($area->getUuid());
         }
         if (!$state) {
-            $state = new AreaCountryStateBasicStruct();
+            $state = new CountryStateBasicStruct();
             $state->setUuid('SWAG-AREA-COUNTRY-STATE-UUID-1');
-            $state->setAreaCountryUuid($country->getUuid());
+            $state->setCountryUuid($country->getUuid());
         }
 
         if (!$shipping) {
             $shipping = new CustomerAddressBasicStruct();
             $shipping->setCountry($country);
-            $shipping->setState($state);
+            $shipping->setCountryState($state);
         }
 
         $paymentMethod = (new PaymentMethodBasicStruct())->assign(['uuid' => '1']);
@@ -127,7 +118,6 @@ class Generator extends TestCase
             $currentCustomerGroup,
             $fallbackCustomerGroup,
             $taxes,
-            $priceGroupDiscounts,
             $paymentMethod,
             $shippingMethod,
             ShippingLocation::createFromAddress($shipping),

@@ -1,9 +1,0 @@
-    public function get#classUc#Uuids(): array
-    {
-        return $this->#classLc#Uuids;
-    }
-
-    public function set#classUc#Uuids(array $#classLc#Uuids): void
-    {
-        $this->#classLc#Uuids = $#classLc#Uuids;
-    }

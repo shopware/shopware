@@ -25,7 +25,7 @@
 namespace Shopware\Framework\Routing;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
+use Shopware\Seo\Struct\SeoUrlBasicStruct;
 
 interface UrlResolverInterface
 {

@@ -31,11 +31,11 @@ use Shopware\Cart\LineItem\GoodsInterface;
 use Shopware\Cart\LineItem\LineItem;
 use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Price\Struct\PriceCollection;
-use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\Cart\Rule\Container\AndRule;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Cart\Test\Common\ConfiguredLineItem;
+use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\CartBridge\Voucher\Struct\CalculatedVoucher;
 use Shopware\CartBridge\Voucher\VoucherProcessor;
 

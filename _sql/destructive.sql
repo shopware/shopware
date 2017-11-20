@@ -8,7 +8,7 @@ ALTER TABLE `product_media` ADD FOREIGN KEY (`media_uuid`) REFERENCES `media` (`
 
 ## fix product votes without associated shop
 UPDATE product_vote SET shop_uuid = CONCAT('SWAG-SHOP-UUID-1') WHERE shop_id IS NULL;
-ALTER TABLE `product_vote_average_ro`
+ALTER TABLE `product_vote_average`
     ADD FOREIGN KEY (`shop_uuid`) REFERENCES `shop` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 
@@ -68,34 +68,34 @@ ALTER TABLE mail
 -- ;
 
 -- DROP IDs
-ALTER TABLE album
+ALTER TABLE media_album
     DROP `id`,
     DROP `parent_id`
 ;
 
-ALTER TABLE area
+ALTER TABLE country_area
     DROP `id`
 ;
 
-ALTER TABLE area_country
+ALTER TABLE country
     DROP `id`,
-    DROP `area_id`,
+    DROP `country_area_id`,
     DROP `en`
 ;
 
 ALTER TABLE area_country_attribute
     DROP `id`,
-    DROP `area_country_id`
+    DROP `country_id`
 ;
 
-ALTER TABLE area_country_state
+ALTER TABLE country_state
     DROP `id`,
-    DROP `area_country_id`
+    DROP `country_id`
 ;
 
 ALTER TABLE area_country_state_attribute
     DROP `id`,
-    DROP `area_country_state_id`
+    DROP `country_state_id`
 ;
 
 ALTER TABLE attribute_configuration
@@ -161,7 +161,9 @@ ALTER TABLE config_form
 
 ALTER TABLE config_form_field
     DROP `id`,
-    DROP `config_form_id`
+    DROP `config_form_id`,
+    DROP label,
+    DROP description
 ;
 
 ALTER TABLE config_form_field_translation
@@ -200,8 +202,8 @@ ALTER TABLE customer
 ALTER TABLE customer_address
     DROP `id`,
     DROP `customer_id`
-    #DROP `area_country_id`,
-    #DROP `area_country_state_id`
+    #DROP `country_area_id`,
+    #DROP `country_state_id`
 ;
 
 ALTER TABLE customer_address_attribute
@@ -307,7 +309,7 @@ ALTER TABLE mail_attribute
 
 ALTER TABLE media
     DROP `id`,
-    DROP `album_id`,
+    DROP `media_album_id`,
     DROP `user_id`,
     DROP `extension`,
     DROP `width`,
@@ -335,7 +337,7 @@ ALTER TABLE payment_method_attribute
 
 ALTER TABLE payment_method_country
     DROP `payment_method_id`,
-    DROP `area_country_id`
+    DROP `country_id`
 ;
 
 ALTER TABLE payment_method_shop
@@ -420,7 +422,7 @@ ALTER TABLE product_category
   ADD PRIMARY KEY (`product_uuid`, `category_uuid`)
 ;
 
-ALTER TABLE product_category_seo
+ALTER TABLE product_seo_category
     DROP `id`,
     DROP `shop_id`,
     DROP `product_id`,
@@ -575,17 +577,17 @@ DROP TABLE s_media_album_settings;
 ALTER TABLE `product_stream` DROP `sorting`;
 
 
-ALTER TABLE `album`
+ALTER TABLE `media_album`
     DROP `name`;
 
-ALTER TABLE `area`
+ALTER TABLE `country_area`
     DROP `name`;
 
-ALTER TABLE `area_country`
+ALTER TABLE `country`
     DROP `name`,
     DROP `notice`;
 
-ALTER TABLE `area_country_state`
+ALTER TABLE `country_state`
     DROP `name`;
 
 ALTER TABLE `category`
@@ -605,8 +607,8 @@ ALTER TABLE `customer`
     DROP `price_group_uuid`;
 
 ALTER TABLE `customer_address`
-    DROP `area_country_id`,
-    DROP `area_country_state_id`;
+    DROP `country_id`,
+    DROP `country_state_id`;
 
 ALTER TABLE `customer_group`
     DROP `name`,
@@ -700,6 +702,7 @@ ALTER TABLE `shipping_method`
     DROP `description`,
     DROP `comment`,
     DROP `shop_id`,
+    DROP `shop_uuid`,
     DROP `customer_group_id`;
 
 ALTER TABLE `shipping_method_category`
@@ -708,7 +711,7 @@ ALTER TABLE `shipping_method_category`
 
 ALTER TABLE `shipping_method_country`
     DROP `shipping_method_id`,
-    DROP `area_country_id`;
+    DROP `country_id`;
 
 ALTER TABLE `shipping_method_holiday`
     DROP `shipping_method_id`,
@@ -749,7 +752,7 @@ ALTER TABLE `shop`
     DROP `fallback_id`,
     DROP `payment_method_id`,
     DROP `shipping_method_id`,
-    DROP `area_country_id`
+    DROP `country_id`
 ;
 
 ALTER TABLE `shop_form`
@@ -877,9 +880,9 @@ ALTER TABLE `media`
 
 ALTER TABLE `tax_area_rule`
     DROP `id`,
-    DROP `area_id`,
-    DROP `area_country_id`,
-    DROP `area_country_state_id`,
+    DROP `country_id`,
+    DROP `country_area_id`,
+    DROP `country_state_id`,
     DROP `tax_id`,
     DROP `customer_group_id`
 ;
@@ -894,6 +897,21 @@ ALTER TABLE `user_attribute`
     DROP `id`,
     DROP `user_id`
 ;
+
+ALTER TABLE config_form
+    DROP label,
+    DROP description
+;
+
+ALTER TABLE `mail`
+    DROP `from_mail`,
+    DROP `from_name`,
+    DROP `subject`,
+    DROP `content`,
+    DROP `content_html`;
+
+# MLP reduction
+ALTER TABLE product DROP COLUMN filter_group_uuid;
 
 DROP TABLE `s_order_attributes`;
 DROP TABLE `s_order`;
@@ -914,4 +932,185 @@ DROP TABLE `s_order_number`;
 DROP TABLE `s_order_shippingaddress_attributes`;
 DROP TABLE `s_order_shippingaddress`;
 DROP TABLE `product_detail`;
-
+DROP TABLE area_country_attribute;
+DROP TABLE area_country_state_attribute;
+DROP TABLE attribute_configuration_translation;
+DROP TABLE attribute_configuration;
+DROP TABLE blog_attribute;
+DROP TABLE blog_comment;
+DROP TABLE blog_media;
+DROP TABLE blog_product;
+DROP TABLE blog_tag_translation;
+DROP TABLE blog_tag;
+DROP TABLE blog_translation;
+DROP TABLE blog;
+DROP TABLE category_attribute;
+DROP TABLE category_avoid_customer_group;
+DROP TABLE customer_address_attribute;
+DROP TABLE customer_attribute;
+DROP TABLE customer_group_attribute;
+DROP TABLE filter_attribute;
+DROP TABLE filter_option_attribute;
+DROP TABLE filter_option_translation;
+DROP TABLE filter_product;
+DROP TABLE filter_relation;
+DROP TABLE filter_translation;
+DROP TABLE filter_value_attribute;
+DROP TABLE filter_value_translation;
+DROP TABLE filter_value;
+DROP TABLE filter_option;
+DROP TABLE filter;
+DROP TABLE mail_attribute;
+DROP TABLE media_attribute;
+DROP TABLE payment_method_attribute;
+DROP TABLE payment_method_country;
+DROP TABLE payment_method_shop;
+DROP TABLE plugin_category;
+DROP TABLE premium_product;
+DROP TABLE price_group_discount;
+DROP TABLE price_group_translation;
+DROP TABLE price_group;
+DROP TABLE product_accessory;
+DROP TABLE product_also_bought_ro;
+DROP TABLE product_attachment_attribute;
+DROP TABLE product_attachment_translation;
+DROP TABLE product_attachment;
+DROP TABLE product_attribute;
+DROP TABLE product_avoid_customer_group;
+DROP TABLE product_configurator_dependency;
+DROP TABLE product_configurator_group_attribute;
+DROP TABLE product_configurator_group_translation;
+DROP TABLE product_configurator_group;
+DROP TABLE product_configurator_option_attribute;
+DROP TABLE product_configurator_option_relation;
+DROP TABLE product_configurator_option_translation;
+DROP TABLE product_configurator_option;
+DROP TABLE product_configurator_price_variation;
+DROP TABLE product_configurator_set_group_relation;
+DROP TABLE product_configurator_set_option_relation;
+DROP TABLE product_configurator_set;
+DROP TABLE product_configurator_template_attribute;
+DROP TABLE product_configurator_template_price_attribute;
+DROP TABLE product_configurator_template_price;
+DROP TABLE product_configurator_template;
+DROP TABLE product_esd_attribute;
+DROP TABLE product_esd_serial;
+DROP TABLE product_esd;
+DROP TABLE product_link_attribute;
+DROP TABLE product_link_translation;
+DROP TABLE product_link;
+DROP TABLE product_manufacturer_attribute;
+DROP TABLE product_media_attribute;
+DROP TABLE product_media_mapping;
+DROP TABLE product_media_mapping_rule;
+DROP TABLE product_notification;
+DROP TABLE product_price_attribute;
+DROP TABLE product_similar;
+DROP TABLE product_similar_shown_ro;
+DROP TABLE product_stream_attribute;
+DROP TABLE product_top_seller_ro;
+DROP TABLE product_vote;
+DROP TABLE product_vote_average;
+DROP TABLE shipping_method_attribute;
+DROP TABLE shipping_method_category;
+DROP TABLE shipping_method_country;
+DROP TABLE shipping_method_holiday;
+DROP TABLE shipping_method_payment_method;
+DROP TABLE shopping_world_component_field;
+DROP TABLE shopping_world_component;
+DROP TABLE holiday_translation;
+DROP TABLE holiday;
+DROP TABLE shop_form_attribute;
+DROP TABLE shop_form_field_translation;
+DROP TABLE shop_form_translation;
+DROP TABLE shop_form_field;
+DROP TABLE shop_form;
+DROP TABLE shop_page_attribute;
+DROP TABLE shop_page_group_mapping;
+DROP TABLE shop_page_group;
+DROP TABLE shop_page;
+DROP TABLE statistic_address_pool;
+DROP TABLE statistic_current_customer;
+DROP TABLE statistic_product_impression;
+DROP TABLE statistic_referer;
+DROP TABLE statistic_search;
+DROP TABLE statistic_visitor;
+DROP TABLE s_articles_translations;
+DROP TABLE s_billing_template;
+DROP TABLE s_campaigns_articles;
+DROP TABLE s_campaigns_banner;
+DROP TABLE s_campaigns_containers;
+DROP TABLE s_campaigns_groups;
+DROP TABLE s_campaigns_html;
+DROP TABLE s_campaigns_links;
+DROP TABLE s_campaigns_logs;
+DROP TABLE s_campaigns_mailaddresses;
+DROP TABLE s_campaigns_maildata;
+DROP TABLE s_campaigns_mailings;
+DROP TABLE s_campaigns_positions;
+DROP TABLE s_campaigns_sender;
+DROP TABLE s_campaigns_templates;
+DROP TABLE s_core_acl_privileges;
+DROP TABLE s_core_acl_resources;
+DROP TABLE s_core_acl_roles;
+DROP TABLE s_core_auth_roles;
+DROP TABLE s_core_customerpricegroups;
+DROP TABLE s_core_detail_states;
+DROP TABLE s_core_documents;
+DROP TABLE s_core_documents_box;
+DROP TABLE s_core_engine_groups;
+DROP TABLE s_core_licenses;
+DROP TABLE s_core_menu;
+DROP TABLE s_core_optin;
+DROP TABLE s_core_payment_data;
+DROP TABLE s_core_payment_instance;
+DROP TABLE s_core_rewrite_urls;
+DROP TABLE s_core_rulesets;
+DROP TABLE s_core_sessions_backend;
+DROP TABLE s_core_subscribes;
+DROP TABLE s_core_theme_settings;
+DROP TABLE s_core_translations;
+DROP TABLE s_core_widgets;
+DROP TABLE s_core_widget_views;
+DROP TABLE s_crontab;
+DROP TABLE s_emarketing_banners_attributes;
+DROP TABLE s_emarketing_banners_statistics;
+DROP TABLE s_emarketing_banners;
+DROP TABLE s_emarketing_lastarticles;
+DROP TABLE s_emarketing_partner_attributes;
+DROP TABLE s_emarketing_partner;
+DROP TABLE s_emarketing_referer;
+DROP TABLE s_emarketing_tellafriend;
+DROP TABLE s_emarketing_vouchers_attributes;
+DROP TABLE s_emarketing_voucher_codes;
+DROP TABLE s_emarketing_vouchers;
+DROP TABLE s_emotion_attributes;
+DROP TABLE s_emotion_categories;
+DROP TABLE s_emotion_element_viewports;
+DROP TABLE s_emotion_shops;
+DROP TABLE s_emotion_templates;
+DROP TABLE s_emotion_element_value;
+DROP TABLE s_emotion_element;
+DROP TABLE s_emotion;
+DROP TABLE s_es_backlog;
+DROP TABLE s_export_articles;
+DROP TABLE s_export_attributes;
+DROP TABLE s_export_categories;
+DROP TABLE s_export_suppliers;
+DROP TABLE s_export;
+DROP TABLE s_media_association;
+DROP TABLE s_multi_edit_backup;
+DROP TABLE s_multi_edit_filter;
+DROP TABLE s_multi_edit_queue_articles;
+DROP TABLE s_multi_edit_queue;
+DROP TABLE s_plugin_recommendations;
+DROP TABLE s_plugin_widgets_notes;
+DROP TABLE s_search_fields;
+DROP TABLE s_search_index;
+DROP TABLE s_search_keywords;
+DROP TABLE s_search_tables;
+DROP TABLE s_user_billingaddress_attributes;
+DROP TABLE s_user_billingaddress;
+DROP TABLE s_user_shippingaddress_attributes;
+DROP TABLE s_user_shippingaddress;
+DROP TABLE user_attribute;

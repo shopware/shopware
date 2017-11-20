@@ -1,0 +1,60 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+         <service class="Shopware\Customer\Definition\CustomerDefinition" id="shopware.customer.customer_definition" >
+            <tag name="shopware.entity.definition" entity="customer" />
+        </service>
+        <service class="Shopware\Customer\Repository\CustomerRepository" id="Shopware\Customer\Repository\CustomerRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Customer\Definition\CustomerAddressDefinition" id="shopware.customer.customer_address_definition" >
+            <tag name="shopware.entity.definition" entity="customer_address" />
+        </service>
+        <service class="Shopware\Customer\Repository\CustomerAddressRepository" id="Shopware\Customer\Repository\CustomerAddressRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Customer\Definition\CustomerGroupDefinition" id="shopware.customer.customer_group_definition" >
+            <tag name="shopware.entity.definition" entity="customer_group" />
+        </service>
+        <service class="Shopware\Customer\Repository\CustomerGroupRepository" id="Shopware\Customer\Repository\CustomerGroupRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Customer\Definition\CustomerGroupDiscountDefinition" id="shopware.customer.customer_group_discount_definition" >
+            <tag name="shopware.entity.definition" entity="customer_group_discount" />
+        </service>
+        <service class="Shopware\Customer\Repository\CustomerGroupDiscountRepository" id="Shopware\Customer\Repository\CustomerGroupDiscountRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Customer\Definition\CustomerGroupTranslationDefinition" id="shopware.customer.customer_group_translation_definition" >
+            <tag name="shopware.entity.definition" entity="customer_group_translation" />
+        </service>
+        <service class="Shopware\Customer\Repository\CustomerGroupTranslationRepository" id="Shopware\Customer\Repository\CustomerGroupTranslationRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+    </services>
+</container>                
+                

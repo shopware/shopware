@@ -7,19 +7,19 @@
 
                     <template slot="columns" slot-scope="{ item }">
                         {% block order_delivery_list_grid_columns %}
-                            <sw-grid-column flex="2" label="Lieferadresse">
+                            <sw-grid-column flex="1" label="Lieferadresse">
                                 {{ item.shippingAddress.street }}<br>
                                 {{ item.shippingAddress.zipcode }} {{ item.shippingAddress.city }}<br>
                                 {{ item.shippingAddress.country.name }}
                             </sw-grid-column>
-                            <sw-grid-column flex="2" label="Versandart">{{ item.shippingMethod.name}}</sw-grid-column>
-                            <sw-grid-column flex="2" label="Lieferdatum">
-                                {{ item.shippingDateEarliest.date | moment('lll') }}
+                            <sw-grid-column flex="1" label="Versandart">{{ item.shippingMethod.name}}</sw-grid-column>
+                            <sw-grid-column flex="1" label="Lieferdatum">
+                                {{ item.shippingDateEarliest.date | moment('ll') }}
                                 <br> bis <br>
-                                {{ item.shippingDateLatest.date | moment('lll') }}
+                                {{ item.shippingDateLatest.date | moment('ll') }}
                             </sw-grid-column>
-                            <sw-grid-column flex="1" label="Lieferstatus">{{ item.state.description }}</sw-grid-column>
-                            <sw-grid-column flex="1" label="Trackingcode">{{ item.tackingCode }}</sw-grid-column>
+                            <sw-grid-column flex="1" label="Lieferstatus">{{ item.orderState.description }}</sw-grid-column>
+                            <sw-grid-column flex="1" label="Trackingcode"></sw-grid-column>
                         {% endblock %}
                     </template>
 

@@ -64,7 +64,7 @@ class IndexController extends StorefrontController
             'shop' => $context->getShop(),
             'currency' => $context->getCurrency(),
             'shops' => $this->loadShops($context),
-            'currencies' => $context->getShop()->getAvailableCurrencies(),
+            'currencies' => $context->getShop()->getCurrencies(),
         ]);
     }
 
@@ -78,8 +78,7 @@ class IndexController extends StorefrontController
 
         $shops = $this->shopRepository->search($criteria, $context->getTranslationContext());
         $shops->add($context->getShop());
-        $shops = $shops->sortByPosition();
 
-        return $shops;
+        return $shops->sortByPosition();
     }
 }

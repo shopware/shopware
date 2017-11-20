@@ -26,7 +26,6 @@ namespace Shopware\CartBridge\Voucher;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\ValidatorInterface;
-use Shopware\Cart\Error\Error;
 use Shopware\Cart\Error\ValidationError;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;

@@ -1,0 +1,32 @@
+<?php
+
+namespace Shopware\#bundle#\Event\#classUc#;
+
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Event\NestedEvent;
+use Shopware\#bundle#\Struct\#classUc#SearchResult;
+
+class #classUc#SearchResultLoadedEvent extends NestedEvent
+{
+    const NAME = '#table#.search.result.loaded';
+
+    /**
+     * @var #classUc#SearchResult
+     */
+    protected $result;
+
+    public function __construct(#classUc#SearchResult $result)
+    {
+        $this->result = $result;
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
+    }
+
+    public function getContext(): TranslationContext
+    {
+        return $this->result->getContext();
+    }
+}

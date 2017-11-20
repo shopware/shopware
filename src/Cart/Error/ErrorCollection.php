@@ -41,9 +41,10 @@ class ErrorCollection extends Collection
 
     public function blockOrder(): bool
     {
-        $states = $this->map(function(Error $error) {
+        $states = $this->map(function (Error $error) {
             return $error->blockOrder();
         });
+
         return max($states);
     }
 

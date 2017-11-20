@@ -24,6 +24,9 @@
 
 namespace Shopware\Api\Write;
 
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Shop\Definition\ShopDefinition;
+
 class WriteContext
 {
     private const SPACER = '::';
@@ -38,6 +41,14 @@ class WriteContext
      * @var array[]
      */
     private $primaryKeys = [];
+
+    public static function createFromTranslationContext(TranslationContext $context): WriteContext
+    {
+        $self = new self();
+        $self->set(ShopDefinition::class, 'uuid', $context->getShopUuid());
+
+        return $self;
+    }
 
     /**
      * @param string $className
@@ -55,7 +66,7 @@ class WriteContext
      *
      * @return mixed
      */
-    public function get(string $className, string $propertyName)
+    public function get(string $className, string $propertyName, $a = false)
     {
         $path = $this->buildPathName($className, $propertyName);
 
@@ -80,19 +91,8 @@ class WriteContext
     }
 
     /**
-     * @param string $className
-     * @param string $propertyName
-     *
-     * @return string
-     */
-    private function buildPathName(string $className, string $propertyName): string
-    {
-        return $className . self::SPACER . $propertyName;
-    }
-
-    /**
-     * @param string    $tableName
-     * @param array     $primaryKeys
+     * @param string $tableName
+     * @param array  $primaryKeys
      */
     public function addPrimaryKeyMapping(string $tableName, array $primaryKeys)
     {
@@ -123,8 +123,8 @@ class WriteContext
     }
 
     /**
-     * @param string    $table
-     * @param array     $existingPrimaries
+     * @param string $table
+     * @param array  $existingPrimaries
      */
     public function setExistingPrimaries(string $table, array $existingPrimaries)
     {
@@ -137,8 +137,8 @@ class WriteContext
     }
 
     /**
-     * @param string    $table
-     * @param array     $primaryKey
+     * @param string $table
+     * @param array  $primaryKey
      *
      * @return bool
      */
@@ -153,5 +153,16 @@ class WriteContext
 
         return array_key_exists($table, $this->primaryKeys)
             && in_array($unique, $this->primaryKeys[$table]);
+    }
+
+    /**
+     * @param string $className
+     * @param string $propertyName
+     *
+     * @return string
+     */
+    private function buildPathName(string $className, string $propertyName): string
+    {
+        return $className . self::SPACER . $propertyName;
     }
 }

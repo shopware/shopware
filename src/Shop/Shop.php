@@ -39,7 +39,6 @@ class Shop extends Bundle
         parent::build($container);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
-        $loader->load('read-services.xml');
-        $loader->load('write-resources.xml');
+        $loader->load('api.xml');
     }
 }

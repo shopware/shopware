@@ -2,20 +2,10 @@
 
 namespace Shopware\Currency\Struct;
 
-use Shopware\Framework\Struct\Struct;
+use Shopware\Api\Entity\Entity;
 
-class CurrencyBasicStruct extends Struct
+class CurrencyBasicStruct extends Entity
 {
-    /**
-     * @var string
-     */
-    protected $uuid;
-
-    /**
-     * @var bool
-     */
-    protected $isDefault;
-
     /**
      * @var float
      */
@@ -25,6 +15,21 @@ class CurrencyBasicStruct extends Struct
      * @var string
      */
     protected $symbol;
+
+    /**
+     * @var string
+     */
+    protected $shortName;
+
+    /**
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * @var bool
+     */
+    protected $isDefault;
 
     /**
      * @var int
@@ -46,36 +51,6 @@ class CurrencyBasicStruct extends Struct
      */
     protected $updatedAt;
 
-    /**
-     * @var string
-     */
-    protected $shortName;
-
-    /**
-     * @var string
-     */
-    protected $name;
-
-    public function getUuid(): string
-    {
-        return $this->uuid;
-    }
-
-    public function setUuid(string $uuid): void
-    {
-        $this->uuid = $uuid;
-    }
-
-    public function getIsDefault(): bool
-    {
-        return $this->isDefault;
-    }
-
-    public function setIsDefault(bool $isDefault): void
-    {
-        $this->isDefault = $isDefault;
-    }
-
     public function getFactor(): float
     {
         return $this->factor;
@@ -94,6 +69,36 @@ class CurrencyBasicStruct extends Struct
     public function setSymbol(string $symbol): void
     {
         $this->symbol = $symbol;
+    }
+
+    public function getShortName(): string
+    {
+        return $this->shortName;
+    }
+
+    public function setShortName(string $shortName): void
+    {
+        $this->shortName = $shortName;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function getIsDefault(): bool
+    {
+        return $this->isDefault;
+    }
+
+    public function setIsDefault(bool $isDefault): void
+    {
+        $this->isDefault = $isDefault;
     }
 
     public function getSymbolPosition(): int
@@ -134,25 +139,5 @@ class CurrencyBasicStruct extends Struct
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-    }
-
-    public function getShortName(): string
-    {
-        return $this->shortName;
-    }
-
-    public function setShortName(string $shortName): void
-    {
-        $this->shortName = $shortName;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
     }
 }

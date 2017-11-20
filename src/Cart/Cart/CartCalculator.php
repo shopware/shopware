@@ -28,9 +28,6 @@ namespace Shopware\Cart\Cart;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Delivery\Struct\DeliveryCollection;
-use Shopware\Cart\Error\ChangeLineItemQuantityValidationError;
-use Shopware\Cart\Error\RemoveLineItemValidationError;
-use Shopware\Cart\Error\ValidationErrorCollection;
 use Shopware\Cart\Exception\CircularCartCalculationException;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
@@ -142,7 +139,6 @@ class CartCalculator
         CartContainer $container,
         ShopContext $context
     ): CalculatedCart {
-
         return new CalculatedCart(
             $container,
             $lineItems,

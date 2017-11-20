@@ -30,16 +30,14 @@ use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Rule\Container\AndRule;
 use Shopware\Cart\Rule\Rule;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\CartBridge\Voucher\AbsoluteVoucherData;
-use Shopware\CartBridge\Voucher\PercentageVoucherData;
-use Shopware\CartBridge\Voucher\Struct\VoucherData;
-use Shopware\CartBridge\Voucher\Struct\VoucherDataCollection;
 use Shopware\CartBridge\Rule\CustomerGroupRule;
 use Shopware\CartBridge\Rule\DateRangeRule;
 use Shopware\CartBridge\Rule\GoodsPriceRule;
 use Shopware\CartBridge\Rule\LineItemInCartRule;
 use Shopware\CartBridge\Rule\ProductOfManufacturerRule;
 use Shopware\CartBridge\Rule\ShopRule;
+use Shopware\CartBridge\Voucher\Struct\VoucherData;
+use Shopware\CartBridge\Voucher\Struct\VoucherDataCollection;
 use Shopware\Context\Struct\ShopContext;
 
 class VoucherGateway implements VoucherGatewayInterface

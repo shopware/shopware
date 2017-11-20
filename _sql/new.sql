@@ -1,6 +1,5 @@
 -- Table creations
-
-CREATE TABLE `product_listing_price_ro` (
+CREATE TABLE `product_listing_price` (
   `uuid` varchar(42) NOT NULL,
   `product_uuid` varchar(42) NOT NULL,
   `customer_group_uuid` varchar(42) NOT NULL,
@@ -9,12 +8,12 @@ CREATE TABLE `product_listing_price_ro` (
   PRIMARY KEY (`uuid`)
 );
 
-ALTER TABLE `product_listing_price_ro`
+ALTER TABLE `product_listing_price`
   ADD FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD FOREIGN KEY (`customer_group_uuid`) REFERENCES `customer_group` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
-CREATE TABLE `product_vote_average_ro` (
+CREATE TABLE `product_vote_average` (
   `uuid` varchar(42) NOT NULL,
   `product_uuid` varchar(42) NOT NULL,
   `shop_uuid` varchar(42) NOT NULL,
@@ -28,23 +27,23 @@ CREATE TABLE `product_vote_average_ro` (
   PRIMARY KEY (`uuid`)
 );
 
-ALTER TABLE `product_vote_average_ro`
-  ADD CONSTRAINT `fk_product_vote_average_ro.product_uuid` FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
+ALTER TABLE `product_vote_average`
+  ADD CONSTRAINT `fk_product_vote_average.product_uuid` FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
-DROP TABLE product_category_ro;
-CREATE TABLE `product_category_ro` (
+DROP TABLE product_category_tree;
+CREATE TABLE `product_category_tree` (
   `product_uuid` varchar(42) NOT NULL,
   `category_uuid` varchar(42) NOT NULL,
   PRIMARY KEY (`product_uuid`, `category_uuid`)
 );
 
-ALTER TABLE product_category_ro
-  ADD CONSTRAINT `fk_product_category_ro.product_uuid` FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_product_category_ro.category_uuid` FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE product_category_tree
+  ADD CONSTRAINT `fk_product_category_tree.product_uuid` FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_product_category_tree.category_uuid` FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
 
-CREATE TABLE `album_translation` (
-  `album_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+CREATE TABLE `media_album_translation` (
+  `media_album_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
   `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
   `name` VARCHAR(255) NOT NULL DEFAULT '' COLLATE 'utf8mb4_unicode_ci'
 )
@@ -52,8 +51,8 @@ COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
 
-CREATE TABLE `area_translation` (
-  `area_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+CREATE TABLE `country_area_translation` (
+  `country_area_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
   `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
   `name` VARCHAR(255) NOT NULL DEFAULT '' COLLATE 'utf8mb4_unicode_ci'
 )
@@ -61,8 +60,8 @@ COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
 
-CREATE TABLE `area_country_translation` (
-  `area_country_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+CREATE TABLE `country_translation` (
+  `country_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
   `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
   `name` VARCHAR(255) NOT NULL DEFAULT '' COLLATE 'utf8mb4_unicode_ci'
 )
@@ -70,8 +69,8 @@ COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
 
-CREATE TABLE `area_country_state_translation` (
-  `area_country_state_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+CREATE TABLE `country_state_translation` (
+  `country_state_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
   `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
   `name` VARCHAR(255) NOT NULL DEFAULT '' COLLATE 'utf8mb4_unicode_ci'
 )
@@ -209,7 +208,7 @@ ENGINE=InnoDB
 CREATE TABLE `locale_translation` (
   `locale_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
   `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `language` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+  `name` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_unicode_ci',
   `territory` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_unicode_ci'
 )
 COLLATE='utf8mb4_unicode_ci'
@@ -400,10 +399,10 @@ CREATE TABLE `product_manufacturer_translation` (
 ;
 
 
-ALTER TABLE `album_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
-ALTER TABLE `area_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
-ALTER TABLE `area_country_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
-ALTER TABLE `area_country_state_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `media_album_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `country_area_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `country_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
+ALTER TABLE `country_state_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
 ALTER TABLE `attribute_configuration_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
 ALTER TABLE `blog_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
 ALTER TABLE `blog_tag_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
@@ -431,10 +430,10 @@ ALTER TABLE `shop_form_field_translation` ADD FOREIGN KEY (`language_uuid`) REFE
 ALTER TABLE `tax_area_rule_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
 ALTER TABLE `unit_translation` ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`);
 
-ALTER TABLE `album_translation` ADD INDEX `language_uuid` (`language_uuid`);
-ALTER TABLE `area_translation` ADD INDEX `language_uuid` (`language_uuid`);
-ALTER TABLE `area_country_translation` ADD INDEX `language_uuid` (`language_uuid`);
-ALTER TABLE `area_country_state_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `media_album_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `country_area_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `country_translation` ADD INDEX `language_uuid` (`language_uuid`);
+ALTER TABLE `country_state_translation` ADD INDEX `language_uuid` (`language_uuid`);
 ALTER TABLE `attribute_configuration_translation` ADD INDEX `language_uuid` (`language_uuid`);
 ALTER TABLE `blog_translation` ADD INDEX `language_uuid` (`language_uuid`);
 ALTER TABLE `blog_tag_translation` ADD INDEX `language_uuid` (`language_uuid`);
@@ -462,10 +461,10 @@ ALTER TABLE `shop_form_field_translation` ADD INDEX `language_uuid` (`language_u
 ALTER TABLE `tax_area_rule_translation` ADD INDEX `language_uuid` (`language_uuid`);
 ALTER TABLE `unit_translation` ADD INDEX `language_uuid` (`language_uuid`);
 
-ALTER TABLE `album_translation` ADD PRIMARY KEY `album_uuid_language_uuid` (`album_uuid`, `language_uuid`);
-ALTER TABLE `area_translation` ADD PRIMARY KEY `area_uuid_language_uuid` (`area_uuid`, `language_uuid`);
-ALTER TABLE `area_country_translation` ADD PRIMARY KEY `area_country_uuid_language_uuid` (`area_country_uuid`, `language_uuid`);
-ALTER TABLE `area_country_state_translation` ADD PRIMARY KEY `area_country_state_uuid_language_uuid` (`area_country_state_uuid`, `language_uuid`);
+ALTER TABLE `media_album_translation` ADD PRIMARY KEY `album_uuid_language_uuid` (`media_album_uuid`, `language_uuid`);
+ALTER TABLE `country_area_translation` ADD PRIMARY KEY `area_uuid_language_uuid` (`country_area_uuid`, `language_uuid`);
+ALTER TABLE `country_translation` ADD PRIMARY KEY `area_country_uuid_language_uuid` (`country_uuid`, `language_uuid`);
+ALTER TABLE `country_state_translation` ADD PRIMARY KEY `area_country_state_uuid_language_uuid` (`country_state_uuid`, `language_uuid`);
 ALTER TABLE `attribute_configuration_translation` ADD PRIMARY KEY `attribute_configuration_uuid_language_uuid` (`attribute_configuration_uuid`, `language_uuid`);
 ALTER TABLE `blog_translation` ADD PRIMARY KEY `blog_uuid_language_uuid` (`blog_uuid`, `language_uuid`);
 ALTER TABLE `blog_tag_translation` ADD PRIMARY KEY `blog_tag_uuid_language_uuid` (`blog_tag_uuid`, `language_uuid`);
@@ -492,10 +491,10 @@ ALTER TABLE `shop_form_translation` ADD PRIMARY KEY `shop_form_uuid_language_uui
 ALTER TABLE `shop_form_field_translation` ADD PRIMARY KEY `shop_form_field_uuid_language_uuid` (`shop_form_field_uuid`, `language_uuid`);
 ALTER TABLE `tax_area_rule_translation` ADD PRIMARY KEY `tax_area_rule_uuid_language_uuid` (`tax_area_rule_uuid`, `language_uuid`);
 ALTER TABLE `unit_translation` ADD PRIMARY KEY `unit_uuid_language_uuid` (`unit_uuid`, `language_uuid`);
-ALTER TABLE `album_translation` ADD FOREIGN KEY (`album_uuid`) REFERENCES `album` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE `area_translation` ADD FOREIGN KEY (`area_uuid`) REFERENCES `area` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE `area_country_translation` ADD FOREIGN KEY (`area_country_uuid`) REFERENCES `area_country` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE `area_country_state_translation` ADD FOREIGN KEY (`area_country_state_uuid`) REFERENCES `area_country_state` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `media_album_translation` ADD FOREIGN KEY (`media_album_uuid`) REFERENCES `media_album` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `country_area_translation` ADD FOREIGN KEY (`country_area_uuid`) REFERENCES `country_area` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `country_translation` ADD FOREIGN KEY (`country_uuid`) REFERENCES `country` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `country_state_translation` ADD FOREIGN KEY (`country_state_uuid`) REFERENCES `country_state` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `attribute_configuration_translation` ADD FOREIGN KEY (`attribute_configuration_uuid`) REFERENCES `attribute_configuration` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `blog_translation` ADD FOREIGN KEY (`blog_uuid`) REFERENCES `blog` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `blog_tag_translation` ADD FOREIGN KEY (`blog_tag_uuid`) REFERENCES `blog_tag` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -526,66 +525,66 @@ ALTER TABLE `unit_translation` ADD FOREIGN KEY (`unit_uuid`) REFERENCES `unit` (
 
 -- TABLE INSERTS
 
-INSERT INTO album_translation (language_uuid, album_uuid,  name)
+INSERT INTO media_album_translation (language_uuid, media_album_uuid,  name)
     (
         SELECT
             s.uuid                                    AS language_uuid,
-            a.uuid                                    AS album_uuid,
+            a.uuid                                    AS media_album_uuid,
             a.name                                    AS name
         FROM
-            album a
+            media_album a
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
-INSERT INTO area_translation (language_uuid, area_uuid, name)
+INSERT INTO country_area_translation (language_uuid, country_area_uuid, name)
     (
         SELECT
             s.uuid                                    AS language_uuid,
-            a.uuid                                    AS area_uuid,
+            a.uuid                                    AS country_area_uuid,
             a.name                                    AS name
         FROM
-            area a
+            country_area a
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
-INSERT INTO area_country_translation (language_uuid, area_country_uuid,  name)
+INSERT INTO country_translation (language_uuid, country_uuid,  name)
     (
         SELECT
             s.uuid                                    AS language_uuid,
-            a.uuid                                    AS area_country,
+            a.uuid                                    AS country_uuid,
             a.name                                    AS name
         FROM
-            area_country a
+            country a
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
-INSERT INTO area_country_state_translation (language_uuid, area_country_state_uuid,  name)
+INSERT INTO country_state_translation (language_uuid, country_state_uuid,  name)
     (
         SELECT
             s.uuid                                    AS language_uuid,
-            a.uuid                                    AS area_country_state,
+            a.uuid                                    AS country_state_uuid,
             a.name                                    AS name
         FROM
-            area_country_state a
+            country_state a
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO attribute_configuration_translation (language_uuid, attribute_configuration_uuid,  help_text, support_text, label)
     (
         SELECT
             s.uuid                                    AS language_uuid,
-            a.uuid                                    AS attribute_configuration,
+            a.uuid                                    AS attribute_configuration_uuid,
             a.help_text                               AS help_text,
             a.support_text                            AS support_text,
             a.label                                   AS label
         FROM
             attribute_configuration a
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO blog_translation (language_uuid, blog_uuid, title, short_description, description, meta_keywords, meta_description, meta_title)
@@ -602,7 +601,7 @@ INSERT INTO blog_translation (language_uuid, blog_uuid, title, short_description
         FROM
             blog b
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO blog_tag_translation (language_uuid, blog_tag_uuid, name)
@@ -614,7 +613,7 @@ INSERT INTO blog_tag_translation (language_uuid, blog_tag_uuid, name)
         FROM
             blog_tag b
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO category_translation (language_uuid, category_uuid, name, meta_keywords, meta_title, meta_description, cms_headline, cms_description)
@@ -631,7 +630,7 @@ INSERT INTO category_translation (language_uuid, category_uuid, name, meta_keywo
         FROM
             category c
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO currency_translation (language_uuid, currency_uuid, currency, name)
@@ -644,7 +643,7 @@ INSERT INTO currency_translation (language_uuid, currency_uuid, currency, name)
         FROM
             currency c
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO customer_group_translation (language_uuid, customer_group_uuid, description)
@@ -656,7 +655,7 @@ INSERT INTO customer_group_translation (language_uuid, customer_group_uuid, desc
         FROM
             customer_group c
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO filter_translation (language_uuid, filter_uuid, name)
@@ -668,7 +667,7 @@ INSERT INTO filter_translation (language_uuid, filter_uuid, name)
         FROM
             filter f
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO filter_option_translation (language_uuid, filter_option_uuid, name)
@@ -680,7 +679,7 @@ INSERT INTO filter_option_translation (language_uuid, filter_option_uuid, name)
         FROM
             filter_option f
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO filter_value_translation (language_uuid, filter_value_uuid, value)
@@ -692,7 +691,7 @@ INSERT INTO filter_value_translation (language_uuid, filter_value_uuid, value)
         FROM
             filter_value f
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO holiday_translation (language_uuid, holiday_uuid, name)
@@ -704,7 +703,7 @@ INSERT INTO holiday_translation (language_uuid, holiday_uuid, name)
         FROM
             holiday h
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO listing_facet_translation (language_uuid, listing_facet_uuid, name)
@@ -716,7 +715,7 @@ INSERT INTO listing_facet_translation (language_uuid, listing_facet_uuid, name)
         FROM
             listing_facet l
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO listing_sorting_translation (language_uuid, listing_sorting_uuid, label)
@@ -728,20 +727,20 @@ INSERT INTO listing_sorting_translation (language_uuid, listing_sorting_uuid, la
         FROM
             listing_sorting l
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
-INSERT INTO locale_translation (language_uuid, locale_uuid, language, territory)
+INSERT INTO locale_translation (language_uuid, locale_uuid, name, territory)
     (
         SELECT
             s.uuid                                    AS language_uuid,
             l.uuid                                    AS locale_uuid,
-            l.language                                AS language,
+            l.language                                AS name,
             l.territory                               AS territory
         FROM
             locale l
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO mail_translation (language_uuid, mail_uuid, from_mail, from_name, subject, content, content_html)
@@ -757,7 +756,7 @@ INSERT INTO mail_translation (language_uuid, mail_uuid, from_mail, from_name, su
         FROM
             mail m
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO media_translation (language_uuid, media_uuid, name, description)
@@ -770,7 +769,7 @@ INSERT INTO media_translation (language_uuid, media_uuid, name, description)
         FROM
             media m
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO order_state_translation (language_uuid, order_state_uuid, description)
@@ -782,7 +781,7 @@ INSERT INTO order_state_translation (language_uuid, order_state_uuid, descriptio
         FROM
             order_state o
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO payment_method_translation (language_uuid, payment_method_uuid, description, additional_description)
@@ -795,7 +794,7 @@ INSERT INTO payment_method_translation (language_uuid, payment_method_uuid, desc
         FROM
             payment_method p
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO price_group_translation (language_uuid, price_group_uuid, description)
@@ -807,7 +806,7 @@ INSERT INTO price_group_translation (language_uuid, price_group_uuid, descriptio
         FROM
             price_group p
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO product_attachment_translation (language_uuid, product_attachment_uuid, description)
@@ -819,7 +818,7 @@ INSERT INTO product_attachment_translation (language_uuid, product_attachment_uu
         FROM
             product_attachment p
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO product_configurator_option_translation (language_uuid, product_configurator_option_uuid, name)
@@ -831,7 +830,7 @@ INSERT INTO product_configurator_option_translation (language_uuid, product_conf
         FROM
             product_configurator_option p
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 
@@ -845,7 +844,7 @@ INSERT INTO product_link_translation (language_uuid, product_link_uuid, descript
         FROM
             product_link p
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 
@@ -863,7 +862,7 @@ INSERT INTO product_manufacturer_translation (language_uuid, product_manufacture
         FROM
             product_manufacturer p
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO product_translation (product_uuid, language_uuid, name, keywords, description, description_long, meta_title, additional_text, pack_unit)
@@ -894,7 +893,7 @@ INSERT INTO shipping_method_translation (language_uuid, shipping_method_uuid, na
         FROM
             shipping_method m
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO shop_form_translation (language_uuid, shop_form_uuid, name, text, email, email_template, email_subject, text2, meta_title, meta_keywords, meta_description)
@@ -914,7 +913,7 @@ INSERT INTO shop_form_translation (language_uuid, shop_form_uuid, name, text, em
         FROM
             shop_form f
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO shop_form_field_translation (language_uuid, shop_form_field_uuid, name, note, label, value)
@@ -929,7 +928,7 @@ INSERT INTO shop_form_field_translation (language_uuid, shop_form_field_uuid, na
         FROM
             shop_form_field f
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO tax_area_rule_translation (language_uuid, tax_area_rule_uuid, name)
@@ -941,7 +940,7 @@ INSERT INTO tax_area_rule_translation (language_uuid, tax_area_rule_uuid, name)
         FROM
             tax_area_rule t
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 INSERT INTO unit_translation (language_uuid, unit_uuid, unit, description)
@@ -954,7 +953,7 @@ INSERT INTO unit_translation (language_uuid, unit_uuid, unit, description)
         FROM
             unit u
         JOIN
-            shop s ON s.fallback_locale_uuid IS NULL
+            shop s ON s.fallback_translation_uuid IS NULL
     );
 
 
@@ -966,16 +965,16 @@ ALTER TABLE `product_translation`
     ADD FOREIGN KEY (`language_uuid`) REFERENCES `shop` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
 ;
 
-ALTER TABLE `album_translation`
+ALTER TABLE `media_album_translation`
   CHANGE `name` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `language_uuid`;
 
-ALTER TABLE `area_country_state_translation`
+ALTER TABLE `country_state_translation`
   CHANGE `name` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `language_uuid`;
 
-ALTER TABLE `area_country_translation`
+ALTER TABLE `country_translation`
   CHANGE `name` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `language_uuid`;
 
-ALTER TABLE `area_translation`
+ALTER TABLE `country_area_translation`
   CHANGE `name` `name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `language_uuid`;
 
 ALTER TABLE `currency_translation`
@@ -1052,15 +1051,15 @@ CREATE TABLE `order_address` (
   `street` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `zipcode` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `city` varchar(70) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `area_country_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `area_country_state_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `country_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `country_state_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
   `vat_id` varchar(50) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
   `phone_number` varchar(40) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
   `additional_address_line1` varchar(255) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
   `additional_address_line2` varchar(255) COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
   PRIMARY KEY (`uuid`),
-  KEY `area_country_state_uuid` (`area_country_state_uuid`),
-  KEY `area_country_uuid` (`area_country_uuid`)
+  KEY `country_state_uuid` (`country_state_uuid`),
+  KEY `country_uuid` (`country_uuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `order_delivery` (
@@ -1097,17 +1096,18 @@ ALTER TABLE `order_line_item` ADD FOREIGN KEY (`order_uuid`) REFERENCES `order` 
 ALTER TABLE `order_delivery` ADD FOREIGN KEY (`order_uuid`) REFERENCES `order` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `order_delivery` ADD FOREIGN KEY (`shipping_address_uuid`) REFERENCES `order_address` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `order_delivery` ADD FOREIGN KEY (`shipping_method_uuid`) REFERENCES `shipping_method` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE `order_address` ADD FOREIGN KEY (`area_country_state_uuid`) REFERENCES `area_country_state` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE `order_address` ADD FOREIGN KEY (`area_country_uuid`) REFERENCES `area_country` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `order_address` ADD FOREIGN KEY (`country_state_uuid`) REFERENCES `country_state` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `order_address` ADD FOREIGN KEY (`country_uuid`) REFERENCES `country` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `order_delivery_position` ADD FOREIGN KEY (`order_delivery_uuid`) REFERENCES `order_delivery` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `order_delivery_position` ADD FOREIGN KEY (`order_line_item_uuid`) REFERENCES `order_line_item` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `order_delivery` ADD FOREIGN KEY (`order_state_uuid`) REFERENCES `order_state` (`uuid`);
 
 ## updated_at and created_at columns
-ALTER TABLE `album`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
-ALTER TABLE `area`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
-ALTER TABLE `area_country`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `media_album`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `country_area`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `country`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `area_country_attribute`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
-ALTER TABLE `area_country_state`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `country_state`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `area_country_state_attribute`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `attribute_configuration`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `blog`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
@@ -1166,8 +1166,8 @@ ALTER TABLE `product_attachment_attribute`  ADD COLUMN `created_at`     DATETIME
 ALTER TABLE `product_attribute`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `product_avoid_customer_group`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `product_category`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
-ALTER TABLE `product_category_ro`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
-ALTER TABLE `product_category_seo`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `product_category_tree`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `product_seo_category`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `product_configurator_dependency`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `product_configurator_group`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `product_configurator_group_attribute`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
@@ -1189,7 +1189,7 @@ ALTER TABLE `product_esd_attribute`  ADD COLUMN `created_at`     DATETIME DEFAUL
 ALTER TABLE `product_esd_serial`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `product_link`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `product_link_attribute`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
-ALTER TABLE `product_listing_price_ro`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `product_listing_price`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `product_manufacturer`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `product_manufacturer_attribute`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `product_media`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
@@ -1237,11 +1237,11 @@ ALTER TABLE `user_attribute`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRE
 
 
 
-ALTER TABLE `album` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
-ALTER TABLE `area` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
-ALTER TABLE `area_country` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
+ALTER TABLE `media_album` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
+ALTER TABLE `country_area` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
+ALTER TABLE `country` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `area_country_attribute` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
-ALTER TABLE `area_country_state` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
+ALTER TABLE `country_state` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `area_country_state_attribute` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `attribute_configuration` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `blog` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
@@ -1302,8 +1302,8 @@ ALTER TABLE `product_attachment_attribute` ADD COLUMN `updated_at` DATETIME NULL
 ALTER TABLE `product_attribute` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `product_avoid_customer_group` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `product_category` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
-ALTER TABLE `product_category_ro` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
-ALTER TABLE `product_category_seo` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
+ALTER TABLE `product_category_tree` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
+ALTER TABLE `product_seo_category` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `product_configurator_dependency` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `product_configurator_group` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `product_configurator_group_attribute` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
@@ -1326,7 +1326,7 @@ ALTER TABLE `product_esd_attribute` ADD COLUMN `updated_at` DATETIME NULL ON UPD
 ALTER TABLE `product_esd_serial` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `product_link` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `product_link_attribute` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
-ALTER TABLE `product_listing_price_ro` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
+ALTER TABLE `product_listing_price` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `product_manufacturer_attribute` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `product_media` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `product_media_attribute` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;

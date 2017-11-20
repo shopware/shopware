@@ -42,7 +42,7 @@ abstract class Rule extends Struct
     /**
      * Validate the current rule and returns a reason object which contains defines if the rule match and if not why not
      *
-     * @param \Shopware\Cart\Cart\Struct\CalculatedCart          $calculatedCart
+     * @param \Shopware\Cart\Cart\Struct\CalculatedCart   $calculatedCart
      * @param ShopContext                                 $context
      * @param \Shopware\Framework\Struct\StructCollection $collection
      *

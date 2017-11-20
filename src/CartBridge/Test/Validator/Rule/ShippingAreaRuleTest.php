@@ -25,14 +25,14 @@
 namespace Shopware\CartBridge\Test\Validator\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Area\Struct\AreaBasicStruct;
-use Shopware\AreaCountry\Struct\AreaCountryBasicStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\Rule\Rule;
 use Shopware\CartBridge\Rule\ShippingAreaRule;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Country\Struct\Country;
+use Shopware\Country\Struct\CountryAreaBasicStruct;
+use Shopware\Country\Struct\CountryBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
 
 class ShippingAreaRuleTest extends TestCase
@@ -134,11 +134,11 @@ class ShippingAreaRuleTest extends TestCase
         ];
     }
 
-    private function createCountryWithArea(string $areaId): AreaCountryBasicStruct
+    private function createCountryWithArea(string $areaId): CountryBasicStruct
     {
-        $country = new AreaCountryBasicStruct();
+        $country = new CountryBasicStruct();
         $country->setUuid('SWAG-AREA-COUNTRY-UUID-1');
-        $area = new AreaBasicStruct();
+        $area = new CountryAreaBasicStruct();
         $area->setUuid($areaId);
         $country->setAreaUuid($areaId);
 

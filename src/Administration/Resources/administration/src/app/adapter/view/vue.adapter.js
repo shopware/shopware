@@ -1,6 +1,5 @@
 import 'src/app/component/components';
 
-
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import utils from 'src/core/service/util.service';
@@ -11,6 +10,44 @@ const vueComponents = {};
 export default function VueAdapter(context) {
     Vue.use(VueRouter);
     Vue.use(VueMoment);
+
+    /**
+     * Extend Vue prototype to access super class for component inheritance.
+     */
+    Object.defineProperties(Vue.prototype, {
+        $super: {
+            get() {
+                /**
+                 * Registers a proxy as the $super property on every instance.
+                 * Makes it possible to dynamically access methods of an extended component.
+                 */
+                return new Proxy(this, {
+                    get(target, key) {
+                        /** Fallback method which will be returned if the called method does not exist on a super class. */
+                        function empty() {
+                            utils.warn('View', `The method "${key}" is not defined in any super class.`, target);
+                        }
+
+                        /**
+                         * Recursively search for a method in super classes.
+                         * This enables multi level inheritance.
+                         */
+                        function getSuperMethod(comp, methodName) {
+                            if (comp.extends && comp.extends.methods && comp.extends.methods[methodName]) {
+                                return comp.extends.methods[methodName];
+                            } else if (comp.extends.extends) {
+                                return getSuperMethod(comp.extends, methodName);
+                            }
+
+                            return empty;
+                        }
+
+                        return getSuperMethod(target.constructor.options, key).bind(target);
+                    }
+                });
+            }
+        }
+    });
 
     Vue.filter('image', (value) => {
         if (!value) {

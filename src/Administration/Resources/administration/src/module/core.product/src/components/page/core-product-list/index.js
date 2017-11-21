@@ -16,6 +16,8 @@ export default Shopware.ComponentFactory.register('core-product-list', {
     },
 
     created() {
+        console.log('Original');
+
         this.initProductList().then(() => {
             this.isWorking = false;
         });

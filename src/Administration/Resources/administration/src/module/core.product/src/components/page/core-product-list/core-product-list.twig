@@ -2,9 +2,9 @@
     <sw-workspace>
 
         <header class="toolbar--middle-section" slot="header">
-            <h1 class="workspace--headline">
-                Produktübersicht
-            </h1>
+            {% block core_product_list_headline %}
+                <h1 class="workspace--headline">Produktübersicht</h1>
+            {% endblock %}
 
             <div class="toolbar--primary-actions">
                 <router-link :to="{ name: 'core.product.create' }">
@@ -20,12 +20,29 @@
 
                         <template slot="columns" slot-scope="{ item }">
                             {% block core_product_list_grid_columns %}
-                                <sw-grid-column flex="50px" label="#"></sw-grid-column>
-                                <sw-grid-column flex="1" label="Name">{{ item.name }}</sw-grid-column>
-                                <sw-grid-column flex="1" label="Manufacturer">{{ item.manufacturer.name }}</sw-grid-column>
-                                <sw-grid-column flex="100px" label="Active"><i class="icon-checkmark" v-if="item.active"></i><i class="icon-cross" v-else></i></sw-grid-column>
-                                <sw-grid-column flex="100px" label="Price">{{ item.listingPrices[0].price | currency }}</sw-grid-column>
-                                <sw-grid-column flex="200px" label="Stock">{{ item.stock }} in stock</sw-grid-column>
+                                {% block core_product_list_grid_columns_id %}
+                                    <sw-grid-column flex="50px" label="#"></sw-grid-column>
+                                {% endblock %}
+
+                                {% block core_product_list_grid_columns_name %}
+                                    <sw-grid-column flex="1" label="Name">{{ item.name }}</sw-grid-column>
+                                {% endblock %}
+
+                                {% block core_product_list_grid_columns_manufacturer %}
+                                    <sw-grid-column flex="1" label="Manufacturer">{{ item.manufacturer.name }}</sw-grid-column>
+                                {% endblock %}
+
+                                {% block core_product_list_grid_columns_active %}
+                                    <sw-grid-column flex="100px" label="Active"><i class="icon-checkmark" v-if="item.active"></i><i class="icon-cross" v-else></i></sw-grid-column>
+                                {% endblock %}
+
+                                {% block core_product_list_grid_columns_price %}
+                                    <sw-grid-column flex="100px" label="Price">{{ item.listingPrices[0].price | currency }}</sw-grid-column>
+                                {% endblock %}
+
+                                {% block core_product_list_grid_columns_stock %}
+                                    <sw-grid-column flex="200px" label="Stock">{{ item.stock }} in stock</sw-grid-column>
+                                {% endblock %}
                             {% endblock %}
                         </template>
 

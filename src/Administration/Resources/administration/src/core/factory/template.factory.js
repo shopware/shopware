@@ -1,4 +1,5 @@
 import Twig from 'twig';
+import utils from 'src/core/service/util.service';
 
 export default {
     registerComponentTemplate,
@@ -8,7 +9,10 @@ export default {
     getTemplateOverrides,
     getTemplateRegistry,
     findCustomTemplate,
-    findCustomOverride
+    findCustomOverride,
+    clearTwigCache,
+    getTwigCache,
+    disableTwigCache
 };
 
 /**
@@ -61,10 +65,18 @@ Twig.extend((TwigCore) => {
         }
     });
 
-    /**
-     * Make the placeholders available in the exposed Twig object.
-     */
+    /** Make the placeholders available in the exposed Twig object. */
     TwigCore.exports.placeholders = TwigCore.placeholders;
+
+    /** Make the Twig template cache registry available. */
+    TwigCore.exports.getRegistry = function getRegistry() {
+        return TwigCore.Templates.registry;
+    };
+
+    /** Provide possibility to clear the template cache registry */
+    TwigCore.exports.clearRegistry = function clearRegistry() {
+        TwigCore.Templates.registry = {};
+    };
 });
 
 /**
@@ -88,9 +100,15 @@ function registerComponentTemplate(componentName, componentTemplate = null) {
         data: componentTemplate
     };
 
-    template.baseTemplate = Twig.twig(templateConfig);
+    try {
+        template.baseTemplate = Twig.twig(templateConfig);
+    } catch (error) {
+        utils.warn(error.message);
+        return false;
+    }
 
     templateRegistry.set(componentName, template);
+    return true;
 }
 
 /**
@@ -277,4 +295,16 @@ function findCustomOverride(componentName) {
     const element = document.querySelector(`template[override="${componentName}"]`);
 
     return (element !== null) ? element.innerHTML : '';
+}
+
+function clearTwigCache() {
+    Twig.clearRegistry();
+}
+
+function getTwigCache() {
+    return Twig.getRegistry();
+}
+
+function disableTwigCache() {
+    Twig.cache(false);
 }

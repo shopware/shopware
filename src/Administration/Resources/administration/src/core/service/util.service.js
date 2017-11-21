@@ -9,7 +9,9 @@ export default {
     getObjectChangeSet,
     createUuid: uuidv4,
     isObject,
+    isPlainObject,
     isEmpty,
+    isRegExp,
     isArray,
     isFunction,
     isDate
@@ -76,16 +78,24 @@ function currency(val, sign) {
     return val.toLocaleString(language, opts);
 }
 
-function date(val) {
-    return val.toLocaleString('de-DE');
+function date(val, locale = 'de-DE') {
+    return val.toLocaleString(locale);
 }
 
 function isObject(object) {
     return object !== null && typeof object === 'object';
 }
 
+function isPlainObject(obj) {
+    return obj.toString() === '[object Object]';
+}
+
 function isEmpty(object) {
     return Object.keys(object).length === 0;
+}
+
+function isRegExp(exp) {
+    return exp.toString() === '[object RegExp]';
 }
 
 function isArray(array) {

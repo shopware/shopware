@@ -7,7 +7,8 @@ export {
     override,
     build,
     getComponentTemplate,
-    getComponentRegistry
+    getComponentRegistry,
+    getOverrideRegistry
 };
 
 /** @type Map componentRegistry - Registry which holds all component registry */
@@ -23,6 +24,15 @@ const overrideRegistry = new Map();
  */
 function getComponentRegistry() {
     return componentRegistry;
+}
+
+/**
+ * Returns the map with all registered component overrides.
+ *
+ * @returns {Map}
+ */
+function getOverrideRegistry() {
+    return overrideRegistry;
 }
 
 /**
@@ -118,8 +128,6 @@ function extend(componentName, extendComponentName, componentConfiguration) {
 /**
  * Override an existing component including its config and template.
  *
- * ToDo: Keep reference to original config object.
- *
  * @param componentName
  * @param componentConfiguration
  * @param overrideIndex
@@ -169,103 +177,45 @@ function getComponentTemplate(componentName) {
 /**
  * Returns the complete component including extension and overrides.
  *
- * ToDo: Implement overrides for recursive extended components including the template.
- *
  * @param componentName
+ * @param skipTemplate
  * @returns {*}
  */
-function build(componentName) {
+function build(componentName, skipTemplate = false) {
     if (!componentRegistry.has(componentName)) {
         return false;
     }
 
-    let config = componentRegistry.get(componentName);
+    let config = Object.create(componentRegistry.get(componentName));
 
     if (config.extends) {
-        config = getExtendedComponent(componentName);
+        const extendComp = build(config.extends, true);
+
+        if (extendComp) {
+            config.extends = extendComp;
+        } else {
+            delete config.extends;
+        }
     }
 
     if (overrideRegistry.has(componentName)) {
         const overrides = overrideRegistry.get(componentName);
 
         overrides.forEach((overrideComp) => {
-            config = mergeConfig(config, overrideComp);
+            const comp = Object.create(overrideComp);
+
+            comp.extends = Object.create(config);
+            config = comp;
         });
     }
 
     /**
-     * Get the final template result including all overrides.
+     * Get the final template result including all overrides or extensions.
      */
-    config.template = getComponentTemplate(componentName);
-
-    return config;
-}
-
-/**
- * Get the final version of an extended component.
- * Called recursively for multiple extended components.
- *
- * @param componentName
- * @returns {*}
- */
-function getExtendedComponent(componentName) {
-    if (!componentRegistry.has(componentName)) {
-        return {};
-    }
-
-    let config = componentRegistry.get(componentName);
-
-    if (!config.extends || !componentRegistry.has(config.extends)) {
-        return config;
-    }
-
-    const extendComponent = getExtendedComponent(componentRegistry.get(config.extends));
-
-    config = mergeConfig({}, extendComponent, config);
-
-    return config;
-}
-
-/**
- * ToDo: Add possibility to access original parent component.
- *
- * @param target
- * @param source
- * @param additionalSources
- * @returns {*}
- */
-function mergeConfig(target, source, ...additionalSources) {
-    if (!utils.isObject(target) || !utils.isObject(source)) {
-        return source;
-    }
-
-    const config = Object.assign({}, target);
-
-    Object.keys(source).forEach((key) => {
-        if (config.hasOwnProperty(key) && config[key] !== null) {
-            // Merge the special data function used for data binding
-            if (utils.isFunction(config[key]) && key === 'data') {
-                const mergedData = mergeConfig(config[key](), source[key]());
-
-                config[key] = function data() {
-                    return mergedData;
-                };
-            // Merge arrays
-            } else if (utils.isArray(config[key])) {
-                config[key] = [...config[key], ...source[key]];
-            // Deep merge objects
-            } else if (utils.isObject(source[key])) {
-                config[key] = mergeConfig(config[key], source[key]);
-            } else {
-                config[key] = source[key];
-            }
-        } else {
-            config[key] = source[key];
-        }
-    });
-
-    if (additionalSources.length > 0) {
-        return mergeConfig(config, ...additionalSources);
+    if (skipTemplate !== true) {
+        config.template = getComponentTemplate(componentName);
+    } else {
+        delete config.template;
     }
 
     return config;

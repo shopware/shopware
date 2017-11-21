@@ -1,0 +1,8 @@
+{% block core_product_list_headline %}
+    <h1 class="workspace--headline">{{ this.extensionTitle }}</h1>
+{% endblock %}
+
+{% block core_product_list_grid_columns_name %}
+    {% parent %}
+    <sw-grid-column flex="1" label="Description">{{ item.description }}</sw-grid-column>
+{% endblock %}

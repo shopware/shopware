@@ -1,197 +1,271 @@
 // Proxy variable to be more flexible for refactoring purposes
 const ComponentFactory = Shopware.ComponentFactory;
+const TemplateFactory = Shopware.TemplateFactory.default;
 
-// We're sharing the component throughout the test, so we're having a running counter to prevent issues
-let count = 0;
 beforeEach(() => {
-    count += 1;
+    ComponentFactory.getComponentRegistry().clear();
+    ComponentFactory.getOverrideRegistry().clear();
+    TemplateFactory.getTemplateRegistry().clear();
+    TemplateFactory.disableTwigCache();
 });
 
 describe('core/factory/component.factory.js', () => {
     it('should register a component and it should be registered in the component registry', () => {
-        const compDefinition = {
-            template: '<div>A test component</div>'
-        };
-        const comp = ComponentFactory.register(`test-component-${count}`, compDefinition);
+        const component = ComponentFactory.register('test-component', {
+            template: '<div>This is a test template.</div>'
+        });
+
         const registry = ComponentFactory.getComponentRegistry();
 
-        expect(comp).to.be.an('object');
-        expect(registry.has(`test-component-${count}`)).is.equal(true);
-        expect(registry.get(`test-component-${count}`)).to.be.an('object');
+        expect(component).to.be.an('object');
+        expect(registry.has('test-component')).is.equal(true);
+        expect(registry.get('test-component')).to.be.an('object');
     });
 
     it('should not be possible to register a component with the same name twice', () => {
         const compDefinition = {
-            template: '<div>A test component</div>'
+            template: '<div>This is a test template.</div>'
         };
-        const comp = ComponentFactory.register(`test-component-${count - 1}`, compDefinition);
 
-        expect(comp).is.equal(false);
+        ComponentFactory.register('test-component', compDefinition);
+        const component = ComponentFactory.register('test-component', compDefinition);
+
+        expect(component).is.equal(false);
     });
 
     it('should not be possible to register a component without a name', () => {
-        const compDefinition = {
-            template: '<div>A test component</div>'
-        };
-        const comp = ComponentFactory.register('', compDefinition);
+        const component = ComponentFactory.register('', {
+            template: '<div>This is a test template.</div>'
+        });
 
-        expect(comp).is.equal(false);
+        expect(component).is.equal(false);
     });
 
     it('should not be possible to register a component without a template', () => {
-        const compDefinition = {};
-        const comp = ComponentFactory.register(`test-component-${count}`, compDefinition);
+        const component = ComponentFactory.register('test-component', {});
 
-        expect(comp).is.equal(false);
+        expect(component).is.equal(false);
     });
 
     it('should not have a template property after registering a component', () => {
-        const compDefinition = {
-            template: '<div>A test component</div>'
-        };
-        const comp = ComponentFactory.register(`test-component-${count}`, compDefinition);
-        expect(comp.templates).is.equal(undefined);
+        const component = ComponentFactory.register('test-component', {
+            template: '<div>This is a test template.</div>'
+        });
+
+        expect(component.template).is.equal(undefined);
     });
 
     it('should extend a given component & should register a new component (without template)', () => {
-        const compDefinition = {
-            created() {}
-        };
+        ComponentFactory.register('test-component', {
+            created() {},
+            template: '<div>This is a test template.</div>'
+        });
 
-        const comp = ComponentFactory.extend(
-            `test-component-${count}`,
-            `test-component-${count - 1}`,
-            compDefinition
-        );
+        const extension = ComponentFactory.extend('test-component-extension', 'test-component', {
+            updated() {}
+        });
+
         const registry = ComponentFactory.getComponentRegistry();
 
-        expect(comp.created).is.a('function');
-        expect(registry.has(`test-component-${count}`)).is.equal(true);
-        expect(registry.get(`test-component-${count}`)).to.be.an('object');
-        expect(comp.templates).is.equal(undefined);
+        expect(extension.updated).is.a('function');
+        expect(extension.extends).to.be.an('String');
+        expect(extension.extends).is.equal('test-component');
+        expect(registry.has('test-component-extension')).is.equal(true);
+        expect(registry.get('test-component-extension')).to.be.an('object');
     });
 
     it('should extend a given component & should register a new component (with template)', () => {
-        const compDefinition = {
-            template: '<div>Sample content</div>',
-            created() {}
-        };
+        ComponentFactory.register('test-component', {
+            created() {},
+            template: '<div>This is a test template.</div>'
+        });
 
-        const comp = ComponentFactory.extend(
-            `test-component-${count}`,
-            `test-component-${count - 1}`,
-            compDefinition
-        );
+        const extension = ComponentFactory.extend('test-component-extension', 'test-component', {
+            updated() {},
+            template: '<div>This is an extension.</div>'
+        });
+
         const registry = ComponentFactory.getComponentRegistry();
 
-        expect(comp.created).is.a('function');
-        expect(registry.has(`test-component-${count}`)).is.equal(true);
-        expect(registry.get(`test-component-${count}`)).to.be.an('object');
-        expect(comp.templates).is.equal(undefined);
+        expect(extension.updated).is.a('function');
+        expect(extension.extends).to.be.an('String');
+        expect(extension.extends).is.equal('test-component');
+        expect(registry.has('test-component-extension')).is.equal(true);
+        expect(registry.get('test-component-extension')).to.be.an('object');
+        expect(extension.template).is.equal(undefined);
     });
 
-    it('should override and register the component in the registry', () => {
-        const compDefinition = {
-            template: '<div>Sample content</div>',
-            methods: {}
-        };
-        const comp = ComponentFactory.register(
-            `test-component-${count}`,
-            compDefinition
-        );
+    it('should register an override of an existing component in the override registry (without index)', () => {
+        ComponentFactory.register('test-component', {
+            created() {},
+            methods: {
+                testMethod() {
+                    return 'This is a test method.';
+                }
+            },
+            template: '<div>This is a test template.</div>'
+        });
 
-        const overrideDefinition = {
-            template: '<div class="override">Override content</div>'
-        };
+        const override = ComponentFactory.override('test-component', {
+            methods: {
+                testMethod() {
+                    return 'This is an override.';
+                }
+            },
+            template: '<div>This is an override.</div>'
+        });
 
-        const override = ComponentFactory.override(
-            comp.name,
-            overrideDefinition
-        );
-
-        const overrideDefinitionIndex = {
-            template: '<div class="override">Override content</div>',
-            created() {}
-        };
-
-        const overrideIndex = ComponentFactory.override(
-            override.name,
-            overrideDefinitionIndex,
-            0
-        );
         const registry = ComponentFactory.getComponentRegistry();
+        const overrideRegistry = ComponentFactory.getOverrideRegistry();
 
-        expect(overrideIndex.created).is.a('function');
-        expect(registry.has(`test-component-${count}`)).is.equal(true);
-        expect(registry.get(`test-component-${count}`)).to.be.an('object');
-        expect(comp.templates).is.equal(undefined);
+        expect(override.methods.testMethod).is.a('function');
+        expect(override.template).is.equal(undefined);
+        expect(registry.has('test-component')).is.equal(true);
+        expect(registry.get('test-component')).to.be.an('object');
+        expect(overrideRegistry.has('test-component')).is.equal(true);
+        expect(overrideRegistry.get('test-component')).to.be.an('Array');
+        expect(overrideRegistry.get('test-component').length).is.equal(1);
+        expect(overrideRegistry.get('test-component')[0]).to.be.an('Object');
     });
 
-    it('should provide the rendered component', () => {
-        const compDefinition = {
-            template: '<div>{% block content %}Sample content{% endblock %}</div>'
-        };
-        const comp = ComponentFactory.register(
-            `test-component-${count}`,
-            compDefinition
-        );
-
-        const renderedTemplate = ComponentFactory.getComponentTemplate(comp.name);
-
-        const extendDefinition = {
-            template: '{% block content %}Extended component content{% endblock %}'
-        };
-
-        const extendComp = ComponentFactory.extend(
-            `test-component-${count}-override`,
-            comp.name,
-            extendDefinition
-        );
-
-        const extendedRenderedTemplate = ComponentFactory.getComponentTemplate(extendComp.name);
-
-        expect(renderedTemplate).to.be.equal('<div>Sample content</div>');
-        expect(extendedRenderedTemplate).to.be.equal('<div>Extended component content</div>');
-    });
-
-    // TODO - Re-enable the test
-    // Skipping the test cause we have a bug in the implementation
-    it.skip('should build the final Vue component', () => {
-        // Check what happens when we provide a component name which isn't registered yet.
-        expect(ComponentFactory.build('foobar')).is.equal(false);
-
-        const compDefinition = {
-            template: '<div>{% block content %}Sample content{% endblock %}</div>',
+    it('should register two overrides of an existing component in the override registry (with index)', () => {
+        ComponentFactory.register('test-component', {
+            created() {},
             methods: {
-                firstMethod() {}
-            }
-        };
-        const comp = ComponentFactory.register(
-            `test-component-${count}`,
-            compDefinition
-        );
+                testMethod() {
+                    return 'This is a test method.';
+                }
+            },
+            template: '<div>This is a test template.</div>'
+        });
 
-        const extendDefinition = {
-            template: '{% block content %}Extended component content{% endblock %}',
+        const overrideOne = ComponentFactory.override('test-component', {
             methods: {
-                secondMethod() {}
-            }
-        };
-
-        const extendComp = ComponentFactory.extend(
-            `test-component-${count}-extended`,
-            comp.name,
-            extendDefinition
-        );
-
-        const buildExtendComp = ComponentFactory.build(extendComp.name);
-
-        expect(buildExtendComp).to.be.an('object').that.include({
-            template: '<div>Extended component content</div>',
-            methods: {
-                firstMethod() {},
-                secondMethod() {}
+                testMethod() {
+                    return 'This is the first override.';
+                }
             }
         });
+
+        const overrideTwo = ComponentFactory.override('test-component', {
+            methods: {
+                testMethod() {
+                    return 'This is the second override.';
+                }
+            }
+        }, 0);
+
+        const registry = ComponentFactory.getComponentRegistry();
+        const overrideRegistry = ComponentFactory.getOverrideRegistry();
+
+        expect(overrideOne.methods.testMethod).is.a('function');
+        expect(overrideTwo.methods.testMethod).is.a('function');
+        expect(overrideOne.template).is.equal(undefined);
+        expect(overrideTwo.template).is.equal(undefined);
+        expect(registry.has('test-component')).is.equal(true);
+        expect(registry.get('test-component')).to.be.an('Object');
+        expect(overrideRegistry.has('test-component')).is.equal(true);
+        expect(overrideRegistry.get('test-component')).to.be.an('Array');
+        expect(overrideRegistry.get('test-component').length).is.equal(2);
+        expect(overrideRegistry.get('test-component')[0]).to.be.an('Object');
+        expect(overrideRegistry.get('test-component')[1]).to.be.an('Object');
+        expect(overrideRegistry.get('test-component')[0].methods.testMethod).to.be.a('function');
+        expect(overrideRegistry.get('test-component')[1].methods.testMethod).to.be.a('function');
+        expect(overrideRegistry.get('test-component')[0].methods.testMethod()).is.equal('This is the second override.');
+        expect(overrideRegistry.get('test-component')[1].methods.testMethod()).is.equal('This is the first override.');
+    });
+
+    it('should provide the rendered template of a component including overrides', () => {
+        ComponentFactory.register('test-component', {
+            template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
+        });
+
+        const renderedTemplate = ComponentFactory.getComponentTemplate('test-component');
+
+        ComponentFactory.override('test-component', {
+            template: '{% block content %}<div>This is a template override.</div>{% endblock %}'
+        });
+
+        const overriddenTemplate = ComponentFactory.getComponentTemplate('test-component');
+
+        expect(renderedTemplate).to.be.equal('<div>This is a test template.</div>');
+        expect(overriddenTemplate).to.be.equal('<div>This is a template override.</div>');
+    });
+
+    it('should build the final component structure with extension', () => {
+        ComponentFactory.register('test-component', {
+            created() {},
+            methods: {
+                testMethod() {
+                    return 'This is a test method.';
+                }
+            },
+            template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
+        });
+
+        ComponentFactory.extend('test-component-extension', 'test-component', {
+            methods: {
+                testMethod() {
+                    return 'This is an extension.';
+                }
+            },
+            template: '{% block content %}<div>This is an extended template.</div>{% endblock %}'
+        });
+
+        const component = ComponentFactory.build('test-component');
+        const extension = ComponentFactory.build('test-component-extension');
+
+        expect(component).to.be.an('Object');
+        expect(component.methods).to.be.an('Object');
+        expect(component.methods.testMethod).to.be.a('function');
+        expect(component.methods.testMethod()).to.be.equal('This is a test method.');
+        expect(component.template).to.be.equal('<div>This is a test template.</div>');
+
+        expect(extension).to.be.an('Object');
+        expect(extension.methods).to.be.an('Object');
+        expect(extension.methods.testMethod).to.be.a('function');
+        expect(extension.methods.testMethod()).to.be.equal('This is an extension.');
+        expect(extension.template).to.be.equal('<div>This is an extended template.</div>');
+
+        expect(extension.extends).to.be.an('Object');
+        expect(extension.extends.template).is.equal(undefined);
+        expect(extension.extends.methods).to.be.an('Object');
+        expect(extension.extends.methods.testMethod).to.be.a('function');
+        expect(extension.extends.methods.testMethod()).to.be.equal('This is a test method.');
+    });
+
+    it('should build the final component structure with an override', () => {
+        ComponentFactory.register('test-component', {
+            created() {},
+            methods: {
+                testMethod() {
+                    return 'This is a test method.';
+                }
+            },
+            template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
+        });
+
+        ComponentFactory.override('test-component', {
+            methods: {
+                testMethod() {
+                    return 'This is an override.';
+                }
+            },
+            template: '{% block content %}<div>This is an override of a template.</div>{% endblock %}'
+        });
+
+        const component = ComponentFactory.build('test-component');
+
+        expect(component).to.be.an('Object');
+        expect(component.methods).to.be.an('Object');
+        expect(component.methods.testMethod).to.be.a('function');
+        expect(component.methods.testMethod()).to.be.equal('This is an override.');
+        expect(component.template).to.be.equal('<div>This is an override of a template.</div>');
+
+        expect(component.extends).to.be.an('Object');
+        expect(component.extends.template).is.equal(undefined);
+        expect(component.extends.methods).to.be.an('Object');
+        expect(component.extends.methods.testMethod).to.be.a('function');
+        expect(component.extends.methods.testMethod()).to.be.equal('This is a test method.');
     });
 });

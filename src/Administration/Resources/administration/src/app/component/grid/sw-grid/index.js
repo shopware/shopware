@@ -71,10 +71,6 @@ export default Shopware.ComponentFactory.register('sw-grid', {
         }
     },
 
-    updated() {
-        console.log('Items', this);
-    },
-
     watch: {
         items(items) {
             items.forEach((item) => {

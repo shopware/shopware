@@ -13,6 +13,7 @@ use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
@@ -25,7 +26,7 @@ use Shopware\Api\Listing\Repository\ListingSortingRepository;
 use Shopware\Api\Listing\Struct\ListingSortingBasicStruct;
 use Shopware\Api\Listing\Struct\ListingSortingDetailStruct;
 use Shopware\Api\Product\Definition\ProductStreamDefinition;
-use Shopware\Api\Entity\Field\VersionField;
+
 class ListingSortingDefinition extends EntityDefinition
 {
     /**

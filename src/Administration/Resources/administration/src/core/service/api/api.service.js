@@ -67,7 +67,7 @@ class ApiService {
         }
 
         return this.httpClient
-            .patch(this.getApiBasePath(id), payload)
+            .patch(`${this.getApiBasePath(id)}?_response=detail`, payload)
             .then((response) => {
                 return response.data;
             });
@@ -81,7 +81,7 @@ class ApiService {
      */
     create(payload) {
         return this.httpClient
-            .post(this.getApiBasePath(), payload)
+            .post(`${this.getApiBasePath()}?_response=detail`, payload)
             .then((response) => {
                 return response.data;
             });

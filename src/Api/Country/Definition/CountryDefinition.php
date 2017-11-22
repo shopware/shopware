@@ -23,6 +23,7 @@ use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
@@ -31,7 +32,7 @@ use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Order\Definition\OrderAddressDefinition;
 use Shopware\Api\Shop\Definition\ShopDefinition;
 use Shopware\Api\Tax\Definition\TaxAreaRuleDefinition;
-use Shopware\Api\Entity\Field\VersionField;
+
 class CountryDefinition extends EntityDefinition
 {
     /**

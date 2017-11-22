@@ -12,6 +12,7 @@ use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -23,7 +24,7 @@ use Shopware\Api\Seo\Repository\SeoUrlRepository;
 use Shopware\Api\Seo\Struct\SeoUrlBasicStruct;
 use Shopware\Api\Seo\Struct\SeoUrlDetailStruct;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-use Shopware\Api\Entity\Field\VersionField;
+
 class SeoUrlDefinition extends EntityDefinition
 {
     /**

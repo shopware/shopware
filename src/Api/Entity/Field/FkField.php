@@ -87,6 +87,11 @@ class FkField extends Field implements StorageAware
         return $this->storageName;
     }
 
+    public function getExtractPriority(): int
+    {
+        return 70;
+    }
+
     /**
      * @param string $fieldName
      * @param $value
@@ -136,14 +141,10 @@ class FkField extends Field implements StorageAware
         return [];
     }
 
-    public function getExtractPriority(): int
-    {
-        return 70;
-    }
-
     /**
-     * @param KeyValuePair $data
+     * @param KeyValuePair    $data
      * @param EntityExistence $existence
+     *
      * @return bool
      */
     private function shouldUseContext(KeyValuePair $data, EntityExistence $existence): bool

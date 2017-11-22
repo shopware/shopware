@@ -1,0 +1,85 @@
+<?php declare(strict_types=1);
+
+return [
+    'data' => [
+        'id' => 'c83a7721-270a-4add-82fd-e60b1dd0c47e',
+        'type' => 'media_album',
+        'attributes' => [
+            'parentId' => null,
+            'position' => 12,
+            'createThumbnails' => true,
+            'thumbnailSize' => '200x200',
+            'icon' => 'sprite-blue-folder',
+            'thumbnailHighDpi' => true,
+            'thumbnailQuality' => 90,
+            'thumbnailHighDpiQuality' => 60,
+            'createdAt' => '2018-01-15T08:01:16+00:00',
+            'updatedAt' => null,
+            'name' => 'Manufacturer',
+            'versionId' => null,
+            'parentVersionId' => null,
+        ],
+        'links' => [
+            'self' => '/api/media-album/c83a7721-270a-4add-82fd-e60b1dd0c47e',
+        ],
+        'relationships' => [
+            'media' => [
+                'data' => [
+                    ['id' => '548faa1f-7846-436c-8594-4f4aea792d96', 'type' => 'media'],
+                ],
+                'links' => [
+                    'related' => '/api/media-album/c83a7721-270a-4add-82fd-e60b1dd0c47e/media',
+                ],
+            ],
+            'parent' => [
+                'data' => null,
+                'links' => [
+                    'related' => '/api/media-album/c83a7721-270a-4add-82fd-e60b1dd0c47e/parent',
+                ],
+            ],
+            'children' => [
+                'data' => [],
+                'links' => [
+                    'related' => '/api/media-album/c83a7721-270a-4add-82fd-e60b1dd0c47e/children',
+                ],
+            ],
+        ],
+    ],
+    'included' => [
+        [
+            'id' => '548faa1f-7846-436c-8594-4f4aea792d96',
+            'type' => 'media',
+            'attributes' => [
+                'albumId' => 'c83a7721-270a-4add-82fd-e60b1dd0c47e',
+                'fileName' => 'teaser.jpg',
+                'mimeType' => 'image/jpg',
+                'fileSize' => 93889,
+                'metaData' => null,
+                'userId' => null,
+                'createdAt' => '2012-08-31T00:00:00+00:00',
+                'updatedAt' => '2017-11-21T11:25:34+00:00',
+                'name' => '2',
+                'description' => null,
+                'url' => 'http://shopware.next/media/c2/98/8f/teaser5040640f2861b.jpg',
+                'thumbnails' => [],
+                'versionId' => null,
+                'mediaAlbumVersionId' => null,
+                'userVersionId' => null,
+            ],
+            'links' => [
+                'self' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96',
+            ],
+            'relationships' => [
+                'album' => [
+                    'data' => [
+                        'id' => 'c83a7721-270a-4add-82fd-e60b1dd0c47e',
+                        'type' => 'media_album',
+                    ],
+                    'links' => [
+                        'related' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96/album',
+                    ],
+                ],
+            ],
+        ],
+    ],
+];

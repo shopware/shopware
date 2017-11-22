@@ -10,6 +10,7 @@ use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -20,7 +21,7 @@ use Shopware\Api\Shop\Event\ShopTemplateConfigFormFieldValue\ShopTemplateConfigF
 use Shopware\Api\Shop\Repository\ShopTemplateConfigFormFieldValueRepository;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigFormFieldValueBasicStruct;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigFormFieldValueDetailStruct;
-use Shopware\Api\Entity\Field\VersionField;
+
 class ShopTemplateConfigFormFieldValueDefinition extends EntityDefinition
 {
     /**

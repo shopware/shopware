@@ -8,6 +8,7 @@ use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -19,7 +20,7 @@ use Shopware\Api\Unit\Event\UnitTranslation\UnitTranslationWrittenEvent;
 use Shopware\Api\Unit\Repository\UnitTranslationRepository;
 use Shopware\Api\Unit\Struct\UnitTranslationBasicStruct;
 use Shopware\Api\Unit\Struct\UnitTranslationDetailStruct;
-use Shopware\Api\Entity\Field\VersionField;
+
 class UnitTranslationDefinition extends EntityDefinition
 {
     /**

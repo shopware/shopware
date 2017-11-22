@@ -2,7 +2,6 @@
 
 namespace Shopware\Api\Shipping\Struct;
 
-use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Api\Order\Collection\OrderDeliveryBasicCollection;
 use Shopware\Api\Shipping\Collection\ShippingMethodTranslationBasicCollection;
 use Shopware\Api\Shop\Collection\ShopBasicCollection;

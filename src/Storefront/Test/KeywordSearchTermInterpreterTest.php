@@ -2,13 +2,13 @@
 
 namespace Shopware\Storefront\Test;
 
+use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Search\Term\SearchTerm;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Defaults;
 use Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Doctrine\DBAL\Connection;
 
 class KeywordSearchTermInterpreterTest extends KernelTestCase
 {
@@ -124,7 +124,7 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
                 'keyword' => $keyword,
                 'shop_id' => Uuid::fromString(Defaults::SHOP)->getBytes(),
                 'version_id' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes(),
-                'shop_version_id' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes()
+                'shop_version_id' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes(),
             ]);
         }
     }

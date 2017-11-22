@@ -2,9 +2,9 @@
 
 namespace Shopware\Api\DependencyInjection\CompilerPass;
 
+use Shopware\Api\Entity\DefinitionRegistry;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Shopware\Api\Entity\DefinitionRegistry;
 
 class DefinitionRegistryCompilerPass implements CompilerPassInterface
 {

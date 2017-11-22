@@ -10,6 +10,7 @@ use Shopware\Api\Entity\Field\FloatField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -20,7 +21,7 @@ use Shopware\Api\Shipping\Event\ShippingMethodPrice\ShippingMethodPriceWrittenEv
 use Shopware\Api\Shipping\Repository\ShippingMethodPriceRepository;
 use Shopware\Api\Shipping\Struct\ShippingMethodPriceBasicStruct;
 use Shopware\Api\Shipping\Struct\ShippingMethodPriceDetailStruct;
-use Shopware\Api\Entity\Field\VersionField;
+
 class ShippingMethodPriceDefinition extends EntityDefinition
 {
     /**
@@ -49,7 +50,7 @@ class ShippingMethodPriceDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([ 
+        self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
 

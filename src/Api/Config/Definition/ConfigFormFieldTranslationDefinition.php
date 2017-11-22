@@ -17,11 +17,12 @@ use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Locale\Definition\LocaleDefinition;
-use Shopware\Api\Entity\Field\VersionField;
+
 class ConfigFormFieldTranslationDefinition extends EntityDefinition
 {
     /**
@@ -50,7 +51,7 @@ class ConfigFormFieldTranslationDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([ 
+        self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
 

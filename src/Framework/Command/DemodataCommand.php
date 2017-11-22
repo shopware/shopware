@@ -136,7 +136,7 @@ class DemodataCommand extends ContainerAwareCommand
                 'lastName' => $lastName,
                 'email' => $this->faker->safeEmail,
                 'password' => $password,
-                'defaultPaymentMethodId' => 'e84976ace9ab4928a3dcc387b66dbaa6',
+                'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'defaultBillingAddressId' => $addressId,
                 'defaultShippingAddressId' => $addressId,

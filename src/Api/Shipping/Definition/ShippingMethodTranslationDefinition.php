@@ -9,6 +9,7 @@ use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -20,7 +21,7 @@ use Shopware\Api\Shipping\Repository\ShippingMethodTranslationRepository;
 use Shopware\Api\Shipping\Struct\ShippingMethodTranslationBasicStruct;
 use Shopware\Api\Shipping\Struct\ShippingMethodTranslationDetailStruct;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-use Shopware\Api\Entity\Field\VersionField;
+
 class ShippingMethodTranslationDefinition extends EntityDefinition
 {
     /**
@@ -49,7 +50,7 @@ class ShippingMethodTranslationDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([ 
+        self::$fields = new FieldCollection([
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),

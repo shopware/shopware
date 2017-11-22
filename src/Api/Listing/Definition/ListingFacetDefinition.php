@@ -12,6 +12,7 @@ use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
@@ -23,7 +24,7 @@ use Shopware\Api\Listing\Event\ListingFacet\ListingFacetWrittenEvent;
 use Shopware\Api\Listing\Repository\ListingFacetRepository;
 use Shopware\Api\Listing\Struct\ListingFacetBasicStruct;
 use Shopware\Api\Listing\Struct\ListingFacetDetailStruct;
-use Shopware\Api\Entity\Field\VersionField;
+
 class ListingFacetDefinition extends EntityDefinition
 {
     /**

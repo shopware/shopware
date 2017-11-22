@@ -28,7 +28,6 @@ use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
 use Shopware\Api\Entity\Write\EntityExistence;
-use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Version\Definition\VersionDefinition;
 use Shopware\Defaults;
@@ -64,10 +63,8 @@ class ReferenceVersionField extends FkField
         if ($this->definition === $this->versionReference) {
             //parent inheritance with versioning
             $value = $kvPair->getValue() ?? Defaults::LIVE_VERSION;
-
-        } else if ($this->writeContext->has($this->versionReference, 'versionId')) {
+        } elseif ($this->writeContext->has($this->versionReference, 'versionId')) {
             $value = $this->writeContext->get($this->versionReference, 'versionId');
-
         } else {
             $value = Defaults::LIVE_VERSION;
         }

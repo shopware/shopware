@@ -13,6 +13,7 @@ use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -25,7 +26,7 @@ use Shopware\Api\User\Event\User\UserWrittenEvent;
 use Shopware\Api\User\Repository\UserRepository;
 use Shopware\Api\User\Struct\UserBasicStruct;
 use Shopware\Api\User\Struct\UserDetailStruct;
-use Shopware\Api\Entity\Field\VersionField;
+
 class UserDefinition extends EntityDefinition
 {
     /**
@@ -54,7 +55,7 @@ class UserDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([ 
+        self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new Required()),

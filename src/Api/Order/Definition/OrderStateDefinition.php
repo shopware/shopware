@@ -12,6 +12,7 @@ use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
@@ -25,7 +26,7 @@ use Shopware\Api\Order\Event\OrderState\OrderStateWrittenEvent;
 use Shopware\Api\Order\Repository\OrderStateRepository;
 use Shopware\Api\Order\Struct\OrderStateBasicStruct;
 use Shopware\Api\Order\Struct\OrderStateDetailStruct;
-use Shopware\Api\Entity\Field\VersionField;
+
 class OrderStateDefinition extends EntityDefinition
 {
     /**
@@ -54,7 +55,7 @@ class OrderStateDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([ 
+        self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             new TranslatedField(new StringField('description', 'description')),

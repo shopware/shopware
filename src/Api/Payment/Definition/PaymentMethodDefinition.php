@@ -17,6 +17,7 @@ use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
@@ -32,7 +33,7 @@ use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Api\Payment\Struct\PaymentMethodDetailStruct;
 use Shopware\Api\Plugin\Definition\PluginDefinition;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-use Shopware\Api\Entity\Field\VersionField;
+
 class PaymentMethodDefinition extends EntityDefinition
 {
     /**
@@ -61,7 +62,7 @@ class PaymentMethodDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([ 
+        self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             new FkField('plugin_id', 'pluginId', PluginDefinition::class),

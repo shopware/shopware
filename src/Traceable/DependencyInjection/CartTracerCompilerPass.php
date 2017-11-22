@@ -2,15 +2,15 @@
 
 namespace Shopware\Traceable\DependencyInjection;
 
+use Shopware\Cart\Cart\CartCalculator;
 use Shopware\Traceable\Cart\CartCalculatorTracer;
 use Shopware\Traceable\Cart\CollectorTracer;
 use Shopware\Traceable\Cart\ProcessorTracer;
+use Shopware\Traceable\Cart\TracedCartActions;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
-use Shopware\Traceable\Cart\TracedCartActions;
-use Shopware\Cart\Cart\CartCalculator;
 
 class CartTracerCompilerPass implements CompilerPassInterface
 {

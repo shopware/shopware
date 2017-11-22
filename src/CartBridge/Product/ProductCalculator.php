@@ -83,7 +83,6 @@ class ProductCalculator
 
             $price = $this->priceCalculator->calculate($priceDefinition, $context);
 
-
             $calculatedProduct = new CalculatedProduct(
                 $lineItem,
                 $price,

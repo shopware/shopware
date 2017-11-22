@@ -10,6 +10,7 @@ use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
@@ -23,7 +24,7 @@ use Shopware\Api\Unit\Event\Unit\UnitWrittenEvent;
 use Shopware\Api\Unit\Repository\UnitRepository;
 use Shopware\Api\Unit\Struct\UnitBasicStruct;
 use Shopware\Api\Unit\Struct\UnitDetailStruct;
-use Shopware\Api\Entity\Field\VersionField;
+
 class UnitDefinition extends EntityDefinition
 {
     /**

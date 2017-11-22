@@ -17,13 +17,17 @@ class ClassNamespaceTest extends TestCase
 
         $errors = [];
         foreach ($phpFiles as $file) {
+            if ($this->hasNamespaceDefined($file) === false) {
+                continue;
+            }
+
             $parts = $this->extractProductionNamespaceParts($file, $basePathParts);
 
             $namespace = rtrim('namespace Shopware\\' . implode('\\', $parts), '\\');
 
             if (strpos($file->getContents(), $namespace) === false) {
                 $relativePath = str_replace($basePath, '', $file->getPathname());
-                $errors['src' . $relativePath] = $namespace . ';';
+                $errors['src' . $relativePath] = $namespace;
             }
         }
 
@@ -47,5 +51,18 @@ class ClassNamespaceTest extends TestCase
         array_pop($parts);
 
         return $parts;
+    }
+
+    private function hasNamespaceDefined(SplFileInfo $file)
+    {
+        $lines = explode("\n", $file->getContents());
+
+        foreach ($lines as $line) {
+            if (preg_match('#^namespace\sShopware\\\.*;$#m', $line)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Shopware\Api\Version\Event\VersionCommitData;
 
-use Shopware\Api\Version\Collection\VersionCommitBasicCollection;
 use Shopware\Api\Version\Collection\VersionCommitDataBasicCollection;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;

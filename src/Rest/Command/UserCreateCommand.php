@@ -86,7 +86,7 @@ class UserCreateCommand extends Command
         return $result->getTotal() > 0;
     }
 
-    private function createUser(string $username, string $password)
+    private function createUser(string $username, string $password): void
     {
         $encoder = $this->encoderFactory->getEncoder(User::class);
         $password = $encoder->encodePassword($password, $username);

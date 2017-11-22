@@ -37,7 +37,6 @@ class ProductMediaBasicStruct extends Entity
      */
     protected $updatedAt;
 
-
     /**
      * @var MediaBasicStruct
      */

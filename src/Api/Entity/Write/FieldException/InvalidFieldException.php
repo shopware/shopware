@@ -67,6 +67,11 @@ class InvalidFieldException extends WriteFieldException
         return $result;
     }
 
+    public function getViolations(): ConstraintViolationList
+    {
+        return $this->constraintViolationList;
+    }
+
     public function getPath(): string
     {
         return $this->path;

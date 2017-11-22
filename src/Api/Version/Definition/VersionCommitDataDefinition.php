@@ -2,23 +2,23 @@
 
 namespace Shopware\Api\Version\Definition;
 
-use Shopware\Api\Entity\Field\ArrayField;
-use Shopware\Api\Entity\Field\FkField;
-use Shopware\Api\Entity\Field\IntField;
-use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Version\Collection\VersionCommitDataBasicCollection;
-use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataDeletedEvent;
-use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataWrittenEvent;
-use Shopware\Api\Version\Repository\VersionCommitDataRepository;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
+use Shopware\Api\Entity\Field\ArrayField;
 use Shopware\Api\Entity\Field\DateField;
+use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\IdField;
+use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\LongTextField;
+use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Version\Collection\VersionCommitDataBasicCollection;
+use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataDeletedEvent;
+use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataWrittenEvent;
+use Shopware\Api\Version\Repository\VersionCommitDataRepository;
 use Shopware\Api\Version\Struct\VersionCommitDataBasicStruct;
 
 class VersionCommitDataDefinition extends EntityDefinition
@@ -54,7 +54,7 @@ class VersionCommitDataDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([ 
+        self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('version_commit_id', 'versionCommitId', VersionCommitDefinition::class))->setFlags(new Required()),
             new ManyToOneAssociationField('commit', 'version_commit_id', VersionCommitDefinition::class, false),

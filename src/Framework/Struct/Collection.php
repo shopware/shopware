@@ -120,13 +120,6 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
         return $data;
     }
 
-    public function jsonSerializeApi(): array
-    {
-        $data = parent::jsonSerializeApi();
-
-        return array_values($data['elements']);
-    }
-
     public function first()
     {
         return array_values($this->elements)[0] ?? null;

@@ -28,7 +28,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
-use Shopware\Api\Entity\Search\Query\TermsQuery;
 use Shopware\Api\Shop\Repository\ShopRepository;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Storefront\Controller\StorefrontController;

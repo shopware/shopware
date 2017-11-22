@@ -2,6 +2,7 @@
 
 namespace Shopware\Rest\Controller;
 
+use Shopware\Api\Entity\DefinitionRegistry;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\AssociationInterface;
@@ -16,29 +17,65 @@ use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Parser\QueryStringParser;
 use Shopware\Api\Entity\Search\Query\TermQuery;
+use Shopware\Api\Entity\Write\EntityWriterInterface;
+use Shopware\Api\Entity\Write\FieldException\WriteStackException;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
-use Shopware\Rest\ApiContext;
-use Shopware\Rest\RestController;
+use Shopware\Rest\Exception\ResourceNotFoundException;
+use Shopware\Rest\Exception\WriteStackHttpException;
+use Shopware\Rest\Response\ResponseFactory;
+use Shopware\Rest\RestContext;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Shopware\Api\Entity\DefinitionRegistry;
-use Shopware\Api\Entity\Write\EntityWriter;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
+use Symfony\Component\Serializer\Exception\InvalidArgumentException;
+use Symfony\Component\Serializer\Exception\UnexpectedValueException;
+use Symfony\Component\Serializer\Serializer;
 
-class ApiController extends RestController
+class ApiController extends Controller
 {
     public const WRITE_UPDATE = 'update';
     public const WRITE_CREATE = 'create';
-    public const WRITE_DELETE = 'delete';
 
-    public function detailAction(Request $request, ApiContext $context): Response
+    /**
+     * @var DefinitionRegistry
+     */
+    private $definitionRegistry;
+
+    /**
+     * @var Serializer
+     */
+    private $serializer;
+
+    /**
+     * @var ResponseFactory
+     */
+    private $responseFactory;
+
+    /**
+     * @var EntityWriterInterface
+     */
+    private $entityWriter;
+
+    public function __construct(DefinitionRegistry $definitionRegistry, Serializer $serializer, ResponseFactory $responseFactory, EntityWriterInterface $entityWriter)
+    {
+        $this->definitionRegistry = $definitionRegistry;
+        $this->serializer = $serializer;
+        $this->responseFactory = $responseFactory;
+        $this->entityWriter = $entityWriter;
+    }
+
+    public function detailAction(Request $request, RestContext $context): Response
     {
         $path = $this->buildEntityPath($request->getPathInfo());
 
         $root = $path[0]['entity'];
-        $id = $path[count($path) - 1]['value'];
+        $id = $path[\count($path) - 1]['value'];
 
-        $definition = $this->get(DefinitionRegistry::class)->get($root);
+        $definition = $this->definitionRegistry->get($root);
 
         $associations = array_column($path, 'entity');
         array_shift($associations);
@@ -49,12 +86,12 @@ class ApiController extends RestController
             /** @var EntityDefinition $definition */
             $field = $this->getAssociation($definition::getFields(), $associations);
 
-            $referenceClass = $field->getReferenceClass();
+            $definition = $field->getReferenceClass();
             if ($field instanceof ManyToManyAssociationField) {
-                $referenceClass = $field->getReferenceDefinition();
+                $definition = $field->getReferenceDefinition();
             }
 
-            $repository = $this->get($referenceClass::getRepositoryClass());
+            $repository = $this->get($definition::getRepositoryClass());
         }
 
         /** @var RepositoryInterface $repository */
@@ -62,10 +99,14 @@ class ApiController extends RestController
 
         $entity = $entities->get($id);
 
-        return $this->createResponse(['data' => $entity], $context);
+        if ($entity === null) {
+            throw new ResourceNotFoundException($definition::getEntityName(), $id);
+        }
+
+        return $this->responseFactory->createDetailResponse($entity, (string) $definition, $context);
     }
 
-    public function listAction(Request $request, ApiContext $context): Response
+    public function listAction(Request $request, RestContext $context): Response
     {
         $path = $this->buildEntityPath($request->getPathInfo());
 
@@ -78,16 +119,12 @@ class ApiController extends RestController
         $repository = $this->get($definition::getRepositoryClass());
 
         if (empty($path)) {
-            $result = $repository->search(
+            $data = $repository->search(
                 $this->createListingCriteria($request),
                 $context->getTranslationContext()
             );
 
-            return $this->createResponse([
-                'data' => $result,
-                'total' => $result->getTotal(),
-                'aggregations' => $result->getAggregations(),
-            ], $context);
+            return $this->responseFactory->createListingResponse($data, (string) $definition, $context);
         }
 
         $child = array_pop($path);
@@ -144,7 +181,7 @@ class ApiController extends RestController
 
             $criteria->addFilter(
                 new TermQuery(
-                    //add filter to parent value: prices.productId = SW1
+                //add filter to parent value: prices.productId = SW1
                     $definition::getEntityName() . '.' . $foreignKey->getPropertyName(),
                     $parent['value']
                 )
@@ -167,7 +204,7 @@ class ApiController extends RestController
             /* @var OneToManyAssociationField $reverse */
             $criteria->addFilter(
                 new TermQuery(
-                    //filter inverse association to parent value:  manufacturer.products.id = SW1
+                //filter inverse association to parent value:  manufacturer.products.id = SW1
                     sprintf('%s.%s.id', $definition::getEntityName(), $reverse->getPropertyName()),
                     $parent['value']
                 )
@@ -179,41 +216,37 @@ class ApiController extends RestController
 
         $result = $repository->search($criteria, $context->getTranslationContext());
 
-        return $this->createResponse([
-            'data' => $result,
-            'total' => $result->getTotal(),
-            'aggregations' => $result->getAggregations(),
-        ], $context);
+        return $this->responseFactory->createListingResponse($result, (string) $definition, $context);
     }
 
-    public function createAction(Request $request, ApiContext $context): Response
+    public function createAction(Request $request, RestContext $context): Response
     {
         return $this->write($request, $context, self::WRITE_CREATE);
     }
 
-    public function updateAction(Request $request, ApiContext $context)
+    public function updateAction(Request $request, RestContext $context)
     {
         return $this->write($request, $context, self::WRITE_UPDATE);
     }
 
-    public function deleteAction(Request $request, ApiContext $context): Response
+    public function deleteAction(Request $request, RestContext $context): Response
     {
         $path = $this->buildEntityPath($request->getPathInfo());
 
-        $last = $path[count($path) - 1];
+        $last = $path[\count($path) - 1];
 
         $id = $last['value'];
 
         $first = array_shift($path);
 
         /* @var string|EntityDefinition $definition */
-        if (count($path) === 0) {
+        if (\count($path) === 0) {
             //first api level call /product/{id}
             $definition = $first['definition'];
 
-            $id = $this->doDelete($context, $definition, $id);
+            $this->doDelete($context, $definition, $id);
 
-            return $this->createResponse(['data' => $id], $context);
+            return $this->responseFactory->createRedirectResponse($definition, $id, $context);
         }
 
         $child = array_pop($path);
@@ -228,22 +261,20 @@ class ApiController extends RestController
         $association = $child['field'];
 
         if ($association instanceof OneToManyAssociationField) {
-            $id = $this->doDelete($context, $definition, $id);
+            $this->doDelete($context, $definition, $id);
 
-            return $this->createResponse(['data' => $id], $context);
+            return $this->responseFactory->createRedirectResponse($definition, $id, $context);
         }
 
         // DELETE api/product/{id}/manufacturer/{id}
         if ($association instanceof ManyToOneAssociationField) {
-            $id = $this->doDelete($context, $definition, $id);
+            $this->doDelete($context, $definition, $id);
 
-            return $this->createResponse(['data' => $id], $context);
+            return $this->responseFactory->createRedirectResponse($definition, $id, $context);
         }
 
         // DELETE api/product/{id}/category/{id}
         if ($association instanceof ManyToManyAssociationField) {
-            $fields = $definition::getPrimaryKeys();
-
             $local = $definition::getFields()->getByStorageName(
                 $association->getMappingLocalColumn()
             );
@@ -257,27 +288,31 @@ class ApiController extends RestController
                 $reference->getPropertyName() => $id,
             ];
 
-            $writer = $this->get(EntityWriter::class);
-
-            $writer->delete(
+            $this->entityWriter->delete(
                 $definition,
                 [$mapping],
                 WriteContext::createFromTranslationContext($context->getTranslationContext())
             );
 
-            return $this->createResponse(['data' => $mapping], $context);
+            return $this->responseFactory->createRedirectResponse($definition, $id, $context);
         }
 
         throw new \RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
     }
 
-    private function write(Request $request, ApiContext $context, string $type): Response
+    private function write(Request $request, RestContext $context, string $type): Response
     {
-        $payload = $context->getPayload();
+        $payload = $this->getRequestBody($request);
+        $responseDataType = $this->getResponseDataType($request);
+        $appendLocationHeader = $type === self::WRITE_CREATE;
+
+        if ($this->isCollection($payload)) {
+            throw new BadRequestHttpException('Only single write operations are supported. Please send the entities one by one or use the /sync api endpoint.');
+        }
 
         $path = $this->buildEntityPath($request->getPathInfo());
 
-        $last = $path[count($path) - 1];
+        $last = $path[\count($path) - 1];
 
         if ($type === self::WRITE_UPDATE && isset($last['value'])) {
             $payload['id'] = $last['value'];
@@ -286,17 +321,23 @@ class ApiController extends RestController
         $first = array_shift($path);
 
         /* @var string|EntityDefinition $definition */
-        if (count($path) === 0) {
+        if (\count($path) === 0) {
             $definition = $first['definition'];
 
             /** @var RepositoryInterface $repository */
             $repository = $this->get($definition::getRepositoryClass());
+
             $events = $this->executeWriteOperation($definition, $payload, $context, $type);
+
+            if (!$responseDataType) {
+                return $this->responseFactory->createRedirectResponse($definition, $payload['id'], $context);
+            }
+
             $event = $events->getEventByDefinition($definition);
 
             $entities = $repository->readBasic($event->getIds(), $context->getTranslationContext());
 
-            return $this->createResponse(['data' => $entities->first()], $context);
+            return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
         }
 
         $child = array_pop($path);
@@ -323,36 +364,43 @@ class ApiController extends RestController
             $payload[$foreignKey->getPropertyName()] = $parent['value'];
 
             $events = $this->executeWriteOperation($definition, $payload, $context, $type);
+
+            if (!$responseDataType) {
+                return $this->responseFactory->createRedirectResponse($definition, $parent['value'], $context);
+            }
+
             $event = $events->getEventByDefinition($definition);
 
             $repository = $this->get($definition::getRepositoryClass());
             $entities = $repository->readBasic($event->getIds(), $context->getTranslationContext());
 
-            return $this->createResponse(['data' => $entities->first()], $context);
+            return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
         }
 
         if ($association instanceof ManyToOneAssociationField) {
-            $repository = $this->get($definition::getRepositoryClass());
-
             $events = $this->executeWriteOperation($definition, $payload, $context, $type);
             $event = $events->getEventByDefinition($definition);
 
-            $entities = $repository->readBasic($event->getIds(), $context->getTranslationContext());
-            $entity = $entities->first();
+            $entityIds = $event->getIds();
+            $entityId = array_pop($entityIds);
 
-            $foreignKey = $parentDefinition::getFields()
-                ->getByStorageName($association->getStorageName());
+            $foreignKey = $parentDefinition::getFields()->getByStorageName($association->getStorageName());
 
             $payload = [
                 'id' => $parent['value'],
-                $foreignKey->getPropertyName() => $entity->getId(),
+                $foreignKey->getPropertyName() => $entityId,
             ];
 
             $repository = $this->get($parentDefinition::getRepositoryClass());
-
             $repository->update([$payload], $context->getTranslationContext());
 
-            return $this->createResponse(['data' => $entity], $context);
+            if (!$responseDataType) {
+                return $this->responseFactory->createRedirectResponse($definition, $entityId, $context);
+            }
+
+            $entities = $repository->readBasic($event->getIds(), $context->getTranslationContext());
+
+            return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
         }
 
         /** @var ManyToManyAssociationField $association */
@@ -382,22 +430,31 @@ class ApiController extends RestController
 
         $repository->update([$payload], $context->getTranslationContext());
 
-        return $this->createResponse(['data' => $entity], $context);
+        if (!$responseDataType) {
+            return $this->responseFactory->createRedirectResponse($reference, $entity->getId(), $context);
+        }
+
+        return $this->responseFactory->createDetailResponse($entity, $definition, $context, $appendLocationHeader);
     }
 
-    private function executeWriteOperation(string $definition, array $payload, ApiContext $context, string $type): GenericWrittenEvent
+    private function executeWriteOperation(string $definition, array $payload, RestContext $context, string $type): GenericWrittenEvent
     {
         /** @var EntityDefinition $definition */
         $repository = $this->get($definition::getRepositoryClass());
 
-        /* @var RepositoryInterface $repository */
-        switch ($type) {
-            case self::WRITE_CREATE:
-                return $repository->create([$payload], $context->getTranslationContext());
+        try {
+            /* @var RepositoryInterface $repository */
+            switch ($type) {
+                case self::WRITE_CREATE:
 
-            case self::WRITE_UPDATE:
-            default:
-                return $repository->update([$payload], $context->getTranslationContext());
+                    return $repository->create([$payload], $context->getTranslationContext());
+
+                case self::WRITE_UPDATE:
+                default:
+                    return $repository->update([$payload], $context->getTranslationContext());
+            }
+        } catch (WriteStackException $exceptionStack) {
+            throw new WriteStackHttpException($exceptionStack);
         }
     }
 
@@ -420,7 +477,7 @@ class ApiController extends RestController
         return $this->getAssociation($nested, $keys);
     }
 
-    private function buildEntityPath(string $pathInfo)
+    private function buildEntityPath(string $pathInfo): array
     {
         $exploded = str_replace('/api/', '', $pathInfo);
         $exploded = explode('/', $exploded);
@@ -453,8 +510,7 @@ class ApiController extends RestController
         $parts = array_filter($parts);
         $first = array_shift($parts);
 
-        $registry = $this->get(DefinitionRegistry::class);
-        $root = $registry->get($first['entity']);
+        $root = $this->definitionRegistry->get($first['entity']);
 
         $entities = [
             [
@@ -502,8 +558,8 @@ class ApiController extends RestController
     private function createListingCriteria(Request $request): Criteria
     {
         $criteria = new Criteria();
-        $criteria->setLimit(10);
         $criteria->setFetchCount(true);
+        $criteria->setLimit(10);
 
         if ($request->query->has('offset')) {
             $criteria->setOffset((int) $request->query->get('offset'));
@@ -519,37 +575,87 @@ class ApiController extends RestController
             );
         }
 
+        $pageQuery = $request->query->get('page', []);
+
+        if (array_key_exists('offset', $pageQuery)) {
+            $criteria->setOffset((int) $pageQuery['offset']);
+        }
+
+        if (array_key_exists('limit', $pageQuery)) {
+            $criteria->setLimit((int) $pageQuery['limit']);
+        }
+
         return $criteria;
     }
 
     /**
-     * @param ApiContext              $context
+     * Return a nested array structure of based on the content-type
+     *
+     * @param Request $request
+     *
+     * @return array
+     */
+    private function getRequestBody(Request $request): array
+    {
+        $contentType = $request->headers->get('CONTENT_TYPE');
+        $semicolonPosition = strpos($contentType, ';');
+
+        if ($semicolonPosition !== false) {
+            $contentType = substr($contentType, 0, $semicolonPosition);
+        }
+
+        try {
+            switch ($contentType) {
+                case 'application/vnd.api+json':
+                    return $this->serializer->decode($request->getContent(), 'jsonapi');
+                case 'application/json':
+                    return $this->serializer->decode($request->getContent(), 'json');
+            }
+        } catch (InvalidArgumentException | UnexpectedValueException $exception) {
+            throw new BadRequestHttpException($exception->getMessage());
+        } catch (\Exception $exception) {
+            throw new HttpException(500, $exception->getMessage());
+        }
+
+        throw new UnsupportedMediaTypeHttpException(sprintf('The Content-Type "%s" is unsupported.', $contentType));
+    }
+
+    private function isCollection(array $array): bool
+    {
+        return array_keys($array) === range(0, \count($array) - 1);
+    }
+
+    /**
+     * @param RestContext             $context
      * @param string|EntityDefinition $definition
      * @param string                  $id
      *
      * @throws \RuntimeException
-     *
-     * @return array
      */
-    private function doDelete(ApiContext $context, $definition, $id): array
+    private function doDelete(RestContext $context, $definition, $id): void
     {
         /** @var RepositoryInterface $repository */
         $repository = $this->get($definition::getRepositoryClass());
 
-        $fields = $definition::getPrimaryKeys();
-
-        $fields = $fields->filter(function(Field $field) {
+        $payload = [];
+        $fields = $definition::getPrimaryKeys()->filter(function (Field $field) {
             return !$field instanceof VersionField && !$field instanceof ReferenceVersionField;
         });
 
-        if ($fields->count() > 1 && empty($context->getPayload())) {
+        try {
+            $payload = $this->getRequestBody($context->getRequest());
+        } catch (\Exception $exception) {
+            // empty payload is allowed for DELETE requests
+        }
+
+        if ($fields->count() > 1 && empty($payload)) {
             throw new \RuntimeException(
                 sprintf('Entity primary key is defined by multiple columns. Please provide primary key in payload.')
             );
         }
 
         if ($fields->count() > 1) {
-            $mapping = $context->getPayload();
+            $mapping = $payload;
         } else {
             $pk = $fields->first();
             /** @var Field $pk */
@@ -557,7 +663,21 @@ class ApiController extends RestController
         }
 
         $repository->delete([$mapping], $context->getTranslationContext());
+    }
 
-        return $mapping;
+    private function getResponseDataType(Request $request): ?string
+    {
+        if ($request->query->has('_response') === false) {
+            return null;
+        }
+
+        $responses = ['basic', 'detail'];
+        $response = $request->query->get('_response');
+
+        if (!\in_array($response, $responses, true)) {
+            throw new BadRequestHttpException(sprintf('The response type "%s" is not supported. Available types are: %s', $response, implode(', ', $responses)));
+        }
+
+        return $response;
     }
 }

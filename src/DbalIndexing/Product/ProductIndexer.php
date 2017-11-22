@@ -103,7 +103,7 @@ class ProductIndexer implements IndexerInterface
     {
         $this->refreshJoinIdsByEvents($event);
 
-        $this->connection->transactional(function() use ($event) {
+        $this->connection->transactional(function () use ($event) {
             $ids = $this->getRefreshedProductIds($event);
 
             $this->indexCategoryAssignment($ids, $event->getContext());
@@ -139,7 +139,7 @@ class ProductIndexer implements IndexerInterface
                 [
                     'id' => $productId,
                     'tree' => json_encode($categoryIds),
-                    'version' => Uuid::fromString($context->getVersionId())->getBytes()
+                    'version' => Uuid::fromString($context->getVersionId())->getBytes(),
                 ]
             );
         }
@@ -235,7 +235,7 @@ class ProductIndexer implements IndexerInterface
             return;
         }
 
-        $bytes = array_map(function($id) {
+        $bytes = array_map(function ($id) {
             return Uuid::fromString($id)->getBytes();
         }, $ids);
 
@@ -297,7 +297,7 @@ class ProductIndexer implements IndexerInterface
 
         /** @var ProductMediaWrittenEvent|null $mediaWritten */
         $mediaWritten = $event->getEventByDefinition(ProductMediaDefinition::class);
-        
+
         if ($mediaWritten) {
             $this->mediaWritten($mediaWritten->getIds(), $mediaWritten->getContext());
         }
@@ -307,7 +307,7 @@ class ProductIndexer implements IndexerInterface
     {
         $version = Uuid::fromString($context->getVersionId())->getBytes();
 
-        $bytes = array_map(function($id) {
+        $bytes = array_map(function ($id) {
             return Uuid::fromString($id)->getBytes();
         }, $mediaIds);
 

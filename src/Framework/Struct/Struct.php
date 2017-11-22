@@ -36,7 +36,7 @@ abstract class Struct implements \JsonSerializable, ExtendableInterface
     //allows to clone full struct with all references
     use CloneTrait;
 
-    //allows json_encode and to decode object via \Shopware\SerializerRegistry\SerializerRegistry\JsonSerializer
+    //allows json_encode and to decode object via json serializer
     use JsonSerializableTrait;
 
     //allows to assign array data to this object

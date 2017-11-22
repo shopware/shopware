@@ -1,10 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\DbalIndexing\SeoUrl;
 
 use Cocur\Slugify\SlugifyInterface;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
@@ -13,7 +12,6 @@ use Shopware\Api\Product\Struct\ProductSearchResult;
 use Shopware\Api\Seo\Definition\SeoUrlDefinition;
 use Shopware\Api\Shop\Repository\ShopRepository;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\DbalIndexing\Common\QueryIterator;
 use Shopware\DbalIndexing\Common\RepositoryIterator;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
@@ -99,11 +97,11 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
             /** @var ProductSearchResult $products */
             while ($products = $iterator->fetch()) {
                 $canonicals = $this->fetchCanonicals($products->getIds(), $shop->getId());
-        
+
                 foreach ($products as $product) {
                     $existing = [
                         'id' => Uuid::uuid4()->getBytes(),
-                        'isModified' => 0
+                        'isModified' => 0,
                     ];
                     if (array_key_exists($product->getId(), $canonicals)) {
                         $existing = $canonicals[$product->getId()];
@@ -134,7 +132,6 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
                     ];
 
                     $insertQuery->addInsert(SeoUrlDefinition::getEntityName(), $data);
-
                 }
 
                 $this->eventDispatcher->dispatch(
@@ -154,12 +151,11 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
 
     public function refresh(GenericWrittenEvent $event): void
     {
-
     }
 
     private function fetchCanonicals(array $productIds, string $shopId)
     {
-        $productIds = array_map(function($id) {
+        $productIds = array_map(function ($id) {
             return Uuid::fromString($id)->getBytes();
         }, $productIds);
 
@@ -168,7 +164,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
         $query->select([
             'HEX(seo_url.foreign_key) as productId',
             'seo_url.id as id',
-            'seo_url.is_modified as isModified'
+            'seo_url.is_modified as isModified',
         ]);
         $query->from('seo_url', 'seo_url');
 
@@ -181,6 +177,6 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
         $query->setParameter(':name', self::ROUTE_NAME);
         $query->setParameter(':shop', Uuid::fromString($shopId)->getBytes());
 
-        return $query->execute()->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
+        return $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
     }
 }

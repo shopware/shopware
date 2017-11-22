@@ -1,20 +1,17 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\DbalIndexing\SeoUrl;
 
 use Cocur\Slugify\SlugifyInterface;
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Api\Category\Collection\CategoryBasicCollection;
 use Shopware\Api\Category\Repository\CategoryRepository;
 use Shopware\Api\Category\Struct\CategorySearchResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Seo\Definition\SeoUrlDefinition;
 use Shopware\Api\Shop\Repository\ShopRepository;
-use Shopware\Api\Shop\Struct\ShopBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\DbalIndexing\Common\QueryIterator;
 use Shopware\DbalIndexing\Common\RepositoryIterator;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
@@ -43,7 +40,6 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
      * @var RouterInterface
      */
     private $router;
-
 
     /**
      * @var ShopRepository
@@ -102,10 +98,9 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
                 $canonicals = $this->fetchCanonicals($categories->getIds(), $shop->getId());
 
                 foreach ($categories as $category) {
-                    
                     $existing = [
                         'id' => Uuid::uuid4()->getBytes(),
-                        'isModified' => 0
+                        'isModified' => 0,
                     ];
                     if (array_key_exists($category->getId(), $canonicals)) {
                         $existing = $canonicals[$category->getId()];
@@ -120,8 +115,8 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
                     $names = $category->getPathNamesArray();
                     $names[] = $category->getName();
 
-                    $seoUrl = array_map(function(string $name) {
-                        return $this->slugify->slugify($name);    
+                    $seoUrl = array_map(function (string $name) {
+                        return $this->slugify->slugify($name);
                     }, $names);
 
                     if (empty($seoUrl)) {
@@ -147,7 +142,6 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
                     ];
 
                     $insertQuery->addInsert(SeoUrlDefinition::getEntityName(), $data);
-
                 }
 
                 $this->eventDispatcher->dispatch(
@@ -167,12 +161,11 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
 
     public function refresh(GenericWrittenEvent $event): void
     {
-
     }
 
     private function fetchCanonicals(array $categoryIds, string $shopId)
     {
-        $categoryIds = array_map(function($id) {
+        $categoryIds = array_map(function ($id) {
             return Uuid::fromString($id)->getBytes();
         }, $categoryIds);
 
@@ -181,7 +174,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         $query->select([
             'HEX(seo_url.foreign_key) as categoryId',
             'seo_url.id as id',
-            'seo_url.is_modified as isModified'
+            'seo_url.is_modified as isModified',
         ]);
         $query->from('seo_url', 'seo_url');
 
@@ -194,6 +187,6 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         $query->setParameter(':name', self::ROUTE_NAME);
         $query->setParameter(':shop', Uuid::fromString($shopId)->getBytes());
 
-        return $query->execute()->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
+        return $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
     }
 }

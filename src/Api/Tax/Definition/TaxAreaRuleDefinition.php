@@ -59,7 +59,7 @@ class TaxAreaRuleDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([ 
+        self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
 
@@ -68,7 +68,7 @@ class TaxAreaRuleDefinition extends EntityDefinition
 
             new FkField('country_area_id', 'countryAreaId', CountryAreaDefinition::class),
             new ReferenceVersionField(CountryAreaDefinition::class),
-            
+
             new FkField('country_id', 'countryId', CountryDefinition::class),
             new ReferenceVersionField(CountryDefinition::class),
 

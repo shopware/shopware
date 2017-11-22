@@ -90,7 +90,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            if (preg_match('/^audit_log/', $definition::getEntityName())) {
+            if (strpos($definition::getEntityName(), 'audit_log') === 0) {
                 continue;
             }
 
@@ -134,7 +134,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            if (preg_match('/^audit_log/', $definition::getEntityName())) {
+            if (strpos($definition::getEntityName(), 'audit_log') === 0) {
                 continue;
             }
 
@@ -194,11 +194,9 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
     private function convertToHumanReadable(string $name): string
     {
-        $name = explode('_', $name);
-        $name = array_map('ucfirst', $name);
-        $name = implode(' ', $name);
+        $nameParts = array_map('ucfirst', explode('_', $name));
 
-        return $name;
+        return implode(' ', $nameParts);
     }
 
     private function convertToOperationId(string $name): string
@@ -232,7 +230,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         }
     }
 
-    private function getPropertyByField(Field $field)
+    private function getPropertyByField(Field $field): array
     {
         $property = [
             'type' => $this->getType($field),
@@ -327,7 +325,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             ],
         ];
 
-        if (count($relationships)) {
+        if (\count($relationships)) {
             $schema[$schemaName]['allOf'][1]['properties']['relationships']['properties'] = $relationships;
         }
 
@@ -589,7 +587,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
      *
      * @return array
      */
-    private function createToManyLinkage(AssociationInterface $field, string $basePath)
+    private function createToManyLinkage(AssociationInterface $field, string $basePath): array
     {
         $associationEntityName = $field->getReferenceClass()::getEntityName();
 

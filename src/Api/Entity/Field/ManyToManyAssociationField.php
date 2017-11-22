@@ -108,9 +108,7 @@ class ManyToManyAssociationField extends SubresourceField implements Association
 
         return;
         yield __CLASS__ => __METHOD__;
-
     }
-
 
     /**
      * @return string|EntityDefinition

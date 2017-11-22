@@ -15,9 +15,9 @@ use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Version\Collection\VersionBasicCollection;
 use Shopware\Api\Version\Event\Version\VersionDeletedEvent;
 use Shopware\Api\Version\Event\Version\VersionWrittenEvent;
-use Shopware\Api\Version\Struct\VersionBasicStruct;
 use Shopware\Api\Version\Repository\VersionRepository;
-use Shopware\Api\Entity\Field\VersionField;
+use Shopware\Api\Version\Struct\VersionBasicStruct;
+
 class VersionDefinition extends EntityDefinition
 {
     /**
@@ -56,7 +56,7 @@ class VersionDefinition extends EntityDefinition
             (new StringField('name', 'name'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new OneToManyAssociationField('commits', VersionCommitDefinition::class, 'version_id', true)
+            new OneToManyAssociationField('commits', VersionCommitDefinition::class, 'version_id', true),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -100,9 +100,7 @@ class VersionDefinition extends EntityDefinition
     {
         return [
             'name' => sprintf('Draft (%s)', date('Y-m-d H:i:s')),
-            'createdAt' => date(\DateTime::ATOM)
+            'createdAt' => date(\DateTime::ATOM),
         ];
     }
-
-
 }

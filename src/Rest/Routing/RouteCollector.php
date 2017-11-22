@@ -162,7 +162,7 @@ class RouteCollector
         return $collection;
     }
 
-    private function snakeCaseToCamelCase(string $string)
+    private function snakeCaseToCamelCase(string $string): string
     {
         $explode = explode('_', $string);
         $explode = array_map('ucfirst', $explode);

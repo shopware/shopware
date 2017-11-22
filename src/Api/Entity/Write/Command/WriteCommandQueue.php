@@ -163,15 +163,17 @@ class WriteCommandQueue
 
     /**
      * @param string $definition
-     * @param array $primaryKey
+     * @param array  $primaryKey
+     *
      * @return WriteCommandInterface[]
      */
     public function getCommandsForEntity(string $definition, array $primaryKey): array
     {
         $commands = $this->getCommandsInOrder();
+
         return array_filter(
             $commands,
-            function(WriteCommandInterface $command) use ($definition, $primaryKey) {
+            function (WriteCommandInterface $command) use ($definition, $primaryKey) {
                 return $command->getDefinition() === $definition && $command->getPrimaryKey() == $primaryKey;
             }
         );

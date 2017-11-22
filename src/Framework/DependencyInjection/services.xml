@@ -133,5 +133,14 @@
             <argument type="service" id="Shopware\Api\Entity\Write\EntityWriter"/>
         </service>
 
+        <!-- Serializer -->
+        <service class="Shopware\Framework\Serializer\StructNormalizer" id="Shopware\Framework\Serializer\StructNormalizer">
+            <tag name="serializer.normalizer"/>
+        </service>
+
+        <service class="Shopware\Framework\Serializer\StructDecoder" id="Shopware\Framework\Serializer\StructDecoder">
+            <tag name="serializer.encoder"/>
+        </service>
+
     </services>
 </container>

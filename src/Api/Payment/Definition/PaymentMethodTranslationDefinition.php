@@ -9,6 +9,7 @@ use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -20,7 +21,7 @@ use Shopware\Api\Payment\Repository\PaymentMethodTranslationRepository;
 use Shopware\Api\Payment\Struct\PaymentMethodTranslationBasicStruct;
 use Shopware\Api\Payment\Struct\PaymentMethodTranslationDetailStruct;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-use Shopware\Api\Entity\Field\VersionField;
+
 class PaymentMethodTranslationDefinition extends EntityDefinition
 {
     /**
@@ -49,7 +50,7 @@ class PaymentMethodTranslationDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([ 
+        self::$fields = new FieldCollection([
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),

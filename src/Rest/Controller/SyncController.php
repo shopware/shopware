@@ -6,16 +6,20 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\Entity\DefinitionRegistry;
 use Shopware\Api\Entity\RepositoryInterface;
+use Shopware\Api\Entity\Write\FieldException\WriteStackException;
 use Shopware\Api\Entity\Write\WrittenEvent;
-use Shopware\Rest\ApiContext;
-use Shopware\Rest\RestController;
+use Shopware\Rest\RestContext;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * @Route(service="Shopware\Rest\Controller\SyncController", path="/api/sync")
  */
-class SyncController extends RestController
+class SyncController extends Controller
 {
     public const ACTION_UPSERT = 'upsert';
     public const ACTION_DELETE = 'delete';
@@ -26,28 +30,31 @@ class SyncController extends RestController
     protected $registry;
 
     /**
-     * @var ContainerInterface
+     * @var Serializer
      */
-    protected $container;
+    private $serializer;
 
-    public function __construct(DefinitionRegistry $registry, ContainerInterface $container)
+    public function __construct(DefinitionRegistry $registry, ContainerInterface $container, Serializer $serializer)
     {
         $this->registry = $registry;
         $this->container = $container;
+        $this->serializer = $serializer;
     }
 
     /**
      * @Route("", name="sync.api")
      * @Method({"POST"})
      *
-     * @param ApiContext $apiContext
+     * @param Request     $request
+     * @param RestContext $restContext
      *
      * @return Response
      */
-    public function syncAction(ApiContext $apiContext): Response
+    public function syncAction(Request $request, RestContext $restContext): Response
     {
-        $payload = $apiContext->getPayload();
-        $context = $apiContext->getTranslationContext();
+        $payload = $this->serializer->decode($request->getContent(), 'json');
+
+        $context = $restContext->getTranslationContext();
 
         $errors = $result = [];
 
@@ -70,28 +77,32 @@ class SyncController extends RestController
                     break;
 
                 case self::ACTION_UPSERT:
-                    /** @var WrittenEvent $event */
-                    $generic = $repository->upsert(
-                        [$operation['payload']],
-                        $context
-                    );
+                    try {
+                        /** @var WrittenEvent $event */
+                        $generic = $repository->upsert(
+                            [$operation['payload']],
+                            $context
+                        );
 
-                    foreach ($generic->getEvents() as $event) {
-                        $eventDefinition = $event->getDefinition();
+                        foreach ($generic->getEvents() as $event) {
+                            $eventDefinition = $event->getDefinition();
 
-                        if (array_key_exists($eventDefinition, $result)) {
-                            $result[$eventDefinition]['ids'] = array_merge(
-                                $result[$eventDefinition]['ids'],
-                                $event->getIds()
-                            );
-                        } else {
-                            $result[$eventDefinition] = [
-                                'definition' => $eventDefinition,
-                                'ids' => $event->getIds(),
-                            ];
+                            if (array_key_exists($eventDefinition, $result)) {
+                                $result[$eventDefinition]['ids'] = array_merge(
+                                    $result[$eventDefinition]['ids'],
+                                    $event->getIds()
+                                );
+                            } else {
+                                $result[$eventDefinition] = [
+                                    'definition' => $eventDefinition,
+                                    'ids' => $event->getIds(),
+                                ];
+                            }
+
+                            $errors = array_merge($errors, $event->getErrors());
                         }
-
-                        $errors = array_merge($errors, $event->getErrors());
+                    } catch (WriteStackException $exception) {
+                        $errors = array_merge($errors, $exception->toArray());
                     }
 
                     break;
@@ -100,6 +111,11 @@ class SyncController extends RestController
 
         $result = array_values($result);
 
-        return $this->createResponse(['data' => $result], $apiContext);
+        $response = [
+            'data' => $result,
+            'errors' => $errors,
+        ];
+
+        return new JsonResponse($response);
     }
 }

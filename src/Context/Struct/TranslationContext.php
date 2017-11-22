@@ -86,6 +86,7 @@ class TranslationContext extends Struct
         if ($this->isDefaultShop) {
             return false;
         }
+
         return $this->getFallbackId() !== $this->getShopId();
     }
 

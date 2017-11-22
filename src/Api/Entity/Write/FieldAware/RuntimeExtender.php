@@ -3,10 +3,10 @@
 namespace Shopware\Api\Entity\Write\FieldAware;
 
 use Shopware\Api\Entity\Field\Field;
-use Shopware\Api\Entity\Write\FieldException\FieldExceptionStack;
 use Shopware\Api\Entity\Write\Command\WriteCommandQueue;
-use Shopware\Api\Entity\Write\WriteContext;
+use Shopware\Api\Entity\Write\FieldException\FieldExceptionStack;
 use Shopware\Api\Entity\Write\WriteCommandExtractor;
+use Shopware\Api\Entity\Write\WriteContext;
 
 class RuntimeExtender extends FieldExtender
 {

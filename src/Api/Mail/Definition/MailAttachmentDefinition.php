@@ -9,6 +9,7 @@ use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -21,7 +22,7 @@ use Shopware\Api\Mail\Struct\MailAttachmentBasicStruct;
 use Shopware\Api\Mail\Struct\MailAttachmentDetailStruct;
 use Shopware\Api\Media\Definition\MediaDefinition;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-use Shopware\Api\Entity\Field\VersionField;
+
 class MailAttachmentDefinition extends EntityDefinition
 {
     /**
@@ -50,7 +51,7 @@ class MailAttachmentDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([ 
+        self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             (new FkField('mail_id', 'mailId', MailDefinition::class))->setFlags(new Required()),

@@ -69,7 +69,7 @@
             <argument id="request_stack" type="service"/>
             <argument id="Shopware\Context\Service\ContextFactory" type="service"/>
             <argument id="shopware.cache" type="service"/>
-            <argument id="Shopware\Serializer\SerializerRegistry" type="service"/>
+            <argument id="serializer" type="service"/>
             <argument id="security.token_storage" type="service"/>
         </service>
 

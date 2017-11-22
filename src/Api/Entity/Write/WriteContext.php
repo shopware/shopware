@@ -159,17 +159,6 @@ class WriteContext
         return $this->translationContext;
     }
 
-    /**
-     * @param string $className
-     * @param string $propertyName
-     *
-     * @return string
-     */
-    private function buildPathName(string $className, string $propertyName): string
-    {
-        return $className . self::SPACER . $propertyName;
-    }
-
     public function resetPaths(): void
     {
         $this->paths = [];
@@ -186,5 +175,16 @@ class WriteContext
                 $versionId
             )
         );
+    }
+
+    /**
+     * @param string $className
+     * @param string $propertyName
+     *
+     * @return string
+     */
+    private function buildPathName(string $className, string $propertyName): string
+    {
+        return $className . self::SPACER . $propertyName;
     }
 }

@@ -40,11 +40,49 @@ use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Cart\Test\Common\Generator;
 use Shopware\CartBridge\Cart\CartPersister;
-use Shopware\Serializer\JsonSerializer;
-use Shopware\Serializer\ObjectDeserializer;
+use Shopware\Framework\Serializer\StructNormalizer;
+use Symfony\Component\Serializer\Encoder\ChainDecoder;
+use Symfony\Component\Serializer\Encoder\ChainEncoder;
+use Symfony\Component\Serializer\Encoder\CsvEncoder;
+use Symfony\Component\Serializer\Encoder\JsonDecode;
+use Symfony\Component\Serializer\Encoder\JsonEncode;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Encoder\YamlEncoder;
+use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
+use Symfony\Component\Serializer\Normalizer\DateIntervalNormalizer;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
+use Symfony\Component\Serializer\Normalizer\JsonSerializableNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Normalizer\PropertyNormalizer;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class CartPersisterTest extends TestCase
 {
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function setUp()
+    {
+        parent::setUp();
+
+        $this->serializer = new Serializer(
+            [new StructNormalizer(), new JsonSerializableNormalizer(), new DateTimeNormalizer(), new DateIntervalNormalizer(), new ArrayDenormalizer(), new ObjectNormalizer(), new PropertyNormalizer()],
+            [
+                new ChainDecoder([
+                    new JsonDecode(true),
+                ]),
+                new ChainEncoder([
+                    new JsonEncode(), new YamlEncoder(), new CsvEncoder(), new XmlEncoder(),
+                ]), ]
+        );
+    }
+
     public function testLoadWithNotExistingToken(): void
     {
         $connection = $this->createMock(Connection::class);
@@ -52,10 +90,7 @@ class CartPersisterTest extends TestCase
             ->method('fetchColumn')
             ->will($this->returnValue(false));
 
-        $persister = new CartPersister(
-            $connection,
-            new JsonSerializer(new ObjectDeserializer())
-        );
+        $persister = new CartPersister($connection, $this->serializer);
 
         $e = null;
         try {
@@ -83,10 +118,7 @@ class CartPersisterTest extends TestCase
                 ])
             ));
 
-        $persister = new CartPersister(
-            $connection,
-            new JsonSerializer(new ObjectDeserializer())
-        );
+        $persister = new CartPersister($connection, $this->serializer);
 
         $cart = $persister->load('existing', 'shopware');
 
@@ -101,10 +133,7 @@ class CartPersisterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())->method('insert');
 
-        $persister = new CartPersister(
-            $connection,
-            new JsonSerializer(new ObjectDeserializer())
-        );
+        $persister = new CartPersister($connection, $this->serializer);
 
         $calc = new CalculatedCart(
             new Cart('shopware', 'existing', new LineItemCollection(), new ErrorCollection()),
@@ -120,10 +149,7 @@ class CartPersisterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())->method('executeUpdate');
 
-        $persister = new CartPersister(
-            $connection,
-            new JsonSerializer(new ObjectDeserializer())
-        );
+        $persister = new CartPersister($connection, $this->serializer);
 
         $calc = new CalculatedCart(
             new Cart('shopware', 'existing', new LineItemCollection(), new ErrorCollection()),

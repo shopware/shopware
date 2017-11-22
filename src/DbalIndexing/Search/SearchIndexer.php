@@ -131,7 +131,6 @@ class SearchIndexer implements IndexerInterface
         $table = $this->indexTableOperator->getIndexName(self::TABLE, $timestamp);
         $documentTable = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp);
 
-
         /** @var ProductSearchResult $products */
         while ($products = $iterator->fetch()) {
             $queue = new MultiInsertQueryQueue($this->connection, 250, false, true);
@@ -171,7 +170,7 @@ class SearchIndexer implements IndexerInterface
                 'shop_id' => $shopId,
                 'version_id' => $versionId,
                 'keyword' => $keyword,
-                'shop_version_id' => $liveVersionId
+                'shop_version_id' => $liveVersionId,
             ]);
 
             $queue->addInsert($documentTable, [
@@ -182,7 +181,7 @@ class SearchIndexer implements IndexerInterface
                 'product_id' => $productId,
                 'shop_id' => $shopId,
                 'keyword' => $keyword,
-                'ranking' => $ranking
+                'ranking' => $ranking,
             ]);
         }
     }

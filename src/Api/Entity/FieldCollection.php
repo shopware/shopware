@@ -12,14 +12,13 @@ use Shopware\Framework\Struct\Collection;
 class FieldCollection extends Collection
 {
     /**
-     * @var Field[]
-     */
-    protected $elements = [];
-
-    /**
      * @var string[]
      */
     public $mapping = [];
+    /**
+     * @var Field[]
+     */
+    protected $elements = [];
 
     public function __construct(array $elements = [])
     {

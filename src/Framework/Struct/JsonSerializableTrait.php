@@ -29,16 +29,9 @@ trait JsonSerializableTrait
 {
     public function jsonSerialize(): array
     {
-        $data = get_object_vars($this);
-        $data['_class'] = get_class($this);
-
-        return $data;
-    }
-
-    public function jsonSerializeApi(): array
-    {
-        $data = json_decode(json_encode($this), true);
-        unset($data['_class']);
+        $data = [
+            '_class' => get_class($this),
+        ];
 
         $vars = get_object_vars($this);
         foreach ($vars as $property => $value) {
@@ -46,31 +39,9 @@ trait JsonSerializableTrait
                 $value = $value->format(\DateTime::ATOM);
             }
 
-            $data[$property] = $this->serializeJsonApi($value);
+            $data[$property] = $value;
         }
 
         return $data;
-    }
-
-    private function serializeJsonApi($data)
-    {
-        if (is_array($data)) {
-            return array_map([$this, 'serializeJsonApi'], $data);
-        }
-
-        if ($data instanceof Struct) {
-            return $data->jsonSerializeApi();
-        }
-
-        if ($data instanceof \Iterator) {
-            $items = [];
-            foreach ($data as $item) {
-                $items[] = $this->serializeJsonApi($item);
-            }
-
-            return $items;
-        }
-
-        return json_decode(json_encode($data), true);
     }
 }

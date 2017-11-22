@@ -24,12 +24,12 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Storefront\Context\StorefrontContextService;
 use Shopware\Storefront\Navigation\Navigation;
+use Shopware\Storefront\Navigation\NavigationService;
+use Shopware\Storefront\Twig\TemplateFinder;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
-use Shopware\Storefront\Navigation\NavigationService;
-use Shopware\Storefront\Context\StorefrontContextService;
-use Shopware\Storefront\Twig\TemplateFinder;
 
 abstract class StorefrontController extends Controller
 {

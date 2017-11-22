@@ -13,7 +13,7 @@ class AuthController extends Controller
      *
      * @Route("/api/auth", name="api_auth")
      */
-    public function authAction()
+    public function authAction(): void
     {
         throw new NotAcceptableHttpException();
     }

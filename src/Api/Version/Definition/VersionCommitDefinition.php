@@ -2,27 +2,27 @@
 
 namespace Shopware\Api\Version\Definition;
 
+use Shopware\Api\Entity\EntityDefinition;
+use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
+use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
+use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
+use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\ReadOnly;
+use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Version\Collection\VersionCommitBasicCollection;
 use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataDeletedEvent;
 use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataWrittenEvent;
 use Shopware\Api\Version\Repository\VersionCommitRepository;
 use Shopware\Api\Version\Struct\VersionCommitBasicStruct;
-use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\Entity\EntityExtensionInterface;
-use Shopware\Api\Entity\Field\DateField;
-use Shopware\Api\Entity\Field\IdField;
-use Shopware\Api\Entity\Field\StringField;
-use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Entity\Write\Flag\PrimaryKey;
-use Shopware\Api\Entity\Write\Flag\Required;
 
 class VersionCommitDefinition extends EntityDefinition
 {
@@ -110,7 +110,7 @@ class VersionCommitDefinition extends EntityDefinition
     {
         return [
             'name' => 'auto-save',
-            'createdAt' => date(\DateTime::ATOM)
+            'createdAt' => date(\DateTime::ATOM),
         ];
     }
 }

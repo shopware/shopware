@@ -31,8 +31,6 @@ use Shopware\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer;
 use Shopware\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer;
 use Shopware\Framework\Routing\Router;
 use Shopware\Storefront\Context\StorefrontContextServiceInterface;
-use Shopware\Storefront\Page\Detail\DetailPageUrlGenerator;
-use Shopware\Storefront\Page\Listing\ListingPageUrlGenerator;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\RedirectResponse;

@@ -6,7 +6,6 @@ use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Struct\StructCollection;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 class TraceableEntityReader implements EntityReaderInterface

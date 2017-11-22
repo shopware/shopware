@@ -33,7 +33,7 @@ use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
-use Shopware\Serializer\JsonSerializer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class CartPersister implements CartPersisterInterface
 {
@@ -43,11 +43,11 @@ class CartPersister implements CartPersisterInterface
     private $connection;
 
     /**
-     * @var JsonSerializer
+     * @var SerializerInterface
      */
     private $serializer;
 
-    public function __construct(Connection $connection, JsonSerializer $serializer)
+    public function __construct(Connection $connection, SerializerInterface $serializer)
     {
         $this->connection = $connection;
         $this->serializer = $serializer;
@@ -64,7 +64,7 @@ class CartPersister implements CartPersisterInterface
             throw new CartTokenNotFoundException($token);
         }
 
-        return $this->serializer->deserialize((string) $content);
+        return $this->serializer->deserialize((string) $content, null, 'json');
     }
 
     public function save(CalculatedCart $cart, ShopContext $context): void
@@ -101,9 +101,9 @@ class CartPersister implements CartPersisterInterface
             'customer_version_id' => $context->getCustomer() ? $liveVersion : null,
             'price' => $cart->getPrice()->getTotalPrice(),
             'line_item_count' => $cart->getCalculatedLineItems()->count(),
-            'calculated' => $this->serializer->serialize($cart),
-            'container' => $this->serializer->serialize($cart->getCart()),
-            'created_at' => (new \DateTime())->format('Y-m-d H:i:s')
+            'calculated' => $this->serializer->serialize($cart, 'json'),
+            'container' => $this->serializer->serialize($cart->getCart(), 'json'),
+            'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
         ];
 
         $this->connection->insert('cart', $data);

@@ -30,7 +30,7 @@ use Shopware\Framework\Struct\JsonSerializableTrait;
 
 abstract class Error extends \Exception implements \JsonSerializable
 {
-    //allows json_encode and to decode object via \Shopware\SerializerRegistry\SerializerRegistry\JsonSerializer
+    //allows json_encode and to decode object via json serializer
     use JsonSerializableTrait;
 
     //allows to assign array data to this object

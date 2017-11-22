@@ -23,6 +23,12 @@ class InfoController extends Controller
 
     /**
      * @Route("/api/info.{format}", name="api_info")
+     *
+     * @param string $format
+     *
+     * @throws \Exception
+     *
+     * @return \Symfony\Component\HttpFoundation\JsonResponse|Response
      */
     public function infoYamlAction(string $format)
     {

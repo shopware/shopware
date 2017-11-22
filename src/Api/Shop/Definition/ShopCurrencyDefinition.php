@@ -7,13 +7,14 @@ use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\MappingEntityDefinition;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Shop\Event\ShopCurrency\ShopCurrencyDeletedEvent;
 use Shopware\Api\Shop\Event\ShopCurrency\ShopCurrencyWrittenEvent;
-use Shopware\Api\Entity\Field\VersionField;
+
 class ShopCurrencyDefinition extends MappingEntityDefinition
 {
     /**
@@ -37,7 +38,7 @@ class ShopCurrencyDefinition extends MappingEntityDefinition
             return self::$fields;
         }
 
-        return self::$fields = new FieldCollection([ 
+        return self::$fields = new FieldCollection([
             (new FkField('shop_id', 'shopId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new PrimaryKey(), new Required()),

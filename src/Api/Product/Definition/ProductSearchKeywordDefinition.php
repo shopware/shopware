@@ -10,6 +10,7 @@ use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -21,7 +22,7 @@ use Shopware\Api\Product\Repository\ProductSearchKeywordRepository;
 use Shopware\Api\Product\Struct\ProductSearchKeywordBasicStruct;
 use Shopware\Api\Product\Struct\ProductSearchKeywordDetailStruct;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-use Shopware\Api\Entity\Field\VersionField;
+
 class ProductSearchKeywordDefinition extends EntityDefinition
 {
     /**
@@ -50,16 +51,15 @@ class ProductSearchKeywordDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([ 
+        self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
-            
+
             (new FkField('shop_id', 'shopId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new ReferenceVersionField(ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            
+
             (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new ReferenceVersionField(ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            
 
             (new StringField('keyword', 'keyword'))->setFlags(new Required()),
             (new FloatField('ranking', 'ranking'))->setFlags(new Required()),

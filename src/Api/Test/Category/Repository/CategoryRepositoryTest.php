@@ -8,6 +8,7 @@ use Shopware\Api\Category\Definition\CategoryDefinition;
 use Shopware\Api\Category\Event\Category\CategoryDeletedEvent;
 use Shopware\Api\Category\Repository\CategoryRepository;
 use Shopware\Api\Entity\RepositoryInterface;
+use Shopware\Api\Entity\Write\EntityWriter;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\Validation\RestrictDeleteViolation;
 use Shopware\Api\Entity\Write\Validation\RestrictDeleteViolationException;
@@ -19,7 +20,6 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Defaults;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Shopware\Api\Entity\Write\EntityWriter;
 
 class CategoryRepositoryTest extends KernelTestCase
 {
@@ -101,8 +101,7 @@ class CategoryRepositoryTest extends KernelTestCase
             ['ids' => [$parentId->getBytes(), $childId->getBytes()]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
-    
-        
+
         $this->assertEmpty($exists);
     }
 

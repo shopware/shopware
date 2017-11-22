@@ -2,9 +2,6 @@
 
 namespace Shopware\Api\Tax\Repository;
 
-use Ramsey\Uuid\Uuid;
-use Shopware\Api\Entity\Field\AssociationInterface;
-use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\AggregationResult;
@@ -12,7 +9,6 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\IdSearchResult;
-use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Tax\Collection\TaxBasicCollection;
@@ -23,9 +19,7 @@ use Shopware\Api\Tax\Event\Tax\TaxBasicLoadedEvent;
 use Shopware\Api\Tax\Event\Tax\TaxDetailLoadedEvent;
 use Shopware\Api\Tax\Event\Tax\TaxIdSearchResultLoadedEvent;
 use Shopware\Api\Tax\Event\Tax\TaxSearchResultLoadedEvent;
-use Shopware\Api\Tax\Struct\TaxDetailStruct;
 use Shopware\Api\Tax\Struct\TaxSearchResult;
-use Shopware\Api\Version\Definition\VersionDefinition;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

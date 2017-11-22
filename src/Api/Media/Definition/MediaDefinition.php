@@ -16,6 +16,7 @@ use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
@@ -32,7 +33,7 @@ use Shopware\Api\Media\Struct\MediaDetailStruct;
 use Shopware\Api\Product\Definition\ProductManufacturerDefinition;
 use Shopware\Api\Product\Definition\ProductMediaDefinition;
 use Shopware\Api\User\Definition\UserDefinition;
-use Shopware\Api\Entity\Field\VersionField;
+
 class MediaDefinition extends EntityDefinition
 {
     /**
@@ -61,7 +62,7 @@ class MediaDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([ 
+        self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
 

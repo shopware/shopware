@@ -2,8 +2,6 @@
 
 namespace Shopware\Administration\Search;
 
-use Doctrine\DBAL\Query\QueryBuilder;
-use Ramsey\Uuid\Uuid;
 use Shopware\Api\Customer\Definition\CustomerDefinition;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
@@ -176,7 +174,6 @@ class AdministrationSearch
 
         return $results;
     }
-
 
     /**
      * @param SearchResultInterface[] $results

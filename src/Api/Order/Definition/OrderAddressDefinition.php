@@ -13,6 +13,7 @@ use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -24,7 +25,7 @@ use Shopware\Api\Order\Event\OrderAddress\OrderAddressWrittenEvent;
 use Shopware\Api\Order\Repository\OrderAddressRepository;
 use Shopware\Api\Order\Struct\OrderAddressBasicStruct;
 use Shopware\Api\Order\Struct\OrderAddressDetailStruct;
-use Shopware\Api\Entity\Field\VersionField;
+
 class OrderAddressDefinition extends EntityDefinition
 {
     /**
@@ -53,7 +54,7 @@ class OrderAddressDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([ 
+        self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
 

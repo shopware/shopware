@@ -5,6 +5,7 @@ namespace Shopware\Api\Test\Entity\Write;
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Country\Definition\CountryAreaDefinition;
+use Shopware\Api\Entity\Write\EntityWriter;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\FieldException\WriteStackException;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -13,7 +14,6 @@ use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Defaults;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Shopware\Api\Entity\Write\EntityWriter;
 
 class WriterTest extends KernelTestCase
 {

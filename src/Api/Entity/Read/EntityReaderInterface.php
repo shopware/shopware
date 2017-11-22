@@ -4,7 +4,6 @@ namespace Shopware\Api\Entity\Read;
 
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Struct\StructCollection;
 
 interface EntityReaderInterface
 {

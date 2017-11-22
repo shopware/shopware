@@ -2,64 +2,27 @@
 
 namespace Shopware\Rest\Firewall;
 
-use Lexik\Bundle\JWTAuthenticationBundle\Event\AuthenticationFailureEvent;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class AuthenticationFailureListener
 {
-    public function onAuthenticationFailureResponse(AuthenticationFailureEvent $event): void
+    public function onAuthenticationFailureResponse(): void
     {
-        $content = json_decode($event->getResponse()->getContent(), true);
-
-        $event->setResponse($this->createResponse(
-            $content,
-            'Bad credentials, please verify that your username/password are correctly set.'
-        ));
+        throw new UnauthorizedHttpException('Bearer', 'Bad credentials, please verify that your username/password are correctly set.');
     }
 
-    public function onJWTExpired(AuthenticationFailureEvent $event)
+    public function onJWTExpired(): void
     {
-        $content = json_decode($event->getResponse()->getContent(), true);
-
-        $event->setResponse($this->createResponse(
-            $content,
-            'Your token is expired, please renew it.'
-        ));
+        throw new UnauthorizedHttpException('Bearer', 'Your token is expired, please renew it.');
     }
 
-    public function onJWTInvalid(AuthenticationFailureEvent $event): void
+    public function onJWTInvalid(): void
     {
-        $content = json_decode($event->getResponse()->getContent(), true);
-
-        $event->setResponse($this->createResponse(
-            $content,
-            'Your token is invalid, please request a new one.'
-        ));
+        throw new UnauthorizedHttpException('Bearer', 'Your token is invalid, please request a new one.');
     }
 
-    public function onJWTNotFound(AuthenticationFailureEvent $event)
+    public function onJWTNotFound(): void
     {
-        $content = json_decode($event->getResponse()->getContent(), true);
-
-        $event->setResponse($this->createResponse(
-            $content,
-            'Please provide a valid token.'
-        ));
-    }
-
-    private function createResponse(array $originalError, string $detail): JsonResponse
-    {
-        $response = [
-            'errors' => [
-                [
-                    'status' => $originalError['code'],
-                    'source' => ['pointer' => ''],
-                    'title' => $originalError['message'],
-                    'detail' => $detail,
-                ],
-            ],
-        ];
-
-        return new JsonResponse($response, $originalError['code'], ['WWW-Authenticate' => 'Bearer']);
+        throw new UnauthorizedHttpException('Bearer', 'Please provide a valid token.');
     }
 }

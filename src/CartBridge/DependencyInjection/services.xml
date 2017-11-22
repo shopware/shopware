@@ -76,7 +76,7 @@
 
         <service class="Shopware\CartBridge\Cart\CartPersister" id="Shopware\CartBridge\Cart\CartPersister">
             <argument type="service" id="Doctrine\DBAL\Connection" />
-            <argument type="service" id="Shopware\Serializer\JsonSerializer" />
+            <argument type="service" id="serializer" />
         </service>
 
         <service id="Shopware\CartBridge\Voucher\VoucherGateway" class="Shopware\CartBridge\Voucher\VoucherGateway" >

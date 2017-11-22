@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Version;
 
@@ -27,7 +27,6 @@ use Shopware\Api\Version\Collection\VersionCommitBasicCollection;
 use Shopware\Api\Version\Definition\VersionCommitDataDefinition;
 use Shopware\Api\Version\Definition\VersionCommitDefinition;
 use Shopware\Api\Version\Definition\VersionDefinition;
-use Shopware\Api\Version\Repository\VersionChangeRepository;
 use Shopware\Api\Version\Struct\VersionCommitDataBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Defaults;
@@ -58,7 +57,6 @@ class VersionManager
      */
     private $entityDefinitionRegistry;
 
-
     /**
      * @var TokenStorageInterface
      */
@@ -81,8 +79,7 @@ class VersionManager
         DefinitionRegistry $entityDefinitionRegistry,
         TokenStorageInterface $tokenStorage,
         EntityWriteGatewayInterface $entityWriteGateway
-    )
-    {
+    ) {
         $this->entityWriter = $entityWriter;
         $this->entityReader = $entityReader;
         $this->entitySearcher = $entitySearcher;
@@ -131,7 +128,7 @@ class VersionManager
     {
         $primaryKey = [
             'id' => $id,
-            'versionId' => Defaults::LIVE_VERSION
+            'versionId' => Defaults::LIVE_VERSION,
         ];
 
         $versionId = $versionId ?? Uuid::uuid4()->toString();
@@ -179,7 +176,7 @@ class VersionManager
 
                 $entities[] = [
                     'definition' => $dataDefinition,
-                    'primary' => $data->getEntityId()
+                    'primary' => $data->getEntityId(),
                 ];
 
                 switch ($data->getAction()) {
@@ -202,7 +199,7 @@ class VersionManager
             $this->entityWriter->delete(VersionCommitDefinition::class, [['id' => $commit->getId()]], $liveContext);
         }
 
-        $newData = array_map(function(VersionCommitDataBasicStruct $data) {
+        $newData = array_map(function (VersionCommitDataBasicStruct $data) {
             $definition = $this->entityDefinitionRegistry->get($data->getEntityName());
 
             $id = $data->getEntityId();
@@ -217,7 +214,7 @@ class VersionManager
                 'userId' => $data->getUserId(),
                 'entityName' => $data->getEntityName(),
                 'action' => $data->getAction(),
-                'createdAt' => (new \DateTime())->format(\DateTime::ATOM)
+                'createdAt' => (new \DateTime())->format(\DateTime::ATOM),
             ];
         }, $allChanges);
 
@@ -226,7 +223,7 @@ class VersionManager
             'data' => $newData,
             'userId' => $this->getUserId(),
             'isMerge' => true,
-            'message' => 'merge commit ' . (new \DateTime())->format(\DateTime::ATOM)
+            'message' => 'merge commit ' . (new \DateTime())->format(\DateTime::ATOM),
         ];
 
         $this->entityWriter->insert(VersionCommitDefinition::class, [$commit], $context);
@@ -283,7 +280,8 @@ class VersionManager
 
     /**
      * @param string|EntityDefinition $definition
-     * @param array $payload
+     * @param array                   $payload
+     *
      * @return array
      */
     private function removeVersion(string $definition, array $payload): array
@@ -357,6 +355,7 @@ class VersionManager
             foreach ($entity as &$data) {
                 $data = $this->convertValue($data);
             }
+
             return array_filter($entity);
         }
 
@@ -381,7 +380,7 @@ class VersionManager
                 'id' => $commitId->getBytes(),
                 'user_id' => $userId,
                 'version_id' => Uuid::fromString($versionId)->getBytes(),
-                'created_at' => $date
+                'created_at' => $date,
             ],
             ['id' => $commitId->getBytes()]
         );
@@ -389,8 +388,8 @@ class VersionManager
         $commands = [$insert];
 
         /**
-         * @var string|EntityDefinition $definition
-         * @var array $item
+         * @var string|EntityDefinition
+         * @var array                   $item
          */
         foreach ($writtenEvents as $definition => $items) {
             if (strpos('version', $definition::getEntityName()) === 0) {
@@ -470,7 +469,7 @@ class VersionManager
     private function addVersionToPayload(array $payload, string $definition, string $versionId): array
     {
         /** @var string|EntityDefinition $definition */
-        $fields = $definition::getFields()->filter(function(Field $field) {
+        $fields = $definition::getFields()->filter(function (Field $field) {
             return $field instanceof VersionField || $field instanceof ReferenceVersionField;
         });
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Entity\Dbal;
 
@@ -10,7 +10,6 @@ use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Write\Command\DeleteCommand;
 use Shopware\Api\Entity\Write\Command\InsertCommand;
 use Shopware\Api\Entity\Write\Command\UpdateCommand;
-use Shopware\Api\Entity\Write\Command\WriteCommandInterface;
 use Shopware\Api\Entity\Write\Command\WriteCommandQueue;
 use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\EntityWriteGatewayInterface;
@@ -45,12 +44,11 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     }
 
     /**
-     * @param WriteCommandInterface[] $commands
+     * {@inheritdoc}
      */
     public function execute(array $commands): void
     {
-        $this->connection->transactional(function() use ($commands) {
-
+        $this->connection->transactional(function () use ($commands) {
             foreach ($commands as $command) {
                 $definition = $command->getDefinition();
                 $table = $definition::getEntityName();
@@ -77,13 +75,14 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     continue;
                 }
 
-                throw new \RuntimeException(sprintf('Command of class %s not supported', get_class($command)));
+                throw new \RuntimeException(sprintf('Command of class %s not supported', \get_class($command)));
             }
         });
     }
 
     /**
      * @param string|EntityDefinition $definition
+     *
      * @return FkField
      */
     private function getParentField(string $definition): ?FkField
@@ -144,8 +143,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
     /**
      * @param string|EntityDefinition $definition
-     * @param array $primaryKey
-     * @param WriteCommandQueue $commandQueue
+     * @param array                   $primaryKey
+     * @param WriteCommandQueue       $commandQueue
+     *
      * @return array
      */
     private function getCurrentState(string $definition, array $primaryKey, WriteCommandQueue $commandQueue): array
@@ -186,10 +186,10 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return array_replace_recursive($database, $state);
     }
 
-
     /**
      * @param string $definition
-     * @param array $primaryKey
+     * @param array  $primaryKey
+     *
      * @return array
      */
     private function fetchFromDatabase(string $definition, array $primaryKey): array
@@ -217,7 +217,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 unset($primaryKey[$field->getPropertyName()]);
             }
 
-            $query->andWhere($field->getStorageName().' = :'.$field->getPropertyName());
+            $query->andWhere($field->getStorageName() . ' = :' . $field->getPropertyName());
             $query->setParameter($field->getPropertyName(), $primaryKey[$field->getStorageName()]);
         }
 
@@ -228,7 +228,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
             $query->addSelect(
                 EntityDefinitionQueryHelper::escape($parent->getStorageName())
-                .' as `parent`'
+                . ' as `parent`'
             );
         }
 

@@ -16,6 +16,7 @@ use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
@@ -28,7 +29,7 @@ use Shopware\Api\Mail\Repository\MailRepository;
 use Shopware\Api\Mail\Struct\MailBasicStruct;
 use Shopware\Api\Mail\Struct\MailDetailStruct;
 use Shopware\Api\Order\Definition\OrderStateDefinition;
-use Shopware\Api\Entity\Field\VersionField;
+
 class MailDefinition extends EntityDefinition
 {
     /**

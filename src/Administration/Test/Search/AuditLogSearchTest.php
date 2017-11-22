@@ -128,7 +128,7 @@ class AuditLogSearchTest extends KernelTestCase
             ['id' => $productId2, 'price' => 15],
             ['id' => $productId2, 'price' => 20],
             ['id' => $productId2, 'price' => 25],
-            ['id' => $productId2, 'price' => 30]
+            ['id' => $productId2, 'price' => 30],
         ], TranslationContext::createDefaultContext());
 
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId2, Defaults::LIVE_VERSION);
@@ -142,7 +142,7 @@ class AuditLogSearchTest extends KernelTestCase
             [
                 'id' => $productId2,
                 'entity' => ProductDefinition::getEntityName(),
-                'user' => Uuid::fromString($this->userId)->getBytes()
+                'user' => Uuid::fromString($this->userId)->getBytes(),
             ]
         );
 
@@ -183,7 +183,7 @@ class AuditLogSearchTest extends KernelTestCase
             [
                 'entity' => $entity,
                 'id' => $id,
-                'version' => Uuid::fromString($versionId)->getBytes()
+                'version' => Uuid::fromString($versionId)->getBytes(),
             ]
         );
     }

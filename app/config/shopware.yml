@@ -6,6 +6,7 @@ framework:
     fragments: ~
     assets: ~
     session: ~
+    serializer: { enabled: true }
     secret: "%env(APP_SECRET)%"
     router:
         resource: "%kernel.root_dir%/config/routing_%kernel.environment%.yml"

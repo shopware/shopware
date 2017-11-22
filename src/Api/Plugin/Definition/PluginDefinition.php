@@ -11,6 +11,7 @@ use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
@@ -24,7 +25,7 @@ use Shopware\Api\Plugin\Repository\PluginRepository;
 use Shopware\Api\Plugin\Struct\PluginBasicStruct;
 use Shopware\Api\Plugin\Struct\PluginDetailStruct;
 use Shopware\Api\Shop\Definition\ShopTemplateDefinition;
-use Shopware\Api\Entity\Field\VersionField;
+
 class PluginDefinition extends EntityDefinition
 {
     /**
@@ -53,7 +54,7 @@ class PluginDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([ 
+        self::$fields = new FieldCollection([
             new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),

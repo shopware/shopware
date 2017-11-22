@@ -15,6 +15,7 @@ use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
@@ -28,7 +29,7 @@ use Shopware\Api\Order\Struct\OrderBasicStruct;
 use Shopware\Api\Order\Struct\OrderDetailStruct;
 use Shopware\Api\Payment\Definition\PaymentMethodDefinition;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-use Shopware\Api\Entity\Field\VersionField;
+
 class OrderDefinition extends EntityDefinition
 {
     /**
@@ -63,22 +64,22 @@ class OrderDefinition extends EntityDefinition
 
             (new FkField('customer_id', 'customerId', CustomerDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(CustomerDefinition::class))->setFlags(new Required()),
-            
+
             (new FkField('order_state_id', 'stateId', OrderStateDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(OrderStateDefinition::class))->setFlags(new Required()),
-            
+
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(PaymentMethodDefinition::class))->setFlags(new Required()),
-            
+
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(CurrencyDefinition::class))->setFlags(new Required()),
-            
+
             (new FkField('shop_id', 'shopId', ShopDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(ShopDefinition::class))->setFlags(new Required()),
-            
+
             (new FkField('billing_address_id', 'billingAddressId', OrderAddressDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(OrderAddressDefinition::class, 'billing_address_version_id'))->setFlags(new Required()),
-            
+
             (new DateField('order_date', 'date'))->setFlags(new Required()),
             (new FloatField('amount_total', 'amountTotal'))->setFlags(new Required()),
             (new FloatField('position_price', 'positionPrice'))->setFlags(new Required()),

@@ -16,6 +16,7 @@ use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
@@ -28,7 +29,7 @@ use Shopware\Api\Media\Event\MediaAlbum\MediaAlbumWrittenEvent;
 use Shopware\Api\Media\Repository\MediaAlbumRepository;
 use Shopware\Api\Media\Struct\MediaAlbumBasicStruct;
 use Shopware\Api\Media\Struct\MediaAlbumDetailStruct;
-use Shopware\Api\Entity\Field\VersionField;
+
 class MediaAlbumDefinition extends EntityDefinition
 {
     /**
@@ -57,7 +58,7 @@ class MediaAlbumDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([ 
+        self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             new FkField('parent_id', 'parentId', self::class),

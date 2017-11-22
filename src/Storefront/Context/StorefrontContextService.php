@@ -30,10 +30,10 @@ use Shopware\Context\Struct\CheckoutScope;
 use Shopware\Context\Struct\CustomerScope;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\ShopScope;
-use Shopware\Serializer\SerializerRegistry;
 use Shopware\Storefront\Firewall\CustomerUser;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * @category  Shopware
@@ -53,9 +53,9 @@ class StorefrontContextService implements StorefrontContextServiceInterface
     private $cache;
 
     /**
-     * @var SerializerRegistry
+     * @var SerializerInterface
      */
-    private $serializerRegistry;
+    private $serializer;
 
     /**
      * @var RequestStack
@@ -76,13 +76,13 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         RequestStack $requestStack,
         ContextFactoryInterface $factory,
         CacheItemPoolInterface $cache,
-        SerializerRegistry $serializerRegistry,
+        SerializerInterface $serializer,
         TokenStorageInterface $securityTokenStorage
     ) {
         $this->requestStack = $requestStack;
         $this->factory = $factory;
         $this->cache = $cache;
-        $this->serializerRegistry = $serializerRegistry;
+        $this->serializer = $serializer;
         $this->securityTokenStorage = $securityTokenStorage;
     }
 
@@ -126,7 +126,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
 
         $cacheItem = $this->cache->getItem($inputKey);
         if ($useCache && $context = $cacheItem->get()) {
-            return $this->context = $this->serializerRegistry->deserialize($context, SerializerRegistry::FORMAT_JSON);
+            return $this->context = $this->serializer->deserialize($context, '', 'json');
         }
 
         $context = $this->factory->create($shopScope, $customerScope, $checkoutScope);
@@ -137,7 +137,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
             CheckoutScope::createFromContext($context)
         );
 
-        $data = $this->serializerRegistry->serialize($context, SerializerRegistry::FORMAT_JSON);
+        $data = $this->serializer->serialize($context, 'json');
 
         $outputCacheItem = $this->cache->getItem($outputKey);
 

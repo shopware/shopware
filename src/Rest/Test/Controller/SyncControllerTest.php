@@ -17,7 +17,7 @@ class SyncControllerTest extends ApiTestCase
         parent::setUp();
     }
 
-    public function testMultipleProductInsert()
+    public function testMultipleProductInsert(): void
     {
         $id1 = Uuid::uuid4();
         $id2 = Uuid::uuid4();
@@ -47,7 +47,7 @@ class SyncControllerTest extends ApiTestCase
         ];
 
         $client = $this->getClient();
-        $client->request('POST', '/api/sync', $data);
+        $client->request('POST', '/api/sync', [], [], [], json_encode($data));
         $response = $client->getResponse();
 
         self::assertSame(200, $response->getStatusCode(), $response->getContent());
@@ -59,13 +59,13 @@ class SyncControllerTest extends ApiTestCase
         $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $client->request('DELETE', '/api/product/' . $id1->toString());
-        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        $this->assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
 
         $client->request('DELETE', '/api/product/' . $id2->toString());
-        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        $this->assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
     }
 
-    public function testInsertAndUpdateSameEntity()
+    public function testInsertAndUpdateSameEntity(): void
     {
         $id = Uuid::uuid4()->toString();
 
@@ -96,20 +96,20 @@ class SyncControllerTest extends ApiTestCase
         ];
 
         $client = $this->getClient();
-        $client->request('POST', '/api/sync', $data);
+        $client->request('POST', '/api/sync', [], [], [], json_encode($data));
         self::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $client->request('GET', '/api/product/' . $id);
         $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $responseData = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(false, $responseData['data']['active']);
+        $this->assertEquals(false, $responseData['data']['attributes']['active']);
 
         $client->request('DELETE', '/api/product/' . $id);
-        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        $this->assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
     }
 
-    public function testInsertAndLinkEntities()
+    public function testInsertAndLinkEntities(): void
     {
         $categoryId = Uuid::uuid4()->toString();
         $productId = Uuid::uuid4()->toString();
@@ -141,7 +141,7 @@ class SyncControllerTest extends ApiTestCase
         ];
 
         $client = $this->getClient();
-        $client->request('POST', '/api/sync', $data);
+        $client->request('POST', '/api/sync', [], [], [], json_encode($data));
 
         $response = $client->getResponse();
         self::assertSame(200, $response->getStatusCode());
@@ -150,19 +150,21 @@ class SyncControllerTest extends ApiTestCase
         $responseData = json_decode($client->getResponse()->getContent(), true);
 
         $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-        $this->assertContains($categoryId, $responseData['data']['categoryIds']);
-        $this->assertCount(1, $responseData['data']['categoryIds'], 'Category Ids should not contain: ' . print_r(array_diff($responseData['data']['categoryIds'], [$categoryId]), true));
+        $categories = array_column($responseData['data']['relationships']['categories']['data'], 'id');
+
+        $this->assertContains($categoryId, $categories);
+        $this->assertCount(1, $categories, 'Category Ids should not contain: ' . print_r(array_diff($categories, [$categoryId]), true));
 
         $client = $this->getClient();
         $client->request('DELETE', '/api/category/' . $categoryId);
-        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $client = $this->getClient();
         $client->request('DELETE', '/api/product/' . $productId);
-        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
     }
 
-    public function testNestedInsertAndLinkAfter()
+    public function testNestedInsertAndLinkAfter(): void
     {
         $product = Uuid::uuid4()->toString();
         $product2 = Uuid::uuid4()->toString();
@@ -199,28 +201,30 @@ class SyncControllerTest extends ApiTestCase
         ];
 
         $client = $this->getClient();
-        $client->request('POST', '/api/sync', $data);
+        $client->request('POST', '/api/sync', [], [], [], json_encode($data));
 
         $client->request('GET', '/api/product/' . $product);
         $responseData = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertContains($category, $responseData['data']['categoryIds']);
-        $this->assertContains($category, $responseData['data']['categoryIds']);
-        $this->assertCount(1, $responseData['data']['categoryIds']);
+        $categories = array_column($responseData['data']['relationships']['categories']['data'], 'id');
+        $this->assertContains($category, $categories);
+        $this->assertCount(1, $categories);
 
         $client->request('GET', '/api/product/' . $product2);
         $responseData = json_decode($client->getResponse()->getContent(), true);
-        $this->assertContains($category, $responseData['data']['categoryIds']);
-        $this->assertCount(1, $responseData['data']['categoryIds']);
+        $categories = array_column($responseData['data']['relationships']['categories']['data'], 'id');
+        $this->assertContains($category, $categories);
+        $this->assertCount(1, $categories);
 
         $client->request('GET', '/api/category/' . $category);
         $responseData = json_decode($client->getResponse()->getContent(), true);
+        $products = array_column($responseData['data']['relationships']['products']['data'], 'id');
 
-        $this->assertContains($product, $responseData['data']['productIds']);
-        $this->assertContains($product2, $responseData['data']['productIds']);
+        $this->assertContains($product, $products);
+        $this->assertContains($product2, $products);
     }
 
-    public function testMultiDelete()
+    public function testMultiDelete(): void
     {
         $product = Uuid::uuid4();
         $product2 = Uuid::uuid4();
@@ -251,7 +255,7 @@ class SyncControllerTest extends ApiTestCase
         ];
 
         $client = $this->getClient();
-        $client->request('POST', '/api/sync', $data);
+        $client->request('POST', '/api/sync', [], [], [], json_encode($data));
 
         /** @var Connection $connection */
         $connection = self::$container->get(Connection::class);
@@ -276,7 +280,7 @@ class SyncControllerTest extends ApiTestCase
         ];
 
         $client = $this->getClient();
-        $client->request('POST', '/api/sync', $data);
+        $client->request('POST', '/api/sync', [], [], [], json_encode($data));
 
         $exists = $connection->fetchAll(
             'SELECT * FROM product WHERE id IN (:id)',

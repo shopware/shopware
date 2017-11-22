@@ -2,6 +2,7 @@
 
 namespace Shopware\Translation\Command;
 
+use Shopware\Framework\Plugin\PluginCollection;
 use Shopware\Translation\Event\ImportAdvanceEvent;
 use Shopware\Translation\Event\ImportFinishEvent;
 use Shopware\Translation\Event\ImportStartEvent;
@@ -12,7 +13,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Shopware\Framework\Plugin\PluginCollection;
 
 class TranslationImportCommand extends ContainerAwareCommand implements EventSubscriberInterface
 {

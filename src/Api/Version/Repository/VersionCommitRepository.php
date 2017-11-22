@@ -2,13 +2,6 @@
 
 namespace Shopware\Api\Version\Repository;
 
-use Shopware\Api\Version\Collection\VersionCommitBasicCollection;
-use Shopware\Api\Version\Definition\VersionCommitDefinition;
-use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataAggregationResultLoadedEvent;
-use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataBasicLoadedEvent;
-use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataIdSearchResultLoadedEvent;
-use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataSearchResultLoadedEvent;
-use Shopware\Api\Version\Struct\VersionCommitSearchResult;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\AggregationResult;
@@ -19,6 +12,13 @@ use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
+use Shopware\Api\Version\Collection\VersionCommitBasicCollection;
+use Shopware\Api\Version\Definition\VersionCommitDefinition;
+use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataAggregationResultLoadedEvent;
+use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataBasicLoadedEvent;
+use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataIdSearchResultLoadedEvent;
+use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataSearchResultLoadedEvent;
+use Shopware\Api\Version\Struct\VersionCommitSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

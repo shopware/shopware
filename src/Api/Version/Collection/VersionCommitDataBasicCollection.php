@@ -2,9 +2,9 @@
 
 namespace Shopware\Api\Version\Collection;
 
+use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Version\Struct\VersionCommitDataBasicStruct;
-use Shopware\Api\Entity\EntityCollection;
 
 class VersionCommitDataBasicCollection extends EntityCollection
 {
@@ -23,22 +23,17 @@ class VersionCommitDataBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    protected function getExpectedClass(): string
+    public function filterByEntity(string $definition): self
     {
-        return VersionCommitDataBasicStruct::class;
-    }
-
-    public function filterByEntity(string $definition): VersionCommitDataBasicCollection
-    {
-        return $this->filter(function(VersionCommitDataBasicStruct $change) use ($definition) {
-            /** @var string|EntityDefinition $definition */
+        return $this->filter(function (VersionCommitDataBasicStruct $change) use ($definition) {
+            /* @var string|EntityDefinition $definition */
             return $change->getEntityName() === $definition::getEntityName();
         });
     }
 
-    public function filterByEntityPrimary(string $definition, array $primary): VersionCommitDataBasicCollection
+    public function filterByEntityPrimary(string $definition, array $primary): self
     {
-        return $this->filter(function(VersionCommitDataBasicStruct $change) use ($definition, $primary) {
+        return $this->filter(function (VersionCommitDataBasicStruct $change) use ($definition, $primary) {
             /** @var string|EntityDefinition $definition */
             if ($change->getEntityName() !== $definition::getEntityName()) {
                 return false;
@@ -47,5 +42,10 @@ class VersionCommitDataBasicCollection extends EntityCollection
 
             return $diff === $primary;
         });
+    }
+
+    protected function getExpectedClass(): string
+    {
+        return VersionCommitDataBasicStruct::class;
     }
 }

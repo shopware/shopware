@@ -31,6 +31,9 @@ use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\ReferenceField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Command\InsertCommand;
+use Shopware\Api\Entity\Write\Command\UpdateCommand;
+use Shopware\Api\Entity\Write\Command\WriteCommandQueue;
 use Shopware\Api\Entity\Write\DataStack\DataStack;
 use Shopware\Api\Entity\Write\DataStack\ExceptionNoStackItemFound;
 use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
@@ -43,9 +46,6 @@ use Shopware\Api\Entity\Write\Flag\Inherited;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\ReadOnly;
 use Shopware\Api\Entity\Write\Flag\Required;
-use Shopware\Api\Entity\Write\Command\InsertCommand;
-use Shopware\Api\Entity\Write\Command\UpdateCommand;
-use Shopware\Api\Entity\Write\Command\WriteCommandQueue;
 
 class WriteCommandExtractor
 {
@@ -83,10 +83,11 @@ class WriteCommandExtractor
         $existence = $this->entityExistenceGateway->getExistence($definition, $pkData, $rawData, $commandQueue);
         $rawData = $this->integrateDefaults($definition, $rawData, $existence);
 
-        $fields = $fields->filter(function(Field $field) {
+        $fields = $fields->filter(function (Field $field) {
             if (!$field->is(PrimaryKey::class)) {
                 return true;
             }
+
             return $field instanceof FkField;
         });
 
@@ -126,7 +127,7 @@ class WriteCommandExtractor
                     //not required and childhood not changed
                     continue;
                 }
-                
+
                 $kvPair = new KeyValuePair($field->getPropertyName(), null, true);
             }
 
@@ -167,6 +168,7 @@ class WriteCommandExtractor
         /* @var EntityDefinition $definition */
         if ($existence->exists()) {
             $queue->add($definition, new UpdateCommand($definition, $pkData, $data));
+
             return;
         }
 
@@ -184,16 +186,17 @@ class WriteCommandExtractor
 
     /**
      * @param string|EntityDefinition $definition
+     *
      * @return FieldCollection
      */
     private function getFieldsInWriteOrder(string $definition): FieldCollection
     {
         $fields = clone $definition::getFields();
-        $fields = $fields->filter(function(Field $field) {
+        $fields = $fields->filter(function (Field $field) {
             return !$field->is(ReadOnly::class);
         });
-        
-        $fields->sort(function(Field $a, Field $b) {
+
+        $fields->sort(function (Field $a, Field $b) {
             return $b->getExtractPriority() <=> $a->getExtractPriority();
         });
 
@@ -201,11 +204,12 @@ class WriteCommandExtractor
     }
 
     /**
-     * @param array $rawData
+     * @param array                   $rawData
      * @param string|EntityDefinition $definition
-     * @param FieldExceptionStack $exceptionStack
+     * @param FieldExceptionStack     $exceptionStack
      * @param FieldExtenderCollection $extender
-     * @param FieldCollection $fields
+     * @param FieldCollection         $fields
+     *
      * @return array
      */
     private function getPrimaryKey(
@@ -215,7 +219,6 @@ class WriteCommandExtractor
         FieldExtenderCollection $extender,
         FieldCollection $fields
     ): array {
-
         //filter all fields which are relevant to extract the full primary key data
         //this function return additionally, to primary key flagged fields, foreign key fields and many to association
         $mappingFields = $this->getFieldsForPrimaryKeyMapping($fields);
@@ -261,6 +264,7 @@ class WriteCommandExtractor
      * and category association and their foreign key fields.
      *
      * @param FieldCollection $fields
+     *
      * @return FieldCollection
      */
     private function getFieldsForPrimaryKeyMapping(FieldCollection $fields): FieldCollection
@@ -280,7 +284,7 @@ class WriteCommandExtractor
             }
         }
 
-        $primaryKeys->sort(function(Field $a, Field $b) {
+        $primaryKeys->sort(function (Field $a, Field $b) {
             return $b->getExtractPriority() <=> $a->getExtractPriority();
         });
 

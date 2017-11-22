@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Test;
 
@@ -7,8 +7,6 @@ use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\RangeQuery;
 use Shopware\Api\Entity\Search\Query\TermQuery;
-use Shopware\Api\Entity\Search\Query\TermsQuery;
-use Shopware\Api\Entity\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Definition\ProductTranslationDefinition;
 use Shopware\Api\Product\Repository\ProductRepository;
@@ -19,7 +17,6 @@ use Shopware\Api\Tax\Repository\TaxRepository;
 use Shopware\Api\Tax\Struct\TaxDetailStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Defaults;
-use Shopware\Version\VersionManager;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class VersioningTest extends KernelTestCase
@@ -58,7 +55,7 @@ class VersioningTest extends KernelTestCase
         $this->connection->rollBack();
     }
 
-    public function testVersionChangeOnInsert()
+    public function testVersionChangeOnInsert(): void
     {
         $uuid = Uuid::uuid4()->toString();
         $context = TranslationContext::createDefaultContext();
@@ -80,7 +77,7 @@ class VersioningTest extends KernelTestCase
         $this->assertEquals($taxData, json_decode($change['payload'], true));
     }
 
-    public function testVersionChangeOnInsertWithSubresources()
+    public function testVersionChangeOnInsertWithSubresources(): void
     {
         $uuid = Uuid::uuid4()->toString();
         $ruleId = Uuid::uuid4()->toString();
@@ -96,9 +93,9 @@ class VersioningTest extends KernelTestCase
                     'taxRate' => 99,
                     'active' => true,
                     'name' => 'required',
-                    'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP
+                    'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 ],
-            ]
+            ],
         ];
 
         $this->taxRepository->create([$taxData], $context);
@@ -126,10 +123,9 @@ class VersioningTest extends KernelTestCase
             'customerGroupVersionId' => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
             'countryVersionId' => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
             'countryAreaVersionId' => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
-            'countryStateVersionId' => 'ffffffff-ffff-ffff-ffff-ffffffffffff'
+            'countryStateVersionId' => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
         ];
         $this->assertEquals($taxAreaChange, json_decode($changes[0]['payload'], true));
-
 
         $changes = $this->getTranslationVersionData(TaxAreaRuleTranslationDefinition::getEntityName(), Defaults::SHOP, 'taxAreaRuleId', $ruleId, Defaults::LIVE_VERSION);
         $this->assertCount(1, $changes);
@@ -138,12 +134,12 @@ class VersioningTest extends KernelTestCase
             'name' => 'required',
             'languageId' => Defaults::SHOP,
             'versionId' => Defaults::LIVE_VERSION,
-            'languageVersionId' => Defaults::LIVE_VERSION
+            'languageVersionId' => Defaults::LIVE_VERSION,
         ];
         $this->assertEquals($taxAreaTranslationChange, json_decode($changes[0]['payload'], true));
     }
 
-    public function testCreateNewVersion()
+    public function testCreateNewVersion(): void
     {
         $uuid = Uuid::uuid4();
         $context = TranslationContext::createDefaultContext();
@@ -165,7 +161,7 @@ class VersioningTest extends KernelTestCase
             'SELECT * FROM tax WHERE id = :id AND version_id = :versionId',
             [
                 'id' => $uuid->getBytes(),
-                'versionId' => $versionId->getBytes()
+                'versionId' => $versionId->getBytes(),
             ]
         );
 
@@ -177,7 +173,7 @@ class VersioningTest extends KernelTestCase
         $this->assertEquals(20, $tax['tax_rate']);
     }
 
-    public function testCreateNewVersionWithSubresources()
+    public function testCreateNewVersionWithSubresources(): void
     {
         $uuid = Uuid::uuid4();
         $ruleId = Uuid::uuid4();
@@ -193,9 +189,9 @@ class VersioningTest extends KernelTestCase
                     'taxRate' => 99,
                     'active' => true,
                     'name' => 'required',
-                    'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP
+                    'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 ],
-            ]
+            ],
         ];
 
         $this->taxRepository->create([$taxData], $context);
@@ -210,7 +206,7 @@ class VersioningTest extends KernelTestCase
             'SELECT * FROM tax WHERE id = :id AND version_id = :versionId',
             [
                 'id' => $uuid->getBytes(),
-                'versionId' => $versionId->getBytes()
+                'versionId' => $versionId->getBytes(),
             ]
         );
 
@@ -218,7 +214,7 @@ class VersioningTest extends KernelTestCase
             'SELECT * FROM tax_area_rule WHERE tax_id = :id AND version_id = :versionId',
             [
                 'id' => $uuid->getBytes(),
-                'versionId' => $versionId->getBytes()
+                'versionId' => $versionId->getBytes(),
             ]
         );
 
@@ -234,7 +230,7 @@ class VersioningTest extends KernelTestCase
         $this->assertEquals($versionId->getBytes(), $taxRules[0]['version_id']);
     }
 
-    public function testMergeVersions()
+    public function testMergeVersions(): void
     {
         $uuid = Uuid::uuid4();
         $context = TranslationContext::createDefaultContext();
@@ -247,7 +243,7 @@ class VersioningTest extends KernelTestCase
         $versionId = $this->taxRepository->createVersion($uuid->toString(), $context, 'testMerge version');
         $versionId = Uuid::fromString($versionId);
 
-        $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->toString(), $versionId);
+        $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->toString(), $versionId->toString());
         $this->assertCount(1, $changes);
         $this->assertEquals('clone', $changes[0]['action']);
 
@@ -261,7 +257,7 @@ class VersioningTest extends KernelTestCase
 
         $row = $this->connection->fetchAssoc('SELECT * FROM tax WHERE id = :id AND version_id = :version', [
             'id' => $uuid->getBytes(),
-            'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes()
+            'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes(),
         ]);
         $this->assertEquals('foo tax', $row['name']);
 
@@ -274,7 +270,7 @@ class VersioningTest extends KernelTestCase
 
         $row = $this->connection->fetchAssoc('SELECT * FROM tax WHERE id = :id AND version_id = :version', [
             'id' => $uuid->getBytes(),
-            'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes()
+            'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes(),
         ]);
 
         $this->assertEquals('new merged name', $row['name']);
@@ -295,7 +291,7 @@ class VersioningTest extends KernelTestCase
         $this->assertEquals('update', $changes[1]['action']);
     }
 
-    public function testReadConsiderVersion()
+    public function testReadConsiderVersion(): void
     {
         $uuid = Uuid::uuid4();
         $liveVersionContext = TranslationContext::createDefaultContext();
@@ -308,11 +304,11 @@ class VersioningTest extends KernelTestCase
         $versionId = $this->taxRepository->createVersion($uuid->toString(), $liveVersionContext, 'testMerge version');
         $versionId = Uuid::fromString($versionId);
 
-        $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->toString(), $versionId);
+        $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->toString(), $versionId->toString());
         $this->assertCount(1, $changes);
         $this->assertEquals('clone', $changes[0]['action']);
 
-        $versionContext = $liveVersionContext->createWithVersionId($versionId);
+        $versionContext = $liveVersionContext->createWithVersionId($versionId->toString());
         $this->taxRepository->update([['id' => $uuid->toString(), 'name' => 'new merged name']], $versionContext);
 
         $basic = $this->taxRepository->readBasic([$uuid->toString()], $liveVersionContext);
@@ -329,7 +325,7 @@ class VersioningTest extends KernelTestCase
 
         $row = $this->connection->fetchAssoc('SELECT * FROM tax WHERE id = :id AND version_id = :version', [
             'id' => $uuid->getBytes(),
-            'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes()
+            'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes(),
         ]);
         $this->assertEquals('foo tax', $row['name']);
 
@@ -351,12 +347,12 @@ class VersioningTest extends KernelTestCase
 
         $row = $this->connection->fetchAssoc('SELECT * FROM tax WHERE id = :id AND version_id = :version', [
             'id' => $uuid->getBytes(),
-            'version' => Uuid::fromString($versionId)->getBytes()
+            'version' => Uuid::fromString($versionId)->getBytes(),
         ]);
         $this->assertEmpty($row);
     }
 
-    public function testSearcherConsidersVersionFallback()
+    public function testSearcherConsidersVersionFallback(): void
     {
         $uuid = Uuid::uuid4();
         $liveVersionContext = TranslationContext::createDefaultContext();
@@ -368,17 +364,17 @@ class VersioningTest extends KernelTestCase
 
         $tax = $this->connection->fetchAssoc('SELECT * FROM tax WHERE id = :id AND version_id = :version', [
             'id' => $uuid->getBytes(),
-            'version' => Uuid::fromString($versionId)->getBytes()
+            'version' => $versionId->getBytes(),
         ]);
         $this->assertNotEmpty($tax);
         $this->assertEquals(5, $tax['tax_rate']);
 
-        $versionContext = $liveVersionContext->createWithVersionId($versionId);
+        $versionContext = $liveVersionContext->createWithVersionId($versionId->toString());
         $this->taxRepository->update([['id' => $uuid->toString(), 'name' => 'new merged name', 'rate' => 4]], $versionContext);
 
         $tax = $this->connection->fetchAssoc('SELECT * FROM tax WHERE id = :id AND version_id = :version', [
             'id' => $uuid->getBytes(),
-            'version' => Uuid::fromString($versionId)->getBytes()
+            'version' => $versionId->getBytes(),
         ]);
         $this->assertNotEmpty($tax);
         $this->assertEquals(4, $tax['tax_rate']);
@@ -402,7 +398,7 @@ class VersioningTest extends KernelTestCase
         $this->assertEquals(1, $result->getTotal());
     }
 
-    public function testOneToManyVersioning()
+    public function testOneToManyVersioning(): void
     {
         $uuid = Uuid::uuid4();
         $liveVersionContext = TranslationContext::createDefaultContext();
@@ -415,9 +411,9 @@ class VersioningTest extends KernelTestCase
                     'id' => $uuid->toString(),
                     'taxRate' => 6,
                     'name' => 'test',
-                    'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP
-                ]
-            ]
+                    'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                ],
+            ],
         ];
         $this->taxRepository->create([$taxData], $liveVersionContext);
 
@@ -442,9 +438,9 @@ class VersioningTest extends KernelTestCase
                 'id' => $uuid->toString(),
                 'rate' => 15,
                 'areaRules' => [
-                    ['id' => $uuid->toString(), 'taxRate' => 16]
-                ]
-            ]
+                    ['id' => $uuid->toString(), 'taxRate' => 16],
+                ],
+            ],
         ], $versionContext);
 
         $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->toString(), $versionId);
@@ -458,7 +454,7 @@ class VersioningTest extends KernelTestCase
         $this->assertTrue($liveTax->has($uuid->toString()));
         $tax = $liveTax->get($uuid->toString());
 
-        /** @var TaxDetailStruct $tax */
+        /* @var TaxDetailStruct $tax */
         $this->assertEquals(5, $tax->getRate());
         $this->assertCount(1, $tax->getAreaRules());
         $this->assertEquals(6, $tax->getAreaRules()->get($uuid->toString())->getTaxRate());
@@ -468,7 +464,7 @@ class VersioningTest extends KernelTestCase
         $this->assertTrue($versionTax->has($uuid->toString()));
         $tax = $versionTax->get($uuid->toString());
 
-        /** @var TaxDetailStruct $tax */
+        /* @var TaxDetailStruct $tax */
         $this->assertEquals(15, $tax->getRate());
         $this->assertCount(1, $tax->getAreaRules());
         $this->assertEquals(16, $tax->getAreaRules()->get($uuid->toString())->getTaxRate());
@@ -480,7 +476,7 @@ class VersioningTest extends KernelTestCase
         $this->assertTrue($liveTax->has($uuid->toString()));
         $tax = $liveTax->get($uuid->toString());
 
-        /** @var TaxDetailStruct $tax */
+        /* @var TaxDetailStruct $tax */
         $this->assertEquals(15, $tax->getRate());
         $this->assertCount(1, $tax->getAreaRules());
         $this->assertEquals(16, $tax->getAreaRules()->get($uuid->toString())->getTaxRate());
@@ -490,13 +486,13 @@ class VersioningTest extends KernelTestCase
         $this->assertTrue($liveTax->has($uuid->toString()));
         $tax = $liveTax->get($uuid->toString());
 
-        /** @var TaxDetailStruct $tax */
+        /* @var TaxDetailStruct $tax */
         $this->assertEquals(15, $tax->getRate());
         $this->assertCount(1, $tax->getAreaRules());
         $this->assertEquals(16, $tax->getAreaRules()->get($uuid->toString())->getTaxRate());
     }
 
-    public function testVersioningWithProductInheritance()
+    public function testVersioningWithProductInheritance(): void
     {
         $productId = Uuid::uuid4();
         $variantId = Uuid::uuid4();
@@ -507,13 +503,13 @@ class VersioningTest extends KernelTestCase
                 'name' => 'parent',
                 'price' => 10,
                 'manufacturer' => ['name' => 'test'],
-                'tax' => ['rate' => 18, 'name' => 'test']
+                'tax' => ['rate' => 18, 'name' => 'test'],
             ],
             [
                 'id' => $variantId->toString(),
                 'price' => 15,
-                'parentId' => $productId->toString()
-            ]
+                'parentId' => $productId->toString(),
+            ],
         ];
         $liveContext = TranslationContext::createDefaultContext();
         $this->productRepository->create($products, $liveContext);
@@ -522,12 +518,12 @@ class VersioningTest extends KernelTestCase
         $versionContext = $liveContext->createWithVersionId($variantVersionId);
 
         $this->productRepository->update([
-            ['id' => $variantId->toString(), 'price' => 20]
+            ['id' => $variantId->toString(), 'price' => 20],
         ], $versionContext);
 
         $variant = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id AND version_id = :version', [
             'id' => $variantId->getBytes(),
-            'version' => Uuid::fromString($variantVersionId)->getBytes()
+            'version' => Uuid::fromString($variantVersionId)->getBytes(),
         ]);
 
         $this->assertEquals(20, $variant['price']);
@@ -543,7 +539,7 @@ class VersioningTest extends KernelTestCase
         $this->productRepository->createVersion($productId->toString(), $liveContext, 'test parent', $variantVersionId);
 
         $this->productRepository->update([
-            ['id' => $productId->toString(), 'name' => 'parent version', 'price' => 25]
+            ['id' => $productId->toString(), 'name' => 'parent version', 'price' => 25],
         ], $versionContext);
 
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId->toString(), $variantVersionId);
@@ -557,7 +553,7 @@ class VersioningTest extends KernelTestCase
             [
                 'id' => $productId->getBytes(),
                 'version' => Uuid::fromString($variantVersionId)->getBytes(),
-                'language' => Uuid::fromString($versionContext->getShopId())->getBytes()
+                'language' => Uuid::fromString($versionContext->getShopId())->getBytes(),
             ]
         );
         $this->assertEquals('parent version', $product['name']);
@@ -579,7 +575,7 @@ class VersioningTest extends KernelTestCase
         $this->assertEquals('parent version', $variant->getName());
     }
 
-    public function testTaxRestrictions()
+    public function testTaxRestrictions(): void
     {
         $id = Uuid::uuid4();
 
@@ -593,8 +589,8 @@ class VersioningTest extends KernelTestCase
                 'name' => 'Test',
                 'price' => 15,
                 'taxId' => $id->toString(),
-                'manufacturer' => ['name' => 'test']
-            ]
+                'manufacturer' => ['name' => 'test'],
+            ],
         ], $liveContext);
 
         $versionId = $this->taxRepository->createVersion($id->toString(), $liveContext);
@@ -602,20 +598,20 @@ class VersioningTest extends KernelTestCase
         $versionContext = $liveContext->createWithVersionId($versionId);
 
         $this->taxRepository->update([
-            ['id' => $id->toString(), 'rate' => 19]
+            ['id' => $id->toString(), 'rate' => 19],
         ], $versionContext);
 
         $this->taxRepository->merge($versionId, $liveContext);
 
         $tax = $this->connection->fetchAssoc('SELECT * FROM tax WHERE id = :id AND version_id = :version', [
             'id' => $id->getBytes(),
-            'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes()
+            'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes(),
         ]);
 
         $this->assertEquals(19, $tax['tax_rate']);
     }
 
-    public function testCampaign()
+    public function testCampaign(): void
     {
         $product1 = Uuid::uuid4();
         $product2 = Uuid::uuid4();
@@ -637,18 +633,18 @@ class VersioningTest extends KernelTestCase
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'rate' => 19],
                 'categories' => [
-                    ['id' => $category, 'parentId' => $parentCategory, 'name' => 'TEST cat']
-                ]
-            ],[
+                    ['id' => $category, 'parentId' => $parentCategory, 'name' => 'TEST cat'],
+                ],
+            ], [
                 'id' => $product2->toString(),
                 'name' => 'product test',
                 'price' => 10,
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'rate' => 19],
                 'categories' => [
-                    ['id' => $category]
-                ]
-            ]
+                    ['id' => $category],
+                ],
+            ],
         ];
 
         $liveContext = TranslationContext::createDefaultContext();
@@ -761,7 +757,7 @@ class VersioningTest extends KernelTestCase
             [
                 'entity' => $entity,
                 'id' => $id,
-                'version' => Uuid::fromString($versionId)->getBytes()
+                'version' => Uuid::fromString($versionId)->getBytes(),
             ]
         );
     }
@@ -772,7 +768,7 @@ class VersioningTest extends KernelTestCase
             "SELECT * 
              FROM version_commit_data 
              WHERE entity_name = :entity 
-             AND JSON_EXTRACT(entity_id, '$.".$foreignKeyName."') = :id
+             AND JSON_EXTRACT(entity_id, '$." . $foreignKeyName . "') = :id
              AND JSON_EXTRACT(entity_id, '$.languageId') = :language
              AND JSON_EXTRACT(entity_id, '$.versionId') = :version
              ORDER BY ai",
@@ -780,9 +776,8 @@ class VersioningTest extends KernelTestCase
                 'entity' => $entity,
                 'id' => $foreignKey,
                 'language' => $languageId,
-                'version' => $versionId
+                'version' => $versionId,
             ]
         );
     }
 }
-

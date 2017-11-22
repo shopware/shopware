@@ -15,7 +15,6 @@ use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
 use Shopware\Api\Seo\Definition\SeoUrlDefinition;
 use Shopware\Api\Seo\Repository\SeoUrlRepository;
 use Shopware\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer;
-use Shopware\Storefront\Page\Detail\DetailPageUrlGenerator;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CanonicalUrlExtension implements EntityExtensionInterface, EventSubscriberInterface

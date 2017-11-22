@@ -33,15 +33,15 @@ use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\MappingEntityDefinition;
-use Shopware\Api\Entity\Write\FieldAware\DefaultExtender;
-use Shopware\Api\Entity\Write\FieldAware\FieldExtenderCollection;
-use Shopware\Api\Entity\Write\FieldAware\StorageAware;
-use Shopware\Api\Entity\Write\FieldException\FieldExceptionStack;
 use Shopware\Api\Entity\Write\Command\DeleteCommand;
 use Shopware\Api\Entity\Write\Command\InsertCommand;
 use Shopware\Api\Entity\Write\Command\UpdateCommand;
 use Shopware\Api\Entity\Write\Command\WriteCommandInterface;
 use Shopware\Api\Entity\Write\Command\WriteCommandQueue;
+use Shopware\Api\Entity\Write\FieldAware\DefaultExtender;
+use Shopware\Api\Entity\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Api\Entity\Write\FieldAware\StorageAware;
+use Shopware\Api\Entity\Write\FieldException\FieldExceptionStack;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Validation\RestrictDeleteViolation;
 use Shopware\Api\Entity\Write\Validation\RestrictDeleteViolationException;
@@ -149,8 +149,8 @@ class EntityWriter implements EntityWriterInterface
             /** @var StorageAware|IdField $field */
             foreach ($fields as $field) {
                 if (array_key_exists($field->getPropertyName(), $raw)) {
-                   $mapped[$field->getStorageName()] = $raw[$field->getPropertyName()];
-                   continue;
+                    $mapped[$field->getStorageName()] = $raw[$field->getPropertyName()];
+                    continue;
                 }
 
                 if ($field instanceof ReferenceVersionField) {
@@ -194,7 +194,7 @@ class EntityWriter implements EntityWriterInterface
             }
 
             foreach ($cascades as &$cascade) {
-                $cascade = array_map(function($key) {
+                $cascade = array_map(function ($key) {
                     $payload = $key;
 
                     if (!is_array($key)) {
@@ -207,7 +207,7 @@ class EntityWriter implements EntityWriterInterface
         }
 
         foreach ($resolved as $mapped) {
-            $mapped = array_map(function($id) {
+            $mapped = array_map(function ($id) {
                 return Uuid::fromString($id)->getBytes();
             }, $mapped);
 
@@ -241,7 +241,7 @@ class EntityWriter implements EntityWriterInterface
 
                 $identifiers[$resource][] = [
                     'primaryKey' => $primaryKey,
-                    'payload' => $payload
+                    'payload' => $payload,
                 ];
             }
         }
@@ -283,7 +283,7 @@ class EntityWriter implements EntityWriterInterface
     private function getCommandPrimaryKey(WriteCommandInterface $command)
     {
         $fields = $command->getDefinition()::getPrimaryKeys();
-        $fields = $fields->filter(function(Field $field) {
+        $fields = $fields->filter(function (Field $field) {
             return !$field instanceof VersionField && !$field instanceof ReferenceVersionField;
         });
 

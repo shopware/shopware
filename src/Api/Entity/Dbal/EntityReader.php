@@ -25,7 +25,6 @@ use Shopware\Api\Entity\Write\Flag\Inherited;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Framework\Struct\Struct;
-use Shopware\Framework\Struct\StructCollection;
 
 class EntityReader implements EntityReaderInterface
 {
@@ -99,7 +98,6 @@ class EntityReader implements EntityReaderInterface
         $this->removeInheritance($definition, $details);
 
         return $details;
-
     }
 
     private function read(array $ids, string $definition, TranslationContext $context, Entity $entity, EntityCollection $collection, FieldCollection $fields, bool $raw = false): EntityCollection
@@ -345,7 +343,7 @@ class EntityReader implements EntityReaderInterface
     private function loadManyToMany(ManyToManyAssociationField $association, TranslationContext $context, EntityCollection $collection): void
     {
         $idProperty = $association->getStructIdMappingProperty();
-        
+
         //collect all ids of many to many association which already stored inside the struct instances
         $ids = $this->collectManyToManyIds($collection, $idProperty);
 
@@ -375,7 +373,7 @@ class EntityReader implements EntityReaderInterface
         /** @var string|EntityDefinition $definition */
         if ($mapping::isVersionAware() && $definition::isVersionAware() && $field->is(CascadeDelete::class)) {
             $versionField = $definition::getEntityName() . '_version_id';
-            $versionCondition = ' AND #alias#.'.$versionField.' = #root#.version_id';
+            $versionCondition = ' AND #alias#.' . $versionField . ' = #root#.version_id';
         }
 
         $query->addSelect(
@@ -401,7 +399,7 @@ class EntityReader implements EntityReaderInterface
                 '(SELECT GROUP_CONCAT(HEX(#alias#.#mapping_reference_column#) SEPARATOR \'||\')
                   FROM #mapping_table# #alias#
                   WHERE #alias#.#mapping_local_column# = #root#.#source_column#
-                  '. $versionCondition .'
+                  ' . $versionCondition . '
                   ) as #property#'
             )
         );
@@ -463,7 +461,6 @@ class EntityReader implements EntityReaderInterface
         );
 
         foreach ($details as $detail) {
-
             foreach ($inherited as $association) {
                 if ($association instanceof ManyToOneAssociationField) {
                     $joinField = $association->getJoinField();

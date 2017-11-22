@@ -26,11 +26,7 @@ namespace Shopware\Api\Entity\Field;
 
 use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
 use Shopware\Api\Entity\Write\EntityExistence;
-use Shopware\Api\Entity\Write\FieldAware\ConstraintBuilderAware;
-use Shopware\Api\Entity\Write\FieldAware\FilterRegistryAware;
-use Shopware\Api\Entity\Write\FieldAware\PathAware;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
-use Shopware\Api\Entity\Write\FieldAware\ValidatorAware;
 use Shopware\Api\Entity\Write\FieldException\InvalidFieldException;
 use Shopware\Api\Entity\Write\Filter\Filter;
 use Shopware\Api\Entity\Write\Filter\HtmlFilter;

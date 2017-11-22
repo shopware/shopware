@@ -5,6 +5,7 @@ namespace Shopware\Media\Extension;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\StructCollectionField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\Deferred;
 use Shopware\Api\Entity\Write\Flag\Extension;
 use Shopware\Api\Entity\Write\Flag\ReadOnly;
 use Shopware\Api\Media\Definition\MediaDefinition;
@@ -30,7 +31,7 @@ class ThumbnailExtension implements EntityExtensionInterface, EventSubscriberInt
     public function extendFields(FieldCollection $collection)
     {
         $collection->add(
-            (new StructCollectionField('thumbnails', ThumbnailStruct::class, true))->setFlags(new Extension(), new ReadOnly())
+            (new StructCollectionField('thumbnails', ThumbnailStruct::class, true))->setFlags(new Extension(), new Deferred(), new ReadOnly())
         );
     }
 

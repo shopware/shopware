@@ -30,7 +30,13 @@ class ApiTestCase extends WebTestCase
     {
         parent::setUpBeforeClass();
 
-        $client = self::createClient(['test_case' => 'ApiTest'], ['CONTENT_TYPE' => 'application/json']);
+        $client = self::createClient(
+            ['test_case' => 'ApiTest'],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
+            ]
+        );
 
         self::$container = self::$kernel->getContainer();
         self::$client = self::authorizeClient($client);
@@ -68,7 +74,7 @@ class ApiTestCase extends WebTestCase
             'user_role_id' => '123',
             'active' => 1,
             'version_id' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes(),
-            'locale_version_id' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes()
+            'locale_version_id' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes(),
         ]);
 
         self::$apiUsernames[] = $username;

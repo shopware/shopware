@@ -25,6 +25,7 @@
 namespace Shopware\Api\Entity\Field;
 
 use Shopware\Api\Entity\EntityDefinition;
+use Shopware\Api\Entity\Write\Command\WriteCommandQueue;
 use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
 use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\FieldAware\FieldExtenderCollection;
@@ -32,11 +33,10 @@ use Shopware\Api\Entity\Write\FieldException\FieldExceptionStack;
 use Shopware\Api\Entity\Write\Filter\FilterRegistry;
 use Shopware\Api\Entity\Write\Flag\Flag;
 use Shopware\Api\Entity\Write\IdGenerator\GeneratorRegistry;
-use Shopware\Api\Entity\Write\Command\WriteCommandQueue;
 use Shopware\Api\Entity\Write\Validation\ConstraintBuilder;
 use Shopware\Api\Entity\Write\ValueTransformer\ValueTransformerRegistry;
-use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Entity\Write\WriteCommandExtractor;
+use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Framework\Struct\Struct;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 

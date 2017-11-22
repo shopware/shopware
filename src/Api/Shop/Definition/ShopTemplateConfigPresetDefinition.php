@@ -11,6 +11,7 @@ use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -21,7 +22,7 @@ use Shopware\Api\Shop\Event\ShopTemplateConfigPreset\ShopTemplateConfigPresetWri
 use Shopware\Api\Shop\Repository\ShopTemplateConfigPresetRepository;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigPresetBasicStruct;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigPresetDetailStruct;
-use Shopware\Api\Entity\Field\VersionField;
+
 class ShopTemplateConfigPresetDefinition extends EntityDefinition
 {
     /**
@@ -50,7 +51,7 @@ class ShopTemplateConfigPresetDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([ 
+        self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             (new FkField('shop_template_id', 'shopTemplateId', ShopTemplateDefinition::class))->setFlags(new Required()),

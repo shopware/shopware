@@ -245,11 +245,12 @@ class Router implements RouterInterface, RequestMatcherInterface
         $pathInfo = $this->context->getPathInfo();
 
         // save decision which type of request is called (storefront, api, administration)
-        $type = $this->getRequestType($request);
-        $request->attributes->set(self::REQUEST_TYPE_ATTRIBUTE, $type);
+        $requestType = $this->getRequestType($request);
+
+        $request->attributes->set(self::REQUEST_TYPE_ATTRIBUTE, $requestType);
         $request->attributes->set(
             self::IS_API_REQUEST_ATTRIBUTE,
-            in_array($type, [self::REQUEST_TYPE_ADMINISTRATION, self::REQUEST_TYPE_API], true)
+            in_array($requestType, [self::REQUEST_TYPE_ADMINISTRATION, self::REQUEST_TYPE_API], true)
         );
 
         if (!$shop) {
@@ -280,6 +281,10 @@ class Router implements RouterInterface, RequestMatcherInterface
         );
 
         if (strpos($pathInfo, '/widgets/') !== false) {
+            return $this->match($pathInfo);
+        }
+
+        if ($request->attributes->get(self::IS_API_REQUEST_ATTRIBUTE)) {
             return $this->match($pathInfo);
         }
 

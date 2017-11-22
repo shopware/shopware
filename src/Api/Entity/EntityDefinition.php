@@ -123,6 +123,11 @@ abstract class EntityDefinition
         return null;
     }
 
+    public static function isVersionAware(): bool
+    {
+        return static::getFields()->has('versionId');
+    }
+
     protected static function filterAssociationReferences(string $type, FieldCollection $fields)
     {
         $associations = $fields->filterInstance($type)->getElements();
@@ -136,10 +141,5 @@ abstract class EntityDefinition
         }, $associations);
 
         return array_filter($associations);
-    }
-
-    public static function isVersionAware(): bool
-    {
-        return static::getFields()->has('versionId');
     }
 }

@@ -31,7 +31,7 @@ class DefinitionService
      *
      * @return ApiDefinitionGeneratorInterface
      */
-    private function getGenerator(string $format)
+    private function getGenerator(string $format): ApiDefinitionGeneratorInterface
     {
         foreach ($this->generators as $generator) {
             if ($generator->supports($format)) {

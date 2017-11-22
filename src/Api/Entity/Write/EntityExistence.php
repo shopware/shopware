@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Entity\Write;
 
@@ -55,7 +55,7 @@ class EntityExistence
         return $this->primaryKey;
     }
 
-    public function isChild() : bool
+    public function isChild(): bool
     {
         return $this->isChild;
     }
@@ -75,6 +75,7 @@ class EntityExistence
         if (!$this->wasChild()) {
             return false;
         }
+
         return !$this->isChild();
     }
 }

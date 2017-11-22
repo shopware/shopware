@@ -14,6 +14,7 @@ use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
@@ -25,7 +26,7 @@ use Shopware\Api\Shop\Event\ShopTemplateConfigFormField\ShopTemplateConfigFormFi
 use Shopware\Api\Shop\Repository\ShopTemplateConfigFormFieldRepository;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigFormFieldBasicStruct;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigFormFieldDetailStruct;
-use Shopware\Api\Entity\Field\VersionField;
+
 class ShopTemplateConfigFormFieldDefinition extends EntityDefinition
 {
     /**
@@ -54,7 +55,7 @@ class ShopTemplateConfigFormFieldDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([ 
+        self::$fields = new FieldCollection([
             new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('shop_template_id', 'shopTemplateId', ShopTemplateDefinition::class))->setFlags(new Required()),

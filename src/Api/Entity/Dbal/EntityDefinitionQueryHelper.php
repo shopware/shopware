@@ -140,8 +140,7 @@ class EntityDefinitionQueryHelper
 
         if ($definition::isVersionAware() && $context->getVersionId() !== Defaults::LIVE_VERSION) {
             self::joinVersion($query, $definition, $definition::getEntityName(), $context);
-
-        } else if ($definition::isVersionAware()) {
+        } elseif ($definition::isVersionAware()) {
             $query->andWhere(self::escape($table) . '.`version_id` = :version');
             $query->setParameter('version', Uuid::fromString($context->getVersionId())->getBytes());
         }
@@ -239,7 +238,6 @@ class EntityDefinitionQueryHelper
         $versionAware = ($definition::isVersionAware() && $reference::isVersionAware());
 
         if ($versionAware && $context->getVersionId() !== Defaults::LIVE_VERSION) {
-
             $subRoot = $field->getReferenceClass()::getEntityName();
             $versionQuery = new QueryBuilder($query->getConnection());
             $versionQuery->select(self::escape($subRoot) . '.*');
@@ -249,7 +247,7 @@ class EntityDefinitionQueryHelper
 
             $query->leftJoin(
                 self::escape($root),
-                '('. $versionQuery->getSQL() .')',
+                '(' . $versionQuery->getSQL() . ')',
                 self::escape($alias),
                 str_replace(
                     ['#root#', '#source_column#', '#alias#', '#reference_column#'],
@@ -262,8 +260,7 @@ class EntityDefinitionQueryHelper
                     '#root#.#source_column# = #alias#.#reference_column#'
                 )
             );
-
-        } else if ($versionAware) {
+        } elseif ($versionAware) {
             $query->leftJoin(
                 self::escape($root),
                 self::escape($table),
@@ -296,7 +293,6 @@ class EntityDefinitionQueryHelper
                 )
             );
         }
-
 
         if ($definition === $reference) {
             return;
@@ -339,7 +335,7 @@ class EntityDefinitionQueryHelper
                     self::escape($root),
                     self::escape($field->getLocalField()),
                     self::escape($alias),
-                    self::escape($field->getReferenceField())
+                    self::escape($field->getReferenceField()),
                 ],
                 '#root#.#source_column# = #alias#.#reference_column#' . $versionJoin
             )
@@ -400,7 +396,7 @@ class EntityDefinitionQueryHelper
         $alias = $root . '.' . $field->getPropertyName();
 
         $versionJoin = '';
-        /** @var string|EntityDefinition $definition */
+        /* @var string|EntityDefinition $definition */
         if ($reference::isVersionAware()) {
             $versionField = $reference::getEntityName() . '_version_id';
             $versionJoin = 'AND #alias#.version_id = #mapping#.' . $versionField;
@@ -416,7 +412,7 @@ class EntityDefinitionQueryHelper
                     self::escape($mappingAlias),
                     self::escape($field->getMappingReferenceColumn()),
                     self::escape($alias),
-                    self::escape($field->getReferenceField())
+                    self::escape($field->getReferenceField()),
                 ],
                 '#mapping#.#source_column# = #alias#.#reference_column# ' . $versionJoin
             )
@@ -481,7 +477,7 @@ class EntityDefinitionQueryHelper
         $versionQuery = $connection->createQueryBuilder();
         $versionQuery->select([
             'COALESCE(draft.id, live.id) as id',
-            'COALESCE(draft.version_id, live.version_id) as version_id'
+            'COALESCE(draft.version_id, live.version_id) as version_id',
         ]);
         $versionQuery->from(self::escape($table), 'live');
         $versionQuery->leftJoin('live', self::escape($table), 'draft', 'draft.id = live.id AND draft.version_id = :version');
@@ -533,7 +529,7 @@ class EntityDefinitionQueryHelper
                 [
                     self::escape($alias),
                     $definition::getEntityName(),
-                    self::escape($root)
+                    self::escape($root),
                 ],
                 '#alias#.#entity#_id = #root#.id AND #alias#.language_id = :languageId' . $versionJoin
             )
@@ -554,7 +550,7 @@ class EntityDefinitionQueryHelper
                 [
                     self::escape($alias),
                     $definition::getEntityName(),
-                    self::escape($root)
+                    self::escape($root),
                 ],
                 '#alias#.#entity#_id = #root#.id AND #alias#.language_id = :fallbackLanguageId' . $versionJoin
             )

@@ -4,7 +4,6 @@ namespace Shopware\Api\Product\Definition;
 
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
-use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\FieldCollection;
@@ -13,7 +12,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Product\Event\ProductStreamTab\ProductStreamTabDeletedEvent;
 use Shopware\Api\Product\Event\ProductStreamTab\ProductStreamTabWrittenEvent;
-use Shopware\Api\Entity\Field\VersionField;
+
 class ProductStreamTabDefinition extends MappingEntityDefinition
 {
     /**

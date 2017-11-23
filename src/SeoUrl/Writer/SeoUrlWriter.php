@@ -116,7 +116,7 @@ class SeoUrlWriter implements WriterInterface
             try {
                 $created[] = $this->writer->insert(
                     SeoUrlWriteResource::class,
-                    $seoUrl,
+                    [$seoUrl],
                     $writeContext,
                     $extender
                 );

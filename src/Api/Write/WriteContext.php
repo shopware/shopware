@@ -37,7 +37,7 @@ class WriteContext
     /**
      * @var array[]
      */
-    private $primaryKeys;
+    private $primaryKeys = [];
 
     /**
      * @param string $className

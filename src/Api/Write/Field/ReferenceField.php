@@ -102,10 +102,7 @@ class ReferenceField extends Field implements PathAware, FieldExtenderCollection
         $this->foreignClassName = $foreignClassName;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function __invoke(string $type, string $key, $value = null, bool $collect = false): \Generator
+    public function collectPrimaryKeys(string $type, string $key, $value = null): \Generator
     {
         if (!is_array($value)) {
             throw new MalformatDataException($this->path, 'Expected array');
@@ -114,25 +111,38 @@ class ReferenceField extends Field implements PathAware, FieldExtenderCollection
         $referencedResource = $this->resourceRegistry
             ->get($this->foreignClassName);
 
-        if (true === $collect) {
-            $referencedResource->collectPrimaryKeys(
-                $value,
-                $this->exceptionStack,
-                $this->queryQueue,
-                $this->writeContext,
-                $this->fieldExtenderCollection,
-                $this->path . '/' . $key
-            );
-        } else {
-            $referencedResource->extract(
-                $value,
-                $this->exceptionStack,
-                $this->queryQueue,
-                $this->writeContext,
-                $this->fieldExtenderCollection,
-                $this->path . '/' . $key
-            );
+        $referencedResource->collectPrimaryKeys(
+            $value,
+            $this->exceptionStack,
+            $this->queryQueue,
+            $this->writeContext,
+            $this->fieldExtenderCollection,
+            $this->path . '/' . $key
+        );
+
+        yield $this->localFieldName => $this->writeContext->get($this->foreignClassName, $this->foreignFieldName);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __invoke(string $type, string $key, $value = null): \Generator
+    {
+        if (!is_array($value)) {
+            throw new MalformatDataException($this->path, 'Expected array');
         }
+
+        $referencedResource = $this->resourceRegistry
+            ->get($this->foreignClassName);
+
+        $referencedResource->extract(
+            $value,
+            $this->exceptionStack,
+            $this->queryQueue,
+            $this->writeContext,
+            $this->fieldExtenderCollection,
+            $this->path . '/' . $key
+        );
 
         yield $this->localFieldName => $this->writeContext->get($this->foreignClassName, $this->foreignFieldName);
     }

@@ -32,6 +32,7 @@ use Shopware\Api\Write\Field\Field;
 use Shopware\Api\Write\Field\FkField;
 use Shopware\Api\Write\Field\ReferenceField;
 use Shopware\Api\Write\Field\SubresourceField;
+use Shopware\Api\Write\Field\UuidField;
 use Shopware\Api\Write\FieldAware\ExceptionStackAware;
 use Shopware\Api\Write\FieldAware\FieldExtender;
 use Shopware\Api\Write\FieldAware\FieldExtenderCollection;
@@ -205,6 +206,7 @@ abstract class WriteResource
     ): array {
         $stack = new DataStack($rawData);
 
+        /** @var UuidField|SubresourceField|FkField|ReferenceField $field */
         foreach ($fields as $key => $field) {
             try {
                 $kvPair = $stack->pop($key);
@@ -221,7 +223,13 @@ abstract class WriteResource
             $fieldExtender->extend($field);
 
             try {
-                foreach ($field($type, $kvPair->getKey(), $kvPair->getValue(), true) as $fieldKey => $fieldValue) {
+                if ($field instanceof SubresourceField || $field instanceof ReferenceField) {
+                    $values = $field->collectPrimaryKeys($type, $kvPair->getKey(), $kvPair->getValue());
+                } else {
+                    $values = $field($type, $kvPair->getKey(), $kvPair->getValue());
+                }
+
+                foreach ($values as $fieldKey => $fieldValue) {
                     $stack->update($fieldKey, $fieldValue);
                 }
             } catch (WriteFieldException $e) {

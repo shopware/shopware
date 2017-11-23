@@ -79,7 +79,7 @@ class LongTextField extends Field implements PathAware, ConstraintBuilderAware, 
      *
      * @return \Generator
      */
-    public function __invoke(string $type, string $key, $value = null, bool $collect = false): \Generator
+    public function __invoke(string $type, string $key, $value = null): \Generator
     {
         switch ($type) {
             case WriteResource::FOR_INSERT:

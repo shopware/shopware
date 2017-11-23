@@ -95,10 +95,44 @@ class SubresourceField extends Field implements PathAware, FieldExtenderCollecti
         $this->possibleKey = $possibleKey;
     }
 
+    public function collectPrimaryKeys(string $type, string $key, $value = null): \Generator
+    {
+        if (!is_array($value)) {
+            throw new MalformatDataException($this->path . '/' . $key, 'Value must be an array.');
+        }
+
+        $isNumeric = array_keys($value) === range(0, count($value) - 1);
+
+        $resource = $this->resourceRegistry
+            ->get($this->resourceClass);
+
+        foreach ($value as $keyValue => $subresources) {
+            if (!is_array($subresources)) {
+                throw new MalformatDataException($this->path.'/'.$key, 'Value must be an array.');
+            }
+
+            if ($this->possibleKey && !$isNumeric) {
+                $subresources[$this->possibleKey] = $keyValue;
+            }
+
+            $resource->collectPrimaryKeys(
+                $subresources,
+                $this->exceptionStack,
+                $this->queryQueue,
+                $this->writeContext,
+                $this->fieldExtenderCollection,
+                $this->path.'/'.$key.'/'.$keyValue
+            );
+        }
+
+        return;
+        yield __CLASS__ => __METHOD__;
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function __invoke(string $type, string $key, $value = null, bool $collect = false): \Generator
+    public function __invoke(string $type, string $key, $value = null): \Generator
     {
         if (!is_array($value)) {
             throw new MalformatDataException($this->path . '/' . $key, 'Value must be an array.');
@@ -118,25 +152,14 @@ class SubresourceField extends Field implements PathAware, FieldExtenderCollecti
                 $subresources[$this->possibleKey] = $keyValue;
             }
 
-            if (true === $collect) {
-                $resource->collectPrimaryKeys(
-                    $subresources,
-                    $this->exceptionStack,
-                    $this->queryQueue,
-                    $this->writeContext,
-                    $this->fieldExtenderCollection,
-                    $this->path . '/' . $key . '/' . $keyValue
-                );
-            } else {
-                $resource->extract(
-                    $subresources,
-                    $this->exceptionStack,
-                    $this->queryQueue,
-                    $this->writeContext,
-                    $this->fieldExtenderCollection,
-                    $this->path . '/' . $key . '/' . $keyValue
-                );
-            }
+            $resource->extract(
+                $subresources,
+                $this->exceptionStack,
+                $this->queryQueue,
+                $this->writeContext,
+                $this->fieldExtenderCollection,
+                $this->path . '/' . $key . '/' . $keyValue
+            );
         }
 
         return;

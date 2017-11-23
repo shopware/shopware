@@ -75,7 +75,7 @@ class DateField extends Field implements PathAware, ConstraintBuilderAware, Valu
     /**
      * {@inheritdoc}
      */
-    public function __invoke(string $type, string $key, $value = null, bool $collect = false): \Generator
+    public function __invoke(string $type, string $key, $value = null): \Generator
     {
         switch ($type) {
             case WriteResource::FOR_INSERT:

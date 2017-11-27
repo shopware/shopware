@@ -84,7 +84,7 @@ describe('core/factory/module.factory.js', () => {
         expect(module.navigation).is.equals(undefined);
     });
 
-    it('should be possible to register a module with a two components', () => {
+    it('should be possible to register a module with two components', () => {
         const module = register({
             id: 'foo.bar',
             routes: {
@@ -113,7 +113,7 @@ describe('core/factory/module.factory.js', () => {
         expect(module.type).is.equals('plugin');
         expect(module.navigation).is.equals(undefined);
 
-        expect(route.components.sidebar).is.equals(undefined);
+        expect(route.components.test).is.equals(undefined);
         expect(route.components.default).to.be.a('string');
         expect(route.components.default).is.equals('foo-bar-index');
     });

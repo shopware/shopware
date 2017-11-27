@@ -90,6 +90,7 @@ function registerModule(module, type = 'plugin') {
 
                 // Don't register a component without a name
                 if (Object.prototype.hasOwnProperty(component, 'name')
+                || !component.name
                 || !component.name.length) {
                     utils.warn(
                         'ModuleFactory',

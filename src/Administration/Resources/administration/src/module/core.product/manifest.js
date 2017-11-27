@@ -18,7 +18,7 @@ export default {
                 default: productList,
                 sidebar: productSidebar
             },
-            path: 'product'
+            path: 'index'
         },
 
         create: {
@@ -31,7 +31,7 @@ export default {
 
         detail: {
             component: productDetail,
-            path: 'product/detail/:uuid',
+            path: 'detail/:uuid',
             meta: {
                 parentPath: 'core.product.index'
             }

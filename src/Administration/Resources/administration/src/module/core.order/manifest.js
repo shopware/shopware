@@ -16,11 +16,11 @@ export default {
             components: {
                 default: orderList
             },
-            path: 'order'
+            path: 'index'
         },
         detail: {
             component: orderDetail,
-            path: 'order/detail/:uuid',
+            path: 'detail/:uuid',
             meta: {
                 parentPath: 'core.order.index'
             }

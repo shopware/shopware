@@ -160,8 +160,9 @@ export default function createRouter(Router, View) {
     }
 
     /**
-     *  Get a component using the argument `componentName` from the view layer.
-     * @param componentName
+     * Get a component using the argument `componentName` from the view layer.
+     *
+     * @param {String} componentName
      * @returns {Vue|null} - View component or null
      */
     function getViewComponent(componentName) {

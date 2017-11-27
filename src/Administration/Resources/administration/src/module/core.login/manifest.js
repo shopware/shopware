@@ -11,7 +11,7 @@ export default {
     routes: {
         index: {
             component: login,
-            path: 'login',
+            path: 'index',
             alias: 'signin'
         }
     },

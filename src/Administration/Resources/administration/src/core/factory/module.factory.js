@@ -24,7 +24,7 @@ function getModuleRegistry() {
  *
  * @param {Object} module - Module definition - see manifest.js file
  * @param {String} [type=plugin] - Type of the module
- * @returns {Map} moduleRoutes - registered module routes
+ * @returns {Boolean|Object} moduleDefinition - registered module definition
  */
 function registerModule(module, type = 'plugin') {
     const moduleRoutes = new Map();
@@ -34,20 +34,44 @@ function registerModule(module, type = 'plugin') {
     if (!moduleId) {
         utils.warn(
             'ModuleFactory',
-            'Module has no unique identifier "id"',
+            'Module has no unique identifier "id". Abort registration.',
             module
         );
+        return false;
+    }
+
+    if (modules.has(moduleId)) {
+        utils.warn(
+            'ModuleFactory',
+            `A module with the identifier "${moduleId}" is registered already. Abort registration.`,
+            modules.get(moduleId)
+        );
+
+        return false;
+    }
+
+    const splitModuleId = moduleId.split('.');
+
+    if (splitModuleId.length < 2) {
+        utils.warn(
+            'ModuleFactory',
+            'Module identifier does not match the necessary format "[section].[name]":',
+            moduleId,
+            'Abort registration.'
+        );
+        return false;
     }
 
     // Modules will be mounted using the routes definition in the manifest file. If the module doesn't contains a routes
-    // definition it's not accessible in the application.
+    // definition it isn't accessible in the application.
     if (!Object.prototype.hasOwnProperty.call(module, 'routes')) {
         utils.warn(
             'ModuleFactory',
             `Module "${moduleId}" has no configured routes. The module will not be accessible in the administration UI.`,
+            'Abort registration.',
             module
         );
-        return moduleRoutes;
+        return false;
     }
 
     // Sanitize the modules routes
@@ -56,18 +80,38 @@ function registerModule(module, type = 'plugin') {
 
         // Rewrite name and path
         route.name = `${moduleId}.${routeKey}`;
-        route.path = `/${type}/${route.path}`;
+        route.path = `/${type}/${splitModuleId.join('/')}/${route.path}`;
         route.type = type;
 
         const componentList = {};
         if (route.components && Object.keys(route.components).length) {
             Object.keys(route.components).forEach((componentKey) => {
                 const component = route.components[componentKey];
+
+                // Don't register a component without a name
+                if (Object.prototype.hasOwnProperty(component, 'name')
+                || component.name === undefined
+                || !component.name.length) {
+                    utils.warn(
+                        'ModuleFactory',
+                        `Component ${component} has no "name" property. The component will not be registered.`
+                    );
+
+                    return;
+                }
+
                 componentList[componentKey] = component.name;
             });
 
             route.components = componentList;
         } else {
+            if (!route.component || !route.component.name) {
+                utils.warn(
+                    'ModuleFactory',
+                    `The route definition of module "${moduleId}" is not valid. A route needs an assigned component.`
+                );
+                return;
+            }
             route.components = {
                 default: route.component.name
             };
@@ -78,23 +122,37 @@ function registerModule(module, type = 'plugin') {
 
         // Alias support
         if (route.alias && route.alias.length > 0) {
-            route.alias = `/${type}/${route.alias}`;
+            route.alias = `/${splitModuleId.join('/')}/${route.alias}`;
         }
 
         moduleRoutes.set(route.name, route);
     });
 
+    // When we're not having at least one valid route definition we're not registering the module
+    if (moduleRoutes.size === 0) {
+        utils.warn(
+            'ModuleFactory',
+            `The module "${moduleId}" was not registered cause it hasn't a valid route definition`,
+            'Abort registration.',
+            module.routes
+        );
+        return false;
+    }
+
     const moduleDefinition = {
         routes: moduleRoutes,
-        manifest: module
+        manifest: module,
+        type
     };
 
+    // Add the navigation of the module to the module definition. We'll create a menu entry later on
     if (Object.prototype.hasOwnProperty.bind(module, 'navigation') && module.navigation) {
         moduleDefinition.navigation = module.navigation;
     }
 
     modules.set(moduleId, moduleDefinition);
-    return moduleRoutes;
+
+    return moduleDefinition;
 }
 
 /**
@@ -111,5 +169,6 @@ function getModuleRoutes() {
             moduleRoutes.push(route);
         });
     });
+
     return moduleRoutes;
 }

@@ -11,7 +11,7 @@ export default {
     routes: {
         index: {
             component: dashboard,
-            path: 'dashboard'
+            path: 'index'
         }
     },
 

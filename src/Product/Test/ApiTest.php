@@ -3,48 +3,27 @@
 namespace Shopware\Product\Tests;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Rest\Test\ApiTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class ApiTest extends WebTestCase
+class ApiTest extends ApiTestCase
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
-     * @var Client
-     */
-    private $client;
-
-    public function setUp()
-    {
-        $this->client = self::createClient();
-        $container = self::$kernel->getContainer();
-        $this->connection = $container->get('dbal_connection');
-        $this->connection->beginTransaction();
-    }
-
-    public function tearDown(): void
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
-    }
-
     public function testProductListRoute()
     {
-        $this->client->request('GET', '/api/product');
+        $client = $this->getClient();
+        $client->request('GET', '/api/product');
 
         self::assertSame(
             200,
-            $this->client->getResponse()->getStatusCode()
+            $client->getResponse()->getStatusCode()
         );
     }
 
     public function testProductInsertRoute()
     {
-        $this->client->request(
+        $client = $this->getClient();
+        $client->request(
             'POST',
             '/api/product',
             [
@@ -58,7 +37,8 @@ class ApiTest extends WebTestCase
 
         self::assertSame(
             200,
-            $this->client->getResponse()->getStatusCode()
+            $client->getResponse()->getStatusCode(),
+            $client->getResponse()->getContent()
         );
     }
 }

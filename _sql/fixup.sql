@@ -987,14 +987,14 @@ ALTER TABLE `s_core_auth`
     ADD `uuid` varchar(42) NOT NULL AFTER `id`,
     CHANGE `roleID` `user_role_id` int(11) NOT NULL AFTER `uuid`,
     ADD `user_role_uuid` varchar(42) NOT NULL AFTER `user_role_id`,
-    CHANGE `username` `user_name` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `user_role_uuid`,
+    CHANGE `username` `username` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `user_role_uuid`,
     CHANGE `apiKey` `api_key` varchar(40) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `encoder`,
     CHANGE `localeID` `locale_id` int(11) NOT NULL AFTER `api_key`,
     ADD `locale_uuid` varchar(42) NOT NULL AFTER `locale_id`,
     CHANGE `sessionID` `session_id` varchar(128) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `locale_uuid`,
-    CHANGE `lastlogin` `last_login` datetime NOT NULL,
+    CHANGE `lastlogin` `last_login` datetime,
     CHANGE `active` `active` tinyint(1) NOT NULL DEFAULT '0' AFTER `email`,
-    CHANGE `failedlogins` `failed_logins` int(11) NOT NULL AFTER `active`,
+    CHANGE `failedlogins` `failed_logins` int(11) NOT NULL DEFAULT '0' AFTER `active`,
     CHANGE `lockeduntil` `locked_until` datetime NULL,
     RENAME TO `user`;
 

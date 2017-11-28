@@ -26,10 +26,30 @@ framework:
 
 security:
     firewalls:
-        account:
-            pattern: .*
+        login:
+            pattern: ^/api/auth$
+            stateless: true
+            anonymous: true
+            provider: api
+            form_login:
+                check_path: /api/auth
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+                require_previous_session: false
+
+        api:
+            pattern: ^/api
+            stateless: true
+            provider: api
+            guard:
+                authenticators:
+                    - lexik_jwt_authentication.jwt_token_authenticator
+
+        storefront:
+            pattern: ^/account
             anonymous: ~
             logout_on_user_change: true
+            provider: customer
             form_login:
                 default_target_path: /account
                 login_path: /account/login
@@ -43,12 +63,17 @@ security:
     access_control:
         - { path: ^/account/(login|login_check|logout)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/account, roles: ROLE_CUSTOMER }
+        - { path: ^/api/auth, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
     providers:
+        api:
+            id: shopware.rest.firewall.auth_provider
         customer:
             id: shopware.storefront.firewall.customer_provider
 
     encoders:
+        Symfony\Component\Security\Core\User\User: bcrypt
         Shopware\Storefront\Firewall\CustomerUser:
             algorithm: bcrypt
             cost: 11
@@ -56,6 +81,12 @@ security:
 twig:
     debug:            "%kernel.debug%"
     strict_variables: false
+
+lexik_jwt_authentication:
+    private_key_path: '%kernel.root_dir%/../var/jwt/private.pem'
+    public_key_path:  '%kernel.root_dir%/../var/jwt/public.pem'
+    pass_phrase:      'shopware'
+    token_ttl:        3600
 
 doctrine:
     dbal:

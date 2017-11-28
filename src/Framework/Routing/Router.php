@@ -135,6 +135,10 @@ class Router implements RouterInterface, RequestMatcherInterface
      */
     public function getRouteCollection(): RouteCollection
     {
+        if ($this->container->getParameter('kernel.environment') !== 'prod') {
+            return $this->loadRoutes();
+        }
+
         if ($this->routes !== null) {
             return $this->routes;
         }

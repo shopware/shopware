@@ -19,5 +19,28 @@
             <tag name="controller.argument_value_resolver"/>
         </service>
 
+        <service class="Shopware\Rest\Firewall\AuthProvider" id="shopware.rest.firewall.auth_provider">
+            <argument type="service" id="dbal_connection" />
+        </service>
+
+        <service id="shopware.rest.firewall.event.authentication_failure_listener" class="Shopware\Rest\Firewall\AuthenticationFailureListener">
+            <tag name="kernel.event_listener" event="lexik_jwt_authentication.on_authentication_failure" method="onAuthenticationFailureResponse" />
+            <tag name="kernel.event_listener" event="lexik_jwt_authentication.on_jwt_invalid" method="onJWTInvalid" />
+            <tag name="kernel.event_listener" event="lexik_jwt_authentication.on_jwt_not_found" method="onJWTNotFound" />
+            <tag name="kernel.event_listener" event="lexik_jwt_authentication.on_jwt_expired" method="onJWTExpired" />
+        </service>
+
+        <service class="Shopware\Rest\Firewall\AuthenticationSuccessListener" id="shopware.rest.firewall.jwtcreated_listener">
+            <argument>%lexik_jwt_authentication.token_ttl%</argument>
+            <tag name="kernel.event_listener" event="lexik_jwt_authentication.on_authentication_success" method="onAuthenticationSuccessResponse" />
+        </service>
+
+        <service class="Shopware\Rest\Command\UserCreateCommand" id="shopware.rest.command.user_create_command">
+            <argument id="Shopware\User\Repository\UserRepository" type="service"/>
+            <argument id="security.encoder_factory.generic" type="service"/>
+            <tag name="console.command"/>
+        </service>
+
+
     </services>
 </container>

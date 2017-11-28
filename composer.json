@@ -50,7 +50,8 @@
     "league/flysystem": "^1.0",
     "league/flysystem-aws-s3-v3": "^1.0",
     "league/flysystem-azure": "^1.0",
-    "ramsey/uuid": "^3.7"
+    "ramsey/uuid": "^3.7",
+    "lexik/jwt-authentication-bundle": "^2.4"
   },
   "require-dev": {
     "symfony/phpunit-bridge": "~3.4",

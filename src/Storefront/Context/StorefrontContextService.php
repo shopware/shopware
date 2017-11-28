@@ -31,9 +31,9 @@ use Shopware\Context\Struct\CustomerScope;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\ShopScope;
 use Shopware\Serializer\SerializerRegistry;
+use Shopware\Storefront\Firewall\CustomerUser;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @category  Shopware
@@ -189,7 +189,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
     {
         $token = $this->securityTokenStorage->getToken();
 
-        if ($token && $token->getUser() && $token->getUser() instanceof UserInterface) {
+        if ($token && $token->getUser() && $token->getUser() instanceof CustomerUser) {
             return $token->getUser()->getUuid();
         }
 

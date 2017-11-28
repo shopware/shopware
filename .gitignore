@@ -30,6 +30,8 @@ Thumbs.db
 !/var/cache/clear_cache.sh
 /var/bootstrap.php.cache
 /var/config_administration_plugins.json
+/var/jwt/public.pem
+/var/jwt/private.pem
 
 /web/*
 !/web/index.php

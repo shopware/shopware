@@ -97,6 +97,10 @@ class ShopSubscriber implements EventSubscriberInterface
     public function startSession(GetResponseEvent $event): void
     {
         $request = $event->getRequest();
+        if ($request->attributes->get(Router::IS_API_REQUEST_ATTRIBUTE)) {
+            return;
+        }
+
         if (!$request->hasPreviousSession()) {
             return;
         }

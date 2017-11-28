@@ -19,7 +19,7 @@ class UserBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $name;
+    protected $username;
 
     /**
      * @var string
@@ -27,19 +27,14 @@ class UserBasicStruct extends Entity
     protected $password;
 
     /**
-     * @var \DateTime
+     * @var string
      */
-    protected $lastLogin;
+    protected $name;
 
     /**
      * @var string
      */
     protected $email;
-
-    /**
-     * @var int
-     */
-    protected $failedLogins;
 
     /**
      * @var string
@@ -57,9 +52,19 @@ class UserBasicStruct extends Entity
     protected $sessionId;
 
     /**
+     * @var \DateTime|null
+     */
+    protected $lastLogin;
+
+    /**
      * @var bool
      */
     protected $active;
+
+    /**
+     * @var int
+     */
+    protected $failedLogins;
 
     /**
      * @var \DateTime|null
@@ -106,14 +111,14 @@ class UserBasicStruct extends Entity
         $this->roleUuid = $roleUuid;
     }
 
-    public function getName(): string
+    public function getUsername(): string
     {
-        return $this->name;
+        return $this->username;
     }
 
-    public function setName(string $name): void
+    public function setUsername(string $username): void
     {
-        $this->name = $name;
+        $this->username = $username;
     }
 
     public function getPassword(): string
@@ -126,14 +131,14 @@ class UserBasicStruct extends Entity
         $this->password = $password;
     }
 
-    public function getLastLogin(): \DateTime
+    public function getName(): string
     {
-        return $this->lastLogin;
+        return $this->name;
     }
 
-    public function setLastLogin(\DateTime $lastLogin): void
+    public function setName(string $name): void
     {
-        $this->lastLogin = $lastLogin;
+        $this->name = $name;
     }
 
     public function getEmail(): string
@@ -144,16 +149,6 @@ class UserBasicStruct extends Entity
     public function setEmail(string $email): void
     {
         $this->email = $email;
-    }
-
-    public function getFailedLogins(): int
-    {
-        return $this->failedLogins;
-    }
-
-    public function setFailedLogins(int $failedLogins): void
-    {
-        $this->failedLogins = $failedLogins;
     }
 
     public function getEncoder(): string
@@ -186,6 +181,16 @@ class UserBasicStruct extends Entity
         $this->sessionId = $sessionId;
     }
 
+    public function getLastLogin(): ?\DateTime
+    {
+        return $this->lastLogin;
+    }
+
+    public function setLastLogin(?\DateTime $lastLogin): void
+    {
+        $this->lastLogin = $lastLogin;
+    }
+
     public function getActive(): bool
     {
         return $this->active;
@@ -194,6 +199,16 @@ class UserBasicStruct extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function getFailedLogins(): int
+    {
+        return $this->failedLogins;
+    }
+
+    public function setFailedLogins(int $failedLogins): void
+    {
+        $this->failedLogins = $failedLogins;
     }
 
     public function getLockedUntil(): ?\DateTime

@@ -1,7 +1,7 @@
 import template from 'src/app/component/atom/sw-button/sw-button.html.twig';
 import 'src/app/component/atom/sw-button/sw-button.less';
 
-export default Shopware.ComponentFactory.register('sw-button', {
+export default Shopware.Component.register('sw-button', {
     props: {
         isPrimary: {
             type: Boolean,

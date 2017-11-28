@@ -1,6 +1,6 @@
 import utils from 'src/core/service/util.service';
 
-const ModuleFactory = Shopware.ModuleFactory;
+const ModuleFactory = Shopware.Module;
 
 export default function MenuService() {
     return {
@@ -9,7 +9,7 @@ export default function MenuService() {
 }
 
 function getMainMenu() {
-    const modules = ModuleFactory.getModuleRegistry();
+    const modules = ModuleFactory.getRegistry();
     const menuEntries = {};
 
     modules.forEach(module => {

@@ -2,7 +2,7 @@ import utils from 'src/core/service/util.service';
 import template from './core-order-detail.html.twig';
 import './core-order-detail.less';
 
-export default Shopware.ComponentFactory.register('core-order-detail', {
+export default Shopware.Component.register('core-order-detail', {
     inject: [
         'orderService',
         'customerService',

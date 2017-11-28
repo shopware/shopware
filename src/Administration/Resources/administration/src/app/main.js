@@ -30,7 +30,7 @@ apiServices.forEach((service) => {
     const name = service.name;
 
     application.addServiceProvider(name, () => {
-        const initContainer = Shopware.Container.container.init;
+        const initContainer = application.$container.container.init;
         return new ServiceFactoryClass(initContainer.httpClient);
     });
 });

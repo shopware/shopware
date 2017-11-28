@@ -1,225 +1,25 @@
 webpackJsonp([2],{
 
-/***/ 117:
+/***/ 10:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_assign__ = __webpack_require__(28);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_assign___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_assign__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_keys__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_keys___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_keys__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_babel_runtime_core_js_map__ = __webpack_require__(114);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_babel_runtime_core_js_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_babel_runtime_core_js_map__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_twig__ = __webpack_require__(332);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_twig___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_twig__);
-
-
-
-
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-    registerComponentTemplate: registerComponentTemplate,
-    extendComponentTemplate: extendComponentTemplate,
-    registerTemplateOverride: registerTemplateOverride,
-    getRenderedTemplate: getRenderedTemplate,
-    getTemplateOverrides: getTemplateOverrides,
-    getTemplateRegistry: getTemplateRegistry,
-    findCustomTemplate: findCustomTemplate,
-    findCustomOverride: findCustomOverride
-});
-
-var templateRegistry = new __WEBPACK_IMPORTED_MODULE_2_babel_runtime_core_js_map___default.a();
-
-__WEBPACK_IMPORTED_MODULE_3_twig___default.a.extend(function (TwigCore) {
-    TwigCore.token.definitions = [TwigCore.token.definitions[0], TwigCore.token.definitions[1], TwigCore.token.definitions[5], TwigCore.token.definitions[6], TwigCore.token.definitions[7], TwigCore.token.definitions[9], TwigCore.token.definitions[10]];
-
-    TwigCore.exports.extendTag({
-        type: 'parent',
-        regex: /^parent/,
-        next: [],
-        open: true,
-
-        parse: function parse(token, context, chain) {
-            return {
-                chain: chain,
-                output: TwigCore.placeholders.parent
-            };
-        }
-    });
-
-    TwigCore.exports.placeholders = TwigCore.placeholders;
-});
-
-function registerComponentTemplate(componentName) {
-    var componentTemplate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
-    var template = templateRegistry.get(componentName) || {};
-
-    if (componentTemplate === null) {
-        componentTemplate = findCustomTemplate(componentName);
-    }
-
-    var templateConfig = {
-        id: componentName + '-baseTemplate',
-        data: componentTemplate
-    };
-
-    template.baseTemplate = __WEBPACK_IMPORTED_MODULE_3_twig___default.a.twig(templateConfig);
-
-    templateRegistry.set(componentName, template);
-}
-
-function extendComponentTemplate(componentName, extendComponentName) {
-    var templateExtension = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-
-    if (!templateRegistry.has(extendComponentName)) {
-        if (templateExtension !== null) {
-            registerComponentTemplate(componentName, templateExtension);
-        }
-
-        return;
-    }
-
-    var extendTemplate = templateRegistry.get(extendComponentName);
-    var template = templateRegistry.get(componentName) || {};
-
-    var templateConfig = {
-        id: componentName + '-baseTemplate',
-        data: extendTemplate.baseTemplate.tokens
-    };
-
-    template.baseTemplate = __WEBPACK_IMPORTED_MODULE_3_twig___default.a.twig(templateConfig);
-
-    templateRegistry.set(componentName, template);
-
-    if (templateExtension !== null) {
-        registerTemplateOverride(componentName, templateExtension);
-    }
-}
-
-function registerTemplateOverride(componentName) {
-    var templateOverride = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var overrideIndex = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-
-    var template = templateRegistry.get(componentName) || {};
-
-    template.overrides = template.overrides || [];
-
-    if (templateOverride === null) {
-        templateOverride = findCustomOverride(componentName);
-    }
-
-    var templateConfig = {
-        id: componentName + '-' + template.overrides.length,
-        data: templateOverride
-    };
-
-    var override = __WEBPACK_IMPORTED_MODULE_3_twig___default.a.twig(templateConfig);
-
-    if (overrideIndex !== null) {
-        template.overrides.splice(overrideIndex, 0, override);
-    } else {
-        template.overrides.push(override);
-    }
-
-    templateRegistry.set(componentName, template);
-}
-
-function getRenderedTemplate(componentName) {
-    if (!templateRegistry.has(componentName)) {
-        return '';
-    }
-
-    var template = templateRegistry.get(componentName);
-
-    if (!template.baseTemplate) {
-        return '';
-    }
-
-    var baseTemplate = template.baseTemplate;
-    var overrides = template.overrides;
-    var parentPlaceholder = __WEBPACK_IMPORTED_MODULE_3_twig___default.a.placeholders.parent;
-    var blocks = {};
-
-    baseTemplate.render();
-
-    if (overrides) {
-        overrides.forEach(function (override) {
-            var templateBlocks = override.render({}, {
-                output: 'blocks'
-            });
-
-            __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_keys___default()(blocks).forEach(function (blockName) {
-                if (templateBlocks[blockName]) {
-                    templateBlocks[blockName] = templateBlocks[blockName].replace(parentPlaceholder, blocks[blockName]);
-                }
-            });
-
-            __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_assign___default()(blocks, templateBlocks);
-        });
-    }
-
-    return baseTemplate.render({}, {
-        blocks: blocks
-    });
-}
-
-function getTemplateOverrides(componentName) {
-    if (!templateRegistry.has(componentName)) {
-        return [];
-    }
-
-    var template = templateRegistry.get(componentName);
-
-    return template.overrides || [];
-}
-
-function getTemplateRegistry() {
-    return templateRegistry;
-}
-
-function findCustomTemplate(componentName) {
-    var element = document.querySelector('template[component="' + componentName + '"]');
-
-    return element !== null ? element.innerHTML : '';
-}
-
-function findCustomOverride(componentName) {
-    var element = document.querySelector('template[override="' + componentName + '"]');
-
-    return element !== null ? element.innerHTML : '';
-}
-
-/***/ }),
-
-/***/ 118:
-/***/ (function(module, exports) {
-
-/* (ignored) */
-
-/***/ }),
-
-/***/ 12:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_helpers_toConsumableArray__ = __webpack_require__(35);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_helpers_toConsumableArray__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_helpers_toConsumableArray___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_babel_runtime_helpers_toConsumableArray__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_helpers_extends__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_helpers_extends__ = __webpack_require__(39);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_helpers_extends___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_babel_runtime_helpers_extends__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_babel_runtime_helpers_typeof__ = __webpack_require__(108);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_babel_runtime_helpers_typeof__ = __webpack_require__(41);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_babel_runtime_helpers_typeof___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_babel_runtime_helpers_typeof__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_babel_runtime_core_js_array_from__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_babel_runtime_core_js_array_from__ = __webpack_require__(60);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_babel_runtime_core_js_array_from___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_babel_runtime_core_js_array_from__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_babel_runtime_helpers_defineProperty__ = __webpack_require__(85);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_babel_runtime_helpers_defineProperty__ = __webpack_require__(64);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_babel_runtime_helpers_defineProperty___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_babel_runtime_helpers_defineProperty__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_babel_runtime_core_js_object_assign__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_babel_runtime_core_js_object_assign__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_babel_runtime_core_js_object_assign___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_babel_runtime_core_js_object_assign__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_babel_runtime_core_js_object_keys__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_babel_runtime_core_js_object_keys__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_babel_runtime_core_js_object_keys___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_babel_runtime_core_js_object_keys__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_uuid_v4__ = __webpack_require__(113);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_uuid_v4__ = __webpack_require__(87);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_uuid_v4___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_uuid_v4__);
 
 
@@ -421,45 +221,67 @@ function getArrayChangeSet(baseArray, compareArray) {
 
 /***/ }),
 
-/***/ 280:
+/***/ 220:
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["Shopware"] = __webpack_require__(281);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(24)))
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["Shopware"] = __webpack_require__(221);
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22)))
 
 /***/ }),
 
-/***/ 281:
+/***/ 221:
 /***/ (function(module, exports, __webpack_require__) {
 
-const ModuleFactory = __webpack_require__(282);
-const ComponentFactory = __webpack_require__(316);
-const utils = __webpack_require__(12);
-const TemplateFactory = __webpack_require__(117);
-const ViewFactory = __webpack_require__(89);
-const RouterFactory = __webpack_require__(90);
+const Bottle = __webpack_require__(222);
 
-module.exports = {
-    ModuleFactory,
-    ComponentFactory,
-    TemplateFactory,
-    ViewFactory,
-    RouterFactory,
-    utils
+const ModuleFactory = __webpack_require__(223);
+const ComponentFactory = __webpack_require__(266);
+const utils = __webpack_require__(10);
+let TemplateFactory = __webpack_require__(88);
+let ApplicationBootstrapper = __webpack_require__(268);
+
+const container = new Bottle({
+    strict: true
+});
+ApplicationBootstrapper = ApplicationBootstrapper.default;
+
+const application = new ApplicationBootstrapper(container);
+TemplateFactory = TemplateFactory.default;
+
+const exposedInterface = {
+    Module: {
+        register: ModuleFactory.registerModule,
+        getRegistry: ModuleFactory.getModuleRegistry,
+        getRoutes: ModuleFactory.getModuleRoutes
+    },
+    Component: {
+        register: ComponentFactory.register,
+        extend: ComponentFactory.extend,
+        override: ComponentFactory.override,
+        build: ComponentFactory.build,
+        getRegistry: ComponentFactory.getComponentRegistry,
+        getComponentTemplate: ComponentFactory.getComponentTemplate
+    },
+    Template: {
+        register: TemplateFactory.registerComponentTemplate,
+        extend: TemplateFactory.extendComponentTemplate,
+        override: TemplateFactory.registerTemplateOverride,
+        getRenderedTemplate: TemplateFactory.getRenderedTemplate,
+        getRegistry: TemplateFactory.getTemplateRegistry,
+        getOverrideRegistry: TemplateFactory.getTemplateRegistry,
+        find: TemplateFactory.findCustomTemplate,
+        findOverride: TemplateFactory.findCustomTemplate
+    },
+    Utils: utils.default,
+    Application: application
 };
 
+module.exports = exposedInterface;
+
 
 /***/ }),
 
-/***/ 282:
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["ModuleFactory"] = __webpack_require__(283);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(24)))
-
-/***/ }),
-
-/***/ 283:
+/***/ 223:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -467,92 +289,102 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getModuleRoutes", function() { return getModuleRoutes; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "registerModule", function() { return registerModule; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getModuleRegistry", function() { return getModuleRegistry; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_src_core_service_util_service__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_keys__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_keys___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_keys__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_map__ = __webpack_require__(52);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_map__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_src_core_service_util_service__ = __webpack_require__(10);
 
 
 
 
-/** @type Map modules - Registry for modules */
-const modules = new Map();
 
-/**
- * Returns the registry of all modules mounted in the application.
- *
- * @returns {Map} modules - Registry of all modules
- */
+
+var modules = new __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_map___default.a();
+
 function getModuleRegistry() {
     return modules;
 }
 
-/**
- * Registers a module in the application. The module will be mounted using
- * the defined routes of the module using the router.
- *
- * @param {Object} module - Module definition - see manifest.js file
- * @param {String} [type=plugin] - Type of the module
- * @returns {Map} moduleRoutes - registered module routes
- */
-function registerModule(module, type = 'plugin') {
-    const moduleRoutes = new Map();
-    const moduleId = module.id;
+function registerModule(module) {
+    var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'plugin';
 
-    // A module should always have an unique identifier cause overloading modules can cause unexpected side effects
+    var moduleRoutes = new __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_map___default.a();
+    var moduleId = module.id;
+
     if (!moduleId) {
-        __WEBPACK_IMPORTED_MODULE_0_src_core_service_util_service__["default"].warn(
-            'ModuleFactory',
-            'Module has no unique identifier "id"',
-            module
-        );
+        __WEBPACK_IMPORTED_MODULE_2_src_core_service_util_service__["default"].warn('ModuleFactory', 'Module has no unique identifier "id". Abort registration.', module);
+        return false;
     }
 
-    // Modules will be mounted using the routes definition in the manifest file. If the module doesn't contains a routes
-    // definition it's not accessible in the application.
+    if (modules.has(moduleId)) {
+        __WEBPACK_IMPORTED_MODULE_2_src_core_service_util_service__["default"].warn('ModuleFactory', 'A module with the identifier "' + moduleId + '" is registered already. Abort registration.', modules.get(moduleId));
+
+        return false;
+    }
+
+    var splitModuleId = moduleId.split('.');
+
+    if (splitModuleId.length < 2) {
+        __WEBPACK_IMPORTED_MODULE_2_src_core_service_util_service__["default"].warn('ModuleFactory', 'Module identifier does not match the necessary format "[section].[name]":', moduleId, 'Abort registration.');
+        return false;
+    }
+
     if (!Object.prototype.hasOwnProperty.call(module, 'routes')) {
-        __WEBPACK_IMPORTED_MODULE_0_src_core_service_util_service__["default"].warn(
-            'ModuleFactory',
-            `Module "${moduleId}" has no configured routes. The module will not be accessible in the administration UI.`,
-            module
-        );
-        return moduleRoutes;
+        __WEBPACK_IMPORTED_MODULE_2_src_core_service_util_service__["default"].warn('ModuleFactory', 'Module "' + moduleId + '" has no configured routes. The module will not be accessible in the administration UI.', 'Abort registration.', module);
+        return false;
     }
 
-    // Sanitize the modules routes
-    Object.keys(module.routes).forEach((routeKey) => {
-        const route = module.routes[routeKey];
+    __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_keys___default()(module.routes).forEach(function (routeKey) {
+        var route = module.routes[routeKey];
 
-        // Rewrite name and path
-        route.name = `${moduleId}.${routeKey}`;
-        route.path = `/${type}/${route.path}`;
+        route.name = moduleId + '.' + routeKey;
+        route.path = '/' + type + '/' + splitModuleId.join('/') + '/' + route.path;
         route.type = type;
 
-        const componentList = {};
-        if (route.components && Object.keys(route.components).length) {
-            Object.keys(route.components).forEach((componentKey) => {
-                const component = route.components[componentKey];
+        var componentList = {};
+        if (route.components && __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_keys___default()(route.components).length) {
+            __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_keys___default()(route.components).forEach(function (componentKey) {
+                var component = route.components[componentKey];
+
+                if (Object.prototype.hasOwnProperty(component, 'name') || !component.name || !component.name.length) {
+                    __WEBPACK_IMPORTED_MODULE_2_src_core_service_util_service__["default"].warn('ModuleFactory', 'Component ' + component + ' has no "name" property. The component will not be registered.');
+
+                    return;
+                }
+
                 componentList[componentKey] = component.name;
             });
 
             route.components = componentList;
         } else {
+            if (!route.component || !route.component.name) {
+                __WEBPACK_IMPORTED_MODULE_2_src_core_service_util_service__["default"].warn('ModuleFactory', 'The route definition of module "' + moduleId + '" is not valid. A route needs an assigned component.');
+                return;
+            }
             route.components = {
                 default: route.component.name
             };
 
-            // Remove the component cause we remapped it to the components object of the route object
             delete route.component;
         }
 
-        // Alias support
         if (route.alias && route.alias.length > 0) {
-            route.alias = `/${type}/${route.alias}`;
+            route.alias = '/' + splitModuleId.join('/') + '/' + route.alias;
         }
 
         moduleRoutes.set(route.name, route);
     });
 
-    const moduleDefinition = {
+    if (moduleRoutes.size === 0) {
+        __WEBPACK_IMPORTED_MODULE_2_src_core_service_util_service__["default"].warn('ModuleFactory', 'The module "' + moduleId + '" was not registered cause it hasn\'t a valid route definition', 'Abort registration.', module.routes);
+        return false;
+    }
+
+    var moduleDefinition = {
         routes: moduleRoutes,
-        manifest: module
+        manifest: module,
+        type: type
     };
 
     if (Object.prototype.hasOwnProperty.bind(module, 'navigation') && module.navigation) {
@@ -560,38 +392,25 @@ function registerModule(module, type = 'plugin') {
     }
 
     modules.set(moduleId, moduleDefinition);
-    return moduleRoutes;
+
+    return moduleDefinition;
 }
 
-/**
- * Returns the defined module routes which will be registered in the router and therefore will be accessible in the
- * application.
- *
- * @returns {Array} route definitions - see {@link https://router.vuejs.org/en/essentials/named-routes.html}
- */
 function getModuleRoutes() {
-    const moduleRoutes = [];
+    var moduleRoutes = [];
 
-    modules.forEach((module) => {
-        module.routes.forEach((route) => {
+    modules.forEach(function (module) {
+        module.routes.forEach(function (route) {
             moduleRoutes.push(route);
         });
     });
+
     return moduleRoutes;
 }
 
-
 /***/ }),
 
-/***/ 316:
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["ComponentFactory"] = __webpack_require__(317);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(24)))
-
-/***/ }),
-
-/***/ 317:
+/***/ 266:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -602,16 +421,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "build", function() { return build; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getComponentTemplate", function() { return getComponentTemplate; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getComponentRegistry", function() { return getComponentRegistry; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_helpers_toConsumableArray__ = __webpack_require__(35);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_helpers_toConsumableArray__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_helpers_toConsumableArray___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_babel_runtime_helpers_toConsumableArray__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_keys__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_keys__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_keys___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_keys__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_babel_runtime_core_js_object_assign__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_babel_runtime_core_js_object_assign__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_babel_runtime_core_js_object_assign___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_babel_runtime_core_js_object_assign__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_babel_runtime_core_js_map__ = __webpack_require__(114);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_babel_runtime_core_js_map__ = __webpack_require__(52);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_babel_runtime_core_js_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_babel_runtime_core_js_map__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_src_core_service_util_service__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_src_core_factory_template_factory__ = __webpack_require__(117);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_src_core_service_util_service__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_src_core_factory_template_factory__ = __webpack_require__(88);
 
 
 
@@ -634,11 +453,14 @@ function register(componentName) {
 
     var config = componentConfiguration;
 
-    config.name = componentName;
+    if (!componentName || !componentName.length) {
+        __WEBPACK_IMPORTED_MODULE_4_src_core_service_util_service__["default"].warn('ComponentFactory', 'A component always needs a name.', componentConfiguration);
+        return false;
+    }
 
     if (componentRegistry.has(componentName)) {
         __WEBPACK_IMPORTED_MODULE_4_src_core_service_util_service__["default"].warn('ComponentFactory', 'The component "' + componentName + '" is already registered. Please select a unique name for your component.', config);
-        return config;
+        return false;
     }
 
     config.name = componentName;
@@ -649,7 +471,7 @@ function register(componentName) {
         delete config.template;
     } else {
         __WEBPACK_IMPORTED_MODULE_4_src_core_service_util_service__["default"].warn('ComponentFactory', 'The component "' + config.name + '" needs a template to be functional.', 'Please add a "template" property to your component definition', config);
-        return config;
+        return false;
     }
 
     componentRegistry.set(componentName, config);
@@ -661,7 +483,7 @@ function extend(componentName, extendComponentName, componentConfiguration) {
     var config = componentConfiguration;
 
     if (config.template) {
-        __WEBPACK_IMPORTED_MODULE_5_src_core_factory_template_factory__["default"].extendComponentTemplate(name, extendComponentName, config.template);
+        __WEBPACK_IMPORTED_MODULE_5_src_core_factory_template_factory__["default"].extendComponentTemplate(componentName, extendComponentName, config.template);
 
         delete config.template;
     } else {
@@ -788,151 +610,349 @@ function mergeConfig(target, source) {
 
 /***/ }),
 
-/***/ 89:
+/***/ 268:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony export (immutable) */ __webpack_exports__["default"] = ViewFactory;
-function ViewFactory(viewAdapter) {
-    return {
-        name: viewAdapter.getName(),
-        wrapper: viewAdapter.getWrapper(),
-        createInstance: viewAdapter.createInstance,
-        createComponent: viewAdapter.createComponent,
-        initComponents: viewAdapter.initComponents,
-        getComponent: viewAdapter.getComponent,
-        getComponents: viewAdapter.getComponents
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_helpers_classCallCheck__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_helpers_classCallCheck___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_babel_runtime_helpers_classCallCheck__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_helpers_createClass__ = __webpack_require__(32);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_helpers_createClass___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_babel_runtime_helpers_createClass__);
+
+
+
+var ApplicationBootstrapper = function () {
+    function ApplicationBootstrapper(container) {
+        __WEBPACK_IMPORTED_MODULE_0_babel_runtime_helpers_classCallCheck___default()(this, ApplicationBootstrapper);
+
+        var noop = function noop() {};
+        this.$container = container;
+
+        this.$container.service('service', noop);
+        this.$container.service('init', noop);
+    }
+
+    __WEBPACK_IMPORTED_MODULE_1_babel_runtime_helpers_createClass___default()(ApplicationBootstrapper, [{
+        key: 'getContainer',
+        value: function getContainer(containerName) {
+            var containerNames = this.$container.list();
+
+            if (containerNames.indexOf(containerName) !== -1) {
+                return this.$container.container[containerName];
+            }
+            return this.$container.container;
+        }
+    }, {
+        key: 'addInitializer',
+        value: function addInitializer(name, initializer) {
+            this.$container.factory('init.' + name, initializer.bind(this));
+            return this;
+        }
+    }, {
+        key: 'addServiceProvider',
+        value: function addServiceProvider(name, provider) {
+            this.$container.factory('service.' + name, provider.bind(this));
+            return this;
+        }
+    }, {
+        key: 'registerContext',
+        value: function registerContext(context) {
+            return this.addInitializer('context', function () {
+                return context;
+            });
+        }
+    }, {
+        key: 'addInitializerMiddleware',
+        value: function addInitializerMiddleware() {
+            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+                args[_key] = arguments[_key];
+            }
+
+            return this._addMiddleware('init', args);
+        }
+    }, {
+        key: 'addServiceProviderMiddleware',
+        value: function addServiceProviderMiddleware() {
+            for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+                args[_key2] = arguments[_key2];
+            }
+
+            return this._addMiddleware('service', args);
+        }
+    }, {
+        key: '_addMiddleware',
+        value: function _addMiddleware(containerName, args) {
+            var name = args.length > 1 ? containerName + '.' + args[0] : containerName;
+            var middlewareFn = args.length > 1 ? args[1] : args[0];
+
+            this.$container.middleware(name, middlewareFn);
+
+            return this;
+        }
+    }, {
+        key: 'addInitializerDecorator',
+        value: function addInitializerDecorator() {
+            for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+                args[_key3] = arguments[_key3];
+            }
+
+            return this._addDecorator('init', args);
+        }
+    }, {
+        key: 'addServiceProviderDecorator',
+        value: function addServiceProviderDecorator() {
+            for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+                args[_key4] = arguments[_key4];
+            }
+
+            return this._addDecorator('service', args);
+        }
+    }, {
+        key: '_addDecorator',
+        value: function _addDecorator(containerName, args) {
+            var name = args.length > 1 ? containerName + '.' + args[0] : containerName;
+            var middlewareFn = args.length > 1 ? args[1] : args[0];
+
+            this.$container.decorator(name, middlewareFn);
+
+            return this;
+        }
+    }, {
+        key: 'start',
+        value: function start() {
+            var context = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+            this.registerContext(context).createApplicationRoot();
+        }
+    }, {
+        key: 'getApplicationRoot',
+        value: function getApplicationRoot() {
+            if (!this.applicationRoot) {
+                return false;
+            }
+
+            return this.applicationRoot;
+        }
+    }, {
+        key: 'createApplicationRoot',
+        value: function createApplicationRoot() {
+            var container = this.getContainer('init');
+            var router = container.router;
+            var view = container.view;
+
+            this.applicationRoot = view.createInstance('#app', router, this.getContainer('service'));
+
+            return this;
+        }
+    }]);
+
+    return ApplicationBootstrapper;
+}();
+
+/* harmony default export */ __webpack_exports__["default"] = (ApplicationBootstrapper);
+
+/***/ }),
+
+/***/ 88:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_assign__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_assign___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_assign__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_keys__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_keys___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_keys__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_babel_runtime_core_js_map__ = __webpack_require__(52);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_babel_runtime_core_js_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_babel_runtime_core_js_map__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_twig__ = __webpack_require__(267);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_twig___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_twig__);
+
+
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    registerComponentTemplate: registerComponentTemplate,
+    extendComponentTemplate: extendComponentTemplate,
+    registerTemplateOverride: registerTemplateOverride,
+    getRenderedTemplate: getRenderedTemplate,
+    getTemplateOverrides: getTemplateOverrides,
+    getTemplateRegistry: getTemplateRegistry,
+    findCustomTemplate: findCustomTemplate,
+    findCustomOverride: findCustomOverride
+});
+
+var templateRegistry = new __WEBPACK_IMPORTED_MODULE_2_babel_runtime_core_js_map___default.a();
+
+__WEBPACK_IMPORTED_MODULE_3_twig___default.a.extend(function (TwigCore) {
+    TwigCore.token.definitions = [TwigCore.token.definitions[0], TwigCore.token.definitions[1], TwigCore.token.definitions[5], TwigCore.token.definitions[6], TwigCore.token.definitions[7], TwigCore.token.definitions[9], TwigCore.token.definitions[10]];
+
+    TwigCore.exports.extendTag({
+        type: 'parent',
+        regex: /^parent/,
+        next: [],
+        open: true,
+
+        parse: function parse(token, context, chain) {
+            return {
+                chain: chain,
+                output: TwigCore.placeholders.parent
+            };
+        }
+    });
+
+    TwigCore.exports.placeholders = TwigCore.placeholders;
+});
+
+function registerComponentTemplate(componentName) {
+    var componentTemplate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+    var template = templateRegistry.get(componentName) || {};
+
+    if (componentTemplate === null) {
+        componentTemplate = findCustomTemplate(componentName);
+    }
+
+    var templateConfig = {
+        id: componentName + '-baseTemplate',
+        data: componentTemplate
     };
+
+    template.baseTemplate = __WEBPACK_IMPORTED_MODULE_3_twig___default.a.twig(templateConfig);
+
+    templateRegistry.set(componentName, template);
+}
+
+function extendComponentTemplate(componentName, extendComponentName) {
+    var templateExtension = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+    if (!templateRegistry.has(extendComponentName)) {
+        if (templateExtension !== null) {
+            registerComponentTemplate(componentName, templateExtension);
+        }
+
+        return;
+    }
+
+    var extendTemplate = templateRegistry.get(extendComponentName);
+    var template = templateRegistry.get(componentName) || {};
+
+    var templateConfig = {
+        id: componentName + '-baseTemplate',
+        data: extendTemplate.baseTemplate.tokens
+    };
+
+    template.baseTemplate = __WEBPACK_IMPORTED_MODULE_3_twig___default.a.twig(templateConfig);
+
+    templateRegistry.set(componentName, template);
+
+    if (templateExtension !== null) {
+        registerTemplateOverride(componentName, templateExtension);
+    }
+}
+
+function registerTemplateOverride(componentName) {
+    var templateOverride = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+    var overrideIndex = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+    var template = templateRegistry.get(componentName) || {};
+
+    template.overrides = template.overrides || [];
+
+    if (templateOverride === null) {
+        templateOverride = findCustomOverride(componentName);
+    }
+
+    var templateConfig = {
+        id: componentName + '-' + template.overrides.length,
+        data: templateOverride
+    };
+
+    var override = __WEBPACK_IMPORTED_MODULE_3_twig___default.a.twig(templateConfig);
+
+    if (overrideIndex !== null) {
+        template.overrides.splice(overrideIndex, 0, override);
+    } else {
+        template.overrides.push(override);
+    }
+
+    templateRegistry.set(componentName, template);
+}
+
+function getRenderedTemplate(componentName) {
+    if (!templateRegistry.has(componentName)) {
+        return '';
+    }
+
+    var template = templateRegistry.get(componentName);
+
+    if (!template.baseTemplate) {
+        return '';
+    }
+
+    var baseTemplate = template.baseTemplate;
+    var overrides = template.overrides;
+    var parentPlaceholder = __WEBPACK_IMPORTED_MODULE_3_twig___default.a.placeholders.parent;
+    var blocks = {};
+
+    baseTemplate.render();
+
+    if (overrides) {
+        overrides.forEach(function (override) {
+            var templateBlocks = override.render({}, {
+                output: 'blocks'
+            });
+
+            __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_keys___default()(blocks).forEach(function (blockName) {
+                if (templateBlocks[blockName]) {
+                    templateBlocks[blockName] = templateBlocks[blockName].replace(parentPlaceholder, blocks[blockName]);
+                }
+            });
+
+            __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_assign___default()(blocks, templateBlocks);
+        });
+    }
+
+    return baseTemplate.render({}, {
+        blocks: blocks
+    });
+}
+
+function getTemplateOverrides(componentName) {
+    if (!templateRegistry.has(componentName)) {
+        return [];
+    }
+
+    var template = templateRegistry.get(componentName);
+
+    return template.overrides || [];
+}
+
+function getTemplateRegistry() {
+    return templateRegistry;
+}
+
+function findCustomTemplate(componentName) {
+    var element = document.querySelector('template[component="' + componentName + '"]');
+
+    return element !== null ? element.innerHTML : '';
+}
+
+function findCustomOverride(componentName) {
+    var element = document.querySelector('template[override="' + componentName + '"]');
+
+    return element !== null ? element.innerHTML : '';
 }
 
 /***/ }),
 
-/***/ 90:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ 89:
+/***/ (function(module, exports) {
 
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony export (immutable) */ __webpack_exports__["default"] = createRouter;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_keys__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_keys___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_keys__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_helpers_toConsumableArray__ = __webpack_require__(35);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_helpers_toConsumableArray___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_babel_runtime_helpers_toConsumableArray__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_babel_runtime_core_js_object_assign__ = __webpack_require__(28);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_babel_runtime_core_js_object_assign___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_babel_runtime_core_js_object_assign__);
-
-
-
-function createRouter(Router, View) {
-    var allRoutes = [];
-    var moduleRoutes = [];
-
-    return {
-        addRoutes: addRoutes,
-        addModuleRoutes: addModuleRoutes,
-        createRouterInstance: createRouterInstance,
-        getViewComponent: getViewComponent
-    };
-
-    function createRouterInstance() {
-        var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-        var mergedRoutes = registerModuleRoutesAsChildren(allRoutes, moduleRoutes);
-
-        var options = __WEBPACK_IMPORTED_MODULE_2_babel_runtime_core_js_object_assign___default()({}, opts, {
-            routes: mergedRoutes
-        });
-
-        var router = new Router(options);
-
-        beforeRouterInterceptor(router);
-        return router;
-    }
-
-    function beforeRouterInterceptor(router) {
-        router.beforeEach(function (to, from, next) {
-
-            var moduleRegistry = Shopware.ModuleFactory.getModuleRegistry();
-
-            var moduleNamespace = to.name.split('.');
-            moduleNamespace = moduleNamespace[0] + '.' + moduleNamespace[1];
-
-            if (!moduleRegistry.has(moduleNamespace)) {
-                return next();
-            }
-
-            var module = moduleRegistry.get(moduleNamespace);
-            if (!module.routes.has(to.name)) {
-                return next();
-            }
-
-            to.meta.$module = module.manifest;
-            return next();
-        });
-
-        return router;
-    }
-
-    function registerModuleRoutesAsChildren(core, module) {
-        core.map(function (route) {
-            if (route.root === true && route.coreRoute === true) {
-                route.children = module;
-            }
-
-            return route;
-        });
-
-        return core;
-    }
-
-    function addModuleRoutes(routes) {
-        routes.map(function (route) {
-            return convertRouteComponentToViewComponent(route);
-        });
-
-        moduleRoutes = [].concat(__WEBPACK_IMPORTED_MODULE_1_babel_runtime_helpers_toConsumableArray___default()(moduleRoutes), __WEBPACK_IMPORTED_MODULE_1_babel_runtime_helpers_toConsumableArray___default()(routes));
-
-        return moduleRoutes;
-    }
-
-    function addRoutes(routes) {
-        routes.map(function (route) {
-            return convertRouteComponentToViewComponent(route);
-        });
-
-        allRoutes = [].concat(__WEBPACK_IMPORTED_MODULE_1_babel_runtime_helpers_toConsumableArray___default()(allRoutes), __WEBPACK_IMPORTED_MODULE_1_babel_runtime_helpers_toConsumableArray___default()(routes));
-
-        return allRoutes;
-    }
-
-    function convertRouteComponentToViewComponent(route) {
-        if (Object.prototype.hasOwnProperty.call(route, 'components') && __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_keys___default()(route.components).length) {
-            var componentList = {};
-
-            __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_keys___default()(route.components).forEach(function (componentKey) {
-                var component = route.components[componentKey];
-
-                if (typeof component === 'string') {
-                    component = getViewComponent(component);
-                }
-                componentList[componentKey] = component;
-            });
-            route.components = componentList;
-        }
-
-        if (typeof route.component === 'string') {
-            route.component = getViewComponent(route.component);
-        }
-
-        return route;
-    }
-
-    function getViewComponent(componentName) {
-        return View.getComponent(componentName);
-    }
-}
+/* (ignored) */
 
 /***/ })
 
-},[280]);
+},[220]);
 //# sourceMappingURL=commons.js.map

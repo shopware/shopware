@@ -1,7 +1,7 @@
 import 'src/app/component/organism/sw-sidebar/sw-sidebar.less';
 import template from 'src/app/component/organism/sw-sidebar/sw-sidebar.html.twig';
 
-export default Shopware.ComponentFactory.register('sw-sidebar', {
+export default Shopware.Component.register('sw-sidebar', {
     inject: ['menuService'],
     template,
 

@@ -104,7 +104,7 @@ export default function VueAdapter(context) {
      * @returns {*}
      */
     function initComponents() {
-        const componentRegistry = Shopware.ComponentFactory.getComponentRegistry();
+        const componentRegistry = Shopware.Component.getRegistry();
 
         componentRegistry.forEach((component) => {
             createComponent(component.name);
@@ -121,7 +121,7 @@ export default function VueAdapter(context) {
      * @returns {*}
      */
     function createComponent(componentName) {
-        const componentConfig = Shopware.ComponentFactory.build(componentName);
+        const componentConfig = Shopware.Component.build(componentName);
 
         if (!componentConfig) {
             return false;

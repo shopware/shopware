@@ -1,10 +1,10 @@
 /* global Shopware */
-const ModuleFactory = Shopware.ModuleFactory;
-const register = ModuleFactory.registerModule;
+const ModuleFactory = Shopware.Module;
+const register = ModuleFactory.register;
 
 // We're clearing the modules registry to register the same module multiple times throughout the test suite
 beforeEach(() => {
-    const modules = ModuleFactory.getModuleRegistry();
+    const modules = ModuleFactory.getRegistry();
     modules.clear();
 });
 
@@ -161,7 +161,7 @@ describe('core/factory/module.factory.js', () => {
             }
         });
 
-        const modules = ModuleFactory.getModuleRegistry();
+        const modules = ModuleFactory.getRegistry();
 
         expect(modules.size).to.equal(1);
         expect(modules.has('foo.bar')).to.equal(true);
@@ -181,7 +181,7 @@ describe('core/factory/module.factory.js', () => {
             }
         });
 
-        const routes = ModuleFactory.getModuleRoutes();
+        const routes = ModuleFactory.getRoutes();
 
         expect(routes).to.be.an('array');
         expect(routes[0]).to.be.an('object');

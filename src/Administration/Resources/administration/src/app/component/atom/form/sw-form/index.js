@@ -1,6 +1,6 @@
 import template from './sw-form.html.twig';
 
-export default Shopware.ComponentFactory.register('sw-form', {
+export default Shopware.Component.register('sw-form', {
     props: {
 
         /**

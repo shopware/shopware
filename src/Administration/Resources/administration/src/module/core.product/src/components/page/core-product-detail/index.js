@@ -2,7 +2,7 @@ import ProductDetailRepository from 'src/core/repository/product.detail.reposito
 import template from './core-product-detail.html.twig';
 import './core-product-detail.less';
 
-export default Shopware.ComponentFactory.register('core-product-detail', {
+export default Shopware.Component.register('core-product-detail', {
     inject: ['categoryService', 'productManufacturerService', 'taxService', 'customerGroupService'],
 
     mixins: [ProductDetailRepository],

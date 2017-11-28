@@ -3,7 +3,7 @@ import utils from 'src/core/service/util.service';
 import './core-order-list.less';
 import template from './core-order-list.twig';
 
-export default Shopware.ComponentFactory.register('core-order-list', {
+export default Shopware.Component.register('core-order-list', {
     inject: ['orderService'],
     mixins: [PaginationMixin],
 

@@ -1,7 +1,7 @@
 import template from 'src/app/component/organism/sw-workspace/sw-workspace.html.twig';
 import 'src/app/component/organism/sw-workspace/sw-workspace.less';
 
-export default Shopware.ComponentFactory.register('sw-workspace', {
+export default Shopware.Component.register('sw-workspace', {
     template,
     computed: {
         iconClassName() {

@@ -1,7 +1,7 @@
 import template from './sw-multi-select.html.twig';
 import './sw-multi-select.less';
 
-export default Shopware.ComponentFactory.register('sw-multi-select', {
+export default Shopware.Component.register('sw-multi-select', {
     props: {
         serviceProvider: {
             type: Object,

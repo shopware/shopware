@@ -1,7 +1,7 @@
 import PaginationMixin from 'src/app/component/mixin/pagination.mixin';
 import template from './core-order-line-item-list.html.twig';
 
-export default Shopware.ComponentFactory.register('core-order-line-item-list', {
+export default Shopware.Component.register('core-order-line-item-list', {
     inject: ['orderLineItemService'],
     mixins: [PaginationMixin],
 

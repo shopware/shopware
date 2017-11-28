@@ -4,7 +4,7 @@ import utils from 'src/core/service/util.service';
 import './core-product-list.less';
 import template from './core-product-list.twig';
 
-export default Shopware.ComponentFactory.register('core-product-list', {
+export default Shopware.Component.register('core-product-list', {
     mixins: [PaginationMixin, ProductListRepository],
 
     data() {

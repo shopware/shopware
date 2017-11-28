@@ -28,6 +28,21 @@ export default class ApplicationBootstrapper {
     }
 
     /**
+     * Returns all containers. Use this method if you're want to get initializers in your services.
+     *
+     * @param {String=} containerName Name of the nested container. "init" & "service" are the core containers.
+     * @returns {Bottle.IContainer}
+     */
+    getContainer(containerName) {
+        const containerNames = this.$container.list();
+
+        if (containerNames.indexOf(containerName) !== -1) {
+            return this.$container.container[containerName];
+        }
+        return this.$container.container;
+    }
+
+    /**
      * Adds an initializer to the application. An initializer is a necessary part of the application which needs to be
      * initialized before we can boot up the application.
      *
@@ -231,14 +246,14 @@ export default class ApplicationBootstrapper {
      * @returns {ApplicationBootstrapper}
      */
     createApplicationRoot() {
-        const container = this.$container.container;
-        const router = container.init.router;
-        const view = container.init.view;
+        const container = this.getContainer('init');
+        const router = container.router;
+        const view = container.view;
 
         this.applicationRoot = view.createInstance(
             '#app',
             router,
-            container.service
+            this.getContainer('service')
         );
 
         return this;

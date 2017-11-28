@@ -46,7 +46,7 @@ export default function createRouter(Router, View) {
                 return next({ path: '/login' });
              } */
 
-            const moduleRegistry = Shopware.ModuleFactory.getModuleRegistry();
+            const moduleRegistry = Shopware.Module.getRegistry();
 
             // Just get the first part of the name as the namespace
             // The first part should be the module (e.g. core or plugin)

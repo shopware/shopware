@@ -1,6 +1,6 @@
 import template from './core-order-address-form.html.twig';
 
-export default Shopware.ComponentFactory.register('core-order-address-form', {
+export default Shopware.Component.register('core-order-address-form', {
     props: {
         address: {
             type: Object,

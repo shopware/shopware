@@ -1,7 +1,7 @@
 import utils from 'src/core/service/util.service';
 import TemplateFactory from 'src/core/factory/template.factory';
 
-export {
+export default {
     register,
     extend,
     override,

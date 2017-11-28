@@ -1,7 +1,7 @@
 import template from './extend.twig';
 import './extend.less';
 
-export default Shopware.ComponentFactory.extend('core-test-extend', 'core-product-list', {
+export default Shopware.Component.extend('core-test-extend', 'core-product-list', {
 
     data() {
         return {

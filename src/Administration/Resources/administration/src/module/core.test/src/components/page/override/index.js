@@ -1,6 +1,6 @@
 import template from './override.twig';
 
-export default Shopware.ComponentFactory.override('core-product-list', {
+export default Shopware.Component.override('core-product-list', {
 
     data() {
         return {

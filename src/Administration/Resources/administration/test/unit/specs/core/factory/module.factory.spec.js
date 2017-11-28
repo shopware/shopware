@@ -1,10 +1,11 @@
 /* global Shopware */
-const ModuleFactory = Shopware.Module;
-const register = ModuleFactory.register;
+import ModuleFactory from 'src/core/factory/module.factory';
+
+const register = ModuleFactory.registerModule;
 
 // We're clearing the modules registry to register the same module multiple times throughout the test suite
 beforeEach(() => {
-    const modules = ModuleFactory.getRegistry();
+    const modules = ModuleFactory.getModuleRegistry();
     modules.clear();
 });
 
@@ -161,13 +162,13 @@ describe('core/factory/module.factory.js', () => {
             }
         });
 
-        const modules = ModuleFactory.getRegistry();
+        const modules = ModuleFactory.getModuleRegistry();
 
         expect(modules.size).to.equal(1);
         expect(modules.has('foo.bar')).to.equal(true);
     });
 
-    it('should be possible to get all registerd module routes', () => {
+    it('should be possible to get all registered module routes', () => {
         register({
             id: 'foo.bar',
             routes: {
@@ -181,7 +182,7 @@ describe('core/factory/module.factory.js', () => {
             }
         });
 
-        const routes = ModuleFactory.getRoutes();
+        const routes = ModuleFactory.getModuleRoutes();
 
         expect(routes).to.be.an('array');
         expect(routes[0]).to.be.an('object');

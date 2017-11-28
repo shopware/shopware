@@ -1,6 +1,6 @@
 import utils from 'src/core/service/util.service';
 
-export {
+export default {
     getModuleRoutes,
     registerModule,
     getModuleRegistry

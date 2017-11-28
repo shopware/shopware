@@ -1,6 +1,6 @@
 import template from './override_extension.twig';
 
-export default Shopware.ComponentFactory.override('core-test-extend', {
+export default Shopware.Component.override('core-test-extend', {
 
     data() {
         return {

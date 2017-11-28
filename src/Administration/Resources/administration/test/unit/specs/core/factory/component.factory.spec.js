@@ -1,6 +1,6 @@
-// Proxy variable to be more flexible for refactoring purposes
-const ComponentFactory = Shopware.ComponentFactory;
-const TemplateFactory = Shopware.TemplateFactory.default;
+/* eslint-disable import/no-named-as-default-member */
+import ComponentFactory from 'src/core/factory/component.factory';
+import TemplateFactory from 'src/core/factory/template.factory';
 
 beforeEach(() => {
     ComponentFactory.getComponentRegistry().clear();

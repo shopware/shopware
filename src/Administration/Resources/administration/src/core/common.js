@@ -1,8 +1,8 @@
 const Bottle = require('bottlejs');
 
-const ModuleFactory = require('src/core/factory/module.factory');
-const ComponentFactory = require('src/core/factory/component.factory');
 const utils = require('src/core/service/util.service');
+let ModuleFactory = require('src/core/factory/module.factory');
+let ComponentFactory = require('src/core/factory/component.factory');
 let TemplateFactory = require('src/core/factory/template.factory');
 let ApplicationBootstrapper = require('src/core/application');
 
@@ -13,6 +13,8 @@ ApplicationBootstrapper = ApplicationBootstrapper.default;
 
 const application = new ApplicationBootstrapper(container);
 TemplateFactory = TemplateFactory.default;
+ComponentFactory = ComponentFactory.default;
+ModuleFactory = ModuleFactory.default;
 
 const exposedInterface = {
     Module: {

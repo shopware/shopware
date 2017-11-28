@@ -80,7 +80,7 @@ function registerModule(module, type = 'plugin') {
 
         // Rewrite name and path
         route.name = `${moduleId}.${routeKey}`;
-        route.path = `/${type}/${splitModuleId.join('/')}/${route.path}`;
+        route.path = `/${splitModuleId.join('/')}/${route.path}`;
         route.type = type;
 
         const componentList = {};

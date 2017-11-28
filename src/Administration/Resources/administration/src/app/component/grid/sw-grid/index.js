@@ -1,7 +1,7 @@
 import './sw-grid.less';
 import template from './sw-grid.html.twig';
 
-export default Shopware.Component.register('sw-grid', {
+Shopware.Component.register('sw-grid', {
 
     data() {
         return {

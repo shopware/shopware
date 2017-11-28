@@ -52,7 +52,7 @@ export default function createRouter(Router, View) {
             // The first part should be the module (e.g. core or plugin)
             // The second part is the module indicator (index, list, detail etc.)
             let moduleNamespace = to.name.split('.');
-            moduleNamespace = `${moduleNamespace[0]}.${moduleNamespace[1]}`;
+            moduleNamespace = `${moduleNamespace[0]}-${moduleNamespace[1]}`;
 
             // If the module namespace isn't registered, we let the router follow the route
             if (!moduleRegistry.has(moduleNamespace)) {

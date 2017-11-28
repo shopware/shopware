@@ -1,4 +1,4 @@
-/** Initializers */
+/** Initializer */
 import initContext from 'src/app/init/context.init';
 import initHttpClient from 'src/app/init/http.init';
 import initCoreModules from 'src/app/init/modules.init';

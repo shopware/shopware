@@ -22,13 +22,13 @@ function getModuleRegistry() {
  * Registers a module in the application. The module will be mounted using
  * the defined routes of the module using the router.
  *
+ * @param moduleId - The machine readable name which is used as an identifier for the module
  * @param {Object} module - Module definition - see manifest.js file
- * @param {String} [type=plugin] - Type of the module
  * @returns {Boolean|Object} moduleDefinition - registered module definition
  */
-function registerModule(module, type = 'plugin') {
+function registerModule(moduleId, module) {
     const moduleRoutes = new Map();
-    const moduleId = module.id;
+    const type = module.type || 'plugin';
 
     // A module should always have an unique identifier cause overloading modules can cause unexpected side effects
     if (!moduleId) {
@@ -50,12 +50,12 @@ function registerModule(module, type = 'plugin') {
         return false;
     }
 
-    const splitModuleId = moduleId.split('.');
+    const splitModuleId = moduleId.split('-');
 
     if (splitModuleId.length < 2) {
         utils.warn(
             'ModuleFactory',
-            'Module identifier does not match the necessary format "[section].[name]":',
+            'Module identifier does not match the necessary format "[namespace].[name]":',
             moduleId,
             'Abort registration.'
         );
@@ -79,7 +79,7 @@ function registerModule(module, type = 'plugin') {
         const route = module.routes[routeKey];
 
         // Rewrite name and path
-        route.name = `${moduleId}.${routeKey}`;
+        route.name = `${splitModuleId.join('.')}.${routeKey}`;
         route.path = `/${splitModuleId.join('/')}/${route.path}`;
         route.type = type;
 
@@ -89,31 +89,31 @@ function registerModule(module, type = 'plugin') {
                 const component = route.components[componentKey];
 
                 // Don't register a component without a name
-                if (Object.prototype.hasOwnProperty(component, 'name')
-                || !component.name
-                || !component.name.length) {
+                if (!component.length || component.length <= 0) {
                     utils.warn(
                         'ModuleFactory',
-                        `Component ${component} has no "name" property. The component will not be registered.`
+                        `The route definition of module "${moduleId}" is not valid. 
+                        A route needs an assigned component name.`
                     );
-
                     return;
                 }
 
-                componentList[componentKey] = component.name;
+                componentList[componentKey] = component;
             });
 
             route.components = componentList;
         } else {
-            if (!route.component || !route.component.name) {
+            if (!route.component || !route.component.length) {
                 utils.warn(
                     'ModuleFactory',
-                    `The route definition of module "${moduleId}" is not valid. A route needs an assigned component.`
+                    `The route definition of module "${moduleId}" is not valid. 
+                    A route needs an assigned component name.`
                 );
                 return;
             }
+
             route.components = {
-                default: route.component.name
+                default: route.component
             };
 
             // Remove the component cause we remapped it to the components object of the route object

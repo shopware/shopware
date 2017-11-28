@@ -1,5 +1,5 @@
-import 'src/app/component/atom/grid/sw-pagination/sw-pagination.less';
-import template from 'src/app/component/atom/grid/sw-pagination/sw-pagination.html.twig';
+import './sw-pagination.less';
+import template from './sw-pagination.html.twig';
 
 export default Shopware.Component.register('sw-pagination', {
 

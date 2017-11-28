@@ -75,13 +75,6 @@ module.exports = {
                 }
             },
             {
-                test: require.resolve('../src/app/main.js'),
-                use: [{
-                    loader: 'expose-loader',
-                    options: 'ShopwareApplication'
-                }]
-            },
-            {
                 test: require.resolve('../src/core/common.js'),
                 use: [{
                     loader: 'expose-loader',

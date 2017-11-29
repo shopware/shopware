@@ -27,12 +27,26 @@ namespace Shopware\CartBridge\View;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Struct\StructCollection;
 
 interface ViewLineItemTransformerInterface
 {
+    public function prepare(
+        StructCollection $fetchDefinitions,
+        CalculatedCart $calculatedCart,
+        ShopContext $context
+    ): void;
+
+    public function fetch(
+        StructCollection $dataCollection,
+        StructCollection $fetchDefinitions,
+        ShopContext $context
+    ): void;
+
     public function transform(
         CalculatedCart $calculatedCart,
         ViewCart $templateCart,
-        ShopContext $context
+        ShopContext $context,
+        StructCollection $dataCollection
     ): void;
 }

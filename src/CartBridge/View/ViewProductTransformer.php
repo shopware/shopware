@@ -31,14 +31,19 @@ use Shopware\Api\Search\Query\TermsQuery;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\CartBridge\Product\Struct\CalculatedProduct;
+use Shopware\CartBridge\Product\Struct\ProductFetchDefinition;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Product\Repository\ProductMediaRepository;
+use Shopware\Framework\Struct\StructCollection;
 use Shopware\Product\Repository\ProductRepository;
+use Shopware\Product\Struct\ProductBasicCollection;
 use Shopware\Product\Struct\ProductMediaBasicStruct;
 use Shopware\Product\Struct\ProductMediaSearchResult;
+use Shopware\Product\Repository\ProductMediaRepository;
 
 class ViewProductTransformer implements ViewLineItemTransformerInterface
 {
+    const COLLECTION_KEY = 'products';
+
     /**
      * @var ProductRepository
      */
@@ -57,12 +62,9 @@ class ViewProductTransformer implements ViewLineItemTransformerInterface
         $this->productMediaRepository = $productMediaRepository;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function transform(
+    public function prepare(
+        StructCollection $fetchDefinitions,
         CalculatedCart $calculatedCart,
-        ViewCart $templateCart,
         ShopContext $context
     ): void {
         $collection = $calculatedCart->getCalculatedLineItems()->filterInstance(CalculatedProduct::class);
@@ -71,10 +73,51 @@ class ViewProductTransformer implements ViewLineItemTransformerInterface
             return;
         }
 
+        $fetchDefinitions->add(new ProductFetchDefinition($collection->getIdentifiers()));
+    }
+
+    public function fetch(
+        StructCollection $dataCollection,
+        StructCollection $fetchDefinitons,
+        ShopContext $context
+    ): void {
+        $definitions = $fetchDefinitons->filterInstance(ProductFetchDefinition::class);
+        if ($definitions->count() === 0) {
+            return;
+        }
+
+        $numbers = [];
+        /** @var ProductFetchDefinition[] $definitions */
+        foreach ($definitions as $definition) {
+            $numbers = array_merge($numbers, $definition->getNumbers());
+        }
+
+        $numbers = array_keys(array_flip($numbers));
+
         $products = $this->productRepository->readBasic(
-            $collection->getIdentifiers(),
+            $numbers,
             $context->getTranslationContext()
         );
+
+        $dataCollection->add($products, self::COLLECTION_KEY);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function transform(
+        CalculatedCart $calculatedCart,
+        ViewCart $templateCart,
+        ShopContext $context,
+        StructCollection $dataCollection
+    ): void {
+        $collection = $calculatedCart->getCalculatedLineItems()->filterInstance(CalculatedProduct::class);
+        /** @var ProductBasicCollection $products */
+        $products = $dataCollection->get(self::COLLECTION_KEY);
+
+        if ($collection->count() === 0 || !$products || $products->count() === 0) {
+            return;
+        }
 
         $covers = $this->fetchCovers($products->getUuids(), $context);
 
@@ -82,6 +125,10 @@ class ViewProductTransformer implements ViewLineItemTransformerInterface
         /** @var CalculatedProduct $calculated */
         foreach ($collection as $calculated) {
             $product = $products->get($calculated->getIdentifier());
+
+            if (!$product) {
+                continue;
+            }
 
             /** @var ProductMediaBasicStruct $cover */
             $cover = $covers->filterByProductUuid($product->getUuid())->first();

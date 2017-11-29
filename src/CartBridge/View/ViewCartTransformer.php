@@ -27,6 +27,7 @@ namespace Shopware\CartBridge\View;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Struct\StructCollection;
 
 class ViewCartTransformer
 {
@@ -44,8 +45,10 @@ class ViewCartTransformer
     {
         $viewCart = new ViewCart($calculatedCart);
 
+        $dataCollection = $this->prepare($calculatedCart, $context);
+
         foreach ($this->transformers as $transformer) {
-            $transformer->transform($calculatedCart, $viewCart, $context);
+            $transformer->transform($calculatedCart, $viewCart, $context, $dataCollection);
         }
 
         $viewCart->getViewLineItems()->sortByIdentifiers(
@@ -71,5 +74,20 @@ class ViewCartTransformer
         }
 
         return $viewCart;
+    }
+
+    private function prepare(CalculatedCart $calculatedCart, ShopContext $context): StructCollection
+    {
+        $fetchDefinitions = new StructCollection();
+        foreach ($this->transformers as $transformer) {
+            $transformer->prepare($fetchDefinitions, $calculatedCart, $context);
+        }
+
+        $dataCollection = new StructCollection();
+        foreach ($this->transformers as $transformer) {
+            $transformer->fetch($dataCollection, $fetchDefinitions, $context);
+        }
+
+        return $dataCollection;
     }
 }

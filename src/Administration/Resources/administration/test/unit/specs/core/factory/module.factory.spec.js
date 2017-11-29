@@ -11,32 +11,51 @@ beforeEach(() => {
 
 describe('core/factory/module.factory.js', () => {
     it('should not register a module when no unique identifier is specified', () => {
-        const module = register({
-            name: 'foobar'
-        });
+        const module = register('', {});
 
         expect(module).is.equal(false);
     });
 
+    it('should not register a module with same name twice', () => {
+        const moduleDefinition = {
+            routes: {
+                index: {
+                    component: 'sw-foo-bar',
+                    path: 'index'
+                }
+            }
+        };
+
+        const moduleOne = register('sw-foo', moduleDefinition);
+        const moduleTwo = register('sw-foo', moduleDefinition);
+
+        expect(moduleOne).to.be.an('object');
+        expect(moduleTwo).is.equal(false);
+    });
+
     it('should not register a module when the unique identifier does not have a namespace', () => {
-        const module = register({
-            id: 'foobar'
+        const module = register('foo', {
+            routes: {
+                index: {
+                    component: 'sw-foo-bar',
+                    path: 'index'
+                }
+            }
         });
 
         expect(module).is.equal(false);
     });
 
     it('should not register a module without a route definition', () => {
-        const module = register({
-            id: 'foo.bar'
+        const module = register('sw-foo', {
+            name: 'Test'
         });
 
         expect(module).is.equal(false);
     });
 
     it('should not register a module without a component in the route definition', () => {
-        const module = register({
-            id: 'foo.bar',
+        const module = register('sw-foo', {
             routes: {
                 index: {
                     path: 'index'
@@ -47,32 +66,12 @@ describe('core/factory/module.factory.js', () => {
         expect(module).is.equal(false);
     });
 
-    it('should not be possible to register a module with a component with does not have a name', () => {
-        const module = register({
-            id: 'foo.bar',
-            routes: {
-                index: {
-                    path: 'index',
-                    component: {
-                        template: '<div class="test"></div>'
-                    }
-                }
-            }
-        });
-
-        expect(module).is.equal(false);
-    });
-
     it('should be possible to register a module with a valid route definition', () => {
-        const module = register({
-            id: 'foo.bar',
+        const module = register('sw-foo', {
             routes: {
                 index: {
                     path: 'index',
-                    component: {
-                        name: 'foo-bar-index',
-                        template: '<div class="test"></div>'
-                    }
+                    component: 'sw-foo-bar-index'
                 }
             }
         });
@@ -81,62 +80,53 @@ describe('core/factory/module.factory.js', () => {
         expect(module.routes).to.be.a('map');
         expect(module.manifest).to.be.an('object');
         expect(module.type).to.be.a('string');
-        expect(module.type).is.equals('plugin');
-        expect(module.navigation).is.equals(undefined);
+        expect(module.type).is.equal('plugin');
+        expect(module.navigation).is.equal(undefined);
     });
 
     it('should be possible to register a module with two components', () => {
-        const module = register({
-            id: 'foo.bar',
+        const module = register('sw-foo', {
             routes: {
                 index: {
                     path: 'index',
                     components: {
-                        default: {
-                            name: 'foo-bar-index',
-                            template: '<div class="test"></div>'
-                        },
-                        test: {
-                            template: '<div class="test"></div>'
-                        }
+                        default: 'sw-foo-bar-index',
+                        test: 'sw-foo-test'
                     }
                 }
             }
         });
 
-        const route = module.routes.get('foo.bar.index');
+        const route = module.routes.get('sw.foo.index');
 
-        expect(module.routes.has('foo.bar.index')).is.equals(true);
+        expect(module.routes.has('sw.foo.index')).is.equal(true);
         expect(module).to.be.an('object');
         expect(module.routes).to.be.a('map');
         expect(module.manifest).to.be.an('object');
         expect(module.type).to.be.a('string');
-        expect(module.type).is.equals('plugin');
-        expect(module.navigation).is.equals(undefined);
+        expect(module.type).is.equal('plugin');
+        expect(module.navigation).is.equal(undefined);
 
-        expect(route.components.test).is.equals(undefined);
+        expect(route.components.test).to.be.a('string');
+        expect(route.components.test).is.equal('sw-foo-test');
         expect(route.components.default).to.be.a('string');
-        expect(route.components.default).is.equals('foo-bar-index');
+        expect(route.components.default).is.equal('sw-foo-bar-index');
     });
 
     it('should be possible to register a module with a navigation entry', () => {
-        const module = register({
-            id: 'foo.bar',
+        const module = register('sw-foo', {
             routes: {
                 index: {
                     path: 'index',
-                    component: {
-                        name: 'foo-bar-index',
-                        template: '<div class="test"></div>'
-                    }
+                    component: 'sw-foo-bar-index'
                 }
             },
             navigation: {
                 root: {
-                    'foo.bar.index': {
+                    'sw.foo.index': {
                         icon: 'box',
                         color: '#f00',
-                        name: 'FooBar'
+                        name: 'FooIndex'
                     }
                 }
             }
@@ -144,40 +134,32 @@ describe('core/factory/module.factory.js', () => {
 
         expect(module.navigation).to.be.an('object');
         expect(module.navigation.root).to.be.an('object');
-        expect(module.navigation.root['foo.bar.index']).to.be.an('object');
-        expect(module.navigation.root['foo.bar.index'].name).is.equals('FooBar');
+        expect(module.navigation.root['sw.foo.index']).to.be.an('object');
+        expect(module.navigation.root['sw.foo.index'].name).is.equals('FooIndex');
     });
 
     it('should be possible to get all registered modules', () => {
-        register({
-            id: 'foo.bar',
+        register('sw-foo', {
             routes: {
                 index: {
                     path: 'index',
-                    component: {
-                        name: 'foo-bar-index',
-                        template: '<div class="test"></div>'
-                    }
+                    component: 'sw-foo-bar-index'
                 }
             }
         });
 
         const modules = ModuleFactory.getModuleRegistry();
 
-        expect(modules.size).to.equal(1);
-        expect(modules.has('foo.bar')).to.equal(true);
+        expect(modules.size).is.equal(1);
+        expect(modules.has('sw-foo')).is.equal(true);
     });
 
     it('should be possible to get all registered module routes', () => {
-        register({
-            id: 'foo.bar',
+        register('sw-foo', {
             routes: {
                 index: {
                     path: 'index',
-                    component: {
-                        name: 'foo-bar-index',
-                        template: '<div class="test"></div>'
-                    }
+                    component: 'sw-foo-bar-index'
                 }
             }
         });
@@ -186,8 +168,7 @@ describe('core/factory/module.factory.js', () => {
 
         expect(routes).to.be.an('array');
         expect(routes[0]).to.be.an('object');
-        expect(routes[0].name).equals('foo.bar.index');
-        expect(routes[0].type).equals('plugin');
+        expect(routes[0].name).equals('sw.foo.index');
         expect(routes[0].type).equals('plugin');
     });
 });

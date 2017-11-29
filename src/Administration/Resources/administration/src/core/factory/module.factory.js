@@ -22,7 +22,7 @@ function getModuleRegistry() {
  * Registers a module in the application. The module will be mounted using
  * the defined routes of the module using the router.
  *
- * @param moduleId - The machine readable name which is used as an identifier for the module
+ * @param {String} moduleId - The machine readable name which is used as an identifier for the module
  * @param {Object} module - Module definition - see manifest.js file
  * @returns {Boolean|Object} moduleDefinition - registered module definition
  */
@@ -55,7 +55,7 @@ function registerModule(moduleId, module) {
     if (splitModuleId.length < 2) {
         utils.warn(
             'ModuleFactory',
-            'Module identifier does not match the necessary format "[namespace].[name]":',
+            'Module identifier does not match the necessary format "[namespace]-[name]":',
             moduleId,
             'Abort registration.'
         );

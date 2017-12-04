@@ -25,13 +25,13 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Storefront\Navigation\Navigation;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Response;
 
 abstract class StorefrontController extends Controller
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function renderStorefront($view, array $parameters = [], Response $response = null): Response
     {
@@ -42,18 +42,8 @@ abstract class StorefrontController extends Controller
     }
 
     /**
-     * @return Navigation
-     */
-    private function getNavigation(): Navigation
-    {
-        $context = $this->get('shopware.storefront.context.storefront_context_service')->getShopContext();
-        $navigationId = $this->get('request_stack')->getCurrentRequest()->attributes->get('active_category_uuid');
-
-        return $this->get('shopware.storefront.navigation.navigation_service')->load($navigationId, $context);
-    }
-
-    /**
      * @param string $view
+     *
      * @return string
      */
     protected function resolveView(string $view): string
@@ -66,5 +56,16 @@ abstract class StorefrontController extends Controller
         }
 
         return $this->get('shopware.storefront.twig.template_finder')->find($view, true);
+    }
+
+    /**
+     * @return Navigation
+     */
+    private function getNavigation(): Navigation
+    {
+        $context = $this->get('shopware.storefront.context.storefront_context_service')->getShopContext();
+        $navigationId = $this->get('request_stack')->getCurrentRequest()->attributes->get('active_category_uuid');
+
+        return $this->get('shopware.storefront.navigation.navigation_service')->load($navigationId, $context);
     }
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware;
 
@@ -7,9 +7,9 @@ use Shopware\Framework\Framework;
 use Shopware\Framework\Plugin\Plugin;
 use Shopware\Framework\Plugin\PluginCollection;
 use Shopware\Storefront\Theme\Theme;
+use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
-use Symfony\Component\Config\Loader\LoaderInterface;
 
 class Kernel extends HttpKernel
 {
@@ -29,7 +29,7 @@ class Kernel extends HttpKernel
     private $themes = [];
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function __construct($environment, $debug)
     {
@@ -79,21 +79,20 @@ class Kernel extends HttpKernel
             new \Shopware\Plugin\Plugin(),
             new \Shopware\Product\Product(),
             new \Shopware\ProductVariant\ProductVariant(),
-            new \Shopware\Schema\Schema(),
             new \Shopware\Seo\Seo(),
             new \Shopware\Shipping\Shipping(),
             new \Shopware\Shop\Shop(),
             new \Shopware\Snippet\Snippet(),
             new \Shopware\Tax\Tax(),
             new \Shopware\Unit\Unit(),
-            new \Shopware\User\User()
+            new \Shopware\User\User(),
         ];
 
         // debug
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
-            $bundles[]= new \Symfony\Bundle\DebugBundle\DebugBundle();
-            $bundles[]= new \Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
-            $bundles[]= new \Sensio\Bundle\DistributionBundle\SensioDistributionBundle();
+            $bundles[] = new \Symfony\Bundle\DebugBundle\DebugBundle();
+            $bundles[] = new \Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
+            $bundles[] = new \Sensio\Bundle\DistributionBundle\SensioDistributionBundle();
             $bundles[] = new \Shopware\Traceable\Traceable();
         }
 
@@ -106,7 +105,7 @@ class Kernel extends HttpKernel
 
     public function boot($withPlugins = true)
     {
-        if (true === $this->booted) {
+        if ($this->booted === true) {
             return;
         }
 
@@ -176,8 +175,13 @@ class Kernel extends HttpKernel
         return $this->getProjectDir() . '/custom/plugins';
     }
 
+    public function registerContainerConfiguration(LoaderInterface $loader): void
+    {
+        $loader->load($this->getRootDir() . '/config/config_' . $this->getEnvironment() . '.yml');
+    }
+
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function getKernelParameters(): array
     {
@@ -202,12 +206,6 @@ class Kernel extends HttpKernel
         );
     }
 
-
-    public function registerContainerConfiguration(LoaderInterface $loader): void
-    {
-        $loader->load($this->getRootDir() . '/config/config_' . $this->getEnvironment() . '.yml');
-    }
-
     protected function getContainerClass()
     {
         $pluginHash = sha1(implode('', array_keys(self::getPlugins()->getActivePlugins())));
@@ -224,14 +222,6 @@ class Kernel extends HttpKernel
         return $this->themes = [
             new \Shopware\Storefront\Storefront(),
         ];
-    }
-
-    private function initializePluginSystem(): void
-    {
-        self::$connection = DatabaseConnector::createPdoConnection();
-
-        $this->initializePlugins();
-        $this->initializeThemes();
     }
 
     protected function initializePlugins(): void
@@ -273,5 +263,13 @@ class Kernel extends HttpKernel
 
             self::$plugins->add($plugin);
         }
+    }
+
+    private function initializePluginSystem(): void
+    {
+        self::$connection = DatabaseConnector::createPdoConnection();
+
+        $this->initializePlugins();
+        $this->initializeThemes();
     }
 }

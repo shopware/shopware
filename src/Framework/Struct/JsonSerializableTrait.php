@@ -62,7 +62,7 @@ trait JsonSerializableTrait
             return $data->jsonSerializeApi();
         }
 
-        if ($data instanceof \IteratorAggregate) {
+        if ($data instanceof \Iterator) {
             $items = [];
             foreach ($data as $item) {
                 $items[] = $this->serializeJsonApi($item);

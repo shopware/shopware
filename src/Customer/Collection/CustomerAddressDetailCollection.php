@@ -20,28 +20,6 @@ class CustomerAddressDetailCollection extends CustomerAddressBasicCollection
         );
     }
 
-    public function getCustomerUuids(): array
-    {
-        $uuids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getCustomers()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
-            }
-        }
-
-        return $uuids;
-    }
-
-    public function getCustomers(): CustomerBasicCollection
-    {
-        $collection = new CustomerBasicCollection();
-        foreach ($this->elements as $element) {
-            $collection->fill($element->getCustomers()->getElements());
-        }
-
-        return $collection;
-    }
-
     protected function getExpectedClass(): string
     {
         return CustomerAddressDetailStruct::class;

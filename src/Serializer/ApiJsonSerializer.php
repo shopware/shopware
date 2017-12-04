@@ -37,7 +37,6 @@ class ApiJsonSerializer implements SerializerInterface
 
     public function serialize($data)
     {
-        /** @var \Shopware\Product\Searcher\ProductSearchResult $data */
         if ($data instanceof Struct) {
             return $data->jsonSerializeApi();
         }

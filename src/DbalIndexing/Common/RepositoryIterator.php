@@ -23,12 +23,12 @@ class RepositoryIterator
      */
     private $context;
 
-    public function __construct($repository, TranslationContext $context, Criteria $criteria = null)
+    public function __construct(RepositoryInterface $repository, TranslationContext $context, Criteria $criteria = null)
     {
         if ($criteria === null) {
             $criteria = new Criteria();
             $criteria->setOffset(0);
-            $criteria->setLimit(100);
+            $criteria->setLimit(50);
         }
 
         $this->criteria = $criteria;
@@ -48,12 +48,15 @@ class RepositoryIterator
         return $result->getTotal();
     }
 
-    public function fetchUuids(): array
+    public function fetchUuids(): ?array
     {
         $this->criteria->setFetchCount(false);
         $uuids = $this->repository->searchUuids($this->criteria, $this->context);
         $this->criteria->setOffset($this->criteria->getOffset() + $this->criteria->getLimit());
 
-        return $uuids->getUuids();
+        if (!empty($uuids->getUuids())) {
+            return $uuids->getUuids();
+        }
+        return null;
     }
 }

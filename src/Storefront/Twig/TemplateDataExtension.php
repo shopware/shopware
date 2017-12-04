@@ -28,7 +28,6 @@ use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Config\ConfigServiceInterface;
 use Shopware\Storefront\Session\ShopSubscriber;
 use Shopware\Storefront\Theme\ThemeConfigReader;
-use Symfony\Bundle\FrameworkBundle\Controller\ControllerNameParser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\TranslatorInterface;

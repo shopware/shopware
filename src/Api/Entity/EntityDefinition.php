@@ -91,12 +91,12 @@ abstract class EntityDefinition
 
     public static function getDetailStructClass(): string
     {
-        return self::getBasicStructClass();
+        return static::getBasicStructClass();
     }
 
     public static function getDetailCollectionClass(): string
     {
-        return self::getBasicCollectionClass();
+        return static::getBasicCollectionClass();
     }
 
     protected static function filterAssociationReferences(string $type, FieldCollection $fields)

@@ -2,6 +2,8 @@
 
 namespace Shopware\Api\Entity\Field;
 
+use Shopware\Api\Entity\EntityDefinition;
+
 class ManyToManyAssociationField extends SubresourceField implements AssociationInterface
 {
     use AssociationTrait;
@@ -49,11 +51,17 @@ class ManyToManyAssociationField extends SubresourceField implements Association
         $this->structUuidMappingProperty = $structUuidMappingProperty;
     }
 
+    /**
+     * @return string|EntityDefinition
+     */
     public function getReferenceDefinition(): string
     {
         return $this->referenceDefinition;
     }
 
+    /**
+     * @return string|EntityDefinition
+     */
     public function getMappingDefinition(): string
     {
         return $this->mappingDefinition;

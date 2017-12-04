@@ -57,12 +57,6 @@ class CustomerAddressDetailLoadedEvent extends NestedEvent
         if ($this->customerAddresses->getCountryStates()->count() > 0) {
             $events[] = new CountryStateBasicLoadedEvent($this->customerAddresses->getCountryStates(), $this->context);
         }
-        if ($this->customerAddresses->getCustomers()->count() > 0) {
-            $events[] = new CustomerBasicLoadedEvent($this->customerAddresses->getCustomers(), $this->context);
-        }
-        if ($this->customerAddresses->getCustomers()->count() > 0) {
-            $events[] = new CustomerBasicLoadedEvent($this->customerAddresses->getCustomers(), $this->context);
-        }
 
         return new NestedEventCollection($events);
     }

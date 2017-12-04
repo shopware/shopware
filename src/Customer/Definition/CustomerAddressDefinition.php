@@ -7,7 +7,6 @@ use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
@@ -73,8 +72,6 @@ class CustomerAddressDefinition extends EntityDefinition
             new ManyToOneAssociationField('customer', 'customer_uuid', CustomerDefinition::class, false),
             new ManyToOneAssociationField('country', 'country_uuid', CountryDefinition::class, true),
             new ManyToOneAssociationField('countryState', 'country_state_uuid', CountryStateDefinition::class, true),
-            new OneToManyAssociationField('customers', CustomerDefinition::class, 'default_billing_address_uuid', false, 'uuid'),
-            new OneToManyAssociationField('customers', CustomerDefinition::class, 'default_shipping_address_uuid', false, 'uuid'),
         ]);
 
         foreach (self::$extensions as $extension) {

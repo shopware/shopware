@@ -9,11 +9,6 @@ use Shopware\Customer\Event\CustomerGroupDiscount\CustomerGroupDiscountBasicLoad
 use Shopware\Customer\Event\CustomerGroupTranslation\CustomerGroupTranslationBasicLoadedEvent;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Product\Event\ProductListingPrice\ProductListingPriceBasicLoadedEvent;
-use Shopware\Product\Event\ProductPrice\ProductPriceBasicLoadedEvent;
-use Shopware\Shipping\Event\ShippingMethod\ShippingMethodBasicLoadedEvent;
-use Shopware\Shop\Event\Shop\ShopBasicLoadedEvent;
-use Shopware\Tax\Event\TaxAreaRule\TaxAreaRuleBasicLoadedEvent;
 
 class CustomerGroupDetailLoadedEvent extends NestedEvent
 {
@@ -61,21 +56,6 @@ class CustomerGroupDetailLoadedEvent extends NestedEvent
         }
         if ($this->customerGroups->getTranslations()->count() > 0) {
             $events[] = new CustomerGroupTranslationBasicLoadedEvent($this->customerGroups->getTranslations(), $this->context);
-        }
-        if ($this->customerGroups->getProductListingPrices()->count() > 0) {
-            $events[] = new ProductListingPriceBasicLoadedEvent($this->customerGroups->getProductListingPrices(), $this->context);
-        }
-        if ($this->customerGroups->getProductPrices()->count() > 0) {
-            $events[] = new ProductPriceBasicLoadedEvent($this->customerGroups->getProductPrices(), $this->context);
-        }
-        if ($this->customerGroups->getShippingMethods()->count() > 0) {
-            $events[] = new ShippingMethodBasicLoadedEvent($this->customerGroups->getShippingMethods(), $this->context);
-        }
-        if ($this->customerGroups->getShops()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->customerGroups->getShops(), $this->context);
-        }
-        if ($this->customerGroups->getTaxAreaRules()->count() > 0) {
-            $events[] = new TaxAreaRuleBasicLoadedEvent($this->customerGroups->getTaxAreaRules(), $this->context);
         }
 
         return new NestedEventCollection($events);

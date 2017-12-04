@@ -57,7 +57,15 @@ $associations = [
 
 $prevent = [
     'shop' => ['snippet', 'templateConfigFormFieldValue', 'productSeoCategory', 'customer', 'order', 'mailAttachment', 'configFormFieldValue'],
-    'locale' => ['configFormFieldTranslation', 'configFormTranslation']
+    'locale' => ['configFormFieldTranslation', 'configFormTranslation'],
+    'customer_address' => ['customers'],
+    'customer_group' => [
+        'productListingPrices',
+        'productPrices',
+        'shippingMethods',
+        'shops',
+        'taxAreaRules',
+    ]
 ];
 
 $inject = [

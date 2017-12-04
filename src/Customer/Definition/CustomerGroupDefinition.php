@@ -21,11 +21,6 @@ use Shopware\Customer\Event\CustomerGroup\CustomerGroupWrittenEvent;
 use Shopware\Customer\Repository\CustomerGroupRepository;
 use Shopware\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Customer\Struct\CustomerGroupDetailStruct;
-use Shopware\Product\Definition\ProductListingPriceDefinition;
-use Shopware\Product\Definition\ProductPriceDefinition;
-use Shopware\Shipping\Definition\ShippingMethodDefinition;
-use Shopware\Shop\Definition\ShopDefinition;
-use Shopware\Tax\Definition\TaxAreaRuleDefinition;
 
 class CustomerGroupDefinition extends EntityDefinition
 {
@@ -69,11 +64,6 @@ class CustomerGroupDefinition extends EntityDefinition
             new OneToManyAssociationField('customers', CustomerDefinition::class, 'customer_group_uuid', false, 'uuid'),
             new OneToManyAssociationField('discounts', CustomerGroupDiscountDefinition::class, 'customer_group_uuid', false, 'uuid'),
             (new TranslationsAssociationField('translations', CustomerGroupTranslationDefinition::class, 'customer_group_uuid', false, 'uuid'))->setFlags(new Required()),
-            new OneToManyAssociationField('productListingPrices', ProductListingPriceDefinition::class, 'customer_group_uuid', false, 'uuid'),
-            new OneToManyAssociationField('productPrices', ProductPriceDefinition::class, 'customer_group_uuid', false, 'uuid'),
-            new OneToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, 'customer_group_uuid', false, 'uuid'),
-            new OneToManyAssociationField('shops', ShopDefinition::class, 'customer_group_uuid', false, 'uuid'),
-            new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'customer_group_uuid', false, 'uuid'),
         ]);
 
         foreach (self::$extensions as $extension) {

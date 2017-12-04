@@ -73,7 +73,13 @@ class Context
         }
         $prevent = $this->prevent[$association->sourceTable];
 
-        return in_array($association->property, $prevent, true);
+        if (in_array($association->property, $prevent, true)) {
+            return true;
+        }
+        if ($association instanceof OneToManyAssociation || $association instanceof ManyToManyAssociation) {
+            return in_array($association->propertyPlural, $prevent, true);
+        }
+        return false;
     }
 
     public function loadInBasic(Association $association): bool

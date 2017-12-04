@@ -47,7 +47,7 @@ class TemplateFinder
     private $queue = [];
 
     /**
-     * @param Kernel        $kernel
+     * @param Kernel           $kernel
      * @param FilesystemLoader $loader
      */
     public function __construct(Kernel $kernel, FilesystemLoader $loader)

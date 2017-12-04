@@ -24,7 +24,7 @@ class ApiGenerator
     private $outputDirectory;
 
     private $ignoreTables = [
-        'cart', 'sessions', 'session'
+        'cart', 'sessions', 'session', 'schema_version'
     ];
 
     public function __construct($outputDirectory = __DIR__ . '/output')

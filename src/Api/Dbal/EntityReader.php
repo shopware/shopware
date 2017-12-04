@@ -15,6 +15,8 @@ use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Read\EntityReaderInterface;
 use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\EntitySearcherInterface;
+use Shopware\Api\Search\Query\TermQuery;
 use Shopware\Api\Search\Query\TermsQuery;
 use Shopware\Api\Write\FieldAware\StorageAware;
 use Shopware\Api\Write\Flag\Deferred;
@@ -29,11 +31,11 @@ class EntityReader implements EntityReaderInterface
     private $connection;
 
     /**
-     * @var EntitySearcher
+     * @var EntitySearcherInterface
      */
     private $searcher;
 
-    public function __construct(Connection $connection, EntitySearcher $searcher)
+    public function __construct(Connection $connection, EntitySearcherInterface $searcher)
     {
         $this->connection = $connection;
         $this->searcher = $searcher;
@@ -140,11 +142,8 @@ class EntityReader implements EntityReaderInterface
                 $reference = $field->getReferenceClass();
 
                 $basics = $reference::getFields()->getBasicProperties();
-                $hasToMany = $basics->filter(function (Field $field) {
-                    return $field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField;
-                });
 
-                if ($hasToMany->count() > 0) {
+                if ($this->requiresToManyAssociation($basics)) {
                     continue;
                 }
 
@@ -169,7 +168,7 @@ class EntityReader implements EntityReaderInterface
 
             //all other StorageAware fields are stored inside the main entity
             if ($field instanceof StorageAware) {
-                /** @var Field $field */
+                /* @var Field $field */
                 $query->addSelect(
                     EntityDefinitionResolver::escape($root) . '.' . EntityDefinitionResolver::escape(
                         $field->getStorageName()
@@ -223,11 +222,7 @@ class EntityReader implements EntityReaderInterface
         $reference = $association->getReferenceClass();
 
         $fields = $reference::getFields()->getBasicProperties();
-        $hasToMany = $fields->filter(function (Field $field) {
-            return $field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField;
-        });
-
-        if ($hasToMany->count() <= 0) {
+        if (!$this->requiresToManyAssociation($fields)) {
             return;
         }
 
@@ -333,5 +328,32 @@ class EntityReader implements EntityReaderInterface
         }
 
         return $uuids;
+    }
+
+    /**
+     * @param $fields
+     *
+     * @return mixed
+     */
+    private function requiresToManyAssociation(FieldCollection $fields)
+    {
+        foreach ($fields as $field) {
+            if (!$field instanceof AssociationInterface) {
+                continue;
+            }
+
+            if ($field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField) {
+                return true;
+            }
+
+            /** @var ManyToOneAssociationField $field */
+            $reference = $field->getReferenceClass();
+
+            if ($this->requiresToManyAssociation($reference::getFields()->getBasicProperties())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

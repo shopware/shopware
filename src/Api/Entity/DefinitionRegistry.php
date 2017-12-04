@@ -43,6 +43,9 @@ class DefinitionRegistry
         return null;
     }
 
+    /**
+     * @return EntityDefinition[]|string[]
+     */
     public function getElements(): array
     {
         return $this->elements;

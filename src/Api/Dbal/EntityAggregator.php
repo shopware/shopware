@@ -4,6 +4,7 @@ namespace Shopware\Api\Dbal;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Api\Entity\EntityDefinition;
+use Shopware\Api\Read\EntityReaderInterface;
 use Shopware\Api\Search\Aggregation\Aggregation;
 use Shopware\Api\Search\Aggregation\AvgAggregation;
 use Shopware\Api\Search\Aggregation\CardinalityAggregation;
@@ -31,7 +32,7 @@ class EntityAggregator implements EntityAggregatorInterface
      */
     private $reader;
 
-    public function __construct(Connection $connection, EntityReader $reader)
+    public function __construct(Connection $connection, EntityReaderInterface $reader)
     {
         $this->connection = $connection;
         $this->reader = $reader;

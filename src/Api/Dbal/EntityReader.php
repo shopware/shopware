@@ -22,6 +22,7 @@ use Shopware\Api\Write\FieldAware\StorageAware;
 use Shopware\Api\Write\Flag\Deferred;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\Struct;
+use Shopware\Api\Write\Flag\Extension;
 
 class EntityReader implements EntityReaderInterface
 {
@@ -234,11 +235,16 @@ class EntityReader implements EntityReaderInterface
 
         $data = $this->readBasic($association->getReferenceClass(), $uuids, $context);
 
-        /** @var Entity $entity */
-        foreach ($collection as $entity) {
-            $uuid = $entity->get($field->getPropertyName());
+        /** @var Entity $struct */
+        foreach ($collection as $struct) {
+            $uuid = $struct->get($field->getPropertyName());
 
-            $entity->assign([
+            if ($association->is(Extension::class)) {
+                $struct->addExtension($association->getPropertyName(), $data->get($uuid));
+                continue;
+            }
+
+            $struct->assign([
                 $association->getPropertyName() => $data->get($uuid),
             ]);
         }
@@ -257,13 +263,18 @@ class EntityReader implements EntityReaderInterface
 
         $data = $this->readBasic($reference, $associationUuids->getUuids(), $context);
 
-        /** @var Struct|Entity $class */
-        foreach ($collection as $class) {
+        /** @var Struct|Entity $struct */
+        foreach ($collection as $struct) {
             //filter by property allows to avoid building the getter function name
-            $classData = $data->filterByProperty($field->getPropertyName(), $class->getUuid());
+            $structData = $data->filterByProperty($field->getPropertyName(), $struct->getUuid());
 
-            $class->assign([
-                $association->getPropertyName() => $classData,
+            if ($association->is(Extension::class)) {
+                $struct->addExtension($association->getPropertyName(), $structData);
+                continue;
+            }
+
+            $struct->assign([
+                $association->getPropertyName() => $structData,
             ]);
         }
     }
@@ -279,8 +290,15 @@ class EntityReader implements EntityReaderInterface
 
         foreach ($collection as $struct) {
             //use assign function to avoid setter name building
+            $structData = $data->getList($struct->get($uuidProperty));
+
+            if ($association->is(Extension::class)) {
+                $struct->addExtension($association->getPropertyName(), $structData);
+                continue;
+            }
+
             $struct->assign([
-                $association->getPropertyName() => $data->getList($struct->get($uuidProperty)),
+                $association->getPropertyName() => $structData,
             ]);
         }
     }

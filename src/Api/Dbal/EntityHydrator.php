@@ -19,6 +19,7 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Write\Flag\Extension;
 
 class EntityHydrator
 {
@@ -64,12 +65,18 @@ class EntityHydrator
             /** @var EntityDefinition $reference */
             $structClass = $reference::getBasicStructClass();
 
-            $data[$property] = self::hydrate(
+            $hydrated = self::hydrate(
                 new $structClass(),
                 $field->getReferenceClass(),
                 $row,
                 implode('.', [$root, $property])
             );
+
+            /** @var Field $field */
+            if ($field->is(Extension::class)) {
+                $entity->addExtension($property, $hydrated);
+            }
+            $data[$property] = $hydrated;
         }
 
         return $entity->assign($data);

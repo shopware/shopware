@@ -13,6 +13,10 @@
             </call>
         </service>
 
+        <service class="Shopware\Api\Controller\SyncController" public="true" id="shopware.api.controller.sync_controller" >
+            <argument type="service" id="shopware.api.entity_definition_registry"/>
+            <argument type="service" id="service_container"/>
+        </service>
 
         <service class="Shopware\Api\Command\DumpRoutesCommand" id="shopware.api.command.dump_routes_command">
             <tag name="console.command"/>

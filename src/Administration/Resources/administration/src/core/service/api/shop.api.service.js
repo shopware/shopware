@@ -1,8 +1,8 @@
 import ApiService from './api.service';
 
 class ShopApiService extends ApiService {
-    constructor(httpClient, apiEndpoint = 'shop', returnFormat = 'json') {
-        super(httpClient, apiEndpoint, returnFormat);
+    constructor(httpClient, loginService, apiEndpoint = 'shop', returnFormat = 'json') {
+        super(httpClient, loginService, apiEndpoint, returnFormat);
     }
 }
 

@@ -1,56 +1,47 @@
-import utils from 'src/core/service/util.service';
 import template from './sw-login.html.twig';
+import './sw-login.less';
 
 Shopware.Component.register('sw-login', {
-    inject: ['loginService', 'applicationState'],
+    inject: ['loginService'],
 
     data() {
         return {
+            isWorking: false,
             error: '',
-            message: ''
+            message: '',
+            username: '',
+            password: ''
         };
     },
 
-    computed: {
-        state() {
-            return this.applicationState.mapState([
-                'user'
-            ]);
-        }
-    },
-
     methods: {
-        onHideErrorMessage() {
-            this.error = '';
-            this.message = '';
-        },
+        onSubmit() {
+            const loginService = this.loginService;
 
-        onLogin() {
-            const formData = new FormData(this.$refs.form.$el.querySelector('form'));
-            const data = utils.formDataToObject(formData);
-
+            // Reset error message
             this.error = '';
             this.message = '';
 
-            this.loginService
-                .loginByUsername(data.username, data.password)
-                .then((response) => {
-                    response = response.data;
+            this.isWorking = true;
 
-                    if (!response.success) {
-                        this.error = response.error;
-                        this.message = response.message;
-                        return false;
-                    }
+            // Login user and set the token
+            loginService.loginByUsername(this.username, this.password).then((response) => {
+                loginService.setBearerAuthentication(response.data.token, response.data.expiry);
 
-                    this.applicationState.commit('setUser', response.user);
-                    this.applicationState.commit('setToken', response.token);
-
-                    this.$router.push({ path: '/' });
-                    return true;
-                }).catch((err) => {
-                    this.error = err.message;
+                this.isWorking = false;
+                this.$router.push({
+                    name: 'core'
                 });
+            }).catch((err) => {
+                let data = err.response.data.errors;
+                data = data.length > 1 ? data : data[0];
+
+                // Set error message
+                this.error = data.title;
+                this.message = data.detail;
+
+                this.isWorking = false;
+            });
         }
     },
 

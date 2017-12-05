@@ -2,7 +2,7 @@ import './sw-sidebar.less';
 import template from './sw-sidebar.html.twig';
 
 Shopware.Component.register('sw-sidebar', {
-    inject: ['menuService'],
+    inject: ['menuService', 'loginService'],
     template,
 
     computed: {
@@ -14,6 +14,12 @@ Shopware.Component.register('sw-sidebar', {
     methods: {
         getIconName(name) {
             return `icon-${name}`;
+        },
+        onLogoutUser() {
+            this.loginService.clearBearerAuthentication();
+            this.$router.push({
+                name: 'sw.login.index'
+            });
         }
     }
 });

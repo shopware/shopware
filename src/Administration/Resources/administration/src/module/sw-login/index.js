@@ -11,18 +11,9 @@ Shopware.Module.register('sw-login', {
     routes: {
         index: {
             component: 'sw-login',
-            path: 'index',
-            alias: 'signin'
+            path: '/login',
+            alias: '/signin',
+            coreRoute: true
         }
-    },
-
-    navigation: {
-        root: [{
-            'sw.login.index': {
-                icon: 'enter',
-                color: '#F19D12',
-                name: 'Login'
-            }
-        }]
     }
 });

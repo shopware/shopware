@@ -7,6 +7,7 @@ import initRouter from 'src/app/init/router.init';
 
 /** Services */
 import MenuService from 'src/app/service/menu.service';
+import LoginService from 'src/core/service/login.service';
 import apiServices from 'src/core/service/api';
 
 /** Import global styles */
@@ -23,6 +24,10 @@ application
     .addServiceProvider('menuService', () => {
         const factoryContainer = application.getContainer('factory');
         return MenuService(factoryContainer.module);
+    })
+    .addServiceProvider('loginService', () => {
+        const initContainer = application.getContainer('init');
+        return LoginService(initContainer.httpClient);
     });
 
 // Loop through the api services and register them as service providers in the application
@@ -30,9 +35,9 @@ apiServices.forEach((service) => {
     const ServiceFactoryClass = service.provider;
     const name = service.name;
 
-    application.addServiceProvider(name, () => {
-        const initContainer = application.$container.container.init;
-        return new ServiceFactoryClass(initContainer.httpClient);
+    application.addServiceProvider(name, (container) => {
+        const initContainer = application.getContainer('init');
+        return new ServiceFactoryClass(initContainer.httpClient, container.loginService);
     });
 });
 

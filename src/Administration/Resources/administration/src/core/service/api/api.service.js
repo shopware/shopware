@@ -1,8 +1,10 @@
 /* eslint-disable */
 
 class ApiService {
-    constructor(httpClient, apiEndpoint, returnFormat = 'json') {
+    constructor(httpClient, loginService, apiEndpoint, returnFormat = 'json') {
         this.httpClient = httpClient;
+        this.httpClient.defaults.headers.common.Authorization = `Bearer ${loginService.getToken()}`;
+
         this.apiEndpoint = apiEndpoint;
         // this.returnFormat = returnFormat;
         this.returnFormat = '';

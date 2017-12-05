@@ -80,7 +80,11 @@ function registerModule(moduleId, module) {
 
         // Rewrite name and path
         route.name = `${splitModuleId.join('.')}.${routeKey}`;
-        route.path = `/${splitModuleId.join('/')}/${route.path}`;
+
+        // Core routes don't need to be nested
+        if (!route.coreRoute) {
+            route.path = `/${splitModuleId.join('/')}/${route.path}`;
+        }
         route.type = type;
 
         const componentList = {};
@@ -121,8 +125,10 @@ function registerModule(moduleId, module) {
         }
 
         // Alias support
-        if (route.alias && route.alias.length > 0) {
+        if (route.alias && route.alias.length > 0
+            && (!route.coreRoute)) {
             route.alias = `/${splitModuleId.join('/')}/${route.alias}`;
+            console.log(route.alias);
         }
 
         moduleRoutes.set(route.name, route);

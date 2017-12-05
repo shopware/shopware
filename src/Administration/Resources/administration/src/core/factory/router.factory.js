@@ -1,4 +1,4 @@
-export default function createRouter(Router, View, moduleFactory) {
+export default function createRouter(Router, View, moduleFactory, LoginService) {
     let allRoutes = [];
     let moduleRoutes = [];
 
@@ -37,15 +37,25 @@ export default function createRouter(Router, View, moduleFactory) {
      */
     function beforeRouterInterceptor(router) {
         router.beforeEach((to, from, next) => {
-            // Hook prepared for login
-            /* if (to.name === 'login' || to.path === '/login') {
+            const bearerAuthExpiry = LoginService.getExpiry();
+            const loggedIn = LoginService.validateExpiry(bearerAuthExpiry);
+
+            // The login route will be called and the user is not logged in, let him see the login
+            if ((to.name === 'login' || to.path === '/login') && !loggedIn) {
                 return next();
-             }
+            }
 
-             if (!app.state.state.bearerToken) {
-                return next({ path: '/login' });
-             } */
+            // The login route will be called and the user is not logged in, redirect to the dashboard
+            if ((to.name === 'login' || to.path === '/login') && loggedIn) {
+                return next({ name: 'core' });
+            }
 
+            // User tries to access a protected route, therefore redirect him to the login
+            if (!loggedIn) {
+                return next({ name: 'sw.login.index' });
+            }
+
+            // Provide information about the module
             const moduleRegistry = moduleFactory.getModuleRegistry();
 
             // Just get the first part of the name as the namespace
@@ -82,14 +92,29 @@ export default function createRouter(Router, View, moduleFactory) {
      * @returns {Array} core - new core routes definition
      */
     function registerModuleRoutesAsChildren(core, module) {
+        const moduleRootRoutes = [];
+        const moduleNormalRoutes = [];
+
+        // Separate core routes from the normal routes
+        module.forEach((moduleRoute) => {
+            if (moduleRoute.coreRoute === true) {
+                moduleRootRoutes.push(moduleRoute);
+                return;
+            }
+
+            moduleNormalRoutes.push(moduleRoute);
+        });
+
         core.map((route) => {
-            if (route.root === true && route.coreRoute === true) {
-                route.children = module;
+            if (route.root === true) {
+                route.children = moduleNormalRoutes;
             }
 
             return route;
         });
 
+        // Merge the module core routes with the routes from the routes file
+        core = [...core, ...moduleRootRoutes];
         return core;
     }
 

@@ -1,27 +1,21 @@
-<div class="sw-login">
-    <h1>Administration Login</h1>
+<div class="sw-login" style="display: flex; align-items: center; justify-content: center; height:100%;">
+    <sw-card style="width: 400px" title="">
+        <transition name="bounce">
+            <div class="sw-alert" v-if="message.length && error.length">
+                <strong>{{ error }}!</strong> {{ message }}
+            </div>
+        </transition>
+        <form v-on:submit.prevent="onSubmit">
+            <sw-field v-model="username" label="Username" placeholder="Your username..."></sw-field>
+            <sw-field v-model="password" label="Password" type="password" placeholder="Your password..."></sw-field>
 
-    <transition name="bounce">
-        <div class="alert error" v-if="error">
-            <p>
-                <strong>{{error}}!</strong> {{message}}
+            <p class="info">
+                The default username is <strong>"admin"</strong> and the default password <strong>"shopware"</strong>.
             </p>
-            <i class="icon--close" @click="onHideErrorMessage">&times;</i>
-        </div>
-    </transition>
 
-    <div v-if="state.user.username">
-        <strong>Logged in user:</strong> {{state.user.name}}
-    </div>
+            <sw-button :isPrimary="true">Login!</sw-button>
+        </form>
+    </sw-card>
 
-    <sw-form action="post" ref="form">
-        <sw-form-row>
-            <sw-form-field id="username" name="username" label="Username" placeholder="Your username"></sw-form-field>
-        </sw-form-row>
-        <sw-form-row>
-            <sw-form-field id="password" name="password" label="Password" type="password" placeholder="Your password"></sw-form-field>
-        </sw-form-row>
-
-        <button @click="onLogin">Login!</button>
-    </sw-form>
+    <sw-loader v-if="isWorking"></sw-loader>
 </div>

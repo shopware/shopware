@@ -1,8 +1,8 @@
 import ApiService from './api.service';
 
 class OrderLineItemApiService extends ApiService {
-    constructor(httpClient, apiEndpoint = 'order-line-item', returnFormat = 'json') {
-        super(httpClient, apiEndpoint, returnFormat);
+    constructor(httpClient, loginService, apiEndpoint = 'order-line-item', returnFormat = 'json') {
+        super(httpClient, loginService, apiEndpoint, returnFormat);
     }
 
     getList(offset = 0, limit = 25, orderUuid) {

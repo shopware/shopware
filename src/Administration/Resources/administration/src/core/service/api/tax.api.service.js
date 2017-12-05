@@ -1,8 +1,8 @@
 import ApiService from './api.service';
 
 class TaxApiService extends ApiService {
-    constructor(httpClient, apiEndpoint = 'tax', returnFormat = 'json') {
-        super(httpClient, apiEndpoint, returnFormat);
+    constructor(httpClient, loginService, apiEndpoint = 'tax', returnFormat = 'json') {
+        super(httpClient, loginService, apiEndpoint, returnFormat);
     }
 }
 

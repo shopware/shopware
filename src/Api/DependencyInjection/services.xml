@@ -18,10 +18,6 @@
             <argument type="service" id="service_container"/>
         </service>
 
-        <service class="Shopware\Api\Command\DumpRoutesCommand" id="shopware.api.command.dump_routes_command">
-            <tag name="console.command"/>
-        </service>
-
         <service class="Shopware\Api\Routing\RouteCollector" id="shopware.api.route_collector">
             <argument id="shopware.api.entity_definition_registry" type="service"/>
         </service>

@@ -1,4 +1,4 @@
-export default function createRouter(Router, View) {
+export default function createRouter(Router, View, moduleFactory) {
     let allRoutes = [];
     let moduleRoutes = [];
 
@@ -46,7 +46,7 @@ export default function createRouter(Router, View) {
                 return next({ path: '/login' });
              } */
 
-            const moduleRegistry = Shopware.Module.getRegistry();
+            const moduleRegistry = moduleFactory.getModuleRegistry();
 
             // Just get the first part of the name as the namespace
             // The first part should be the module (e.g. core or plugin)

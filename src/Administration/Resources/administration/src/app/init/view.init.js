@@ -10,7 +10,8 @@ import ViewFactory from 'src/core/factory/view.factory';
  * @returns {Bottle}
  */
 export default function initializeView(container) {
-    const adapter = VueAdapter(container.contextService);
+    const factoryContainer = this.getContainer('factory');
+    const adapter = VueAdapter(container.contextService, factoryContainer.component);
     const viewFactory = ViewFactory(adapter);
 
     viewFactory.initComponents();

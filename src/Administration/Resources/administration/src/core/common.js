@@ -16,18 +16,26 @@ TemplateFactory = TemplateFactory.default;
 ComponentFactory = ComponentFactory.default;
 ModuleFactory = ModuleFactory.default;
 
+application
+    .addFactory('component', () => {
+        return ComponentFactory;
+    })
+    .addFactory('template', () => {
+        return TemplateFactory;
+    })
+    .addFactory('module', () => {
+        return ModuleFactory;
+    });
+
 const exposedInterface = {
     Module: {
-        register: ModuleFactory.registerModule,
-        getRegistry: ModuleFactory.getModuleRegistry,
-        getRoutes: ModuleFactory.getModuleRoutes
+        register: ModuleFactory.registerModule
     },
     Component: {
         register: ComponentFactory.register,
         extend: ComponentFactory.extend,
         override: ComponentFactory.override,
         build: ComponentFactory.build,
-        getRegistry: ComponentFactory.getComponentRegistry,
         getTemplate: ComponentFactory.getComponentTemplate
     },
     Template: {
@@ -35,8 +43,6 @@ const exposedInterface = {
         extend: TemplateFactory.extendComponentTemplate,
         override: TemplateFactory.registerTemplateOverride,
         getRenderedTemplate: TemplateFactory.getRenderedTemplate,
-        getRegistry: TemplateFactory.getTemplateRegistry,
-        getOverrideRegistry: TemplateFactory.getTemplateRegistry,
         find: TemplateFactory.findCustomTemplate,
         findOverride: TemplateFactory.findCustomTemplate
     },

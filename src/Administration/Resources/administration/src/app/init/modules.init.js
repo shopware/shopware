@@ -1,9 +1,10 @@
 /* global Shopware */
 import 'module';
 
-const ModuleFactory = Shopware.Module;
-
 export default function initializeCoreModules() {
+    const factoryContainer = this.getContainer('factory');
+    const moduleFactory = factoryContainer.module;
+
     // Return the module routes for the router
-    return ModuleFactory.getRoutes();
+    return moduleFactory.getModuleRoutes();
 }

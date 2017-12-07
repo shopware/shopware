@@ -21,7 +21,8 @@ application
     .addInitializer('view', initView)
     .addInitializer('router', initRouter)
     .addServiceProvider('menuService', () => {
-        return MenuService();
+        const factoryContainer = application.getContainer('factory');
+        return MenuService(factoryContainer.module);
     });
 
 // Loop through the api services and register them as service providers in the application

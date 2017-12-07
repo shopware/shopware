@@ -7,7 +7,7 @@ import VueMoment from 'vue-moment';
 
 const vueComponents = {};
 
-export default function VueAdapter(context) {
+export default function VueAdapter(context, componentFactory) {
     Vue.use(VueRouter);
     Vue.use(VueMoment);
 
@@ -104,7 +104,7 @@ export default function VueAdapter(context) {
      * @returns {*}
      */
     function initComponents() {
-        const componentRegistry = Shopware.Component.getRegistry();
+        const componentRegistry = componentFactory.getComponentRegistry();
 
         componentRegistry.forEach((component) => {
             createComponent(component.name);

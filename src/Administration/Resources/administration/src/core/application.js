@@ -25,6 +25,7 @@ export default class ApplicationBootstrapper {
         // and the providers
         this.$container.service('service', noop);
         this.$container.service('init', noop);
+        this.$container.service('factory', noop);
     }
 
     /**
@@ -40,6 +41,70 @@ export default class ApplicationBootstrapper {
             return this.$container.container[containerName];
         }
         return this.$container.container;
+    }
+
+    /**
+     * Adds a factory to the application. A factory creates objects for the domain.
+     *
+     * The factory will be registered in a nested DI container.
+     *
+     * @example
+     * Shopware.Application.addFactory('module', (container) => {
+     *    return ModuleFactory();
+     * });
+     *
+     * @param {String} name Name of the factory
+     * @param {Function} factory Factory method
+     * @returns {ApplicationBootstrapper}
+     */
+    addFactory(name, factory) {
+        this.$container.factory(`factory.${name}`, factory.bind(this));
+
+        return this;
+    }
+
+    /**
+     * Registers a factory middleware for either every factory in the container or a defined one.
+     *
+     * @example
+     * Shopware.Application.addFactoryMiddleware((container, next) => {
+     *    // Do something with the container
+     *    next();
+     * });
+     *
+     * @example
+     * Shopware.Application.addFactoryMiddleware('module', (service, next) => {
+     *    // Do something with the service
+     *    next();
+     * });
+     *
+     * @param args
+     * @returns {ApplicationBootstrapper}
+     */
+    addFactoryMiddleware(...args) {
+        return this._addMiddleware('factory', args);
+    }
+
+    /**
+     * Registers a decorator for either every factory in the container or a defined one.
+     *
+     * @example
+     * Shopware.Application.addFactoryDecorator((container, next) => {
+     *    // Do something with the container
+     *    next();
+     * });
+     *
+     * @example
+     * Shopware.Application.addFactoryDecorator('module', (service, next) => {
+     *    // Do something with the service
+     *    next();
+     * });
+     *
+     * @param args
+     * @returns {ApplicationBootstrapper}
+     */
+    addFactoryDecorator(...args) {
+        return this._addDecorator('factory', args);
     }
 
     /**

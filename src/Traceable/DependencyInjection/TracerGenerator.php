@@ -86,6 +86,10 @@ public function #name#(#parameters#) #returnType# {
 
 namespace ShopwareTracer;
 
+if (!class_exists(#originalClass#::class)) {
+    return;
+}
+
 class #className# extends #originalClass#
 {
 

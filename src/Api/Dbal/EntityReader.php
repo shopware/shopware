@@ -16,13 +16,12 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Read\EntityReaderInterface;
 use Shopware\Api\Search\Criteria;
 use Shopware\Api\Search\EntitySearcherInterface;
-use Shopware\Api\Search\Query\TermQuery;
 use Shopware\Api\Search\Query\TermsQuery;
 use Shopware\Api\Write\FieldAware\StorageAware;
 use Shopware\Api\Write\Flag\Deferred;
+use Shopware\Api\Write\Flag\Extension;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\Struct;
-use Shopware\Api\Write\Flag\Extension;
 
 class EntityReader implements EntityReaderInterface
 {

@@ -57,6 +57,7 @@ class RepositoryIterator
         if (!empty($uuids->getUuids())) {
             return $uuids->getUuids();
         }
+
         return null;
     }
 }

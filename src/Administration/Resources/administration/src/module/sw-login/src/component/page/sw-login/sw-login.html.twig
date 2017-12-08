@@ -5,7 +5,7 @@
                 <strong>{{ error }}!</strong> {{ message }}
             </div>
         </transition>
-        <form v-on:submit.prevent="onSubmit">
+        <form v-on:submit.prevent="loginUserWithPassword">
             <sw-field v-model="username" label="Username" placeholder="Your username..."></sw-field>
             <sw-field v-model="password" label="Password" type="password" placeholder="Your password..."></sw-field>
 

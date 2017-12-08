@@ -1,4 +1,5 @@
 import './src/component';
+import './src/state';
 
 Shopware.Module.register('sw-product', {
     type: 'core',
@@ -22,7 +23,7 @@ Shopware.Module.register('sw-product', {
             component: 'sw-product-detail',
             path: 'product/create',
             meta: {
-                parentPath: 'index'
+                parentPath: 'sw.product.index'
             }
         },
 

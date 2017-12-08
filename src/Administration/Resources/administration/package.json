@@ -32,7 +32,10 @@
     "uuid": "^3.1.0",
     "vue": "^2.5.11",
     "vue-moment": "^3.1.0",
-    "vue-router": "^3.0.1"
+    "vue-router": "^3.0.1",
+    "vuex": "^3.0.1",
+    "vuex-persistedstate": "^2.4.2",
+    "vuex-router-sync": "^5.0.0"
   },
   "devDependencies": {
     "ajv": "^5.5.2",

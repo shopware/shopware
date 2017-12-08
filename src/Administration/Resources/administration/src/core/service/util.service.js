@@ -14,7 +14,8 @@ export default {
     isRegExp,
     isArray,
     isFunction,
-    isDate
+    isDate,
+    capitalizeString
 };
 
 // Todo: This has an issue when you want to copy into a new object
@@ -210,4 +211,14 @@ function getArrayChangeSet(baseArray, compareArray) {
     });
 
     return diff;
+}
+
+/**
+ * Capitalizes the first character of the provided argument.
+ *
+ * @param {String} str String which should be transformed
+ * @returns {String} Transformed string
+ */
+function capitalizeString(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }

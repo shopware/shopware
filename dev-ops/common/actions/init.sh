@@ -3,8 +3,8 @@
 
 INCLUDE: ./check_requirements.sh
 
-INCLUDE: ./.init_database.sh
-INCLUDE: ./.init_composer.sh
-INCLUDE: ./.init_shopware.sh
+INCLUDE: ./init:database.sh
+INCLUDE: ./init:composer.sh
+INCLUDE: ./init:shopware.sh
 
 INCLUDE: ./cache.sh

@@ -64,32 +64,21 @@ class AdministrationDumpPluginsCommand extends ContainerAwareCommand
 
     protected function searchPluginDirectories()
     {
-        $finder = new Finder();
-        $manifests = [];
+        $plugins = [];
 
         foreach (\AppKernel::getPlugins()->getActivePlugins() as $pluginName => $plugin) {
-            $directory = $plugin->getPath() . '/Resources/views/src';
-            if (!file_exists($directory)) {
+            $indexFile = $plugin->getPath() . '/Resources/views/administration/src/index.js';
+            if (!file_exists($indexFile)) {
                 continue;
             }
 
-            $manifestFiles = $finder->in($directory)->files()->name('manifest.js')->getIterator();
-
-            if (count($manifestFiles) === 0) {
-                return;
-            }
-
             $pluginName = $plugin->getName();
-            $manifests[$pluginName] = [];
-
-            foreach ($manifestFiles as $file) {
-                $manifests[$pluginName][] = 'custom/plugins/' . $plugin->getName() . str_replace($plugin->getPath(), '', $file->getPathname());
-            }
+            $plugins[$pluginName] = $indexFile;
         }
 
         file_put_contents(
             $this->kernel->getCacheDir() . '/../../config_administration_plugins.json',
-            json_encode($manifests)
+            json_encode($plugins)
         );
     }
 }

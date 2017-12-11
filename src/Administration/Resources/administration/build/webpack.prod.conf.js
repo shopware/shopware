@@ -1,15 +1,14 @@
-var path = require('path')
-var utils = require('./utils')
-var webpack = require('webpack')
-var config = require('../config')
-var merge = require('webpack-merge')
-var baseWebpackConfig = require('./webpack.base.conf')
-var CopyWebpackPlugin = require('copy-webpack-plugin')
-var HtmlWebpackPlugin = require('html-webpack-plugin')
-var ExtractTextPlugin = require('extract-text-webpack-plugin')
-var ExtractTextPlugin = require('extract-text-webpack-plugin')
-var OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
-var WebpackCopyAfterBuildPlugin = require('./plugins/copy-after-build')
+var path = require('path');
+var utils = require('./utils');
+var webpack = require('webpack');
+var config = require('../config');
+var merge = require('webpack-merge');
+var baseWebpackConfig = require('./webpack.base.conf');
+var CopyWebpackPlugin = require('copy-webpack-plugin');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin');
+var WebpackCopyAfterBuildPlugin = require('./plugins/copy-after-build');
 var plugins = {};
 
 var env = process.env.NODE_ENV === 'testing'
@@ -18,11 +17,11 @@ var env = process.env.NODE_ENV === 'testing'
 
 // Try to load plugin definition file
 try {
-    plugins = require('../../../../../web/cache/config_administration_plugins.json');
+    plugins = require('../../../../../var/config_administration_plugins.json');
 
     // add hot-reload related code to entry chunks
     Object.keys(plugins).forEach(function (pluginName) {
-        baseWebpackConfig.entry[pluginName] = plugins[pluginName] + '/Resources/views/src/manifest.js';
+        baseWebpackConfig.entry[pluginName] = plugins[pluginName];
     });
 } catch(e) {}
 
@@ -50,6 +49,7 @@ var webpackConfig = merge(baseWebpackConfig, {
       },
       sourceMap: true
     }),
+
     // extract css into its own file
     new ExtractTextPlugin({
       filename: utils.assetsPath('css/[name].css')
@@ -87,10 +87,10 @@ var webpackConfig = merge(baseWebpackConfig, {
       }
     ])
   ]
-})
+});
 
 if (config.build.productionGzip) {
-  var CompressionWebpackPlugin = require('compression-webpack-plugin')
+  var CompressionWebpackPlugin = require('compression-webpack-plugin');
 
   webpackConfig.plugins.push(
     new CompressionWebpackPlugin({
@@ -108,22 +108,22 @@ if (config.build.productionGzip) {
 }
 
 if (Object.keys(plugins).length) {
-    Object.keys(plugins).forEach((plugin) => {
+    Object.keys(plugins).forEach((pluginName) => {
         webpackConfig.plugins.push(
             new webpack.optimize.CommonsChunkPlugin({
-                name: plugin,
-                chunks: [plugin],
+                name: pluginName,
+                chunks: [pluginName],
                 minChunks: Infinity
             })
         );
 
-        const pluginName = plugins[plugin];
+        const pluginPath = path.resolve(plugins[pluginName], '../../../../public/administration');
 
         webpackConfig.plugins.push(
             new WebpackCopyAfterBuildPlugin({
                 files: [{
-                    chunkName: plugin,
-                    to: `${pluginName}/Resources/public/${plugin}.js`
+                    chunkName: pluginName,
+                    to: `${pluginPath}/${pluginName}.js`
                 }],
                 options: {
                     absolutePath: true,
@@ -135,8 +135,8 @@ if (Object.keys(plugins).length) {
 }
 
 if (config.build.bundleAnalyzerReport) {
-  var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+  var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
   webpackConfig.plugins.push(new BundleAnalyzerPlugin())
 }
 
-module.exports = webpackConfig
+module.exports = webpackConfig;

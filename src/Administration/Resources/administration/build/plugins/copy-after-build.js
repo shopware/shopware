@@ -1,4 +1,6 @@
 const fs = require('fs');
+const path = require('path');
+const mkdirp = require('mkdirp');
 
 function WebpackCopyAfterBuild(config) {
     this._files = config.files || {};
@@ -27,29 +29,41 @@ WebpackCopyAfterBuild.prototype.apply = function(compiler) {
             if (!files.has(chunkName)) {
                 return true;
             }
-            const mapping = files.get(chunkName);
-            const path = mapping.replace(chunkName + '.js', '');
 
-            // Check if the output directory is there, if falsy create the directory
-            if (!fs.existsSync(path)) {
-                fs.mkdirSync(path);
+            // The path of the file where it should be placed
+            const filePath = files.get(chunkName);
+            // The base path of the target directory where the file should be placed
+            const targetBasePath = path.resolve(filePath, '../');
+
+            // Create the target directory recursively if it not already exists
+            if (!fs.existsSync(targetBasePath)) {
+                mkdirp.sync(targetBasePath);
             }
 
-            let from = `${outputPath}/${chunk.files[0]}`;
-            const to = mapping;
+            /**
+             * Iterate through all files which are grouped by the chunk
+             * and copy them to the correct target directory,
+             * including JS, CSS and SourceMap files.
+             */
+            chunk.files.forEach((file) => {
+                let from = `${outputPath}/${file}`;
+                const to = `${targetBasePath}/${file}`;
+                const targetPath = path.resolve(to, '../');
 
-            // Support absolute paths
-            if (!opts.hasOwnProperty('absolutePath') || !opts.absolutePath) {
-                from = `${outputPath}/${mapping}`;
-            }
+                // Create the target sub directory for the specific file type recursively
+                if (!fs.existsSync(targetPath)) {
+                    mkdirp.sync(targetPath);
+                }
 
-            fs.createReadStream(from).pipe(fs.createWriteStream(to));
+                // Support absolute paths
+                if (!opts.hasOwnProperty('absolutePath') || !opts.absolutePath) {
+                    from = `${outputPath}/${filePath}`;
+                }
 
-            // Copy source map if the option is set
-            if (opts.hasOwnProperty('sourceMap') && opts.sourceMap === true) {
-                fs.createReadStream(`${from}.map`).pipe(fs.createWriteStream(`${to}.map`));
-            }
+                fs.createReadStream(from).pipe(fs.createWriteStream(to));
+            });
         });
     });
-}
+};
+
 module.exports = WebpackCopyAfterBuild;

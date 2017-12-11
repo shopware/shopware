@@ -1,10 +1,10 @@
-var utils = require('./utils')
-var webpack = require('webpack')
-var config = require('../config')
-var merge = require('webpack-merge')
-var baseWebpackConfig = require('./webpack.base.conf')
-var HtmlWebpackPlugin = require('html-webpack-plugin')
-var FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
+var utils = require('./utils');
+var webpack = require('webpack');
+var config = require('../config');
+var merge = require('webpack-merge');
+var baseWebpackConfig = require('./webpack.base.conf');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
+var FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');
 var plugins = {};
 
 // Temporarily save the app entry point and remove it from the entry definition to sort the object the way we need it.
@@ -23,9 +23,7 @@ try {
 
     // add hot-reload related code to entry chunks
     Object.keys(plugins).forEach(function (pluginName) {
-        plugins[pluginName].forEach((path) => {
-            baseWebpackConfig.entry[path] = '../../../../' + path;
-        });
+        baseWebpackConfig.entry[pluginName] = plugins[pluginName];
     });
 } catch(e) {}
 
@@ -62,4 +60,4 @@ module.exports = merge(baseWebpackConfig, {
     }),
     new FriendlyErrorsPlugin()
   ]
-})
+});

@@ -1,7 +1,7 @@
 import template from './extend.twig';
 import './extend.less';
 
-export default Shopware.Component.extend('sw-test-extend', 'sw-product-list', {
+Shopware.Component.extend('sw-test-extend', 'sw-product-list', {
 
     data() {
         return {
@@ -22,7 +22,7 @@ export default Shopware.Component.extend('sw-test-extend', 'sw-product-list', {
         myMethodTwo() {
             console.log('myMethodTwo Extension');
 
-            this.$super.handlePagination(0, 50);
+            // this.$super.handlePagination(0, 50);
         }
     },
 

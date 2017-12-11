@@ -81,7 +81,7 @@ class UserCreateCommand extends Command
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('user.username', $username));
 
-        $result = $this->userRepository->searchUuids($criteria, new TranslationContext('SWAH-SHOP-UUID-1', true, null));
+        $result = $this->userRepository->searchUuids($criteria, new TranslationContext('SWAG-SHOP-UUID-1', true, null));
 
         return $result->getTotal() > 0;
     }
@@ -91,7 +91,7 @@ class UserCreateCommand extends Command
         $encoder = $this->encoderFactory->getEncoder(User::class);
         $password = $encoder->encodePassword($password, $username);
 
-        $context = new TranslationContext('SWAH-SHOP-UUID-1', true, null);
+        $context = new TranslationContext('SWAG-SHOP-UUID-1', true, null);
 
         $this->userRepository->create([
             [

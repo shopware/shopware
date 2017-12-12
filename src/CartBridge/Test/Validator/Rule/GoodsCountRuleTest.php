@@ -227,9 +227,7 @@ class ItemForGoodsRule extends CalculatedLineItem implements GoodsInterface
             $identifier,
             new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
             1,
-            'test',
-            null,
-            null
+            'test'
         );
     }
 }

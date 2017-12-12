@@ -7,7 +7,7 @@ use Shopware\Api\#bundle#\Definition\#classUc#Definition;
 
 class #classUc#WrittenEvent extends WrittenEvent
 {
-    const NAME = '#table#.written';
+    public const NAME = '#table#.written';
 
     public function getName(): string
     {

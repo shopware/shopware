@@ -46,6 +46,6 @@ class ApiJsonSerializer implements SerializerInterface
 
     public function deserialize(string $data)
     {
-        throw new \Exception('Not supported');
+        throw new \RuntimeException('Not supported');
     }
 }

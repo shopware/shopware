@@ -57,9 +57,9 @@ class PluginManager
      *
      * @throws PluginNotFoundException
      *
-     * @return \Shopware\Framework\Plugin\Struct\Plugin
+     * @return Struct\Plugin
      */
-    public function getPluginByName(string $pluginName): \Shopware\Framework\Plugin\Struct\Plugin
+    public function getPluginByName(string $pluginName): Struct\Plugin
     {
         $builder = $this->connection->createQueryBuilder();
         $plugin = $builder->select('*')
@@ -77,11 +77,11 @@ class PluginManager
     }
 
     /**
-     * @param Plugin|\Shopware\Framework\Plugin\Struct\Plugin $plugin
+     * @param Plugin|Struct\Plugin $plugin
      *
      * @return InstallContext
      */
-    public function installPlugin(\Shopware\Framework\Plugin\Struct\Plugin $plugin): InstallContext
+    public function installPlugin(Struct\Plugin $plugin): InstallContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
 
@@ -121,14 +121,14 @@ class PluginManager
     }
 
     /**
-     * @param \Shopware\Framework\Plugin\Struct\Plugin $plugin
-     * @param bool                                     $removeUserData
+     * @param Struct\Plugin $plugin
+     * @param bool          $removeUserData
      *
      * @throws PluginNotInstalledException
      *
      * @return UninstallContext
      */
-    public function uninstallPlugin(\Shopware\Framework\Plugin\Struct\Plugin $plugin, $removeUserData = true): Context\UninstallContext
+    public function uninstallPlugin(Struct\Plugin $plugin, $removeUserData = true): Context\UninstallContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
 
@@ -160,11 +160,11 @@ class PluginManager
     }
 
     /**
-     * @param \Shopware\Framework\Plugin\Struct\Plugin $plugin
+     * @param Struct\Plugin $plugin
      *
      * @return UpdateContext
      */
-    public function updatePlugin(\Shopware\Framework\Plugin\Struct\Plugin $plugin): Context\UpdateContext
+    public function updatePlugin(Struct\Plugin $plugin): Context\UpdateContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
         $this->requirementValidator->validate($pluginBootstrap->getPath() . '/plugin.xml', Framework::VERSION, $this->getPlugins());
@@ -200,13 +200,13 @@ class PluginManager
     }
 
     /**
-     * @param \Shopware\Framework\Plugin\Struct\Plugin $plugin
+     * @param Struct\Plugin $plugin
      *
      * @throws PluginNotInstalledException
      *
      * @return ActivateContext
      */
-    public function activatePlugin(\Shopware\Framework\Plugin\Struct\Plugin $plugin): Context\ActivateContext
+    public function activatePlugin(Struct\Plugin $plugin): Context\ActivateContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
         $context = new ActivateContext($pluginBootstrap, Framework::VERSION, $plugin->getVersion());
@@ -231,14 +231,14 @@ class PluginManager
     }
 
     /**
-     * @param Plugin|\Shopware\Framework\Plugin\Struct\Plugin $plugin
+     * @param Plugin|Struct\Plugin $plugin
      *
      * @throws PluginNotActivatedException
      * @throws PluginNotInstalledException
      *
      * @return DeactivateContext
      */
-    public function deactivatePlugin(\Shopware\Framework\Plugin\Struct\Plugin $plugin): Context\DeactivateContext
+    public function deactivatePlugin(Struct\Plugin $plugin): Context\DeactivateContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
         $context = new DeactivateContext($pluginBootstrap, Framework::VERSION, $plugin->getVersion());
@@ -320,7 +320,7 @@ class PluginManager
     }
 
     /**
-     * @return \Shopware\Framework\Plugin\Struct\Plugin[]
+     * @return Struct\Plugin[]
      */
     public function getPlugins(): array
     {
@@ -363,11 +363,11 @@ class PluginManager
     /**
      * @param $databasePlugin
      *
-     * @return \Shopware\Framework\Plugin\Struct\Plugin
+     * @return Struct\Plugin
      */
-    private function hydrate($databasePlugin): \Shopware\Framework\Plugin\Struct\Plugin
+    private function hydrate($databasePlugin): Struct\Plugin
     {
-        $plugin = new \Shopware\Framework\Plugin\Struct\Plugin();
+        $plugin = new Struct\Plugin();
 
         $plugin->setUuid($databasePlugin['name']);
         $plugin->setName($databasePlugin['name']);

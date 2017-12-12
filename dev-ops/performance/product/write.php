@@ -15,9 +15,9 @@ $kernel->boot();
  */
 function createWriteContext(): \Shopware\Api\Entity\Write\WriteContext
 {
-    $context = new \Shopware\Api\Entity\Write\WriteContext();
-    $context->set(\Shopware\Shop\Definition\ShopDefinition::class, 'uuid', 'SWAG-SHOP-UUID-1');
-    return $context;
+    return \Shopware\Api\Entity\Write\WriteContext::createFromTranslationContext(
+        new \Shopware\Context\Struct\TranslationContext('SWAG-SHOP-UUID-1', true, null)
+    );
 }
 
 $container = $kernel->getContainer();

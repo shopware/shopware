@@ -152,7 +152,7 @@ class TaxAmountCalculatorTest extends TestCase
                             new CalculatedTax(-0.05, 7, -0.74),
                         ]),
                         new TaxRuleCollection([
-                            new \Shopware\Cart\Tax\Struct\PercentageTaxRule(19, 0.677852348993289),
+                            new PercentageTaxRule(19, 0.677852348993289),
                             new PercentageTaxRule(7, 0.322147651006711),
                         ])
                     ),

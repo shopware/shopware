@@ -84,6 +84,8 @@ class ObjectDeserializer
      * @param string $class
      * @param array  $arguments
      *
+     * @throws \TypeError
+     *
      * @return object
      */
     private function createInstance(string $class, array $arguments)

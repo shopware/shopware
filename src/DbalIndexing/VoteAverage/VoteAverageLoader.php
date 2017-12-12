@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\DbalIndexing\Loader;
+namespace Shopware\DbalIndexing\VoteAverage;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;

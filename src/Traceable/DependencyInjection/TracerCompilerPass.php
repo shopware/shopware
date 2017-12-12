@@ -40,21 +40,6 @@ class TracerCompilerPass implements CompilerPassInterface
         foreach ($services as $id => $tags) {
             $this->replaceService($container, $id);
         }
-
-        $services = $container->getServiceIds();
-        $services = array_filter(
-            $services,
-            function (string $service) {
-                return
-                    $this->isReader($service) ||
-                    $this->isSearcher($service)
-                ;
-            }
-        );
-
-        foreach ($services as $id) {
-            $this->replaceService($container, $id);
-        }
     }
 
     /**
@@ -75,15 +60,5 @@ class TracerCompilerPass implements CompilerPassInterface
 
         $container->setDefinition($serviceId . '.inner', $definition);
         $container->setDefinition($serviceId, $new);
-    }
-
-    private function isReader(string $service): bool
-    {
-        return strpos($service, '.basic_reader') > 0 || strpos($service, '.detail_reader') > 0;
-    }
-
-    private function isSearcher(string $service): bool
-    {
-        return strpos($service, '.searcher') > 0;
     }
 }

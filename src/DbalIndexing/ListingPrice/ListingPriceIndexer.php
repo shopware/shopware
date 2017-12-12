@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\DbalIndexing\Indexer;
+namespace Shopware\DbalIndexing\ListingPrice;
 
 use Doctrine\DBAL\Connection;
 use Monolog\Logger;
@@ -17,7 +17,7 @@ use Shopware\DbalIndexing\Common\RepositoryIterator;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
-use Shopware\DbalIndexing\Loader\ListingPriceLoader;
+use Shopware\DbalIndexing\Indexer\IndexerInterface;
 use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Framework\Event\NestedEventCollection;
 use Shopware\Storefront\Context\StorefrontContextService;
@@ -200,15 +200,6 @@ class ListingPriceIndexer implements IndexerInterface
         return $prices;
     }
 
-    private function getIndexName(?\DateTime $timestamp): string
-    {
-        if ($timestamp === null) {
-            return self::TABLE;
-        }
-
-        return self::TABLE . '_' . $timestamp->format('YmdHis');
-    }
-
     /**
      * @param NestedEventCollection $events
      *
@@ -230,6 +221,15 @@ class ListingPriceIndexer implements IndexerInterface
         }
 
         return $uuids;
+    }
+
+    private function getIndexName(?\DateTime $timestamp): string
+    {
+        if ($timestamp === null) {
+            return self::TABLE;
+        }
+
+        return self::TABLE . '_' . $timestamp->format('YmdHis');
     }
 
     private function renameTable(\DateTime $timestamp): void

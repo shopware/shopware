@@ -3,6 +3,8 @@
 namespace Shopware\Traceable\Cart;
 
 use Shopware\Cart\Cart\CartProcessorInterface;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
@@ -30,8 +32,8 @@ class ProcessorTracer implements CartProcessorInterface
     }
 
     public function process(
-        \Shopware\Cart\Cart\Struct\CartContainer $cartContainer,
-        \Shopware\Cart\Cart\Struct\CalculatedCart $calculatedCart,
+        CartContainer $cartContainer,
+        CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
         ShopContext $context
     ): void {

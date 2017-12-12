@@ -1,32 +1,28 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\DbalIndexing\Indexer;
+namespace Shopware\DbalIndexing\ProductCategory;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Product\Event\Product\ProductWrittenEvent;
+use Shopware\Api\Product\Event\ProductCategory\ProductCategoryWrittenEvent;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\DbalIndexing\Common\RepositoryIterator;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
-use Shopware\DbalIndexing\Loader\VoteAverageLoader;
+use Shopware\DbalIndexing\Indexer\IndexerInterface;
+use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Framework\Event\NestedEventCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class VoteAverageIndexer implements IndexerInterface
+class ProductCategoryIndexer implements IndexerInterface
 {
-    public const TABLE = 'product_vote_average';
+    public const TABLE = 'product_category_tree';
 
     /**
      * @var ProductRepository
      */
     private $productRepository;
-
-    /**
-     * @var VoteAverageLoader
-     */
-    private $loader;
 
     /**
      * @var Connection
@@ -40,12 +36,10 @@ class VoteAverageIndexer implements IndexerInterface
 
     public function __construct(
         ProductRepository $productRepository,
-        VoteAverageLoader $loader,
         Connection $connection,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->productRepository = $productRepository;
-        $this->loader = $loader;
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
     }
@@ -55,18 +49,17 @@ class VoteAverageIndexer implements IndexerInterface
         if ($context->getShopUuid() !== 'SWAG-SHOP-UUID-1') {
             return;
         }
+        $iterator = new RepositoryIterator($this->productRepository, $context);
 
         $this->createTable($timestamp);
 
-        $iterator = new RepositoryIterator($this->productRepository, $context);
-
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
-            new ProgressStartedEvent('Start indexing vote averages', $iterator->getTotal())
+            new ProgressStartedEvent('Start building category product tree', $iterator->getTotal())
         );
 
         while ($uuids = $iterator->fetchUuids()) {
-            $this->indexVoteAverage($uuids, $timestamp);
+            $this->indexCategoryAssignment($uuids, $timestamp);
 
             $this->eventDispatcher->dispatch(
                 ProgressAdvancedEvent::NAME,
@@ -75,9 +68,10 @@ class VoteAverageIndexer implements IndexerInterface
         }
 
         $this->renameTable($timestamp);
+
         $this->eventDispatcher->dispatch(
             ProgressFinishedEvent::NAME,
-            new ProgressFinishedEvent('Finished vote average indexing')
+            new ProgressFinishedEvent('Finished building category product tree')
         );
     }
 
@@ -87,6 +81,57 @@ class VoteAverageIndexer implements IndexerInterface
         if (empty($uuids)) {
             return;
         }
+
+        $this->connection->executeUpdate(
+            'DELETE FROM product_category_tree WHERE product_uuid IN (:uuids)',
+            ['uuids' => $uuids],
+            ['uuids' => Connection::PARAM_STR_ARRAY]
+        );
+        $this->indexCategoryAssignment($uuids, null);
+    }
+
+    private function indexCategoryAssignment(array $uuids, ?\DateTime $timestamp): void
+    {
+        $categories = $this->fetchCategories($uuids);
+
+        $table = $this->getIndexName($timestamp);
+
+        $queue = new MultiInsertQueryQueue($this->connection);
+
+        foreach ($categories as $productUuid => $mapping) {
+            $categoryUuids = array_merge(
+                explode('|', (string) $mapping['paths']),
+                explode('|', (string) $mapping['uuids'])
+            );
+
+            $categoryUuids = array_keys(array_flip(array_filter($categoryUuids)));
+
+            foreach ($categoryUuids as $uuid) {
+                $queue->addInsert($table, [
+                    'product_uuid' => $productUuid,
+                    'category_uuid' => $uuid,
+                ]);
+            }
+        }
+        $queue->execute();
+    }
+
+    private function fetchCategories(array $uuids): array
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->select([
+            'product.uuid as product_uuid',
+            "GROUP_CONCAT(category.path SEPARATOR '|') as paths",
+            "GROUP_CONCAT(category.uuid SEPARATOR '|') as uuids",
+        ]);
+        $query->from('product');
+        $query->leftJoin('product', 'product_category', 'mapping', 'mapping.product_uuid = product.uuid');
+        $query->leftJoin('mapping', 'category', 'category', 'category.uuid = mapping.category_uuid');
+        $query->addGroupBy('product.uuid');
+        $query->andWhere('product.uuid IN (:uuids)');
+        $query->setParameter(':uuids', $uuids, Connection::PARAM_STR_ARRAY);
+
+        return $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
     }
 
     private function getIndexName(?\DateTime $timestamp): string
@@ -108,10 +153,10 @@ class VoteAverageIndexer implements IndexerInterface
         /** @var NestedEventCollection $events */
         $events = $events
             ->getFlatEventList()
-            ->filterInstance(ProductWrittenEvent::NAME);
+            ->filterInstance(ProductCategoryWrittenEvent::class);
 
         $uuids = [];
-        /** @var ProductWrittenEvent $event */
+        /** @var ProductCategoryWrittenEvent $event */
         foreach ($events as $event) {
             foreach ($event->getUuids() as $uuid) {
                 $uuids[] = $uuid;
@@ -137,36 +182,8 @@ class VoteAverageIndexer implements IndexerInterface
             DROP TABLE IF EXISTS ' . $name . ';
             CREATE TABLE ' . $name . ' SELECT * FROM ' . self::TABLE . ' LIMIT 0
         ');
-
-        $this->connection->executeUpdate('ALTER TABLE ' . $name . ' ADD PRIMARY KEY (uuid)');
-        $this->connection->executeUpdate('ALTER TABLE ' . $name . ' ADD CONSTRAINT FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE');
-    }
-
-    private function indexVoteAverage(array $uuids, \DateTime $timestamp)
-    {
-        $votes = $this->loader->load($uuids);
-
-        $table = $this->getIndexName($timestamp);
-
-        $insert = $this->connection->prepare('
-INSERT INTO `' . $table . '` (`uuid`, `product_uuid`, `shop_uuid`, `average`, `total`, `five_point_count`, `four_point_count`, `three_point_count`, `two_point_count`, `one_point_count`)
-VALUES (:uuid, :product_uuid, :shop_uuid, :average, :total, :five_point_count, :four_point_count, :three_point_count, :two_point_count, :one_point_count);
-        ');
-
-        /** @var ProductVoteAverageBasicStruct $vote */
-        foreach ($votes as $vote) {
-            $insert->execute([
-                'uuid' => $vote->getUuid(),
-                'product_uuid' => $vote->getProductUuid(),
-                'shop_uuid' => $vote->getShopUuid(),
-                'average' => $vote->getAverage(),
-                'total' => $vote->getTotal(),
-                'five_point_count' => $vote->getFivePointCount(),
-                'four_point_count' => $vote->getFourPointCount(),
-                'three_point_count' => $vote->getThreePointCount(),
-                'two_point_count' => $vote->getTwoPointCount(),
-                'one_point_count' => $vote->getOnePointCount(),
-            ]);
-        }
+        $this->connection->executeUpdate('ALTER TABLE ' . $name . ' ADD PRIMARY KEY (product_uuid, category_uuid)');
+        $this->connection->executeUpdate('ALTER TABLE ' . $name . ' ADD CONSTRAINT FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE ' . $name . ' ADD CONSTRAINT FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE');
     }
 }

@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\Service;
 
-use Psr\Log\LoggerInterface;
 use Shopware\Cart\Cart\CartCalculator;
 use Shopware\Cart\Cart\CartPersisterInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
@@ -72,11 +71,6 @@ class StoreFrontCartService
     private $viewCartTransformer;
 
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @var OrderPersisterInterface
      */
     private $orderPersister;
@@ -97,7 +91,6 @@ class StoreFrontCartService
         StorefrontContextServiceInterface $contextService,
         SessionInterface $session,
         ViewCartTransformer $viewCartTransformer,
-        LoggerInterface $logger,
         OrderPersisterInterface $orderPersister
     ) {
         $this->calculation = $calculation;
@@ -105,7 +98,6 @@ class StoreFrontCartService
         $this->contextService = $contextService;
         $this->session = $session;
         $this->viewCartTransformer = $viewCartTransformer;
-        $this->logger = $logger;
         $this->orderPersister = $orderPersister;
     }
 

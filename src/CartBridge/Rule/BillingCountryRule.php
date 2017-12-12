@@ -26,10 +26,11 @@ namespace Shopware\CartBridge\Rule;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Rule\Match;
+use Shopware\Cart\Rule\Rule;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 
-class BillingCountryRule extends \Shopware\Cart\Rule\Rule
+class BillingCountryRule extends Rule
 {
     /**
      * @var int[]

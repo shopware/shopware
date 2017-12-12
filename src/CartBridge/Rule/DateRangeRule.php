@@ -68,7 +68,7 @@ class DateRangeRule extends Rule
         $now = new DateTime();
 
         if (!$this->useTime) {
-            $now->setTime(0, 0, 0);
+            $now->setTime(0, 0);
         }
 
         if ($this->fromDate && $this->fromDate >= $now) {

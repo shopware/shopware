@@ -67,7 +67,6 @@
             <argument type="service" id="shopware.storefront.context.storefront_context_service" />
             <argument type="service" id="session" />
             <argument type="service" id="shopware.cart.view.cart_transformer" />
-            <argument type="service" id="logger" />
             <argument type="service" id="shopware.cart.order.persister" />
         </service>
 

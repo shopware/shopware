@@ -311,10 +311,6 @@ class StructureCollector
                 continue;
             }
 
-//            if ($tableDefinition->isTranslationTable()) {
-//                continue;
-//            }
-
             /** @var TableDefinition $referenceDefinition */
             $referenceDefinition = $definitions[$referenceTableName];
             $property = Util::createAssociationPropertyName($referenceDefinition->tableName, $tableDefinition->tableName);

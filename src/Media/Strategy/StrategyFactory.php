@@ -34,7 +34,7 @@ class StrategyFactory implements StrategyFactoryInterface
     private $strategies;
 
     /**
-     * @param StrategyInterface[] $strategies
+     * @param StrategyInterface[]|iterable $strategies
      */
     public function __construct(iterable $strategies)
     {

@@ -10,7 +10,7 @@ use Shopware\Api\#bundle#\Collection\#classUc#BasicCollection;
 
 class #classUc#BasicLoadedEvent extends NestedEvent
 {
-    const NAME = '#table#.basic.loaded';
+    public const NAME = '#table#.basic.loaded';
 
     /**
      * @var TranslationContext

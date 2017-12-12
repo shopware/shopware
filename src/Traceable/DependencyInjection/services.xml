@@ -12,5 +12,22 @@
 
         <service class="Shopware\Traceable\Cart\TracedCartActions" id="shopware.traceable.traced_cart_actions"/>
 
+        <service class="Shopware\Traceable\Dbal\TraceableEntityReader"
+                 id="shopware.traceable.traceable_entity_reader"
+                 decorates="shopware.api.entity_reader">
+
+            <argument id="shopware.traceable.traceable_entity_reader.inner" type="service"/>
+            <argument id="debug.stopwatch" type="service"/>
+        </service>
+
+        <service class="Shopware\Traceable\Dbal\TraceableEntitySearcher"
+                 id="shopware.traceable.traceable_entity_searcher"
+                 decorates="shopware.api.entity_searcher">
+
+            <argument id="shopware.traceable.traceable_entity_searcher.inner" type="service"/>
+            <argument id="debug.stopwatch" type="service"/>
+        </service>
+
+
     </services>
 </container>

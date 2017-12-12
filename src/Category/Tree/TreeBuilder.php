@@ -3,6 +3,7 @@
 namespace Shopware\Category\Tree;
 
 use Shopware\Api\Category\Collection\CategoryBasicCollection;
+use Shopware\Api\Category\Struct\CategoryBasicStruct;
 
 class TreeBuilder
 {
@@ -15,6 +16,7 @@ class TreeBuilder
     public static function buildTree(?string $parentUuid, CategoryBasicCollection $categories): array
     {
         $result = [];
+        /** @var CategoryBasicStruct $category */
         foreach ($categories->getElements() as $category) {
             if ($category->getParentUuid() !== $parentUuid) {
                 continue;

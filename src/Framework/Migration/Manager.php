@@ -180,15 +180,15 @@ class Manager
                 /** @var $migrationClass AbstractMigration */
                 $migrationClass = new $migrationClassName($this->getConnection());
             } catch (\Exception $e) {
-                throw new \Exception('Could not instantiate Object');
+                throw new \RuntimeException('Could not instantiate Object');
             }
 
             if (!($migrationClass instanceof AbstractMigration)) {
-                throw new \Exception("$migrationClassName is not instanceof AbstractMigration");
+                throw new \RuntimeException("$migrationClassName is not instanceof AbstractMigration");
             }
 
             if ($migrationClass->getVersion() != $result['0']) {
-                throw new \Exception(
+                throw new \RuntimeException(
                     sprintf('Version mismatch. Version in filename: %s, Version in Class: %s', $result['1'], $migrationClass->getVersion())
                 );
             }
@@ -238,7 +238,7 @@ class Manager
                 ':msg' => $e->getMessage(),
             ]);
 
-            throw new \Exception(sprintf(
+            throw new \RuntimeException(sprintf(
                 'Could not apply migration (%s). Error: %s ', get_class($migration), $e->getMessage()
             ));
         }

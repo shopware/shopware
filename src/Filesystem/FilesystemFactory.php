@@ -42,7 +42,9 @@ class FilesystemFactory implements FilesystemFactoryInterface
     private $adapterFactories;
 
     /**
-     * @param AdapterFactoryInterface[] $adapterFactories
+     * @param AdapterFactoryInterface[]|iterable $adapterFactories
+     *
+     * @throws DuplicateFilesystemFactoryException
      */
     public function __construct(iterable $adapterFactories)
     {
@@ -83,7 +85,7 @@ class FilesystemFactory implements FilesystemFactoryInterface
     }
 
     /**
-     * @param AdapterFactoryInterface[] $adapterFactories
+     * @param AdapterFactoryInterface[]|iterable $adapterFactories
      *
      * @throws DuplicateFilesystemFactoryException
      */

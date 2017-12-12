@@ -78,10 +78,10 @@ class ViewProductTransformer implements ViewLineItemTransformerInterface
 
     public function fetch(
         StructCollection $dataCollection,
-        StructCollection $fetchDefinitons,
+        StructCollection $fetchDefinitions,
         ShopContext $context
     ): void {
-        $definitions = $fetchDefinitons->filterInstance(ProductFetchDefinition::class);
+        $definitions = $fetchDefinitions->filterInstance(ProductFetchDefinition::class);
         if ($definitions->count() === 0) {
             return;
         }

@@ -8,7 +8,7 @@ use Shopware\Api\#bundle#\Struct\#classUc#SearchResult;
 
 class #classUc#SearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = '#table#.search.result.loaded';
+    public const NAME = '#table#.search.result.loaded';
 
     /**
      * @var #classUc#SearchResult

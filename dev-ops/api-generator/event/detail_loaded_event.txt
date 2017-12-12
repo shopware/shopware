@@ -10,7 +10,7 @@ use Shopware\Api\#bundle#\Collection\#classUc#DetailCollection;
 
 class #classUc#DetailLoadedEvent extends NestedEvent
 {
-    const NAME = '#table#.detail.loaded';
+    public const NAME = '#table#.detail.loaded';
 
     /**
      * @var TranslationContext

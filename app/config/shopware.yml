@@ -73,10 +73,12 @@ security:
             id: shopware.storefront.firewall.customer_provider
 
     encoders:
-        Symfony\Component\Security\Core\User\User: bcrypt
+        Symfony\Component\Security\Core\User\User:
+            algorithm: bcrypt
+            cost: 13
         Shopware\Storefront\Firewall\CustomerUser:
             algorithm: bcrypt
-            cost: 11
+            cost: 13
 
 twig:
     debug:            "%kernel.debug%"

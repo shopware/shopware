@@ -2,7 +2,6 @@
 
 namespace Shopware\Api\Product\Definition;
 
-use Shopware\Api\Category\Definition\CategoryDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
@@ -22,6 +21,8 @@ use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
+use Shopware\Api\Category\Definition\CategoryDefinition;
 use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Product\Collection\ProductDetailCollection;
 use Shopware\Api\Product\Event\Product\ProductWrittenEvent;
@@ -64,7 +65,7 @@ class ProductDefinition extends EntityDefinition
             new FkField('tax_uuid', 'taxUuid', TaxDefinition::class),
             new FkField('product_manufacturer_uuid', 'manufacturerUuid', ProductManufacturerDefinition::class),
             new FkField('unit_uuid', 'unitUuid', UnitDefinition::class),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
+            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required(), new SearchRanking(100)),
             new StringField('container_uuid', 'containerUuid'),
             new BoolField('is_main', 'isMain'),
             new BoolField('active', 'active'),
@@ -95,13 +96,13 @@ class ProductDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new TranslatedField(new StringField('additional_text', 'additionalText')),
-            new TranslatedField(new LongTextField('keywords', 'keywords')),
-            new TranslatedField(new LongTextField('description', 'description')),
-            new TranslatedField(new LongTextWithHtmlField('description_long', 'descriptionLong')),
-            new TranslatedField(new StringField('meta_title', 'metaTitle')),
+            (new TranslatedField(new StringField('meta_title', 'metaTitle')))->setFlags(new SearchRanking(30)),
+            (new TranslatedField(new LongTextField('keywords', 'keywords')))->setFlags(new SearchRanking(30)),
+            (new TranslatedField(new LongTextField('description', 'description')))->setFlags(new SearchRanking(10)),
+            (new TranslatedField(new LongTextWithHtmlField('description_long', 'descriptionLong')))->setFlags(new SearchRanking(10)),
             new TranslatedField(new StringField('pack_unit', 'packUnit')),
             new ManyToOneAssociationField('tax', 'tax_uuid', TaxDefinition::class, true),
-            new ManyToOneAssociationField('manufacturer', 'product_manufacturer_uuid', ProductManufacturerDefinition::class, true),
+            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_uuid', ProductManufacturerDefinition::class, true))->setFlags(new SearchRanking(0.5)),
             new ManyToOneAssociationField('unit', 'unit_uuid', UnitDefinition::class, true),
             new OneToManyAssociationField('listingPrices', ProductListingPriceDefinition::class, 'product_uuid', true, 'uuid'),
             new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_uuid', false, 'uuid'),

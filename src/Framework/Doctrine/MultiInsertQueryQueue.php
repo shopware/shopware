@@ -21,10 +21,16 @@ class MultiInsertQueryQueue
      */
     protected $chunkSize;
 
-    public function __construct(Connection $connection, int $chunkSize = 250)
+    /**
+     * @var bool
+     */
+    protected $ignoreErrors;
+
+    public function __construct(Connection $connection, int $chunkSize = 250, bool $ignoreErrors = false)
     {
         $this->connection = $connection;
         $this->chunkSize = $chunkSize;
+        $this->ignoreErrors = $ignoreErrors;
     }
 
     public function addInsert(string $table, array $data, array $types = []): void
@@ -59,6 +65,11 @@ class MultiInsertQueryQueue
     private function prepare(): array
     {
         $queries = [];
+        $template = 'INSERT INTO %s (%s) VALUES %s;';
+        if ($this->ignoreErrors) {
+            $template = 'INSERT IGNORE INTO %s (%s) VALUES %s;';
+        }
+
         foreach ($this->inserts as $table => $rows) {
             $columns = $this->prepareColumns($rows);
             $data = $this->prepareValues($columns, $rows);
@@ -66,7 +77,7 @@ class MultiInsertQueryQueue
             $chunks = array_chunk($data, $this->chunkSize);
             foreach ($chunks as $chunk) {
                 $queries[] = sprintf(
-                    'INSERT INTO %s (%s) VALUES %s;',
+                    $template,
                     $table,
                     implode(', ', $columns),
                     implode(', ', $chunk)

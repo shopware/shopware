@@ -5,6 +5,17 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+
+        <service class="Shopware\Api\Search\Term\Tokenizer" id="shopware.search.tokenizer"/>
+
+        <service class="Shopware\Api\Search\Term\StopWordFilter" id="shopware.search.filter"/>
+
+        <service class="Shopware\Api\Search\Term\SearchTermInterpreter" id="shopware.api.search_term_interpreter">
+            <argument id="shopware.search.tokenizer" type="service"/>
+        </service>
+
+        <service class="Shopware\Api\Search\Term\EntityScoreQueryBuilder" id="shopware.api.search.entity_score_query_builder"/>
+
         <service class="Shopware\Api\Entity\ExtensionRegistry" id="shopware.api.entity.extension_registry" public="true">
             <argument type="tagged" tag="shopware.entity.extension" />
         </service>

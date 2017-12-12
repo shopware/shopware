@@ -15,7 +15,7 @@ class ExtensionRegistry
     }
 
     /**
-     * @return EntityExtensionInterface[]
+     * @return EntityExtensionInterface[]|iterable
      */
     public function getExtensions(): iterable
     {

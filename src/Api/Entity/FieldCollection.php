@@ -73,4 +73,11 @@ class FieldCollection extends Collection
 
         return $this->get($this->mapping[$storageName]);
     }
+
+    public function filterByFlag(string $flagClass): FieldCollection
+    {
+        return $this->filter(function (Field $field) use ($flagClass) {
+            return $field->is($flagClass);
+        });
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Entity\Search;
 
+use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Context\Struct\TranslationContext;
 
@@ -26,6 +27,11 @@ trait SearchResultTrait
      * @var TranslationContext
      */
     protected $context;
+
+    /**
+     * @var array
+     */
+    protected $searchData;
 
     public function getAggregations(): ?AggregationResult
     {
@@ -73,13 +79,41 @@ trait SearchResultTrait
         ?AggregationResult $aggregations
     ) {
         $self = new static($entities->getElements());
+
+        $scoring = $uuids->getData();
+
+        /** @var Entity $element */
+        foreach ($entities->getElements() as $element) {
+            if (!array_key_exists($element->getUuid(), $scoring)) {
+                continue;
+            }
+            $score = $scoring[$element->getUuid()];
+            if (!array_key_exists('_score', $score)) {
+                continue;
+            }
+
+            $element->setSearchScore((float) $score['_score']);
+        }
+
         $self->setTotal($uuids->getTotal());
         $self->setCriteria($uuids->getCriteria());
         $self->setContext($uuids->getContext());
+        $self->setSearchData($uuids->getData());
+
         if ($aggregations) {
             $self->setAggregations($aggregations->getAggregations());
         }
 
         return $self;
+    }
+
+    public function getSearchData(): array
+    {
+        return $this->searchData;
+    }
+
+    public function setSearchData(array $searchData): void
+    {
+        $this->searchData = $searchData;
     }
 }

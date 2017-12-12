@@ -8,6 +8,23 @@ CREATE TABLE `product_listing_price` (
   PRIMARY KEY (`uuid`)
 );
 
+CREATE TABLE `search_keyword` (
+  `keyword` varchar(500) NOT NULL,
+  `shop_uuid` varchar(42) NOT NULL,
+  `document_count` int NOT NULL
+);
+
+CREATE TABLE `audit_log` (
+  `uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `action` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `entity` varchar(1000) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `foreign_key` varchar(42) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `payload` longtext COLLATE utf8mb4_unicode_ci,
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`uuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 ALTER TABLE `product_listing_price`
   ADD FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD FOREIGN KEY (`customer_group_uuid`) REFERENCES `customer_group` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE

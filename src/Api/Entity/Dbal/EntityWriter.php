@@ -68,7 +68,7 @@ class EntityWriter implements EntityWriterInterface
         return $writeIdentifiers;
     }
 
-    public function insert(string $definition, array $rawData, WriteContext $writeContext)
+    public function insert(string $definition, array $rawData, WriteContext $writeContext): array
     {
         $this->validateWriteInput($rawData);
 
@@ -82,7 +82,7 @@ class EntityWriter implements EntityWriterInterface
         return $writeIdentifiers;
     }
 
-    public function update(string $definition, array $rawData, WriteContext $writeContext)
+    public function update(string $definition, array $rawData, WriteContext $writeContext): array
     {
         $this->validateWriteInput($rawData);
 

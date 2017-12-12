@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\Administration\Command\AdministrationDumpPluginsCommand" id="shopware.administration.command.dump_plugins">
+            <argument type="service" id="kernel" />
+            <tag name="console.command"/>
+        </service>
+
+        <service class="Shopware\Administration\Search\AuditLogSearch" id="shopware.administration.search.audit_log_search">
+            <argument id="service_container" type="service"/>
+            <argument id="shopware.api.search_term_interpreter" type="service"/>
+            <argument id="shopware.api.search.entity_score_query_builder" type="service"/>
+            <argument id="dbal_connection" type="service"/>
+        </service>
+
+        <service class="Shopware\Administration\Controller\AdministrationController" id="shopware.administration.controller">
+            <argument id="shopware.administration.search.audit_log_search" type="service"/>
+            <argument id="shopware.storefront.twig.template_finder" type="service"/>
+        </service>
+    </services>
+</container>

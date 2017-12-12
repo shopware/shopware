@@ -42,9 +42,19 @@ class WriteContext
      */
     private $primaryKeys = [];
 
+    /**
+     * @var TranslationContext
+     */
+    private $translationContext;
+
+    private function __construct(TranslationContext $translationContext)
+    {
+        $this->translationContext = $translationContext;
+    }
+
     public static function createFromTranslationContext(TranslationContext $context): WriteContext
     {
-        $self = new self();
+        $self = new self($context);
         $self->set(ShopDefinition::class, 'uuid', $context->getShopUuid());
 
         return $self;
@@ -153,6 +163,11 @@ class WriteContext
 
         return array_key_exists($table, $this->primaryKeys)
             && in_array($unique, $this->primaryKeys[$table]);
+    }
+
+    public function getTranslationContext(): TranslationContext
+    {
+        return $this->translationContext;
     }
 
     /**

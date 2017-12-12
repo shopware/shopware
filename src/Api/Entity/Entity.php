@@ -11,6 +11,11 @@ class Entity extends Struct
      */
     protected $uuid;
 
+    /**
+     * @var float
+     */
+    protected $searchScore = 0;
+
     public function getUuid(): string
     {
         return $this->uuid;
@@ -30,5 +35,15 @@ class Entity extends Struct
                 sprintf('Property %s do not exist in class %s', $property, get_class($this))
             );
         }
+    }
+
+    public function getSearchScore(): float
+    {
+        return $this->searchScore;
+    }
+
+    public function setSearchScore(float $searchScore): void
+    {
+        $this->searchScore = $searchScore;
     }
 }

@@ -3,13 +3,13 @@
 namespace Shopware\Storefront\Page\Search;
 
 use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Framework\Struct\Struct;
+use Shopware\Api\Product\Struct\ProductSearchResult;
 
 class SearchPageStruct extends Struct
 {
     /**
-     * @var ProductBasicCollection
+     * @var ProductSearchResult
      */
     protected $products;
 
@@ -28,12 +28,12 @@ class SearchPageStruct extends Struct
      */
     protected $productBoxLayout;
 
-    public function getProducts(): ProductBasicCollection
+    public function getProducts(): ProductSearchResult
     {
         return $this->products;
     }
 
-    public function setProducts(ProductBasicCollection $products): void
+    public function setProducts(ProductSearchResult $products): void
     {
         $this->products = $products;
     }

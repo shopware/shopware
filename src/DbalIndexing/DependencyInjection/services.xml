@@ -5,18 +5,31 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+
+        <service class="Shopware\DbalIndexing\Search\SearchIndexer" id="shopware.dbal_indexing.search.search_indexer">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="Shopware\Product\Repository\ProductRepository" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="shopware.dbal_indexing.search.search_analyzer_registry" type="service"/>
+            <tag name="shopware.dbal_indexing.indexer"/>
+        </service>
+
+        <service class="Shopware\DbalIndexing\Search\SearchAnalyzerRegistry" id="shopware.dbal_indexing.search.search_analyzer_registry">
+            <argument type="tagged" tag="shopware.search_analyzer"/>
+        </service>
+
         <service class="Shopware\DbalIndexing\Indexer\ShopIndexer" id="shopware.dbal_indexing.indexer.shop_indexer">
             <argument type="tagged" tag="shopware.dbal_indexing.indexer"/>
         </service>
 
-        <service class="Shopware\DbalIndexing\Indexer\ProductCategoryIndexer" id="shopware.dbal_indexing.product_category_indexer">
+        <service class="Shopware\DbalIndexing\ProductCategory\ProductCategoryIndexer" id="shopware.dbal_indexing.product_category_indexer">
             <argument id="Shopware\Api\Product\Repository\ProductRepository" type="service"/>
             <argument id="dbal_connection" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <tag name="shopware.dbal_indexing.indexer"/>
         </service>
 
-        <service class="Shopware\DbalIndexing\Indexer\ListingPriceIndexer" id="shopware.dbal_indexing.listing_price_indexer">
+        <service class="Shopware\DbalIndexing\ListingPrice\ListingPriceIndexer" id="shopware.dbal_indexing.listing_price_indexer">
             <argument id="Shopware\Api\Product\Repository\ProductRepository" type="service"/>
             <argument id="Shopware\Api\Customer\Repository\CustomerGroupRepository" type="service"/>
             <argument id="shopware.dbal_indexing.listing_price_loader" type="service"/>
@@ -26,16 +39,7 @@
             <tag name="shopware.dbal_indexing.indexer"/>
         </service>
 
-        <!--<service class="Shopware\DbalIndexing\Indexer\VoteAverageIndexer" id="shopware.dbal_indexing.vote_average_inder">-->
-            <!--<argument id="shopware.product.product_repository" type="service"/>-->
-            <!--<argument id="shopware.dbal_indexing.loader.vote_average_loader" type="service"/>-->
-            <!--<argument id="dbal_connection" type="service"/>-->
-            <!--<argument id="event_dispatcher" type="service"/>-->
-            <!--<tag name="shopware.dbal_indexing.indexer"/>-->
-        <!--</service>-->
-
-
-        <service class="Shopware\DbalIndexing\Loader\ListingPriceLoader" id="shopware.dbal_indexing.listing_price_loader">
+        <service class="Shopware\DbalIndexing\ListingPrice\ListingPriceLoader" id="shopware.dbal_indexing.listing_price_loader">
             <argument id="dbal_connection" type="service"/>
         </service>
 
@@ -46,14 +50,15 @@
             <argument type="service" id="shopware.dbal_indexing.indexer.shop_indexer"/>
         </service>
 
-        <service class="Shopware\DbalIndexing\Loader\VoteAverageLoader" id="shopware.dbal_indexing.loader.vote_average_loader">
-            <argument id="dbal_connection" type="service"/>
-        </service>
-
         <service class="Shopware\DbalIndexing\Event\EventSubscriber" id="shopware.dbal_indexing.event.event_subscriber">
             <argument id="shopware.dbal_indexing.indexer.shop_indexer" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service class="Shopware\DbalIndexing\Search\LanguageAnalyzer" id="shopware.search.analyzer">
+            <argument id="shopware.search.tokenizer" type="service"/>
+            <argument id="shopware.search.filter" type="service"/>
+            <tag name="shopware.search_analyzer" />
+        </service>
     </services>
 </container>

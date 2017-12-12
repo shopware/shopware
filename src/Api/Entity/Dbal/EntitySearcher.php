@@ -8,6 +8,7 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\Parser\SqlQueryParser;
 use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Search\Query\ScoreQuery;
 use Shopware\Context\Struct\TranslationContext;
 
 class EntitySearcher implements EntitySearcherInterface
@@ -29,7 +30,10 @@ class EntitySearcher implements EntitySearcherInterface
         $query = new QueryBuilder($this->connection);
 
         //add uuid select, e.g. `product`.`uuid`;
-        $query->addSelect(EntityDefinitionResolver::escape($table) . '.' . EntityDefinitionResolver::escape('uuid'));
+        $query->addSelect(
+            EntityDefinitionResolver::escape($table) . '.' . EntityDefinitionResolver::escape('uuid') . ' as array_key',
+            EntityDefinitionResolver::escape($table) . '.' . EntityDefinitionResolver::escape('uuid') . ' as primary_key'
+        );
 
         //build from path with escaped alias, e.g. FROM product as `product`
         $query->from(
@@ -40,7 +44,8 @@ class EntitySearcher implements EntitySearcherInterface
         $fields = array_merge(
             $criteria->getSortingFields(),
             $criteria->getFilterFields(),
-            $criteria->getPostFilterFields()
+            $criteria->getPostFilterFields(),
+            $criteria->getQueryFields()
         );
 
         //join association and translated fields
@@ -48,26 +53,15 @@ class EntitySearcher implements EntitySearcherInterface
             EntityDefinitionResolver::joinField($fieldName, $definition, $table, $query, $context);
         }
 
-        $parsed = SqlQueryParser::parse($criteria->getAllFilters(), $definition);
-        if (!empty($parsed->getWheres())) {
-            $query->andWhere(implode(' AND ', $parsed->getWheres()));
-            foreach ($parsed->getParameters() as $key => $value) {
-                $query->setParameter($key, $value, $parsed->getType($key));
-            }
-        }
+        $this->addFilters($definition, $criteria, $query);
 
-        foreach ($criteria->getSortings() as $sorting) {
-            $query->addOrderBy(
-                EntityDefinitionResolver::resolveField($sorting->getField(), $definition, $definition::getEntityName()),
-                $sorting->getDirection()
-            );
-        }
-        //requires total count for query? add save SQL_CALC_FOUND_ROWS
-        if ($criteria->fetchCount()) {
-            $selects = $query->getQueryPart('select');
-            $selects[0] = 'SQL_CALC_FOUND_ROWS ' . $selects[0];
-            $query->select($selects);
-        }
+        $this->addQueries($definition, $criteria, $query);
+
+        $this->addSortings($definition, $criteria, $query);
+
+        $this->addFetchCount($criteria, $query);
+
+        $this->addGroupBy($definition, $criteria, $query);
 
         //add pagination
         if ($criteria->getOffset() >= 0) {
@@ -77,27 +71,109 @@ class EntitySearcher implements EntitySearcherInterface
             $query->setMaxResults($criteria->getLimit());
         }
 
-        if ($query->hasState(EntityDefinitionResolver::HAS_TO_MANY_JOIN)) {
-            $query->addGroupBy(
-                EntityDefinitionResolver::escape($table) . '.' . EntityDefinitionResolver::escape('uuid')
-            );
-
-            // each order by column has to be inside the group by statement (sql_mode=only_full_group_by)
-            foreach ($criteria->getSortings() as $sorting) {
-                $field = EntityDefinitionResolver::resolveField($sorting->getField(), $definition, $definition::getEntityName());
-                $query->addGroupBy($field);
-            }
-        }
-
         //execute and fetch uuids
-        $uuids = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
+        $data = $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
 
         if ($criteria->fetchCount()) {
             $total = (int) $this->connection->fetchColumn('SELECT FOUND_ROWS()');
         } else {
-            $total = count($uuids);
+            $total = count($data);
         }
 
-        return new UuidSearchResult($total, $uuids, $criteria, $context);
+        return new UuidSearchResult($total, $data, $criteria, $context);
+    }
+
+    private function addQueries(string $definition, Criteria $criteria, QueryBuilder $query): void
+    {
+        /** @var string|EntityDefinition $definition */
+        $queries = SqlQueryParser::parseRanking($criteria->getQueries(), $definition, $definition::getEntityName());
+        if (empty($queries->getWheres())) {
+            return;
+        }
+
+        $select = '(' . implode(' + ', $queries->getWheres()) . ')';
+        $query->addSelect($select . ' as _score');
+
+        if (empty($criteria->getSortings())) {
+            $query->addOrderBy('_score', 'DESC');
+        }
+
+        $minScore = array_map(function (ScoreQuery $query) {
+            return $query->getScore();
+        }, $criteria->getQueries());
+
+        $minScore = min($minScore);
+
+        $query->andWhere($select . ' >= :_minScore');
+        $query->setParameter('_minScore', $minScore);
+
+        foreach ($queries->getParameters() as $key => $value) {
+            $query->setParameter($key, $value, $queries->getType($key));
+        }
+    }
+
+    private function addFilters(string $definition, Criteria $criteria, QueryBuilder $query): void
+    {
+        $parsed = SqlQueryParser::parse($criteria->getAllFilters(), $definition);
+
+        if (empty($parsed->getWheres())) {
+            return;
+        }
+
+        $query->andWhere(implode(' AND ', $parsed->getWheres()));
+        foreach ($parsed->getParameters() as $key => $value) {
+            $query->setParameter($key, $value, $parsed->getType($key));
+        }
+    }
+
+    private function addSortings(string $definition, Criteria $criteria, QueryBuilder $query): void
+    {
+        /* @var string|EntityDefinition $definition */
+        foreach ($criteria->getSortings() as $sorting) {
+            $query->addOrderBy(
+                EntityDefinitionResolver::resolveField(
+                    $sorting->getField(),
+                    $definition,
+                    $definition::getEntityName()
+                ),
+                $sorting->getDirection()
+            );
+        }
+    }
+
+    private function addFetchCount(Criteria $criteria, QueryBuilder $query): void
+    {
+        //requires total count for query? add save SQL_CALC_FOUND_ROWS
+        if (!$criteria->fetchCount()) {
+            return;
+        }
+
+        $selects = $query->getQueryPart('select');
+        $selects[0] = 'SQL_CALC_FOUND_ROWS ' . $selects[0];
+        $query->select($selects);
+    }
+
+    private function addGroupBy(string $definition, Criteria $criteria, QueryBuilder $query): void
+    {
+        /** @var string|EntityDefinition $definition */
+        $table = $definition::getEntityName();
+
+        if (!$query->hasState(EntityDefinitionResolver::HAS_TO_MANY_JOIN)) {
+            return;
+        }
+
+        $query->addGroupBy(
+            EntityDefinitionResolver::escape($table) . '.' . EntityDefinitionResolver::escape('uuid')
+        );
+
+        // each order by column has to be inside the group by statement (sql_mode=only_full_group_by)
+        foreach ($criteria->getSortings() as $sorting) {
+            $field = EntityDefinitionResolver::resolveField(
+                $sorting->getField(),
+                $definition,
+                $definition::getEntityName()
+            );
+            $query->addGroupBy($field);
+        }
     }
 }

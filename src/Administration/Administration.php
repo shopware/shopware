@@ -16,6 +16,6 @@ class Administration extends Bundle
         parent::build($container);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
-        $loader->load('api_extensions.xml');
+        $loader->load('services.xml');
     }
 }

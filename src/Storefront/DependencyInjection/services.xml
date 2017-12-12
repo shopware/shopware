@@ -108,6 +108,8 @@
         <service class="Shopware\Storefront\Page\Search\SearchPageLoader" id="shopware.storefront.page.search.search_page_loader">
             <argument type="service" id="shopware.config.config_service" />
             <argument id="shopware.storefront.product_repository" type="service"/>
+            <argument type="service" id="shopware.storefront.search_term_interpreter"/>
+            <argument type="service" id="shopware.api.search.entity_score_query_builder"/>
         </service>
 
         <service class="Shopware\Storefront\Firewall\CustomerProvider" id="shopware.storefront.firewall.customer_provider">
@@ -149,8 +151,11 @@
             <argument id="shopware.storefront.page.search.search_page_loader" type="service"/>
         </service>
 
-
-
+        <service class="Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter" id="shopware.storefront.search_term_interpreter">
+            <argument type="service" id="dbal_connection"/>
+            <argument type="service" id="shopware.search.tokenizer"/>
+            <argument type="service" id="logger"/>
+        </service>
 
     </services>
 </container>

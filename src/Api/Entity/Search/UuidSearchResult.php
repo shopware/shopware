@@ -10,7 +10,7 @@ class UuidSearchResult extends Struct
     /**
      * @var string[]
      */
-    protected $uuids;
+    protected $data;
 
     /**
      * @var int
@@ -27,10 +27,16 @@ class UuidSearchResult extends Struct
      */
     protected $context;
 
-    public function __construct(int $total, array $uuids, Criteria $criteria, TranslationContext $context)
+    /**
+     * @var array
+     */
+    protected $uuids;
+
+    public function __construct(int $total, array $data, Criteria $criteria, TranslationContext $context)
     {
         $this->total = $total;
-        $this->uuids = $uuids;
+        $this->uuids = array_keys($data);
+        $this->data = $data;
         $this->criteria = $criteria;
         $this->context = $context;
     }
@@ -53,5 +59,10 @@ class UuidSearchResult extends Struct
     public function getContext(): TranslationContext
     {
         return $this->context;
+    }
+
+    public function getData(): array
+    {
+        return $this->data;
     }
 }

@@ -17,6 +17,8 @@
 
         <service class="Shopware\Rest\ApiContextValueResolver" id="shopware.api.api_context_value_resolver">
             <tag name="controller.argument_value_resolver"/>
+            <argument type="service" id="security.token_storage"/>
+            <argument type="service" id="shopware.api.entity_searcher"/>
         </service>
 
         <service class="Shopware\Rest\Firewall\AuthProvider" id="shopware.rest.firewall.auth_provider">

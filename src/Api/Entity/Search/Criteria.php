@@ -6,6 +6,7 @@ use Shopware\Api\Entity\Search\Aggregation\Aggregation;
 use Shopware\Api\Entity\Search\Query\NestedQuery;
 use Shopware\Api\Entity\Search\Query\Query;
 use Shopware\Api\Entity\Search\Sorting\FieldSorting;
+use Shopware\Api\Search\Query\ScoreQuery;
 use Shopware\Framework\Struct\Struct;
 
 class Criteria extends Struct
@@ -29,6 +30,11 @@ class Criteria extends Struct
      * @var Aggregation[]
      */
     protected $aggregations = [];
+
+    /**
+     * @var ScoreQuery[]
+     */
+    protected $queries = [];
 
     /**
      * @var int|null
@@ -104,6 +110,13 @@ class Criteria extends Struct
         return $this;
     }
 
+    public function addQuery(ScoreQuery $query): Criteria
+    {
+        $this->queries[] = $query;
+
+        return $this;
+    }
+
     public function getSortingFields(): array
     {
         $fields = [];
@@ -140,6 +153,18 @@ class Criteria extends Struct
         return $fields;
     }
 
+    public function getQueryFields(): array
+    {
+        $fields = [];
+        foreach ($this->queries as $query) {
+            foreach ($query->getFields() as $field) {
+                $fields[] = $field;
+            }
+        }
+
+        return $fields;
+    }
+
     public function getFilterFields(): array
     {
         $fields = [];
@@ -150,16 +175,6 @@ class Criteria extends Struct
         }
 
         return $fields;
-    }
-
-    public function getFields(): array
-    {
-        return array_merge(
-            $this->getFilterFields(),
-            $this->getPostFilterFields(),
-            $this->getSortingFields(),
-            $this->getAggregationFields()
-        );
     }
 
     public function getOffset(): ?int
@@ -190,5 +205,13 @@ class Criteria extends Struct
     public function setFetchCount(bool $fetchCount): void
     {
         $this->fetchCount = $fetchCount;
+    }
+
+    /**
+     * @return ScoreQuery[]
+     */
+    public function getQueries()
+    {
+        return $this->queries;
     }
 }

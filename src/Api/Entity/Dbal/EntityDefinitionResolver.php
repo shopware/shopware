@@ -153,6 +153,11 @@ class EntityDefinitionResolver
 
         $alias = $root . '.' . $field->getPropertyName();
 
+        if ($query->hasState($alias)) {
+            return;
+        }
+        $query->addState($alias);
+
         $query->leftJoin(
             self::escape($root),
             self::escape($table),
@@ -175,6 +180,10 @@ class EntityDefinitionResolver
         $table = $class::getEntityName();
 
         $alias = $root . '.' . $field->getPropertyName();
+        if ($query->hasState($alias)) {
+            return;
+        }
+        $query->addState($alias);
 
         $query->leftJoin(
             self::escape($root),
@@ -197,6 +206,10 @@ class EntityDefinitionResolver
         $table = $mapping::getEntityName();
 
         $mappingAlias = $root . '.' . $field->getPropertyName() . '.mapping';
+        if ($query->hasState($mappingAlias)) {
+            return;
+        }
+        $query->addState($mappingAlias);
 
         $query->leftJoin(
             self::escape($root),

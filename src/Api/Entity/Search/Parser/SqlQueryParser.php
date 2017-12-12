@@ -13,9 +13,32 @@ use Shopware\Api\Entity\Search\Query\Query;
 use Shopware\Api\Entity\Search\Query\RangeQuery;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
+use Shopware\Api\Entity\Search\Query\ScoreQuery;
 
 class SqlQueryParser
 {
+    public static function parseRanking(array $queries, string $definition, string $root)
+    {
+        $result = new ParseResult();
+
+        /** @var ScoreQuery $query */
+        foreach ($queries as $query) {
+            $parsed = self::parse($query->getQuery(), $definition, $root);
+
+            foreach ($parsed->getWheres() as $where) {
+                $result->addWhere(
+                    sprintf('IF(%s , %s, 0)', $where, $query->getScore())
+                );
+            }
+
+            foreach ($parsed->getParameters() as $key => $parameter) {
+                $result->addParameter($key, $parameter, $parsed->getType($key));
+            }
+        }
+
+        return $result;
+    }
+
     public static function parse(Query $query, string $definition, string $root = null): ParseResult
     {
         if ($root === null) {
@@ -30,16 +53,12 @@ class SqlQueryParser
                 return self::parseNestedQuery($query, $definition, $root);
             case $query instanceof TermQuery:
                 return self::parseTermQuery($query, $definition, $root);
-
             case $query instanceof TermsQuery:
                 return self::parseTermsQuery($query, $definition, $root);
-
             case $query instanceof MatchQuery:
                 return self::parseMatchQuery($query, $definition, $root);
-
             case $query instanceof RangeQuery:
                 return self::parseRangeQuery($query, $definition, $root);
-
             default:
                 throw new \RuntimeException(sprintf('Unsupported query %s', get_class($query)));
         }
@@ -99,7 +118,7 @@ class SqlQueryParser
 
         $result = new ParseResult();
         $result->addWhere($field . ' IN (:' . $key . ')');
-        $result->addParameter($key, $query->getValue(), Connection::PARAM_STR_ARRAY);
+        $result->addParameter($key, array_values($query->getValue()), Connection::PARAM_STR_ARRAY);
 
         return $result;
     }

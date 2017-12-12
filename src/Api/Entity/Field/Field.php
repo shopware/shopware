@@ -83,4 +83,15 @@ abstract class Field extends Struct
     {
         return $this->propertyName;
     }
+
+    public function getFlag(string $class): ?Flag
+    {
+        foreach ($this->flags as $flag) {
+            if ($flag instanceof $class) {
+                return $flag;
+            }
+        }
+
+        return null;
+    }
 }

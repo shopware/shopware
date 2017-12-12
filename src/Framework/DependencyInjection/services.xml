@@ -42,6 +42,7 @@
             <argument type="service" id="shopware.framework.routing.shop_finder" />
             <argument id="shopware.cache" type="service"/>
             <argument type="service" id="shopware.api.route_collector"/>
+            <argument type="service" id="security.token_storage"/>
         </service>
 
         <service class="Shopware\Framework\Struct\FieldHelper" id="shopware.framework.struct.field_helper">

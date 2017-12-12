@@ -206,7 +206,7 @@ class EntityReader implements EntityReaderInterface
         $this->joinBasic($definition, $context, $table, $query, $fields);
 
         $query->andWhere(EntityDefinitionResolver::escape($table) . '.`uuid` IN (:ids)');
-        $query->setParameter(':ids', $uuids, Connection::PARAM_STR_ARRAY);
+        $query->setParameter(':ids', array_values($uuids), Connection::PARAM_STR_ARRAY);
 
         return $query->execute()->fetchAll();
     }

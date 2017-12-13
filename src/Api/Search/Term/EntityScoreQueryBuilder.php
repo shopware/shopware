@@ -5,6 +5,7 @@ namespace Shopware\Api\Search\Term;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\AssociationInterface;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
+use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Search\Query\MatchQuery;
 use Shopware\Api\Search\Query\ScoreQuery;
 use Shopware\Api\Search\Query\TermQuery;
@@ -25,14 +26,18 @@ class EntityScoreQueryBuilder
         /** @var EntityDefinition $definition */
         $fields = $definition::getFields()->filterByFlag(SearchRanking::class);
 
+        if ($fields->count() <= 0) {
+            $fields = $definition::getFields()->filterInstance(TranslatedField::class);
+        }
+
         $queries = [];
         foreach ($fields as $field) {
             $flag = $field->getFlag(SearchRanking::class);
-            if (!$flag) {
-                continue;
-            }
 
-            $ranking = $flag->getRanking() * $multiplier;
+            $ranking = 1 * $multiplier;
+            if ($flag) {
+                $ranking = $flag->getRanking() * $multiplier;
+            }
 
             /** @var SearchRanking $flag */
             $select = $root . '.' . $field->getPropertyName();

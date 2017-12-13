@@ -99,7 +99,7 @@ class ApiController extends RestController
             /*
              * Example:
              * route:           /api/product/SW1/categories
-             * $definition =    \Shopware\Category\Definition\CategoryDefinition
+             * $definition:     \Shopware\Category\Definition\CategoryDefinition
              */
             $definition = $association->getReferenceDefinition();
 
@@ -340,11 +340,11 @@ class ApiController extends RestController
 
     private function buildEntityPath(string $pathInfo)
     {
-        $pathInfo = str_replace('/api/', '', $pathInfo);
-        $pathInfo = explode('/', $pathInfo);
+        $exploded = str_replace('/api/', '', $pathInfo);
+        $exploded = explode('/', $exploded);
 
         $parts = [];
-        foreach ($pathInfo as $index => $part) {
+        foreach ($exploded as $index => $part) {
             if ($index % 2) {
                 continue;
             }
@@ -352,8 +352,8 @@ class ApiController extends RestController
                 continue;
             }
             $value = null;
-            if (isset($pathInfo[$index + 1])) {
-                $value = $pathInfo[$index + 1];
+            if (isset($exploded[$index + 1])) {
+                $value = $exploded[$index + 1];
             }
 
             if (empty($parts)) {
@@ -411,10 +411,10 @@ class ApiController extends RestController
 
     private function urlToCamelCase(string $name): string
     {
-        $name = explode('-', $name);
-        $name = array_map('ucfirst', $name);
+        $parts = explode('-', $name);
+        $parts = array_map('ucfirst', $parts);
 
-        return lcfirst(implode('', $name));
+        return lcfirst(implode('', $parts));
     }
 
     private function createListingCriteria(Request $request): Criteria

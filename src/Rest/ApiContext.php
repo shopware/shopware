@@ -33,6 +33,7 @@ class ApiContext
      * @var array
      */
     private $parameters;
+
     /**
      * @var string
      */

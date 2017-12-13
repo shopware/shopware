@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Search\Query\MatchQuery;
 use Shopware\Api\Search\Query\ScoreQuery;
@@ -73,6 +74,25 @@ class EntityScoreBuilderTest extends TestCase
             $queries
         );
     }
+
+    public function testTranslatedFieldFallback()
+    {
+        $builder = new EntityScoreQueryBuilder();
+
+        $pattern = new SearchPattern(
+            new SearchTerm('term', 1)
+        );
+
+        $queries = $builder->buildScoreQueries($pattern, OnlyTranslatedFieldDefinition::class, 'test');
+
+        $this->assertEquals(
+            [
+                new ScoreQuery(new TermQuery('test.name', 'term'), 1),
+                new ScoreQuery(new MatchQuery('test.name', 'term'), 0.5)
+            ],
+            $queries
+        );
+    }
 }
 
 class TestDefinition extends EntityDefinition
@@ -129,6 +149,47 @@ class NestedDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->setFlags(new SearchRanking(100)),
+        ]);
+    }
+
+    public static function getRepositoryClass(): string
+    {
+        return '';
+    }
+
+    public static function getBasicCollectionClass(): string
+    {
+        return '';
+    }
+
+    public static function getBasicStructClass(): string
+    {
+        return '';
+    }
+
+    public static function getWrittenEventClass(): string
+    {
+        return '';
+    }
+
+    public static function getTranslationDefinitionClass(): ?string
+    {
+        return '';
+    }
+}
+
+
+class OnlyTranslatedFieldDefinition extends EntityDefinition
+{
+    public static function getEntityName(): string
+    {
+        return 'translated';
+    }
+
+    public static function getFields(): FieldCollection
+    {
+        return new FieldCollection([
+            new TranslatedField(new StringField('name', 'name')),
         ]);
     }
 

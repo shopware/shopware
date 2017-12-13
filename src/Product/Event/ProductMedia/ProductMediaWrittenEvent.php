@@ -2,7 +2,7 @@
 
 namespace Shopware\Product\Event\ProductMedia;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Product\Definition\ProductMediaDefinition;
 
 class ProductMediaWrittenEvent extends WrittenEvent

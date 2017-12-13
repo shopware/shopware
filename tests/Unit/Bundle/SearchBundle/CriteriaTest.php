@@ -25,7 +25,7 @@
 namespace Shopware\Tests\Unit\Bundle\SearchBundle;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Api\Search\Criteria;
+use Shopware\Api\Entity\Search\Criteria;
 
 class CriteriaTest extends TestCase
 {
@@ -37,7 +37,7 @@ class CriteriaTest extends TestCase
      */
     public function testInvalidCriteriaLimit($limit)
     {
-        $criteria = new \Shopware\Api\Search\Criteria();
+        $criteria = new \Shopware\Api\Entity\Search\Criteria();
         $criteria->limit($limit);
     }
 
@@ -48,7 +48,7 @@ class CriteriaTest extends TestCase
      */
     public function testValidCriteriaLimit($limit)
     {
-        $criteria = new \Shopware\Api\Search\Criteria();
+        $criteria = new \Shopware\Api\Entity\Search\Criteria();
         $criteria->limit($limit);
         $this->assertEquals($criteria->getLimit(), $limit);
     }
@@ -61,7 +61,7 @@ class CriteriaTest extends TestCase
      */
     public function testInvalidCriteriaOffset($offset)
     {
-        $criteria = new \Shopware\Api\Search\Criteria();
+        $criteria = new \Shopware\Api\Entity\Search\Criteria();
         $criteria->offset($offset);
     }
 
@@ -72,7 +72,7 @@ class CriteriaTest extends TestCase
      */
     public function testValidCriteriaOffset($offset)
     {
-        $criteria = new \Shopware\Api\Search\Criteria();
+        $criteria = new \Shopware\Api\Entity\Search\Criteria();
         $criteria->offset($offset);
         $this->assertEquals($offset, $criteria->getOffset());
     }

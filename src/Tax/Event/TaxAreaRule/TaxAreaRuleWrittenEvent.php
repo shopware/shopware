@@ -2,7 +2,7 @@
 
 namespace Shopware\Tax\Event\TaxAreaRule;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Tax\Definition\TaxAreaRuleDefinition;
 
 class TaxAreaRuleWrittenEvent extends WrittenEvent

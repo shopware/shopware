@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Search;
 
-use Shopware\Api\Search\Criteria;
+use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Framework\Struct\Struct;
 use Shopware\Product\Struct\ProductBasicCollection;
 

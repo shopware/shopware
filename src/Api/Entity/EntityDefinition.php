@@ -7,8 +7,8 @@ use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
-use Shopware\Api\Write\Flag\PrimaryKey;
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\Flag\PrimaryKey;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Context\Struct\TranslationContext;
 
 abstract class EntityDefinition

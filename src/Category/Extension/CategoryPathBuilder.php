@@ -3,8 +3,8 @@
 namespace Shopware\Category\Extension;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\Query\TermQuery;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Category\Collection\CategoryBasicCollection;
 use Shopware\Category\Event\Category\CategoryWrittenEvent;
 use Shopware\Category\Repository\CategoryRepository;

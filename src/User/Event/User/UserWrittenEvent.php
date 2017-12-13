@@ -2,7 +2,7 @@
 
 namespace Shopware\User\Event\User;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\User\Definition\UserDefinition;
 
 class UserWrittenEvent extends WrittenEvent

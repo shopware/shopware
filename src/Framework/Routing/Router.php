@@ -26,7 +26,7 @@ namespace Shopware\Framework\Routing;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Api\Routing\RouteCollector;
+use Shopware\Rest\Routing\RouteCollector;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Kernel;
 use Symfony\Component\DependencyInjection\ContainerInterface;

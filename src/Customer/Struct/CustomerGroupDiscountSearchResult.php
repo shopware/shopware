@@ -2,8 +2,8 @@
 
 namespace Shopware\Customer\Struct;
 
-use Shopware\Api\Search\SearchResultInterface;
-use Shopware\Api\Search\SearchResultTrait;
+use Shopware\Api\Entity\Search\SearchResultInterface;
+use Shopware\Api\Entity\Search\SearchResultTrait;
 use Shopware\Customer\Collection\CustomerGroupDiscountBasicCollection;
 
 class CustomerGroupDiscountSearchResult extends CustomerGroupDiscountBasicCollection implements SearchResultInterface

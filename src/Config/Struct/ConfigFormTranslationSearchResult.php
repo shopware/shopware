@@ -2,8 +2,8 @@
 
 namespace Shopware\Config\Struct;
 
-use Shopware\Api\Search\SearchResultInterface;
-use Shopware\Api\Search\SearchResultTrait;
+use Shopware\Api\Entity\Search\SearchResultInterface;
+use Shopware\Api\Entity\Search\SearchResultTrait;
 use Shopware\Config\Collection\ConfigFormTranslationBasicCollection;
 
 class ConfigFormTranslationSearchResult extends ConfigFormTranslationBasicCollection implements SearchResultInterface

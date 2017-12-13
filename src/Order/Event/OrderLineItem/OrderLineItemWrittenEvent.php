@@ -2,7 +2,7 @@
 
 namespace Shopware\Order\Event\OrderLineItem;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Order\Definition\OrderLineItemDefinition;
 
 class OrderLineItemWrittenEvent extends WrittenEvent

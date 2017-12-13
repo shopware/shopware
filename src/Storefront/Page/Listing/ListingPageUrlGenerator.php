@@ -26,10 +26,10 @@ namespace Shopware\Storefront\Page\Listing;
 
 use Cocur\Slugify\SlugifyInterface;
 use Ramsey\Uuid\Uuid;
-use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\Query\MatchQuery;
-use Shopware\Api\Search\Query\TermQuery;
-use Shopware\Api\Search\Query\TermsQuery;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\Query\MatchQuery;
+use Shopware\Api\Entity\Search\Query\TermQuery;
+use Shopware\Api\Entity\Search\Query\TermsQuery;
 use Shopware\Category\Collection\CategoryBasicCollection;
 use Shopware\Category\Repository\CategoryRepository;
 use Shopware\Category\Struct\CategoryBasicStruct;

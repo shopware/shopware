@@ -2,7 +2,7 @@
 
 namespace Shopware\Product\Event\ProductStreamTab;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Product\Definition\ProductStreamTabDefinition;
 
 class ProductStreamTabWrittenEvent extends WrittenEvent

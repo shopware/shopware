@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Page\Listing;
 
-use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\Query\TermQuery;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository;
 use Symfony\Component\HttpFoundation\Request;

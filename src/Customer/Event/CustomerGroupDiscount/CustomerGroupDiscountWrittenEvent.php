@@ -2,7 +2,7 @@
 
 namespace Shopware\Customer\Event\CustomerGroupDiscount;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Customer\Definition\CustomerGroupDiscountDefinition;
 
 class CustomerGroupDiscountWrittenEvent extends WrittenEvent

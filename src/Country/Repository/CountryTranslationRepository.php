@@ -2,16 +2,16 @@
 
 namespace Shopware\Country\Repository;
 
-use Shopware\Api\Read\EntityReaderInterface;
-use Shopware\Api\RepositoryInterface;
-use Shopware\Api\Search\AggregationResult;
-use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\EntityAggregatorInterface;
-use Shopware\Api\Search\EntitySearcherInterface;
-use Shopware\Api\Search\UuidSearchResult;
-use Shopware\Api\Write\EntityWriterInterface;
-use Shopware\Api\Write\GenericWrittenEvent;
-use Shopware\Api\Write\WriteContext;
+use Shopware\Api\Entity\Read\EntityReaderInterface;
+use Shopware\Api\Entity\RepositoryInterface;
+use Shopware\Api\Entity\Search\AggregationResult;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\EntityAggregatorInterface;
+use Shopware\Api\Entity\Search\EntitySearcherInterface;
+use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Write\EntityWriterInterface;
+use Shopware\Api\Entity\Write\GenericWrittenEvent;
+use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Country\Collection\CountryTranslationBasicCollection;
 use Shopware\Country\Collection\CountryTranslationDetailCollection;

@@ -24,8 +24,8 @@
 
 namespace Shopware\Tests\Functional\Bundle\SearchBundle\Condition;
 
-use Shopware\Api\Search\Condition\CategoryCondition;
-use Shopware\Api\Search\Criteria;
+use Shopware\Api\Entity\Search\Condition\CategoryCondition;
+use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Models\Category\Category;
 use Shopware\Tests\Functional\Bundle\StoreFrontBundle\TestCase;

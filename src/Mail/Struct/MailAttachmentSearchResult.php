@@ -2,8 +2,8 @@
 
 namespace Shopware\Mail\Struct;
 
-use Shopware\Api\Search\SearchResultInterface;
-use Shopware\Api\Search\SearchResultTrait;
+use Shopware\Api\Entity\Search\SearchResultInterface;
+use Shopware\Api\Entity\Search\SearchResultTrait;
 use Shopware\Mail\Collection\MailAttachmentBasicCollection;
 
 class MailAttachmentSearchResult extends MailAttachmentBasicCollection implements SearchResultInterface

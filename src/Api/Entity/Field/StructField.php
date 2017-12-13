@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Entity\Field;
 
-use Shopware\Api\Write\Flag\Deferred;
-use Shopware\Api\Write\Flag\ReadOnly;
+use Shopware\Api\Entity\Write\Flag\Deferred;
+use Shopware\Api\Entity\Write\Flag\ReadOnly;
 
 class StructField extends Field implements AssociationInterface
 {

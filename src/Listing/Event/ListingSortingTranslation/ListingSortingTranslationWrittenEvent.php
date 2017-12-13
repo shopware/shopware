@@ -2,7 +2,7 @@
 
 namespace Shopware\Listing\Event\ListingSortingTranslation;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Listing\Definition\ListingSortingTranslationDefinition;
 
 class ListingSortingTranslationWrittenEvent extends WrittenEvent

@@ -24,7 +24,7 @@
 
 namespace Shopware\Api\Entity\Field;
 
-use Shopware\Api\Write\Flag\Flag;
+use Shopware\Api\Entity\Write\Flag\Flag;
 use Shopware\Framework\Struct\Struct;
 
 abstract class Field extends Struct

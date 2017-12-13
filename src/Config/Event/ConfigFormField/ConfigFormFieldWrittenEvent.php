@@ -2,7 +2,7 @@
 
 namespace Shopware\Config\Event\ConfigFormField;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Config\Definition\ConfigFormFieldDefinition;
 
 class ConfigFormFieldWrittenEvent extends WrittenEvent

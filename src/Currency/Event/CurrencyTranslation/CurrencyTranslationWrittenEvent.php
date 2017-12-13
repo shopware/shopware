@@ -2,7 +2,7 @@
 
 namespace Shopware\Currency\Event\CurrencyTranslation;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Currency\Definition\CurrencyTranslationDefinition;
 
 class CurrencyTranslationWrittenEvent extends WrittenEvent

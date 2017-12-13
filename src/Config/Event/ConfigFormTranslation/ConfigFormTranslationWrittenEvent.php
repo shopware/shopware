@@ -2,7 +2,7 @@
 
 namespace Shopware\Config\Event\ConfigFormTranslation;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Config\Definition\ConfigFormTranslationDefinition;
 
 class ConfigFormTranslationWrittenEvent extends WrittenEvent

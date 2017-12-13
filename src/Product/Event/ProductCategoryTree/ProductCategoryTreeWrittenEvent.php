@@ -2,7 +2,7 @@
 
 namespace Shopware\Product\Event\ProductCategoryTree;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Product\Definition\ProductCategoryTreeDefinition;
 
 class ProductCategoryTreeWrittenEvent extends WrittenEvent

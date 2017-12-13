@@ -26,9 +26,9 @@ namespace Shopware\Storefront\Page\Detail;
 
 use Cocur\Slugify\SlugifyInterface;
 use Ramsey\Uuid\Uuid;
-use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\Query\TermQuery;
-use Shopware\Api\Search\Query\TermsQuery;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\Query\TermQuery;
+use Shopware\Api\Entity\Search\Query\TermsQuery;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Routing\Router;
 use Shopware\Product\Repository\ProductRepository;

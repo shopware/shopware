@@ -2,7 +2,7 @@
 
 namespace Shopware\Shop\Event\ShopTemplate;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Shop\Definition\ShopTemplateDefinition;
 
 class ShopTemplateWrittenEvent extends WrittenEvent

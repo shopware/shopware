@@ -2,8 +2,8 @@
 
 namespace Shopware\Order\Struct;
 
-use Shopware\Api\Search\SearchResultInterface;
-use Shopware\Api\Search\SearchResultTrait;
+use Shopware\Api\Entity\Search\SearchResultInterface;
+use Shopware\Api\Entity\Search\SearchResultTrait;
 use Shopware\Order\Collection\OrderStateBasicCollection;
 
 class OrderStateSearchResult extends OrderStateBasicCollection implements SearchResultInterface

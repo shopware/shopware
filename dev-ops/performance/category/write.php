@@ -11,11 +11,11 @@ $kernel = new AppKernel('test', false);
 $kernel->boot();
 
 /**
- * @return \Shopware\Api\Write\WriteContext
+ * @return \Shopware\Api\Entity\Write\WriteContext
  */
-function createWriteContext(): \Shopware\Api\Write\WriteContext
+function createWriteContext(): \Shopware\Api\Entity\Write\WriteContext
 {
-    $context = new \Shopware\Api\Write\WriteContext();
+    $context = new \Shopware\Api\Entity\Write\WriteContext();
     $context->set(\Shopware\Shop\Writer\Resource\ShopWriteResource::class, 'uuid', 'SWAG-SHOP-UUID-1');
     return $context;
 }
@@ -38,7 +38,7 @@ foreach ($categories as $i => $category) {
         echo $measurement->tick($i) . "\n";
     }
 
-    $extender = new \Shopware\Api\Write\FieldAware\FieldExtenderCollection();
+    $extender = new \Shopware\Api\Entity\Write\FieldAware\FieldExtenderCollection();
     $extender->addExtender($kernel->getContainer()->get('shopware.framework.write.field_aware.default_extender'));
 
     try {

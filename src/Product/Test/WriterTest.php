@@ -4,9 +4,9 @@ namespace Shopware\Product\Tests;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Api\Dbal\EntityWriter;
-use Shopware\Api\Write\FieldException\WriteStackException;
-use Shopware\Api\Write\WriteContext;
+use Shopware\Api\Entity\Dbal\EntityWriter;
+use Shopware\Api\Entity\Write\FieldException\WriteStackException;
+use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Product\Definition\ProductDefinition;
 use Shopware\Shop\Definition\ShopDefinition;
 use Shopware\Storefront\Context\StorefrontContextService;

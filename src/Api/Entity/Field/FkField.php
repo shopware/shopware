@@ -24,12 +24,12 @@
 
 namespace Shopware\Api\Entity\Field;
 
-use Shopware\Api\Write\FieldAware\PathAware;
-use Shopware\Api\Write\FieldAware\StorageAware;
-use Shopware\Api\Write\FieldAware\ValidatorAware;
-use Shopware\Api\Write\FieldAware\WriteContextAware;
-use Shopware\Api\Write\FieldException\InvalidFieldException;
-use Shopware\Api\Write\WriteContext;
+use Shopware\Api\Entity\Write\FieldAware\PathAware;
+use Shopware\Api\Entity\Write\FieldAware\StorageAware;
+use Shopware\Api\Entity\Write\FieldAware\ValidatorAware;
+use Shopware\Api\Entity\Write\FieldAware\WriteContextAware;
+use Shopware\Api\Entity\Write\FieldException\InvalidFieldException;
+use Shopware\Api\Entity\Write\WriteContext;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;

@@ -2,7 +2,7 @@
 
 namespace Shopware\Listing\Event\ListingFacet;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Listing\Definition\ListingFacetDefinition;
 
 class ListingFacetWrittenEvent extends WrittenEvent

@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Firewall;
 
-use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\Query\TermQuery;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Customer\Repository\CustomerRepository;
 use Shopware\Customer\Struct\CustomerBasicStruct;

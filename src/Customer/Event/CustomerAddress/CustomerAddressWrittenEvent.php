@@ -2,7 +2,7 @@
 
 namespace Shopware\Customer\Event\CustomerAddress;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Customer\Definition\CustomerAddressDefinition;
 
 class CustomerAddressWrittenEvent extends WrittenEvent

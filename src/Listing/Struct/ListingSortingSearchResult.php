@@ -2,8 +2,8 @@
 
 namespace Shopware\Listing\Struct;
 
-use Shopware\Api\Search\SearchResultInterface;
-use Shopware\Api\Search\SearchResultTrait;
+use Shopware\Api\Entity\Search\SearchResultInterface;
+use Shopware\Api\Entity\Search\SearchResultTrait;
 use Shopware\Listing\Collection\ListingSortingBasicCollection;
 
 class ListingSortingSearchResult extends ListingSortingBasicCollection implements SearchResultInterface

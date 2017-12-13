@@ -2,8 +2,8 @@
 
 namespace Shopware\Seo\Struct;
 
-use Shopware\Api\Search\SearchResultInterface;
-use Shopware\Api\Search\SearchResultTrait;
+use Shopware\Api\Entity\Search\SearchResultInterface;
+use Shopware\Api\Entity\Search\SearchResultTrait;
 use Shopware\Seo\Collection\SeoUrlBasicCollection;
 
 class SeoUrlSearchResult extends SeoUrlBasicCollection implements SearchResultInterface

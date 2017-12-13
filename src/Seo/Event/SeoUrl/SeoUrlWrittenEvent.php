@@ -2,7 +2,7 @@
 
 namespace Shopware\Seo\Event\SeoUrl;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Seo\Definition\SeoUrlDefinition;
 
 class SeoUrlWrittenEvent extends WrittenEvent

@@ -42,5 +42,23 @@
         </service>
 
 
+        <service class="Shopware\Rest\Controller\ApiController" id="shopware.rest.controller.api_controller">
+            <argument id="shopware.api.entity_definition_registry" type="service"/>
+            <call method="setContainer">
+                <argument id="service_container" type="service"/>
+            </call>
+        </service>
+
+        <service class="Shopware\Rest\Controller\SyncController" public="true" id="shopware.rest.controller.sync_controller" >
+            <argument type="service" id="shopware.api.entity_definition_registry"/>
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service class="Shopware\Rest\Routing\RouteCollector" id="shopware.api.route_collector">
+            <argument id="shopware.api.entity_definition_registry" type="service"/>
+        </service>
+
+
+
     </services>
 </container>

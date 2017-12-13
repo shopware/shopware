@@ -2,7 +2,7 @@
 
 namespace Shopware\Tax\Event\TaxAreaRuleTranslation;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Tax\Definition\TaxAreaRuleTranslationDefinition;
 
 class TaxAreaRuleTranslationWrittenEvent extends WrittenEvent

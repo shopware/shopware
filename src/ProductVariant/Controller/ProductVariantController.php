@@ -3,8 +3,8 @@
 namespace Shopware\ProductVariant\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\Parser\QueryStringParser;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\Parser\QueryStringParser;
 use Shopware\Product\Repository\ProductRepository;
 use Shopware\Rest\ApiContext;
 use Shopware\Rest\RestController;

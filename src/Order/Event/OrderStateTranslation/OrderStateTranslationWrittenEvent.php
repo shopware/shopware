@@ -2,7 +2,7 @@
 
 namespace Shopware\Order\Event\OrderStateTranslation;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Order\Definition\OrderStateTranslationDefinition;
 
 class OrderStateTranslationWrittenEvent extends WrittenEvent

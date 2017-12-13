@@ -11,11 +11,11 @@ $kernel = new AppKernel('test', false);
 $kernel->boot();
 
 /**
- * @return \Shopware\Api\Write\WriteContext
+ * @return \Shopware\Api\Entity\Write\WriteContext
  */
-function createWriteContext(): \Shopware\Api\Write\WriteContext
+function createWriteContext(): \Shopware\Api\Entity\Write\WriteContext
 {
-    $context = new \Shopware\Api\Write\WriteContext();
+    $context = new \Shopware\Api\Entity\Write\WriteContext();
     $context->set(\Shopware\Shop\Definition\ShopDefinition::class, 'uuid', 'SWAG-SHOP-UUID-1');
     return $context;
 }

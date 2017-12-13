@@ -2,7 +2,7 @@
 
 namespace Shopware\Tax\Event\Tax;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Tax\Definition\TaxDefinition;
 
 class TaxWrittenEvent extends WrittenEvent

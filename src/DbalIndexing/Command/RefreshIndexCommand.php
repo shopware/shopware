@@ -24,8 +24,8 @@
 
 namespace Shopware\DbalIndexing\Command;
 
-use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\Sorting\FieldSorting;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;

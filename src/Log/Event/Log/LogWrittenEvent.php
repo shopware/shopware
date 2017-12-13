@@ -2,7 +2,7 @@
 
 namespace Shopware\Log\Event\Log;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Log\Definition\LogDefinition;
 
 class LogWrittenEvent extends WrittenEvent

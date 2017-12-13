@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Page\Search;
 
-use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\Query\MatchQuery;
-use Shopware\Api\Search\Query\NestedQuery;
-use Shopware\Api\Search\Query\TermQuery;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\Query\MatchQuery;
+use Shopware\Api\Entity\Search\Query\NestedQuery;
+use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Config\CachedConfigService;
 use Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository;

@@ -25,7 +25,7 @@
 namespace Shopware\Context\Service;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Search\Criteria;
+use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Context\Struct\CheckoutScope;
 use Shopware\Context\Struct\CustomerScope;

@@ -2,7 +2,7 @@
 
 namespace Shopware\Shop\Event\ShopTemplate;
 
-use Shopware\Api\Search\AggregationResult;
+use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 

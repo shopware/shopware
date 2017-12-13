@@ -2,7 +2,7 @@
 
 namespace Shopware\#bundle#\Event\#classUc#;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\#bundle#\Definition\#classUc#Definition;
 
 class #classUc#WrittenEvent extends WrittenEvent

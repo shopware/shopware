@@ -2,7 +2,7 @@
 
 namespace Shopware\Payment\Event\PaymentMethodTranslation;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Payment\Definition\PaymentMethodTranslationDefinition;
 
 class PaymentMethodTranslationWrittenEvent extends WrittenEvent

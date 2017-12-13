@@ -24,8 +24,8 @@
 
 namespace Shopware\Framework\Routing;
 
-use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\Query\TermQuery;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Seo\Repository\SeoUrlRepository;
 use Shopware\Seo\Struct\SeoUrlBasicStruct;

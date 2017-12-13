@@ -24,7 +24,7 @@
 
 namespace Shopware\Tests\Functional\Bundle\SearchBundle;
 
-use Shopware\Api\Search\Condition\CategoryCondition;
+use Shopware\Api\Entity\Search\Condition\CategoryCondition;
 use Shopware\Bundle\SearchBundle\CriteriaRequestHandler\CoreCriteriaRequestHandler;
 use Shopware\Product\Gateway\Handler\CategoryConditionHandler;
 use Shopware\Bundle\SearchBundleDBAL\SearchBundleDBALSubscriber;
@@ -70,7 +70,7 @@ class SearchBundleDBALSubscriberTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Unknown handler class Shopware\Api\Search\Condition\CategoryCondition detected
+     * @expectedExceptionMessage Unknown handler class Shopware\Api\Entity\Search\Condition\CategoryCondition detected
      */
     public function testInvalidClass()
     {

@@ -24,13 +24,13 @@
 
 namespace Shopware\Api\Entity\Field;
 
-use Shopware\Api\Write\FieldAware\DefinitionAware;
-use Shopware\Api\Write\FieldAware\StorageAware;
-use Shopware\Api\Write\FieldAware\UuidGeneratorRegistryAware;
-use Shopware\Api\Write\FieldAware\WriteContextAware;
-use Shopware\Api\Write\UuidGenerator\GeneratorRegistry;
-use Shopware\Api\Write\UuidGenerator\RamseyGenerator;
-use Shopware\Api\Write\WriteContext;
+use Shopware\Api\Entity\Write\FieldAware\DefinitionAware;
+use Shopware\Api\Entity\Write\FieldAware\StorageAware;
+use Shopware\Api\Entity\Write\FieldAware\UuidGeneratorRegistryAware;
+use Shopware\Api\Entity\Write\FieldAware\WriteContextAware;
+use Shopware\Api\Entity\Write\UuidGenerator\GeneratorRegistry;
+use Shopware\Api\Entity\Write\UuidGenerator\RamseyGenerator;
+use Shopware\Api\Entity\Write\WriteContext;
 
 class UuidField extends Field implements WriteContextAware, DefinitionAware, UuidGeneratorRegistryAware, StorageAware
 {

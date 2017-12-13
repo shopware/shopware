@@ -2,7 +2,7 @@
 
 namespace Shopware\Listing\Event\ListingSorting;
 
-use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\UuidSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 

@@ -24,18 +24,18 @@
 
 namespace Shopware\Api\Entity\Field;
 
-use Shopware\Api\Write\FieldAware\ExceptionStackAware;
-use Shopware\Api\Write\FieldAware\FieldExtenderCollection;
-use Shopware\Api\Write\FieldAware\FieldExtenderCollectionAware;
-use Shopware\Api\Write\FieldAware\PathAware;
-use Shopware\Api\Write\FieldAware\StorageAware;
-use Shopware\Api\Write\FieldAware\WriteContextAware;
-use Shopware\Api\Write\FieldAware\WriteQueryQueueAware;
-use Shopware\Api\Write\FieldException\FieldExceptionStack;
-use Shopware\Api\Write\FieldException\MalformatDataException;
-use Shopware\Api\Write\Query\WriteQueryQueue;
-use Shopware\Api\Write\WriteContext;
-use Shopware\Api\Write\WriteResource;
+use Shopware\Api\Entity\Write\FieldAware\ExceptionStackAware;
+use Shopware\Api\Entity\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Api\Entity\Write\FieldAware\FieldExtenderCollectionAware;
+use Shopware\Api\Entity\Write\FieldAware\PathAware;
+use Shopware\Api\Entity\Write\FieldAware\StorageAware;
+use Shopware\Api\Entity\Write\FieldAware\WriteContextAware;
+use Shopware\Api\Entity\Write\FieldAware\WriteQueryQueueAware;
+use Shopware\Api\Entity\Write\FieldException\FieldExceptionStack;
+use Shopware\Api\Entity\Write\FieldException\MalformatDataException;
+use Shopware\Api\Entity\Write\Query\WriteQueryQueue;
+use Shopware\Api\Entity\Write\WriteContext;
+use Shopware\Api\Entity\Write\WriteResource;
 
 class ReferenceField extends Field implements PathAware, ExceptionStackAware, WriteQueryQueueAware, WriteContextAware, FieldExtenderCollectionAware, StorageAware
 {

@@ -2,7 +2,7 @@
 
 namespace Shopware\Shipping\Event\ShippingMethodPrice;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Shipping\Definition\ShippingMethodPriceDefinition;
 
 class ShippingMethodPriceWrittenEvent extends WrittenEvent

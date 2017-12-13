@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
-use Shopware\Api\Search\Criteria;
+use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Customer\Repository\CustomerGroupRepository;
 use Shopware\DbalIndexing\Common\RepositoryIterator;

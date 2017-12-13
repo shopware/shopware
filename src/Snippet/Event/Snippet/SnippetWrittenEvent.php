@@ -2,7 +2,7 @@
 
 namespace Shopware\Snippet\Event\Snippet;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Snippet\Definition\SnippetDefinition;
 
 class SnippetWrittenEvent extends WrittenEvent

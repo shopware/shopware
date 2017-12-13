@@ -2,7 +2,7 @@
 
 namespace Shopware\Product\Event\ProductPrice;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Product\Definition\ProductPriceDefinition;
 
 class ProductPriceWrittenEvent extends WrittenEvent

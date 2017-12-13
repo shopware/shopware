@@ -2,7 +2,7 @@
 
 namespace Shopware\Shop\Event\ShopCurrency;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Shop\Definition\ShopCurrencyDefinition;
 
 class ShopCurrencyWrittenEvent extends WrittenEvent

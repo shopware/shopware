@@ -2,7 +2,7 @@
 
 namespace Shopware\Customer\Event\CustomerGroupTranslation;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Customer\Definition\CustomerGroupTranslationDefinition;
 
 class CustomerGroupTranslationWrittenEvent extends WrittenEvent

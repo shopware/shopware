@@ -24,17 +24,17 @@
 
 namespace Shopware\Api\Entity\Field;
 
-use Shopware\Api\Write\FieldAware\ConstraintBuilderAware;
-use Shopware\Api\Write\FieldAware\PathAware;
-use Shopware\Api\Write\FieldAware\StorageAware;
-use Shopware\Api\Write\FieldAware\ValidatorAware;
-use Shopware\Api\Write\FieldAware\ValueTransformerRegistryAware;
-use Shopware\Api\Write\FieldException\InvalidFieldException;
-use Shopware\Api\Write\Validation\ConstraintBuilder;
-use Shopware\Api\Write\ValueTransformer\ValueTransformer;
-use Shopware\Api\Write\ValueTransformer\ValueTransformerDate;
-use Shopware\Api\Write\ValueTransformer\ValueTransformerRegistry;
-use Shopware\Api\Write\WriteResource;
+use Shopware\Api\Entity\Write\FieldAware\ConstraintBuilderAware;
+use Shopware\Api\Entity\Write\FieldAware\PathAware;
+use Shopware\Api\Entity\Write\FieldAware\StorageAware;
+use Shopware\Api\Entity\Write\FieldAware\ValidatorAware;
+use Shopware\Api\Entity\Write\FieldAware\ValueTransformerRegistryAware;
+use Shopware\Api\Entity\Write\FieldException\InvalidFieldException;
+use Shopware\Api\Entity\Write\Validation\ConstraintBuilder;
+use Shopware\Api\Entity\Write\ValueTransformer\ValueTransformer;
+use Shopware\Api\Entity\Write\ValueTransformer\ValueTransformerDate;
+use Shopware\Api\Entity\Write\ValueTransformer\ValueTransformerRegistry;
+use Shopware\Api\Entity\Write\WriteResource;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;

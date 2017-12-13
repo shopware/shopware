@@ -7,8 +7,8 @@ use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Write\Flag\PrimaryKey;
-use Shopware\Api\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\PrimaryKey;
+use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Currency\Definition\CurrencyDefinition;
 use Shopware\Shop\Event\ShopCurrency\ShopCurrencyWrittenEvent;
 

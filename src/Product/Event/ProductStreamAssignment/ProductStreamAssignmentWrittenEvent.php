@@ -2,7 +2,7 @@
 
 namespace Shopware\Product\Event\ProductStreamAssignment;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Product\Definition\ProductStreamAssignmentDefinition;
 
 class ProductStreamAssignmentWrittenEvent extends WrittenEvent

@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Bridge\Product\Repository;
 
-use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\Query\TermsQuery;
-use Shopware\Api\Search\Sorting\FieldSorting;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\Query\TermsQuery;
+use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\Struct\PercentageTaxRule;

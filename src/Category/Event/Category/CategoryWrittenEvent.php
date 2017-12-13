@@ -2,7 +2,7 @@
 
 namespace Shopware\Category\Event\Category;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Category\Definition\CategoryDefinition;
 
 class CategoryWrittenEvent extends WrittenEvent

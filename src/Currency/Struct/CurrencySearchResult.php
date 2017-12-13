@@ -2,8 +2,8 @@
 
 namespace Shopware\Currency\Struct;
 
-use Shopware\Api\Search\SearchResultInterface;
-use Shopware\Api\Search\SearchResultTrait;
+use Shopware\Api\Entity\Search\SearchResultInterface;
+use Shopware\Api\Entity\Search\SearchResultTrait;
 use Shopware\Currency\Collection\CurrencyBasicCollection;
 
 class CurrencySearchResult extends CurrencyBasicCollection implements SearchResultInterface

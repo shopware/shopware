@@ -2,8 +2,8 @@
 
 namespace Shopware\Unit\Struct;
 
-use Shopware\Api\Search\SearchResultInterface;
-use Shopware\Api\Search\SearchResultTrait;
+use Shopware\Api\Entity\Search\SearchResultInterface;
+use Shopware\Api\Entity\Search\SearchResultTrait;
 use Shopware\Unit\Collection\UnitTranslationBasicCollection;
 
 class UnitTranslationSearchResult extends UnitTranslationBasicCollection implements SearchResultInterface

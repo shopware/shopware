@@ -4,8 +4,8 @@ namespace Shopware\Api\Entity;
 
 use Shopware\Api\Entity\Field\AssociationInterface;
 use Shopware\Api\Entity\Field\Field;
-use Shopware\Api\Write\FieldAware\StorageAware;
-use Shopware\Api\Write\Flag\ReadOnly;
+use Shopware\Api\Entity\Write\FieldAware\StorageAware;
+use Shopware\Api\Entity\Write\Flag\ReadOnly;
 use Shopware\Framework\Struct\Collection;
 
 class FieldCollection extends Collection

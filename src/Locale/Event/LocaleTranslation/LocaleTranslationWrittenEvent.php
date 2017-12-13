@@ -2,7 +2,7 @@
 
 namespace Shopware\Locale\Event\LocaleTranslation;
 
-use Shopware\Api\Write\WrittenEvent;
+use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Locale\Definition\LocaleTranslationDefinition;
 
 class LocaleTranslationWrittenEvent extends WrittenEvent

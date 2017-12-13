@@ -2,8 +2,8 @@
 
 namespace Shopware\#bundle#\Struct;
 
-use Shopware\Api\Search\SearchResultInterface;
-use Shopware\Api\Search\SearchResultTrait;
+use Shopware\Api\Entity\Search\SearchResultInterface;
+use Shopware\Api\Entity\Search\SearchResultTrait;
 use Shopware\#bundle#\Collection\#classUc#BasicCollection;
 
 class #classUc#SearchResult extends #classUc#BasicCollection implements SearchResultInterface

@@ -5,7 +5,7 @@ namespace Shopware\Media\Extension;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\StructCollectionField;
 use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Write\Flag\ReadOnly;
+use Shopware\Api\Entity\Write\Flag\ReadOnly;
 use Shopware\Framework\Struct\StructCollection;
 use Shopware\Media\Definition\MediaDefinition;
 use Shopware\Media\Event\Media\MediaBasicLoadedEvent;

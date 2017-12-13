@@ -5,72 +5,48 @@ namespace Shopware\Api\Entity\Search;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Struct\ArrayStruct;
 
 trait SearchResultTrait
 {
     /**
      * @var AggregationResult|null
      */
-    protected $aggregations;
+    protected $aggregationResult;
 
     /**
-     * @var int
+     * @var UuidSearchResult
      */
-    protected $total;
+    protected $uuidResult;
 
-    /**
-     * @var Criteria
-     */
-    protected $criteria;
-
-    /**
-     * @var TranslationContext
-     */
-    protected $context;
-
-    /**
-     * @var array
-     */
-    protected $searchData;
-
-    public function getAggregations(): ?AggregationResult
+    public function getAggregations(): array
     {
-        return $this->aggregations;
+        return $this->aggregationResult ? $this->aggregationResult->getAggregations() : [];
     }
 
     public function getTotal(): int
     {
-        return $this->total;
+        return $this->uuidResult->getTotal();
     }
 
     public function getCriteria(): Criteria
     {
-        return $this->criteria;
+        return $this->uuidResult->getCriteria();
     }
 
     public function getContext(): TranslationContext
     {
-        return $this->context;
+        return $this->uuidResult->getContext();
     }
 
-    public function setAggregations($aggregations): void
+    public function getAggregationResult(): ?AggregationResult
     {
-        $this->aggregations = $aggregations;
+        return $this->aggregationResult;
     }
 
-    public function setTotal(int $total): void
+    public function getUuidResult(): UuidSearchResult
     {
-        $this->total = $total;
-    }
-
-    public function setCriteria(Criteria $criteria): void
-    {
-        $this->criteria = $criteria;
-    }
-
-    public function setContext(TranslationContext $context): void
-    {
-        $this->context = $context;
+        return $this->uuidResult;
     }
 
     public static function createFromResults(
@@ -80,40 +56,30 @@ trait SearchResultTrait
     ) {
         $self = new static($entities->getElements());
 
-        $scoring = $uuids->getData();
+        $search = $uuids->getData();
 
         /** @var Entity $element */
         foreach ($entities->getElements() as $element) {
-            if (!array_key_exists($element->getUuid(), $scoring)) {
+            if (!array_key_exists($element->getUuid(), $search)) {
                 continue;
             }
-            $score = $scoring[$element->getUuid()];
-            if (!array_key_exists('_score', $score)) {
-                continue;
-            }
+            $data = $search[$element->getUuid()];
 
-            $element->setSearchScore((float) $score['_score']);
+            $element->addExtension('search', new ArrayStruct($data));
         }
 
-        $self->setTotal($uuids->getTotal());
-        $self->setCriteria($uuids->getCriteria());
-        $self->setContext($uuids->getContext());
-        $self->setSearchData($uuids->getData());
-
-        if ($aggregations) {
-            $self->setAggregations($aggregations->getAggregations());
-        }
+        $self->aggregationResult = $aggregations;
+        $self->uuidResult = $uuids;
 
         return $self;
     }
 
-    public function getSearchData(): array
+    public function jsonSerialize(): array
     {
-        return $this->searchData;
-    }
+        $data = parent::jsonSerialize();
+        $data['total'] = $this->getTotal();
+        $data['aggregations'] = $this->getAggregations();
 
-    public function setSearchData(array $searchData): void
-    {
-        $this->searchData = $searchData;
+        return $data;
     }
 }

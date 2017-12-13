@@ -110,7 +110,10 @@ class AuditLogSearchTest extends KernelTestCase
         self::assertSame($first->getUuid(), 'product-1');
         self::assertSame($second->getUuid(), 'product-2');
 
-        self::assertSame($second->getSearchScore(), $first->getSearchScore());
+        $firstScore = $first->getExtension('search')->get('score');
+        $secondScore = $second->getExtension('search')->get('score');
+
+        self::assertSame($secondScore, $firstScore);
 
         $logs = [
             [
@@ -164,6 +167,9 @@ class AuditLogSearchTest extends KernelTestCase
         self::assertSame($first->getUuid(), 'product-2');
         self::assertSame($second->getUuid(), 'product-1');
 
-        self::assertTrue($first->getSearchScore() > $second->getSearchScore());
+        $firstScore = $first->getExtension('search')->get('score');
+        $secondScore = $second->getExtension('search')->get('score');
+
+        self::assertTrue($firstScore > $secondScore);
     }
 }

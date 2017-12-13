@@ -92,10 +92,10 @@ class EntitySearcher implements EntitySearcherInterface
         }
 
         $select = '(' . implode(' + ', $queries->getWheres()) . ')';
-        $query->addSelect($select . ' as _score');
+        $query->addSelect($select . ' as score');
 
         if (empty($criteria->getSortings())) {
-            $query->addOrderBy('_score', 'DESC');
+            $query->addOrderBy('score', 'DESC');
         }
 
         $minScore = array_map(function (ScoreQuery $query) {

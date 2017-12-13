@@ -169,7 +169,11 @@ class ApiController extends RestController
 
         $result = $repository->search($criteria, $context->getTranslationContext());
 
-        return $this->createResponse(['data' => $result], $context);
+        return $this->createResponse([
+            'data' => $result,
+            'total' => $result->getTotal(),
+            'aggregations' => $result->getAggregations()
+        ], $context);
     }
 
     public function createAction(Request $request, ApiContext $context): Response

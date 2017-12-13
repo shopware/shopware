@@ -6,7 +6,7 @@ use Shopware\Context\Struct\TranslationContext;
 
 interface SearchResultInterface
 {
-    public function getAggregations(): ?AggregationResult;
+    public function getAggregations(): array;
 
     public function getTotal(): int;
 
@@ -14,11 +14,7 @@ interface SearchResultInterface
 
     public function getContext(): TranslationContext;
 
-    public function setAggregations($aggregations): void;
+    public function getAggregationResult(): ?AggregationResult;
 
-    public function setTotal(int $total): void;
-
-    public function setCriteria(Criteria $criteria): void;
-
-    public function setContext(TranslationContext $context): void;
+    public function getUuidResult(): UuidSearchResult;
 }

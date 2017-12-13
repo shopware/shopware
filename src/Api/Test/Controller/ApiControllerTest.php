@@ -35,7 +35,7 @@ class ApiControllerTest extends ApiTestCase
         self::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $client->request('GET', '/api/product/' . $uuid);
-        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $data = [
             'uuid' => $uuid,
@@ -51,9 +51,11 @@ class ApiControllerTest extends ApiTestCase
         $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $this->assertArrayHasKey('data', $responseData);
-        $this->assertCount(1, $responseData['data']);
+        $this->assertCount(1, $responseData['data'], sprintf('Expected product %s has only one price', $uuid));
 
         $this->assertArrayHasKey('data', $responseData);
+        $this->assertEquals(1, $responseData['total']);
+        
         $this->assertSame($data['price'], $responseData['data'][0]['price']);
         $this->assertSame($data['customerGroupUuid'], $responseData['data'][0]['customerGroupUuid']);
     }
@@ -66,7 +68,7 @@ class ApiControllerTest extends ApiTestCase
 
         $client = $this->getClient();
         $client->request('POST', '/api/product', $data);
-        self::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        self::assertSame(200, $client->getResponse()->getStatusCode(), 'Create product failed uuid:' . $uuid);
 
         $data = [
             'uuid' => $uuid,
@@ -75,11 +77,11 @@ class ApiControllerTest extends ApiTestCase
         ];
 
         $client->request('POST', '/api/product/' . $uuid . '/manufacturer/', $data);
-        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), 'Create manufacturer over product failed uuid:' . $uuid);
 
         $client->request('GET', '/api/product/' . $uuid . '/manufacturer/');
         $responseData = json_decode($client->getResponse()->getContent(), true);
-        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), 'Read manufacturer of product failed uuid:' . $uuid);
 
         $this->assertArrayHasKey('data', $responseData);
         $this->assertSame($data['name'], $responseData['data'][0]['name']);

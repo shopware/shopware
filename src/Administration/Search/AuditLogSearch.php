@@ -13,6 +13,7 @@ use Shopware\Api\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Api\Search\Term\SearchTermInterpreter;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Customer\Definition\CustomerDefinition;
+use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Order\Definition\OrderDefinition;
 use Shopware\Product\Definition\ProductDefinition;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -73,7 +74,15 @@ class AuditLogSearch
         $flat = $this->createFlatResult($results);
 
         usort($flat, function (Entity $a, Entity $b) {
-            return $b->getSearchScore() <=> $a->getSearchScore();
+            $scoreA = $a->getExtension('search');
+            $scoreB = $b->getExtension('search');
+
+            /** @var ArrayStruct $scoreA */
+            /** @var ArrayStruct $scoreB */
+            $scoreA = $scoreA ? $scoreA->get('score') : 0;
+            $scoreB = $scoreB ? $scoreB->get('score') : 0;
+
+            return (float) $scoreB <=> (float) $scoreA;
         });
 
         $offset = ($page - 1) * $limit;
@@ -146,7 +155,14 @@ class AuditLogSearch
             /** @var Entity $entity */
             foreach ($result as $entity) {
                 $score = $this->getEntityScore($scoring, $entity->getUuid());
-                $entity->setSearchScore($entity->getSearchScore() * $score);
+
+                if (!$entity->hasExtension('search')) {
+                    continue;
+                }
+
+                /** @var ArrayStruct $extension */
+                $extension = $entity->getExtension('search');
+                $extension->set('score', (float) $extension->get('score') * $score);
             }
         }
 

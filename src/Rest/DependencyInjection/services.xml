@@ -36,7 +36,7 @@
         </service>
 
         <service class="Shopware\Rest\Command\UserCreateCommand" id="shopware.rest.command.user_create_command">
-            <argument id="Shopware\User\Repository\UserRepository" type="service"/>
+            <argument id="Shopware\Api\User\Repository\UserRepository" type="service"/>
             <argument id="security.encoder_factory.generic" type="service"/>
             <tag name="console.command"/>
         </service>

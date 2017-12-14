@@ -26,13 +26,13 @@ namespace Shopware\CartBridge\Test\Order;
 
 use Faker\Factory;
 use PHPUnit\Framework\TestCase;
+use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
+use Shopware\Api\Customer\Struct\CustomerBasicStruct;
+use Shopware\Api\Order\Repository\OrderRepository;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\CartBridge\Order\OrderPersister;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Customer\Struct\CustomerAddressBasicStruct;
-use Shopware\Customer\Struct\CustomerBasicStruct;
-use Shopware\Order\Repository\OrderRepository;
 
 class OrderPersisterTest extends TestCase
 {

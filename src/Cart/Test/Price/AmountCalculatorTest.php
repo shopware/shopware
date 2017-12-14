@@ -25,6 +25,7 @@
 namespace Shopware\Cart\Test\Price;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Api\Shop\Struct\ShopDetailStruct;
 use Shopware\Cart\Price\AmountCalculator;
 use Shopware\Cart\Price\PriceRounding;
 use Shopware\Cart\Price\Struct\CartPrice;
@@ -41,7 +42,6 @@ use Shopware\Cart\Tax\TaxCalculator;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\Cart\Tax\TaxRuleCalculator;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Shop\Struct\ShopDetailStruct;
 
 /**
  * Class PriceCalculatorTest

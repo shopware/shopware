@@ -28,17 +28,17 @@ namespace Shopware\CartBridge\View;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
+use Shopware\Api\Product\Collection\ProductBasicCollection;
+use Shopware\Api\Product\Repository\ProductMediaRepository;
+use Shopware\Api\Product\Repository\ProductRepository;
+use Shopware\Api\Product\Struct\ProductMediaBasicStruct;
+use Shopware\Api\Product\Struct\ProductMediaSearchResult;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\CartBridge\Product\Struct\CalculatedProduct;
 use Shopware\CartBridge\Product\Struct\ProductFetchDefinition;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
-use Shopware\Product\Collection\ProductBasicCollection;
-use Shopware\Product\Repository\ProductMediaRepository;
-use Shopware\Product\Repository\ProductRepository;
-use Shopware\Product\Struct\ProductMediaBasicStruct;
-use Shopware\Product\Struct\ProductMediaSearchResult;
 
 class ViewProductTransformer implements ViewLineItemTransformerInterface
 {

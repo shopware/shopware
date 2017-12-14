@@ -6,14 +6,14 @@
 
     <services>
         <service class="Shopware\Category\Extension\CategoryPathBuilder" id="shopware.category.path_builder">
-            <argument id="Shopware\Category\Repository\CategoryRepository" type="service"/>
+            <argument id="Shopware\Api\Category\Repository\CategoryRepository" type="service"/>
             <argument id="dbal_connection" type="service"/>
             <argument type="service" id="event_dispatcher"/>
             <tag name="kernel.event_subscriber" />
         </service>
 
         <service class="Shopware\Category\Extension\CanonicalUrlExtension" id="shopware.category.extension.canonical_url_extension">
-            <argument id="Shopware\Seo\Repository\SeoUrlRepository" type="service"/>
+            <argument id="Shopware\Api\Seo\Repository\SeoUrlRepository" type="service"/>
             <tag name="kernel.event_subscriber"/>
             <tag name="shopware.entity.extension"/>
         </service>

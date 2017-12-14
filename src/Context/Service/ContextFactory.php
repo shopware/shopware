@@ -25,32 +25,29 @@
 namespace Shopware\Context\Service;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Country\Repository\CountryRepository;
+use Shopware\Api\Country\Repository\CountryStateRepository;
+use Shopware\Api\Currency\Repository\CurrencyRepository;
+use Shopware\Api\Currency\Struct\CurrencyBasicStruct;
+use Shopware\Api\Customer\Repository\CustomerAddressRepository;
+use Shopware\Api\Customer\Repository\CustomerGroupRepository;
+use Shopware\Api\Customer\Repository\CustomerRepository;
+use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Payment\Repository\PaymentMethodRepository;
+use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
+use Shopware\Api\Shipping\Repository\ShippingMethodRepository;
+use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Api\Shop\Repository\ShopRepository;
+use Shopware\Api\Shop\Struct\ShopDetailStruct;
+use Shopware\Api\Tax\Repository\TaxRepository;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Context\Struct\CheckoutScope;
 use Shopware\Context\Struct\CustomerScope;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\ShopScope;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Country\Repository\CountryRepository;
-use Shopware\Country\Repository\CountryStateRepository;
-use Shopware\Currency\Repository\CurrencyRepository;
-use Shopware\Currency\Struct\Currency;
-use Shopware\Currency\Struct\CurrencyBasicStruct;
-use Shopware\Customer\Repository\CustomerAddressRepository;
-use Shopware\Customer\Repository\CustomerGroupRepository;
-use Shopware\Customer\Repository\CustomerRepository;
-use Shopware\Customer\Struct\Customer;
-use Shopware\Customer\Struct\CustomerBasicStruct;
-use Shopware\Payment\Repository\PaymentMethodRepository;
-use Shopware\Payment\Struct\PaymentMethodBasicStruct;
-use Shopware\Shipping\Repository\ShippingMethodRepository;
-use Shopware\Shipping\Struct\ShippingMethodBasicStruct;
-use Shopware\Shop\Repository\ShopRepository;
-use Shopware\Shop\Struct\Shop;
-use Shopware\Shop\Struct\ShopDetailStruct;
 use Shopware\Storefront\Context\StorefrontContextService;
-use Shopware\Tax\Repository\TaxRepository;
 
 class ContextFactory implements ContextFactoryInterface
 {

@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\Product;
 
+use Shopware\Api\Product\Struct\ProductBasicStruct;
+use Shopware\Api\Product\Struct\ProductPriceBasicStruct;
 use Shopware\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\LineItemCollection;
@@ -36,8 +38,6 @@ use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\CartBridge\Product\Struct\CalculatedProduct;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
-use Shopware\Product\Struct\ProductBasicStruct;
-use Shopware\Product\Struct\ProductPriceBasicStruct;
 
 class ProductCalculator
 {

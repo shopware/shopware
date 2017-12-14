@@ -24,15 +24,15 @@
 
 namespace Shopware\Context\Struct;
 
+use Shopware\Api\Currency\Struct\CurrencyBasicStruct;
+use Shopware\Api\Customer\Struct\CustomerBasicStruct;
+use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
+use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
+use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Api\Shop\Struct\ShopDetailStruct;
+use Shopware\Api\Tax\Collection\TaxBasicCollection;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Currency\Struct\CurrencyBasicStruct;
-use Shopware\Customer\Struct\CustomerBasicStruct;
-use Shopware\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Framework\Struct\Struct;
-use Shopware\Payment\Struct\PaymentMethodBasicStruct;
-use Shopware\Shipping\Struct\ShippingMethodBasicStruct;
-use Shopware\Shop\Struct\ShopDetailStruct;
-use Shopware\Tax\Collection\TaxBasicCollection;
 
 /**
  * @category  Shopware

@@ -25,14 +25,14 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\CustomerGroup;
 
+use Shopware\Api\Customer\Collection\CustomerGroupDiscountBasicCollection;
+use Shopware\Api\Customer\Repository\CustomerGroupDiscountRepository;
+use Shopware\Api\Customer\Struct\CustomerGroupDiscountBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Cart\Cart\CollectorInterface;
 use Shopware\Cart\Cart\Struct\CartContainer;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Customer\Collection\CustomerGroupDiscountBasicCollection;
-use Shopware\Customer\Repository\CustomerGroupDiscountRepository;
-use Shopware\Customer\Struct\CustomerGroupDiscountBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
 
 class CustomerGroupDiscountCollector implements CollectorInterface

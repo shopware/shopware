@@ -2,7 +2,7 @@
 
 namespace Shopware\Category\Tree;
 
-use Shopware\Category\Struct\CategoryBasicStruct;
+use Shopware\Api\Category\Struct\CategoryBasicStruct;
 
 class TreeItem
 {

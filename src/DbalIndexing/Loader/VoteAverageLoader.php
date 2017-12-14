@@ -4,8 +4,8 @@ namespace Shopware\DbalIndexing\Loader;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\ProductVoteAverage\Struct\ProductVoteAverageBasicCollection;
-use Shopware\ProductVoteAverage\Struct\ProductVoteAverageBasicStruct;
+use Shopware\Api\ProductVoteAverage\Struct\ProductVoteAverageBasicCollection;
+use Shopware\Api\ProductVoteAverage\Struct\ProductVoteAverageBasicStruct;
 
 class VoteAverageLoader
 {

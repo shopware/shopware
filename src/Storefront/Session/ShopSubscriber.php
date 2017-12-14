@@ -25,9 +25,9 @@ declare(strict_types=1);
 
 namespace Shopware\Storefront\Session;
 
+use Shopware\Api\Seo\Struct\SeoUrlBasicStruct;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Routing\Router;
-use Shopware\SeoUrl\Struct\SeoUrlBasicStruct;
 use Shopware\Storefront\Context\StorefrontContextServiceInterface;
 use Shopware\Storefront\Page\Detail\DetailPageUrlGenerator;
 use Shopware\Storefront\Page\Listing\ListingPageUrlGenerator;

@@ -25,10 +25,10 @@
 namespace Shopware\CartBridge\Test\Validator\Rule;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Api\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\CartBridge\Rule\CurrencyRule;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
 
 class CurrencyRuleTest extends TestCase

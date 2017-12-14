@@ -97,4 +97,9 @@ class TraceableNestedEventDispatcher implements NestedEventDispatcherInterface, 
     {
         return $this->dispatcher->getNotCalledListeners();
     }
+
+    public function reset()
+    {
+        return $this->dispatcher->reset();
+    }
 }

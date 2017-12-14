@@ -1,0 +1,50 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+         <service class="Shopware\Api\Media\Definition\MediaDefinition" id="shopware.media.media_definition" >
+            <tag name="shopware.entity.definition" entity="media" />
+        </service>
+        <service class="Shopware\Api\Media\Repository\MediaRepository" id="Shopware\Api\Media\Repository\MediaRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Api\Media\Definition\MediaAlbumDefinition" id="shopware.media.media_album_definition" >
+            <tag name="shopware.entity.definition" entity="media_album" />
+        </service>
+        <service class="Shopware\Api\Media\Repository\MediaAlbumRepository" id="Shopware\Api\Media\Repository\MediaAlbumRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Api\Media\Definition\MediaAlbumTranslationDefinition" id="shopware.media.media_album_translation_definition" >
+            <tag name="shopware.entity.definition" entity="media_album_translation" />
+        </service>
+        <service class="Shopware\Api\Media\Repository\MediaAlbumTranslationRepository" id="Shopware\Api\Media\Repository\MediaAlbumTranslationRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Api\Media\Definition\MediaTranslationDefinition" id="shopware.media.media_translation_definition" >
+            <tag name="shopware.entity.definition" entity="media_translation" />
+        </service>
+        <service class="Shopware\Api\Media\Repository\MediaTranslationRepository" id="Shopware\Api\Media\Repository\MediaTranslationRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+    </services>
+</container>                
+                

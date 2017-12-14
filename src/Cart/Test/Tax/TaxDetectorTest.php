@@ -25,11 +25,11 @@
 namespace Shopware\Cart\Test\Tax;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Api\Country\Struct\CountryBasicStruct;
+use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Country\Struct\CountryBasicStruct;
-use Shopware\Customer\Struct\CustomerGroupBasicStruct;
 
 class TaxDetectorTest extends TestCase
 {

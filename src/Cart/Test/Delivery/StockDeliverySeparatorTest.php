@@ -25,6 +25,10 @@
 namespace Shopware\Cart\Test\Delivery;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Api\Country\Struct\CountryBasicStruct;
+use Shopware\Api\Country\Struct\CountryStateBasicStruct;
+use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
+use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Cart\Delivery\StockDeliverySeparator;
 use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Cart\Delivery\Struct\DeliveryCollection;
@@ -48,10 +52,6 @@ use Shopware\Cart\Test\Common\Generator;
 use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\CartBridge\Product\Struct\CalculatedProduct;
 use Shopware\CartBridge\Voucher\Struct\CalculatedVoucher;
-use Shopware\Country\Struct\CountryBasicStruct;
-use Shopware\Country\Struct\CountryStateBasicStruct;
-use Shopware\Customer\Struct\CustomerAddressBasicStruct;
-use Shopware\Shipping\Struct\ShippingMethodBasicStruct;
 
 class StockDeliverySeparatorTest extends TestCase
 {

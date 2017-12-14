@@ -25,6 +25,8 @@
 namespace Shopware\Cart\Test\Delivery;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Api\Country\Struct\CountryBasicStruct;
+use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Cart\Delivery\Struct\DeliveryDate;
@@ -33,8 +35,6 @@ use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Country\Struct\CountryBasicStruct;
-use Shopware\Shipping\Struct\ShippingMethodBasicStruct;
 
 class DeliveryCollectionTest extends TestCase
 {

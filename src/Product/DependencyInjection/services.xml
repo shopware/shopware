@@ -8,7 +8,7 @@
         <service class="Shopware\Product\Extension\CanonicalUrlExtension" id="shopware.product.extension.canonical_url_extension">
             <tag name="shopware.entity.extension"/>
             <tag name="kernel.event_subscriber" />
-            <argument type="service" id="Shopware\Seo\Repository\SeoUrlRepository"/>
+            <argument type="service" id="Shopware\Api\Seo\Repository\SeoUrlRepository"/>
         </service>
 
     </services>

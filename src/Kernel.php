@@ -65,28 +65,11 @@ class Kernel extends HttpKernel
             new \Shopware\Serializer\Serializer(),
             new \Shopware\DbalIndexing\DbalIndexing(),
 
+            // customization
             new \Shopware\Category\Category(),
-            new \Shopware\Config\Config(),
-            new \Shopware\Country\Country(),
-            new \Shopware\Currency\Currency(),
-            new \Shopware\Customer\Customer(),
-            new \Shopware\Listing\Listing(),
-            new \Shopware\Locale\Locale(),
-            new \Shopware\Log\Log(),
-            new \Shopware\Mail\Mail(),
             new \Shopware\Media\Media(),
-            new \Shopware\Order\Order(),
-            new \Shopware\Payment\Payment(),
-            new \Shopware\Plugin\Plugin(),
             new \Shopware\Product\Product(),
-            new \Shopware\ProductVariant\ProductVariant(),
             new \Shopware\Seo\Seo(),
-            new \Shopware\Shipping\Shipping(),
-            new \Shopware\Shop\Shop(),
-            new \Shopware\Snippet\Snippet(),
-            new \Shopware\Tax\Tax(),
-            new \Shopware\Unit\Unit(),
-            new \Shopware\User\User(),
         ];
 
         // debug

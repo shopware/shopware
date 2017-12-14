@@ -61,7 +61,7 @@ class AuthControllerTest extends ApiTestCase
         $client = $this->getClient();
         $client->request('GET', '/api/tax');
 
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->assertEquals(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $response = json_decode($client->getResponse()->getContent(), true);
 

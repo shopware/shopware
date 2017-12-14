@@ -2,8 +2,8 @@
 
 namespace Shopware\Rest\Test;
 
-use Shopware\Category\Definition\CategoryDefinition;
-use Shopware\Product\Definition\ProductDefinition;
+use Shopware\Api\Category\Definition\CategoryDefinition;
+use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Rest\Controller\SyncController;
 use Symfony\Component\HttpFoundation\Response;
 

@@ -1,0 +1,70 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+         <service class="Shopware\Api\Country\Definition\CountryDefinition" id="shopware.country.country_definition" >
+            <tag name="shopware.entity.definition" entity="country" />
+        </service>
+        <service class="Shopware\Api\Country\Repository\CountryRepository" id="Shopware\Api\Country\Repository\CountryRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Api\Country\Definition\CountryAreaDefinition" id="shopware.country.country_area_definition" >
+            <tag name="shopware.entity.definition" entity="country_area" />
+        </service>
+        <service class="Shopware\Api\Country\Repository\CountryAreaRepository" id="Shopware\Api\Country\Repository\CountryAreaRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Api\Country\Definition\CountryAreaTranslationDefinition" id="shopware.country.country_area_translation_definition" >
+            <tag name="shopware.entity.definition" entity="country_area_translation" />
+        </service>
+        <service class="Shopware\Api\Country\Repository\CountryAreaTranslationRepository" id="Shopware\Api\Country\Repository\CountryAreaTranslationRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Api\Country\Definition\CountryStateDefinition" id="shopware.country.country_state_definition" >
+            <tag name="shopware.entity.definition" entity="country_state" />
+        </service>
+        <service class="Shopware\Api\Country\Repository\CountryStateRepository" id="Shopware\Api\Country\Repository\CountryStateRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Api\Country\Definition\CountryStateTranslationDefinition" id="shopware.country.country_state_translation_definition" >
+            <tag name="shopware.entity.definition" entity="country_state_translation" />
+        </service>
+        <service class="Shopware\Api\Country\Repository\CountryStateTranslationRepository" id="Shopware\Api\Country\Repository\CountryStateTranslationRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Api\Country\Definition\CountryTranslationDefinition" id="shopware.country.country_translation_definition" >
+            <tag name="shopware.entity.definition" entity="country_translation" />
+        </service>
+        <service class="Shopware\Api\Country\Repository\CountryTranslationRepository" id="Shopware\Api\Country\Repository\CountryTranslationRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+    </services>
+</container>                
+                

@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\Voucher\Struct;
 
+use Shopware\Api\Media\Struct\MediaBasicStruct;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Price\Struct\Price;
@@ -32,7 +33,6 @@ use Shopware\Cart\Rule\Rule;
 use Shopware\Cart\Rule\Validatable;
 use Shopware\CartBridge\View\ViewLineItemInterface;
 use Shopware\Framework\Struct\Struct;
-use Shopware\Media\Struct\MediaBasicStruct;
 
 class CalculatedVoucher extends Struct implements CalculatedLineItemInterface, ViewLineItemInterface, Validatable
 {

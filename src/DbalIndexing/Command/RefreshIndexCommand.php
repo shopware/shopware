@@ -26,13 +26,13 @@ namespace Shopware\DbalIndexing\Command;
 
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Sorting\FieldSorting;
+use Shopware\Api\Shop\Repository\ShopRepository;
+use Shopware\Api\Shop\Struct\ShopBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\DbalIndexing\Indexer\IndexerInterface;
-use Shopware\Shop\Repository\ShopRepository;
-use Shopware\Shop\Struct\ShopBasicStruct;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

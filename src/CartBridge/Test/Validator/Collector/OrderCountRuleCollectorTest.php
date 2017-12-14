@@ -26,13 +26,12 @@ namespace Shopware\CartBridge\Test\Validator\Collector;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Cart\Test\Common\ValidatableDefinition;
 use Shopware\CartBridge\Rule\Collector\OrderCountRuleCollector;
 use Shopware\CartBridge\Rule\Data\OrderCountRuleData;
 use Shopware\CartBridge\Rule\OrderCountRule;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Customer\Struct\Customer;
-use Shopware\Customer\Struct\CustomerBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
 
 class OrderCountRuleCollectorTest extends TestCase

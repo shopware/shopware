@@ -25,9 +25,9 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Delivery\Struct;
 
-use Shopware\Country\Struct\CountryBasicStruct;
-use Shopware\Country\Struct\CountryStateBasicStruct;
-use Shopware\Customer\Struct\CustomerAddressBasicStruct;
+use Shopware\Api\Country\Struct\CountryBasicStruct;
+use Shopware\Api\Country\Struct\CountryStateBasicStruct;
+use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Framework\Struct\Struct;
 
 class ShippingLocation extends Struct

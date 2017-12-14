@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\View;
 
+use Shopware\Api\Media\Struct\MediaBasicStruct;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
-use Shopware\Media\Struct\MediaBasicStruct;
 
 interface ViewLineItemInterface extends \JsonSerializable
 {

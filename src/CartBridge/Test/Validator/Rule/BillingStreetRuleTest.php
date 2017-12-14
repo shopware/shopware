@@ -25,11 +25,11 @@
 namespace Shopware\CartBridge\Test\Validator\Rule;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
+use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\CartBridge\Rule\BillingStreetRule;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Customer\Struct\CustomerAddressBasicStruct;
-use Shopware\Customer\Struct\CustomerBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
 
 class BillingStreetRuleTest extends TestCase

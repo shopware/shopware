@@ -2,11 +2,11 @@
 
 namespace Shopware\Storefront\Bridge\Product\Struct;
 
-use Shopware\Product\Collection\ProductMediaBasicCollection;
-use Shopware\Product\Struct\ProductBasicStruct as ApiBasicStruct;
-use Shopware\Product\Struct\ProductListingPriceBasicStruct;
-use Shopware\Product\Struct\ProductMediaBasicStruct;
-use Shopware\Product\Struct\ProductPriceBasicStruct;
+use Shopware\Api\Product\Collection\ProductMediaBasicCollection;
+use Shopware\Api\Product\Struct\ProductBasicStruct as ApiBasicStruct;
+use Shopware\Api\Product\Struct\ProductListingPriceBasicStruct;
+use Shopware\Api\Product\Struct\ProductMediaBasicStruct;
+use Shopware\Api\Product\Struct\ProductPriceBasicStruct;
 
 class ProductBasicStruct extends ApiBasicStruct
 {

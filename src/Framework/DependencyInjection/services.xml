@@ -78,7 +78,7 @@
         </service>
 
         <service class="Shopware\Framework\Routing\UrlResolver" id="shopware.framework.routing.url_resolver">
-            <argument type="service" id="Shopware\Seo\Repository\SeoUrlRepository"/>
+            <argument type="service" id="Shopware\Api\Seo\Repository\SeoUrlRepository"/>
         </service>
 
         <!-- Pluginsystem -->

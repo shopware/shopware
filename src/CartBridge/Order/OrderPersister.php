@@ -25,6 +25,8 @@
 namespace Shopware\CartBridge\Order;
 
 use Ramsey\Uuid\Uuid;
+use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
+use Shopware\Api\Order\Repository\OrderRepository;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Cart\Delivery\Struct\DeliveryPosition;
@@ -32,8 +34,6 @@ use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Cart\Order\OrderPersisterInterface;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Customer\Struct\CustomerAddressBasicStruct;
-use Shopware\Order\Repository\OrderRepository;
 
 class OrderPersister implements OrderPersisterInterface
 {

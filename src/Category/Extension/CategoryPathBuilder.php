@@ -3,12 +3,12 @@
 namespace Shopware\Category\Extension;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Category\Collection\CategoryBasicCollection;
+use Shopware\Api\Category\Event\Category\CategoryWrittenEvent;
+use Shopware\Api\Category\Repository\CategoryRepository;
+use Shopware\Api\Category\Struct\CategoryBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
-use Shopware\Category\Collection\CategoryBasicCollection;
-use Shopware\Category\Event\Category\CategoryWrittenEvent;
-use Shopware\Category\Repository\CategoryRepository;
-use Shopware\Category\Struct\CategoryBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;

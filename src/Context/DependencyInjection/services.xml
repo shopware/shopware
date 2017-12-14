@@ -6,17 +6,17 @@
 
     <services>
         <service class="Shopware\Context\Service\ContextFactory" id="shopware.context.service.context_factory">
-            <argument type="service" id="Shopware\Shop\Repository\ShopRepository"/>
-            <argument type="service" id="Shopware\Currency\Repository\CurrencyRepository"/>
-            <argument type="service" id="Shopware\Customer\Repository\CustomerRepository"/>
-            <argument type="service" id="Shopware\Customer\Repository\CustomerGroupRepository"/>
-            <argument type="service" id="Shopware\Country\Repository\CountryRepository"/>
-            <argument type="service" id="Shopware\Tax\Repository\TaxRepository"/>
-            <argument type="service" id="Shopware\Customer\Repository\CustomerAddressRepository"/>
-            <argument type="service" id="Shopware\Payment\Repository\PaymentMethodRepository"/>
-            <argument type="service" id="Shopware\Shipping\Repository\ShippingMethodRepository"/>
+            <argument type="service" id="Shopware\Api\Shop\Repository\ShopRepository"/>
+            <argument type="service" id="Shopware\Api\Currency\Repository\CurrencyRepository"/>
+            <argument type="service" id="Shopware\Api\Customer\Repository\CustomerRepository"/>
+            <argument type="service" id="Shopware\Api\Customer\Repository\CustomerGroupRepository"/>
+            <argument type="service" id="Shopware\Api\Country\Repository\CountryRepository"/>
+            <argument type="service" id="Shopware\Api\Tax\Repository\TaxRepository"/>
+            <argument type="service" id="Shopware\Api\Customer\Repository\CustomerAddressRepository"/>
+            <argument type="service" id="Shopware\Api\Payment\Repository\PaymentMethodRepository"/>
+            <argument type="service" id="Shopware\Api\Shipping\Repository\ShippingMethodRepository"/>
             <argument type="service" id="dbal_connection"/>
-            <argument type="service" id="Shopware\Country\Repository\CountryStateRepository"/>
+            <argument type="service" id="Shopware\Api\Country\Repository\CountryStateRepository"/>
         </service>
 
     </services>

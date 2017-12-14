@@ -26,20 +26,20 @@ namespace Shopware\Storefront\Page\Listing;
 
 use Cocur\Slugify\SlugifyInterface;
 use Ramsey\Uuid\Uuid;
+use Shopware\Api\Category\Collection\CategoryBasicCollection;
+use Shopware\Api\Category\Repository\CategoryRepository;
+use Shopware\Api\Category\Struct\CategoryBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\MatchQuery;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
-use Shopware\Category\Collection\CategoryBasicCollection;
-use Shopware\Category\Repository\CategoryRepository;
-use Shopware\Category\Struct\CategoryBasicStruct;
+use Shopware\Api\Seo\Collection\SeoUrlBasicCollection;
+use Shopware\Api\Seo\Repository\SeoUrlRepository;
+use Shopware\Api\Seo\Struct\SeoUrlBasicStruct;
+use Shopware\Api\Shop\Struct\ShopBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Routing\Router;
-use Shopware\Seo\Collection\SeoUrlBasicCollection;
 use Shopware\Seo\Generator\SeoUrlGeneratorInterface;
-use Shopware\Seo\Repository\SeoUrlRepository;
-use Shopware\Seo\Struct\SeoUrlBasicStruct;
-use Shopware\Shop\Struct\ShopBasicStruct;
 
 class ListingPageUrlGenerator implements SeoUrlGeneratorInterface
 {

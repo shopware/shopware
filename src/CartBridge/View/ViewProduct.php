@@ -25,10 +25,10 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\View;
 
+use Shopware\Api\Media\Struct\MediaBasicStruct;
+use Shopware\Api\Product\Struct\ProductBasicStruct;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\CartBridge\Product\Struct\CalculatedProduct;
-use Shopware\Media\Struct\MediaBasicStruct;
-use Shopware\Product\Struct\ProductBasicStruct;
 
 class ViewProduct extends ProductBasicStruct implements ViewLineItemInterface
 {

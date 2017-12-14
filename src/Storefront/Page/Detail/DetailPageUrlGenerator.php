@@ -29,15 +29,15 @@ use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
+use Shopware\Api\Product\Repository\ProductRepository;
+use Shopware\Api\Product\Struct\ProductBasicStruct;
+use Shopware\Api\Seo\Collection\SeoUrlBasicCollection;
+use Shopware\Api\Seo\Repository\SeoUrlRepository;
+use Shopware\Api\Seo\Struct\SeoUrlBasicStruct;
+use Shopware\Api\Shop\Struct\ShopBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Routing\Router;
-use Shopware\Product\Repository\ProductRepository;
-use Shopware\Product\Struct\ProductBasicStruct;
-use Shopware\Seo\Collection\SeoUrlBasicCollection;
 use Shopware\Seo\Generator\SeoUrlGeneratorInterface;
-use Shopware\Seo\Repository\SeoUrlRepository;
-use Shopware\Seo\Struct\SeoUrlBasicStruct;
-use Shopware\Shop\Struct\ShopBasicStruct;
 
 class DetailPageUrlGenerator implements SeoUrlGeneratorInterface
 {

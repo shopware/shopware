@@ -25,11 +25,11 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\Product;
 
+use Shopware\Api\Product\Collection\ProductBasicCollection;
+use Shopware\Api\Product\Collection\ProductPriceBasicCollection;
+use Shopware\Api\Product\Repository\ProductRepository;
+use Shopware\Api\Product\Struct\ProductBasicStruct;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Product\Collection\ProductBasicCollection;
-use Shopware\Product\Collection\ProductPriceBasicCollection;
-use Shopware\Product\Repository\ProductRepository;
-use Shopware\Product\Struct\ProductBasicStruct;
 
 class ProductGateway implements ProductGatewayInterface
 {

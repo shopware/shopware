@@ -2,10 +2,10 @@
 
 namespace Shopware\DbalIndexing\Event;
 
-use Shopware\Category\Event\Category\CategoryWrittenEvent;
+use Shopware\Api\Category\Event\Category\CategoryWrittenEvent;
+use Shopware\Api\Product\Event\Product\ProductWrittenEvent;
 use Shopware\DbalIndexing\Indexer\ShopIndexer;
 use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Product\Event\Product\ProductWrittenEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class EventSubscriber implements EventSubscriberInterface

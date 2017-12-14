@@ -25,11 +25,11 @@
 namespace Shopware\CartBridge\Test\Validator\Rule;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Api\Shop\Struct\ShopDetailStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\CartBridge\Rule\ShopRule;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
-use Shopware\Shop\Struct\ShopDetailStruct;
 
 class ShopRuleTest extends TestCase
 {

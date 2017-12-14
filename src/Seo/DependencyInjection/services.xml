@@ -10,9 +10,9 @@
                 <argument id="shopware.storefront.listing_page.listing_page_url_generator" type="service" />
                 <argument id="shopware.storefront.detail_page.detail_page_url_generator" type="service" />
             </argument>
-            <argument id="Shopware\Seo\Repository\SeoUrlRepository" type="service"/>
+            <argument id="Shopware\Api\Seo\Repository\SeoUrlRepository" type="service"/>
             <argument id="dbal_connection" type="service"/>
-            <argument id="Shopware\Shop\Repository\ShopRepository" type="service"/>
+            <argument id="Shopware\Api\Shop\Repository\ShopRepository" type="service"/>
         </service>
 
         <service class="Shopware\Seo\Extension\UrlGeneratorExtension" id="shopware.seo.extension.url_generator_extension">

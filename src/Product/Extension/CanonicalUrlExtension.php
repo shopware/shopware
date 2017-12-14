@@ -10,10 +10,10 @@ use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
 use Shopware\Api\Entity\Write\Flag\Deferred;
 use Shopware\Api\Entity\Write\Flag\Extension;
-use Shopware\Product\Definition\ProductDefinition;
-use Shopware\Product\Event\Product\ProductBasicLoadedEvent;
-use Shopware\Seo\Definition\SeoUrlDefinition;
-use Shopware\Seo\Repository\SeoUrlRepository;
+use Shopware\Api\Product\Definition\ProductDefinition;
+use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
+use Shopware\Api\Seo\Definition\SeoUrlDefinition;
+use Shopware\Api\Seo\Repository\SeoUrlRepository;
 use Shopware\Storefront\Page\Detail\DetailPageUrlGenerator;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 

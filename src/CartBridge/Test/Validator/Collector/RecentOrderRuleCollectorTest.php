@@ -26,12 +26,12 @@ namespace Shopware\CartBridge\Test\Validator\Collector;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Cart\Test\Common\ValidatableDefinition;
 use Shopware\CartBridge\Rule\Collector\RecentOrderRuleCollector;
 use Shopware\CartBridge\Rule\Data\RecentOrderRuleData;
 use Shopware\CartBridge\Rule\RecentOrderRule;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Customer\Struct\CustomerBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
 
 class RecentOrderRuleCollectorTest extends TestCase

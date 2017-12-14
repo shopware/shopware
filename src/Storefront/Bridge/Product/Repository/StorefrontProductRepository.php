@@ -5,18 +5,18 @@ namespace Shopware\Storefront\Bridge\Product\Repository;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
 use Shopware\Api\Entity\Search\Sorting\FieldSorting;
+use Shopware\Api\Product\Collection\ProductBasicCollection;
+use Shopware\Api\Product\Collection\ProductListingPriceBasicCollection;
+use Shopware\Api\Product\Collection\ProductPriceBasicCollection;
+use Shopware\Api\Product\Repository\ProductMediaRepository;
+use Shopware\Api\Product\Repository\ProductRepository;
+use Shopware\Api\Product\Struct\ProductMediaSearchResult;
+use Shopware\Api\Product\Struct\ProductSearchResult;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Product\Collection\ProductBasicCollection;
-use Shopware\Product\Collection\ProductListingPriceBasicCollection;
-use Shopware\Product\Collection\ProductPriceBasicCollection;
-use Shopware\Product\Repository\ProductMediaRepository;
-use Shopware\Product\Repository\ProductRepository;
-use Shopware\Product\Struct\ProductMediaSearchResult;
-use Shopware\Product\Struct\ProductSearchResult;
 use Shopware\Storefront\Bridge\Product\Struct\ProductBasicStruct;
 
 class StorefrontProductRepository
@@ -80,7 +80,7 @@ class StorefrontProductRepository
      * @param ProductPriceBasicCollection|ProductListingPriceBasicCollection $prices
      * @param ShopContext                                                    $context
      *
-     * @return ProductDetailPriceBasicCollection|ProductListingPriceBasicCollection
+     * @return ProductPriceBasicCollection|ProductListingPriceBasicCollection
      */
     private function filterCustomerPrices($prices, ShopContext $context)
     {

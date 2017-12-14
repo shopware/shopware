@@ -1,0 +1,80 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+         <service class="Shopware\Api\Order\Definition\OrderDefinition" id="shopware.order.order_definition" >
+            <tag name="shopware.entity.definition" entity="order" />
+        </service>
+        <service class="Shopware\Api\Order\Repository\OrderRepository" id="Shopware\Api\Order\Repository\OrderRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Api\Order\Definition\OrderAddressDefinition" id="shopware.order.order_address_definition" >
+            <tag name="shopware.entity.definition" entity="order_address" />
+        </service>
+        <service class="Shopware\Api\Order\Repository\OrderAddressRepository" id="Shopware\Api\Order\Repository\OrderAddressRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Api\Order\Definition\OrderDeliveryDefinition" id="shopware.order.order_delivery_definition" >
+            <tag name="shopware.entity.definition" entity="order_delivery" />
+        </service>
+        <service class="Shopware\Api\Order\Repository\OrderDeliveryRepository" id="Shopware\Api\Order\Repository\OrderDeliveryRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Api\Order\Definition\OrderDeliveryPositionDefinition" id="shopware.order.order_delivery_position_definition" >
+            <tag name="shopware.entity.definition" entity="order_delivery_position" />
+        </service>
+        <service class="Shopware\Api\Order\Repository\OrderDeliveryPositionRepository" id="Shopware\Api\Order\Repository\OrderDeliveryPositionRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Api\Order\Definition\OrderLineItemDefinition" id="shopware.order.order_line_item_definition" >
+            <tag name="shopware.entity.definition" entity="order_line_item" />
+        </service>
+        <service class="Shopware\Api\Order\Repository\OrderLineItemRepository" id="Shopware\Api\Order\Repository\OrderLineItemRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Api\Order\Definition\OrderStateDefinition" id="shopware.order.order_state_definition" >
+            <tag name="shopware.entity.definition" entity="order_state" />
+        </service>
+        <service class="Shopware\Api\Order\Repository\OrderStateRepository" id="Shopware\Api\Order\Repository\OrderStateRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Api\Order\Definition\OrderStateTranslationDefinition" id="shopware.order.order_state_translation_definition" >
+            <tag name="shopware.entity.definition" entity="order_state_translation" />
+        </service>
+        <service class="Shopware\Api\Order\Repository\OrderStateTranslationRepository" id="Shopware\Api\Order\Repository\OrderStateTranslationRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+    </services>
+</container>                
+                

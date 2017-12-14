@@ -28,13 +28,12 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\TestCase;
+use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Cart\Test\Common\ValidatableDefinition;
 use Shopware\CartBridge\Rule\Collector\OrderClearedStateRuleCollector;
 use Shopware\CartBridge\Rule\Data\OrderClearedStateRuleData;
 use Shopware\CartBridge\Rule\OrderClearedStateRule;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Customer\Struct\Customer;
-use Shopware\Customer\Struct\CustomerBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
 
 class OrderClearedStateRuleCollectorTest extends TestCase

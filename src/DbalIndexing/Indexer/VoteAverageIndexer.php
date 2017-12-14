@@ -3,6 +3,8 @@
 namespace Shopware\DbalIndexing\Indexer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Product\Event\Product\ProductWrittenEvent;
+use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\DbalIndexing\Common\RepositoryIterator;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
@@ -10,8 +12,6 @@ use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\DbalIndexing\Loader\VoteAverageLoader;
 use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Product\Event\Product\ProductWrittenEvent;
-use Shopware\Product\Repository\ProductRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class VoteAverageIndexer implements IndexerInterface

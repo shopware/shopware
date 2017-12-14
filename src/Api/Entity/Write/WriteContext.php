@@ -24,8 +24,8 @@
 
 namespace Shopware\Api\Entity\Write;
 
+use Shopware\Api\Shop\Definition\ShopDefinition;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Shop\Definition\ShopDefinition;
 
 class WriteContext
 {

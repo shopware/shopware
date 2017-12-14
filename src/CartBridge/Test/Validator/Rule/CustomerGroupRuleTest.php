@@ -25,10 +25,10 @@
 namespace Shopware\CartBridge\Test\Validator\Rule;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\CartBridge\Rule\CustomerGroupRule;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
 
 class CustomerGroupRuleTest extends TestCase

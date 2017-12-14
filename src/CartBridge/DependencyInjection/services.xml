@@ -58,7 +58,7 @@
         <!--interface implementations of cart bundle-->
 
         <service id="shopware.cart.product.gateway" class="Shopware\CartBridge\Product\ProductGateway" >
-            <argument type="service" id="Shopware\Product\Repository\ProductRepository"/>
+            <argument type="service" id="Shopware\Api\Product\Repository\ProductRepository"/>
         </service>
 
         <service id="shopware.cart.storefront_service" class="Shopware\CartBridge\Service\StoreFrontCartService">
@@ -72,7 +72,7 @@
         </service>
 
         <service id="shopware.cart.order.persister" class="Shopware\CartBridge\Order\OrderPersister">
-            <argument id="Shopware\Order\Repository\OrderRepository" type="service"/>
+            <argument id="Shopware\Api\Order\Repository\OrderRepository" type="service"/>
             <argument id="cart.tax.detector" type="service"/>
         </service>
 
@@ -83,8 +83,8 @@
 
         <service id="shopware.cart.view.product_transformer" class="Shopware\CartBridge\View\ViewProductTransformer">
             <tag name="view.line_item_transformer"/>
-            <argument type="service" id="Shopware\Product\Repository\ProductRepository" />
-            <argument type="service" id="Shopware\Product\Repository\ProductMediaRepository" />
+            <argument type="service" id="Shopware\Api\Product\Repository\ProductRepository" />
+            <argument type="service" id="Shopware\Api\Product\Repository\ProductMediaRepository" />
         </service>
 
         <service id="shopware.cart.view.cart_transformer" class="Shopware\CartBridge\View\ViewCartTransformer">
@@ -128,7 +128,7 @@
 
         <service id="shopware.cart.customer_group.customer_group_discount_collector" class="Shopware\CartBridge\CustomerGroup\CustomerGroupDiscountCollector">
             <tag name="cart.collector" priority="-1000"/>
-            <argument type="service" id="Shopware\Customer\Repository\CustomerGroupDiscountRepository"/>
+            <argument type="service" id="Shopware\Api\Customer\Repository\CustomerGroupDiscountRepository"/>
         </service>
 
     </services>

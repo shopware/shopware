@@ -24,8 +24,8 @@
 
 namespace Shopware\Context\Struct;
 
+use Shopware\Api\Shop\Struct\ShopBasicStruct;
 use Shopware\Framework\Struct\Struct;
-use Shopware\Shop\Struct\ShopBasicStruct;
 
 class TranslationContext extends Struct
 {

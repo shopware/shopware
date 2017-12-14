@@ -7,8 +7,8 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\Deferred;
 use Shopware\Api\Entity\Write\Flag\ReadOnly;
-use Shopware\Media\Definition\MediaDefinition;
-use Shopware\Media\Event\Media\MediaBasicLoadedEvent;
+use Shopware\Api\Media\Definition\MediaDefinition;
+use Shopware\Api\Media\Event\Media\MediaBasicLoadedEvent;
 use Shopware\Media\UrlGeneratorInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 

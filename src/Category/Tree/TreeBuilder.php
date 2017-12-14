@@ -2,7 +2,7 @@
 
 namespace Shopware\Category\Tree;
 
-use Shopware\Category\Collection\CategoryBasicCollection;
+use Shopware\Api\Category\Collection\CategoryBasicCollection;
 
 class TreeBuilder
 {

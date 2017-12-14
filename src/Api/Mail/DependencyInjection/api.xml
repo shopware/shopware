@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+         <service class="Shopware\Api\Mail\Definition\MailDefinition" id="shopware.mail.mail_definition" >
+            <tag name="shopware.entity.definition" entity="mail" />
+        </service>
+        <service class="Shopware\Api\Mail\Repository\MailRepository" id="Shopware\Api\Mail\Repository\MailRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Api\Mail\Definition\MailAttachmentDefinition" id="shopware.mail.mail_attachment_definition" >
+            <tag name="shopware.entity.definition" entity="mail_attachment" />
+        </service>
+        <service class="Shopware\Api\Mail\Repository\MailAttachmentRepository" id="Shopware\Api\Mail\Repository\MailAttachmentRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Api\Mail\Definition\MailTranslationDefinition" id="shopware.mail.mail_translation_definition" >
+            <tag name="shopware.entity.definition" entity="mail_translation" />
+        </service>
+        <service class="Shopware\Api\Mail\Repository\MailTranslationRepository" id="Shopware\Api\Mail\Repository\MailTranslationRepository" public="true">
+          <argument id="shopware.api.entity_reader" type="service"/>
+          <argument id="shopware.api.entity_writer" type="service"/>
+          <argument id="shopware.api.entity_searcher" type="service"/>
+          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+    </services>
+</container>                
+                

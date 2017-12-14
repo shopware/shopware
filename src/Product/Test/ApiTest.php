@@ -2,10 +2,8 @@
 
 namespace Shopware\Product\Tests;
 
-use Doctrine\DBAL\Connection;
+use Ramsey\Uuid\Uuid;
 use Shopware\Rest\Test\ApiTestCase;
-use Symfony\Bundle\FrameworkBundle\Client;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class ApiTest extends ApiTestCase
 {
@@ -27,7 +25,7 @@ class ApiTest extends ApiTestCase
             'POST',
             '/api/product',
             [
-                'uuid' => 'abc',
+                'uuid' => Uuid::uuid4()->toString(),
                 'name' => 'test123',
                 'the_unknown_field' => 'do nothing?',
                 'taxUuid' => 'SWAG-TAX-UUID-1',

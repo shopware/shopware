@@ -2,10 +2,9 @@
 
 namespace Shopware\Rest\Test;
 
-use Shopware\Rest\Controller\SyncController;
 use Shopware\Category\Definition\CategoryDefinition;
 use Shopware\Product\Definition\ProductDefinition;
-use Shopware\Rest\Test\ApiTestCase;
+use Shopware\Rest\Controller\SyncController;
 use Symfony\Component\HttpFoundation\Response;
 
 class SyncApiTest extends ApiTestCase

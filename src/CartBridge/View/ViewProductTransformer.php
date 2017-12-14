@@ -34,9 +34,9 @@ use Shopware\CartBridge\Product\Struct\CalculatedProduct;
 use Shopware\CartBridge\Product\Struct\ProductFetchDefinition;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
+use Shopware\Product\Collection\ProductBasicCollection;
 use Shopware\Product\Repository\ProductMediaRepository;
 use Shopware\Product\Repository\ProductRepository;
-use Shopware\Product\Collection\ProductBasicCollection;
 use Shopware\Product\Struct\ProductMediaBasicStruct;
 use Shopware\Product\Struct\ProductMediaSearchResult;
 

@@ -26,9 +26,9 @@ namespace Shopware\Framework\Routing;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Rest\Routing\RouteCollector;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Kernel;
+use Shopware\Rest\Routing\RouteCollector;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGenerator;
@@ -141,6 +141,7 @@ class Router implements RouterInterface, RequestMatcherInterface
 
         if ($this->container->getParameter('kernel.environment') !== 'prod') {
             $this->routes = $this->loadRoutes();
+
             return $this->routes;
         }
 

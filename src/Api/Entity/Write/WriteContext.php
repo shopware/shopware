@@ -66,7 +66,7 @@ class WriteContext
      *
      * @return mixed
      */
-    public function get(string $className, string $propertyName, $a = false)
+    public function get(string $className, string $propertyName)
     {
         $path = $this->buildPathName($className, $propertyName);
 

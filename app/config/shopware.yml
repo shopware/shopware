@@ -46,7 +46,7 @@ security:
                     - lexik_jwt_authentication.jwt_token_authenticator
 
         storefront:
-            pattern: ^/account
+            pattern: ^/
             anonymous: ~
             logout_on_user_change: true
             provider: customer

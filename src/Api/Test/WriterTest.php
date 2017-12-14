@@ -44,7 +44,7 @@ class WriterTest extends KernelTestCase
                     'name' => 'test',
                     'the_unknown_field' => 'do nothing?',
                     'taxUuid' => 'SWAG-TAX-UUID-1',
-                    'manufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2'],
+                    'manufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2', 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
                     'mode' => 0,
                     'lastStock' => true,
                     'crossbundlelook' => 1,
@@ -76,7 +76,7 @@ class WriterTest extends KernelTestCase
                     'the_unknown_field' => 'do nothing?',
                     'taxUuid' => 'SWAG-TAX-UUID-1',
                     'name' => 'foo',
-                    'manufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2'],
+                    'manufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2', 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
                 ],
             ],
             $this->createWriteContext()
@@ -100,7 +100,7 @@ class WriterTest extends KernelTestCase
                     'description' => 'A test article',
                     'descriptionLong' => '<p>I\'m a <b>test article</b></p>',
                     'taxUuid' => 'SWAG-TAX-UUID-1',
-                    'manufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2'],
+                    'manufacturer' => ['uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2', 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
                     'updatedAt' => new \DateTime(),
                     'mode' => 0,
                     'lastStock' => true,
@@ -113,7 +113,7 @@ class WriterTest extends KernelTestCase
                     'isMain' => true,
 
                     'categories' => [
-                        ['categoryUuid' => 'SWAG-CATEGORY-UUID-25'],
+                        ['categoryUuid' => 'SWAG-CATEGORY-UUID-1'],
                     ],
 
                     'prices' => [
@@ -152,6 +152,7 @@ class WriterTest extends KernelTestCase
                     'manufacturer' => [
                         'uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-1',
                         'link' => 'http://www.shopware.com',
+                        'name' => 'Another Company'
                     ],
                 ],
             ],
@@ -168,7 +169,7 @@ class WriterTest extends KernelTestCase
         self::assertSame('no html', $productTranslation['description']);
         self::assertSame('<p>html</p>', $productTranslation['description_long']);
         self::assertSame('SWAG-PRODUCT-MANUFACTURER-UUID-1', $product['product_manufacturer_uuid']);
-        self::assertSame('shopware AG', $productManufacturerTranslation['name']);
+        self::assertSame('Another Company', $productManufacturerTranslation['name']);
         self::assertSame('http://www.shopware.com', $productManufacturer['link']);
     }
 
@@ -310,15 +311,24 @@ class WriterTest extends KernelTestCase
 
     protected function insertEmptyProduct(): void
     {
-        $this->connection->insert(
-            'product',
+        $this->getWriter()->insert(
+            ProductDefinition::class,
             [
-                'uuid' => self::UUID,
-                'tax_uuid' => 'SWAG-TAX-UUID-1',
-                'product_manufacturer_uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2',
-                'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
-                'updated_at' => (new \DateTime())->format('Y-m-d H:i:s'),
-            ]);
+                [
+                    'uuid' => self::UUID,
+                    'name' => 'Test product',
+                    'tax_uuid' => 'SWAG-TAX-UUID-1',
+                    'manufacturer' => [
+                        'uuid' => 'SWAG-PRODUCT-MANUFACTURER-UUID-2',
+                        'name' => 'shopware AG',
+                        'link' => 'https://shopware.com'
+                    ],
+                    'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+                    'updated_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+                ]
+            ],
+            $this->createWriteContext()
+        );
     }
 
     private function getWriter(): EntityWriterInterface

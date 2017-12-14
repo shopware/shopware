@@ -1,6 +1,6 @@
 <?php
 
-namespace Shopware\#bundle#\Repository;
+namespace Shopware\Api\#bundle#\Repository;
 
 use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\UuidSearchResult;
@@ -13,13 +13,13 @@ use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\#bundle#\Event\#classUc#\#classUc#SearchResultLoadedEvent;
-use Shopware\#bundle#\Event\#classUc#\#classUc#BasicLoadedEvent;
-use Shopware\#bundle#\Event\#classUc#\#classUc#AggregationResultLoadedEvent;
-use Shopware\#bundle#\Event\#classUc#\#classUc#UuidSearchResultLoadedEvent;
-use Shopware\#bundle#\Struct\#classUc#SearchResult;
-use Shopware\#bundle#\Definition\#classUc#Definition;
-use Shopware\#bundle#\Collection\#classUc#BasicCollection;
+use Shopware\Api\#bundle#\Event\#classUc#\#classUc#SearchResultLoadedEvent;
+use Shopware\Api\#bundle#\Event\#classUc#\#classUc#BasicLoadedEvent;
+use Shopware\Api\#bundle#\Event\#classUc#\#classUc#AggregationResultLoadedEvent;
+use Shopware\Api\#bundle#\Event\#classUc#\#classUc#UuidSearchResultLoadedEvent;
+use Shopware\Api\#bundle#\Struct\#classUc#SearchResult;
+use Shopware\Api\#bundle#\Definition\#classUc#Definition;
+use Shopware\Api\#bundle#\Collection\#classUc#BasicCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #uses#
 

@@ -124,7 +124,7 @@ class DefinitionGenerator
                             ucfirst(Util::getBundleName($association->referenceTable)),
                             ucfirst(Util::getTableDomainName($association->referenceTable))
                         ],
-                        'use Shopware\#BundleName#\Definition\#Domain#Definition;'
+                        'use Shopware\Api\#BundleName#\Definition\#Domain#Definition;'
                     );
 
                     $uses[] = str_replace(
@@ -133,7 +133,7 @@ class DefinitionGenerator
                             ucfirst(Util::getBundleName($association->mappingTable)),
                             ucfirst(Util::getTableDomainName($association->mappingTable))
                         ],
-                        'use Shopware\#BundleName#\Definition\#Domain#Definition;'
+                        'use Shopware\Api\#BundleName#\Definition\#Domain#Definition;'
                     );
 
 
@@ -202,7 +202,7 @@ class DefinitionGenerator
                     );
 
                     if ($this->hasRequiredTranslationColumn($definition)) {
-                        $uses[] = 'use Shopware\\Api\\Write\\Flag\\Required;';
+                        $uses[] = 'use Shopware\\Api\\Entity\\Write\\Flag\\Required;';
                         $template = '('.$template.')->setFlags(new Required())';
                     }
 
@@ -217,7 +217,7 @@ class DefinitionGenerator
                     $uses[] = str_replace(
                         ['#bundle#', '#Definition#'],
                         [ucfirst($bundle), ucfirst($domain)],
-                        'use Shopware\#bundle#\Definition\#Definition#Definition;'
+                        'use Shopware\Api\#bundle#\Definition\#Definition#Definition;'
                     );
 
                     $template = str_replace(
@@ -262,8 +262,8 @@ class DefinitionGenerator
             ['#bundle#', '#class#'],
             [ucfirst($definition->bundle), ucfirst($definition->domainName)],
             '
-use Shopware\#bundle#\Collection\#class#DetailCollection;
-use Shopware\#bundle#\Struct\#class#DetailStruct;            
+use Shopware\Api\#bundle#\Collection\#class#DetailCollection;
+use Shopware\Api\#bundle#\Struct\#class#DetailStruct;            
             '
         );
         $template = str_replace(
@@ -300,14 +300,14 @@ use Shopware\#bundle#\Struct\#class#DetailStruct;
 
         $flags = [];
         if ($column->isPrimaryKey) {
-            $uses[] = 'use Shopware\\Api\\Write\\Flag\\PrimaryKey;';
+            $uses[] = 'use Shopware\\Api\\Entity\\Write\\Flag\\PrimaryKey;';
             $flags[] = 'new PrimaryKey()';
         }
         if ($column->isForeignKey) {
             $uses[] = 'use Shopware\\Api\\Entity\\Field\\FkField;';
         }
         if ($column->required) {
-            $uses[] = 'use Shopware\\Api\\Write\\Flag\\Required;';
+            $uses[] = 'use Shopware\\Api\\Entity\\Write\\Flag\\Required;';
             $flags[] = 'new Required()';
         }
         if ($column->isTranslationField) {
@@ -324,7 +324,7 @@ use Shopware\#bundle#\Struct\#class#DetailStruct;
             $domain = Util::getTableDomainName($column->foreignKeyTable);
 
             if ($definition->bundle !== $bundle) {
-                $uses[] = str_replace(['#bundle#', '#class#'], [ucfirst($bundle), ucfirst($domain)], 'use Shopware\\#bundle#\\Definition\\#class#Definition;');
+                $uses[] = str_replace(['#bundle#', '#class#'], [ucfirst($bundle), ucfirst($domain)], 'use Shopware\\Api\\#bundle#\\Definition\\#class#Definition;');
             }
 
             $template = str_replace(

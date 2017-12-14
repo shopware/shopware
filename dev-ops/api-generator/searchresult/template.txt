@@ -1,10 +1,10 @@
 <?php
 
-namespace Shopware\#bundle#\Struct;
+namespace Shopware\Api\#bundle#\Struct;
 
 use Shopware\Api\Entity\Search\SearchResultInterface;
 use Shopware\Api\Entity\Search\SearchResultTrait;
-use Shopware\#bundle#\Collection\#classUc#BasicCollection;
+use Shopware\Api\#bundle#\Collection\#classUc#BasicCollection;
 
 class #classUc#SearchResult extends #classUc#BasicCollection implements SearchResultInterface
 {

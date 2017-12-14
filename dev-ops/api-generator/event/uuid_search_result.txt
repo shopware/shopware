@@ -1,6 +1,6 @@
 <?php
 
-namespace Shopware\#bundle#\Event\#classUc#;
+namespace Shopware\Api\#bundle#\Event\#classUc#;
 
 use Shopware\Api\Entity\Search\UuidSearchResult;
 use Shopware\Context\Struct\TranslationContext;

@@ -120,7 +120,7 @@ class EventGenerator
             $uses[] = str_replace(
                 ['#bundle#', '#classUc#'],
                 [ucfirst($association->referenceBundle), ucfirst($associationClass)],
-                'use Shopware\\#bundle#\\Event\\#classUc#\\#classUc#BasicLoadedEvent;'
+                'use Shopware\\Api\\#bundle#\\Event\\#classUc#\\#classUc#BasicLoadedEvent;'
             );
             if ($association instanceof ManyToManyAssociation) {
                 $associationPlural = 'all' . ucfirst($associationPlural);

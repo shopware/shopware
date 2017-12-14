@@ -1,10 +1,10 @@
 <?php
 
-namespace Shopware\#bundle#\Event\#classUc#;
+namespace Shopware\Api\#bundle#\Event\#classUc#;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
-use Shopware\#bundle#\Struct\#classUc#SearchResult;
+use Shopware\Api\#bundle#\Struct\#classUc#SearchResult;
 
 class #classUc#SearchResultLoadedEvent extends NestedEvent
 {

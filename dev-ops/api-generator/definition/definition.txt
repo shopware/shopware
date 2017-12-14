@@ -1,14 +1,14 @@
 <?php
 
-namespace Shopware\#BundleName#\Definition;
+namespace Shopware\Api\#BundleName#\Definition;
 
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\FieldCollection;
-use Shopware\#BundleName#\Repository\#TableDomainNameUc#Repository;
-use Shopware\#BundleName#\Collection\#TableDomainNameUc#BasicCollection;
-use Shopware\#BundleName#\Struct\#TableDomainNameUc#BasicStruct;
-use Shopware\#BundleName#\Event\#TableDomainNameUc#\#TableDomainNameUc#WrittenEvent;
+use Shopware\Api\#BundleName#\Repository\#TableDomainNameUc#Repository;
+use Shopware\Api\#BundleName#\Collection\#TableDomainNameUc#BasicCollection;
+use Shopware\Api\#BundleName#\Struct\#TableDomainNameUc#BasicStruct;
+use Shopware\Api\#BundleName#\Event\#TableDomainNameUc#\#TableDomainNameUc#WrittenEvent;
 #uses#
 
 class #TableDomainNameUc#Definition extends EntityDefinition

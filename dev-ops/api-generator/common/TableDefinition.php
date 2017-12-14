@@ -55,7 +55,7 @@ class TableDefinition
 
     public function getNamespace(): string
     {
-        return 'Shopware\\' . ucfirst($this->domainName);
+        return 'Shopware\\Api\\' . ucfirst($this->domainName);
     }
 
     public function getDefinitionClassName(): string

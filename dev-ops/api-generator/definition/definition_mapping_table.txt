@@ -1,10 +1,10 @@
 <?php
 
-namespace Shopware\#BundleName#\Definition;
+namespace Shopware\Api\#BundleName#\Definition;
 
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\FieldCollection;
-use Shopware\#BundleName#\Event\#TableDomainNameUc#\#TableDomainNameUc#WrittenEvent;
+use Shopware\Api\#BundleName#\Event\#TableDomainNameUc#\#TableDomainNameUc#WrittenEvent;
 #uses#
 
 class #TableDomainNameUc#Definition extends EntityDefinition

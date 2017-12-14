@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\#bundle#\Collection;
+namespace Shopware\Api\#bundle#\Collection;
 
-use Shopware\#bundle#\Struct\#classUc#DetailStruct;
+use Shopware\Api\#bundle#\Struct\#classUc#DetailStruct;
 #uses#
 
 class #classUc#DetailCollection extends #classUc#BasicCollection

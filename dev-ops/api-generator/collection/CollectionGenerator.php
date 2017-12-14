@@ -54,7 +54,7 @@ class CollectionGenerator
             $uses[] = str_replace(
                 ['#classUc#', '#bundle#'],
                 [ucfirst($associationClass), ucfirst($association->referenceBundle)],
-                'use Shopware\#bundle#\Collection\#classUc#BasicCollection;'
+                'use Shopware\Api\#bundle#\Collection\#classUc#BasicCollection;'
             );
         }
 
@@ -103,7 +103,7 @@ class CollectionGenerator
             $uses[] = str_replace(
                 ['#classUc#', '#bundle#'],
                 [ucfirst($associationClass), ucfirst($association->referenceBundle)],
-                'use Shopware\#bundle#\Collection\#classUc#BasicCollection;'
+                'use Shopware\Api\#bundle#\Collection\#classUc#BasicCollection;'
             );
         }
         $associationGetters = array_unique($associationGetters);

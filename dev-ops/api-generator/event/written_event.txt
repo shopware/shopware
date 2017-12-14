@@ -1,9 +1,9 @@
 <?php
 
-namespace Shopware\#bundle#\Event\#classUc#;
+namespace Shopware\Api\#bundle#\Event\#classUc#;
 
 use Shopware\Api\Entity\Write\WrittenEvent;
-use Shopware\#bundle#\Definition\#classUc#Definition;
+use Shopware\Api\#bundle#\Definition\#classUc#Definition;
 
 class #classUc#WrittenEvent extends WrittenEvent
 {

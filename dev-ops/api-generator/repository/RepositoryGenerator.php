@@ -33,8 +33,8 @@ class RepositoryGenerator
         $uses = [];
 
         if ($definition->hasDetail()) {
-            $uses[] = sprintf('use Shopware\\%s\\Collection\\%sDetailCollection;', ucfirst($definition->bundle), ucfirst($definition->domainName));
-            $uses[] = sprintf('use Shopware\\%s\\Event\\%s\\%sDetailLoadedEvent;', ucfirst($definition->bundle), ucfirst($definition->domainName), ucfirst($definition->domainName));
+            $uses[] = sprintf('use Shopware\\Api\\%s\\Collection\\%sDetailCollection;', ucfirst($definition->bundle), ucfirst($definition->domainName));
+            $uses[] = sprintf('use Shopware\\Api\\%s\\Event\\%s\\%sDetailLoadedEvent;', ucfirst($definition->bundle), ucfirst($definition->domainName), ucfirst($definition->domainName));
 
             $detailCollection = 'DetailCollection';
             $detail = str_replace(

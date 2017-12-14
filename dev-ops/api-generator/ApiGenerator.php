@@ -151,7 +151,7 @@ class ApiGenerator
             $services[$definition->bundle][] = str_replace(
                 ['#bundleLc#', '#table#', '#bundleUc#', '#classUc#'],
                 [lcfirst($definition->bundle), $definition->tableName, ucfirst($definition->bundle), ucfirst($definition->domainName)],
-                '         <service class="Shopware\#bundleUc#\Definition\#classUc#Definition" id="shopware.#bundleLc#.#table#_definition" >
+                '         <service class="Shopware\Api\#bundleUc#\Definition\#classUc#Definition" id="shopware.#bundleLc#.#table#_definition" >
             <tag name="shopware.entity.definition" entity="#table#" />
         </service>'
             );
@@ -160,7 +160,7 @@ class ApiGenerator
                 $services[$definition->bundle][] = str_replace(
                     ['#bundleLc#', '#table#', '#bundleUc#', '#classUc#'],
                     [lcfirst($definition->bundle), $definition->tableName, ucfirst($definition->bundle), ucfirst($definition->domainName)],
-                    '        <service class="Shopware\#bundleUc#\Repository\#classUc#Repository" id="Shopware\#bundleUc#\Repository\#classUc#Repository" public="true">
+                    '        <service class="Shopware\Api\#bundleUc#\Repository\#classUc#Repository" id="Shopware\Api\#bundleUc#\Repository\#classUc#Repository" public="true">
           <argument id="shopware.api.entity_reader" type="service"/>
           <argument id="shopware.api.entity_writer" type="service"/>
           <argument id="shopware.api.entity_searcher" type="service"/>
@@ -173,41 +173,6 @@ class ApiGenerator
 
         foreach ($services as $bundle => $bundleServices) {
             $dir = $this->outputDirectory . '/' . ucfirst($bundle);
-
-            $file = $dir . '/' . ucfirst($bundle) . '.php';
-            if (file_exists($file)) {
-//                unlink($file);
-            }
-            $template = str_replace(
- '#bundle#',
-ucfirst($bundle),
-'<?php declare(strict_types=1);
-
-namespace Shopware\#bundle#;
-
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-use Symfony\Component\HttpKernel\Bundle\Bundle;
-
-class #bundle# extends Bundle
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function build(ContainerBuilder $container)
-    {
-        parent::build($container);
-
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . \'/DependencyInjection/\'));
-        $loader->load(\'api.xml\');
-    }
-}');
-
-            if (!file_exists($file)) {
-                file_put_contents($file, $template);
-//                unlink($file);
-            }
 
             $file = $dir . '/DependencyInjection/api.xml';
             if (file_exists($file)) {

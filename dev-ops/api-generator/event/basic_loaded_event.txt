@@ -1,11 +1,11 @@
 <?php
 
-namespace Shopware\#bundle#\Event\#classUc#;
+namespace Shopware\Api\#bundle#\Event\#classUc#;
 
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\#bundle#\Collection\#classUc#BasicCollection;
+use Shopware\Api\#bundle#\Collection\#classUc#BasicCollection;
 #uses#
 
 class #classUc#BasicLoadedEvent extends NestedEvent

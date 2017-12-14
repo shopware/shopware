@@ -402,14 +402,14 @@ class StructGenerator
             return str_replace(
                 ['#associationClassUc#', '#bundle#'],
                 [ucfirst($associationClass), ucfirst($bundle)],
-                'use Shopware\#bundle#\Collection\#associationClassUc#BasicCollection;'
+                'use Shopware\Api\#bundle#\Collection\#associationClassUc#BasicCollection;'
             );
         }
 
         return str_replace(
             ['#associationClassUc#', '#bundle#'],
             [ucfirst($associationClass), ucfirst($bundle)],
-            'use Shopware\#bundle#\Struct\#associationClassUc#BasicStruct;'
+            'use Shopware\Api\#bundle#\Struct\#associationClassUc#BasicStruct;'
         );
     }
 

@@ -106,6 +106,6 @@ $context = new Context(
     $htmlFields
 );
 
-$generator = new ApiGenerator(__DIR__ . '/../../src/');
+$generator = new ApiGenerator(__DIR__ . '/../../src/Api/');
 
 $generator->generate($context);

@@ -61,6 +61,7 @@ class OrderLineItemDefinition extends EntityDefinition
             (new FloatField('unit_price', 'unitPrice'))->setFlags(new Required()),
             (new FloatField('total_price', 'totalPrice'))->setFlags(new Required()),
             (new LongTextField('payload', 'payload'))->setFlags(new Required()),
+            new StringField('parent_id', 'parentId'),
             new StringField('type', 'type'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),

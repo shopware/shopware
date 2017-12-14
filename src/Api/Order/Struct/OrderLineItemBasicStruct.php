@@ -39,6 +39,11 @@ class OrderLineItemBasicStruct extends Entity
     /**
      * @var string|null
      */
+    protected $parentId;
+
+    /**
+     * @var string|null
+     */
     protected $type;
 
     /**
@@ -109,6 +114,16 @@ class OrderLineItemBasicStruct extends Entity
     public function setPayload(string $payload): void
     {
         $this->payload = $payload;
+    }
+
+    public function getParentId(): ?string
+    {
+        return $this->parentId;
+    }
+
+    public function setParentId(?string $parentId): void
+    {
+        $this->parentId = $parentId;
     }
 
     public function getType(): ?string

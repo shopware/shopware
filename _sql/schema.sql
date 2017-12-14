@@ -727,6 +727,7 @@ CREATE TABLE `order_delivery_position` (
 DROP TABLE IF EXISTS `order_line_item`;
 CREATE TABLE `order_line_item` (
   `id` binary(16) NOT NULL,
+  `parent_id` binary(16) DEFAULT NULL,
   `identifier` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `quantity` int(11) NOT NULL,
   `unit_price` double NOT NULL,

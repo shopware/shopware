@@ -92,6 +92,34 @@ class CalculatedLineItemCollection extends Collection
         return parent::current();
     }
 
+    /**
+     * Removes the nested line item structure and returns an array containing all line items as root level
+     *
+     * Result returned as flat array to avoid identifier collision of nested elements of the same type and id,
+     * but with different meta information.
+     *
+     * @return array
+     */
+    public function getFlatElements(): array
+    {
+        $flat = [];
+
+        foreach ($this->elements as $element) {
+            $flat[] = $element;
+
+            if (!$element instanceof NestedInterface) {
+                continue;
+            }
+
+            $children = $element->getChildren()->getFlatElements();
+            foreach ($children as $child) {
+                $flat[] = $child;
+            }
+        }
+
+        return $flat;
+    }
+
     protected function getKey(CalculatedLineItemInterface $element): string
     {
         return $element->getIdentifier();

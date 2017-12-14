@@ -82,4 +82,14 @@ trait SearchResultTrait
 
         return $data;
     }
+
+    public function setUuidResult(UuidSearchResult $uuidResult): void
+    {
+        $this->uuidResult = $uuidResult;
+    }
+
+    public function setAggregationResult(?AggregationResult $aggregationResult): void
+    {
+        $this->aggregationResult = $aggregationResult;
+    }
 }

@@ -31,6 +31,7 @@ use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
+use Shopware\Cart\LineItem\NestedInterface;
 use Shopware\Cart\Order\OrderPersisterInterface;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\Context\Struct\ShopContext;
@@ -74,7 +75,7 @@ class OrderPersister implements OrderPersisterInterface
             'isNet' => !$this->taxDetector->useGross($context),
             'isTaxFree' => $this->taxDetector->isNetDelivery($context),
             'customerId' => $context->getCustomer()->getId(),
-            'stateId' => '1194a493-8067-42c9-b85e-61f1f2cf9be8',
+            'stateId' => 'SWAG-ORDER-STATE-ID-0',
             'paymentMethodId' => $context->getPaymentMethod()->getId(),
             'currencyId' => $context->getCurrency()->getId(),
             'shopId' => $context->getShop()->getId(),
@@ -90,47 +91,54 @@ class OrderPersister implements OrderPersisterInterface
         $data['billingAddress'] = $this->convertAddress($address);
         $data['billingAddress']['id'] = $addressId;
 
-        $lineItemMap = [];
-        /** @var CalculatedLineItemInterface $lineItem */
+        $lineItems = [];
         foreach ($calculatedCart->getCalculatedLineItems() as $lineItem) {
-            $id = Uuid::uuid4()->toString();
-            $lineItemMap[$lineItem->getIdentifier()] = $id;
-
-            $data['lineItems'][] = [
-                'id' => $id,
-                'identifier' => $lineItem->getIdentifier(),
-                'quantity' => $lineItem->getQuantity(),
-                'unitPrice' => $lineItem->getPrice()->getUnitPrice(),
-                'totalPrice' => $lineItem->getPrice()->getTotalPrice(),
-                'type' => $lineItem->getType(),
-                'payload' => json_encode($lineItem),
-            ];
+            $row = $this->convertLineItem($lineItem);
+            $row['id'] = Uuid::uuid4()->toString();
+            $lineItems[$lineItem->getIdentifier()] = $row;
         }
 
         /** @var Delivery $delivery */
         foreach ($calculatedCart->getDeliveries() as $delivery) {
-            $deliveryData = [
-                'shippingDateEarliest' => $delivery->getDeliveryDate()->getEarliest()->format('Y-m-d H:i:s'),
-                'shippingDateLatest' => $delivery->getDeliveryDate()->getLatest()->format('Y-m-d H:i:s'),
-                'shippingMethodId' => $delivery->getShippingMethod()->getId(),
-                'shippingAddress' => $this->convertAddress($delivery->getLocation()->getAddress()),
-                'orderStateId' => '1194a493-8067-42c9-b85e-61f1f2cf9be8',
-                'positions' => [],
-                'payload' => json_encode($delivery),
-            ];
+            $data['deliveries'][] = $this->convertDelivery($delivery, $lineItems);
+        }
 
-            /** @var DeliveryPosition $position */
-            foreach ($delivery->getPositions() as $position) {
-                $deliveryData['positions'][] = [
-                    'unitPrice' => $position->getPrice()->getUnitPrice(),
-                    'totalPrice' => $position->getPrice()->getTotalPrice(),
-                    'quantity' => $position->getQuantity(),
-                    'payload' => json_encode($position),
-                    'orderLineItemId' => $lineItemMap[$position->getIdentifier()],
-                ];
+        $lineItems = array_values($lineItems);
+
+        foreach ($lineItems as $parent) {
+            $lineItem = $calculatedCart->getCalculatedLineItems()->get($parent['identifier']);
+            if (!$lineItem instanceof NestedInterface) {
+                continue;
             }
 
-            $data['deliveries'][] = $deliveryData;
+            $children = $this->convertNestedLineItem($lineItem, $parent['id']);
+            foreach ($children as $child) {
+                $lineItems[] = $child;
+            }
+        }
+
+        $data['lineItems'] = $lineItems;
+
+        return $data;
+    }
+
+    private function convertNestedLineItem(NestedInterface $lineItem, string $parentId = null)
+    {
+        $data = [];
+        foreach ($lineItem->getChildren() as $child) {
+            $row = $this->convertLineItem($child);
+            $row['parentId'] = $parentId;
+            $row['id'] = Uuid::uuid4()->toString();
+            $data[] = $row;
+
+            if (!$child instanceof NestedInterface) {
+                continue;
+            }
+
+            $nested = $this->convertNestedLineItem($lineItem, $row['id']);
+            foreach ($nested as $subChild) {
+                $data[] = $subChild;
+            }
         }
 
         return $data;
@@ -155,5 +163,49 @@ class OrderPersister implements OrderPersisterInterface
             'countryId' => $address->getCountryId(),
             'countryStateId' => $address->getCountryStateId(),
         ]);
+    }
+
+    private function convertLineItem(CalculatedLineItemInterface $lineItem): array
+    {
+        return [
+            'identifier' => $lineItem->getIdentifier(),
+            'quantity' => $lineItem->getQuantity(),
+            'unitPrice' => $lineItem->getPrice()->getUnitPrice(),
+            'totalPrice' => $lineItem->getPrice()->getTotalPrice(),
+            'type' => $lineItem->getType(),
+            'payload' => json_encode($lineItem),
+        ];
+    }
+
+    /**
+     * @param Delivery $delivery
+     * @param array[]  $lineItems
+     *
+     * @return array
+     */
+    private function convertDelivery(Delivery $delivery, array $lineItems): array
+    {
+        $deliveryData = [
+            'shippingDateEarliest' => $delivery->getDeliveryDate()->getEarliest()->format('Y-m-d H:i:s'),
+            'shippingDateLatest' => $delivery->getDeliveryDate()->getLatest()->format('Y-m-d H:i:s'),
+            'shippingMethodId' => $delivery->getShippingMethod()->getId(),
+            'shippingAddress' => $this->convertAddress($delivery->getLocation()->getAddress()),
+            'orderStateId' => 'SWAG-ORDER-STATE-ID-0',
+            'positions' => [],
+            'payload' => json_encode($delivery),
+        ];
+
+        /** @var DeliveryPosition $position */
+        foreach ($delivery->getPositions() as $position) {
+            $deliveryData['positions'][] = [
+                'unitPrice' => $position->getPrice()->getUnitPrice(),
+                'totalPrice' => $position->getPrice()->getTotalPrice(),
+                'quantity' => $position->getQuantity(),
+                'payload' => json_encode($position),
+                'orderLineItemId' => $lineItems[$position->getIdentifier()]['id'],
+            ];
+        }
+
+        return $deliveryData;
     }
 }

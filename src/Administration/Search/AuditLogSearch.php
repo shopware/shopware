@@ -172,7 +172,7 @@ class AuditLogSearch
 
     private function getEntityScore(array $scoring, string $id)
     {
-        $fallback = 1.1;
+        $fallback = 1.0;
         foreach ($scoring as $score) {
             $foreignKey = Uuid::fromBytes($score['foreign_key'])->toString();
             if ($foreignKey === $id) {

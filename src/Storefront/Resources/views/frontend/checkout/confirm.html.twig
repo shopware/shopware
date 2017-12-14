@@ -109,15 +109,15 @@
 
                             {#{* Order items *}#}
                             {% block frontend_checkout_confirm_product_table_item_outer %}
-                                {% for viewPosition in cart.viewLineItems %}
-                                    {% block frontend_checkout_confirm_product_table_item %}
+                                {% block frontend_checkout_confirm_product_table_item %}
+                                    {% for lineItem in cart.viewLineItems %}
                                         {% sw_include "frontend/checkout/confirm/confirm-item.html.twig"
                                         with {
-                                        'isLast': loop.last,
-                                        'viewLineItem': viewPosition,
+                                            'viewLineItem': lineItem,
+                                            'depth': 0
                                         } %}
-                                    {% endblock %}
-                                {% endfor %}
+                                    {% endfor %}
+                                {% endblock %}
                             {% endblock %}
 
                             {% block frontend_checkout_confirm_product_table_item_after %}{% endblock %}

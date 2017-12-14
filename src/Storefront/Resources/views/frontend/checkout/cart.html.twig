@@ -78,12 +78,19 @@
                                 {% endblock %}
 
                                 {# Basket items #}
-                                {% for viewLineItem in cart.viewLineItems %}
-                                    {% block frontend_checkout_cart_item %}
-                                        {% sw_include 'frontend/checkout/cart/cart-item.html.twig' %}
-                                        {#{include file='frontend/checkout/cart_item.tpl' isLast=$sBasketItem@last}#}
-                                    {% endblock %}
-                                {% endfor %}
+                                {#{% for viewLineItem in cart.viewLineItems %}#}
+                                {% block frontend_checkout_cart_item %}
+                                    {% for lineItem in cart.viewLineItems %}
+
+                                        {% sw_include 'frontend/checkout/cart/cart-item.html.twig' with {
+                                            'viewLineItem': lineItem,
+                                            'depth': 0
+                                        } %}
+
+                                    {% endfor %}
+                                    {#{include file='frontend/checkout/cart_item.tpl' isLast=$sBasketItem@last}#}
+                                {% endblock %}
+                                {#{% endfor %}#}
 
                                 {# Product table footer #}
                                 {% block frontend_checkout_cart_cart_footer %}

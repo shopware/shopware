@@ -30,6 +30,14 @@ use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Order\Repository\OrderRepository;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Cart\Error\ErrorCollection;
+use Shopware\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Cart\LineItem\LineItemCollection;
+use Shopware\Cart\Price\Struct\CartPrice;
+use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\CartBridge\Order\OrderPersister;
 use Shopware\Context\Struct\ShopContext;
@@ -62,9 +70,13 @@ class OrderPersisterTest extends TestCase
         $shopContext = $this->createMock(ShopContext::class);
         $shopContext->expects($this->any())->method('getCustomer')->willReturn($customer);
 
-        $persister->persist(
-            $this->createMock(CalculatedCart::class),
-            $shopContext
+        $cart = new CalculatedCart(
+            new CartContainer('A', 'a-b-c', new LineItemCollection(), new ErrorCollection()),
+            new CalculatedLineItemCollection(),
+            new CartPrice(1,1,1, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
+            new DeliveryCollection()
         );
+
+        $persister->persist($cart, $shopContext);
     }
 }

@@ -29,6 +29,7 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
 use Shopware\Api\Product\Collection\ProductBasicCollection;
+use Shopware\Api\Product\Collection\ProductMediaBasicCollection;
 use Shopware\Api\Product\Repository\ProductMediaRepository;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Product\Struct\ProductMediaBasicStruct;
@@ -42,7 +43,8 @@ use Shopware\Framework\Struct\StructCollection;
 
 class ViewProductTransformer implements ViewLineItemTransformerInterface
 {
-    public const COLLECTION_KEY = 'products';
+    public const PRODUCT_COLLECTION_KEY = 'products';
+    public const COVER_COLLECTION_KEY = 'product_covers';
 
     /**
      * @var ProductRepository
@@ -99,7 +101,12 @@ class ViewProductTransformer implements ViewLineItemTransformerInterface
             $context->getTranslationContext()
         );
 
-        $dataCollection->add($products, self::COLLECTION_KEY);
+        if ($products && $products->count() > 0) {
+            $covers = $this->fetchCovers($products->getIds(), $context);
+            $dataCollection->add($covers, self::COVER_COLLECTION_KEY);
+        }
+
+        $dataCollection->add($products, self::PRODUCT_COLLECTION_KEY);
     }
 
     /**
@@ -112,35 +119,49 @@ class ViewProductTransformer implements ViewLineItemTransformerInterface
         StructCollection $dataCollection
     ): void {
         $collection = $calculatedCart->getCalculatedLineItems()->filterInstance(CalculatedProduct::class);
-        /** @var ProductBasicCollection $products */
-        $products = $dataCollection->get(self::COLLECTION_KEY);
 
-        if ($collection->count() === 0 || !$products || $products->count() === 0) {
+        if ($collection->count() === 0) {
             return;
         }
-
-        $covers = $this->fetchCovers($products->getIds(), $context);
 
         /** @var CalculatedLineItemCollection $collection */
         /** @var CalculatedProduct $calculated */
         foreach ($collection as $calculated) {
-            $product = $products->get($calculated->getIdentifier());
+            $viewProduct = $this->transformProduct($calculated, $dataCollection);
 
-            if (!$product) {
+            if (!$viewProduct) {
                 continue;
             }
 
-            /** @var ProductMediaBasicStruct $cover */
-            $cover = $covers->filterByProductId($product->getId())->first();
-
-            $template = ViewProduct::createFromProducts($product, $calculated);
-
-            if ($cover) {
-                $template->setCover($cover->getMedia());
-            }
-
-            $templateCart->getViewLineItems()->add($template);
+            $templateCart->getViewLineItems()->add($viewProduct);
         }
+    }
+
+    public static function transformProduct(
+        CalculatedProduct $calculatedProduct,
+        StructCollection $dataCollection
+    ): ?ViewProduct {
+        /** @var ProductBasicCollection $products */
+        $products = $dataCollection->get(self::PRODUCT_COLLECTION_KEY);
+
+        /** @var ProductMediaBasicCollection $covers */
+        $covers = $dataCollection->get(self::COVER_COLLECTION_KEY);
+
+        if (!$calculatedProduct || !$products || $products->count() === 0) {
+            return null;
+        }
+
+        $product = $products->get($calculatedProduct->getIdentifier());
+        /** @var ProductMediaBasicStruct $cover */
+        $cover = $covers->filterByProductId($calculatedProduct->getIdentifier())->first();
+
+        $viewProduct = ViewProduct::createFromProducts($product, $calculatedProduct);
+
+        if ($cover) {
+            $viewProduct->setCover($cover->getMedia());
+        }
+
+        return $viewProduct;
     }
 
     protected function fetchCovers(array $ids, ShopContext $context): ProductMediaSearchResult

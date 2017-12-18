@@ -31,13 +31,13 @@ use Shopware\Framework\Struct\StructCollection;
 
 abstract class Rule extends Struct
 {
-    const OPERATOR_GTE = '=>';
+    public const OPERATOR_GTE = '=>';
 
-    const OPERATOR_LTE = '<=';
+    public const OPERATOR_LTE = '<=';
 
-    const OPERATOR_EQ = '=';
+    public const OPERATOR_EQ = '=';
 
-    const OPERATOR_NEQ = '!=';
+    public const OPERATOR_NEQ = '!=';
 
     /**
      * Validate the current rule and returns a reason object which contains defines if the rule match and if not why not

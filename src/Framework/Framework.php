@@ -36,9 +36,9 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class Framework extends Bundle
 {
-    const VERSION = '___VERSION___';
-    const VERSION_TEXT = '___VERSION_TEXT___';
-    const REVISION = '___REVISION___';
+    public const VERSION = '___VERSION___';
+    public const VERSION_TEXT = '___VERSION_TEXT___';
+    public const REVISION = '___REVISION___';
 
     protected $name = 'Shopware';
 

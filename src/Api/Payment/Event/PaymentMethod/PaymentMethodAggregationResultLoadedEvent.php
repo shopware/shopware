@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class PaymentMethodAggregationResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'payment_method.aggregation.result.loaded';
+    public const NAME = 'payment_method.aggregation.result.loaded';
 
     /**
      * @var AggregationResult

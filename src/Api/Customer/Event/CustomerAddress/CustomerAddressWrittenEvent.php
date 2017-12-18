@@ -7,7 +7,7 @@ use Shopware\Api\Entity\Write\WrittenEvent;
 
 class CustomerAddressWrittenEvent extends WrittenEvent
 {
-    const NAME = 'customer_address.written';
+    public const NAME = 'customer_address.written';
 
     public function getName(): string
     {

@@ -30,7 +30,7 @@ use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 
 class CalculatedTaxCollectionTest extends TestCase
 {
-    const DUMMY_TAX_NAME = 'dummy-tax';
+    public const DUMMY_TAX_NAME = 'dummy-tax';
 
     public function testCollectionIsCountable(): void
     {

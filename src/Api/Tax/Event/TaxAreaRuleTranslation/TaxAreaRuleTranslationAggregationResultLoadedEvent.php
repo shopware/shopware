@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class TaxAreaRuleTranslationAggregationResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'tax_area_rule_translation.aggregation.result.loaded';
+    public const NAME = 'tax_area_rule_translation.aggregation.result.loaded';
 
     /**
      * @var AggregationResult

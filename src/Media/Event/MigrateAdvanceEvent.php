@@ -6,7 +6,7 @@ use Symfony\Component\EventDispatcher\Event;
 
 class MigrateAdvanceEvent extends Event
 {
-    const EVENT_NAME = 'media.migrate.advance';
+    public const EVENT_NAME = 'media.migrate.advance';
 
     /**
      * @var string

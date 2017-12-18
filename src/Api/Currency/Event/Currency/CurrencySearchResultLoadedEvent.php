@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class CurrencySearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'currency.search.result.loaded';
+    public const NAME = 'currency.search.result.loaded';
 
     /**
      * @var CurrencySearchResult

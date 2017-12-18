@@ -53,9 +53,9 @@ use Shopware\Api\Entity\Write\Query\WriteQueryQueue;
 
 class WriteResource
 {
-    const FOR_INSERT = 'insert';
+    public const FOR_INSERT = 'insert';
 
-    const FOR_UPDATE = 'update';
+    public const FOR_UPDATE = 'update';
 
     public static function collectPrimaryKeys(
         array $rawData,

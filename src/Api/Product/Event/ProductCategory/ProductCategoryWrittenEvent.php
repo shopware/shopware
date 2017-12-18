@@ -7,7 +7,7 @@ use Shopware\Api\Product\Definition\ProductCategoryDefinition;
 
 class ProductCategoryWrittenEvent extends WrittenEvent
 {
-    const NAME = 'product_category.written';
+    public const NAME = 'product_category.written';
 
     public function getName(): string
     {

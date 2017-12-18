@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class TaxAreaRuleTranslationBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'tax_area_rule_translation.basic.loaded';
+    public const NAME = 'tax_area_rule_translation.basic.loaded';
 
     /**
      * @var TranslationContext

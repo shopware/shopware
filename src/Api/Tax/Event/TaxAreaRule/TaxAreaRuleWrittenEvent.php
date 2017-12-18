@@ -7,7 +7,7 @@ use Shopware\Api\Tax\Definition\TaxAreaRuleDefinition;
 
 class TaxAreaRuleWrittenEvent extends WrittenEvent
 {
-    const NAME = 'tax_area_rule.written';
+    public const NAME = 'tax_area_rule.written';
 
     public function getName(): string
     {

@@ -42,7 +42,7 @@ use Shopware\Framework\Struct\StructCollection;
 
 class ViewProductTransformer implements ViewLineItemTransformerInterface
 {
-    const COLLECTION_KEY = 'products';
+    public const COLLECTION_KEY = 'products';
 
     /**
      * @var ProductRepository

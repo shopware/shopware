@@ -7,7 +7,7 @@ use Shopware\Api\Product\Definition\ProductStreamDefinition;
 
 class ProductStreamWrittenEvent extends WrittenEvent
 {
-    const NAME = 'product_stream.written';
+    public const NAME = 'product_stream.written';
 
     public function getName(): string
     {

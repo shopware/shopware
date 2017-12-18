@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductCategoryIndexer implements IndexerInterface
 {
-    const TABLE = 'product_category_tree';
+    public const TABLE = 'product_category_tree';
 
     /**
      * @var ProductRepository

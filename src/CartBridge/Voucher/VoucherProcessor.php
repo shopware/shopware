@@ -36,7 +36,7 @@ use Shopware\Framework\Struct\StructCollection;
 
 class VoucherProcessor implements CartProcessorInterface
 {
-    const TYPE_VOUCHER = 'voucher';
+    public const TYPE_VOUCHER = 'voucher';
 
     /**
      * @var VoucherCalculator

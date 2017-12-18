@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class ShopTemplateConfigFormFieldSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'shop_template_config_form_field.search.result.loaded';
+    public const NAME = 'shop_template_config_form_field.search.result.loaded';
 
     /**
      * @var ShopTemplateConfigFormFieldSearchResult

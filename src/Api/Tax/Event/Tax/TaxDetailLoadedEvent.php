@@ -11,7 +11,7 @@ use Shopware\Framework\Event\NestedEventCollection;
 
 class TaxDetailLoadedEvent extends NestedEvent
 {
-    const NAME = 'tax.detail.loaded';
+    public const NAME = 'tax.detail.loaded';
 
     /**
      * @var TranslationContext

@@ -12,15 +12,15 @@ use Symfony\Component\Routing\RouteCollection;
 
 class RouteCollector
 {
-    const DETAIL_ACTION = 'Shopware\Rest\Controller\ApiController::detailAction';
+    public const DETAIL_ACTION = 'Shopware\Rest\Controller\ApiController::detailAction';
 
-    const LIST_ACTION = 'Shopware\Rest\Controller\ApiController::listAction';
+    public const LIST_ACTION = 'Shopware\Rest\Controller\ApiController::listAction';
 
-    const CREATE_ACTION = 'Shopware\Rest\Controller\ApiController::createAction';
+    public const CREATE_ACTION = 'Shopware\Rest\Controller\ApiController::createAction';
 
-    const UPDATE_ACTION = 'Shopware\Rest\Controller\ApiController::updateAction';
+    public const UPDATE_ACTION = 'Shopware\Rest\Controller\ApiController::updateAction';
 
-    const DELETE_ACTION = 'Shopware\Rest\Controller\ApiController::deleteAction';
+    public const DELETE_ACTION = 'Shopware\Rest\Controller\ApiController::deleteAction';
 
     /**
      * @var DefinitionRegistry

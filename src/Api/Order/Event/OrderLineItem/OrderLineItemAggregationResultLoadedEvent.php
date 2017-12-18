@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class OrderLineItemAggregationResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'order_line_item.aggregation.result.loaded';
+    public const NAME = 'order_line_item.aggregation.result.loaded';
 
     /**
      * @var AggregationResult

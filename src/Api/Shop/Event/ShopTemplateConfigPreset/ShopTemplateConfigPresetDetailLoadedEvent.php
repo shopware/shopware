@@ -10,7 +10,7 @@ use Shopware\Framework\Event\NestedEventCollection;
 
 class ShopTemplateConfigPresetDetailLoadedEvent extends NestedEvent
 {
-    const NAME = 'shop_template_config_preset.detail.loaded';
+    public const NAME = 'shop_template_config_preset.detail.loaded';
 
     /**
      * @var TranslationContext

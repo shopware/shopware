@@ -7,7 +7,7 @@ use Shopware\Api\Mail\Definition\MailDefinition;
 
 class MailWrittenEvent extends WrittenEvent
 {
-    const NAME = 'mail.written';
+    public const NAME = 'mail.written';
 
     public function getName(): string
     {

@@ -7,7 +7,7 @@ use Shopware\Api\Product\Definition\ProductListingPriceDefinition;
 
 class ProductListingPriceWrittenEvent extends WrittenEvent
 {
-    const NAME = 'product_listing_price.written';
+    public const NAME = 'product_listing_price.written';
 
     public function getName(): string
     {

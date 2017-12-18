@@ -7,7 +7,7 @@ use Shopware\Api\Listing\Definition\ListingFacetDefinition;
 
 class ListingFacetWrittenEvent extends WrittenEvent
 {
-    const NAME = 'listing_facet.written';
+    public const NAME = 'listing_facet.written';
 
     public function getName(): string
     {

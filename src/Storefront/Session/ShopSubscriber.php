@@ -41,7 +41,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class ShopSubscriber implements EventSubscriberInterface
 {
-    const SHOP_CONTEXT_PROPERTY = 'shop_context';
+    public const SHOP_CONTEXT_PROPERTY = 'shop_context';
 
     /**
      * @var StorefrontContextServiceInterface

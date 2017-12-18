@@ -43,7 +43,7 @@ use Shopware\Seo\Generator\SeoUrlGeneratorInterface;
 
 class ListingPageUrlGenerator implements SeoUrlGeneratorInterface
 {
-    const ROUTE_NAME = 'listing_page';
+    public const ROUTE_NAME = 'listing_page';
 
     /**
      * @var CategoryRepository

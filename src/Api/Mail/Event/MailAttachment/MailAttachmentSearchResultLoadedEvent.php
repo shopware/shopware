@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class MailAttachmentSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'mail_attachment.search.result.loaded';
+    public const NAME = 'mail_attachment.search.result.loaded';
 
     /**
      * @var MailAttachmentSearchResult

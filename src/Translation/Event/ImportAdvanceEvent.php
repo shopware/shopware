@@ -7,7 +7,7 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class ImportAdvanceEvent extends Event
 {
-    const EVENT_NAME = 'translation.import.advance';
+    public const EVENT_NAME = 'translation.import.advance';
 
     /**
      * @var SplFileInfo

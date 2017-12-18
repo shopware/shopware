@@ -7,7 +7,7 @@ use Shopware\Api\Shop\Definition\ShopCurrencyDefinition;
 
 class ShopCurrencyWrittenEvent extends WrittenEvent
 {
-    const NAME = 'shop_currency.written';
+    public const NAME = 'shop_currency.written';
 
     public function getName(): string
     {

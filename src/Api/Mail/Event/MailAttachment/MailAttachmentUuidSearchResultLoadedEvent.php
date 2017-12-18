@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class MailAttachmentUuidSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'mail_attachment.uuid.search.result.loaded';
+    public const NAME = 'mail_attachment.uuid.search.result.loaded';
 
     /**
      * @var UuidSearchResult

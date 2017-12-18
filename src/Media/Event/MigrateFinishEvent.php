@@ -6,7 +6,7 @@ use Symfony\Component\EventDispatcher\Event;
 
 class MigrateFinishEvent extends Event
 {
-    const EVENT_NAME = 'media.migrate.finish';
+    public const EVENT_NAME = 'media.migrate.finish';
     /**
      * @var int
      */

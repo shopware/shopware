@@ -7,7 +7,7 @@ use Shopware\Api\Unit\Definition\UnitTranslationDefinition;
 
 class UnitTranslationWrittenEvent extends WrittenEvent
 {
-    const NAME = 'unit_translation.written';
+    public const NAME = 'unit_translation.written';
 
     public function getName(): string
     {

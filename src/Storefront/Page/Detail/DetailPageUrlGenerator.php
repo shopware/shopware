@@ -41,7 +41,7 @@ use Shopware\Seo\Generator\SeoUrlGeneratorInterface;
 
 class DetailPageUrlGenerator implements SeoUrlGeneratorInterface
 {
-    const ROUTE_NAME = 'detail_page';
+    public const ROUTE_NAME = 'detail_page';
 
     /**
      * @var ProductRepository

@@ -7,7 +7,7 @@ use Shopware\Api\Snippet\Definition\SnippetDefinition;
 
 class SnippetWrittenEvent extends WrittenEvent
 {
-    const NAME = 'snippet.written';
+    public const NAME = 'snippet.written';
 
     public function getName(): string
     {

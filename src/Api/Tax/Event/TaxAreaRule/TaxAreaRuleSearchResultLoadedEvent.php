@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class TaxAreaRuleSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'tax_area_rule.search.result.loaded';
+    public const NAME = 'tax_area_rule.search.result.loaded';
 
     /**
      * @var TaxAreaRuleSearchResult

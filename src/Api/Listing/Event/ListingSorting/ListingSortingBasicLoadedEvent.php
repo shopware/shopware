@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class ListingSortingBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'listing_sorting.basic.loaded';
+    public const NAME = 'listing_sorting.basic.loaded';
 
     /**
      * @var TranslationContext

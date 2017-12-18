@@ -31,9 +31,9 @@ use Shopware\Framework\Struct\Struct;
 
 class CartPrice extends Struct
 {
-    const TAX_STATE_GROSS = 'gross';
-    const TAX_STATE_NET = 'net';
-    const TAX_STATE_FREE = 'tax-free';
+    public const TAX_STATE_GROSS = 'gross';
+    public const TAX_STATE_NET = 'net';
+    public const TAX_STATE_FREE = 'tax-free';
 
     /**
      * @var float

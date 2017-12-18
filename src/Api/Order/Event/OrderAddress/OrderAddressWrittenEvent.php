@@ -7,7 +7,7 @@ use Shopware\Api\Order\Definition\OrderAddressDefinition;
 
 class OrderAddressWrittenEvent extends WrittenEvent
 {
-    const NAME = 'order_address.written';
+    public const NAME = 'order_address.written';
 
     public function getName(): string
     {

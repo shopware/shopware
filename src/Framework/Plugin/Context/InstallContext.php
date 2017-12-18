@@ -6,17 +6,17 @@ use Shopware\Framework\Plugin\Plugin;
 
 class InstallContext implements \JsonSerializable
 {
-    const CACHE_TAG_TEMPLATE = 'template';
-    const CACHE_TAG_CONFIG = 'config';
-    const CACHE_TAG_ROUTER = 'router';
-    const CACHE_TAG_PROXY = 'proxy';
-    const CACHE_TAG_THEME = 'theme';
-    const CACHE_TAG_HTTP = 'http';
+    public const CACHE_TAG_TEMPLATE = 'template';
+    public const CACHE_TAG_CONFIG = 'config';
+    public const CACHE_TAG_ROUTER = 'router';
+    public const CACHE_TAG_PROXY = 'proxy';
+    public const CACHE_TAG_THEME = 'theme';
+    public const CACHE_TAG_HTTP = 'http';
 
     /**
      * pre defined list to invalidate simple caches
      */
-    const CACHE_LIST_DEFAULT = [
+    public const CACHE_LIST_DEFAULT = [
         self::CACHE_TAG_TEMPLATE,
         self::CACHE_TAG_CONFIG,
         self::CACHE_TAG_ROUTER,
@@ -26,7 +26,7 @@ class InstallContext implements \JsonSerializable
     /**
      * pre defined list to invalidate required frontend caches
      */
-    const CACHE_LIST_FRONTEND = [
+    public const CACHE_LIST_FRONTEND = [
         self::CACHE_TAG_TEMPLATE,
         self::CACHE_TAG_THEME,
         self::CACHE_TAG_HTTP,
@@ -35,7 +35,7 @@ class InstallContext implements \JsonSerializable
     /**
      * pre defined list to invalidate all caches
      */
-    const CACHE_LIST_ALL = [
+    public const CACHE_LIST_ALL = [
         self::CACHE_TAG_TEMPLATE,
         self::CACHE_TAG_CONFIG,
         self::CACHE_TAG_ROUTER,

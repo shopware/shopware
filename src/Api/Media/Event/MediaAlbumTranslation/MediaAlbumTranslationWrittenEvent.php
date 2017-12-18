@@ -7,7 +7,7 @@ use Shopware\Api\Media\Definition\MediaAlbumTranslationDefinition;
 
 class MediaAlbumTranslationWrittenEvent extends WrittenEvent
 {
-    const NAME = 'media_album_translation.written';
+    public const NAME = 'media_album_translation.written';
 
     public function getName(): string
     {

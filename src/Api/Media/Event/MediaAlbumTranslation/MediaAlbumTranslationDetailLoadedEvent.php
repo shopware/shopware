@@ -11,7 +11,7 @@ use Shopware\Framework\Event\NestedEventCollection;
 
 class MediaAlbumTranslationDetailLoadedEvent extends NestedEvent
 {
-    const NAME = 'media_album_translation.detail.loaded';
+    public const NAME = 'media_album_translation.detail.loaded';
 
     /**
      * @var TranslationContext

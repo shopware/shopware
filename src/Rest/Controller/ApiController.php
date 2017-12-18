@@ -22,8 +22,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ApiController extends RestController
 {
-    const WRITE_UPDATE = 'update';
-    const WRITE_CREATE = 'create';
+    public const WRITE_UPDATE = 'update';
+    public const WRITE_CREATE = 'create';
 
     public function detailAction(Request $request, ApiContext $context): Response
     {

@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class ShopTemplateConfigPresetSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'shop_template_config_preset.search.result.loaded';
+    public const NAME = 'shop_template_config_preset.search.result.loaded';
 
     /**
      * @var ShopTemplateConfigPresetSearchResult

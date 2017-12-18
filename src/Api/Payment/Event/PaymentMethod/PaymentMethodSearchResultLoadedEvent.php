@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class PaymentMethodSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'payment_method.search.result.loaded';
+    public const NAME = 'payment_method.search.result.loaded';
 
     /**
      * @var PaymentMethodSearchResult

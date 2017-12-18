@@ -14,7 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class WriterTest extends KernelTestCase
 {
-    const UUID = 'AA-BB-CC';
+    public const UUID = 'AA-BB-CC';
 
     /**
      * @var Connection

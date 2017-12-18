@@ -7,7 +7,7 @@ use Shopware\Api\Listing\Definition\ListingFacetTranslationDefinition;
 
 class ListingFacetTranslationWrittenEvent extends WrittenEvent
 {
-    const NAME = 'listing_facet_translation.written';
+    public const NAME = 'listing_facet_translation.written';
 
     public function getName(): string
     {

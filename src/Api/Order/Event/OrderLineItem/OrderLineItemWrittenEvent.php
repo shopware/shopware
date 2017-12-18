@@ -7,7 +7,7 @@ use Shopware\Api\Order\Definition\OrderLineItemDefinition;
 
 class OrderLineItemWrittenEvent extends WrittenEvent
 {
-    const NAME = 'order_line_item.written';
+    public const NAME = 'order_line_item.written';
 
     public function getName(): string
     {

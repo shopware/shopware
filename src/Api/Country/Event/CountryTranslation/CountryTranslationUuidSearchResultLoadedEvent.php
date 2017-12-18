@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class CountryTranslationUuidSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'country_translation.uuid.search.result.loaded';
+    public const NAME = 'country_translation.uuid.search.result.loaded';
 
     /**
      * @var UuidSearchResult

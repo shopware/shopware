@@ -7,7 +7,7 @@ use Shopware\Api\Shop\Definition\ShopTemplateConfigFormFieldDefinition;
 
 class ShopTemplateConfigFormFieldWrittenEvent extends WrittenEvent
 {
-    const NAME = 'shop_template_config_form_field.written';
+    public const NAME = 'shop_template_config_form_field.written';
 
     public function getName(): string
     {

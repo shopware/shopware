@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class MediaTranslationBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'media_translation.basic.loaded';
+    public const NAME = 'media_translation.basic.loaded';
 
     /**
      * @var TranslationContext

@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class LocaleTranslationBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'locale_translation.basic.loaded';
+    public const NAME = 'locale_translation.basic.loaded';
 
     /**
      * @var TranslationContext

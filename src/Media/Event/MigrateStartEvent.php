@@ -6,7 +6,7 @@ use Symfony\Component\EventDispatcher\Event;
 
 class MigrateStartEvent extends Event
 {
-    const EVENT_NAME = 'media.migrate.start';
+    public const EVENT_NAME = 'media.migrate.start';
 
     /**
      * @var int

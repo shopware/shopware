@@ -7,7 +7,7 @@ use Shopware\Api\Entity\Write\WrittenEvent;
 
 class CountryAreaTranslationWrittenEvent extends WrittenEvent
 {
-    const NAME = 'country_area_translation.written';
+    public const NAME = 'country_area_translation.written';
 
     public function getName(): string
     {

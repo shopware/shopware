@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class MailAttachmentBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'mail_attachment.basic.loaded';
+    public const NAME = 'mail_attachment.basic.loaded';
 
     /**
      * @var TranslationContext

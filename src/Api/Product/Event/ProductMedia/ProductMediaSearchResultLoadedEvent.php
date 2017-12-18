@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class ProductMediaSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'product_media.search.result.loaded';
+    public const NAME = 'product_media.search.result.loaded';
 
     /**
      * @var ProductMediaSearchResult

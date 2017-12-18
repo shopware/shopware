@@ -4,6 +4,6 @@ namespace Shopware\Rest;
 
 class ResultFormat
 {
-    const BASIC = 'basic';
-    const DETAIL = 'detail';
+    public const BASIC = 'basic';
+    public const DETAIL = 'detail';
 }

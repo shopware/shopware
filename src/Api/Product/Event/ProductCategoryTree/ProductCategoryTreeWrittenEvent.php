@@ -7,7 +7,7 @@ use Shopware\Api\Product\Definition\ProductCategoryTreeDefinition;
 
 class ProductCategoryTreeWrittenEvent extends WrittenEvent
 {
-    const NAME = 'product_category_tree.written';
+    public const NAME = 'product_category_tree.written';
 
     public function getName(): string
     {

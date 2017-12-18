@@ -7,7 +7,7 @@ use Shopware\Api\Entity\Write\WrittenEvent;
 
 class CurrencyWrittenEvent extends WrittenEvent
 {
-    const NAME = 'currency.written';
+    public const NAME = 'currency.written';
 
     public function getName(): string
     {

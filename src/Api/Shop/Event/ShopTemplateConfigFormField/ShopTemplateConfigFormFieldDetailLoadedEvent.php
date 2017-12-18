@@ -12,7 +12,7 @@ use Shopware\Framework\Event\NestedEventCollection;
 
 class ShopTemplateConfigFormFieldDetailLoadedEvent extends NestedEvent
 {
-    const NAME = 'shop_template_config_form_field.detail.loaded';
+    public const NAME = 'shop_template_config_form_field.detail.loaded';
 
     /**
      * @var TranslationContext

@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class OrderStateBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'order_state.basic.loaded';
+    public const NAME = 'order_state.basic.loaded';
 
     /**
      * @var TranslationContext

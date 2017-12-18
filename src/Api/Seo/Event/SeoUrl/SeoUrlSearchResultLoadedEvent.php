@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class SeoUrlSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'seo_url.search.result.loaded';
+    public const NAME = 'seo_url.search.result.loaded';
 
     /**
      * @var SeoUrlSearchResult

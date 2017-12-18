@@ -7,7 +7,7 @@ use Shopware\Api\Media\Definition\MediaTranslationDefinition;
 
 class MediaTranslationWrittenEvent extends WrittenEvent
 {
-    const NAME = 'media_translation.written';
+    public const NAME = 'media_translation.written';
 
     public function getName(): string
     {

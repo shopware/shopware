@@ -7,7 +7,7 @@ use Shopware\Api\Tax\Definition\TaxAreaRuleTranslationDefinition;
 
 class TaxAreaRuleTranslationWrittenEvent extends WrittenEvent
 {
-    const NAME = 'tax_area_rule_translation.written';
+    public const NAME = 'tax_area_rule_translation.written';
 
     public function getName(): string
     {

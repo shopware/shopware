@@ -40,12 +40,12 @@ use Symfony\Component\Routing\RouterInterface;
 
 class Router implements RouterInterface, RequestMatcherInterface
 {
-    const SEO_REDIRECT_URL = 'seo_redirect_url';
-    const IS_API_REQUEST_ATTRIBUTE = 'is_api';
-    const REQUEST_TYPE_ATTRIBUTE = '_request_type';
-    const REQUEST_TYPE_STOREFRONT = 'storefront';
-    const REQUEST_TYPE_API = 'api';
-    const REQUEST_TYPE_ADMINISTRATION = 'administration';
+    public const SEO_REDIRECT_URL = 'seo_redirect_url';
+    public const IS_API_REQUEST_ATTRIBUTE = 'is_api';
+    public const REQUEST_TYPE_ATTRIBUTE = '_request_type';
+    public const REQUEST_TYPE_STOREFRONT = 'storefront';
+    public const REQUEST_TYPE_API = 'api';
+    public const REQUEST_TYPE_ADMINISTRATION = 'administration';
 
     /**
      * @var RequestContext

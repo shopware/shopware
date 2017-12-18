@@ -7,7 +7,7 @@ use Shopware\Api\Payment\Definition\PaymentMethodTranslationDefinition;
 
 class PaymentMethodTranslationWrittenEvent extends WrittenEvent
 {
-    const NAME = 'payment_method_translation.written';
+    public const NAME = 'payment_method_translation.written';
 
     public function getName(): string
     {

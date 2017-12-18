@@ -7,7 +7,7 @@ use Shopware\Api\Entity\Write\WrittenEvent;
 
 class ConfigFormFieldTranslationWrittenEvent extends WrittenEvent
 {
-    const NAME = 'config_form_field_translation.written';
+    public const NAME = 'config_form_field_translation.written';
 
     public function getName(): string
     {

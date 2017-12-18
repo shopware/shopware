@@ -29,11 +29,11 @@ class MediaPosition
     /**
      * Different table type values
      */
-    const PARSE_PLAIN = 1;
-    const PARSE_JSON = 2;
-    const PARSE_SERIALIZE = 3;
-    const PARSE_HTML = 4;
-    const PARSE_PIPES = 5;
+    public const PARSE_PLAIN = 1;
+    public const PARSE_JSON = 2;
+    public const PARSE_SERIALIZE = 3;
+    public const PARSE_HTML = 4;
+    public const PARSE_PIPES = 5;
 
     /**
      * @var string

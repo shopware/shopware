@@ -7,7 +7,7 @@ use Shopware\Api\Payment\Definition\PaymentMethodDefinition;
 
 class PaymentMethodWrittenEvent extends WrittenEvent
 {
-    const NAME = 'payment_method.written';
+    public const NAME = 'payment_method.written';
 
     public function getName(): string
     {

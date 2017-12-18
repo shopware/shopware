@@ -42,9 +42,9 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class StoreFrontCartService
 {
-    const CART_NAME = 'shopware';
+    public const CART_NAME = 'shopware';
 
-    const CART_TOKEN_KEY = 'cart_token_' . self::CART_NAME;
+    public const CART_TOKEN_KEY = 'cart_token_' . self::CART_NAME;
 
     /**
      * @var CartCalculator

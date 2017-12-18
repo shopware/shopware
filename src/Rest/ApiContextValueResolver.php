@@ -10,9 +10,9 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ApiContextValueResolver implements ArgumentValueResolverInterface
 {
-    const OUTPUT_FORMAT_PARAMETER_NAME = 'responseFormat';
-    const RESULT_FORMAT_PARAMETER_NAME = '_resultFormat';
-    const SUPPORTED_FORMATS = ['json', 'xml'];
+    public const OUTPUT_FORMAT_PARAMETER_NAME = 'responseFormat';
+    public const RESULT_FORMAT_PARAMETER_NAME = '_resultFormat';
+    public const SUPPORTED_FORMATS = ['json', 'xml'];
 
     public function supports(Request $request, ArgumentMetadata $argument): bool
     {

@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class MediaAlbumSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'media_album.search.result.loaded';
+    public const NAME = 'media_album.search.result.loaded';
 
     /**
      * @var MediaAlbumSearchResult

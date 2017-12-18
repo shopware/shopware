@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class ShopTemplateConfigFormAggregationResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'shop_template_config_form.aggregation.result.loaded';
+    public const NAME = 'shop_template_config_form.aggregation.result.loaded';
 
     /**
      * @var AggregationResult

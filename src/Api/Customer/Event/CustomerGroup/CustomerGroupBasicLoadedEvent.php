@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class CustomerGroupBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'customer_group.basic.loaded';
+    public const NAME = 'customer_group.basic.loaded';
 
     /**
      * @var TranslationContext

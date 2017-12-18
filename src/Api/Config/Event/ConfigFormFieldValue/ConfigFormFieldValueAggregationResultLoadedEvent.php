@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class ConfigFormFieldValueAggregationResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'config_form_field_value.aggregation.result.loaded';
+    public const NAME = 'config_form_field_value.aggregation.result.loaded';
 
     /**
      * @var AggregationResult

@@ -37,13 +37,13 @@ use Shopware\Context\Struct\ShopContext;
 
 class DeliveryCalculator
 {
-    const CALCULATION_BY_WEIGHT = 0;
+    public const CALCULATION_BY_WEIGHT = 0;
 
-    const CALCULATION_BY_PRICE = 1;
+    public const CALCULATION_BY_PRICE = 1;
 
-    const CALCULATION_BY_LINE_ITEM_COUNT = 2;
+    public const CALCULATION_BY_LINE_ITEM_COUNT = 2;
 
-    const CALCULATION_BY_CUSTOM = 3;
+    public const CALCULATION_BY_CUSTOM = 3;
 
     /**
      * @var Connection

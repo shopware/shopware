@@ -12,7 +12,7 @@ use Shopware\Framework\Event\NestedEventCollection;
 
 class PluginDetailLoadedEvent extends NestedEvent
 {
-    const NAME = 'plugin.detail.loaded';
+    public const NAME = 'plugin.detail.loaded';
 
     /**
      * @var TranslationContext

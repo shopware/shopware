@@ -7,7 +7,7 @@ use Shopware\Api\Order\Definition\OrderDeliveryDefinition;
 
 class OrderDeliveryWrittenEvent extends WrittenEvent
 {
-    const NAME = 'order_delivery.written';
+    public const NAME = 'order_delivery.written';
 
     public function getName(): string
     {

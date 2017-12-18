@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class PaymentMethodUuidSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'payment_method.uuid.search.result.loaded';
+    public const NAME = 'payment_method.uuid.search.result.loaded';
 
     /**
      * @var UuidSearchResult

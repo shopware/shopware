@@ -31,8 +31,8 @@ namespace Shopware\Framework\Migration;
  */
 abstract class AbstractMigration
 {
-    const MODUS_UPDATE = 'update';
-    const MODUS_INSTALL = 'install';
+    public const MODUS_UPDATE = 'update';
+    public const MODUS_INSTALL = 'install';
 
     /**
      * @var \PDO

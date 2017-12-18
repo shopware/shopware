@@ -12,7 +12,7 @@ use Shopware\Framework\Event\NestedEventCollection;
 
 class OrderDeliveryBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'order_delivery.basic.loaded';
+    public const NAME = 'order_delivery.basic.loaded';
 
     /**
      * @var TranslationContext

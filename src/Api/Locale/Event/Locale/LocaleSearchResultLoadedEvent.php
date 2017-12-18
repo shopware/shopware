@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class LocaleSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'locale.search.result.loaded';
+    public const NAME = 'locale.search.result.loaded';
 
     /**
      * @var LocaleSearchResult

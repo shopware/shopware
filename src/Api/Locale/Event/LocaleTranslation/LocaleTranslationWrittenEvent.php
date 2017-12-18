@@ -7,7 +7,7 @@ use Shopware\Api\Locale\Definition\LocaleTranslationDefinition;
 
 class LocaleTranslationWrittenEvent extends WrittenEvent
 {
-    const NAME = 'locale_translation.written';
+    public const NAME = 'locale_translation.written';
 
     public function getName(): string
     {

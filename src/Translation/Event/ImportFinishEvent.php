@@ -6,5 +6,5 @@ use Symfony\Component\EventDispatcher\Event;
 
 class ImportFinishEvent extends Event
 {
-    const EVENT_NAME = 'translation.import.finish';
+    public const EVENT_NAME = 'translation.import.finish';
 }

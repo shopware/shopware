@@ -10,7 +10,7 @@ use Shopware\Framework\Event\NestedEventCollection;
 
 class CategoryBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'category.basic.loaded';
+    public const NAME = 'category.basic.loaded';
 
     /**
      * @var TranslationContext

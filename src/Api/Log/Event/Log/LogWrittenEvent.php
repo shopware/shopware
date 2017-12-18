@@ -7,7 +7,7 @@ use Shopware\Api\Log\Definition\LogDefinition;
 
 class LogWrittenEvent extends WrittenEvent
 {
-    const NAME = 'log.written';
+    public const NAME = 'log.written';
 
     public function getName(): string
     {

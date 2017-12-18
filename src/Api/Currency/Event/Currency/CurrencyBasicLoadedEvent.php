@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class CurrencyBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'currency.basic.loaded';
+    public const NAME = 'currency.basic.loaded';
 
     /**
      * @var TranslationContext

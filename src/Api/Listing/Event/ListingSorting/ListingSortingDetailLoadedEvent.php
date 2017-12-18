@@ -11,7 +11,7 @@ use Shopware\Framework\Event\NestedEventCollection;
 
 class ListingSortingDetailLoadedEvent extends NestedEvent
 {
-    const NAME = 'listing_sorting.detail.loaded';
+    public const NAME = 'listing_sorting.detail.loaded';
 
     /**
      * @var TranslationContext

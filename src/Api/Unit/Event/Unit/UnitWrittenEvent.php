@@ -7,7 +7,7 @@ use Shopware\Api\Unit\Definition\UnitDefinition;
 
 class UnitWrittenEvent extends WrittenEvent
 {
-    const NAME = 'unit.written';
+    public const NAME = 'unit.written';
 
     public function getName(): string
     {

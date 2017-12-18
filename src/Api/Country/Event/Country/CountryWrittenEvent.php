@@ -7,7 +7,7 @@ use Shopware\Api\Entity\Write\WrittenEvent;
 
 class CountryWrittenEvent extends WrittenEvent
 {
-    const NAME = 'country.written';
+    public const NAME = 'country.written';
 
     public function getName(): string
     {

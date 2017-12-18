@@ -7,7 +7,7 @@ use Shopware\Api\Shop\Definition\ShopDefinition;
 
 class ShopWrittenEvent extends WrittenEvent
 {
-    const NAME = 'shop.written';
+    public const NAME = 'shop.written';
 
     public function getName(): string
     {

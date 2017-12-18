@@ -11,7 +11,7 @@ use Shopware\Framework\Event\NestedEventCollection;
 
 class ListingFacetTranslationDetailLoadedEvent extends NestedEvent
 {
-    const NAME = 'listing_facet_translation.detail.loaded';
+    public const NAME = 'listing_facet_translation.detail.loaded';
 
     /**
      * @var TranslationContext

@@ -37,7 +37,7 @@ use Shopware\Context\Struct\TranslationContext;
 
 class SeoUrlGeneratorRegistry
 {
-    const LIMIT = 200;
+    public const LIMIT = 200;
 
     /**
      * @var SeoUrlGeneratorInterface[]

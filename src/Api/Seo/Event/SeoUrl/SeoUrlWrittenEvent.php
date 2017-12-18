@@ -7,7 +7,7 @@ use Shopware\Api\Seo\Definition\SeoUrlDefinition;
 
 class SeoUrlWrittenEvent extends WrittenEvent
 {
-    const NAME = 'seo_url.written';
+    public const NAME = 'seo_url.written';
 
     public function getName(): string
     {

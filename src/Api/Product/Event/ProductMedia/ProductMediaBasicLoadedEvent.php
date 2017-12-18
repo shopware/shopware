@@ -10,7 +10,7 @@ use Shopware\Framework\Event\NestedEventCollection;
 
 class ProductMediaBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'product_media.basic.loaded';
+    public const NAME = 'product_media.basic.loaded';
 
     /**
      * @var TranslationContext

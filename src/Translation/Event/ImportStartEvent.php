@@ -6,7 +6,7 @@ use Symfony\Component\EventDispatcher\Event;
 
 class ImportStartEvent extends Event
 {
-    const EVENT_NAME = 'translation.import.start';
+    public const EVENT_NAME = 'translation.import.start';
 
     /**
      * @var int

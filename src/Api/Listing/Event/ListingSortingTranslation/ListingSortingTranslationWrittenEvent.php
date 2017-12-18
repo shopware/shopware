@@ -7,7 +7,7 @@ use Shopware\Api\Listing\Definition\ListingSortingTranslationDefinition;
 
 class ListingSortingTranslationWrittenEvent extends WrittenEvent
 {
-    const NAME = 'listing_sorting_translation.written';
+    public const NAME = 'listing_sorting_translation.written';
 
     public function getName(): string
     {

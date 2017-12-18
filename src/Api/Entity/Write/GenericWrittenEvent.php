@@ -9,7 +9,7 @@ use Shopware\Framework\Event\NestedEventCollection;
 
 class GenericWrittenEvent extends NestedEvent
 {
-    const NAME = 'generic.entity.written';
+    public const NAME = 'generic.entity.written';
 
     /**
      * @var TranslationContext

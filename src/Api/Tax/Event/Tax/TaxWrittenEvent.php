@@ -7,7 +7,7 @@ use Shopware\Api\Tax\Definition\TaxDefinition;
 
 class TaxWrittenEvent extends WrittenEvent
 {
-    const NAME = 'tax.written';
+    public const NAME = 'tax.written';
 
     public function getName(): string
     {

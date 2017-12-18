@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class MailAttachmentAggregationResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'mail_attachment.aggregation.result.loaded';
+    public const NAME = 'mail_attachment.aggregation.result.loaded';
 
     /**
      * @var AggregationResult

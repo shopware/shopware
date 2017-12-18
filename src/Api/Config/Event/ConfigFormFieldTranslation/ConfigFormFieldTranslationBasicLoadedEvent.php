@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class ConfigFormFieldTranslationBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'config_form_field_translation.basic.loaded';
+    public const NAME = 'config_form_field_translation.basic.loaded';
 
     /**
      * @var TranslationContext

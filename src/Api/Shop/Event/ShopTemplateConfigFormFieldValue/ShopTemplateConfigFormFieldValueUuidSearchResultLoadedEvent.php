@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class ShopTemplateConfigFormFieldValueUuidSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'shop_template_config_form_field_value.uuid.search.result.loaded';
+    public const NAME = 'shop_template_config_form_field_value.uuid.search.result.loaded';
 
     /**
      * @var UuidSearchResult

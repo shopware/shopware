@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class CurrencyTranslationUuidSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'currency_translation.uuid.search.result.loaded';
+    public const NAME = 'currency_translation.uuid.search.result.loaded';
 
     /**
      * @var UuidSearchResult

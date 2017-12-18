@@ -7,7 +7,7 @@ use Shopware\Api\Plugin\Definition\PluginDefinition;
 
 class PluginWrittenEvent extends WrittenEvent
 {
-    const NAME = 'plugin.written';
+    public const NAME = 'plugin.written';
 
     public function getName(): string
     {

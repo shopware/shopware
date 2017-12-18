@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class ShopTemplateConfigFormFieldValueBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'shop_template_config_form_field_value.basic.loaded';
+    public const NAME = 'shop_template_config_form_field_value.basic.loaded';
 
     /**
      * @var TranslationContext

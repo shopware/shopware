@@ -39,11 +39,11 @@ abstract class Error extends \Exception implements \JsonSerializable
     //allows to create a new instance with all data of the provided object
     use CreateFromTrait;
 
-    const LEVEL_NOTICE = 0;
+    public const LEVEL_NOTICE = 0;
 
-    const LEVEL_WARNING = 10;
+    public const LEVEL_WARNING = 10;
 
-    const LEVEL_ERROR = 20;
+    public const LEVEL_ERROR = 20;
 
     abstract public function getIdentifier(): string;
 

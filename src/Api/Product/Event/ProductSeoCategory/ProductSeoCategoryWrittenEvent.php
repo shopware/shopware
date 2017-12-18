@@ -7,7 +7,7 @@ use Shopware\Api\Product\Definition\ProductSeoCategoryDefinition;
 
 class ProductSeoCategoryWrittenEvent extends WrittenEvent
 {
-    const NAME = 'product_seo_category.written';
+    public const NAME = 'product_seo_category.written';
 
     public function getName(): string
     {

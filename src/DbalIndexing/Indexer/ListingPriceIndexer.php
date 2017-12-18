@@ -25,7 +25,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingPriceIndexer implements IndexerInterface
 {
-    const TABLE = 'product_listing_price';
+    public const TABLE = 'product_listing_price';
 
     /**
      * @var ProductRepository

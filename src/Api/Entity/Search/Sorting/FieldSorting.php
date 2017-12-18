@@ -6,8 +6,8 @@ use Shopware\Api\Entity\Search\CriteriaPartInterface;
 
 class FieldSorting implements CriteriaPartInterface
 {
-    const ASCENDING = 'ASC';
-    const DESCENDING = 'DESC';
+    public const ASCENDING = 'ASC';
+    public const DESCENDING = 'DESC';
 
     /**
      * @var string

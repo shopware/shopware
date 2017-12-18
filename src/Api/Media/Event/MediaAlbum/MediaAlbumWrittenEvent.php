@@ -7,7 +7,7 @@ use Shopware\Api\Media\Definition\MediaAlbumDefinition;
 
 class MediaAlbumWrittenEvent extends WrittenEvent
 {
-    const NAME = 'media_album.written';
+    public const NAME = 'media_album.written';
 
     public function getName(): string
     {

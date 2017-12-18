@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class ShippingMethodPriceBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'shipping_method_price.basic.loaded';
+    public const NAME = 'shipping_method_price.basic.loaded';
 
     /**
      * @var TranslationContext

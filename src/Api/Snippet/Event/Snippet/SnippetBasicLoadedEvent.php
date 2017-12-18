@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class SnippetBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'snippet.basic.loaded';
+    public const NAME = 'snippet.basic.loaded';
 
     /**
      * @var TranslationContext

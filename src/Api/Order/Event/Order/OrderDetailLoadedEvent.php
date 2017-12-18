@@ -17,7 +17,7 @@ use Shopware\Framework\Event\NestedEventCollection;
 
 class OrderDetailLoadedEvent extends NestedEvent
 {
-    const NAME = 'order.detail.loaded';
+    public const NAME = 'order.detail.loaded';
 
     /**
      * @var TranslationContext

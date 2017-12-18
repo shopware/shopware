@@ -7,7 +7,7 @@ use Shopware\Api\Entity\Write\WrittenEvent;
 
 class ConfigFormFieldValueWrittenEvent extends WrittenEvent
 {
-    const NAME = 'config_form_field_value.written';
+    public const NAME = 'config_form_field_value.written';
 
     public function getName(): string
     {

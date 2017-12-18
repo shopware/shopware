@@ -18,17 +18,17 @@ class CartController extends StorefrontController
     /**
      * Route name to cart index action
      */
-    const ROUTE_CHECKOUT_CART = 'checkout_cart';
+    public const ROUTE_CHECKOUT_CART = 'checkout_cart';
 
     /**
      * Route name to checkout confirm action
      */
-    const ROUTE_CHECKOUT_CONFIRM = 'checkout_confirm';
+    public const ROUTE_CHECKOUT_CONFIRM = 'checkout_confirm';
 
     /**
      * ONLY WORK IN PROGRESS
      */
-    const USER_LOGGED_IN = true;
+    public const USER_LOGGED_IN = true;
 
     /**
      * @Route("/cart", name="cart_index", options={"seo"="false"})

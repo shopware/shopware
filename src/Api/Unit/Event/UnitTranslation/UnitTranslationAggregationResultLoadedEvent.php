@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class UnitTranslationAggregationResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'unit_translation.aggregation.result.loaded';
+    public const NAME = 'unit_translation.aggregation.result.loaded';
 
     /**
      * @var AggregationResult

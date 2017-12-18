@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class CategoryTranslationSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'category_translation.search.result.loaded';
+    public const NAME = 'category_translation.search.result.loaded';
 
     /**
      * @var CategoryTranslationSearchResult

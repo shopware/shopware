@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class SeoUrlAggregationResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'seo_url.aggregation.result.loaded';
+    public const NAME = 'seo_url.aggregation.result.loaded';
 
     /**
      * @var AggregationResult

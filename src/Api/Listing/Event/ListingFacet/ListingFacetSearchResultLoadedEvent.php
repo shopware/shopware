@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class ListingFacetSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'listing_facet.search.result.loaded';
+    public const NAME = 'listing_facet.search.result.loaded';
 
     /**
      * @var ListingFacetSearchResult

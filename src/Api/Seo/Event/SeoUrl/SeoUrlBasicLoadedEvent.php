@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class SeoUrlBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'seo_url.basic.loaded';
+    public const NAME = 'seo_url.basic.loaded';
 
     /**
      * @var TranslationContext

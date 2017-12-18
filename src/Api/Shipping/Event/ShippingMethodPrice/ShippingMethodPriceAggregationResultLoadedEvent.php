@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class ShippingMethodPriceAggregationResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'shipping_method_price.aggregation.result.loaded';
+    public const NAME = 'shipping_method_price.aggregation.result.loaded';
 
     /**
      * @var AggregationResult

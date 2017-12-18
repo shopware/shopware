@@ -41,7 +41,7 @@ use Shopware\CartBridge\Voucher\VoucherProcessor;
 
 class CalculatedLineItemCollectionTest extends TestCase
 {
-    const DUMMY_TAX_NAME = 'dummy-tax';
+    public const DUMMY_TAX_NAME = 'dummy-tax';
 
     public function testCollectionIsCountable(): void
     {

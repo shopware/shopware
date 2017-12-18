@@ -31,8 +31,8 @@ use Shopware\Context\Struct\ShopContext;
 
 class TaxAmountCalculator implements TaxAmountCalculatorInterface
 {
-    const CALCULATION_HORIZONTAL = 'horizontal';
-    const CALCULATION_VERTICAL = 'vertical';
+    public const CALCULATION_HORIZONTAL = 'horizontal';
+    public const CALCULATION_VERTICAL = 'vertical';
 
     /**
      * @var PercentageTaxRuleBuilder

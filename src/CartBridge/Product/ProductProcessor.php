@@ -33,7 +33,7 @@ use Shopware\Framework\Struct\StructCollection;
 
 class ProductProcessor implements CartProcessorInterface
 {
-    const TYPE_PRODUCT = 'product';
+    public const TYPE_PRODUCT = 'product';
 
     /**
      * @var ProductCalculator

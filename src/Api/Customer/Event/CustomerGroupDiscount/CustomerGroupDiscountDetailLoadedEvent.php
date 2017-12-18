@@ -10,7 +10,7 @@ use Shopware\Framework\Event\NestedEventCollection;
 
 class CustomerGroupDiscountDetailLoadedEvent extends NestedEvent
 {
-    const NAME = 'customer_group_discount.detail.loaded';
+    public const NAME = 'customer_group_discount.detail.loaded';
 
     /**
      * @var TranslationContext

@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class UserSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'user.search.result.loaded';
+    public const NAME = 'user.search.result.loaded';
 
     /**
      * @var UserSearchResult

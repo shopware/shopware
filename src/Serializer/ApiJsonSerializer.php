@@ -28,7 +28,7 @@ use Shopware\Framework\Struct\Struct;
 
 class ApiJsonSerializer implements SerializerInterface
 {
-    const FORMAT = 'api_json';
+    public const FORMAT = 'api_json';
 
     public function supportsFormat(string $format): bool
     {

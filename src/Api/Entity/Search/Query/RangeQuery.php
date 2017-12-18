@@ -4,13 +4,13 @@ namespace Shopware\Api\Entity\Search\Query;
 
 class RangeQuery extends Query
 {
-    const LTE = 'lte';
+    public const LTE = 'lte';
 
-    const LT = 'lt';
+    public const LT = 'lt';
 
-    const GTE = 'gte';
+    public const GTE = 'gte';
 
-    const GT = 'gt';
+    public const GT = 'gt';
 
     /**
      * @var string

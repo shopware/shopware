@@ -10,7 +10,7 @@ use Shopware\Framework\Event\NestedEventCollection;
 
 class ShippingMethodPriceDetailLoadedEvent extends NestedEvent
 {
-    const NAME = 'shipping_method_price.detail.loaded';
+    public const NAME = 'shipping_method_price.detail.loaded';
 
     /**
      * @var TranslationContext

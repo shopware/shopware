@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class ShippingMethodPriceSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'shipping_method_price.search.result.loaded';
+    public const NAME = 'shipping_method_price.search.result.loaded';
 
     /**
      * @var ShippingMethodPriceSearchResult

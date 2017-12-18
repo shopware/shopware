@@ -7,7 +7,7 @@ use Shopware\Api\Product\Definition\ProductMediaDefinition;
 
 class ProductMediaWrittenEvent extends WrittenEvent
 {
-    const NAME = 'product_media.written';
+    public const NAME = 'product_media.written';
 
     public function getName(): string
     {

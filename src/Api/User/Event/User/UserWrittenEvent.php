@@ -7,7 +7,7 @@ use Shopware\Api\User\Definition\UserDefinition;
 
 class UserWrittenEvent extends WrittenEvent
 {
-    const NAME = 'user.written';
+    public const NAME = 'user.written';
 
     public function getName(): string
     {

@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class MediaAlbumAggregationResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'media_album.aggregation.result.loaded';
+    public const NAME = 'media_album.aggregation.result.loaded';
 
     /**
      * @var AggregationResult

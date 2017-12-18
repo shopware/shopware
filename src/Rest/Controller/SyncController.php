@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class SyncController extends RestController
 {
-    const ACTION_UPSERT = 'upsert';
+    public const ACTION_UPSERT = 'upsert';
 
     /**
      * @var DefinitionRegistry

@@ -7,7 +7,7 @@ use Shopware\Api\Shipping\Definition\ShippingMethodPriceDefinition;
 
 class ShippingMethodPriceWrittenEvent extends WrittenEvent
 {
-    const NAME = 'shipping_method_price.written';
+    public const NAME = 'shipping_method_price.written';
 
     public function getName(): string
     {

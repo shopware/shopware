@@ -7,7 +7,7 @@ use Shopware\Api\Mail\Definition\MailTranslationDefinition;
 
 class MailTranslationWrittenEvent extends WrittenEvent
 {
-    const NAME = 'mail_translation.written';
+    public const NAME = 'mail_translation.written';
 
     public function getName(): string
     {

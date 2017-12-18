@@ -7,7 +7,7 @@ use Shopware\Api\Mail\Definition\MailAttachmentDefinition;
 
 class MailAttachmentWrittenEvent extends WrittenEvent
 {
-    const NAME = 'mail_attachment.written';
+    public const NAME = 'mail_attachment.written';
 
     public function getName(): string
     {

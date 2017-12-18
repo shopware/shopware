@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class VoteAverageIndexer implements IndexerInterface
 {
-    const TABLE = 'product_vote_average';
+    public const TABLE = 'product_vote_average';
 
     /**
      * @var ProductRepository

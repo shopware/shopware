@@ -37,7 +37,7 @@ use Shopware\Framework\Struct\StructCollection;
 
 class CartCalculator
 {
-    const MAX_ITERATION = 10;
+    public const MAX_ITERATION = 10;
 
     /**
      * @var CartProcessorInterface[]

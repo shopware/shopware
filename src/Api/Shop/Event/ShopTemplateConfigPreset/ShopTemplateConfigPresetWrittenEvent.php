@@ -7,7 +7,7 @@ use Shopware\Api\Shop\Definition\ShopTemplateConfigPresetDefinition;
 
 class ShopTemplateConfigPresetWrittenEvent extends WrittenEvent
 {
-    const NAME = 'shop_template_config_preset.written';
+    public const NAME = 'shop_template_config_preset.written';
 
     public function getName(): string
     {

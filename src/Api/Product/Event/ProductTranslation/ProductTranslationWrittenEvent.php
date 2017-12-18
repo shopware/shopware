@@ -7,7 +7,7 @@ use Shopware\Api\Product\Definition\ProductTranslationDefinition;
 
 class ProductTranslationWrittenEvent extends WrittenEvent
 {
-    const NAME = 'product_translation.written';
+    public const NAME = 'product_translation.written';
 
     public function getName(): string
     {

@@ -12,7 +12,7 @@ use Shopware\Framework\Event\NestedEventCollection;
 
 class LocaleDetailLoadedEvent extends NestedEvent
 {
-    const NAME = 'locale.detail.loaded';
+    public const NAME = 'locale.detail.loaded';
 
     /**
      * @var TranslationContext

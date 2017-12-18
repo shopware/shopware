@@ -4,6 +4,7 @@ namespace Shopware\Api\Product\Struct;
 
 use Shopware\Api\Category\Collection\CategoryBasicCollection;
 use Shopware\Api\Product\Collection\ProductMediaBasicCollection;
+use Shopware\Api\Product\Collection\ProductSearchKeywordBasicCollection;
 use Shopware\Api\Product\Collection\ProductStreamBasicCollection;
 use Shopware\Api\Product\Collection\ProductTranslationBasicCollection;
 
@@ -13,6 +14,11 @@ class ProductDetailStruct extends ProductBasicStruct
      * @var ProductMediaBasicCollection
      */
     protected $media;
+
+    /**
+     * @var ProductSearchKeywordBasicCollection
+     */
+    protected $searchKeywords;
 
     /**
      * @var ProductTranslationBasicCollection
@@ -28,16 +34,6 @@ class ProductDetailStruct extends ProductBasicStruct
      * @var CategoryBasicCollection
      */
     protected $categories;
-
-    /**
-     * @var string[]
-     */
-    protected $categoryTreeUuids = [];
-
-    /**
-     * @var CategoryBasicCollection
-     */
-    protected $categoryTree;
 
     /**
      * @var string[]
@@ -73,11 +69,11 @@ class ProductDetailStruct extends ProductBasicStruct
     {
         $this->media = new ProductMediaBasicCollection();
 
+        $this->searchKeywords = new ProductSearchKeywordBasicCollection();
+
         $this->translations = new ProductTranslationBasicCollection();
 
         $this->categories = new CategoryBasicCollection();
-
-        $this->categoryTree = new CategoryBasicCollection();
 
         $this->seoCategories = new CategoryBasicCollection();
 
@@ -94,6 +90,16 @@ class ProductDetailStruct extends ProductBasicStruct
     public function setMedia(ProductMediaBasicCollection $media): void
     {
         $this->media = $media;
+    }
+
+    public function getSearchKeywords(): ProductSearchKeywordBasicCollection
+    {
+        return $this->searchKeywords;
+    }
+
+    public function setSearchKeywords(ProductSearchKeywordBasicCollection $searchKeywords): void
+    {
+        $this->searchKeywords = $searchKeywords;
     }
 
     public function getTranslations(): ProductTranslationBasicCollection
@@ -124,26 +130,6 @@ class ProductDetailStruct extends ProductBasicStruct
     public function setCategories(CategoryBasicCollection $categories): void
     {
         $this->categories = $categories;
-    }
-
-    public function getCategoryTreeUuids(): array
-    {
-        return $this->categoryTreeUuids;
-    }
-
-    public function setCategoryTreeUuids(array $categoryTreeUuids): void
-    {
-        $this->categoryTreeUuids = $categoryTreeUuids;
-    }
-
-    public function getCategoryTree(): CategoryBasicCollection
-    {
-        return $this->categoryTree;
-    }
-
-    public function setCategoryTree(CategoryBasicCollection $categoryTree): void
-    {
-        $this->categoryTree = $categoryTree;
     }
 
     public function getSeoCategoryUuids(): array

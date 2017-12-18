@@ -3,7 +3,7 @@
 namespace Shopware\DbalIndexing\Search;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Product\Struct\ProductBasicStruct;
+use Shopware\Api\Product\Struct\ProductBasicStruct;
 
 class SearchAnalyzerRegistry
 {

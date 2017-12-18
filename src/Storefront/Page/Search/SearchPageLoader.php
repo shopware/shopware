@@ -2,14 +2,14 @@
 
 namespace Shopware\Storefront\Page\Search;
 
-use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\Query\ScoreQuery;
-use Shopware\Api\Search\Query\TermQuery;
-use Shopware\Api\Search\Query\TermsQuery;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\Query\ScoreQuery;
+use Shopware\Api\Entity\Search\Query\TermQuery;
+use Shopware\Api\Entity\Search\Query\TermsQuery;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Config\ConfigServiceInterface;
 use Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository;
 use Symfony\Component\HttpFoundation\Request;
-use Shopware\Framework\Config\ConfigServiceInterface;
 
 class SearchPageLoader
 {

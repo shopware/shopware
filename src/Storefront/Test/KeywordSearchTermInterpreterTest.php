@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Test;
 
-use Shopware\Api\Search\Term\SearchTerm;
+use Shopware\Api\Entity\Search\Term\SearchTerm;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

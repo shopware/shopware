@@ -2,7 +2,7 @@
 
 namespace Shopware\DbalIndexing\Event;
 
-use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\DbalIndexing\Indexer\ShopIndexer;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 

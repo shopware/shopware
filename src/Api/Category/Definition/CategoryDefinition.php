@@ -27,7 +27,6 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Media\Definition\MediaDefinition;
 use Shopware\Api\Product\Definition\ProductCategoryDefinition;
-use Shopware\Api\Product\Definition\ProductCategoryTreeDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Definition\ProductSeoCategoryDefinition;
 use Shopware\Api\Shop\Definition\ShopDefinition;
@@ -92,7 +91,6 @@ class CategoryDefinition extends EntityDefinition
             (new TranslationsAssociationField('translations', CategoryTranslationDefinition::class, 'category_uuid', false, 'uuid'))->setFlags(new Required()),
             new OneToManyAssociationField('shops', ShopDefinition::class, 'category_uuid', false, 'uuid'),
             new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_uuid', 'product_uuid', 'productUuids'),
-            new ManyToManyAssociationField('productTree', ProductDefinition::class, ProductCategoryTreeDefinition::class, false, 'category_uuid', 'product_uuid', 'productTreeUuids'),
             new ManyToManyAssociationField('seoProducts', ProductDefinition::class, ProductSeoCategoryDefinition::class, false, 'category_uuid', 'product_uuid', 'seoProductUuids'),
         ]);
 

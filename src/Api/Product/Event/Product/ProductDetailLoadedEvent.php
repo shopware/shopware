@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Product\Event\Product;
+namespace Shopware\Api\Product\Event\Product;
 
-use Shopware\Category\Event\Category\CategoryBasicLoadedEvent;
+use Shopware\Api\Category\Event\Category\CategoryBasicLoadedEvent;
+use Shopware\Api\Product\Collection\ProductDetailCollection;
+use Shopware\Api\Product\Event\ProductListingPrice\ProductListingPriceBasicLoadedEvent;
+use Shopware\Api\Product\Event\ProductManufacturer\ProductManufacturerBasicLoadedEvent;
+use Shopware\Api\Product\Event\ProductMedia\ProductMediaBasicLoadedEvent;
+use Shopware\Api\Product\Event\ProductPrice\ProductPriceBasicLoadedEvent;
+use Shopware\Api\Product\Event\ProductSearchKeyword\ProductSearchKeywordBasicLoadedEvent;
+use Shopware\Api\Product\Event\ProductStream\ProductStreamBasicLoadedEvent;
+use Shopware\Api\Product\Event\ProductTranslation\ProductTranslationBasicLoadedEvent;
+use Shopware\Api\Tax\Event\Tax\TaxBasicLoadedEvent;
+use Shopware\Api\Unit\Event\Unit\UnitBasicLoadedEvent;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Product\Collection\ProductDetailCollection;
-use Shopware\Product\Event\ProductListingPrice\ProductListingPriceBasicLoadedEvent;
-use Shopware\Product\Event\ProductManufacturer\ProductManufacturerBasicLoadedEvent;
-use Shopware\Product\Event\ProductMedia\ProductMediaBasicLoadedEvent;
-use Shopware\Product\Event\ProductPrice\ProductPriceBasicLoadedEvent;
-use Shopware\Product\Event\ProductSearchKeyword\ProductSearchKeywordBasicLoadedEvent;
-use Shopware\Product\Event\ProductStream\ProductStreamBasicLoadedEvent;
-use Shopware\Product\Event\ProductTranslation\ProductTranslationBasicLoadedEvent;
-use Shopware\Tax\Event\Tax\TaxBasicLoadedEvent;
-use Shopware\Unit\Event\Unit\UnitBasicLoadedEvent;
 
 class ProductDetailLoadedEvent extends NestedEvent
 {

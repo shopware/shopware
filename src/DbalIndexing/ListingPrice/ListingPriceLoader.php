@@ -5,8 +5,8 @@ namespace Shopware\DbalIndexing\ListingPrice;
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Cart\Price\PriceCalculator;
-use Shopware\Product\Collection\ProductListingPriceBasicCollection;
-use Shopware\Product\Struct\ProductListingPriceBasicStruct;
+use Shopware\Api\Product\Collection\ProductListingPriceBasicCollection;
+use Shopware\Api\Product\Struct\ProductListingPriceBasicStruct;
 
 class ListingPriceLoader
 {
@@ -14,6 +14,7 @@ class ListingPriceLoader
      * @var Connection
      */
     private $connection;
+
     /**
      * @var PriceCalculator
      */

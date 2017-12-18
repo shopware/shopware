@@ -7,15 +7,15 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\RepositoryInterface;
-use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\SearchResultInterface;
-use Shopware\Api\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Api\Search\Term\SearchTermInterpreter;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\SearchResultInterface;
+use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Customer\Definition\CustomerDefinition;
+use Shopware\Api\Customer\Definition\CustomerDefinition;
 use Shopware\Framework\Struct\ArrayStruct;
-use Shopware\Order\Definition\OrderDefinition;
-use Shopware\Product\Definition\ProductDefinition;
+use Shopware\Api\Order\Definition\OrderDefinition;
+use Shopware\Api\Product\Definition\ProductDefinition;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class AuditLogSearch
@@ -26,12 +26,12 @@ class AuditLogSearch
     private $container;
 
     /**
-     * @var \Shopware\Api\Search\Term\SearchTermInterpreter
+     * @var SearchTermInterpreter
      */
     private $interpreter;
 
     /**
-     * @var \Shopware\Api\Search\Term\EntityScoreQueryBuilder
+     * @var EntityScoreQueryBuilder
      */
     private $scoreBuilder;
 

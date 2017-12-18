@@ -6,7 +6,7 @@
 
     <services>
         <service class="Shopware\DbalIndexing\Common\ContextVariationService" id="shopware.dbal_indexing.context_variation_service">
-            <argument id="Shopware\Shop\Repository\ShopRepository" type="service"/>
+            <argument id="Shopware\Api\Shop\Repository\ShopRepository" type="service"/>
         </service>
 
         <service class="Shopware\DbalIndexing\Common\IndexTableOperator" id="shopware.dbal_indexing.index_table_operator">
@@ -16,7 +16,7 @@
         <service class="Shopware\DbalIndexing\Search\SearchIndexer" id="shopware.dbal_indexing.search.search_indexer">
             <tag name="shopware.dbal_indexing.indexer"/>
             <argument id="dbal_connection" type="service"/>
-            <argument type="service" id="Shopware\Product\Repository\ProductRepository"/>
+            <argument type="service" id="Shopware\Api\Product\Repository\ProductRepository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="shopware.dbal_indexing.context_variation_service"/>
             <argument type="service" id="shopware.dbal_indexing.search.search_analyzer_registry"/>
@@ -42,8 +42,8 @@
 
         <service class="Shopware\DbalIndexing\ListingPrice\ListingPriceIndexer" id="shopware.dbal_indexing.listing_price_indexer">
             <tag name="shopware.dbal_indexing.indexer"/>
-            <argument type="service" id="Shopware\Product\Repository\ProductRepository"/>
-            <argument type="service" id="Shopware\Customer\Repository\CustomerGroupRepository"/>
+            <argument type="service" id="Shopware\Api\Product\Repository\ProductRepository"/>
+            <argument type="service" id="Shopware\Api\Customer\Repository\CustomerGroupRepository"/>
             <argument type="service" id="shopware.dbal_indexing.listing_price_loader"/>
             <argument type="service" id="dbal_connection"/>
             <argument type="service" id="event_dispatcher"/>

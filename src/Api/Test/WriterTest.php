@@ -3,12 +3,11 @@
 namespace Shopware\Api\Test;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
-use Shopware\Api\Entity\Dbal\EntityWriter;
+use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\FieldException\WriteStackException;
 use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Product\Definition\ProductDefinition;
-use Shopware\Api\Shop\Definition\ShopDefinition;
+use Shopware\Context\Struct\TranslationContext;
 use Shopware\Storefront\Context\StorefrontContextService;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -322,7 +321,7 @@ class WriterTest extends KernelTestCase
             ]);
     }
 
-    private function getWriter(): EntityWriter
+    private function getWriter(): EntityWriterInterface
     {
         return self::$kernel->getContainer()->get('shopware.api.entity_writer');
     }

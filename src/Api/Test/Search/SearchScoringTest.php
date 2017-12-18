@@ -4,14 +4,14 @@ namespace Shopware\Api\Test\Search;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Api\Entity\Entity;
-use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Api\Search\Term\SearchPattern;
-use Shopware\Api\Search\Term\SearchTerm;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Api\Entity\Search\Term\SearchPattern;
+use Shopware\Api\Entity\Search\Term\SearchTerm;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\ArrayStruct;
-use Shopware\Product\Definition\ProductDefinition;
-use Shopware\Product\Repository\ProductRepository;
+use Shopware\Api\Product\Definition\ProductDefinition;
+use Shopware\Api\Product\Repository\ProductRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class SearchScoringTest extends KernelTestCase

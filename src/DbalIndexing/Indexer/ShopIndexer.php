@@ -2,7 +2,7 @@
 
 namespace Shopware\DbalIndexing\Indexer;
 
-use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Api\Entity\Write\GenericWrittenEvent;
 
 class ShopIndexer implements IndexerInterface
 {

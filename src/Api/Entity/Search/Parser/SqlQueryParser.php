@@ -6,14 +6,15 @@ use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Dbal\EntityDefinitionResolver;
 use Shopware\Api\Entity\EntityDefinition;
+use Shopware\Api\Entity\Field\ArrayField;
 use Shopware\Api\Entity\Search\Query\MatchQuery;
 use Shopware\Api\Entity\Search\Query\NestedQuery;
 use Shopware\Api\Entity\Search\Query\NotQuery;
 use Shopware\Api\Entity\Search\Query\Query;
 use Shopware\Api\Entity\Search\Query\RangeQuery;
+use Shopware\Api\Entity\Search\Query\ScoreQuery;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
-use Shopware\Api\Entity\Search\Query\ScoreQuery;
 
 class SqlQueryParser
 {

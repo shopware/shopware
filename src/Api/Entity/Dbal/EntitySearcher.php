@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\Parser\SqlQueryParser;
 use Shopware\Api\Entity\Search\UuidSearchResult;
-use Shopware\Api\Search\Query\ScoreQuery;
+use Shopware\Api\Entity\Search\Query\ScoreQuery;
 use Shopware\Context\Struct\TranslationContext;
 
 class EntitySearcher implements EntitySearcherInterface

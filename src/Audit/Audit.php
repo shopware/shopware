@@ -17,6 +17,6 @@ class Audit extends Bundle
         parent::build($container);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
-        $loader->load('api.xml');
+        $loader->load('services.xml');
     }
 }

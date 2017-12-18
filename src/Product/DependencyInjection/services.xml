@@ -10,6 +10,5 @@
             <tag name="kernel.event_subscriber" />
             <argument type="service" id="Shopware\Api\Seo\Repository\SeoUrlRepository"/>
         </service>
-
     </services>
 </container>

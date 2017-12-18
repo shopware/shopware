@@ -2,15 +2,15 @@
 
 namespace Shopware\Audit\Logging;
 
-use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\EntitySearcherInterface;
-use Shopware\Api\Search\Query\TermQuery;
-use Shopware\Api\Write\EntityWriterInterface;
-use Shopware\Api\Write\WriteContext;
-use Shopware\Audit\Definition\AuditLogDefinition;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\EntitySearcherInterface;
+use Shopware\Api\Entity\Search\Query\TermQuery;
+use Shopware\Api\Entity\Write\EntityWriterInterface;
+use Shopware\Api\Entity\Write\WriteContext;
+use Shopware\Api\Audit\Definition\AuditLogDefinition;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Rest\ApiContext;
-use Shopware\User\Definition\UserDefinition;
+use Shopware\Api\User\Definition\UserDefinition;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 

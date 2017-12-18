@@ -3,9 +3,9 @@
 namespace Shopware\Traceable\Dbal;
 
 use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\EntitySearcherInterface;
-use Shopware\Api\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\EntitySearcherInterface;
+use Shopware\Api\Entity\Search\UuidSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\Stopwatch\Stopwatch;
 

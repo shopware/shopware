@@ -8,13 +8,13 @@ use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Search\Query\MatchQuery;
-use Shopware\Api\Search\Query\ScoreQuery;
-use Shopware\Api\Search\Query\TermQuery;
-use Shopware\Api\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Api\Search\Term\SearchPattern;
-use Shopware\Api\Search\Term\SearchTerm;
-use Shopware\Api\Write\Flag\SearchRanking;
+use Shopware\Api\Entity\Search\Query\MatchQuery;
+use Shopware\Api\Entity\Search\Query\ScoreQuery;
+use Shopware\Api\Entity\Search\Query\TermQuery;
+use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Api\Entity\Search\Term\SearchPattern;
+use Shopware\Api\Entity\Search\Term\SearchTerm;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
 
 class EntityScoreBuilderTest extends TestCase
 {
@@ -43,13 +43,13 @@ class EntityScoreBuilderTest extends TestCase
 
     public function testMultipleTerms()
     {
-        $builder = new \Shopware\Api\Search\Term\EntityScoreQueryBuilder();
+        $builder = new \Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder();
 
         $pattern = new SearchPattern(
-            new \Shopware\Api\Search\Term\SearchTerm('term', 1)
+            new \Shopware\Api\Entity\Search\Term\SearchTerm('term', 1)
         );
         $pattern->addTerm(
-            new \Shopware\Api\Search\Term\SearchTerm('test', 0.1)
+            new \Shopware\Api\Entity\Search\Term\SearchTerm('test', 0.1)
         );
 
         $queries = $builder->buildScoreQueries($pattern, TestDefinition::class, 'test');

@@ -91,7 +91,7 @@ class EntityDefinitionResolver
         $associationKey = array_shift($associationKey);
 
         if (!$fields->has($associationKey)) {
-            throw new \RuntimeException(sprintf('Unmapped field %s for definition class', $original, $definition));
+            throw new \RuntimeException(sprintf('Unmapped field %s for definition class', $original));
         }
 
         /** @var AssociationInterface|Field $field */

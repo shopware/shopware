@@ -7,10 +7,10 @@ use Psr\Container\ContainerInterface;
 use Ramsey\Uuid\Uuid;
 use Shopware\Administration\Search\AuditLogSearch;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Product\Definition\ProductDefinition;
-use Shopware\Product\Repository\ProductRepository;
-use Shopware\Product\Struct\ProductBasicStruct;
-use Shopware\User\Repository\UserRepository;
+use Shopware\Api\Product\Definition\ProductDefinition;
+use Shopware\Api\Product\Repository\ProductRepository;
+use Shopware\Api\Product\Struct\ProductBasicStruct;
+use Shopware\Api\User\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class AuditLogSearchTest extends KernelTestCase

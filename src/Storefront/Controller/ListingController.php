@@ -34,11 +34,11 @@ class ListingController extends StorefrontController
     /**
      * @var ListingPageLoader
      */
-    private $lisingPageLoader;
+    private $listingPageLoader;
 
     public function __construct(ListingPageLoader $lisingPageLoader)
     {
-        $this->lisingPageLoader = $lisingPageLoader;
+        $this->listingPageLoader = $lisingPageLoader;
     }
 
     /**
@@ -46,7 +46,7 @@ class ListingController extends StorefrontController
      */
     public function indexAction(string $uuid, ShopContext $context, Request $request)
     {
-        $listingPage = $this->lisingPageLoader->load($uuid, $request, $context);
+        $listingPage = $this->listingPageLoader->load($uuid, $request, $context);
 
         return $this->renderStorefront('@Storefront/frontend/listing/index.html.twig', [
             'listing' => $listingPage,

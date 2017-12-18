@@ -2,9 +2,9 @@
 
 namespace Shopware\DbalIndexing\Common;
 
-use Shopware\Api\RepositoryInterface;
-use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\SearchResultInterface;
+use Shopware\Api\Entity\RepositoryInterface;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\SearchResultInterface;
 use Shopware\Context\Struct\TranslationContext;
 
 class RepositoryIterator

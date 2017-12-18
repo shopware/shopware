@@ -3,8 +3,8 @@
 namespace Shopware\Storefront\Page\Search;
 
 use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Framework\Struct\Struct;
 use Shopware\Api\Product\Struct\ProductSearchResult;
+use Shopware\Framework\Struct\Struct;
 
 class SearchPageStruct extends Struct
 {

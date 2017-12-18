@@ -6,7 +6,7 @@ use Shopware\Api\Entity\Search\Aggregation\Aggregation;
 use Shopware\Api\Entity\Search\Query\NestedQuery;
 use Shopware\Api\Entity\Search\Query\Query;
 use Shopware\Api\Entity\Search\Sorting\FieldSorting;
-use Shopware\Api\Search\Query\ScoreQuery;
+use Shopware\Api\Entity\Search\Query\ScoreQuery;
 use Shopware\Framework\Struct\Struct;
 
 class Criteria extends Struct

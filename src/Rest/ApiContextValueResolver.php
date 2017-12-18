@@ -2,13 +2,13 @@
 
 namespace Shopware\Rest;
 
-use Shopware\Api\Search\Criteria;
-use Shopware\Api\Search\EntitySearcherInterface;
-use Shopware\Api\Search\Query\TermQuery;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\EntitySearcherInterface;
+use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Storefront\Session\ShopSubscriber;
-use Shopware\User\Definition\UserDefinition;
+use Shopware\Api\User\Definition\UserDefinition;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;

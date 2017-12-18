@@ -233,10 +233,10 @@ class DefinitionGenerator
                     );
                     break;
             }
+
             if ($template === null) {
                 continue;
             }
-
 
             $fields[] = str_replace(
                 ['#property#', '#template#'],

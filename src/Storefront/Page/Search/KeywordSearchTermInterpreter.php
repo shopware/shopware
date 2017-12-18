@@ -51,13 +51,6 @@ class KeywordSearchTermInterpreter
                 $match
             );
         }
-
-        $debug = array_combine(
-            array_column($scoring, 'keyword'),
-            array_column($scoring, 'score')
-        );
-        error_log(print_r($debug, true) . "\n", 3, '/var/log/test.log');
-
         $pattern = new SearchPattern(new SearchTerm($word));
 
         foreach ($scoring as $match) {

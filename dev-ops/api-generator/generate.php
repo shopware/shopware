@@ -53,7 +53,7 @@ $associations = [
 ];
 
 $prevent = [
-    'shop' => ['snippet', 'templateConfigFormFieldValue', 'productSeoCategory', 'customer', 'order', 'mailAttachment', 'configFormFieldValue'],
+    'shop' => ['snippet', 'templateConfigFormFieldValue', 'productSeoCategory', 'customer', 'order', 'mailAttachment', 'configFormFieldValue', 'productSearchKeyword'],
     'locale' => ['configFormFieldTranslation', 'configFormTranslation'],
     'customer_address' => ['customers'],
     'customer_group' => [

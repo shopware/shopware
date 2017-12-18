@@ -48,17 +48,9 @@ class ShopSubscriber implements EventSubscriberInterface
      */
     private $contextService;
 
-    /**
-     * @var Router
-     */
-    private $router;
-
-    public function __construct(
-        StorefrontContextServiceInterface $contextService,
-        Router $router
-    ) {
+    public function __construct(StorefrontContextServiceInterface $contextService)
+    {
         $this->contextService = $contextService;
-        $this->router = $router;
     }
 
     public static function getSubscribedEvents(): array

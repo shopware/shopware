@@ -6,7 +6,6 @@ use Shopware\Api\Search\Criteria;
 use Shopware\Api\Search\Query\ScoreQuery;
 use Shopware\Api\Search\Query\TermQuery;
 use Shopware\Api\Search\Query\TermsQuery;
-use Shopware\Api\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,21 +28,14 @@ class SearchPageLoader
      */
     private $termInterpreter;
 
-    /**
-     * @var EntityScoreQueryBuilder
-     */
-    private $scoreQueryBuilder;
-
     public function __construct(
         ConfigServiceInterface $configService,
         StorefrontProductRepository $productRepository,
-        KeywordSearchTermInterpreter $termInterpreter,
-        EntityScoreQueryBuilder $scoreQueryBuilder
+        KeywordSearchTermInterpreter $termInterpreter
     ) {
         $this->configService = $configService;
         $this->productRepository = $productRepository;
         $this->termInterpreter = $termInterpreter;
-        $this->scoreQueryBuilder = $scoreQueryBuilder;
     }
 
     /**

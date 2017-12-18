@@ -147,15 +147,10 @@ class Router implements RouterInterface, RequestMatcherInterface
 
         $cacheItem = $this->cache->getItem('router_routes');
         if ($routes = $cacheItem->get()) {
-            $this->routes = $routes;
-
-            return $this->routes;
+            return $this->routes = $routes;
         }
 
-        if ($this->routes === null) {
-            $this->routes = $this->loadRoutes();
-        }
-
+        $this->routes = $this->loadRoutes();
         $cacheItem->set($this->routes);
         $this->cache->save($cacheItem);
 

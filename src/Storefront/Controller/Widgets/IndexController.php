@@ -32,7 +32,6 @@ use Shopware\Api\Entity\Search\Query\TermsQuery;
 use Shopware\Api\Shop\Repository\ShopRepository;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Storefront\Controller\StorefrontController;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @Route(service="shopware.storefront.controller.widgets.index_controller", path="/")
@@ -54,11 +53,10 @@ class IndexController extends StorefrontController
      * @Method({"GET"})
      *
      * @param ShopContext $context
-     * @param Request     $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function shopMenuAction(ShopContext $context, Request $request)
+    public function shopMenuAction(ShopContext $context)
     {
         return $this->render('@Storefront/widgets/index/shop_menu.html.twig', [
             'shop' => $context->getShop(),

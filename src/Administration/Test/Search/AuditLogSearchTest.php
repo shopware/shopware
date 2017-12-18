@@ -50,7 +50,7 @@ class AuditLogSearchTest extends KernelTestCase
 
         $this->productRepository = $this->container->get(ProductRepository::class);
         $this->search = $this->container->get('shopware.administration.search.audit_log_search');
-        $this->context = $context = new TranslationContext('SWAG-SHOP-UUID-1', true, null);
+        $this->context = $context = TranslationContext::createDefaultContext();
 
         $this->connection->executeUpdate('
             DELETE FROM `audit_log`;
@@ -84,7 +84,7 @@ class AuditLogSearchTest extends KernelTestCase
 
     public function testProductRanking()
     {
-        $context = new TranslationContext('SWAG-SHOP-UUID-1', true, null);
+        $context = TranslationContext::createDefaultContext();
 
         $this->productRepository->upsert([
             ['uuid' => 'product-1', 'name' => 'test product 1'],

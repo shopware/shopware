@@ -14,10 +14,16 @@ class ScoreQuery extends Query
      */
     protected $query;
 
-    public function __construct(Query $query, float $score)
+    /**
+     * @var null|string
+     */
+    protected $scoreField;
+
+    public function __construct(Query $query, float $score, ?string $scoreField = null)
     {
         $this->score = $score;
         $this->query = $query;
+        $this->scoreField = $scoreField;
     }
 
     public function getFields(): array
@@ -33,5 +39,10 @@ class ScoreQuery extends Query
     public function getQuery(): Query
     {
         return $this->query;
+    }
+
+    public function getScoreField(): ?string
+    {
+        return $this->scoreField;
     }
 }

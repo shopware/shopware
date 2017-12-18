@@ -88,7 +88,7 @@ class EntityScoreBuilderTest extends TestCase
         $this->assertEquals(
             [
                 new ScoreQuery(new TermQuery('test.name', 'term'), 1),
-                new ScoreQuery(new MatchQuery('test.name', 'term'), 0.5)
+                new ScoreQuery(new MatchQuery('test.name', 'term'), 0.5),
             ],
             $queries
         );
@@ -177,7 +177,6 @@ class NestedDefinition extends EntityDefinition
         return '';
     }
 }
-
 
 class OnlyTranslatedFieldDefinition extends EntityDefinition
 {

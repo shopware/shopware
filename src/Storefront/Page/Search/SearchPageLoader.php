@@ -2,16 +2,15 @@
 
 namespace Shopware\Storefront\Page\Search;
 
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Query\MatchQuery;
-use Shopware\Api\Entity\Search\Query\NestedQuery;
-use Shopware\Api\Entity\Search\Query\TermQuery;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Query\ScoreQuery;
+use Shopware\Api\Search\Query\TermQuery;
+use Shopware\Api\Search\Query\TermsQuery;
 use Shopware\Api\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Config\ConfigServiceInterface;
 use Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository;
 use Symfony\Component\HttpFoundation\Request;
+use Shopware\Framework\Config\ConfigServiceInterface;
 
 class SearchPageLoader
 {
@@ -57,7 +56,8 @@ class SearchPageLoader
     public function load(string $searchTerm, Request $request, ShopContext $context): SearchPageStruct
     {
         $config = $this->configService->getByShop($context->getShop()->getUuid(), $context->getShop()->getParentUuid());
-        $criteria = $this->createCriteria(trim($searchTerm), $request, $context->getTranslationContext());
+
+        $criteria = $this->createCriteria(trim($searchTerm), $request, $context);
 
         $products = $this->productRepository->search($criteria, $context);
 
@@ -70,8 +70,11 @@ class SearchPageLoader
         return $listingPageStruct;
     }
 
-    private function createCriteria(string $searchTerm, Request $request, TranslationContext $context): Criteria
-    {
+    private function createCriteria(
+        string $searchTerm,
+        Request $request,
+        ShopContext $context
+    ): Criteria {
         $limit = $request->query->getInt('limit', 20);
         $page = $request->query->getInt('page', 1);
 
@@ -81,13 +84,35 @@ class SearchPageLoader
         $criteria->setFetchCount(true);
         $criteria->addFilter(new TermQuery('product.active', 1));
 
-        $pattern = $this->termInterpreter->interpret($searchTerm, $context);
-
-        $queries = $this->scoreQueryBuilder->buildScoreQueries($pattern, ProductDefinition::class, ProductDefinition::getEntityName());
+        $pattern = $this->termInterpreter->interpret($searchTerm, $context->getTranslationContext());
+        $keywords = $queries = [];
+        foreach ($pattern->getTerms() as $term) {
+            $queries[] = new ScoreQuery(
+                new TermQuery('product.searchKeywords.keyword', $term->getTerm()),
+                $term->getScore(),
+                'product.searchKeywords.ranking'
+            );
+            $keywords[] = $term->getTerm();
+        }
 
         foreach ($queries as $query) {
             $criteria->addQuery($query);
         }
+
+        $criteria->addFilter(new TermsQuery(
+            'product.searchKeywords.keyword',
+            array_values($keywords)
+        ));
+
+        $criteria->addFilter(new TermQuery(
+            'product.searchKeywords.shopUuid',
+            $context->getShop()->getUuid()
+        ));
+
+        $criteria->addFilter(new TermQuery(
+            'product.categoryTree',
+            $context->getShop()->getCategory()->getUuid()
+        ));
 
         return $criteria;
     }

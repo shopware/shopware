@@ -6,13 +6,12 @@ use Doctrine\DBAL\Connection;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
-use Shopware\Api\Customer\Repository\CustomerGroupRepository;
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Product\Collection\ProductListingPriceBasicCollection;
-use Shopware\Api\Product\Event\Product\ProductWrittenEvent;
-use Shopware\Api\Product\Repository\ProductRepository;
-use Shopware\Api\Product\Struct\ProductListingPriceBasicStruct;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Query\TermsQuery;
+use Shopware\Api\Write\GenericWrittenEvent;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Customer\Repository\CustomerGroupRepository;
+use Shopware\DbalIndexing\Common\IndexTableOperator;
 use Shopware\DbalIndexing\Common\RepositoryIterator;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
@@ -20,6 +19,12 @@ use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\DbalIndexing\Indexer\IndexerInterface;
 use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Product\Collection\ProductListingPriceBasicCollection;
+use Shopware\Product\Definition\ProductDefinition;
+use Shopware\Product\Definition\ProductPriceDefinition;
+use Shopware\Product\Repository\ProductPriceRepository;
+use Shopware\Product\Repository\ProductRepository;
+use Shopware\Product\Struct\ProductListingPriceBasicStruct;
 use Shopware\Storefront\Context\StorefrontContextService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -57,13 +62,25 @@ class ListingPriceIndexer implements IndexerInterface
      */
     private $logger;
 
+    /**
+     * @var IndexTableOperator
+     */
+    private $indexTableOperator;
+
+    /**
+     * @var ProductPriceRepository
+     */
+    private $priceRepository;
+
     public function __construct(
         ProductRepository $productRepository,
         CustomerGroupRepository $customerGroupRepository,
         ListingPriceLoader $listingPriceLoader,
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        IndexTableOperator $indexTableOperator,
+        ProductPriceRepository $priceRepository
     ) {
         $this->productRepository = $productRepository;
         $this->listingPriceLoader = $listingPriceLoader;
@@ -71,17 +88,17 @@ class ListingPriceIndexer implements IndexerInterface
         $this->eventDispatcher = $eventDispatcher;
         $this->logger = $logger;
         $this->customerGroupRepository = $customerGroupRepository;
+        $this->indexTableOperator = $indexTableOperator;
+        $this->priceRepository = $priceRepository;
     }
 
-    public function index(TranslationContext $context, \DateTime $timestamp): void
+    public function index(\DateTime $timestamp): void
     {
-        if ($context->getShopUuid() !== 'SWAG-SHOP-UUID-1') {
-            return;
-        }
+        $context = TranslationContext::createDefaultContext();
 
         $customerGroups = $this->customerGroupRepository->searchUuids(new Criteria(), $context);
 
-        $this->createTable($timestamp);
+        $this->indexTableOperator->createTable(self::TABLE, $timestamp);
 
         $iterator = new RepositoryIterator($this->productRepository, $context);
 
@@ -91,7 +108,7 @@ class ListingPriceIndexer implements IndexerInterface
         );
 
         while ($uuids = $iterator->fetchUuids()) {
-            $this->indexListingPrices($uuids, $customerGroups->getUuids(), $context, $timestamp);
+            $this->indexListingPrices($uuids, $customerGroups->getUuids(), $timestamp);
 
             $this->eventDispatcher->dispatch(
                 ProgressAdvancedEvent::NAME,
@@ -99,40 +116,47 @@ class ListingPriceIndexer implements IndexerInterface
             );
         }
 
-        $this->renameTable($timestamp);
+        $this->connection->transactional(function () use ($timestamp) {
+            $this->indexTableOperator->renameTable(self::TABLE, $timestamp);
+            $this->connection->executeUpdate('ALTER TABLE product_listing_price ADD PRIMARY KEY (uuid)');
+            $this->connection->executeUpdate('ALTER TABLE product_listing_price ADD CONSTRAINT FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE');
+            $this->connection->executeUpdate('ALTER TABLE product_listing_price ADD CONSTRAINT FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE');
+        });
+
         $this->eventDispatcher->dispatch(
             ProgressFinishedEvent::NAME,
             new ProgressFinishedEvent('Finished listing price indexing')
         );
     }
 
-    public function refresh(NestedEventCollection $events, TranslationContext $context): void
+    public function refresh(GenericWrittenEvent $event): void
     {
-        $uuids = $this->getProductUuids($events);
+        $uuids = $this->getProductUuids($event);
         if (empty($uuids)) {
             return;
         }
 
-        $customerGroups = $this->customerGroupRepository->searchUuids(new Criteria(), $context);
+        $customerGroups = $this->customerGroupRepository->searchUuids(new Criteria(), $event->getContext());
 
-        $this->connection->executeUpdate(
-            'DELETE FROM product_listing_price WHERE product_uuid IN (:uuids)',
-            ['uuids' => $uuids],
-            ['uuids' => Connection::PARAM_STR_ARRAY]
-        );
+        $this->connection->transactional(function () use ($uuids, $customerGroups) {
+            $this->connection->executeUpdate(
+                'DELETE FROM product_listing_price WHERE product_uuid IN (:uuids)',
+                ['uuids' => $uuids],
+                ['uuids' => Connection::PARAM_STR_ARRAY]
+            );
 
-        $this->indexListingPrices($uuids, $customerGroups->getUuids(), $context, null);
+            $this->indexListingPrices($uuids, $customerGroups->getUuids(), null);
+        });
     }
 
     private function indexListingPrices(
         array $uuids,
         array $customerGroupUuids,
-        TranslationContext $context,
         ?\DateTime $timestamp
     ): void {
         $listingPrices = $this->listingPriceLoader->load($uuids);
 
-        $table = $this->getIndexName($timestamp);
+        $table = $this->indexTableOperator->getIndexName(self::TABLE, $timestamp);
 
         $queue = new MultiInsertQueryQueue($this->connection);
 
@@ -148,6 +172,7 @@ class ListingPriceIndexer implements IndexerInterface
                         'product_uuid' => $price->getProductUuid(),
                         'customer_group_uuid' => $price->getCustomerGroupUuid(),
                         'price' => $price->getPrice(),
+                        'sorting_price' => $price->getSortingPrice(),
                         'display_from_price' => $price->getDisplayFromPrice() ? 1 : 0,
                     ],
                     [
@@ -169,6 +194,7 @@ class ListingPriceIndexer implements IndexerInterface
     ): ProductListingPriceBasicCollection {
         $prices = $listingPrices->filterByProductUuid($productUuid);
 
+        /** @var ProductListingPriceBasicCollection $fallback */
         $fallback = $prices->filterByCustomerGroupUuid(StorefrontContextService::FALLBACK_CUSTOMER_GROUP);
 
         if ($fallback->count() <= 0) {
@@ -200,56 +226,25 @@ class ListingPriceIndexer implements IndexerInterface
         return $prices;
     }
 
-    /**
-     * @param NestedEventCollection $events
-     *
-     * @return array
-     */
-    private function getProductUuids(NestedEventCollection $events): array
+    private function getProductUuids(GenericWrittenEvent $event): array
     {
         /** @var NestedEventCollection $events */
-        $events = $events
-            ->getFlatEventList()
-            ->filterInstance(ProductWrittenEvent::class);
+        $products = $event->getEventByDefinition(ProductDefinition::class);
+
+        $affectedPrices = $event->getEventByDefinition(ProductPriceDefinition::class);
 
         $uuids = [];
-        /** @var ProductWrittenEvent $event */
-        foreach ($events as $event) {
-            foreach ($event->getUuids() as $uuid) {
-                $uuids[] = $uuid;
-            }
+        if ($products) {
+            $uuids = array_merge($uuids, $products->getUuids());
         }
 
-        return $uuids;
-    }
-
-    private function getIndexName(?\DateTime $timestamp): string
-    {
-        if ($timestamp === null) {
-            return self::TABLE;
+        if ($affectedPrices) {
+            $criteria = new Criteria();
+            $criteria->addFilter(new TermsQuery('product_price.uuid', $affectedPrices->getUuids()));
+            $affectedPrices = $this->priceRepository->search($criteria, $event->getContext());
+            $uuids = array_merge($uuids, $affectedPrices->getProductUuids());
         }
 
-        return self::TABLE . '_' . $timestamp->format('YmdHis');
-    }
-
-    private function renameTable(\DateTime $timestamp): void
-    {
-        $this->connection->transactional(function () use ($timestamp) {
-            $name = $this->getIndexName($timestamp);
-            $this->connection->executeUpdate('DROP TABLE ' . self::TABLE);
-            $this->connection->executeUpdate('ALTER TABLE ' . $name . ' RENAME TO ' . self::TABLE);
-        });
-    }
-
-    private function createTable(\DateTime $timestamp): void
-    {
-        $name = $this->getIndexName($timestamp);
-        $this->connection->executeUpdate('
-            DROP TABLE IF EXISTS ' . $name . ';
-            CREATE TABLE ' . $name . ' SELECT * FROM ' . self::TABLE . ' LIMIT 0
-        ');
-        $this->connection->executeUpdate('ALTER TABLE ' . $name . ' ADD PRIMARY KEY (uuid)');
-        $this->connection->executeUpdate('ALTER TABLE ' . $name . ' ADD CONSTRAINT FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE');
-        $this->connection->executeUpdate('ALTER TABLE ' . $name . ' ADD CONSTRAINT FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE');
+        return array_unique($uuids);
     }
 }

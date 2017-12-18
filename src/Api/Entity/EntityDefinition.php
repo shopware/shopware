@@ -74,11 +74,11 @@ abstract class EntityDefinition
 
     public static function createWrittenEvent(array $identifiers, TranslationContext $context, array $errors): ?WrittenEvent
     {
-        if (!array_key_exists(self::class, $identifiers)) {
+        if (!array_key_exists(static::class, $identifiers)) {
             return null;
         }
 
-        $uuids = $identifiers[self::class];
+        $uuids = $identifiers[static::class];
         $class = self::getWrittenEventClass();
 
         return new $class($uuids, $context, $errors);

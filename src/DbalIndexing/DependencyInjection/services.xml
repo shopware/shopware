@@ -5,13 +5,22 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <service class="Shopware\DbalIndexing\Common\ContextVariationService" id="shopware.dbal_indexing.context_variation_service">
+            <argument id="Shopware\Shop\Repository\ShopRepository" type="service"/>
+        </service>
+
+        <service class="Shopware\DbalIndexing\Common\IndexTableOperator" id="shopware.dbal_indexing.index_table_operator">
+            <argument id="dbal_connection" type="service"/>
+        </service>
 
         <service class="Shopware\DbalIndexing\Search\SearchIndexer" id="shopware.dbal_indexing.search.search_indexer">
-            <argument id="dbal_connection" type="service"/>
-            <argument id="Shopware\Product\Repository\ProductRepository" type="service"/>
-            <argument id="event_dispatcher" type="service"/>
-            <argument id="shopware.dbal_indexing.search.search_analyzer_registry" type="service"/>
             <tag name="shopware.dbal_indexing.indexer"/>
+            <argument id="dbal_connection" type="service"/>
+            <argument type="service" id="Shopware\Product\Repository\ProductRepository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="shopware.dbal_indexing.context_variation_service"/>
+            <argument type="service" id="shopware.dbal_indexing.search.search_analyzer_registry"/>
+            <argument type="service" id="shopware.dbal_indexing.index_table_operator"/>
         </service>
 
         <service class="Shopware\DbalIndexing\Search\SearchAnalyzerRegistry" id="shopware.dbal_indexing.search.search_analyzer_registry">
@@ -23,31 +32,35 @@
         </service>
 
         <service class="Shopware\DbalIndexing\ProductCategory\ProductCategoryIndexer" id="shopware.dbal_indexing.product_category_indexer">
-            <argument id="Shopware\Api\Product\Repository\ProductRepository" type="service"/>
-            <argument id="dbal_connection" type="service"/>
-            <argument id="event_dispatcher" type="service"/>
             <tag name="shopware.dbal_indexing.indexer"/>
+            <argument type="service" id="Shopware\Api\Product\Repository\ProductRepository"/>
+            <argument type="service" id="dbal_connection"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="shopware.category.path_builder"/>
+            <argument type="service" id="Shopware\Api\Shop\Repository\ShopRepository"/>
         </service>
 
         <service class="Shopware\DbalIndexing\ListingPrice\ListingPriceIndexer" id="shopware.dbal_indexing.listing_price_indexer">
-            <argument id="Shopware\Api\Product\Repository\ProductRepository" type="service"/>
-            <argument id="Shopware\Api\Customer\Repository\CustomerGroupRepository" type="service"/>
-            <argument id="shopware.dbal_indexing.listing_price_loader" type="service"/>
-            <argument id="dbal_connection" type="service"/>
-            <argument id="event_dispatcher" type="service"/>
-            <argument id="logger" type="service"/>
             <tag name="shopware.dbal_indexing.indexer"/>
+            <argument type="service" id="Shopware\Product\Repository\ProductRepository"/>
+            <argument type="service" id="Shopware\Customer\Repository\CustomerGroupRepository"/>
+            <argument type="service" id="shopware.dbal_indexing.listing_price_loader"/>
+            <argument type="service" id="dbal_connection"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="shopware.dbal_indexing.index_table_operator"/>
+            <argument type="service" id="Shopware\Api\Product\Repository\ProductPriceRepository"/>
         </service>
 
         <service class="Shopware\DbalIndexing\ListingPrice\ListingPriceLoader" id="shopware.dbal_indexing.listing_price_loader">
             <argument id="dbal_connection" type="service"/>
+            <argument type="service" id="cart.price.calculator"/>
         </service>
 
         <service class="Shopware\DbalIndexing\Command\RefreshIndexCommand" id="shopware.dbal_indexing.command.refresh_index_command">
+            <argument type="service" id="shopware.dbal_indexing.indexer.shop_indexer"/>
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
-            <argument type="service" id="Shopware\Api\Shop\Repository\ShopRepository"/>
-            <argument type="service" id="shopware.dbal_indexing.indexer.shop_indexer"/>
         </service>
 
         <service class="Shopware\DbalIndexing\Event\EventSubscriber" id="shopware.dbal_indexing.event.event_subscriber">

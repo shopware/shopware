@@ -47,7 +47,7 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
      */
     public function testMatching(string $term, array $expected)
     {
-        $context = new TranslationContext('SWAG-SHOP-UUID-1', true, null);
+        $context = TranslationContext::createDefaultContext();
 
         $matches = $this->interpreter->interpret($term, $context);
 
@@ -63,11 +63,11 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
         return [
             [
                 'zeichn',
-                ['zeichnet', 'zweichnet', 'ausgezeichnet', 'verkehrzeichennetzwerk', 'gezeichnet', 'zeichen'],
+                ['zeichnet', 'zeichen', 'zweichnet', 'gezeichnet', 'ausgezeichnet', 'verkehrzeichennetzwerk'],
             ],
             [
                 'zeichent',
-                ['zeichnet', 'ausgezeichnet', 'verkehrzeichennetzwerk', 'gezeichnet', 'zeichen'],
+                ['zeichen', 'zeichnet', 'gezeichnet', 'ausgezeichnet', 'verkehrzeichennetzwerk'],
             ],
             [
                 'Büronetz',
@@ -120,7 +120,6 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
             $this->connection->insert('search_keyword', [
                 'keyword' => $keyword,
                 'shop_uuid' => 'SWAG-SHOP-UUID-1',
-                'document_count' => 1,
             ]);
         }
     }

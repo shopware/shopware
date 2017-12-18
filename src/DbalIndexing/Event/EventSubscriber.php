@@ -2,10 +2,8 @@
 
 namespace Shopware\DbalIndexing\Event;
 
-use Shopware\Api\Category\Event\Category\CategoryWrittenEvent;
-use Shopware\Api\Product\Event\Product\ProductWrittenEvent;
+use Shopware\Api\Write\GenericWrittenEvent;
 use Shopware\DbalIndexing\Indexer\ShopIndexer;
-use Shopware\Framework\Event\NestedEventCollection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class EventSubscriber implements EventSubscriberInterface
@@ -23,24 +21,12 @@ class EventSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            ProductWrittenEvent::NAME => 'productWritten',
-            CategoryWrittenEvent::NAME => 'categoryWritten',
+            GenericWrittenEvent::NAME => 'refresh',
         ];
     }
 
-    public function productWritten(ProductWrittenEvent $event)
+    public function refresh(GenericWrittenEvent $event)
     {
-        $this->indexer->refresh(
-            new NestedEventCollection([$event]),
-            $event->getContext()
-        );
-    }
-
-    public function categoryWritten(CategoryWrittenEvent $event)
-    {
-        $this->indexer->refresh(
-            new NestedEventCollection([$event]),
-            $event->getContext()
-        );
+        $this->indexer->refresh($event);
     }
 }

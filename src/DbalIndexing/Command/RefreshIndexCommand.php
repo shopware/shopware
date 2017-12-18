@@ -24,11 +24,6 @@
 
 namespace Shopware\DbalIndexing\Command;
 
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Sorting\FieldSorting;
-use Shopware\Api\Shop\Repository\ShopRepository;
-use Shopware\Api\Shop\Struct\ShopBasicStruct;
-use Shopware\Context\Struct\TranslationContext;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
@@ -47,19 +42,13 @@ class RefreshIndexCommand extends ContainerAwareCommand implements EventSubscrib
     private $io;
 
     /**
-     * @var ShopRepository
-     */
-    private $shopRepository;
-
-    /**
      * @var IndexerInterface
      */
     private $indexer;
 
-    public function __construct(ShopRepository $shopRepository, IndexerInterface $indexer)
+    public function __construct(IndexerInterface $indexer)
     {
         parent::__construct('dbal:refresh:index');
-        $this->shopRepository = $shopRepository;
         $this->indexer = $indexer;
     }
 
@@ -112,27 +101,6 @@ class RefreshIndexCommand extends ContainerAwareCommand implements EventSubscrib
     {
         $this->io = new SymfonyStyle($input, $output);
 
-        $contexts = $this->createContexts();
-
-        $timestamp = new \DateTime();
-        foreach ($contexts as $context) {
-            $this->indexer->index($context, $timestamp);
-        }
-    }
-
-    /**
-     * @return array
-     */
-    protected function createContexts(): array
-    {
-        $context = new TranslationContext('SWAG-SHOP-UUID-1', true, null);
-        $criteria = new Criteria();
-        $criteria->addSorting(new FieldSorting('shop.is_default'));
-        $criteria->addSorting(new FieldSorting('shop.parent_uuid'));
-        $shops = $this->shopRepository->search(new Criteria(), $context);
-
-        return $shops->map(function (ShopBasicStruct $shop) {
-            return TranslationContext::createFromShop($shop);
-        });
+        $this->indexer->index(new \DateTime());
     }
 }

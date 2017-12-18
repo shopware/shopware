@@ -35,7 +35,7 @@ class CustomerProvider implements UserProviderInterface
         $criteria->addFilter(new TermQuery('customer.email', $email));
         $criteria->setLimit(1);
 
-        $context = new TranslationContext('SWAG-SHOP-UUID-1', true, null);
+        $context = TranslationContext::createDefaultContext();
         $customerResult = $this->customerRepository->search($criteria, $context);
 
         // pretend it returns an array on success, false if there is no user

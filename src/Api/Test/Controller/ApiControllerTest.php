@@ -55,7 +55,7 @@ class ApiControllerTest extends ApiTestCase
 
         $this->assertArrayHasKey('data', $responseData);
         $this->assertEquals(1, $responseData['total']);
-        
+
         $this->assertSame($data['price'], $responseData['data'][0]['price']);
         $this->assertSame($data['customerGroupUuid'], $responseData['data'][0]['customerGroupUuid']);
     }

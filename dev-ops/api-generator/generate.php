@@ -37,10 +37,7 @@ $inBasic = [
 
 $associations = [
     new ManyToManyAssociation('category', 'product', 'product', 'product_category'),
-    new ManyToManyAssociation('category', 'product', 'productTree', 'product_category_tree'),
-
     new ManyToManyAssociation('product', 'category', 'category', 'product_category'),
-    new ManyToManyAssociation('product', 'category', 'categoryTree', 'product_category_tree'),
 
     new ManyToManyAssociation('product', 'category', 'seoCategory', 'product_seo_category'),
     new ManyToManyAssociation('category', 'product', 'seoProduct', 'product_seo_category'),

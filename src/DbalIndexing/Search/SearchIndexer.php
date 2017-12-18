@@ -3,22 +3,27 @@
 namespace Shopware\DbalIndexing\Search;
 
 use Doctrine\DBAL\Connection;
+use Ramsey\Uuid\Uuid;
 use Shopware\Api\Search\Criteria;
+use Shopware\Api\Write\GenericWrittenEvent;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\DbalIndexing\Common\ContextVariationService;
+use Shopware\DbalIndexing\Common\IndexTableOperator;
 use Shopware\DbalIndexing\Common\RepositoryIterator;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\DbalIndexing\Indexer\IndexerInterface;
 use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Product\Definition\ProductDefinition;
 use Shopware\Product\Repository\ProductRepository;
-use Shopware\Product\Struct\ProductDetailStruct;
+use Shopware\Product\Struct\ProductSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SearchIndexer implements IndexerInterface
 {
     public const TABLE = 'search_keyword';
+    public const DOCUMENT_TABLE = 'product_search_keyword';
 
     /**
      * @var Connection
@@ -40,104 +45,135 @@ class SearchIndexer implements IndexerInterface
      */
     private $analyzerRegistry;
 
+    /**
+     * @var ContextVariationService
+     */
+    private $contextVariationService;
+
+    /**
+     * @var IndexTableOperator
+     */
+    private $indexTableOperator;
+
     public function __construct(
         Connection $connection,
         ProductRepository $productRepository,
         EventDispatcherInterface $eventDispatcher,
-        SearchAnalyzerRegistry $analyzerRegistry
+        ContextVariationService $contextVariationService,
+        SearchAnalyzerRegistry $analyzerRegistry,
+        IndexTableOperator $indexTableOperator
     ) {
         $this->connection = $connection;
         $this->productRepository = $productRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->analyzerRegistry = $analyzerRegistry;
+        $this->contextVariationService = $contextVariationService;
+        $this->indexTableOperator = $indexTableOperator;
     }
 
-    public function index(TranslationContext $context, \DateTime $timestamp): void
+    public function index(\DateTime $timestamp): void
     {
-        $this->createTable();
+        $this->indexTableOperator->createTable(self::TABLE, $timestamp);
+        $this->indexTableOperator->createTable(self::DOCUMENT_TABLE, $timestamp);
 
+        $table = $this->indexTableOperator->getIndexName(self::TABLE, $timestamp);
+        $documentTable = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp);
+
+        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD PRIMARY KEY `shop_keyword` (`keyword`, `shop_uuid`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD INDEX `keyword` (`keyword`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD FOREIGN KEY (`shop_uuid`) REFERENCES `shop` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE');
+
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD PRIMARY KEY `product_shop_keyword` (`keyword`, `shop_uuid`, `product_uuid`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD INDEX `keyword` (`keyword`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`shop_uuid`) REFERENCES `shop` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE');
+
+        $contexts = $this->contextVariationService->createContexts();
+
+        foreach ($contexts as $context) {
+            $this->indexContext($context, $timestamp);
+        }
+
+        $this->indexTableOperator->renameTable(self::TABLE, $timestamp);
+        $this->indexTableOperator->renameTable(self::DOCUMENT_TABLE, $timestamp);
+    }
+
+    public function refresh(GenericWrittenEvent $event): void
+    {
+        $productEvent = $event->getEventByDefinition(ProductDefinition::class);
+        if (!$productEvent) {
+            return;
+        }
+
+        $context = $productEvent->getContext();
+        $products = $this->productRepository->readBasic($productEvent->getUuids(), $context);
+
+        foreach ($products as $product) {
+            $keywords = $this->analyzerRegistry->analyze($product, $context);
+            $this->writeKeywords($context, $product->getUuid(), $keywords, self::TABLE, self::DOCUMENT_TABLE);
+        }
+    }
+
+    private function indexContext(TranslationContext $context, \DateTime $timestamp): void
+    {
         $criteria = new Criteria();
         $criteria->setOffset(0);
-        $criteria->setLimit(5);
+        $criteria->setLimit(50);
 
         $iterator = new RepositoryIterator($this->productRepository, $context, $criteria);
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
-            new ProgressStartedEvent('Start analyzing search keywords', $iterator->getTotal())
+            new ProgressStartedEvent(
+                sprintf('Start analyzing search keywords for shop %s', $context->getShopUuid()),
+                $iterator->getTotal()
+            )
         );
 
-        while ($uuids = $iterator->fetchUuids()) {
-            $products = $this->productRepository->readDetail($uuids, $context);
+        $table = $this->indexTableOperator->getIndexName(self::TABLE, $timestamp);
+        $documentTable = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp);
 
-            /** @var ProductDetailStruct $product */
-            $queue = new MultiInsertQueryQueue($this->connection, 250, true);
-
+        $products = $iterator->fetch();
+        /** @var ProductSearchResult $products */
+        while ($products) {
             foreach ($products as $product) {
                 $keywords = $this->analyzerRegistry->analyze($product, $context);
-
-                foreach ($keywords as $keyword) {
-                    $queue->addInsert(
-                        'tmp_search_keyword',
-                        [
-                            'shop_uuid' => $context->getShopUuid(),
-                            'keyword' => $keyword,
-                        ]
-                    );
-                }
+                $this->writeKeywords($context, $product->getUuid(), $keywords, $table, $documentTable);
             }
-
-            $queue->execute();
 
             $this->eventDispatcher->dispatch(
                 ProgressAdvancedEvent::NAME,
-                new ProgressAdvancedEvent(count($uuids))
+                new ProgressAdvancedEvent($products->count())
             );
-        }
 
-        $this->renameTable($context->getShopUuid());
+            $products = $iterator->fetch();
+        }
 
         $this->eventDispatcher->dispatch(
             ProgressFinishedEvent::NAME,
-            new ProgressFinishedEvent('Finished analyzing search keywords')
+            new ProgressFinishedEvent(sprintf('Finished analyzing search keywords for shop id %s', $context->getShopUuid()))
         );
     }
 
-    public function refresh(NestedEventCollection $events, TranslationContext $context): void
+    private function writeKeywords(TranslationContext $context, string $productUuid, array $keywords, string $table, string $documentTable)
     {
-    }
+        $queue = new MultiInsertQueryQueue($this->connection, 250, false, true);
 
-    private function renameTable(string $shopUuid): void
-    {
-        $this->connection->transactional(function () use ($shopUuid) {
-            $this->connection->executeUpdate(
-                'DELETE FROM ' . self::TABLE . ' WHERE shop_uuid = :id',
-                ['id' => $shopUuid]
-            );
-
-            $this->connection->executeUpdate('
-                INSERT INTO ' . self::TABLE . ' (shop_uuid, keyword, document_count) 
-                SELECT shop_uuid, keyword, COUNT(keyword) as document_count
-                FROM `tmp_search_keyword`
-                WHERE shop_uuid = :id
-                GROUP BY shop_uuid, keyword
-            ', [
-                'id' => $shopUuid,
+        foreach ($keywords as $keyword => $ranking) {
+            $queue->addInsert($table, [
+                'shop_uuid' => $context->getShopUuid(),
+                'keyword' => $keyword,
             ]);
 
-            $this->connection->executeUpdate('DROP TABLE `tmp_search_keyword`');
-        });
-    }
+            $queue->addInsert($documentTable, [
+                'uuid' => Uuid::uuid4()->toString(),
+                'shop_uuid' => $context->getShopUuid(),
+                'keyword' => $keyword,
+                'ranking' => $ranking,
+                'product_uuid' => $productUuid,
+            ]);
+        }
 
-    private function createTable(): void
-    {
-        $this->connection->executeUpdate('
-            DROP TABLE IF EXISTS `tmp_search_keyword`;
-            
-            CREATE TABLE `tmp_search_keyword` (
-              `keyword` varchar(500) NOT NULL,
-              `shop_uuid` varchar(42) NOT NULL
-            );
-        ');
+        $queue->execute();
     }
 }

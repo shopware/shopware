@@ -61,6 +61,11 @@ class TranslationContext extends Struct
         return $this->isDefaultShop;
     }
 
+    public static function createDefaultContext(): TranslationContext
+    {
+        return new self('SWAG-SHOP-UUID-1', true, null);
+    }
+
     public static function createFromShop(ShopBasicStruct $shop): TranslationContext
     {
         return new self(

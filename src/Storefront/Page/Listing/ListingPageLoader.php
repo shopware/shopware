@@ -49,7 +49,7 @@ class ListingPageLoader
         $criteria->setOffset(($page - 1) * $limit);
         $criteria->setLimit($limit);
         $criteria->addFilter(new TermQuery('product.active', 1));
-        $criteria->addFilter(new TermQuery('product.categoryTree.uuid', $categoryUuid));
+        $criteria->addFilter(new TermQuery('product.categoryTree', $categoryUuid));
         $criteria->setFetchCount(true);
 
         return $criteria;

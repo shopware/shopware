@@ -34,6 +34,28 @@ class ProductDetailCollection extends ProductBasicCollection
         return $collection;
     }
 
+    public function getSearchKeywordUuids(): array
+    {
+        $uuids = [];
+        foreach ($this->elements as $element) {
+            foreach ($element->getSearchKeywords()->getUuids() as $uuid) {
+                $uuids[] = $uuid;
+            }
+        }
+
+        return $uuids;
+    }
+
+    public function getSearchKeywords(): ProductSearchKeywordBasicCollection
+    {
+        $collection = new ProductSearchKeywordBasicCollection();
+        foreach ($this->elements as $element) {
+            $collection->fill($element->getSearchKeywords()->getElements());
+        }
+
+        return $collection;
+    }
+
     public function getTranslationUuids(): array
     {
         $uuids = [];
@@ -73,28 +95,6 @@ class ProductDetailCollection extends ProductBasicCollection
         $collection = new CategoryBasicCollection();
         foreach ($this->elements as $element) {
             $collection->fill($element->getCategories()->getElements());
-        }
-
-        return $collection;
-    }
-
-    public function getAllCategoryTreeUuids(): array
-    {
-        $uuids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getCategoryTreeUuids() as $uuid) {
-                $uuids[] = $uuid;
-            }
-        }
-
-        return $uuids;
-    }
-
-    public function getAllCategoryTree(): CategoryBasicCollection
-    {
-        $collection = new CategoryBasicCollection();
-        foreach ($this->elements as $element) {
-            $collection->fill($element->getCategoryTree()->getElements());
         }
 
         return $collection;

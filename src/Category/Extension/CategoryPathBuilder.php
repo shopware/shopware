@@ -12,6 +12,7 @@ use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
+use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -48,7 +49,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
 
     public function categoryWritten(CategoryWrittenEvent $event): void
     {
-        $context = new TranslationContext('SWAG-SHOP-UUID-1', true, null);
+        $context = TranslationContext::createDefaultContext();
 
         $parentUuids = $this->fetchParentIds($event->getUuids());
 
@@ -59,13 +60,21 @@ class CategoryPathBuilder implements EventSubscriberInterface
 
     public function update(string $parentUuid, TranslationContext $context): void
     {
+        $this->connection->executeUpdate('UPDATE category SET path = NULL');
+        $count = (int) $this->connection->fetchColumn('SELECT COUNT(uuid) FROM category WHERE parent_uuid IS NOT NULL');
+
+        $this->eventDispatcher->dispatch(
+            ProgressStartedEvent::NAME,
+            new ProgressStartedEvent('Start building category inheritance', $count)
+        );
+
         $parents = $this->loadParents($parentUuid, $context);
         $parent = $parents->get($parentUuid);
         $this->updateRecursive($parent, $parents, $context);
 
         $this->eventDispatcher->dispatch(
             ProgressFinishedEvent::NAME,
-            new ProgressFinishedEvent('Category path build')
+            new ProgressFinishedEvent('Finished building category inheritance')
         );
     }
 

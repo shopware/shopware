@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Test\Search;
 
@@ -49,10 +49,10 @@ class SearchScoringTest extends KernelTestCase
             $criteria->addQuery($query);
         }
 
-        $context = new TranslationContext('SWAG-SHOP-UUID-1', true, null);
+        $context = TranslationContext::createDefaultContext();
         $this->repository->create([
             ['uuid' => 'product-1', 'name' => 'product 1 test'],
-            ['uuid' => 'product-2', 'name' => 'product 2 test']
+            ['uuid' => 'product-2', 'name' => 'product 2 test'],
         ], $context);
 
         $result = $this->repository->search($criteria, $context);
@@ -68,5 +68,4 @@ class SearchScoringTest extends KernelTestCase
             $this->assertGreaterThan(0, (float) $extension['score']);
         }
     }
-
 }

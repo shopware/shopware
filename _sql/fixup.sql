@@ -1681,11 +1681,6 @@ UPDATE product_category pc SET
     pc.category_uuid = CONCAT('SWAG-CATEGORY-UUID-', pc.category_id)
 ;
 
-UPDATE product_category_tree pcr SET
-    pcr.uuid = CONCAT('SWAG-PRODUCT-CATEGORY-RO-UUID-', pcr.id),
-    pcr.category_uuid = CONCAT('SWAG-CATEGORY-UUID-', pcr.category_id)
-;
-
 UPDATE product_category_seo pcs SET
     pcs.shop_uuid     = CONCAT('SWAG-SHOP-UUID-', pcs.shop_id),
     pcs.category_uuid = CONCAT('SWAG-CATEGORY-UUID-', pcs.product_id)
@@ -3657,8 +3652,6 @@ UPDATE product_avoid_customer_group pac SET
 
 UPDATE product_category pc SET pc.product_uuid  = (SELECT uuid FROM product p WHERE p.original_id = product_id AND p.is_main = 1 LIMIT 1);
 
-DELETE FROM product_category_tree;
-
 UPDATE product_attachment pd SET
     pd.product_uuid = (SELECT uuid FROM product p WHERE p.original_id = product_id AND p.is_main = 1 LIMIT 1)
 ;
@@ -3824,3 +3817,5 @@ FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE
 ALTER TABLE product_category_seo RENAME TO product_seo_category;
 
 ALTER TABLE `config_form_field` CHANGE `options` `options` longtext NULL AFTER `scope`;
+
+ALTER TABLE `product` ADD `category_tree` json NULL;

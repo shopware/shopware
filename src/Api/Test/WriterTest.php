@@ -302,8 +302,9 @@ class WriterTest extends KernelTestCase
      */
     protected function createWriteContext(): WriteContext
     {
-        $context = new WriteContext();
-        $context->set(ShopDefinition::class, 'uuid', 'SWAG-SHOP-UUID-1');
+        $context = WriteContext::createFromTranslationContext(
+            TranslationContext::createDefaultContext()
+        );
 
         return $context;
     }

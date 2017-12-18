@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Search\Repository;
+namespace Shopware\Product\Repository;
 
 use Shopware\Api\Read\EntityReaderInterface;
 use Shopware\Api\RepositoryInterface;
@@ -13,16 +13,18 @@ use Shopware\Api\Write\EntityWriterInterface;
 use Shopware\Api\Write\GenericWrittenEvent;
 use Shopware\Api\Write\WriteContext;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Search\Collection\SearchKeywordBasicCollection;
-use Shopware\Search\Definition\SearchKeywordDefinition;
-use Shopware\Search\Event\SearchKeyword\SearchKeywordAggregationResultLoadedEvent;
-use Shopware\Search\Event\SearchKeyword\SearchKeywordBasicLoadedEvent;
-use Shopware\Search\Event\SearchKeyword\SearchKeywordSearchResultLoadedEvent;
-use Shopware\Search\Event\SearchKeyword\SearchKeywordUuidSearchResultLoadedEvent;
-use Shopware\Search\Struct\SearchKeywordSearchResult;
+use Shopware\Product\Collection\ProductSearchKeywordBasicCollection;
+use Shopware\Product\Collection\ProductSearchKeywordDetailCollection;
+use Shopware\Product\Definition\ProductSearchKeywordDefinition;
+use Shopware\Product\Event\ProductSearchKeyword\ProductSearchKeywordAggregationResultLoadedEvent;
+use Shopware\Product\Event\ProductSearchKeyword\ProductSearchKeywordBasicLoadedEvent;
+use Shopware\Product\Event\ProductSearchKeyword\ProductSearchKeywordDetailLoadedEvent;
+use Shopware\Product\Event\ProductSearchKeyword\ProductSearchKeywordSearchResultLoadedEvent;
+use Shopware\Product\Event\ProductSearchKeyword\ProductSearchKeywordUuidSearchResultLoadedEvent;
+use Shopware\Product\Struct\ProductSearchKeywordSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class SearchKeywordRepository implements RepositoryInterface
+class ProductSearchKeywordRepository implements RepositoryInterface
 {
     /**
      * @var EntityReaderInterface
@@ -63,7 +65,7 @@ class SearchKeywordRepository implements RepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): SearchKeywordSearchResult
+    public function search(Criteria $criteria, TranslationContext $context): ProductSearchKeywordSearchResult
     {
         $uuids = $this->searchUuids($criteria, $context);
 
@@ -74,9 +76,9 @@ class SearchKeywordRepository implements RepositoryInterface
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = SearchKeywordSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = ProductSearchKeywordSearchResult::createFromResults($uuids, $entities, $aggregations);
 
-        $event = new SearchKeywordSearchResultLoadedEvent($result);
+        $event = new ProductSearchKeywordSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
@@ -84,9 +86,9 @@ class SearchKeywordRepository implements RepositoryInterface
 
     public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
     {
-        $result = $this->aggregator->aggregate(SearchKeywordDefinition::class, $criteria, $context);
+        $result = $this->aggregator->aggregate(ProductSearchKeywordDefinition::class, $criteria, $context);
 
-        $event = new SearchKeywordAggregationResultLoadedEvent($result);
+        $event = new ProductSearchKeywordAggregationResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
@@ -94,33 +96,39 @@ class SearchKeywordRepository implements RepositoryInterface
 
     public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
     {
-        $result = $this->searcher->search(SearchKeywordDefinition::class, $criteria, $context);
+        $result = $this->searcher->search(ProductSearchKeywordDefinition::class, $criteria, $context);
 
-        $event = new SearchKeywordUuidSearchResultLoadedEvent($result);
+        $event = new ProductSearchKeywordUuidSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): SearchKeywordBasicCollection
+    public function readBasic(array $uuids, TranslationContext $context): ProductSearchKeywordBasicCollection
     {
-        /** @var SearchKeywordBasicCollection $entities */
-        $entities = $this->reader->readBasic(SearchKeywordDefinition::class, $uuids, $context);
+        /** @var ProductSearchKeywordBasicCollection $entities */
+        $entities = $this->reader->readBasic(ProductSearchKeywordDefinition::class, $uuids, $context);
 
-        $event = new SearchKeywordBasicLoadedEvent($entities, $context);
+        $event = new ProductSearchKeywordBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): SearchKeywordBasicCollection
+    public function readDetail(array $uuids, TranslationContext $context): ProductSearchKeywordDetailCollection
     {
-        return $this->readBasic($uuids, $context);
+        /** @var ProductSearchKeywordDetailCollection $entities */
+        $entities = $this->reader->readDetail(ProductSearchKeywordDefinition::class, $uuids, $context);
+
+        $event = new ProductSearchKeywordDetailLoadedEvent($entities, $context);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
+        return $entities;
     }
 
     public function update(array $data, TranslationContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(SearchKeywordDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->update(ProductSearchKeywordDefinition::class, $data, WriteContext::createFromTranslationContext($context));
         $event = GenericWrittenEvent::createFromWriterResult($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -129,7 +137,7 @@ class SearchKeywordRepository implements RepositoryInterface
 
     public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(SearchKeywordDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->upsert(ProductSearchKeywordDefinition::class, $data, WriteContext::createFromTranslationContext($context));
         $event = GenericWrittenEvent::createFromWriterResult($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -138,7 +146,7 @@ class SearchKeywordRepository implements RepositoryInterface
 
     public function create(array $data, TranslationContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(SearchKeywordDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->insert(ProductSearchKeywordDefinition::class, $data, WriteContext::createFromTranslationContext($context));
         $event = GenericWrittenEvent::createFromWriterResult($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

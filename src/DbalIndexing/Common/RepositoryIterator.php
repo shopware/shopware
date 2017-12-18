@@ -2,8 +2,9 @@
 
 namespace Shopware\DbalIndexing\Common;
 
-use Shopware\Api\Entity\RepositoryInterface;
-use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\SearchResultInterface;
 use Shopware\Context\Struct\TranslationContext;
 
 class RepositoryIterator
@@ -59,5 +60,18 @@ class RepositoryIterator
         }
 
         return null;
+    }
+
+    public function fetch(): ?SearchResultInterface
+    {
+        $this->criteria->setFetchCount(false);
+        $result = $this->repository->search($this->criteria, $this->context);
+        $this->criteria->setOffset($this->criteria->getOffset() + $this->criteria->getLimit());
+
+        if (empty($result->getUuidResult()->getUuids())) {
+            return null;
+        }
+
+        return $result;
     }
 }

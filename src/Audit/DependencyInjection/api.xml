@@ -8,7 +8,6 @@
          <service class="Shopware\Audit\Definition\AuditLogDefinition" id="shopware.audit.audit_log_definition" >
             <tag name="shopware.entity.definition" entity="audit_log" />
         </service>
-
         <service class="Shopware\Audit\Repository\AuditLogRepository" id="Shopware\Audit\Repository\AuditLogRepository" public="true">
           <argument id="shopware.api.entity_reader" type="service"/>
           <argument id="shopware.api.entity_writer" type="service"/>
@@ -16,13 +15,6 @@
           <argument id="shopware.api.entity_aggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-
-        <service class="Shopware\Audit\Logging\EntityWriter" id="shopware.audit.entity_writer" decorates="shopware.api.entity_writer">
-            <argument id="shopware.audit.entity_writer.inner" type="service"/>
-            <argument type="service" id="security.token_storage"/>
-            <argument type="service" id="shopware.api.entity_searcher" />
-        </service>
-
     </services>
 </container>                
                 

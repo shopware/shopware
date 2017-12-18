@@ -26,6 +26,15 @@ class SqlQueryParser
             $parsed = self::parse($query->getQuery(), $definition, $root);
 
             foreach ($parsed->getWheres() as $where) {
+                if ($query->getScoreField()) {
+                    $field = EntityDefinitionResolver::resolveField($query->getScoreField(), $definition, $root);
+
+                    $result->addWhere(
+                        sprintf('IF(%s , %s * %s, 0)', $where, $query->getScore(), $field)
+                    );
+                    continue;
+                }
+
                 $result->addWhere(
                     sprintf('IF(%s , %s, 0)', $where, $query->getScore())
                 );
@@ -114,10 +123,19 @@ class SqlQueryParser
     private static function parseTermsQuery(TermsQuery $query, string $definition, string $root): ParseResult
     {
         $key = self::getKey();
-        $field = EntityDefinitionResolver::resolveField($query->getField(), $definition, $root);
+        $select = EntityDefinitionResolver::resolveField($query->getField(), $definition, $root);
+        $field = EntityDefinitionResolver::getField($query->getField(), $definition, $root);
 
         $result = new ParseResult();
-        $result->addWhere($field . ' IN (:' . $key . ')');
+
+        if ($field instanceof ArrayField) {
+            $result->addWhere('JSON_CONTAINS(' . $select . ', JSON_ARRAY(:' . $key . '))');
+            $result->addParameter($key, $query->getValue());
+
+            return $result;
+        }
+
+        $result->addWhere($select . ' IN (:' . $key . ')');
         $result->addParameter($key, array_values($query->getValue()), Connection::PARAM_STR_ARRAY);
 
         return $result;
@@ -126,16 +144,25 @@ class SqlQueryParser
     private static function parseTermQuery(TermQuery $query, string $definition, string $root): ParseResult
     {
         $key = self::getKey();
-        $field = EntityDefinitionResolver::resolveField($query->getField(), $definition, $root);
+        $select = EntityDefinitionResolver::resolveField($query->getField(), $definition, $root);
+        $field = EntityDefinitionResolver::getField($query->getField(), $definition, $root);
 
         $result = new ParseResult();
-        if ($query->getValue() === null) {
-            $result->addWhere($field . ' IS NULL');
+
+        if ($field instanceof ArrayField) {
+            $result->addWhere('JSON_CONTAINS(' . $select . ', JSON_ARRAY(:' . $key . '))');
+            $result->addParameter($key, $query->getValue());
 
             return $result;
         }
 
-        $result->addWhere($field . ' = :' . $key);
+        if ($query->getValue() === null) {
+            $result->addWhere($select . ' IS NULL');
+
+            return $result;
+        }
+
+        $result->addWhere($select . ' = :' . $key);
         $result->addParameter($key, $query->getValue());
 
         return $result;

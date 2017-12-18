@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Api\Search\Term\SearchPattern;
 use Shopware\Api\Search\Term\SearchTerm;
+use Shopware\Api\Search\Term\TokenizerInterface;
 use Shopware\Context\Struct\TranslationContext;
 
 class KeywordSearchTermInterpreter
@@ -16,15 +17,16 @@ class KeywordSearchTermInterpreter
     private $connection;
 
     /**
-     * @var \Shopware\Api\Search\Term\TokenizerInterface
+     * @var TokenizerInterface
      */
     private $tokenizer;
+
     /**
      * @var LoggerInterface
      */
     private $logger;
 
-    public function __construct(Connection $connection, \Shopware\Api\Search\Term\TokenizerInterface $tokenizer, LoggerInterface $logger)
+    public function __construct(Connection $connection, TokenizerInterface $tokenizer, LoggerInterface $logger)
     {
         $this->connection = $connection;
         $this->tokenizer = $tokenizer;
@@ -38,14 +40,28 @@ class KeywordSearchTermInterpreter
         $slops = $this->slop($tokens);
 
         $matches = $this->fetchKeywords($context, $slops);
+
         $scoring = $this->score($tokens, $matches, $context);
 
-        $pattern = new \Shopware\Api\Search\Term\SearchPattern(new \Shopware\Api\Search\Term\SearchTerm($word));
+        $scoring = array_slice($scoring, 0, 10);
 
         foreach ($scoring as $match) {
-            $pattern->addTerm(
-                new SearchTerm($match['keyword'], $match['score'])
+            $this->logger->info(
+                'Search match: ' . $match['keyword'],
+                $match
             );
+        }
+
+        $debug = array_combine(
+            array_column($scoring, 'keyword'),
+            array_column($scoring, 'score')
+        );
+        error_log(print_r($debug, true) . "\n", 3, '/var/log/test.log');
+
+        $pattern = new SearchPattern(new SearchTerm($word));
+
+        foreach ($scoring as $match) {
+            $pattern->addTerm(new SearchTerm($match['keyword'], $match['score']));
         }
 
         return $pattern;
@@ -81,7 +97,7 @@ class KeywordSearchTermInterpreter
     private function fetchKeywords(TranslationContext $context, array $slops): array
     {
         $query = $this->connection->createQueryBuilder();
-        $query->select('*');
+        $query->select('keyword');
         $query->from('search_keyword');
 
         $counter = 0;
@@ -96,44 +112,67 @@ class KeywordSearchTermInterpreter
         $query->andWhere('shop_uuid = :shop');
         $query->setParameter('shop', $context->getShopUuid());
 
-        return $query->execute()->fetchAll();
+        return $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
     }
 
     private function score(array $tokens, array $matches, TranslationContext $context): array
     {
-        foreach ($matches as &$match) {
+        $scoring = [];
+
+        foreach ($matches as $keyword) {
             $distance = null;
+            $bestHit = '';
             foreach ($tokens as $token) {
-                $keyword = $match['keyword'];
-                $bestToken = '';
                 $levenshtein = levenshtein($keyword, $token);
 
                 if ($distance === null) {
                     $distance = $levenshtein;
-                    $bestToken = $token;
+                    $bestHit = $token;
                 }
                 if ($levenshtein < $distance) {
                     $distance = $levenshtein;
-                    $bestToken = $token;
+                    $bestHit = $token;
                 }
             }
 
             ++$distance;
 
-            $match['score'] = 1 / $distance / ($match['document_count'] / 25);
+            $longTerm = max($bestHit, $keyword);
+            $shortTerm = min($bestHit, $keyword);
 
-            $this->logger->info(
-                'Search match: ' . $keyword,
-                [
-                    'match' => $keyword,
-                    'token' => $bestToken,
-                    'distance' => $distance - 1,
-                    'document count' => $match['document_count'],
-                    'score' => $match['score'],
-                ]
-            );
+            $longLeft = substr($longTerm, 1);
+            $shortLeft = substr($shortTerm, 1);
+
+            if ($keyword === $bestHit) {
+                //exact hit
+                $score = 0.8;
+            } elseif (strpos($longTerm, $shortTerm) === 0) {
+                //starts with
+                $score = 0.5;
+            } elseif (strpos($longLeft, $shortLeft) === 0) {
+                //first character not match
+                $score = 0.1;
+            } else {
+                $score = 1 / $distance / 10;
+            }
+
+            $scoreMatch = [
+                'keyword' => $keyword,
+                'similar' => similar_text($bestHit, $keyword),
+                'distance' => $distance,
+                'token' => $bestHit,
+                'score' => $score,
+                'longer' => $longTerm,
+                'shorter' => $shortTerm,
+            ];
+
+            $scoring[] = $scoreMatch;
         }
 
-        return $matches;
+        usort($scoring, function (array $a, array $b) {
+            return $b['score'] <=> $a['score'];
+        });
+
+        return $scoring;
     }
 }

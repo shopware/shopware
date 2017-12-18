@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class AuditLogSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'audit_log.search.result.loaded';
+    public const NAME = 'audit_log.search.result.loaded';
 
     /**
      * @var AuditLogSearchResult

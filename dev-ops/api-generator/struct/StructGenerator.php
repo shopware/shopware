@@ -126,7 +126,6 @@ class StructGenerator
             }
 
             $associationClass = Util::getTableDomainName($association->referenceTable);
-            $propertyName = $association->property;
             $plural = $association->propertyPlural;
 
             $initializer[] = str_replace(
@@ -191,21 +190,6 @@ class StructGenerator
             if ($column->allowNull) {
                 $type = '?' . $type;
             }
-
-            $columnConfig = [];
-
-//            if (array_key_exists($column->getName(), $config['columns'])) {
-//                $columnConfig = $config['columns'][$column->getName()];
-//            }
-
-//            if (array_key_exists('type', $columnConfig)) {
-//                $type = $columnConfig['type'];
-//            }
-
-//            if (array_key_exists('functions', $columnConfig)) {
-//                $functions[] = $columnConfig['functions'];
-//                continue;
-//            }
 
             $functions[] = str_replace(
                 ['#nameUc#', '#nameLc#', '#type#'],

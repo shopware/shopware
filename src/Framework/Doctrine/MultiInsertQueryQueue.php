@@ -25,12 +25,21 @@ class MultiInsertQueryQueue
      * @var bool
      */
     protected $ignoreErrors;
+    /**
+     * @var bool
+     */
+    private $useReplace;
 
-    public function __construct(Connection $connection, int $chunkSize = 250, bool $ignoreErrors = false)
-    {
+    public function __construct(
+        Connection $connection,
+        int $chunkSize = 250,
+        bool $ignoreErrors = false,
+        bool $useReplace = false
+    ) {
         $this->connection = $connection;
         $this->chunkSize = $chunkSize;
         $this->ignoreErrors = $ignoreErrors;
+        $this->useReplace = $useReplace;
     }
 
     public function addInsert(string $table, array $data, array $types = []): void
@@ -68,6 +77,10 @@ class MultiInsertQueryQueue
         $template = 'INSERT INTO %s (%s) VALUES %s;';
         if ($this->ignoreErrors) {
             $template = 'INSERT IGNORE INTO %s (%s) VALUES %s;';
+        }
+
+        if ($this->useReplace) {
+            $template = 'REPLACE INTO %s (%s) VALUES %s;';
         }
 
         foreach ($this->inserts as $table => $rows) {

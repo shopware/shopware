@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Search\Struct;
+namespace Shopware\Product\Struct;
 
 use Shopware\Api\Entity\Entity;
 
-class SearchKeywordBasicStruct extends Entity
+class ProductSearchKeywordBasicStruct extends Entity
 {
     /**
      * @var string
@@ -17,9 +17,14 @@ class SearchKeywordBasicStruct extends Entity
     protected $shopUuid;
 
     /**
-     * @var int
+     * @var string
      */
-    protected $documentCount;
+    protected $productUuid;
+
+    /**
+     * @var float
+     */
+    protected $ranking;
 
     public function getKeyword(): string
     {
@@ -41,13 +46,23 @@ class SearchKeywordBasicStruct extends Entity
         $this->shopUuid = $shopUuid;
     }
 
-    public function getDocumentCount(): int
+    public function getProductUuid(): string
     {
-        return $this->documentCount;
+        return $this->productUuid;
     }
 
-    public function setDocumentCount(int $documentCount): void
+    public function setProductUuid(string $productUuid): void
     {
-        $this->documentCount = $documentCount;
+        $this->productUuid = $productUuid;
+    }
+
+    public function getRanking(): float
+    {
+        return $this->ranking;
+    }
+
+    public function setRanking(float $ranking): void
+    {
+        $this->ranking = $ranking;
     }
 }

@@ -1,16 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Product\Definition;
+namespace Shopware\Product\Definition;
 
-use Shopware\Api\Category\Definition\CategoryDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\DateField;
-use Shopware\Api\Entity\Field\FkField;
-use Shopware\Api\Entity\Field\ManyToOneAssociationField;
+use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Entity\Write\Flag\PrimaryKey;
-use Shopware\Api\Entity\Write\Flag\Required;
-use Shopware\Api\Product\Event\ProductCategoryTree\ProductCategoryTreeWrittenEvent;
+use Shopware\Api\Write\Flag\Required;
+use Shopware\Product\Event\ProductCategoryTree\ProductCategoryTreeWrittenEvent;
 
 class ProductCategoryTreeDefinition extends EntityDefinition
 {
@@ -36,12 +33,10 @@ class ProductCategoryTreeDefinition extends EntityDefinition
         }
 
         return self::$fields = new FieldCollection([
-            (new FkField('product_uuid', 'productUuid', ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('category_uuid', 'categoryUuid', CategoryDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new StringField('product_uuid', 'productUuid'))->setFlags(new Required()),
+            (new StringField('category_uuid', 'categoryUuid'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('product', 'product_uuid', ProductDefinition::class, false),
-            new ManyToOneAssociationField('category', 'category_uuid', CategoryDefinition::class, false),
         ]);
     }
 

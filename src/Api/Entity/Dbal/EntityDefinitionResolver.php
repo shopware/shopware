@@ -15,11 +15,46 @@ use Shopware\Context\Struct\TranslationContext;
 
 class EntityDefinitionResolver
 {
-    public const HAS_TO_MANY_JOIN = 'has_to_many_join';
+    public const REQUIRES_GROUP_BY = 'has_to_many_join';
 
     public static function escape(string $string): string
     {
         return '`' . $string . '`';
+    }
+
+    public static function getField(string $fieldName, string $definition, string $root): ?Field
+    {
+        $original = $fieldName;
+        $prefix = $root . '.';
+
+        if (strpos($fieldName, $prefix) === 0) {
+            $fieldName = substr($fieldName, strlen($prefix));
+        }
+
+        /** @var EntityDefinition $definition */
+        $fields = $definition::getFields();
+
+        $isAssociation = strpos($fieldName, '.') !== false;
+
+        if (!$isAssociation && $fields->has($fieldName)) {
+            return $fields->get($fieldName);
+        }
+        $associationKey = explode('.', $fieldName);
+        $associationKey = array_shift($associationKey);
+
+        /** @var AssociationInterface|Field $field */
+        $field = $fields->get($associationKey);
+
+        $referenceClass = $field->getReferenceClass();
+        if ($field instanceof ManyToManyAssociationField) {
+            $referenceClass = $field->getReferenceDefinition();
+        }
+
+        return self::getField(
+            $original,
+            $referenceClass,
+            implode('.', [$root, $field->getPropertyName()])
+        );
     }
 
     public static function resolveField(string $fieldName, string $definition, string $root): string
@@ -119,13 +154,13 @@ class EntityDefinitionResolver
 
         if ($field instanceof OneToManyAssociationField) {
             self::joinOneToMany($root, $field, $query);
-            $query->addState(self::HAS_TO_MANY_JOIN);
+            $query->addState(self::REQUIRES_GROUP_BY);
             $referenceClass = $field->getReferenceClass();
         }
 
         if ($field instanceof ManyToManyAssociationField) {
             self::joinManyToMany($root, $field, $query);
-            $query->addState(self::HAS_TO_MANY_JOIN);
+            $query->addState(self::REQUIRES_GROUP_BY);
             $referenceClass = $field->getReferenceDefinition();
         }
 

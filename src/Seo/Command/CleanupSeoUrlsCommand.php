@@ -50,7 +50,7 @@ class CleanupSeoUrlsCommand extends ContainerAwareCommand
         $criteria->setLimit(100);
         $criteria->addFilter(new TermQuery('is_canonical', false));
 
-        $context = new TranslationContext('SWAG-SHOP-UUID-1', true, null);
+        $context = TranslationContext::createDefaultContext();
 
         $ids = $repo->search($criteria, $context)->getUuids();
 

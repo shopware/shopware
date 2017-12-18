@@ -84,6 +84,8 @@ class Util
                 return 'float';
             case 'BoolField':
                 return 'bool';
+            case 'ArrayField':
+                return 'array';
             case 'LongTextField':
             case 'StringField':
             default:

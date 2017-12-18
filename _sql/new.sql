@@ -3,16 +3,32 @@ CREATE TABLE `product_listing_price` (
   `uuid` varchar(42) NOT NULL,
   `product_uuid` varchar(42) NOT NULL,
   `customer_group_uuid` varchar(42) NOT NULL,
+  `sorting_price` float NOT NULL,
   `price` float NOT NULL,
   `display_from_price` TINYINT(1) NOT NULL,
-  PRIMARY KEY (`uuid`)
+  PRIMARY KEY (`uuid`),
+  KEY `sorting_price` (`sorting_price`)
 );
 
 CREATE TABLE `search_keyword` (
   `keyword` varchar(500) NOT NULL,
   `shop_uuid` varchar(42) NOT NULL,
-  `document_count` int NOT NULL
+  PRIMARY KEY `keyword_shop_uuid` (`keyword`, `shop_uuid`)
 );
+
+CREATE TABLE `product_search_keyword` (
+  `uuid` VARCHAR(42) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `keyword` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `shop_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `product_uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ranking` float NOT NULL,
+  PRIMARY KEY (`uuid`),
+  UNIQUE KEY (`keyword`,`shop_uuid`,`product_uuid`),
+  KEY `product_uuid` (`product_uuid`),
+  KEY `shop_uuid` (`shop_uuid`),
+  CONSTRAINT `product_uuid` FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `shop_uuid` FOREIGN KEY (`shop_uuid`) REFERENCES `shop` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `audit_log` (
   `uuid` varchar(42) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -47,17 +63,6 @@ CREATE TABLE `product_vote_average` (
 ALTER TABLE `product_vote_average`
   ADD CONSTRAINT `fk_product_vote_average.product_uuid` FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
 ;
-
-DROP TABLE product_category_tree;
-CREATE TABLE `product_category_tree` (
-  `product_uuid` varchar(42) NOT NULL,
-  `category_uuid` varchar(42) NOT NULL,
-  PRIMARY KEY (`product_uuid`, `category_uuid`)
-);
-
-ALTER TABLE product_category_tree
-  ADD CONSTRAINT `fk_product_category_tree.product_uuid` FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_product_category_tree.category_uuid` FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE;
 
 CREATE TABLE `media_album_translation` (
   `media_album_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8mb4_unicode_ci',
@@ -1183,7 +1188,6 @@ ALTER TABLE `product_attachment_attribute`  ADD COLUMN `created_at`     DATETIME
 ALTER TABLE `product_attribute`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `product_avoid_customer_group`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `product_category`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
-ALTER TABLE `product_category_tree`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `product_seo_category`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `product_configurator_dependency`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `product_configurator_group`  ADD COLUMN `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP;
@@ -1319,7 +1323,6 @@ ALTER TABLE `product_attachment_attribute` ADD COLUMN `updated_at` DATETIME NULL
 ALTER TABLE `product_attribute` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `product_avoid_customer_group` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `product_category` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
-ALTER TABLE `product_category_tree` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `product_seo_category` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `product_configurator_dependency` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE `product_configurator_group` ADD COLUMN `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP;

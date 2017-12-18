@@ -47,7 +47,7 @@ class TraceableEntityReader implements EntityReaderInterface
         /** @var EntityDefinition $definition */
         $entity = $definition::getEntityName();
 
-        $e = $this->stopwatch->start($entity . '.read_basic', 'shopware');
+        $e = $this->stopwatch->start($entity . '.read_basic', 'section');
 
         $result = $this->decorated->readBasic($definition, $uuids, $context);
 

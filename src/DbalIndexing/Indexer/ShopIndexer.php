@@ -2,8 +2,7 @@
 
 namespace Shopware\DbalIndexing\Indexer;
 
-use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Api\Write\GenericWrittenEvent;
 
 class ShopIndexer implements IndexerInterface
 {
@@ -17,17 +16,17 @@ class ShopIndexer implements IndexerInterface
         $this->indexer = $indexer;
     }
 
-    public function index(TranslationContext $context, \DateTime $timestamp): void
+    public function index(\DateTime $timestamp): void
     {
         foreach ($this->indexer as $indexer) {
-            $indexer->index($context, $timestamp);
+            $indexer->index($timestamp);
         }
     }
 
-    public function refresh(NestedEventCollection $events, TranslationContext $context): void
+    public function refresh(GenericWrittenEvent $event): void
     {
         foreach ($this->indexer as $indexer) {
-            $indexer->refresh($events, $context);
+            $indexer->refresh($event);
         }
     }
 }

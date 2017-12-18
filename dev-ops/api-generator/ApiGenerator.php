@@ -24,7 +24,7 @@ class ApiGenerator
     private $outputDirectory;
 
     private $ignoreTables = [
-        'cart', 'sessions', 'session', 'schema_version'
+        'cart', 'sessions', 'session', 'schema_version', 'search_keyword'
     ];
 
     public function __construct($outputDirectory = __DIR__ . '/output')
@@ -32,7 +32,7 @@ class ApiGenerator
         $connection = \Shopware\Framework\Doctrine\DatabaseConnector::createPdoConnection();
 
         $this->connection = new Connection(
-            ['pdo' => $connection],
+            ['pdo' => $connection, 'platform' => new \Doctrine\DBAL\Platforms\MySQL57Platform()],
             new \Doctrine\DBAL\Driver\PDOMySql\Driver(),
             null,
             null

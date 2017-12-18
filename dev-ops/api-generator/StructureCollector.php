@@ -220,6 +220,8 @@ class StructureCollector
                 return 'FloatField';
             case 'Boolean':
                 return 'BoolField';
+            case 'Json':
+                return 'ArrayField';
             default:
                 echo "ERROR: unmapped type {$column->getType()}\n";
                 return '';

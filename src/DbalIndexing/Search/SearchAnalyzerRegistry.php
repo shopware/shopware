@@ -3,7 +3,7 @@
 namespace Shopware\DbalIndexing\Search;
 
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Product\Struct\ProductDetailStruct;
+use Shopware\Product\Struct\ProductBasicStruct;
 
 class SearchAnalyzerRegistry
 {
@@ -17,17 +17,24 @@ class SearchAnalyzerRegistry
         $this->analyzers = $analyzers;
     }
 
-    public function analyze(ProductDetailStruct $product, TranslationContext $context): array
+    public function analyze(ProductBasicStruct $product, TranslationContext $context): array
     {
         $collection = [];
 
         foreach ($this->analyzers as $analyzer) {
-            $collection = array_merge(
-                $collection,
-                $analyzer->analyze($product, $context)
-            );
+            $keywords = $analyzer->analyze($product, $context);
+
+            foreach ($keywords as $keyword => $ranking) {
+                $before = 0;
+
+                if (array_key_exists($keyword, $collection)) {
+                    $before = $collection[$keyword];
+                }
+
+                $collection[$keyword] = max($before, $ranking);
+            }
         }
 
-        return array_unique($collection);
+        return $collection;
     }
 }

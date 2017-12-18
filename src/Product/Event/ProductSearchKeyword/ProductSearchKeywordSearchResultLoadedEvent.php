@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Search\Event\SearchKeyword;
+namespace Shopware\Product\Event\ProductSearchKeyword;
 
-use Shopware\Api\Search\AggregationResult;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\Product\Struct\ProductSearchKeywordSearchResult;
 
-class SearchKeywordAggregationResultLoadedEvent extends NestedEvent
+class ProductSearchKeywordSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'search_keyword.aggregation.result.loaded';
+    public const NAME = 'product_search_keyword.search.result.loaded';
 
     /**
-     * @var AggregationResult
+     * @var ProductSearchKeywordSearchResult
      */
     protected $result;
 
-    public function __construct(AggregationResult $result)
+    public function __construct(ProductSearchKeywordSearchResult $result)
     {
         $this->result = $result;
     }
@@ -28,10 +28,5 @@ class SearchKeywordAggregationResultLoadedEvent extends NestedEvent
     public function getContext(): TranslationContext
     {
         return $this->result->getContext();
-    }
-
-    public function getResult(): AggregationResult
-    {
-        return $this->result;
     }
 }

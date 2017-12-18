@@ -6,7 +6,6 @@ use Shopware\Api\Customer\Definition\CustomerGroupDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
-use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\FloatField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
@@ -53,10 +52,9 @@ class ProductListingPriceDefinition extends EntityDefinition
             (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('product_uuid', 'productUuid', ProductDefinition::class))->setFlags(new Required()),
             (new FkField('customer_group_uuid', 'customerGroupUuid', CustomerGroupDefinition::class))->setFlags(new Required()),
+            (new FloatField('sorting_price', 'sortingPrice'))->setFlags(new Required()),
             (new FloatField('price', 'price'))->setFlags(new Required()),
             (new BoolField('display_from_price', 'displayFromPrice'))->setFlags(new Required()),
-            new DateField('created_at', 'createdAt'),
-            new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('product', 'product_uuid', ProductDefinition::class, false),
             new ManyToOneAssociationField('customerGroup', 'customer_group_uuid', CustomerGroupDefinition::class, true),
         ]);

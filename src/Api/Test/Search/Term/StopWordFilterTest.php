@@ -20,7 +20,7 @@ class StopWordFilterTest extends TestCase
         $tokenizer = new Tokenizer();
         $tokens = $tokenizer->tokenize($sentence);
 
-        $context = new TranslationContext('SWAG-SHOP-UUID-1', true, null);
+        $context = TranslationContext::createDefaultContext();
 
         $filter = new StopWordFilter();
         $filtered = $filter->filter($tokens, $context);

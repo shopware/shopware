@@ -20,22 +20,17 @@ class ProductListingPriceBasicStruct extends Entity
     /**
      * @var float
      */
+    protected $sortingPrice;
+
+    /**
+     * @var float
+     */
     protected $price;
 
     /**
      * @var bool
      */
     protected $displayFromPrice;
-
-    /**
-     * @var \DateTime|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTime|null
-     */
-    protected $updatedAt;
 
     /**
      * @var CustomerGroupBasicStruct
@@ -62,6 +57,16 @@ class ProductListingPriceBasicStruct extends Entity
         $this->customerGroupUuid = $customerGroupUuid;
     }
 
+    public function getSortingPrice(): float
+    {
+        return $this->sortingPrice;
+    }
+
+    public function setSortingPrice(float $sortingPrice): void
+    {
+        $this->sortingPrice = $sortingPrice;
+    }
+
     public function getPrice(): float
     {
         return $this->price;
@@ -80,26 +85,6 @@ class ProductListingPriceBasicStruct extends Entity
     public function setDisplayFromPrice(bool $displayFromPrice): void
     {
         $this->displayFromPrice = $displayFromPrice;
-    }
-
-    public function getCreatedAt(): ?\DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(?\DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getCustomerGroup(): CustomerGroupBasicStruct

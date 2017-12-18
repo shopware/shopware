@@ -5,7 +5,7 @@ namespace Shopware\DbalIndexing\Search;
 use Shopware\Api\Search\Term\SearchFilterInterface;
 use Shopware\Api\Search\Term\TokenizerInterface;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Product\Struct\ProductDetailStruct;
+use Shopware\Product\Struct\ProductBasicStruct;
 
 class LanguageAnalyzer implements SearchAnalyzerInterface
 {
@@ -25,25 +25,41 @@ class LanguageAnalyzer implements SearchAnalyzerInterface
         $this->filter = $filter;
     }
 
-    public function analyze(ProductDetailStruct $product, TranslationContext $context): array
+    public function analyze(ProductBasicStruct $product, TranslationContext $context): array
     {
-        $tokens = array_merge(
-            $this->tokenizer->tokenize($product->getName()),
-            $this->tokenizer->tokenize((string) $product->getMetaTitle()),
-            $this->tokenizer->tokenize((string) $product->getKeywords()),
-            $this->tokenizer->tokenize($product->getManufacturer()->getName()),
-            $this->tokenizer->tokenize((string) $product->getManufacturer()->getMetaTitle())
-        );
+        $tokens = [];
+        $tokens = $this->mergeTokens($tokens, $this->tokenizer->tokenize($product->getName()), 500);
+        $tokens = $this->mergeTokens($tokens, $this->tokenizer->tokenize((string) $product->getKeywords()), 400);
+        $tokens = $this->mergeTokens($tokens, $this->tokenizer->tokenize((string) $product->getMetaTitle()), 200);
+
+        if ($product->getManufacturer()) {
+            $tokens = $this->mergeTokens($tokens, $this->tokenizer->tokenize($product->getManufacturer()->getName()), 100);
+            $tokens = $this->mergeTokens($tokens, $this->tokenizer->tokenize((string) $product->getManufacturer()->getMetaTitle()), 50);
+        }
 
         $longTokens = array_merge(
             $this->tokenizer->tokenize((string) $product->getDescription()),
             $this->tokenizer->tokenize((string) $product->getDescriptionLong())
         );
-
         $longTokens = $this->filter->filter($longTokens, $context);
 
-        $tokens = array_merge($tokens, $longTokens);
+        $tokens = $this->mergeTokens($tokens, $longTokens, 5);
 
         return $tokens;
+    }
+
+    private function mergeTokens(array $existing, array $new, float $ranking)
+    {
+        foreach ($new as $keyword) {
+            $before = 0;
+
+            if (array_key_exists($keyword, $existing)) {
+                $before = $existing[$keyword];
+            }
+
+            $existing[$keyword] = max($before, $ranking);
+        }
+
+        return $existing;
     }
 }

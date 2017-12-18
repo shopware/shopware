@@ -3,22 +3,24 @@
 namespace Shopware\DbalIndexing\ProductCategory;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Product\Event\ProductCategory\ProductCategoryWrittenEvent;
-use Shopware\Api\Product\Repository\ProductRepository;
+use Shopware\Api\Search\Criteria;
+use Shopware\Api\Search\Query\TermQuery;
+use Shopware\Api\Write\GenericWrittenEvent;
+use Shopware\Category\Extension\CategoryPathBuilder;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\DbalIndexing\Common\RepositoryIterator;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\DbalIndexing\Indexer\IndexerInterface;
-use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Product\Definition\ProductCategoryDefinition;
+use Shopware\Product\Repository\ProductRepository;
+use Shopware\Shop\Repository\ShopRepository;
+use Shopware\Shop\Struct\ShopBasicStruct;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductCategoryIndexer implements IndexerInterface
 {
-    public const TABLE = 'product_category_tree';
-
     /**
      * @var ProductRepository
      */
@@ -34,24 +36,39 @@ class ProductCategoryIndexer implements IndexerInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var CategoryPathBuilder
+     */
+    private $pathBuilder;
+
+    /**
+     * @var ShopRepository
+     */
+    private $shopRepository;
+
     public function __construct(
         ProductRepository $productRepository,
         Connection $connection,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        CategoryPathBuilder $pathBuilder,
+        ShopRepository $shopRepository
     ) {
         $this->productRepository = $productRepository;
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
+        $this->pathBuilder = $pathBuilder;
+        $this->shopRepository = $shopRepository;
     }
 
-    public function index(TranslationContext $context, \DateTime $timestamp): void
+    public function index(\DateTime $timestamp): void
     {
-        if ($context->getShopUuid() !== 'SWAG-SHOP-UUID-1') {
-            return;
-        }
-        $iterator = new RepositoryIterator($this->productRepository, $context);
+        $shop = $this->getDefaultShop();
 
-        $this->createTable($timestamp);
+        $context = TranslationContext::createFromShop($shop);
+
+        $this->pathBuilder->update('SWAG-CATEGORY-UUID-1', $context);
+
+        $iterator = new RepositoryIterator($this->productRepository, $context);
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
@@ -59,7 +76,7 @@ class ProductCategoryIndexer implements IndexerInterface
         );
 
         while ($uuids = $iterator->fetchUuids()) {
-            $this->indexCategoryAssignment($uuids, $timestamp);
+            $this->indexCategoryAssignment($uuids);
 
             $this->eventDispatcher->dispatch(
                 ProgressAdvancedEvent::NAME,
@@ -67,36 +84,27 @@ class ProductCategoryIndexer implements IndexerInterface
             );
         }
 
-        $this->renameTable($timestamp);
-
         $this->eventDispatcher->dispatch(
             ProgressFinishedEvent::NAME,
             new ProgressFinishedEvent('Finished building category product tree')
         );
     }
 
-    public function refresh(NestedEventCollection $events, TranslationContext $context): void
+    public function refresh(GenericWrittenEvent $event): void
     {
-        $uuids = $this->getProductUuids($events);
-        if (empty($uuids)) {
+        $productUuids = $this->getProductUuids($event);
+        if (empty($productUuids)) {
             return;
         }
 
-        $this->connection->executeUpdate(
-            'DELETE FROM product_category_tree WHERE product_uuid IN (:uuids)',
-            ['uuids' => $uuids],
-            ['uuids' => Connection::PARAM_STR_ARRAY]
-        );
-        $this->indexCategoryAssignment($uuids, null);
+        $this->connection->transactional(function () use ($productUuids) {
+            $this->indexCategoryAssignment($productUuids);
+        });
     }
 
-    private function indexCategoryAssignment(array $uuids, ?\DateTime $timestamp): void
+    private function indexCategoryAssignment(array $uuids): void
     {
         $categories = $this->fetchCategories($uuids);
-
-        $table = $this->getIndexName($timestamp);
-
-        $queue = new MultiInsertQueryQueue($this->connection);
 
         foreach ($categories as $productUuid => $mapping) {
             $categoryUuids = array_merge(
@@ -106,14 +114,11 @@ class ProductCategoryIndexer implements IndexerInterface
 
             $categoryUuids = array_keys(array_flip(array_filter($categoryUuids)));
 
-            foreach ($categoryUuids as $uuid) {
-                $queue->addInsert($table, [
-                    'product_uuid' => $productUuid,
-                    'category_uuid' => $uuid,
-                ]);
-            }
+            $this->connection->executeUpdate(
+                'UPDATE product SET category_tree = :tree WHERE uuid = :uuid',
+                ['uuid' => $productUuid, 'tree' => json_encode($categoryUuids)]
+            );
         }
-        $queue->execute();
     }
 
     private function fetchCategories(array $uuids): array
@@ -134,56 +139,29 @@ class ProductCategoryIndexer implements IndexerInterface
         return $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
     }
 
-    private function getIndexName(?\DateTime $timestamp): string
+    private function getProductUuids(GenericWrittenEvent $event): array
     {
-        if ($timestamp === null) {
-            return self::TABLE;
+        $productEvent = $event->getEventByDefinition(ProductCategoryDefinition::class);
+
+        if (!$productEvent) {
+            return [];
         }
 
-        return self::TABLE . '_' . $timestamp->format('YmdHis');
-    }
-
-    /**
-     * @param NestedEventCollection $events
-     *
-     * @return array
-     */
-    private function getProductUuids(NestedEventCollection $events): array
-    {
-        /** @var NestedEventCollection $events */
-        $events = $events
-            ->getFlatEventList()
-            ->filterInstance(ProductCategoryWrittenEvent::class);
-
         $uuids = [];
-        /** @var ProductCategoryWrittenEvent $event */
-        foreach ($events as $event) {
-            foreach ($event->getUuids() as $uuid) {
-                $uuids[] = $uuid;
-            }
+
+        foreach ($productEvent->getUuids() as $uuid) {
+            $uuids[] = $uuid['productUuid'];
         }
 
         return $uuids;
     }
 
-    private function renameTable(\DateTime $timestamp): void
+    private function getDefaultShop(): ShopBasicStruct
     {
-        $this->connection->transactional(function () use ($timestamp) {
-            $name = $this->getIndexName($timestamp);
-            $this->connection->executeUpdate('DROP TABLE ' . self::TABLE);
-            $this->connection->executeUpdate('ALTER TABLE ' . $name . ' RENAME TO ' . self::TABLE);
-        });
-    }
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermQuery('shop.isDefault', true));
+        $result = $this->shopRepository->search($criteria, TranslationContext::createDefaultContext());
 
-    private function createTable(\DateTime $timestamp): void
-    {
-        $name = $this->getIndexName($timestamp);
-        $this->connection->executeUpdate('
-            DROP TABLE IF EXISTS ' . $name . ';
-            CREATE TABLE ' . $name . ' SELECT * FROM ' . self::TABLE . ' LIMIT 0
-        ');
-        $this->connection->executeUpdate('ALTER TABLE ' . $name . ' ADD PRIMARY KEY (product_uuid, category_uuid)');
-        $this->connection->executeUpdate('ALTER TABLE ' . $name . ' ADD CONSTRAINT FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE');
-        $this->connection->executeUpdate('ALTER TABLE ' . $name . ' ADD CONSTRAINT FOREIGN KEY (category_uuid) REFERENCES category (uuid) ON DELETE CASCADE ON UPDATE CASCADE');
+        return $result->first();
     }
 }

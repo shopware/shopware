@@ -36,16 +36,6 @@ class CategoryDetailStruct extends CategoryBasicStruct
     /**
      * @var string[]
      */
-    protected $productTreeUuids = [];
-
-    /**
-     * @var ProductBasicCollection
-     */
-    protected $productTree;
-
-    /**
-     * @var string[]
-     */
     protected $seoProductUuids = [];
 
     /**
@@ -60,8 +50,6 @@ class CategoryDetailStruct extends CategoryBasicStruct
         $this->shops = new ShopBasicCollection();
 
         $this->products = new ProductBasicCollection();
-
-        $this->productTree = new ProductBasicCollection();
 
         $this->seoProducts = new ProductBasicCollection();
     }
@@ -114,26 +102,6 @@ class CategoryDetailStruct extends CategoryBasicStruct
     public function setProducts(ProductBasicCollection $products): void
     {
         $this->products = $products;
-    }
-
-    public function getProductTreeUuids(): array
-    {
-        return $this->productTreeUuids;
-    }
-
-    public function setProductTreeUuids(array $productTreeUuids): void
-    {
-        $this->productTreeUuids = $productTreeUuids;
-    }
-
-    public function getProductTree(): ProductBasicCollection
-    {
-        return $this->productTree;
-    }
-
-    public function setProductTree(ProductBasicCollection $productTree): void
-    {
-        $this->productTree = $productTree;
     }
 
     public function getSeoProductUuids(): array

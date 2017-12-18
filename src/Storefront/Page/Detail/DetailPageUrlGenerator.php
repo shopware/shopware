@@ -80,7 +80,7 @@ class DetailPageUrlGenerator implements SeoUrlGeneratorInterface
         $criteria = new Criteria();
         $criteria->setOffset($offset);
         $criteria->setLimit($limit);
-        $criteria->addFilter(new TermQuery('product.categoryTree.uuid', $shop->getCategoryUuid()));
+        $criteria->addFilter(new TermQuery('product.categoryTree', $shop->getCategoryUuid()));
         $criteria->addFilter(new TermQuery('product.active', 1));
         $products = $this->repository->search($criteria, $context);
 

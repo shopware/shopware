@@ -10,7 +10,7 @@
 
         {# Search field #}
         {% block frontend_index_search_field %}
-            <input type="search" name="search" class="main-search--field" autocomplete="off" autocapitalize="off" placeholder="{% trans from 'frontend/index/search' %}IndexSearchFieldPlaceholder{% endtrans %}" value="{% if searchTerm %}{{ searchTerm }}{% endif %}" maxlength="30"  />
+            <input type="search" name="search" class="" autocomplete="off" autocapitalize="off" placeholder="{% trans from 'frontend/index/search' %}IndexSearchFieldPlaceholder{% endtrans %}" value="{% if searchTerm %}{{ searchTerm }}{% endif %}" maxlength="30"  />
         {% endblock %}
 
         {# Search input #}

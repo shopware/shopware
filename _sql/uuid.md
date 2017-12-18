@@ -13,7 +13,6 @@ product                                 SWAG-PRODUCT-UUID-
 product_also_bought_ro                  SWAG-PRODUCT-ALSO-BOUGHT-RO-UUID-
 product_attribute                       SWAG-PRODUCT-ATTRIBUTE-UUID-
 product_category                        SWAG-PRODUCT-CATEGORY-UUID-
-product_category_tree                     SWAG-PRODUCT-CATEGORY-RO-UUID-
 product_detail                          SWAG-PRODUCT-DETAIL-UUID-
 product_download                        SWAG-PRODUCT-DOWNLOAD-UUID-
 product_download_attribute              SWAG-PRODUCT-DOWNLOAD-ATTRIBUTE-UUID-

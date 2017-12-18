@@ -176,6 +176,11 @@ class ProductBasicStruct extends Entity
     protected $updatedAt;
 
     /**
+     * @var array|null
+     */
+    protected $categoryTree;
+
+    /**
      * @var string|null
      */
     protected $additionalText;
@@ -558,6 +563,16 @@ class ProductBasicStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getCategoryTree(): ?array
+    {
+        return $this->categoryTree;
+    }
+
+    public function setCategoryTree(?array $categoryTree): void
+    {
+        $this->categoryTree = $categoryTree;
     }
 
     public function getAdditionalText(): ?string

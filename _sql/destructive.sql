@@ -18,8 +18,6 @@ UPDATE product_price p SET p.customer_group_uuid = (SELECT c.uuid FROM customer_
 ALTER TABLE `product_price`
     ADD FOREIGN KEY (`customer_group_uuid`) REFERENCES `customer_group` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-
-
 -- DROP FOREIGN KEYS BEFORE DROPPING IDs
 ALTER TABLE area_country_attribute
     DROP FOREIGN KEY `area_country_attribute_ibfk_1`
@@ -1114,3 +1112,4 @@ DROP TABLE s_user_billingaddress;
 DROP TABLE s_user_shippingaddress_attributes;
 DROP TABLE s_user_shippingaddress;
 DROP TABLE user_attribute;
+DROP TABLE product_category_tree;

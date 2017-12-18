@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Search\Event\SearchKeyword;
+namespace Shopware\Product\Event\ProductSearchKeyword;
 
 use Shopware\Api\Search\UuidSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 
-class SearchKeywordUuidSearchResultLoadedEvent extends NestedEvent
+class ProductSearchKeywordUuidSearchResultLoadedEvent extends NestedEvent
 {
-    const NAME = 'search_keyword.uuid.search.result.loaded';
+    public const NAME = 'product_search_keyword.uuid.search.result.loaded';
 
     /**
      * @var UuidSearchResult

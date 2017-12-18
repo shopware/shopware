@@ -91,7 +91,9 @@ class EntitySearcher implements EntitySearcherInterface
             return;
         }
 
-        $select = '(' . implode(' + ', $queries->getWheres()) . ')';
+        $query->addState(EntityDefinitionResolver::REQUIRES_GROUP_BY);
+
+        $select = 'SUM(' . implode(' + ', $queries->getWheres()) . ')';
         $query->addSelect($select . ' as score');
 
         if (empty($criteria->getSortings())) {
@@ -104,7 +106,7 @@ class EntitySearcher implements EntitySearcherInterface
 
         $minScore = min($minScore);
 
-        $query->andWhere($select . ' >= :_minScore');
+        $query->andHaving('score >= :_minScore');
         $query->setParameter('_minScore', $minScore);
 
         foreach ($queries->getParameters() as $key => $value) {
@@ -158,21 +160,26 @@ class EntitySearcher implements EntitySearcherInterface
         /** @var string|EntityDefinition $definition */
         $table = $definition::getEntityName();
 
-        if (!$query->hasState(EntityDefinitionResolver::HAS_TO_MANY_JOIN)) {
+        if (!$query->hasState(EntityDefinitionResolver::REQUIRES_GROUP_BY)) {
             return;
         }
 
-        $query->addGroupBy(
-            EntityDefinitionResolver::escape($table) . '.' . EntityDefinitionResolver::escape('uuid')
-        );
+        $fields = [
+            EntityDefinitionResolver::escape($table) . '.' . EntityDefinitionResolver::escape('uuid'),
+        ];
 
         // each order by column has to be inside the group by statement (sql_mode=only_full_group_by)
         foreach ($criteria->getSortings() as $sorting) {
-            $field = EntityDefinitionResolver::resolveField(
+            $fields[] = EntityDefinitionResolver::resolveField(
                 $sorting->getField(),
                 $definition,
                 $definition::getEntityName()
             );
+        }
+
+        $fields = array_unique($fields);
+
+        foreach ($fields as $field) {
             $query->addGroupBy($field);
         }
     }

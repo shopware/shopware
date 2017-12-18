@@ -7,7 +7,7 @@ use Shopware\Audit\Definition\AuditLogDefinition;
 
 class AuditLogWrittenEvent extends WrittenEvent
 {
-    const NAME = 'audit_log.written';
+    public const NAME = 'audit_log.written';
 
     public function getName(): string
     {

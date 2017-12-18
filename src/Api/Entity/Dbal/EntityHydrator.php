@@ -4,6 +4,7 @@ namespace Shopware\Api\Entity\Dbal;
 
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
+use Shopware\Api\Entity\Field\ArrayField;
 use Shopware\Api\Entity\Field\AssociationInterface;
 use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
@@ -133,6 +134,8 @@ class EntityHydrator
                 return $value === null ? null : (string) $value;
             case $field instanceof DateField:
                 return $value === null ? null : new \DateTime($value);
+            case $field instanceof ArrayField:
+                return json_decode((string) $value, true);
             case $field instanceof FkField:
             case $field instanceof LongTextField:
             case $field instanceof LongTextWithHtmlField:

@@ -8,7 +8,7 @@ use Shopware\Framework\Event\NestedEvent;
 
 class AuditLogBasicLoadedEvent extends NestedEvent
 {
-    const NAME = 'audit_log.basic.loaded';
+    public const NAME = 'audit_log.basic.loaded';
 
     /**
      * @var TranslationContext

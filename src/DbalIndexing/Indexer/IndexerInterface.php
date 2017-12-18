@@ -2,12 +2,11 @@
 
 namespace Shopware\DbalIndexing\Indexer;
 
-use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Api\Write\GenericWrittenEvent;
 
 interface IndexerInterface
 {
-    public function index(TranslationContext $context, \DateTime $timestamp): void;
+    public function index(\DateTime $timestamp): void;
 
-    public function refresh(NestedEventCollection $events, TranslationContext $context): void;
+    public function refresh(GenericWrittenEvent $event): void;
 }

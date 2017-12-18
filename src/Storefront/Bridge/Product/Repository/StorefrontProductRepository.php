@@ -56,7 +56,6 @@ class StorefrontProductRepository
     public function search(Criteria $criteria, ShopContext $context): ProductSearchResult
     {
         $basics = $this->repository->search($criteria, $context->getTranslationContext());
-
         $listProducts = $this->loadListProducts($basics, $context);
 
         $basics->clear();

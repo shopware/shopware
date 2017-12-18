@@ -29,6 +29,7 @@ use Shopware\Category\Extension\CategoryPathBuilder;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
+use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -62,9 +63,19 @@ class BuildCategoryPathCommand extends ContainerAwareCommand implements EventSub
     public static function getSubscribedEvents()
     {
         return [
+            ProgressStartedEvent::NAME => 'startProgress',
             ProgressAdvancedEvent::NAME => 'advanceProgress',
             ProgressFinishedEvent::NAME => 'finishProgress',
         ];
+    }
+
+    public function startProgress(ProgressStartedEvent $event)
+    {
+        if (!$this->io) {
+            return;
+        }
+        $this->io->comment($event->getMessage());
+        $this->io->progressStart($event->getTotal());
     }
 
     public function finishProgress(ProgressFinishedEvent $event)
@@ -97,13 +108,7 @@ class BuildCategoryPathCommand extends ContainerAwareCommand implements EventSub
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->io = new SymfonyStyle($input, $output);
-        $context = new TranslationContext('SWAG-SHOP-UUID-1', true, null);
-
-        $this->connection->executeUpdate('UPDATE category SET path = NULL');
-        $count = $this->connection->fetchColumn('SELECT COUNT(uuid) FROM category WHERE parent_uuid IS NOT NULL');
-
-        $this->io->writeln('Starting building category paths');
-        $this->io->progressStart($count);
+        $context = TranslationContext::createDefaultContext();
 
         $this->pathBuilder->update('SWAG-CATEGORY-UUID-1', $context);
     }

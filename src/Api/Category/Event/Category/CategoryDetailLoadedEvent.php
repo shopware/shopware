@@ -64,9 +64,6 @@ class CategoryDetailLoadedEvent extends NestedEvent
         if ($this->categories->getAllProducts()->count() > 0) {
             $events[] = new ProductBasicLoadedEvent($this->categories->getAllProducts(), $this->context);
         }
-        if ($this->categories->getAllProductTree()->count() > 0) {
-            $events[] = new ProductBasicLoadedEvent($this->categories->getAllProductTree(), $this->context);
-        }
         if ($this->categories->getAllSeoProducts()->count() > 0) {
             $events[] = new ProductBasicLoadedEvent($this->categories->getAllSeoProducts(), $this->context);
         }

@@ -172,7 +172,7 @@ class ApiController extends RestController
         return $this->createResponse([
             'data' => $result,
             'total' => $result->getTotal(),
-            'aggregations' => $result->getAggregations()
+            'aggregations' => $result->getAggregations(),
         ], $context);
     }
 

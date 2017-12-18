@@ -2,6 +2,10 @@
 
 namespace Shopware\Audit\Logging;
 
+use Ramsey\Uuid\Uuid;
+use Shopware\Api\Entity\EntityDefinition;
+use Shopware\Api\Entity\Field\Field;
+use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\Query\TermQuery;
@@ -55,6 +59,17 @@ class EntityWriter implements EntityWriterInterface
 
     public function insert(string $definition, array $rawData, WriteContext $writeContext): array
     {
+        /** @var EntityDefinition $definition */
+        $primary = $definition::getPrimaryKeys();
+
+        if ($primary->count() === 1 && $primary->first() instanceof UuidField) {
+            foreach ($rawData as &$data) {
+                if (!isset($data['uuid'])) {
+                    $data['uuid'] = Uuid::uuid4()->toString();
+                }
+            }
+        }
+
         $this->writeAuditLog($definition, $rawData, $writeContext, __FUNCTION__);
 
         return $this->decorated->insert($definition, $rawData, $writeContext);

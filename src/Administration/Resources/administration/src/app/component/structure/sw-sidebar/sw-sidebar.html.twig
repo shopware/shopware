@@ -6,12 +6,7 @@
 
     <nav class="main-navigation">
         <ul class="nav">
-            <li v-for="entry, routeName in mainMenuEntries" class="nav--link">
-                <router-link :to="{ name: routeName }">
-                    <i :class="getIconName(entry.icon)" :style="{ 'color': entry.color }"></i>
-                    {{ entry.name }}
-                </router-link>
-            </li>
+            <sw-sidebar-item v-for="entry in mainMenuEntries" :entry="entry" :key="entry.path"></sw-sidebar-item>
         </ul>
     </nav>
 

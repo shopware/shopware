@@ -1,0 +1,10 @@
+<li class="nav--link">
+    <router-link :to="{ name: entry.path }">
+        <i :class="getIconName(entry.icon)" :style="{ 'color': entry.color }"></i>
+        {{ entry.label }}
+    </router-link>
+
+    <ul class="sw-sidebar--sub-list" v-if="entry.children.length">
+        <sw-sidebar-item v-for="entry in entry.children" :entry="entry" :key="entry.path"></sw-sidebar-item>
+    </ul>
+</li>

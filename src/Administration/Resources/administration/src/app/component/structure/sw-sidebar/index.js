@@ -12,9 +12,6 @@ Shopware.Component.register('sw-sidebar', {
     },
 
     methods: {
-        getIconName(name) {
-            return `icon-${name}`;
-        },
         onLogoutUser() {
             this.loginService.clearBearerAuthentication();
             this.$router.push({

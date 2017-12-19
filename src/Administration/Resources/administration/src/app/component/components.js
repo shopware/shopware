@@ -14,6 +14,9 @@ import './utils/sw-loader';
 
 import './structure/sw-admin';
 import './structure/sw-desktop';
+
+import './structure/sw-sidebar-item';
 import './structure/sw-sidebar';
+
 import './structure/sw-search-bar';
 import './structure/sw-workspace';

@@ -1,25 +1,33 @@
-import utils from 'src/core/service/util.service';
+import FlatTree from 'src/core/helper/flattree.helper';
 
 export default function MenuService(moduleFactory) {
+    const flatTree = new FlatTree();
+
     return {
-        getMainMenu
+        getMainMenu,
+        addItem: flatTree.add,
+        removeItem: flatTree.remove
     };
 
+    /**
+     * Iterates the module registry from the {@link ModuleFactory} and adds the menu items to
+     * the flat tree instance.
+     *
+     * @returns {Object} main menu as a data tree hierarchy
+     */
     function getMainMenu() {
         const modules = moduleFactory.getModuleRegistry();
-        const menuEntries = {};
 
-        modules.forEach(module => {
+        modules.forEach((module) => {
             if (!Object.prototype.hasOwnProperty.bind(module, 'navigation') || !module.navigation) {
                 return;
             }
 
-            Object.keys(module.navigation).forEach((navigationKey) => {
-                const menuEntry = module.navigation[navigationKey];
-                utils.merge(menuEntries, { [navigationKey]: menuEntry });
+            module.navigation.forEach((navigationElement) => {
+                flatTree.add(navigationElement);
             });
         });
 
-        return menuEntries.root[0];
+        return flatTree.convertToTree();
     }
 }

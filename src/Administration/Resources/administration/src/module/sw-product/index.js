@@ -35,15 +35,16 @@ Shopware.Module.register('sw-product', {
         }
     },
 
-    navigation: {
-        root: [{
-            'sw.product.index': {
-                icon: 'box',
-                color: '#7AD5C8',
-                name: 'Produktübersicht'
-            }
-        }]
-    },
+    navigation: [{
+        path: 'sw.product.index',
+        label: 'Produktübersicht',
+        color: '#7AD5C8',
+        icon: 'box'
+    }, {
+        path: 'sw.product.create',
+        label: 'Produkt anlegen',
+        parent: 'sw.product.index'
+    }],
 
     commands: [{
         title: 'Übersicht',

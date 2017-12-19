@@ -15,13 +15,10 @@ Shopware.Module.register('sw-dashboard', {
         }
     },
 
-    navigation: {
-        root: [{
-            'sw.dashboard.index': {
-                icon: 'browser',
-                color: '#6abff0',
-                name: 'Dashboard'
-            }
-        }]
-    }
+    navigation: [{
+        path: 'sw.dashboard.index',
+        icon: 'browser',
+        color: '#6abff0',
+        label: 'Dashboard'
+    }]
 });

@@ -25,15 +25,12 @@ Shopware.Module.register('sw-order', {
         }
     },
 
-    navigation: {
-        root: [{
-            'sw.order.index': {
-                icon: 'cart',
-                color: '#CA8EE0',
-                name: 'Bestellübersicht'
-            }
-        }]
-    },
+    navigation: [{
+        path: 'sw.order.index',
+        label: 'Bestellübersicht',
+        color: '#CA8EE0',
+        icon: 'cart'
+    }],
 
     commands: [{
         title: 'Übersicht',

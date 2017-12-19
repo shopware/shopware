@@ -20,13 +20,10 @@ Shopware.Module.register('sw-test', {
         }
     },
 
-    navigation: {
-        root: [{
-            'sw.test.index': {
-                icon: 'brush',
-                color: '#ea5b0c',
-                name: 'Extension Test'
-            }
-        }]
-    }
+    navigation: [{
+        path: 'sw.test.index',
+        icon: 'brush',
+        color: '#ea5b0c',
+        label: 'Extension Test'
+    }]
 });

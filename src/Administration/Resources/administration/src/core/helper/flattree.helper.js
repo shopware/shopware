@@ -58,7 +58,7 @@ export default class FlatTree {
 
         if (this._registeredNodes.has(nodeIdentifier)) {
             utils.warn(
-                'MenuService',
+                'FlatTree',
                 `Tree contains node with unique identifier ${nodeIdentifier} already.`,
                 'Please remove it first before adding a new one.',
                 this._registeredNodes.get(nodeIdentifier)

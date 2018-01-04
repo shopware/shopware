@@ -11,9 +11,7 @@ module.exports = {
     },
 
     globals: {
-        Shopware: true,
-        ComponentFactory: true,
-        ModuleFactory: true
+        Shopware: true
     },
 
     // https://github.com/airbnb/javascript
@@ -72,7 +70,6 @@ module.exports = {
             'allowAfterSuper': true
         }],
 
-        // TODO@STP - Consider using destruction for array and object access
         "prefer-destructuring": [ 'off', { 'object': true, 'array': false } ],
 
         // allow optionalDependencies

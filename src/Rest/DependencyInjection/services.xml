@@ -43,7 +43,6 @@
             <tag name="console.command"/>
         </service>
 
-
         <service class="Shopware\Rest\Controller\ApiController" id="shopware.rest.controller.api_controller">
             <argument id="shopware.api.entity_definition_registry" type="service"/>
             <call method="setContainer">
@@ -58,6 +57,19 @@
 
         <service class="Shopware\Rest\Routing\RouteCollector" id="shopware.api.route_collector">
             <argument id="shopware.api.entity_definition_registry" type="service"/>
+        </service>
+
+        <service class="Shopware\Rest\ApiDefinition\DefinitionService" id="Shopware\Rest\ApiDefinition\DefinitionService">
+            <argument type="tagged" tag="shopware.rest.definition_generator" />
+        </service>
+
+        <service class="Shopware\Rest\ApiDefinition\Generator\OpenApi3Generator" id="Shopware\Rest\ApiDefinition\Generator\OpenApi3Generator">
+            <argument type="service" id="shopware.api.entity_definition_registry" />
+            <tag name="shopware.rest.definition_generator" />
+        </service>
+
+        <service class="Shopware\Rest\Controller\InfoController" id="Shopware\Rest\Controller\InfoController" public="true">
+            <argument id="Shopware\Rest\ApiDefinition\DefinitionService" type="service"/>
         </service>
 
 

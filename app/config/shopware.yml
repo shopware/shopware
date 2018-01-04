@@ -38,7 +38,7 @@ security:
                 require_previous_session: false
 
         api:
-            pattern: ^/api
+            pattern: ^/api/(?!(info|entity-schema))
             stateless: true
             provider: api
             guard:
@@ -46,7 +46,7 @@ security:
                     - lexik_jwt_authentication.jwt_token_authenticator
 
         storefront:
-            pattern: ^/
+            pattern: ^(?!/api)/
             anonymous: ~
             logout_on_user_change: true
             provider: customer
@@ -64,6 +64,7 @@ security:
         - { path: ^/account/(login|login_check|logout)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/account, roles: ROLE_CUSTOMER }
         - { path: ^/api/auth, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/info, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
     providers:

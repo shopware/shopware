@@ -1,5 +1,5 @@
+/* eslint-disable */
 const Bottle = require('bottlejs');
-const Vue = require('vue').default;
 
 const ModuleFactory = require('src/core/factory/module.factory').default;
 const ComponentFactory = require('src/core/factory/component.factory').default;
@@ -14,10 +14,12 @@ const container = new Bottle({
 });
 
 const application = new ApplicationBootstrapper(container);
-
-StateFactory.install(Vue);
+StateFactory.install(VueJS.default);
 
 application
+    .addFactory('vue', () => {
+        return VueJS.default;
+    })
     .addFactory('component', () => {
         return ComponentFactory;
     })
@@ -52,7 +54,6 @@ const exposedInterface = {
     },
     Utils: utils,
     Application: application,
-    Vue,
     State: {
         Store: StateFactory.getStoreInstance(),
         mapActions: StateFactory.mapActions,

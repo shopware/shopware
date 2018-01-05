@@ -1,3 +1,4 @@
+/* eslint-disable */
 import 'src/app/component/components';
 import VueRouter from 'vue-router';
 import VueMoment from 'vue-moment';
@@ -10,14 +11,14 @@ import utils from 'src/core/service/util.service';
  */
 const vueComponents = {};
 
-export default function VueAdapter(context, componentFactory, stateFactory) {
-    Shopware.Vue.use(VueRouter);
-    Shopware.Vue.use(VueMoment);
+export default function VueAdapter(context, componentFactory, stateFactory, Vue) {
+    Vue.use(VueRouter);
+    Vue.use(VueMoment);
 
     /**
      * Extend Vue prototype to access super class for component inheritance.
      */
-    Object.defineProperties(Shopware.Vue.prototype, {
+    Object.defineProperties(Vue.prototype, {
         $super: {
             get() {
                 /**
@@ -52,7 +53,7 @@ export default function VueAdapter(context, componentFactory, stateFactory) {
         }
     });
 
-    Shopware.Vue.filter('image', (value) => {
+    Vue.filter('image', (value) => {
         if (!value) {
             return '';
         }
@@ -60,11 +61,11 @@ export default function VueAdapter(context, componentFactory, stateFactory) {
         return `${context.assetsPath}${value}`;
     });
 
-    Shopware.Vue.filter('currency', (value, format = 'EUR') => {
+    Vue.filter('currency', (value, format = 'EUR') => {
         return utils.currency(value, format);
     });
 
-    Shopware.Vue.filter('date', (value) => {
+    Vue.filter('date', (value) => {
         return utils.date(value);
     });
 
@@ -92,7 +93,7 @@ export default function VueAdapter(context, componentFactory, stateFactory) {
 
         stateFactory.mapRouterToState(router);
 
-        return new Shopware.Vue({
+        return new Vue({
             el: renderElement,
             router,
             components,
@@ -132,7 +133,7 @@ export default function VueAdapter(context, componentFactory, stateFactory) {
             return false;
         }
 
-        const vueComponent = Shopware.Vue.component(componentName, componentConfig);
+        const vueComponent = Vue.component(componentName, componentConfig);
 
         vueComponents[componentName] = vueComponent;
 
@@ -168,7 +169,7 @@ export default function VueAdapter(context, componentFactory, stateFactory) {
      * @returns {Vue}
      */
     function getWrapper() {
-        return Shopware.Vue;
+        return Vue;
     }
 
     /**

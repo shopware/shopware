@@ -1,7 +1,7 @@
-var path = require('path')
-var utils = require('./utils')
-var config = require('../config')
-var vueLoaderConfig = require('./vue-loader.conf')
+var path = require('path');
+var utils = require('./utils');
+var config = require('../config');
+var vueLoaderConfig = require('./vue-loader.conf');
 
 function resolve(dir) {
     return path.join(__dirname, '..', dir)
@@ -9,6 +9,7 @@ function resolve(dir) {
 
 module.exports = {
     entry: {
+        VueJS: resolve('node_modules') + '/vue/dist/vue.esm.js',
         commons: resolve('src') + '/core/common.js',
         app: resolve('src') + '/app/main.js'
     },
@@ -75,6 +76,13 @@ module.exports = {
                 }
             },
             {
+                test: require.resolve('../node_modules/vue/dist/vue.esm.js'),
+                use: [{
+                    loader: 'expose-loader',
+                    options: 'VueJS'
+                }]
+            },
+            {
                 test: require.resolve('../src/core/common.js'),
                 use: [{
                     loader: 'expose-loader',
@@ -83,4 +91,4 @@ module.exports = {
             }
         ],
     },
-}
+};

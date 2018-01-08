@@ -4,18 +4,18 @@ namespace Shopware\Administration\Search;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Shopware\Api\Customer\Definition\CustomerDefinition;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\SearchResultInterface;
 use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
-use Shopware\Context\Struct\TranslationContext;
-use Shopware\Api\Customer\Definition\CustomerDefinition;
-use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Api\Order\Definition\OrderDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;
+use Shopware\Api\RepositoryInterface;
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Struct\ArrayStruct;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class AuditLogSearch

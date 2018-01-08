@@ -29,7 +29,7 @@ class ShippingMethodPriceBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByShippingMethodUuid(string $uuid): ShippingMethodPriceBasicCollection
+    public function filterByShippingMethodUuid(string $uuid): self
     {
         return $this->filter(function (ShippingMethodPriceBasicStruct $shippingMethodPrice) use ($uuid) {
             return $shippingMethodPrice->getShippingMethodUuid() === $uuid;

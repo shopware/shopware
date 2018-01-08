@@ -31,7 +31,7 @@ class CustomerAddressBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByCustomerUuid(string $uuid): CustomerAddressBasicCollection
+    public function filterByCustomerUuid(string $uuid): self
     {
         return $this->filter(function (CustomerAddressBasicStruct $customerAddress) use ($uuid) {
             return $customerAddress->getCustomerUuid() === $uuid;
@@ -45,7 +45,7 @@ class CustomerAddressBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByCountryUuid(string $uuid): CustomerAddressBasicCollection
+    public function filterByCountryUuid(string $uuid): self
     {
         return $this->filter(function (CustomerAddressBasicStruct $customerAddress) use ($uuid) {
             return $customerAddress->getCountryUuid() === $uuid;
@@ -59,7 +59,7 @@ class CustomerAddressBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByCountryStateUuid(string $uuid): CustomerAddressBasicCollection
+    public function filterByCountryStateUuid(string $uuid): self
     {
         return $this->filter(function (CustomerAddressBasicStruct $customerAddress) use ($uuid) {
             return $customerAddress->getCountryStateUuid() === $uuid;

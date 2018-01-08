@@ -29,7 +29,7 @@ class CustomerGroupDiscountBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByCustomerGroupUuid(string $uuid): CustomerGroupDiscountBasicCollection
+    public function filterByCustomerGroupUuid(string $uuid): self
     {
         return $this->filter(function (CustomerGroupDiscountBasicStruct $customerGroupDiscount) use ($uuid) {
             return $customerGroupDiscount->getCustomerGroupUuid() === $uuid;

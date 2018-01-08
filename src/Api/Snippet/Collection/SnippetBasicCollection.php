@@ -29,7 +29,7 @@ class SnippetBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByShopUuid(string $uuid): SnippetBasicCollection
+    public function filterByShopUuid(string $uuid): self
     {
         return $this->filter(function (SnippetBasicStruct $snippet) use ($uuid) {
             return $snippet->getShopUuid() === $uuid;

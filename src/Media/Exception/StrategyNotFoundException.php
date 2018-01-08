@@ -28,7 +28,7 @@ namespace Shopware\Media\Exception;
 
 class StrategyNotFoundException extends \Exception
 {
-    public static function fromName(string $strategyName): StrategyNotFoundException
+    public static function fromName(string $strategyName): self
     {
         return new self(sprintf('Media strategy by name "%s" not found.', $strategyName));
     }

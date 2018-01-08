@@ -29,7 +29,7 @@ class AuditLogBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByUserUuid(string $uuid): AuditLogBasicCollection
+    public function filterByUserUuid(string $uuid): self
     {
         return $this->filter(function (AuditLogBasicStruct $auditLog) use ($uuid) {
             return $auditLog->getUserUuid() === $uuid;

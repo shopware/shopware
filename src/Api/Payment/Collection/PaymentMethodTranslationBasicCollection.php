@@ -29,7 +29,7 @@ class PaymentMethodTranslationBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByPaymentMethodUuid(string $uuid): PaymentMethodTranslationBasicCollection
+    public function filterByPaymentMethodUuid(string $uuid): self
     {
         return $this->filter(function (PaymentMethodTranslationBasicStruct $paymentMethodTranslation) use ($uuid) {
             return $paymentMethodTranslation->getPaymentMethodUuid() === $uuid;
@@ -43,7 +43,7 @@ class PaymentMethodTranslationBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): PaymentMethodTranslationBasicCollection
+    public function filterByLanguageUuid(string $uuid): self
     {
         return $this->filter(function (PaymentMethodTranslationBasicStruct $paymentMethodTranslation) use ($uuid) {
             return $paymentMethodTranslation->getLanguageUuid() === $uuid;

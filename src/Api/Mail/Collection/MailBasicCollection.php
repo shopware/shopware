@@ -29,7 +29,7 @@ class MailBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByOrderStateUuid(string $uuid): MailBasicCollection
+    public function filterByOrderStateUuid(string $uuid): self
     {
         return $this->filter(function (MailBasicStruct $mail) use ($uuid) {
             return $mail->getOrderStateUuid() === $uuid;

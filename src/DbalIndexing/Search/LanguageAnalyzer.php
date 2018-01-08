@@ -4,8 +4,8 @@ namespace Shopware\DbalIndexing\Search;
 
 use Shopware\Api\Entity\Search\Term\SearchFilterInterface;
 use Shopware\Api\Entity\Search\Term\TokenizerInterface;
-use Shopware\Context\Struct\TranslationContext;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
+use Shopware\Context\Struct\TranslationContext;
 
 class LanguageAnalyzer implements SearchAnalyzerInterface
 {

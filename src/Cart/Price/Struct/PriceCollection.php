@@ -85,7 +85,7 @@ class PriceCollection extends Collection
         return $taxes;
     }
 
-    public function merge(PriceCollection $prices): PriceCollection
+    public function merge(self $prices): self
     {
         return $this->doMerge($prices);
     }

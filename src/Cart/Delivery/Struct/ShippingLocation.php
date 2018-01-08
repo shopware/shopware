@@ -54,7 +54,7 @@ class ShippingLocation extends Struct
         $this->address = $address;
     }
 
-    public static function createFromAddress(CustomerAddressBasicStruct $address): ShippingLocation
+    public static function createFromAddress(CustomerAddressBasicStruct $address): self
     {
         return new self(
             $address->getCountry(),
@@ -63,7 +63,7 @@ class ShippingLocation extends Struct
         );
     }
 
-    public static function createFromCountry(CountryBasicStruct $country): ShippingLocation
+    public static function createFromCountry(CountryBasicStruct $country): self
     {
         return new self($country, null, null);
     }

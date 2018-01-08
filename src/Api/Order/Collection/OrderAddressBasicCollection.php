@@ -31,7 +31,7 @@ class OrderAddressBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByCountryUuid(string $uuid): OrderAddressBasicCollection
+    public function filterByCountryUuid(string $uuid): self
     {
         return $this->filter(function (OrderAddressBasicStruct $orderAddress) use ($uuid) {
             return $orderAddress->getCountryUuid() === $uuid;
@@ -45,7 +45,7 @@ class OrderAddressBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByCountryStateUuid(string $uuid): OrderAddressBasicCollection
+    public function filterByCountryStateUuid(string $uuid): self
     {
         return $this->filter(function (OrderAddressBasicStruct $orderAddress) use ($uuid) {
             return $orderAddress->getCountryStateUuid() === $uuid;

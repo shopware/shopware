@@ -30,7 +30,7 @@ class CategoryBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByParentUuid(string $uuid): CategoryBasicCollection
+    public function filterByParentUuid(string $uuid): self
     {
         return $this->filter(function (CategoryBasicStruct $category) use ($uuid) {
             return $category->getParentUuid() === $uuid;
@@ -44,7 +44,7 @@ class CategoryBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByMediaUuid(string $uuid): CategoryBasicCollection
+    public function filterByMediaUuid(string $uuid): self
     {
         return $this->filter(function (CategoryBasicStruct $category) use ($uuid) {
             return $category->getMediaUuid() === $uuid;
@@ -58,7 +58,7 @@ class CategoryBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByProductStreamUuid(string $uuid): CategoryBasicCollection
+    public function filterByProductStreamUuid(string $uuid): self
     {
         return $this->filter(function (CategoryBasicStruct $category) use ($uuid) {
             return $category->getProductStreamUuid() === $uuid;
@@ -72,7 +72,7 @@ class CategoryBasicCollection extends EntityCollection
         });
     }
 
-    public function filterBySortingUuids(string $uuid): CategoryBasicCollection
+    public function filterBySortingUuids(string $uuid): self
     {
         return $this->filter(function (CategoryBasicStruct $category) use ($uuid) {
             return $category->getSortingUuids() === $uuid;
@@ -86,7 +86,7 @@ class CategoryBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByFacetUuids(string $uuid): CategoryBasicCollection
+    public function filterByFacetUuids(string $uuid): self
     {
         return $this->filter(function (CategoryBasicStruct $category) use ($uuid) {
             return $category->getFacetUuids() === $uuid;
@@ -102,7 +102,7 @@ class CategoryBasicCollection extends EntityCollection
         );
     }
 
-    public function sortByPosition(): CategoryBasicCollection
+    public function sortByPosition(): self
     {
         $this->sort(function (CategoryBasicStruct $a, CategoryBasicStruct $b) {
             return $a->getPosition() <=> $b->getPosition();

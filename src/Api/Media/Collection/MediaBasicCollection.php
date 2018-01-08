@@ -29,7 +29,7 @@ class MediaBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByAlbumUuid(string $uuid): MediaBasicCollection
+    public function filterByAlbumUuid(string $uuid): self
     {
         return $this->filter(function (MediaBasicStruct $media) use ($uuid) {
             return $media->getAlbumUuid() === $uuid;
@@ -43,7 +43,7 @@ class MediaBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByUserUuid(string $uuid): MediaBasicCollection
+    public function filterByUserUuid(string $uuid): self
     {
         return $this->filter(function (MediaBasicStruct $media) use ($uuid) {
             return $media->getUserUuid() === $uuid;

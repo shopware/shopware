@@ -70,7 +70,7 @@ class DeliveryPosition extends Struct
         $this->deliveryDate = $deliveryDate;
     }
 
-    public static function createByLineItemForInStockDate(DeliverableLineItemInterface $lineItem): DeliveryPosition
+    public static function createByLineItemForInStockDate(DeliverableLineItemInterface $lineItem): self
     {
         return new self(
             $lineItem->getIdentifier(),
@@ -81,7 +81,7 @@ class DeliveryPosition extends Struct
         );
     }
 
-    public static function createByLineItemForOutOfStockDate(DeliverableLineItemInterface $lineItem): DeliveryPosition
+    public static function createByLineItemForOutOfStockDate(DeliverableLineItemInterface $lineItem): self
     {
         return new self(
             $lineItem->getIdentifier(),

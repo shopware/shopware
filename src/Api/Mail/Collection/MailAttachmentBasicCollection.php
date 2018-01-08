@@ -29,7 +29,7 @@ class MailAttachmentBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByMailUuid(string $uuid): MailAttachmentBasicCollection
+    public function filterByMailUuid(string $uuid): self
     {
         return $this->filter(function (MailAttachmentBasicStruct $mailAttachment) use ($uuid) {
             return $mailAttachment->getMailUuid() === $uuid;
@@ -43,7 +43,7 @@ class MailAttachmentBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByMediaUuid(string $uuid): MailAttachmentBasicCollection
+    public function filterByMediaUuid(string $uuid): self
     {
         return $this->filter(function (MailAttachmentBasicStruct $mailAttachment) use ($uuid) {
             return $mailAttachment->getMediaUuid() === $uuid;
@@ -57,7 +57,7 @@ class MailAttachmentBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByShopUuid(string $uuid): MailAttachmentBasicCollection
+    public function filterByShopUuid(string $uuid): self
     {
         return $this->filter(function (MailAttachmentBasicStruct $mailAttachment) use ($uuid) {
             return $mailAttachment->getShopUuid() === $uuid;

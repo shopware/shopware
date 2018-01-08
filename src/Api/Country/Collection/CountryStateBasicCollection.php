@@ -29,7 +29,7 @@ class CountryStateBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByCountryUuid(string $uuid): CountryStateBasicCollection
+    public function filterByCountryUuid(string $uuid): self
     {
         return $this->filter(function (CountryStateBasicStruct $countryState) use ($uuid) {
             return $countryState->getCountryUuid() === $uuid;

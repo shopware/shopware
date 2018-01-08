@@ -66,7 +66,7 @@ class CalculatedTax extends Struct
         return $this->price;
     }
 
-    public function increment(CalculatedTax $calculatedTax): void
+    public function increment(self $calculatedTax): void
     {
         $this->tax += $calculatedTax->getTax();
         $this->price += $calculatedTax->getPrice();

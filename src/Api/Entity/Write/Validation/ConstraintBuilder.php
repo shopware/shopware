@@ -166,7 +166,7 @@ class ConstraintBuilder
      *
      * @return ConstraintBuilder
      */
-    public function addConstraint(Constraint $constraint): ConstraintBuilder
+    public function addConstraint(Constraint $constraint): self
     {
         $this->constraints[] = $constraint;
 

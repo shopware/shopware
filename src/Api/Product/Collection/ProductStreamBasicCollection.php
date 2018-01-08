@@ -30,7 +30,7 @@ class ProductStreamBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByListingSortingUuid(string $uuid): ProductStreamBasicCollection
+    public function filterByListingSortingUuid(string $uuid): self
     {
         return $this->filter(function (ProductStreamBasicStruct $productStream) use ($uuid) {
             return $productStream->getListingSortingUuid() === $uuid;

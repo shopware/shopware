@@ -66,7 +66,7 @@ class ViewProduct extends ProductBasicStruct implements ViewLineItemInterface
     public static function createFromProducts(
         ProductBasicStruct $simpleProduct,
         CalculatedProduct $calculatedProduct
-    ): ViewProduct {
+    ): self {
         $product = new self();
 
         foreach ($simpleProduct as $key => $value) {

@@ -31,7 +31,7 @@ class CustomerBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByGroupUuid(string $uuid): CustomerBasicCollection
+    public function filterByGroupUuid(string $uuid): self
     {
         return $this->filter(function (CustomerBasicStruct $customer) use ($uuid) {
             return $customer->getGroupUuid() === $uuid;
@@ -45,7 +45,7 @@ class CustomerBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByDefaultPaymentMethodUuid(string $uuid): CustomerBasicCollection
+    public function filterByDefaultPaymentMethodUuid(string $uuid): self
     {
         return $this->filter(function (CustomerBasicStruct $customer) use ($uuid) {
             return $customer->getDefaultPaymentMethodUuid() === $uuid;
@@ -59,7 +59,7 @@ class CustomerBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByShopUuid(string $uuid): CustomerBasicCollection
+    public function filterByShopUuid(string $uuid): self
     {
         return $this->filter(function (CustomerBasicStruct $customer) use ($uuid) {
             return $customer->getShopUuid() === $uuid;
@@ -73,7 +73,7 @@ class CustomerBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByMainShopUuid(string $uuid): CustomerBasicCollection
+    public function filterByMainShopUuid(string $uuid): self
     {
         return $this->filter(function (CustomerBasicStruct $customer) use ($uuid) {
             return $customer->getMainShopUuid() === $uuid;
@@ -87,7 +87,7 @@ class CustomerBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByLastPaymentMethodUuid(string $uuid): CustomerBasicCollection
+    public function filterByLastPaymentMethodUuid(string $uuid): self
     {
         return $this->filter(function (CustomerBasicStruct $customer) use ($uuid) {
             return $customer->getLastPaymentMethodUuid() === $uuid;
@@ -101,7 +101,7 @@ class CustomerBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByDefaultBillingAddressUuid(string $uuid): CustomerBasicCollection
+    public function filterByDefaultBillingAddressUuid(string $uuid): self
     {
         return $this->filter(function (CustomerBasicStruct $customer) use ($uuid) {
             return $customer->getDefaultBillingAddressUuid() === $uuid;
@@ -115,7 +115,7 @@ class CustomerBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByDefaultShippingAddressUuid(string $uuid): CustomerBasicCollection
+    public function filterByDefaultShippingAddressUuid(string $uuid): self
     {
         return $this->filter(function (CustomerBasicStruct $customer) use ($uuid) {
             return $customer->getDefaultShippingAddressUuid() === $uuid;

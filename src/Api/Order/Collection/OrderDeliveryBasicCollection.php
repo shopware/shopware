@@ -30,7 +30,7 @@ class OrderDeliveryBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByOrderUuid(string $uuid): OrderDeliveryBasicCollection
+    public function filterByOrderUuid(string $uuid): self
     {
         return $this->filter(function (OrderDeliveryBasicStruct $orderDelivery) use ($uuid) {
             return $orderDelivery->getOrderUuid() === $uuid;
@@ -44,7 +44,7 @@ class OrderDeliveryBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByShippingAddressUuid(string $uuid): OrderDeliveryBasicCollection
+    public function filterByShippingAddressUuid(string $uuid): self
     {
         return $this->filter(function (OrderDeliveryBasicStruct $orderDelivery) use ($uuid) {
             return $orderDelivery->getShippingAddressUuid() === $uuid;
@@ -58,7 +58,7 @@ class OrderDeliveryBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByOrderStateUuid(string $uuid): OrderDeliveryBasicCollection
+    public function filterByOrderStateUuid(string $uuid): self
     {
         return $this->filter(function (OrderDeliveryBasicStruct $orderDelivery) use ($uuid) {
             return $orderDelivery->getOrderStateUuid() === $uuid;
@@ -72,7 +72,7 @@ class OrderDeliveryBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByShippingMethodUuid(string $uuid): OrderDeliveryBasicCollection
+    public function filterByShippingMethodUuid(string $uuid): self
     {
         return $this->filter(function (OrderDeliveryBasicStruct $orderDelivery) use ($uuid) {
             return $orderDelivery->getShippingMethodUuid() === $uuid;

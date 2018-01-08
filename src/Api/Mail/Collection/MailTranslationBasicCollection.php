@@ -29,7 +29,7 @@ class MailTranslationBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByMailUuid(string $uuid): MailTranslationBasicCollection
+    public function filterByMailUuid(string $uuid): self
     {
         return $this->filter(function (MailTranslationBasicStruct $mailTranslation) use ($uuid) {
             return $mailTranslation->getMailUuid() === $uuid;
@@ -43,7 +43,7 @@ class MailTranslationBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): MailTranslationBasicCollection
+    public function filterByLanguageUuid(string $uuid): self
     {
         return $this->filter(function (MailTranslationBasicStruct $mailTranslation) use ($uuid) {
             return $mailTranslation->getLanguageUuid() === $uuid;

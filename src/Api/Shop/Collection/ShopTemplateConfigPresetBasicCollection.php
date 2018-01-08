@@ -29,7 +29,7 @@ class ShopTemplateConfigPresetBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByShopTemplateUuid(string $uuid): ShopTemplateConfigPresetBasicCollection
+    public function filterByShopTemplateUuid(string $uuid): self
     {
         return $this->filter(function (ShopTemplateConfigPresetBasicStruct $shopTemplateConfigPreset) use ($uuid) {
             return $shopTemplateConfigPreset->getShopTemplateUuid() === $uuid;

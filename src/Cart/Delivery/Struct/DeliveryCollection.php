@@ -49,7 +49,7 @@ class DeliveryCollection extends Collection
     /**
      * Sorts the delivery collection by earliest delivery date
      */
-    public function sortDeliveries(): DeliveryCollection
+    public function sortDeliveries(): self
     {
         $this->sort(function (Delivery $a, Delivery $b) {
             if ($a->getLocation() !== $b->getLocation()) {

@@ -95,7 +95,7 @@ class Price extends Struct
         return $this->quantity;
     }
 
-    public function add(Price $price): void
+    public function add(self $price): void
     {
         $this->unitPrice += $price->getUnitPrice();
         $this->totalPrice += $price->getTotalPrice();
@@ -107,7 +107,7 @@ class Price extends Struct
         );
     }
 
-    public function sub(Price $price): void
+    public function sub(self $price): void
     {
         $this->unitPrice -= $price->getUnitPrice();
         $this->totalPrice -= $price->getTotalPrice();

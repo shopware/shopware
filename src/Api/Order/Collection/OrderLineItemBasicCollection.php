@@ -29,7 +29,7 @@ class OrderLineItemBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByOrderUuid(string $uuid): OrderLineItemBasicCollection
+    public function filterByOrderUuid(string $uuid): self
     {
         return $this->filter(function (OrderLineItemBasicStruct $orderLineItem) use ($uuid) {
             return $orderLineItem->getOrderUuid() === $uuid;

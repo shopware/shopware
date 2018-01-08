@@ -81,7 +81,7 @@ class CalculatedTaxCollection extends Collection
         return array_sum($amounts);
     }
 
-    public function merge(CalculatedTaxCollection $taxCollection): CalculatedTaxCollection
+    public function merge(self $taxCollection): self
     {
         $new = new self($this->elements);
 

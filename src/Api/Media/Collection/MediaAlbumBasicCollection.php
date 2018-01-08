@@ -29,7 +29,7 @@ class MediaAlbumBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByParentUuid(string $uuid): MediaAlbumBasicCollection
+    public function filterByParentUuid(string $uuid): self
     {
         return $this->filter(function (MediaAlbumBasicStruct $mediaAlbum) use ($uuid) {
             return $mediaAlbum->getParentUuid() === $uuid;

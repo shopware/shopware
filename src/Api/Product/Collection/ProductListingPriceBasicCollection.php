@@ -30,7 +30,7 @@ class ProductListingPriceBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByProductUuid(string $uuid): ProductListingPriceBasicCollection
+    public function filterByProductUuid(string $uuid): self
     {
         return $this->filter(function (ProductListingPriceBasicStruct $productListingPrice) use ($uuid) {
             return $productListingPrice->getProductUuid() === $uuid;
@@ -44,7 +44,7 @@ class ProductListingPriceBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByCustomerGroupUuid(string $uuid): ProductListingPriceBasicCollection
+    public function filterByCustomerGroupUuid(string $uuid): self
     {
         return $this->filter(function (ProductListingPriceBasicStruct $productListingPrice) use ($uuid) {
             return $productListingPrice->getCustomerGroupUuid() === $uuid;

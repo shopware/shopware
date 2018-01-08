@@ -5,8 +5,8 @@ namespace Shopware\Api\Entity\Search;
 use Shopware\Api\Entity\Search\Aggregation\Aggregation;
 use Shopware\Api\Entity\Search\Query\NestedQuery;
 use Shopware\Api\Entity\Search\Query\Query;
-use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 use Shopware\Api\Entity\Search\Query\ScoreQuery;
+use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 use Shopware\Framework\Struct\Struct;
 
 class Criteria extends Struct
@@ -82,35 +82,35 @@ class Criteria extends Struct
         return new NestedQuery(array_merge($this->filters, $this->postFilters));
     }
 
-    public function addFilter(Query $query): Criteria
+    public function addFilter(Query $query): self
     {
         $this->filters[] = $query;
 
         return $this;
     }
 
-    public function addSorting(FieldSorting $sorting): Criteria
+    public function addSorting(FieldSorting $sorting): self
     {
         $this->sortings[] = $sorting;
 
         return $this;
     }
 
-    public function addAggregation(Aggregation $aggregation): Criteria
+    public function addAggregation(Aggregation $aggregation): self
     {
         $this->aggregations[] = $aggregation;
 
         return $this;
     }
 
-    public function addPostFilter(Query $query): Criteria
+    public function addPostFilter(Query $query): self
     {
         $this->postFilters[] = $query;
 
         return $this;
     }
 
-    public function addQuery(ScoreQuery $query): Criteria
+    public function addQuery(ScoreQuery $query): self
     {
         $this->queries[] = $query;
 

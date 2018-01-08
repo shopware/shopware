@@ -29,7 +29,7 @@ class ShippingMethodTranslationBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByShippingMethodUuid(string $uuid): ShippingMethodTranslationBasicCollection
+    public function filterByShippingMethodUuid(string $uuid): self
     {
         return $this->filter(function (ShippingMethodTranslationBasicStruct $shippingMethodTranslation) use ($uuid) {
             return $shippingMethodTranslation->getShippingMethodUuid() === $uuid;
@@ -43,7 +43,7 @@ class ShippingMethodTranslationBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): ShippingMethodTranslationBasicCollection
+    public function filterByLanguageUuid(string $uuid): self
     {
         return $this->filter(function (ShippingMethodTranslationBasicStruct $shippingMethodTranslation) use ($uuid) {
             return $shippingMethodTranslation->getLanguageUuid() === $uuid;

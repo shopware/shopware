@@ -31,7 +31,7 @@ class ProductBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByTaxUuid(string $uuid): ProductBasicCollection
+    public function filterByTaxUuid(string $uuid): self
     {
         return $this->filter(function (ProductBasicStruct $product) use ($uuid) {
             return $product->getTaxUuid() === $uuid;
@@ -45,7 +45,7 @@ class ProductBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByManufacturerUuid(string $uuid): ProductBasicCollection
+    public function filterByManufacturerUuid(string $uuid): self
     {
         return $this->filter(function (ProductBasicStruct $product) use ($uuid) {
             return $product->getManufacturerUuid() === $uuid;
@@ -59,7 +59,7 @@ class ProductBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByUnitUuid(string $uuid): ProductBasicCollection
+    public function filterByUnitUuid(string $uuid): self
     {
         return $this->filter(function (ProductBasicStruct $product) use ($uuid) {
             return $product->getUnitUuid() === $uuid;
@@ -73,7 +73,7 @@ class ProductBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByContainerUuid(string $uuid): ProductBasicCollection
+    public function filterByContainerUuid(string $uuid): self
     {
         return $this->filter(function (ProductBasicStruct $product) use ($uuid) {
             return $product->getContainerUuid() === $uuid;
@@ -87,7 +87,7 @@ class ProductBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByPriceGroupUuid(string $uuid): ProductBasicCollection
+    public function filterByPriceGroupUuid(string $uuid): self
     {
         return $this->filter(function (ProductBasicStruct $product) use ($uuid) {
             return $product->getPriceGroupUuid() === $uuid;

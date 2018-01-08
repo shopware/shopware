@@ -69,7 +69,7 @@ class LineItemCollection extends Collection
         return null;
     }
 
-    public function filterType(string $type): LineItemCollection
+    public function filterType(string $type): self
     {
         return $this->filter(
             function (LineItemInterface $lineItem) use ($type) {

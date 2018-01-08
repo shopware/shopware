@@ -29,7 +29,7 @@ class PaymentMethodBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByPluginUuid(string $uuid): PaymentMethodBasicCollection
+    public function filterByPluginUuid(string $uuid): self
     {
         return $this->filter(function (PaymentMethodBasicStruct $paymentMethod) use ($uuid) {
             return $paymentMethod->getPluginUuid() === $uuid;

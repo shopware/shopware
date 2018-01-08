@@ -29,7 +29,7 @@ class TaxAreaRuleTranslationBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByTaxAreaRuleUuid(string $uuid): TaxAreaRuleTranslationBasicCollection
+    public function filterByTaxAreaRuleUuid(string $uuid): self
     {
         return $this->filter(function (TaxAreaRuleTranslationBasicStruct $taxAreaRuleTranslation) use ($uuid) {
             return $taxAreaRuleTranslation->getTaxAreaRuleUuid() === $uuid;
@@ -43,7 +43,7 @@ class TaxAreaRuleTranslationBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): TaxAreaRuleTranslationBasicCollection
+    public function filterByLanguageUuid(string $uuid): self
     {
         return $this->filter(function (TaxAreaRuleTranslationBasicStruct $taxAreaRuleTranslation) use ($uuid) {
             return $taxAreaRuleTranslation->getLanguageUuid() === $uuid;

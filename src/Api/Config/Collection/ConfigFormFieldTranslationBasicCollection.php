@@ -29,7 +29,7 @@ class ConfigFormFieldTranslationBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByConfigFormFieldUuid(string $uuid): ConfigFormFieldTranslationBasicCollection
+    public function filterByConfigFormFieldUuid(string $uuid): self
     {
         return $this->filter(function (ConfigFormFieldTranslationBasicStruct $configFormFieldTranslation) use ($uuid) {
             return $configFormFieldTranslation->getConfigFormFieldUuid() === $uuid;
@@ -43,7 +43,7 @@ class ConfigFormFieldTranslationBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByLocaleUuid(string $uuid): ConfigFormFieldTranslationBasicCollection
+    public function filterByLocaleUuid(string $uuid): self
     {
         return $this->filter(function (ConfigFormFieldTranslationBasicStruct $configFormFieldTranslation) use ($uuid) {
             return $configFormFieldTranslation->getLocaleUuid() === $uuid;

@@ -28,7 +28,7 @@ namespace Shopware\Filesystem\Exception;
 
 class AdapterFactoryNotFoundException extends \Exception
 {
-    public static function fromAdapterType(string $type): AdapterFactoryNotFoundException
+    public static function fromAdapterType(string $type): self
     {
         return new self(sprintf('Adapter factory for type "%s" was not found.', $type));
     }

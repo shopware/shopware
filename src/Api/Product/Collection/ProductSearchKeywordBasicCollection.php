@@ -29,7 +29,7 @@ class ProductSearchKeywordBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByShopUuid(string $uuid): ProductSearchKeywordBasicCollection
+    public function filterByShopUuid(string $uuid): self
     {
         return $this->filter(function (ProductSearchKeywordBasicStruct $productSearchKeyword) use ($uuid) {
             return $productSearchKeyword->getShopUuid() === $uuid;
@@ -43,7 +43,7 @@ class ProductSearchKeywordBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByProductUuid(string $uuid): ProductSearchKeywordBasicCollection
+    public function filterByProductUuid(string $uuid): self
     {
         return $this->filter(function (ProductSearchKeywordBasicStruct $productSearchKeyword) use ($uuid) {
             return $productSearchKeyword->getProductUuid() === $uuid;

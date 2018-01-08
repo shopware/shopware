@@ -40,7 +40,7 @@ class FieldCollection extends Collection
         return $this->elements[$propertyName] ?? null;
     }
 
-    public function getBasicProperties(): FieldCollection
+    public function getBasicProperties(): self
     {
         return $this->filter(
             function (Field $field) {
@@ -53,7 +53,7 @@ class FieldCollection extends Collection
         );
     }
 
-    public function getWritableFields(): FieldCollection
+    public function getWritableFields(): self
     {
         return $this->filter(function (Field $field) {
             return !$field->is(ReadOnly::class);
@@ -74,7 +74,7 @@ class FieldCollection extends Collection
         return $this->get($this->mapping[$storageName]);
     }
 
-    public function filterByFlag(string $flagClass): FieldCollection
+    public function filterByFlag(string $flagClass): self
     {
         return $this->filter(function (Field $field) use ($flagClass) {
             return $field->is($flagClass);

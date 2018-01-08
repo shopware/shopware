@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
+use Shopware\Api\Product\Definition\ProductDefinition;
+use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\DbalIndexing\Common\ContextVariationService;
 use Shopware\DbalIndexing\Common\IndexTableOperator;
@@ -15,8 +17,6 @@ use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\DbalIndexing\Indexer\IndexerInterface;
 use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
-use Shopware\Api\Product\Definition\ProductDefinition;
-use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Product\Struct\ProductSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

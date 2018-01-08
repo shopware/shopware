@@ -4,9 +4,9 @@ namespace Shopware\DbalIndexing\Common;
 
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Sorting\FieldSorting;
-use Shopware\Context\Struct\TranslationContext;
 use Shopware\Api\Shop\Repository\ShopRepository;
 use Shopware\Api\Shop\Struct\ShopBasicStruct;
+use Shopware\Context\Struct\TranslationContext;
 
 class ContextVariationService
 {

@@ -6,6 +6,10 @@ use Doctrine\DBAL\Connection;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
+use Shopware\Api\Product\Definition\ProductCategoryDefinition;
+use Shopware\Api\Product\Repository\ProductRepository;
+use Shopware\Api\Shop\Repository\ShopRepository;
+use Shopware\Api\Shop\Struct\ShopBasicStruct;
 use Shopware\Category\Extension\CategoryPathBuilder;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\DbalIndexing\Common\RepositoryIterator;
@@ -13,10 +17,6 @@ use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\DbalIndexing\Indexer\IndexerInterface;
-use Shopware\Api\Product\Definition\ProductCategoryDefinition;
-use Shopware\Api\Product\Repository\ProductRepository;
-use Shopware\Api\Shop\Repository\ShopRepository;
-use Shopware\Api\Shop\Struct\ShopBasicStruct;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductCategoryIndexer implements IndexerInterface

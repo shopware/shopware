@@ -30,7 +30,7 @@ class ProductMediaBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByProductUuid(string $uuid): ProductMediaBasicCollection
+    public function filterByProductUuid(string $uuid): self
     {
         return $this->filter(function (ProductMediaBasicStruct $productMedia) use ($uuid) {
             return $productMedia->getProductUuid() === $uuid;
@@ -44,7 +44,7 @@ class ProductMediaBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByMediaUuid(string $uuid): ProductMediaBasicCollection
+    public function filterByMediaUuid(string $uuid): self
     {
         return $this->filter(function (ProductMediaBasicStruct $productMedia) use ($uuid) {
             return $productMedia->getMediaUuid() === $uuid;
@@ -58,7 +58,7 @@ class ProductMediaBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByParentUuid(string $uuid): ProductMediaBasicCollection
+    public function filterByParentUuid(string $uuid): self
     {
         return $this->filter(function (ProductMediaBasicStruct $productMedia) use ($uuid) {
             return $productMedia->getParentUuid() === $uuid;

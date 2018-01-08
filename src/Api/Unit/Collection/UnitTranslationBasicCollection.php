@@ -29,7 +29,7 @@ class UnitTranslationBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByUnitUuid(string $uuid): UnitTranslationBasicCollection
+    public function filterByUnitUuid(string $uuid): self
     {
         return $this->filter(function (UnitTranslationBasicStruct $unitTranslation) use ($uuid) {
             return $unitTranslation->getUnitUuid() === $uuid;
@@ -43,7 +43,7 @@ class UnitTranslationBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): UnitTranslationBasicCollection
+    public function filterByLanguageUuid(string $uuid): self
     {
         return $this->filter(function (UnitTranslationBasicStruct $unitTranslation) use ($uuid) {
             return $unitTranslation->getLanguageUuid() === $uuid;

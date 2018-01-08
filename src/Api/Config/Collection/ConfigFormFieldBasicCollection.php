@@ -29,7 +29,7 @@ class ConfigFormFieldBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByConfigFormUuid(string $uuid): ConfigFormFieldBasicCollection
+    public function filterByConfigFormUuid(string $uuid): self
     {
         return $this->filter(function (ConfigFormFieldBasicStruct $configFormField) use ($uuid) {
             return $configFormField->getConfigFormUuid() === $uuid;

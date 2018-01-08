@@ -29,7 +29,7 @@ class UserBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByLocaleUuid(string $uuid): UserBasicCollection
+    public function filterByLocaleUuid(string $uuid): self
     {
         return $this->filter(function (UserBasicStruct $user) use ($uuid) {
             return $user->getLocaleUuid() === $uuid;
@@ -43,7 +43,7 @@ class UserBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByRoleUuid(string $uuid): UserBasicCollection
+    public function filterByRoleUuid(string $uuid): self
     {
         return $this->filter(function (UserBasicStruct $user) use ($uuid) {
             return $user->getRoleUuid() === $uuid;

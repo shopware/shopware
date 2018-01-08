@@ -29,7 +29,7 @@ class ConfigFormFieldValueBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByShopUuid(string $uuid): ConfigFormFieldValueBasicCollection
+    public function filterByShopUuid(string $uuid): self
     {
         return $this->filter(function (ConfigFormFieldValueBasicStruct $configFormFieldValue) use ($uuid) {
             return $configFormFieldValue->getShopUuid() === $uuid;
@@ -43,7 +43,7 @@ class ConfigFormFieldValueBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByConfigFormFieldUuid(string $uuid): ConfigFormFieldValueBasicCollection
+    public function filterByConfigFormFieldUuid(string $uuid): self
     {
         return $this->filter(function (ConfigFormFieldValueBasicStruct $configFormFieldValue) use ($uuid) {
             return $configFormFieldValue->getConfigFormFieldUuid() === $uuid;

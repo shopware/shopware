@@ -43,7 +43,7 @@ class EntityCollection extends Collection
         );
     }
 
-    public function merge(EntityCollection $collection)
+    public function merge(self $collection)
     {
         /** @var Entity $entity */
         foreach ($collection as $entity) {

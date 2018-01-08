@@ -82,7 +82,7 @@ class CalculatedLineItemCollection extends Collection
         );
     }
 
-    public function filterGoods(): CalculatedLineItemCollection
+    public function filterGoods(): self
     {
         return $this->filterInstance(GoodsInterface::class);
     }

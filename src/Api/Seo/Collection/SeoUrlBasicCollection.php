@@ -29,7 +29,7 @@ class SeoUrlBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByShopUuid(string $uuid): SeoUrlBasicCollection
+    public function filterByShopUuid(string $uuid): self
     {
         return $this->filter(function (SeoUrlBasicStruct $seoUrl) use ($uuid) {
             return $seoUrl->getShopUuid() === $uuid;

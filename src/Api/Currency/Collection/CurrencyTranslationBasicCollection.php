@@ -29,7 +29,7 @@ class CurrencyTranslationBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByCurrencyUuid(string $uuid): CurrencyTranslationBasicCollection
+    public function filterByCurrencyUuid(string $uuid): self
     {
         return $this->filter(function (CurrencyTranslationBasicStruct $currencyTranslation) use ($uuid) {
             return $currencyTranslation->getCurrencyUuid() === $uuid;
@@ -43,7 +43,7 @@ class CurrencyTranslationBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): CurrencyTranslationBasicCollection
+    public function filterByLanguageUuid(string $uuid): self
     {
         return $this->filter(function (CurrencyTranslationBasicStruct $currencyTranslation) use ($uuid) {
             return $currencyTranslation->getLanguageUuid() === $uuid;

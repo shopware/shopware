@@ -29,7 +29,7 @@ class ShopTemplateBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByPluginUuid(string $uuid): ShopTemplateBasicCollection
+    public function filterByPluginUuid(string $uuid): self
     {
         return $this->filter(function (ShopTemplateBasicStruct $shopTemplate) use ($uuid) {
             return $shopTemplate->getPluginUuid() === $uuid;
@@ -43,7 +43,7 @@ class ShopTemplateBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByParentUuid(string $uuid): ShopTemplateBasicCollection
+    public function filterByParentUuid(string $uuid): self
     {
         return $this->filter(function (ShopTemplateBasicStruct $shopTemplate) use ($uuid) {
             return $shopTemplate->getParentUuid() === $uuid;

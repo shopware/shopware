@@ -65,7 +65,7 @@ class TaxRuleCollection extends Collection
         return null;
     }
 
-    public function merge(TaxRuleCollection $rules): TaxRuleCollection
+    public function merge(self $rules): self
     {
         $new = new self($this->elements);
 

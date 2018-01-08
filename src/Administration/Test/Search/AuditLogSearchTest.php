@@ -6,11 +6,11 @@ use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
 use Ramsey\Uuid\Uuid;
 use Shopware\Administration\Search\AuditLogSearch;
-use Shopware\Context\Struct\TranslationContext;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
 use Shopware\Api\User\Repository\UserRepository;
+use Shopware\Context\Struct\TranslationContext;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class AuditLogSearchTest extends KernelTestCase

@@ -60,7 +60,7 @@ class CartContainer extends Struct
         $this->errors = $errors;
     }
 
-    public static function createNew(string $name): CartContainer
+    public static function createNew(string $name): self
     {
         return new self($name, Uuid::uuid4()->toString(), new LineItemCollection(), new ErrorCollection());
     }

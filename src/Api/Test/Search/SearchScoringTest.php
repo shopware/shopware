@@ -8,10 +8,10 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Api\Entity\Search\Term\SearchPattern;
 use Shopware\Api\Entity\Search\Term\SearchTerm;
-use Shopware\Context\Struct\TranslationContext;
-use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Repository\ProductRepository;
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Framework\Struct\ArrayStruct;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class SearchScoringTest extends KernelTestCase

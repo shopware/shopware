@@ -29,7 +29,7 @@ class OrderDeliveryPositionBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByOrderDeliveryUuid(string $uuid): OrderDeliveryPositionBasicCollection
+    public function filterByOrderDeliveryUuid(string $uuid): self
     {
         return $this->filter(function (OrderDeliveryPositionBasicStruct $orderDeliveryPosition) use ($uuid) {
             return $orderDeliveryPosition->getOrderDeliveryUuid() === $uuid;
@@ -43,7 +43,7 @@ class OrderDeliveryPositionBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByOrderLineItemUuid(string $uuid): OrderDeliveryPositionBasicCollection
+    public function filterByOrderLineItemUuid(string $uuid): self
     {
         return $this->filter(function (OrderDeliveryPositionBasicStruct $orderDeliveryPosition) use ($uuid) {
             return $orderDeliveryPosition->getOrderLineItemUuid() === $uuid;

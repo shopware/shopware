@@ -33,7 +33,7 @@ class OrderBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByCustomerUuid(string $uuid): OrderBasicCollection
+    public function filterByCustomerUuid(string $uuid): self
     {
         return $this->filter(function (OrderBasicStruct $order) use ($uuid) {
             return $order->getCustomerUuid() === $uuid;
@@ -47,7 +47,7 @@ class OrderBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByStateUuid(string $uuid): OrderBasicCollection
+    public function filterByStateUuid(string $uuid): self
     {
         return $this->filter(function (OrderBasicStruct $order) use ($uuid) {
             return $order->getStateUuid() === $uuid;
@@ -61,7 +61,7 @@ class OrderBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByPaymentMethodUuid(string $uuid): OrderBasicCollection
+    public function filterByPaymentMethodUuid(string $uuid): self
     {
         return $this->filter(function (OrderBasicStruct $order) use ($uuid) {
             return $order->getPaymentMethodUuid() === $uuid;
@@ -75,7 +75,7 @@ class OrderBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByCurrencyUuid(string $uuid): OrderBasicCollection
+    public function filterByCurrencyUuid(string $uuid): self
     {
         return $this->filter(function (OrderBasicStruct $order) use ($uuid) {
             return $order->getCurrencyUuid() === $uuid;
@@ -89,7 +89,7 @@ class OrderBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByShopUuid(string $uuid): OrderBasicCollection
+    public function filterByShopUuid(string $uuid): self
     {
         return $this->filter(function (OrderBasicStruct $order) use ($uuid) {
             return $order->getShopUuid() === $uuid;
@@ -103,7 +103,7 @@ class OrderBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByBillingAddressUuid(string $uuid): OrderBasicCollection
+    public function filterByBillingAddressUuid(string $uuid): self
     {
         return $this->filter(function (OrderBasicStruct $order) use ($uuid) {
             return $order->getBillingAddressUuid() === $uuid;

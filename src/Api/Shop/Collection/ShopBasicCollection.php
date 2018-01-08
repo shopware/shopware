@@ -31,7 +31,7 @@ class ShopBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByParentUuid(string $uuid): ShopBasicCollection
+    public function filterByParentUuid(string $uuid): self
     {
         return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
             return $shop->getParentUuid() === $uuid;
@@ -45,7 +45,7 @@ class ShopBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByTemplateUuid(string $uuid): ShopBasicCollection
+    public function filterByTemplateUuid(string $uuid): self
     {
         return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
             return $shop->getTemplateUuid() === $uuid;
@@ -59,7 +59,7 @@ class ShopBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByDocumentTemplateUuid(string $uuid): ShopBasicCollection
+    public function filterByDocumentTemplateUuid(string $uuid): self
     {
         return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
             return $shop->getDocumentTemplateUuid() === $uuid;
@@ -73,7 +73,7 @@ class ShopBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByCategoryUuid(string $uuid): ShopBasicCollection
+    public function filterByCategoryUuid(string $uuid): self
     {
         return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
             return $shop->getCategoryUuid() === $uuid;
@@ -87,7 +87,7 @@ class ShopBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByLocaleUuid(string $uuid): ShopBasicCollection
+    public function filterByLocaleUuid(string $uuid): self
     {
         return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
             return $shop->getLocaleUuid() === $uuid;
@@ -101,7 +101,7 @@ class ShopBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByCurrencyUuid(string $uuid): ShopBasicCollection
+    public function filterByCurrencyUuid(string $uuid): self
     {
         return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
             return $shop->getCurrencyUuid() === $uuid;
@@ -115,7 +115,7 @@ class ShopBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByCustomerGroupUuid(string $uuid): ShopBasicCollection
+    public function filterByCustomerGroupUuid(string $uuid): self
     {
         return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
             return $shop->getCustomerGroupUuid() === $uuid;
@@ -129,7 +129,7 @@ class ShopBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByFallbackTranslationUuid(string $uuid): ShopBasicCollection
+    public function filterByFallbackTranslationUuid(string $uuid): self
     {
         return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
             return $shop->getFallbackTranslationUuid() === $uuid;
@@ -143,7 +143,7 @@ class ShopBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByPaymentMethodUuid(string $uuid): ShopBasicCollection
+    public function filterByPaymentMethodUuid(string $uuid): self
     {
         return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
             return $shop->getPaymentMethodUuid() === $uuid;
@@ -157,7 +157,7 @@ class ShopBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByShippingMethodUuid(string $uuid): ShopBasicCollection
+    public function filterByShippingMethodUuid(string $uuid): self
     {
         return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
             return $shop->getShippingMethodUuid() === $uuid;
@@ -171,7 +171,7 @@ class ShopBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByCountryUuid(string $uuid): ShopBasicCollection
+    public function filterByCountryUuid(string $uuid): self
     {
         return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
             return $shop->getCountryUuid() === $uuid;
@@ -196,7 +196,7 @@ class ShopBasicCollection extends EntityCollection
         );
     }
 
-    public function sortByPosition(): ShopBasicCollection
+    public function sortByPosition(): self
     {
         $this->sort(function (ShopBasicStruct $a, ShopBasicStruct $b) {
             return $a->getPosition() <=> $b->getPosition();

@@ -196,7 +196,7 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
         unset($this->elements[$key]);
     }
 
-    protected function doMerge(Collection $collection)
+    protected function doMerge(self $collection)
     {
         return new static(array_merge($this->elements, $collection->getElements()));
     }

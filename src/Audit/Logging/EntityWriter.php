@@ -3,18 +3,17 @@
 namespace Shopware\Audit\Logging;
 
 use Ramsey\Uuid\Uuid;
+use Shopware\Api\Audit\Definition\AuditLogDefinition;
 use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\WriteContext;
-use Shopware\Api\Audit\Definition\AuditLogDefinition;
+use Shopware\Api\User\Definition\UserDefinition;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Rest\ApiContext;
-use Shopware\Api\User\Definition\UserDefinition;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 

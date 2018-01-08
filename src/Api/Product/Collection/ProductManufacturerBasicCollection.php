@@ -29,7 +29,7 @@ class ProductManufacturerBasicCollection extends EntityCollection
         });
     }
 
-    public function filterByMediaUuid(string $uuid): ProductManufacturerBasicCollection
+    public function filterByMediaUuid(string $uuid): self
     {
         return $this->filter(function (ProductManufacturerBasicStruct $productManufacturer) use ($uuid) {
             return $productManufacturer->getMediaUuid() === $uuid;

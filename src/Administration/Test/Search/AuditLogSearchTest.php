@@ -63,12 +63,12 @@ class AuditLogSearchTest extends KernelTestCase
         $repo = $this->container->get(UserRepository::class);
         $repo->upsert([
             [
-                'uuid' => 'user-1',
-                'localeUuid' => 'SWAG-LOCALE-UUID-1',
+                'id' => 'user-1',
+                'localeId' => 'SWAG-LOCALE-ID-1',
                 'name' => 'test-user',
                 'username' => 'test-user',
                 'email' => 'test@example.com',
-                'roleUuid' => 'test',
+                'roleId' => 'test',
                 'password' => 'shopware',
             ],
         ], $context);
@@ -87,10 +87,10 @@ class AuditLogSearchTest extends KernelTestCase
         $context = TranslationContext::createDefaultContext();
 
         $this->productRepository->upsert([
-            ['uuid' => 'product-1', 'name' => 'test product 1'],
-            ['uuid' => 'product-2', 'name' => 'test product 2'],
-            ['uuid' => 'product-3', 'name' => 'notmatch'],
-            ['uuid' => 'product-4', 'name' => 'notmatch'],
+            ['id' => 'product-1', 'name' => 'test product 1'],
+            ['id' => 'product-2', 'name' => 'test product 2'],
+            ['id' => 'product-3', 'name' => 'notmatch'],
+            ['id' => 'product-4', 'name' => 'notmatch'],
         ], $context);
 
         $result = $this->search->search('test product', 1, 20, $context, 'user-1');
@@ -107,8 +107,8 @@ class AuditLogSearchTest extends KernelTestCase
         $second = $result['data'][1];
         self::assertInstanceOf(ProductBasicStruct::class, $second);
 
-        self::assertSame($first->getUuid(), 'product-1');
-        self::assertSame($second->getUuid(), 'product-2');
+        self::assertSame($first->getId(), 'product-1');
+        self::assertSame($second->getId(), 'product-2');
 
         $firstScore = $first->getExtension('search')->get('score');
         $secondScore = $second->getExtension('search')->get('score');
@@ -117,8 +117,8 @@ class AuditLogSearchTest extends KernelTestCase
 
         $logs = [
             [
-                'uuid' => Uuid::uuid4()->toString(),
-                'user_uuid' => 'user-1',
+                'id' => Uuid::uuid4()->toString(),
+                'user_id' => 'user-1',
                 'entity' => ProductDefinition::class,
                 'foreign_key' => 'product-2',
                 'action' => 'insert',
@@ -126,8 +126,8 @@ class AuditLogSearchTest extends KernelTestCase
                 'created_at' => '2017-01-01',
             ],
             [
-                'uuid' => Uuid::uuid4()->toString(),
-                'user_uuid' => 'user-1',
+                'id' => Uuid::uuid4()->toString(),
+                'user_id' => 'user-1',
                 'entity' => ProductDefinition::class,
                 'foreign_key' => 'product-2',
                 'action' => 'update',
@@ -135,8 +135,8 @@ class AuditLogSearchTest extends KernelTestCase
                 'created_at' => '2017-01-02',
             ],
             [
-                'uuid' => Uuid::uuid4()->toString(),
-                'user_uuid' => 'user-1',
+                'id' => Uuid::uuid4()->toString(),
+                'user_id' => 'user-1',
                 'entity' => ProductDefinition::class,
                 'foreign_key' => 'product-2',
                 'action' => 'upsert',
@@ -164,8 +164,8 @@ class AuditLogSearchTest extends KernelTestCase
         self::assertInstanceOf(ProductBasicStruct::class, $second);
 
         // `product-2` should now be boosted
-        self::assertSame($first->getUuid(), 'product-2');
-        self::assertSame($second->getUuid(), 'product-1');
+        self::assertSame($first->getId(), 'product-2');
+        self::assertSame($second->getId(), 'product-1');
 
         $firstScore = $first->getExtension('search')->get('score');
         $secondScore = $second->getExtension('search')->get('score');

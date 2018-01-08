@@ -20,16 +20,16 @@ class OrderDeliveryDetailCollection extends OrderDeliveryBasicCollection
         );
     }
 
-    public function getPositionUuids(): array
+    public function getPositionIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getPositions()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getPositions()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getPositions(): OrderDeliveryPositionBasicCollection

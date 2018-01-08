@@ -75,7 +75,7 @@ class OrderCountRuleCollector implements CollectorInterface
 
         $count = $this->connection->fetchColumn(
             'SELECT COUNT(id) FROM s_order WHERE status != -1 AND status != 4 AND userID = :userId',
-            [':userId' => $customer->getUuid()]
+            [':userId' => $customer->getId()]
         );
 
         $dataCollection->add(

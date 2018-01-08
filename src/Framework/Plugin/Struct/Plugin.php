@@ -10,7 +10,7 @@ class Plugin extends Struct
     /**
      * @var string
      */
-    protected $uuid;
+    protected $id;
 
     /**
      * @var string
@@ -130,17 +130,17 @@ class Plugin extends Struct
     /**
      * @return string
      */
-    public function getUuid(): string
+    public function getId(): string
     {
-        return $this->uuid;
+        return $this->id;
     }
 
     /**
-     * @param string $uuid
+     * @param string $id
      */
-    public function setUuid(string $uuid)
+    public function setId(string $id)
     {
-        $this->uuid = $uuid;
+        $this->id = $id;
     }
 
     /**

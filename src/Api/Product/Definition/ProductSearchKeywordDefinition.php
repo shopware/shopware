@@ -6,9 +6,9 @@ use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\FloatField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\StringField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -49,13 +49,13 @@ class ProductSearchKeywordDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('keyword', 'keyword'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('shop_uuid', 'shopUuid', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('product_uuid', 'productUuid', ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('shop_id', 'shopId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FloatField('ranking', 'ranking'))->setFlags(new Required()),
-            new ManyToOneAssociationField('shop', 'shop_uuid', ShopDefinition::class, false),
-            new ManyToOneAssociationField('product', 'product_uuid', ProductDefinition::class, false),
+            new ManyToOneAssociationField('shop', 'shop_id', ShopDefinition::class, false),
+            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

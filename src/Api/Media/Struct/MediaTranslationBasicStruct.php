@@ -9,12 +9,12 @@ class MediaTranslationBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $mediaUuid;
+    protected $mediaId;
 
     /**
      * @var string
      */
-    protected $languageUuid;
+    protected $languageId;
 
     /**
      * @var string
@@ -26,24 +26,24 @@ class MediaTranslationBasicStruct extends Entity
      */
     protected $description;
 
-    public function getMediaUuid(): string
+    public function getMediaId(): string
     {
-        return $this->mediaUuid;
+        return $this->mediaId;
     }
 
-    public function setMediaUuid(string $mediaUuid): void
+    public function setMediaId(string $mediaId): void
     {
-        $this->mediaUuid = $mediaUuid;
+        $this->mediaId = $mediaId;
     }
 
-    public function getLanguageUuid(): string
+    public function getLanguageId(): string
     {
-        return $this->languageUuid;
+        return $this->languageId;
     }
 
-    public function setLanguageUuid(string $languageUuid): void
+    public function setLanguageId(string $languageId): void
     {
-        $this->languageUuid = $languageUuid;
+        $this->languageId = $languageId;
     }
 
     public function getName(): string

@@ -18,10 +18,10 @@ class DetailPageLoader
         $this->productRepository = $productRepository;
     }
 
-    public function load(string $productUuid, ShopContext $context): ProductBasicStruct
+    public function load(string $productId, ShopContext $context): ProductBasicStruct
     {
-        $collection = $this->productRepository->read([$productUuid], $context);
+        $collection = $this->productRepository->read([$productId], $context);
 
-        return ProductBasicStruct::createFrom($collection->get($productUuid));
+        return ProductBasicStruct::createFrom($collection->get($productId));
     }
 }

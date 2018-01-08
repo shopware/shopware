@@ -26,14 +26,14 @@ class TraceableEntityReader implements EntityReaderInterface
         $this->stopwatch = $stopwatch;
     }
 
-    public function readDetail(string $definition, array $uuids, TranslationContext $context): EntityCollection
+    public function readDetail(string $definition, array $ids, TranslationContext $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $entity = $definition::getEntityName();
 
         $e = $this->stopwatch->start($entity . '.read_detail', 'shopware');
 
-        $result = $this->decorated->readDetail($definition, $uuids, $context);
+        $result = $this->decorated->readDetail($definition, $ids, $context);
 
         if ($e->isStarted()) {
             $e->stop();
@@ -42,14 +42,14 @@ class TraceableEntityReader implements EntityReaderInterface
         return $result;
     }
 
-    public function readBasic(string $definition, array $uuids, TranslationContext $context): EntityCollection
+    public function readBasic(string $definition, array $ids, TranslationContext $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $entity = $definition::getEntityName();
 
         $e = $this->stopwatch->start($entity . '.read_basic', 'section');
 
-        $result = $this->decorated->readBasic($definition, $uuids, $context);
+        $result = $this->decorated->readBasic($definition, $ids, $context);
 
         if ($e->isStarted()) {
             $e->stop();

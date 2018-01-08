@@ -78,13 +78,14 @@ class ImportService implements ImportServiceInterface
         $today = date('Y-m-d H:i:s');
 
         $this->connection->transactional(function () use ($content, $namespace, $today) {
+            $shopId = Uuid::fromString('FFA32A50-E2D0-4CF3-8389-A53F8D6CD594')->getBytes();
+
             foreach ($content as $locale => $translations) {
                 foreach ($translations as $name => $value) {
                     $snippet = [
-                        'uuid' => Uuid::uuid4()->toString(),
+                        'id' => Uuid::uuid4()->getBytes(),
                         'namespace' => $namespace,
-                        'shop_id' => 1,
-                        'shop_uuid' => 'SWAG-SHOP-UUID-1',
+                        'shop_id' => $shopId,
                         'locale' => $locale,
                         'name' => $name,
                         'value' => $value,

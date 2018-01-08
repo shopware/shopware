@@ -12,9 +12,9 @@ class CustomerGroupBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? CustomerGroupBasicStruct
+    public function get(string $id): ? CustomerGroupBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): CustomerGroupBasicStruct

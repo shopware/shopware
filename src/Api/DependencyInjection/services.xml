@@ -48,7 +48,7 @@
         <service class="Shopware\Api\Entity\Write\FieldAware\DefaultExtender" id="shopware.api.write.field_aware.default_extender">
             <argument id="validator" type="service"/>
             <argument id="shopware.validation.constraint_builder" type="service"/>
-            <argument id="shopware.api.entity.write.uuid_generator.registry" type="service"/>
+            <argument id="shopware.api.entity.write.id_generator.registry" type="service"/>
             <argument id="shopware.api.entity.write.filter.registry" type="service"/>
             <argument id="shopware.api.entity.write.value_transformer.registry" type="service"/>
         </service>
@@ -78,19 +78,19 @@
             <tag name="shopware.api.entity.write.filter"/>
         </service>
 
-        <!-- UUID GENERATOOR -->
-        <service id="shopware.api.entity.write.uuid_generator.registry" class="Shopware\Api\Entity\Write\UuidGenerator\GeneratorRegistry">
-            <argument type="tagged" tag="shopware.api.entity.write.uuid_generator" />
+        <!-- ID GENERATOOR -->
+        <service id="shopware.api.entity.write.id_generator.registry" class="Shopware\Api\Entity\Write\IdGenerator\GeneratorRegistry">
+            <argument type="tagged" tag="shopware.api.entity.write.id_generator" />
         </service>
 
-        <service id="shopware.api.entity.write.uuid_generator.ramsey_generator" class="Shopware\Api\Entity\Write\UuidGenerator\RamseyGenerator">
-            <tag name="shopware.api.entity.write.uuid_generator"/>
+        <service id="shopware.api.entity.write.id_generator.ramsey_generator" class="Shopware\Api\Entity\Write\IdGenerator\RamseyGenerator">
+            <tag name="shopware.api.entity.write.id_generator"/>
         </service>
 
-        <service id="shopware.api.entity.write.uuid_generator.product_number_generator" class="Shopware\Api\Entity\Write\UuidGenerator\ProductNumberGenerator">
+        <service id="shopware.api.entity.write.id_generator.product_number_generator" class="Shopware\Api\Entity\Write\IdGenerator\ProductNumberGenerator">
             <argument type="service" id="dbal_connection"/>
 
-            <tag name="shopware.api.entity.write.uuid_generator"/>
+            <tag name="shopware.api.entity.write.id_generator"/>
         </service>
     </services>
 </container>

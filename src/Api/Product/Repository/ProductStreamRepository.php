@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -18,8 +18,8 @@ use Shopware\Api\Product\Definition\ProductStreamDefinition;
 use Shopware\Api\Product\Event\ProductStream\ProductStreamAggregationResultLoadedEvent;
 use Shopware\Api\Product\Event\ProductStream\ProductStreamBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductStream\ProductStreamDetailLoadedEvent;
+use Shopware\Api\Product\Event\ProductStream\ProductStreamIdSearchResultLoadedEvent;
 use Shopware\Api\Product\Event\ProductStream\ProductStreamSearchResultLoadedEvent;
-use Shopware\Api\Product\Event\ProductStream\ProductStreamUuidSearchResultLoadedEvent;
 use Shopware\Api\Product\Struct\ProductStreamSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,16 +67,16 @@ class ProductStreamRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): ProductStreamSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = ProductStreamSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = ProductStreamSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new ProductStreamSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class ProductStreamRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(ProductStreamDefinition::class, $criteria, $context);
 
-        $event = new ProductStreamUuidSearchResultLoadedEvent($result);
+        $event = new ProductStreamIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): ProductStreamBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): ProductStreamBasicCollection
     {
         /** @var ProductStreamBasicCollection $entities */
-        $entities = $this->reader->readBasic(ProductStreamDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(ProductStreamDefinition::class, $ids, $context);
 
         $event = new ProductStreamBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class ProductStreamRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): ProductStreamDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): ProductStreamDetailCollection
     {
         /** @var ProductStreamDetailCollection $entities */
-        $entities = $this->reader->readDetail(ProductStreamDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(ProductStreamDefinition::class, $ids, $context);
 
         $event = new ProductStreamDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

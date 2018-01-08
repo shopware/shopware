@@ -11,37 +11,37 @@ class CustomerBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $groupUuid;
+    protected $groupId;
 
     /**
      * @var string
      */
-    protected $defaultPaymentMethodUuid;
+    protected $defaultPaymentMethodId;
 
     /**
      * @var string
      */
-    protected $shopUuid;
+    protected $shopId;
 
     /**
      * @var string
      */
-    protected $mainShopUuid;
+    protected $mainShopId;
 
     /**
      * @var string|null
      */
-    protected $lastPaymentMethodUuid;
+    protected $lastPaymentMethodId;
 
     /**
-     * @var string|null
+     * @var string
      */
-    protected $defaultBillingAddressUuid;
+    protected $defaultBillingAddressId;
 
     /**
-     * @var string|null
+     * @var string
      */
-    protected $defaultShippingAddressUuid;
+    protected $defaultShippingAddressId;
 
     /**
      * @var string
@@ -184,12 +184,12 @@ class CustomerBasicStruct extends Entity
     protected $lastPaymentMethod;
 
     /**
-     * @var CustomerAddressBasicStruct|null
+     * @var CustomerAddressBasicStruct
      */
     protected $defaultBillingAddress;
 
     /**
-     * @var CustomerAddressBasicStruct|null
+     * @var CustomerAddressBasicStruct
      */
     protected $defaultShippingAddress;
     /**
@@ -202,74 +202,74 @@ class CustomerBasicStruct extends Entity
      */
     protected $activeShippingAddress;
 
-    public function getGroupUuid(): string
+    public function getGroupId(): string
     {
-        return $this->groupUuid;
+        return $this->groupId;
     }
 
-    public function setGroupUuid(string $groupUuid): void
+    public function setGroupId(string $groupId): void
     {
-        $this->groupUuid = $groupUuid;
+        $this->groupId = $groupId;
     }
 
-    public function getDefaultPaymentMethodUuid(): string
+    public function getDefaultPaymentMethodId(): string
     {
-        return $this->defaultPaymentMethodUuid;
+        return $this->defaultPaymentMethodId;
     }
 
-    public function setDefaultPaymentMethodUuid(string $defaultPaymentMethodUuid): void
+    public function setDefaultPaymentMethodId(string $defaultPaymentMethodId): void
     {
-        $this->defaultPaymentMethodUuid = $defaultPaymentMethodUuid;
+        $this->defaultPaymentMethodId = $defaultPaymentMethodId;
     }
 
-    public function getShopUuid(): string
+    public function getShopId(): string
     {
-        return $this->shopUuid;
+        return $this->shopId;
     }
 
-    public function setShopUuid(string $shopUuid): void
+    public function setShopId(string $shopId): void
     {
-        $this->shopUuid = $shopUuid;
+        $this->shopId = $shopId;
     }
 
-    public function getMainShopUuid(): string
+    public function getMainShopId(): string
     {
-        return $this->mainShopUuid;
+        return $this->mainShopId;
     }
 
-    public function setMainShopUuid(string $mainShopUuid): void
+    public function setMainShopId(string $mainShopId): void
     {
-        $this->mainShopUuid = $mainShopUuid;
+        $this->mainShopId = $mainShopId;
     }
 
-    public function getLastPaymentMethodUuid(): ?string
+    public function getLastPaymentMethodId(): ?string
     {
-        return $this->lastPaymentMethodUuid;
+        return $this->lastPaymentMethodId;
     }
 
-    public function setLastPaymentMethodUuid(?string $lastPaymentMethodUuid): void
+    public function setLastPaymentMethodId(?string $lastPaymentMethodId): void
     {
-        $this->lastPaymentMethodUuid = $lastPaymentMethodUuid;
+        $this->lastPaymentMethodId = $lastPaymentMethodId;
     }
 
-    public function getDefaultBillingAddressUuid(): ?string
+    public function getDefaultBillingAddressId(): string
     {
-        return $this->defaultBillingAddressUuid;
+        return $this->defaultBillingAddressId;
     }
 
-    public function setDefaultBillingAddressUuid(?string $defaultBillingAddressUuid): void
+    public function setDefaultBillingAddressId(string $defaultBillingAddressId): void
     {
-        $this->defaultBillingAddressUuid = $defaultBillingAddressUuid;
+        $this->defaultBillingAddressId = $defaultBillingAddressId;
     }
 
-    public function getDefaultShippingAddressUuid(): ?string
+    public function getDefaultShippingAddressId(): string
     {
-        return $this->defaultShippingAddressUuid;
+        return $this->defaultShippingAddressId;
     }
 
-    public function setDefaultShippingAddressUuid(?string $defaultShippingAddressUuid): void
+    public function setDefaultShippingAddressId(string $defaultShippingAddressId): void
     {
-        $this->defaultShippingAddressUuid = $defaultShippingAddressUuid;
+        $this->defaultShippingAddressId = $defaultShippingAddressId;
     }
 
     public function getNumber(): string
@@ -552,22 +552,22 @@ class CustomerBasicStruct extends Entity
         $this->lastPaymentMethod = $lastPaymentMethod;
     }
 
-    public function getDefaultBillingAddress(): ?CustomerAddressBasicStruct
+    public function getDefaultBillingAddress(): CustomerAddressBasicStruct
     {
         return $this->defaultBillingAddress;
     }
 
-    public function setDefaultBillingAddress(?CustomerAddressBasicStruct $defaultBillingAddress): void
+    public function setDefaultBillingAddress(CustomerAddressBasicStruct $defaultBillingAddress): void
     {
         $this->defaultBillingAddress = $defaultBillingAddress;
     }
 
-    public function getDefaultShippingAddress(): ?CustomerAddressBasicStruct
+    public function getDefaultShippingAddress(): CustomerAddressBasicStruct
     {
         return $this->defaultShippingAddress;
     }
 
-    public function setDefaultShippingAddress(?CustomerAddressBasicStruct $defaultShippingAddress): void
+    public function setDefaultShippingAddress(CustomerAddressBasicStruct $defaultShippingAddress): void
     {
         $this->defaultShippingAddress = $defaultShippingAddress;
     }

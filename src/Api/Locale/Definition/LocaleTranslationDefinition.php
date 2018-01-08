@@ -47,12 +47,12 @@ class LocaleTranslationDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new FkField('locale_uuid', 'localeUuid', LocaleDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('language_uuid', 'languageUuid', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new StringField('territory', 'territory'))->setFlags(new Required()),
-            new ManyToOneAssociationField('locale', 'locale_uuid', LocaleDefinition::class, false),
-            new ManyToOneAssociationField('language', 'language_uuid', ShopDefinition::class, false),
+            new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, false),
+            new ManyToOneAssociationField('language', 'language_id', ShopDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

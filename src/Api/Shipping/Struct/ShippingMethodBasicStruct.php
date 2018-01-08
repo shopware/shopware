@@ -10,7 +10,7 @@ class ShippingMethodBasicStruct extends Entity
     /**
      * @var string|null
      */
-    protected $customerGroupUuid;
+    protected $customerGroupId;
 
     /**
      * @var int
@@ -147,14 +147,14 @@ class ShippingMethodBasicStruct extends Entity
      */
     protected $prices;
 
-    public function getCustomerGroupUuid(): ?string
+    public function getCustomerGroupId(): ?string
     {
-        return $this->customerGroupUuid;
+        return $this->customerGroupId;
     }
 
-    public function setCustomerGroupUuid(?string $customerGroupUuid): void
+    public function setCustomerGroupId(?string $customerGroupId): void
     {
-        $this->customerGroupUuid = $customerGroupUuid;
+        $this->customerGroupId = $customerGroupId;
     }
 
     public function getType(): int

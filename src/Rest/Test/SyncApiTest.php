@@ -23,7 +23,7 @@ class SyncApiTest extends ApiTestCase
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
-                    'uuid' => 'CREATE-1',
+                    'id' => 'CREATE-1',
                     'name' => 'CREATE-1',
                 ],
             ],
@@ -31,7 +31,7 @@ class SyncApiTest extends ApiTestCase
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
-                    'uuid' => 'CREATE-2',
+                    'id' => 'CREATE-2',
                     'name' => 'CREATE-2',
                 ],
             ],
@@ -57,7 +57,7 @@ class SyncApiTest extends ApiTestCase
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
-                    'uuid' => 'CREATE-1',
+                    'id' => 'CREATE-1',
                     'active' => true,
                     'name' => 'CREATE-1',
                 ],
@@ -66,7 +66,7 @@ class SyncApiTest extends ApiTestCase
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
-                    'uuid' => 'CREATE-1',
+                    'id' => 'CREATE-1',
                     'active' => false,
                 ],
             ],
@@ -90,7 +90,7 @@ class SyncApiTest extends ApiTestCase
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => CategoryDefinition::getEntityName(),
                 'payload' => [
-                    'uuid' => 'CAT-1',
+                    'id' => 'CAT-1',
                     'name' => 'CAT-1',
                 ],
             ],
@@ -98,10 +98,10 @@ class SyncApiTest extends ApiTestCase
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
-                    'uuid' => 'PROD-1',
+                    'id' => 'PROD-1',
                     'name' => 'PROD-1',
                     'categories' => [
-                        ['categoryUuid' => 'CAT-1'],
+                        ['categoryId' => 'CAT-1'],
                     ],
                 ],
             ],
@@ -117,8 +117,8 @@ class SyncApiTest extends ApiTestCase
         $responseData = json_decode($client->getResponse()->getContent(), true);
 
         $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-        $this->assertContains('CAT-1', $responseData['data']['categoryUuids']);
-        $this->assertCount(1, $responseData['data']['categoryUuids'], 'Category Uuids should not contain: ' . print_r(array_diff($responseData['data']['categoryUuids'], ['CAT-1']), true));
+        $this->assertContains('CAT-1', $responseData['data']['categoryIds']);
+        $this->assertCount(1, $responseData['data']['categoryIds'], 'Category Ids should not contain: ' . print_r(array_diff($responseData['data']['categoryIds'], ['CAT-1']), true));
     }
 
     public function testNestedInsertAndLinkAfter()
@@ -128,12 +128,12 @@ class SyncApiTest extends ApiTestCase
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
-                    'uuid' => 'PROD-1',
+                    'id' => 'PROD-1',
                     'name' => 'PROD-1',
                     'categories' => [
                         [
                             'category' => [
-                                'uuid' => 'NESTED-CAT-1',
+                                'id' => 'NESTED-CAT-1',
                                 'name' => 'NESTED-CAT-1',
                             ],
                         ],
@@ -144,10 +144,10 @@ class SyncApiTest extends ApiTestCase
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
-                    'uuid' => 'PROD-2',
+                    'id' => 'PROD-2',
                     'name' => 'PROD-2',
                     'categories' => [
-                        ['categoryUuid' => 'NESTED-CAT-1'],
+                        ['categoryId' => 'NESTED-CAT-1'],
                     ],
                 ],
             ],
@@ -158,19 +158,19 @@ class SyncApiTest extends ApiTestCase
 
         $client->request('GET', '/api/product/PROD-1');
         $responseData = json_decode($client->getResponse()->getContent(), true);
-        $this->assertContains('CAT-1', $responseData['data']['categoryUuids']);
-        $this->assertContains('NESTED-CAT-1', $responseData['data']['categoryUuids']);
-        $this->assertCount(2, $responseData['data']['categoryUuids']);
+        $this->assertContains('CAT-1', $responseData['data']['categoryIds']);
+        $this->assertContains('NESTED-CAT-1', $responseData['data']['categoryIds']);
+        $this->assertCount(2, $responseData['data']['categoryIds']);
 
         $client->request('GET', '/api/product/PROD-2');
         $responseData = json_decode($client->getResponse()->getContent(), true);
-        $this->assertContains('NESTED-CAT-1', $responseData['data']['categoryUuids']);
-        $this->assertCount(1, $responseData['data']['categoryUuids']);
+        $this->assertContains('NESTED-CAT-1', $responseData['data']['categoryIds']);
+        $this->assertCount(1, $responseData['data']['categoryIds']);
 
         $client->request('GET', '/api/category/NESTED-CAT-1');
         $responseData = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertContains('PROD-1', $responseData['data']['productUuids']);
-        $this->assertContains('PROD-2', $responseData['data']['productUuids']);
+        $this->assertContains('PROD-1', $responseData['data']['productIds']);
+        $this->assertContains('PROD-2', $responseData['data']['productIds']);
     }
 }

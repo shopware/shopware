@@ -6,9 +6,9 @@
         <ul class="sw-multi-select--list">
 
             <!-- Loop through the selected values -->
-            <li class="list--value" v-for="entry in values" :key="entry.uuid">
+            <li class="list--value" v-for="entry in values" :key="entry.id">
                 <span class="value--display">{{ entry.name }}</span>
-                <a href="#" class="value--dismiss" @click.prevent="onDismissEntry(entry.uuid)">&#x2715;</a>
+                <a href="#" class="value--dismiss" @click.prevent="onDismissEntry(entry.id)">&#x2715;</a>
             </li>
 
             <li class="list--input">
@@ -21,8 +21,8 @@
                 <ul class="sw-drop-down--list">
                     <li v-for="entry in filteredEntries"
                         class="list--entry"
-                        :data-uuid="entry.uuid"
-                        @click="onSelectEntry(entry.uuid, entry.name)"
+                        :data-id="entry.id"
+                        @click="onSelectEntry(entry.id, entry.name)"
                     >
                         {{ entry.name }}
                     </li>

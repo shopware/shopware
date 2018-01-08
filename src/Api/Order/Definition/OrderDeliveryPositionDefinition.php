@@ -7,9 +7,9 @@ use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\FloatField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -49,17 +49,17 @@ class OrderDeliveryPositionDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('order_delivery_uuid', 'orderDeliveryUuid', OrderDeliveryDefinition::class))->setFlags(new Required()),
-            (new FkField('order_line_item_uuid', 'orderLineItemUuid', OrderLineItemDefinition::class))->setFlags(new Required()),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('order_delivery_id', 'orderDeliveryId', OrderDeliveryDefinition::class))->setFlags(new Required()),
+            (new FkField('order_line_item_id', 'orderLineItemId', OrderLineItemDefinition::class))->setFlags(new Required()),
             (new FloatField('unit_price', 'unitPrice'))->setFlags(new Required()),
             (new FloatField('total_price', 'totalPrice'))->setFlags(new Required()),
             (new FloatField('quantity', 'quantity'))->setFlags(new Required()),
             (new LongTextField('payload', 'payload'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('orderDelivery', 'order_delivery_uuid', OrderDeliveryDefinition::class, false),
-            new ManyToOneAssociationField('orderLineItem', 'order_line_item_uuid', OrderLineItemDefinition::class, true),
+            new ManyToOneAssociationField('orderDelivery', 'order_delivery_id', OrderDeliveryDefinition::class, false),
+            new ManyToOneAssociationField('orderLineItem', 'order_line_item_id', OrderLineItemDefinition::class, true),
         ]);
 
         foreach (self::$extensions as $extension) {

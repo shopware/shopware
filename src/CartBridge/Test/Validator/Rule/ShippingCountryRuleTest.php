@@ -38,14 +38,14 @@ class ShippingCountryRuleTest extends TestCase
 {
     public function testEquals(): void
     {
-        $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-UUID-1'], ShippingCountryRule::OPERATOR_EQ);
+        $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1'], ShippingCountryRule::OPERATOR_EQ);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $context = $this->createMock(ShopContext::class);
 
         $country = new CountryBasicStruct();
-        $country->setUuid('SWAG-AREA-COUNTRY-UUID-1');
+        $country->setId('SWAG-AREA-COUNTRY-ID-1');
 
         $context->expects($this->any())
             ->method('getShippingLocation')
@@ -58,14 +58,14 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testNotEquals(): void
     {
-        $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-UUID-1'], ShippingCountryRule::OPERATOR_NEQ);
+        $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1'], ShippingCountryRule::OPERATOR_NEQ);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $context = $this->createMock(ShopContext::class);
 
         $country = new CountryBasicStruct();
-        $country->setUuid('SWAG-AREA-COUNTRY-UUID-1');
+        $country->setId('SWAG-AREA-COUNTRY-ID-1');
 
         $context->expects($this->any())
             ->method('getShippingLocation')
@@ -78,14 +78,14 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testEqualsWithMultipleCountries(): void
     {
-        $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-UUID-1', 'SWAG-AREA-COUNTRY-UUID-2', 'SWAG-AREA-COUNTRY-UUID-3'], ShippingCountryRule::OPERATOR_EQ);
+        $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'], ShippingCountryRule::OPERATOR_EQ);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $context = $this->createMock(ShopContext::class);
 
         $country = new CountryBasicStruct();
-        $country->setUuid('SWAG-AREA-COUNTRY-UUID-2');
+        $country->setId('SWAG-AREA-COUNTRY-ID-2');
 
         $context->expects($this->any())
             ->method('getShippingLocation')
@@ -98,14 +98,14 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testNotEqualsWithMultipleCountries(): void
     {
-        $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-UUID-1', 'SWAG-AREA-COUNTRY-UUID-2', 'SWAG-AREA-COUNTRY-UUID-3'], ShippingCountryRule::OPERATOR_NEQ);
+        $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'], ShippingCountryRule::OPERATOR_NEQ);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $context = $this->createMock(ShopContext::class);
 
         $country = new CountryBasicStruct();
-        $country->setUuid('SWAG-AREA-COUNTRY-UUID-2');
+        $country->setId('SWAG-AREA-COUNTRY-ID-2');
 
         $context->expects($this->any())
             ->method('getShippingLocation')
@@ -125,14 +125,14 @@ class ShippingCountryRuleTest extends TestCase
      */
     public function testUnsupportedOperators(string $operator): void
     {
-        $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-UUID-1', 'SWAG-AREA-COUNTRY-UUID-2', 'SWAG-AREA-COUNTRY-UUID-3'], $operator);
+        $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'], $operator);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $context = $this->createMock(ShopContext::class);
 
         $country = new CountryBasicStruct();
-        $country->setUuid('SWAG-AREA-COUNTRY-UUID-2');
+        $country->setId('SWAG-AREA-COUNTRY-ID-2');
 
         $context->expects($this->any())
             ->method('getShippingLocation')
@@ -143,14 +143,14 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testUnsupportedOperatorMessage(): void
     {
-        $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-UUID-1', 'SWAG-AREA-COUNTRY-UUID-2', 'SWAG-AREA-COUNTRY-UUID-3'], ShippingCountryRule::OPERATOR_GTE);
+        $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'], ShippingCountryRule::OPERATOR_GTE);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $context = $this->createMock(ShopContext::class);
 
         $country = new CountryBasicStruct();
-        $country->setUuid('SWAG-AREA-COUNTRY-UUID-2');
+        $country->setId('SWAG-AREA-COUNTRY-ID-2');
 
         $context->expects($this->any())
             ->method('getShippingLocation')

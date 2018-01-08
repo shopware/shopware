@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -18,8 +18,8 @@ use Shopware\Api\Shop\Definition\ShopTemplateConfigPresetDefinition;
 use Shopware\Api\Shop\Event\ShopTemplateConfigPreset\ShopTemplateConfigPresetAggregationResultLoadedEvent;
 use Shopware\Api\Shop\Event\ShopTemplateConfigPreset\ShopTemplateConfigPresetBasicLoadedEvent;
 use Shopware\Api\Shop\Event\ShopTemplateConfigPreset\ShopTemplateConfigPresetDetailLoadedEvent;
+use Shopware\Api\Shop\Event\ShopTemplateConfigPreset\ShopTemplateConfigPresetIdSearchResultLoadedEvent;
 use Shopware\Api\Shop\Event\ShopTemplateConfigPreset\ShopTemplateConfigPresetSearchResultLoadedEvent;
-use Shopware\Api\Shop\Event\ShopTemplateConfigPreset\ShopTemplateConfigPresetUuidSearchResultLoadedEvent;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigPresetSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,16 +67,16 @@ class ShopTemplateConfigPresetRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): ShopTemplateConfigPresetSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = ShopTemplateConfigPresetSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = ShopTemplateConfigPresetSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new ShopTemplateConfigPresetSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class ShopTemplateConfigPresetRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(ShopTemplateConfigPresetDefinition::class, $criteria, $context);
 
-        $event = new ShopTemplateConfigPresetUuidSearchResultLoadedEvent($result);
+        $event = new ShopTemplateConfigPresetIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): ShopTemplateConfigPresetBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): ShopTemplateConfigPresetBasicCollection
     {
         /** @var ShopTemplateConfigPresetBasicCollection $entities */
-        $entities = $this->reader->readBasic(ShopTemplateConfigPresetDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(ShopTemplateConfigPresetDefinition::class, $ids, $context);
 
         $event = new ShopTemplateConfigPresetBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class ShopTemplateConfigPresetRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): ShopTemplateConfigPresetDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): ShopTemplateConfigPresetDetailCollection
     {
         /** @var ShopTemplateConfigPresetDetailCollection $entities */
-        $entities = $this->reader->readDetail(ShopTemplateConfigPresetDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(ShopTemplateConfigPresetDefinition::class, $ids, $context);
 
         $event = new ShopTemplateConfigPresetDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

@@ -9,36 +9,36 @@ class CustomerGroupTranslationBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $customerGroupUuid;
+    protected $customerGroupId;
 
     /**
      * @var string
      */
-    protected $languageUuid;
+    protected $languageId;
 
     /**
      * @var string
      */
     protected $name;
 
-    public function getCustomerGroupUuid(): string
+    public function getCustomerGroupId(): string
     {
-        return $this->customerGroupUuid;
+        return $this->customerGroupId;
     }
 
-    public function setCustomerGroupUuid(string $customerGroupUuid): void
+    public function setCustomerGroupId(string $customerGroupId): void
     {
-        $this->customerGroupUuid = $customerGroupUuid;
+        $this->customerGroupId = $customerGroupId;
     }
 
-    public function getLanguageUuid(): string
+    public function getLanguageId(): string
     {
-        return $this->languageUuid;
+        return $this->languageId;
     }
 
-    public function setLanguageUuid(string $languageUuid): void
+    public function setLanguageId(string $languageId): void
     {
-        $this->languageUuid = $languageUuid;
+        $this->languageId = $languageId;
     }
 
     public function getName(): string

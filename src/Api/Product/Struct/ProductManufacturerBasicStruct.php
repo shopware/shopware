@@ -7,6 +7,11 @@ use Shopware\Api\Entity\Entity;
 class ProductManufacturerBasicStruct extends Entity
 {
     /**
+     * @var string|null
+     */
+    protected $mediaId;
+
+    /**
      * @var string
      */
     protected $link;
@@ -15,11 +20,6 @@ class ProductManufacturerBasicStruct extends Entity
      * @var string
      */
     protected $name;
-
-    /**
-     * @var string|null
-     */
-    protected $mediaUuid;
 
     /**
      * @var \DateTime|null
@@ -51,6 +51,16 @@ class ProductManufacturerBasicStruct extends Entity
      */
     protected $metaKeywords;
 
+    public function getMediaId(): ?string
+    {
+        return $this->mediaId;
+    }
+
+    public function setMediaId(?string $mediaId): void
+    {
+        $this->mediaId = $mediaId;
+    }
+
     public function getLink(): string
     {
         return $this->link;
@@ -69,16 +79,6 @@ class ProductManufacturerBasicStruct extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
-    }
-
-    public function getMediaUuid(): ?string
-    {
-        return $this->mediaUuid;
-    }
-
-    public function setMediaUuid(?string $mediaUuid): void
-    {
-        $this->mediaUuid = $mediaUuid;
     }
 
     public function getUpdatedAt(): ?\DateTime

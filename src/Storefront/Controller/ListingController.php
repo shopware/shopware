@@ -42,11 +42,11 @@ class ListingController extends StorefrontController
     }
 
     /**
-     * @Route("/listing/{uuid}", name="listing_page", options={"seo"=true})
+     * @Route("/listing/{id}", name="listing_page", options={"seo"=true})
      */
-    public function indexAction(string $uuid, ShopContext $context, Request $request)
+    public function indexAction(string $id, ShopContext $context, Request $request)
     {
-        $listingPage = $this->listingPageLoader->load($uuid, $request, $context);
+        $listingPage = $this->listingPageLoader->load($id, $request, $context);
 
         return $this->renderStorefront('@Storefront/frontend/listing/index.html.twig', [
             'listing' => $listingPage,

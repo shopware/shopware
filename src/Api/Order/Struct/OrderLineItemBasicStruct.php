@@ -9,7 +9,7 @@ class OrderLineItemBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $orderUuid;
+    protected $orderId;
 
     /**
      * @var string
@@ -51,14 +51,14 @@ class OrderLineItemBasicStruct extends Entity
      */
     protected $updatedAt;
 
-    public function getOrderUuid(): string
+    public function getOrderId(): string
     {
-        return $this->orderUuid;
+        return $this->orderId;
     }
 
-    public function setOrderUuid(string $orderUuid): void
+    public function setOrderId(string $orderId): void
     {
-        $this->orderUuid = $orderUuid;
+        $this->orderId = $orderId;
     }
 
     public function getIdentifier(): string

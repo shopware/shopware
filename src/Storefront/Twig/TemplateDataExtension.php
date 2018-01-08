@@ -94,8 +94,8 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
         return [
             'shopware' => [
                 'config' => $this->configService->getByShop(
-                    $context->getShop()->getUuid(),
-                    $context->getShop()->getParentUuid()
+                    $context->getShop()->getId(),
+                    $context->getShop()->getParentId()
                 ),
                 'theme' => $this->getThemeConfig(),
             ],

@@ -4,8 +4,8 @@
 {% block frontend_listing_box_article %}
     <div class="product--box box--{{ productBoxLayout }}"
          data-page-index="{{ pageIndex }}"
-         data-ordernumber="{{ product.uuid }}"
-         {% if shopware.config.disableArticleNavigation == false %}data-category-uuid="{{ navigation.activeCategory.uuid }}"{% endif %}>
+         data-ordernumber="{{ product.id }}"
+         {% if shopware.config.disableArticleNavigation == false %}data-category-id="{{ navigation.activeCategory.id }}"{% endif %}>
 
         {% block frontend_listing_box_article_content %}
             <div class="box--content is--rounded">
@@ -34,10 +34,10 @@
 
                         {# Product name #}
                         {% block frontend_listing_box_article_name %}
-                            {% if product.canonicalUrl %}
-                                {% set url = product.canonicalUrl.url %}
+                            {% if product.extensions.canonicalUrl %}
+                                {% set url = product.extensions.canonicalUrl.url %}
                             {% else %}
-                                {% set url = url('detail_page', { 'uuid': product.uuid }) %}
+                                {% set url = url('detail_page', { 'id': product.id }) %}
                             {% endif %}
 
                             <a href="{{ url }}"

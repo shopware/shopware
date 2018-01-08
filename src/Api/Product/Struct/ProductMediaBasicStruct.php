@@ -10,12 +10,12 @@ class ProductMediaBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $productUuid;
+    protected $productId;
 
     /**
      * @var string
      */
-    protected $mediaUuid;
+    protected $mediaId;
 
     /**
      * @var bool
@@ -28,11 +28,6 @@ class ProductMediaBasicStruct extends Entity
     protected $position;
 
     /**
-     * @var string|null
-     */
-    protected $parentUuid;
-
-    /**
      * @var \DateTime|null
      */
     protected $createdAt;
@@ -43,28 +38,33 @@ class ProductMediaBasicStruct extends Entity
     protected $updatedAt;
 
     /**
+     * @var string|null
+     */
+    protected $parentId;
+
+    /**
      * @var MediaBasicStruct
      */
     protected $media;
 
-    public function getProductUuid(): string
+    public function getProductId(): string
     {
-        return $this->productUuid;
+        return $this->productId;
     }
 
-    public function setProductUuid(string $productUuid): void
+    public function setProductId(string $productId): void
     {
-        $this->productUuid = $productUuid;
+        $this->productId = $productId;
     }
 
-    public function getMediaUuid(): string
+    public function getMediaId(): string
     {
-        return $this->mediaUuid;
+        return $this->mediaId;
     }
 
-    public function setMediaUuid(string $mediaUuid): void
+    public function setMediaId(string $mediaId): void
     {
-        $this->mediaUuid = $mediaUuid;
+        $this->mediaId = $mediaId;
     }
 
     public function getIsCover(): bool
@@ -87,16 +87,6 @@ class ProductMediaBasicStruct extends Entity
         $this->position = $position;
     }
 
-    public function getParentUuid(): ?string
-    {
-        return $this->parentUuid;
-    }
-
-    public function setParentUuid(?string $parentUuid): void
-    {
-        $this->parentUuid = $parentUuid;
-    }
-
     public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
@@ -115,6 +105,16 @@ class ProductMediaBasicStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getParentId(): ?string
+    {
+        return $this->parentId;
+    }
+
+    public function setParentId(?string $parentId): void
+    {
+        $this->parentId = $parentId;
     }
 
     public function getMedia(): MediaBasicStruct

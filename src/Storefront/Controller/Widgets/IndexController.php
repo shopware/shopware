@@ -70,8 +70,8 @@ class IndexController extends StorefrontController
     {
         $criteria = new Criteria();
 
-        $uuids = array_filter([$context->getShop()->getParentUuid(), $context->getShop()->getUuid()]);
-        $criteria->addFilter(new TermsQuery('shop.parentUuid', $uuids));
+        $ids = array_filter([$context->getShop()->getParentId(), $context->getShop()->getId()]);
+        $criteria->addFilter(new TermsQuery('shop.parentId', $ids));
         $criteria->addFilter(new TermQuery('shop.active', 1));
 
         $shops = $this->shopRepository->search($criteria, $context->getTranslationContext());

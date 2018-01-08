@@ -10,10 +10,10 @@ use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\FloatField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -55,13 +55,13 @@ class OrderDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('customer_uuid', 'customerUuid', CustomerDefinition::class))->setFlags(new Required()),
-            (new FkField('order_state_uuid', 'stateUuid', OrderStateDefinition::class))->setFlags(new Required()),
-            (new FkField('payment_method_uuid', 'paymentMethodUuid', PaymentMethodDefinition::class))->setFlags(new Required()),
-            (new FkField('currency_uuid', 'currencyUuid', CurrencyDefinition::class))->setFlags(new Required()),
-            (new FkField('shop_uuid', 'shopUuid', ShopDefinition::class))->setFlags(new Required()),
-            (new FkField('billing_address_uuid', 'billingAddressUuid', OrderAddressDefinition::class))->setFlags(new Required()),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('customer_id', 'customerId', CustomerDefinition::class))->setFlags(new Required()),
+            (new FkField('order_state_id', 'stateId', OrderStateDefinition::class))->setFlags(new Required()),
+            (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->setFlags(new Required()),
+            (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new Required()),
+            (new FkField('shop_id', 'shopId', ShopDefinition::class))->setFlags(new Required()),
+            (new FkField('billing_address_id', 'billingAddressId', OrderAddressDefinition::class))->setFlags(new Required()),
             (new DateField('order_date', 'date'))->setFlags(new Required()),
             (new FloatField('amount_total', 'amountTotal'))->setFlags(new Required()),
             (new FloatField('position_price', 'positionPrice'))->setFlags(new Required()),
@@ -72,14 +72,14 @@ class OrderDefinition extends EntityDefinition
             (new LongTextField('payload', 'payload'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('customer', 'customer_uuid', CustomerDefinition::class, true),
-            new ManyToOneAssociationField('state', 'order_state_uuid', OrderStateDefinition::class, true),
-            new ManyToOneAssociationField('paymentMethod', 'payment_method_uuid', PaymentMethodDefinition::class, true),
-            new ManyToOneAssociationField('currency', 'currency_uuid', CurrencyDefinition::class, true),
-            new ManyToOneAssociationField('shop', 'shop_uuid', ShopDefinition::class, true),
-            new ManyToOneAssociationField('billingAddress', 'billing_address_uuid', OrderAddressDefinition::class, true),
-            new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_uuid', false, 'uuid'),
-            new OneToManyAssociationField('lineItems', OrderLineItemDefinition::class, 'order_uuid', false, 'uuid'),
+            new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, true),
+            new ManyToOneAssociationField('state', 'order_state_id', OrderStateDefinition::class, true),
+            new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, true),
+            new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, true),
+            new ManyToOneAssociationField('shop', 'shop_id', ShopDefinition::class, true),
+            new ManyToOneAssociationField('billingAddress', 'billing_address_id', OrderAddressDefinition::class, true),
+            new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_id', false, 'id'),
+            new OneToManyAssociationField('lineItems', OrderLineItemDefinition::class, 'order_id', false, 'id'),
         ]);
 
         foreach (self::$extensions as $extension) {

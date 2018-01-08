@@ -9,12 +9,12 @@ class ShopTemplateConfigFormBasicStruct extends Entity
     /**
      * @var string|null
      */
-    protected $parentUuid;
+    protected $parentId;
 
     /**
      * @var string
      */
-    protected $shopTemplateUuid;
+    protected $shopTemplateId;
 
     /**
      * @var string
@@ -46,24 +46,24 @@ class ShopTemplateConfigFormBasicStruct extends Entity
      */
     protected $updatedAt;
 
-    public function getParentUuid(): ?string
+    public function getParentId(): ?string
     {
-        return $this->parentUuid;
+        return $this->parentId;
     }
 
-    public function setParentUuid(?string $parentUuid): void
+    public function setParentId(?string $parentId): void
     {
-        $this->parentUuid = $parentUuid;
+        $this->parentId = $parentId;
     }
 
-    public function getShopTemplateUuid(): string
+    public function getShopTemplateId(): string
     {
-        return $this->shopTemplateUuid;
+        return $this->shopTemplateId;
     }
 
-    public function setShopTemplateUuid(string $shopTemplateUuid): void
+    public function setShopTemplateId(string $shopTemplateId): void
     {
-        $this->shopTemplateUuid = $shopTemplateUuid;
+        $this->shopTemplateId = $shopTemplateId;
     }
 
     public function getType(): string

@@ -12,6 +12,15 @@ class ConfigFormFieldValueDetailCollection extends ConfigFormFieldValueBasicColl
      */
     protected $elements = [];
 
+    public function getConfigFormFields(): ConfigFormFieldBasicCollection
+    {
+        return new ConfigFormFieldBasicCollection(
+            $this->fmap(function (ConfigFormFieldValueDetailStruct $configFormFieldValue) {
+                return $configFormFieldValue->getConfigFormField();
+            })
+        );
+    }
+
     public function getShops(): ShopBasicCollection
     {
         return new ShopBasicCollection(

@@ -48,15 +48,15 @@ class ProductManufacturerTranslationDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new FkField('product_manufacturer_uuid', 'productManufacturerUuid', ProductManufacturerDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('language_uuid', 'languageUuid', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('product_manufacturer_id', 'productManufacturerId', ProductManufacturerDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             new LongTextField('description', 'description'),
             new StringField('meta_title', 'metaTitle'),
             new StringField('meta_description', 'metaDescription'),
             new StringField('meta_keywords', 'metaKeywords'),
-            new ManyToOneAssociationField('productManufacturer', 'product_manufacturer_uuid', ProductManufacturerDefinition::class, false),
-            new ManyToOneAssociationField('language', 'language_uuid', ShopDefinition::class, false),
+            new ManyToOneAssociationField('productManufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, false),
+            new ManyToOneAssociationField('language', 'language_id', ShopDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

@@ -74,7 +74,7 @@ class CustomerGroupDiscountProcessor implements CartProcessorInterface
 
         $discount = $discountCollection->getDiscountForCartAmount(
             $prices->sum()->getTotalPrice(),
-            $context->getCustomer()->getGroup()->getUuid()
+            $context->getCustomer()->getGroup()->getId()
         );
 
         if (!$discount) {

@@ -9,12 +9,12 @@ class ShippingMethodTranslationBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $shippingMethodUuid;
+    protected $shippingMethodId;
 
     /**
      * @var string
      */
-    protected $languageUuid;
+    protected $languageId;
 
     /**
      * @var string
@@ -31,24 +31,24 @@ class ShippingMethodTranslationBasicStruct extends Entity
      */
     protected $comment;
 
-    public function getShippingMethodUuid(): string
+    public function getShippingMethodId(): string
     {
-        return $this->shippingMethodUuid;
+        return $this->shippingMethodId;
     }
 
-    public function setShippingMethodUuid(string $shippingMethodUuid): void
+    public function setShippingMethodId(string $shippingMethodId): void
     {
-        $this->shippingMethodUuid = $shippingMethodUuid;
+        $this->shippingMethodId = $shippingMethodId;
     }
 
-    public function getLanguageUuid(): string
+    public function getLanguageId(): string
     {
-        return $this->languageUuid;
+        return $this->languageId;
     }
 
-    public function setLanguageUuid(string $languageUuid): void
+    public function setLanguageId(string $languageId): void
     {
-        $this->languageUuid = $languageUuid;
+        $this->languageId = $languageId;
     }
 
     public function getName(): string

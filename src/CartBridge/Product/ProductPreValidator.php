@@ -25,7 +25,7 @@ class ProductPreValidator implements CartProcessorInterface
         /** @var LineItem $product */
         foreach ($products as $product) {
             $payload = $product->getPayload();
-            $identifier = $payload['uuid'];
+            $identifier = $payload['id'];
 
             if ($dataCollection->has($identifier)) {
                 continue;

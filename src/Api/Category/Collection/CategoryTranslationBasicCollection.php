@@ -12,9 +12,9 @@ class CategoryTranslationBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? CategoryTranslationBasicStruct
+    public function get(string $id): ? CategoryTranslationBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): CategoryTranslationBasicStruct
@@ -22,31 +22,31 @@ class CategoryTranslationBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getCategoryUuids(): array
+    public function getCategoryIds(): array
     {
         return $this->fmap(function (CategoryTranslationBasicStruct $categoryTranslation) {
-            return $categoryTranslation->getCategoryUuid();
+            return $categoryTranslation->getCategoryId();
         });
     }
 
-    public function filterByCategoryUuid(string $uuid): self
+    public function filterByCategoryId(string $id): self
     {
-        return $this->filter(function (CategoryTranslationBasicStruct $categoryTranslation) use ($uuid) {
-            return $categoryTranslation->getCategoryUuid() === $uuid;
+        return $this->filter(function (CategoryTranslationBasicStruct $categoryTranslation) use ($id) {
+            return $categoryTranslation->getCategoryId() === $id;
         });
     }
 
-    public function getLanguageUuids(): array
+    public function getLanguageIds(): array
     {
         return $this->fmap(function (CategoryTranslationBasicStruct $categoryTranslation) {
-            return $categoryTranslation->getLanguageUuid();
+            return $categoryTranslation->getLanguageId();
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): self
+    public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (CategoryTranslationBasicStruct $categoryTranslation) use ($uuid) {
-            return $categoryTranslation->getLanguageUuid() === $uuid;
+        return $this->filter(function (CategoryTranslationBasicStruct $categoryTranslation) use ($id) {
+            return $categoryTranslation->getLanguageId() === $id;
         });
     }
 

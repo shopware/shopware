@@ -7,11 +7,11 @@ use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -53,13 +53,13 @@ class UserDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('locale_uuid', 'localeUuid', LocaleDefinition::class))->setFlags(new Required()),
-            (new StringField('user_role_uuid', 'roleUuid'))->setFlags(new Required()),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new Required()),
             (new StringField('username', 'username'))->setFlags(new Required()),
             (new StringField('password', 'password'))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new StringField('email', 'email'))->setFlags(new Required()),
+            (new IdField('user_role_id', 'roleId'))->setFlags(new Required()),
             new StringField('encoder', 'encoder'),
             new StringField('api_key', 'apiKey'),
             new StringField('session_id', 'sessionId'),
@@ -71,8 +71,8 @@ class UserDefinition extends EntityDefinition
             new BoolField('disabled_cache', 'disabledCache'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('locale', 'locale_uuid', LocaleDefinition::class, false),
-            new OneToManyAssociationField('media', MediaDefinition::class, 'user_uuid', false, 'uuid'),
+            new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, false),
+            new OneToManyAssociationField('media', MediaDefinition::class, 'user_id', false, 'id'),
         ]);
 
         foreach (self::$extensions as $extension) {

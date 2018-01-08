@@ -7,6 +7,7 @@ use Shopware\Api\Country\Struct\CountryBasicStruct;
 use Shopware\Api\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
+use Shopware\Api\Seo\Collection\SeoUrlBasicCollection;
 use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
 
 class ShopDetailStruct extends ShopBasicStruct
@@ -57,9 +58,14 @@ class ShopDetailStruct extends ShopBasicStruct
     protected $country;
 
     /**
+     * @var SeoUrlBasicCollection
+     */
+    protected $seoUrls;
+
+    /**
      * @var string[]
      */
-    protected $currencyUuids = [];
+    protected $currencyIds = [];
 
     /**
      * @var CurrencyBasicCollection
@@ -68,6 +74,8 @@ class ShopDetailStruct extends ShopBasicStruct
 
     public function __construct()
     {
+        $this->seoUrls = new SeoUrlBasicCollection();
+
         $this->currencies = new CurrencyBasicCollection();
     }
 
@@ -161,14 +169,24 @@ class ShopDetailStruct extends ShopBasicStruct
         $this->country = $country;
     }
 
-    public function getCurrencyUuids(): array
+    public function getSeoUrls(): SeoUrlBasicCollection
     {
-        return $this->currencyUuids;
+        return $this->seoUrls;
     }
 
-    public function setCurrencyUuids(array $currencyUuids): void
+    public function setSeoUrls(SeoUrlBasicCollection $seoUrls): void
     {
-        $this->currencyUuids = $currencyUuids;
+        $this->seoUrls = $seoUrls;
+    }
+
+    public function getCurrencyIds(): array
+    {
+        return $this->currencyIds;
+    }
+
+    public function setCurrencyIds(array $currencyIds): void
+    {
+        $this->currencyIds = $currencyIds;
     }
 
     public function getCurrencies(): CurrencyBasicCollection

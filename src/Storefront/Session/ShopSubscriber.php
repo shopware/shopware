@@ -97,7 +97,7 @@ class ShopSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $shopId = $request->attributes->get('_shop_uuid');
+        $shopId = $request->attributes->get('_shop_id');
         if (empty($shopId)) {
             return;
         }
@@ -118,9 +118,9 @@ class ShopSubscriber implements EventSubscriberInterface
     public function loadContext(GetResponseEvent $event)
     {
         $request = $event->getRequest();
-        $shopUuid = $request->attributes->get('_shop_uuid');
+        $shopId = $request->attributes->get('_shop_id');
 
-        if (empty($shopUuid)) {
+        if (empty($shopId)) {
             return;
         }
         if ($request->attributes->has(self::SHOP_CONTEXT_PROPERTY)) {
@@ -140,32 +140,32 @@ class ShopSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $request->attributes->set('active_category_uuid', $this->getActiveCategoryUuid($request, $context));
+        $request->attributes->set('active_category_id', $this->getActiveCategoryId($request, $context));
     }
 
     public function setShopCookie(FilterResponseEvent $event)
     {
         $request = $event->getRequest();
 
-        if (!$request->attributes->has('_shop_uuid')) {
+        if (!$request->attributes->has('_shop_id')) {
             return;
         }
 
-        $event->getResponse()->headers->setCookie(new Cookie('shop', $request->attributes->get('_shop_uuid')));
-        $event->getResponse()->headers->setCookie(new Cookie('currency', $request->attributes->get('_currency_uuid')));
+        $event->getResponse()->headers->setCookie(new Cookie('shop', $request->attributes->get('_shop_id')));
+        $event->getResponse()->headers->setCookie(new Cookie('currency', $request->attributes->get('_currency_id')));
     }
 
-    private function getActiveCategoryUuid(Request $request, ShopContext $context)
+    private function getActiveCategoryId(Request $request, ShopContext $context)
     {
         $route = $request->attributes->get('_route');
 
         switch ($route) {
             case ListingPageUrlGenerator::ROUTE_NAME:
-                return $request->attributes->get('_route_params')['uuid'];
+                return $request->attributes->get('_route_params')['id'];
 
             case DetailPageUrlGenerator::ROUTE_NAME:
             default:
-                return $context->getShop()->getCategory()->getUuid();
+                return $context->getShop()->getCategory()->getId();
         }
     }
 }

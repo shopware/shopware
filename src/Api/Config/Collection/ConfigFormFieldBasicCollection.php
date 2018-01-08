@@ -12,9 +12,9 @@ class ConfigFormFieldBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ConfigFormFieldBasicStruct
+    public function get(string $id): ? ConfigFormFieldBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ConfigFormFieldBasicStruct
@@ -22,17 +22,17 @@ class ConfigFormFieldBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getConfigFormUuids(): array
+    public function getConfigFormIds(): array
     {
         return $this->fmap(function (ConfigFormFieldBasicStruct $configFormField) {
-            return $configFormField->getConfigFormUuid();
+            return $configFormField->getConfigFormId();
         });
     }
 
-    public function filterByConfigFormUuid(string $uuid): self
+    public function filterByConfigFormId(string $id): self
     {
-        return $this->filter(function (ConfigFormFieldBasicStruct $configFormField) use ($uuid) {
-            return $configFormField->getConfigFormUuid() === $uuid;
+        return $this->filter(function (ConfigFormFieldBasicStruct $configFormField) use ($id) {
+            return $configFormField->getConfigFormId() === $id;
         });
     }
 

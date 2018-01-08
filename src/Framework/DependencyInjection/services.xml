@@ -134,5 +134,9 @@
             <argument type="service" id="shopware.framework.plugin.manager" />
         </service>
 
+        <service class="Shopware\Framework\Command\DemodataCommand" id="shopware.framework.command.demodata_command">
+            <tag name="console.command" command="framework:demodata" />
+        </service>
+
     </services>
 </container>

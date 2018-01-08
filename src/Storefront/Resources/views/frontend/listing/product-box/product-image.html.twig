@@ -1,8 +1,8 @@
 {# Product image - uses the picture element for responsive retina images. #}
-{% if product.canonicalUrl %}
-    {% set url = product.canonicalUrl.url %}
+{% if product.extensions.canonicalUrl %}
+    {% set url = product.extensions.canonicalUrl.url %}
 {% else %}
-    {% set url = url('detail_page', { 'uuid': product.uuid }) %}
+    {% set url = url('detail_page', { 'id': product.id }) %}
 {% endif %}
 <a href="{{ url }}"
    title="{{ product.name }}"

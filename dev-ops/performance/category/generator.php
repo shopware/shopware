@@ -15,23 +15,23 @@ $faker = Faker\Factory::create();
 
 $genTpl = function(int $i, ?string $parent = null) use($faker): array {
     return [
-        'uuid' => $faker->uuid,
+        'id' => $faker->id,
         'name' => $faker->name(),
-        'parentUuid' => $parent
+        'parentId' => $parent
     ];
 };
 
 $data = [];
 
 for ($i = 1; $i <= FIRST_LEVEL; $i++) {
-    $data[] = $first = $genTpl($i, 'SWAG-CATEGORY-UUID-3');
+    $data[] = $first = $genTpl($i, 'SWAG-CATEGORY-ID-3');
 
-    $parent = $first['uuid'];
+    $parent = $first['id'];
     for ($i2 = 1; $i2 <= LEVELS; $i2++) {
         for ($i3 = 1; $i3 <= LEVEL_COUNT; $i3++) {
             $data[] = $category = $genTpl($i2, $parent);
         }
-        $parent = $category['uuid'];
+        $parent = $category['id'];
     }
 }
 

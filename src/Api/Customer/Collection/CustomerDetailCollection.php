@@ -22,16 +22,16 @@ class CustomerDetailCollection extends CustomerBasicCollection
         );
     }
 
-    public function getAddressUuids(): array
+    public function getAddressIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getAddresses()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getAddresses()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getAddresses(): CustomerAddressBasicCollection
@@ -44,16 +44,16 @@ class CustomerDetailCollection extends CustomerBasicCollection
         return $collection;
     }
 
-    public function getOrderUuids(): array
+    public function getOrderIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getOrders()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getOrders()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getOrders(): OrderBasicCollection

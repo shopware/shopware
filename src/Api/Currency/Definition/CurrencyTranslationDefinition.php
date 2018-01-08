@@ -47,12 +47,12 @@ class CurrencyTranslationDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new FkField('currency_uuid', 'currencyUuid', CurrencyDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('language_uuid', 'languageUuid', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('short_name', 'shortName'))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
-            new ManyToOneAssociationField('currency', 'currency_uuid', CurrencyDefinition::class, false),
-            new ManyToOneAssociationField('language', 'language_uuid', ShopDefinition::class, false),
+            new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, false),
+            new ManyToOneAssociationField('language', 'language_id', ShopDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

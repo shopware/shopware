@@ -14,9 +14,9 @@ class OrderAddressBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? OrderAddressBasicStruct
+    public function get(string $id): ? OrderAddressBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): OrderAddressBasicStruct
@@ -24,31 +24,45 @@ class OrderAddressBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getCountryUuids(): array
+    public function getCountryIds(): array
     {
         return $this->fmap(function (OrderAddressBasicStruct $orderAddress) {
-            return $orderAddress->getCountryUuid();
+            return $orderAddress->getCountryId();
         });
     }
 
-    public function filterByCountryUuid(string $uuid): self
+    public function filterByCountryId(string $id): self
     {
-        return $this->filter(function (OrderAddressBasicStruct $orderAddress) use ($uuid) {
-            return $orderAddress->getCountryUuid() === $uuid;
+        return $this->filter(function (OrderAddressBasicStruct $orderAddress) use ($id) {
+            return $orderAddress->getCountryId() === $id;
         });
     }
 
-    public function getCountryStateUuids(): array
+    public function getCountryStateIds(): array
     {
         return $this->fmap(function (OrderAddressBasicStruct $orderAddress) {
-            return $orderAddress->getCountryStateUuid();
+            return $orderAddress->getCountryStateId();
         });
     }
 
-    public function filterByCountryStateUuid(string $uuid): self
+    public function filterByCountryStateId(string $id): self
     {
-        return $this->filter(function (OrderAddressBasicStruct $orderAddress) use ($uuid) {
-            return $orderAddress->getCountryStateUuid() === $uuid;
+        return $this->filter(function (OrderAddressBasicStruct $orderAddress) use ($id) {
+            return $orderAddress->getCountryStateId() === $id;
+        });
+    }
+
+    public function getVatIds(): array
+    {
+        return $this->fmap(function (OrderAddressBasicStruct $orderAddress) {
+            return $orderAddress->getVatId();
+        });
+    }
+
+    public function filterByVatId(string $id): self
+    {
+        return $this->filter(function (OrderAddressBasicStruct $orderAddress) use ($id) {
+            return $orderAddress->getVatId() === $id;
         });
     }
 

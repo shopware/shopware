@@ -12,9 +12,9 @@ class OrderLineItemBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? OrderLineItemBasicStruct
+    public function get(string $id): ? OrderLineItemBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): OrderLineItemBasicStruct
@@ -22,17 +22,17 @@ class OrderLineItemBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getOrderUuids(): array
+    public function getOrderIds(): array
     {
         return $this->fmap(function (OrderLineItemBasicStruct $orderLineItem) {
-            return $orderLineItem->getOrderUuid();
+            return $orderLineItem->getOrderId();
         });
     }
 
-    public function filterByOrderUuid(string $uuid): self
+    public function filterByOrderId(string $id): self
     {
-        return $this->filter(function (OrderLineItemBasicStruct $orderLineItem) use ($uuid) {
-            return $orderLineItem->getOrderUuid() === $uuid;
+        return $this->filter(function (OrderLineItemBasicStruct $orderLineItem) use ($id) {
+            return $orderLineItem->getOrderId() === $id;
         });
     }
 

@@ -170,7 +170,7 @@
                                 <a href="{url controller=address}"
                                    data-address-selection="true"
                                    data-setDefaultBillingAddress="1"
-                                   data-id="{{ context.customer.defaultBillingAddressUuid }}"
+                                   data-id="{{ context.customer.defaultBillingAddressId }}"
                                    title="{% trans from "frontend/account/index" %}AccountLinkChangeBilling{% endtrans %}">
                                     {% trans from "frontend/account/index" %}AccountLinkSelectBilling{% endtrans %}
                                 </a>
@@ -189,7 +189,7 @@
 
                         {% block frontend_account_index_primary_shipping_content %}
                             <div class="panel--body is--wide">
-                                {% if context.customer.defaultBillingAddressUuid == context.customer.defaultShippingAddressUuid %}
+                                {% if context.customer.defaultBillingAddressId == context.customer.defaultShippingAddressId %}
                                     {% block frontend_account_index_primary_shipping_content_equality_notice %}
                                         <div class="shipping--equal-info">
                                             {% trans from "frontend/account/index" %}AccountAddressEqualsBilling{% endtrans %}
@@ -228,14 +228,14 @@
                         {% endblock %}
 
                         {% block frontend_account_index_primary_shipping_actions %}
-                            {% if context.customer.defaultBillingAddressUuid == context.customer.defaultShippingAddressUuid %}
+                            {% if context.customer.defaultBillingAddressId == context.customer.defaultShippingAddressId %}
                                 {% block frontend_account_index_primary_shipping_choose_seperate_address %}
                                         <div class="panel--actions is--wide">
                                             <a href="{url controller=address}"
                                                class="btn choose-different-address"
                                                data-address-selection="true"
                                                data-setDefaultShippingAddress="1"
-                                               data-id="{{ context.customer.defaultShippingAddressUuid }}"
+                                               data-id="{{ context.customer.defaultShippingAddressId }}"
                                                title="{% trans from "frontend/account/index" %}ConfirmAddressChooseDifferentShippingAddress" namespace="frontend/checkout/confirm{% endtrans %}">
                                                 {% trans from "frontend/account/index" %}ConfirmAddressChooseDifferentShippingAddress" namespace="frontend/checkout/confirm{% endtrans %}
                                             </a>

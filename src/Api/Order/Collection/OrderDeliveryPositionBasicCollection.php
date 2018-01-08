@@ -12,9 +12,9 @@ class OrderDeliveryPositionBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? OrderDeliveryPositionBasicStruct
+    public function get(string $id): ? OrderDeliveryPositionBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): OrderDeliveryPositionBasicStruct
@@ -22,31 +22,31 @@ class OrderDeliveryPositionBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getOrderDeliveryUuids(): array
+    public function getOrderDeliveryIds(): array
     {
         return $this->fmap(function (OrderDeliveryPositionBasicStruct $orderDeliveryPosition) {
-            return $orderDeliveryPosition->getOrderDeliveryUuid();
+            return $orderDeliveryPosition->getOrderDeliveryId();
         });
     }
 
-    public function filterByOrderDeliveryUuid(string $uuid): self
+    public function filterByOrderDeliveryId(string $id): self
     {
-        return $this->filter(function (OrderDeliveryPositionBasicStruct $orderDeliveryPosition) use ($uuid) {
-            return $orderDeliveryPosition->getOrderDeliveryUuid() === $uuid;
+        return $this->filter(function (OrderDeliveryPositionBasicStruct $orderDeliveryPosition) use ($id) {
+            return $orderDeliveryPosition->getOrderDeliveryId() === $id;
         });
     }
 
-    public function getOrderLineItemUuids(): array
+    public function getOrderLineItemIds(): array
     {
         return $this->fmap(function (OrderDeliveryPositionBasicStruct $orderDeliveryPosition) {
-            return $orderDeliveryPosition->getOrderLineItemUuid();
+            return $orderDeliveryPosition->getOrderLineItemId();
         });
     }
 
-    public function filterByOrderLineItemUuid(string $uuid): self
+    public function filterByOrderLineItemId(string $id): self
     {
-        return $this->filter(function (OrderDeliveryPositionBasicStruct $orderDeliveryPosition) use ($uuid) {
-            return $orderDeliveryPosition->getOrderLineItemUuid() === $uuid;
+        return $this->filter(function (OrderDeliveryPositionBasicStruct $orderDeliveryPosition) use ($id) {
+            return $orderDeliveryPosition->getOrderLineItemId() === $id;
         });
     }
 

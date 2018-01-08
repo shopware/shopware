@@ -6,11 +6,11 @@
 
     <div class="split--container">
         <div class="container--item">
-            <sw-field label="Artikelnummer" id="uuid" type="text" name="uuid" placeholder="Your product Uuid" :value="product.uuid"></sw-field>
+            <sw-field label="Artikelnummer" id="id" type="text" name="id" placeholder="Your product Id" :value="product.id"></sw-field>
         </div>
         <div class="container--item">
-            <sw-field label="Hersteller" id="manufacturer" type="select" name="manufacturer" placeholder="Your product manufacturer" v-model="product.manufacturerUuid">
-                <option v-for="manufacturer in manufacturers" :value="manufacturer.uuid">{{ manufacturer.name }}</option>
+            <sw-field label="Hersteller" id="manufacturer" type="select" name="manufacturer" placeholder="Your product manufacturer" v-model="product.manufacturerId">
+                <option v-for="manufacturer in manufacturers" :value="manufacturer.id">{{ manufacturer.name }}</option>
             </sw-field>
         </div>
     </div>

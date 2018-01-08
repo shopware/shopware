@@ -13,32 +13,32 @@ class OrderBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $customerUuid;
+    protected $customerId;
 
     /**
      * @var string
      */
-    protected $stateUuid;
+    protected $stateId;
 
     /**
      * @var string
      */
-    protected $paymentMethodUuid;
+    protected $paymentMethodId;
 
     /**
      * @var string
      */
-    protected $currencyUuid;
+    protected $currencyId;
 
     /**
      * @var string
      */
-    protected $shopUuid;
+    protected $shopId;
 
     /**
      * @var string
      */
-    protected $billingAddressUuid;
+    protected $billingAddressId;
 
     /**
      * @var \DateTime
@@ -120,64 +120,64 @@ class OrderBasicStruct extends Entity
      */
     protected $billingAddress;
 
-    public function getCustomerUuid(): string
+    public function getCustomerId(): string
     {
-        return $this->customerUuid;
+        return $this->customerId;
     }
 
-    public function setCustomerUuid(string $customerUuid): void
+    public function setCustomerId(string $customerId): void
     {
-        $this->customerUuid = $customerUuid;
+        $this->customerId = $customerId;
     }
 
-    public function getStateUuid(): string
+    public function getStateId(): string
     {
-        return $this->stateUuid;
+        return $this->stateId;
     }
 
-    public function setStateUuid(string $stateUuid): void
+    public function setStateId(string $stateId): void
     {
-        $this->stateUuid = $stateUuid;
+        $this->stateId = $stateId;
     }
 
-    public function getPaymentMethodUuid(): string
+    public function getPaymentMethodId(): string
     {
-        return $this->paymentMethodUuid;
+        return $this->paymentMethodId;
     }
 
-    public function setPaymentMethodUuid(string $paymentMethodUuid): void
+    public function setPaymentMethodId(string $paymentMethodId): void
     {
-        $this->paymentMethodUuid = $paymentMethodUuid;
+        $this->paymentMethodId = $paymentMethodId;
     }
 
-    public function getCurrencyUuid(): string
+    public function getCurrencyId(): string
     {
-        return $this->currencyUuid;
+        return $this->currencyId;
     }
 
-    public function setCurrencyUuid(string $currencyUuid): void
+    public function setCurrencyId(string $currencyId): void
     {
-        $this->currencyUuid = $currencyUuid;
+        $this->currencyId = $currencyId;
     }
 
-    public function getShopUuid(): string
+    public function getShopId(): string
     {
-        return $this->shopUuid;
+        return $this->shopId;
     }
 
-    public function setShopUuid(string $shopUuid): void
+    public function setShopId(string $shopId): void
     {
-        $this->shopUuid = $shopUuid;
+        $this->shopId = $shopId;
     }
 
-    public function getBillingAddressUuid(): string
+    public function getBillingAddressId(): string
     {
-        return $this->billingAddressUuid;
+        return $this->billingAddressId;
     }
 
-    public function setBillingAddressUuid(string $billingAddressUuid): void
+    public function setBillingAddressId(string $billingAddressId): void
     {
-        $this->billingAddressUuid = $billingAddressUuid;
+        $this->billingAddressId = $billingAddressId;
     }
 
     public function getDate(): \DateTime

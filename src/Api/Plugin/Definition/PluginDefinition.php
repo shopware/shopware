@@ -7,10 +7,10 @@ use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -52,8 +52,8 @@ class PluginDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('name', 'name'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new StringField('name', 'name'))->setFlags(new Required()),
             (new StringField('label', 'label'))->setFlags(new Required()),
             (new BoolField('active', 'active'))->setFlags(new Required()),
             (new StringField('version', 'version'))->setFlags(new Required()),
@@ -78,9 +78,9 @@ class PluginDefinition extends EntityDefinition
             new StringField('update_source', 'updateSource'),
             new StringField('update_version', 'updateVersion'),
             new DateField('updated_at', 'updatedAt'),
-            new OneToManyAssociationField('configForms', ConfigFormDefinition::class, 'plugin_uuid', false, 'uuid'),
-            new OneToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, 'plugin_uuid', false, 'uuid'),
-            new OneToManyAssociationField('shopTemplates', ShopTemplateDefinition::class, 'plugin_uuid', false, 'uuid'),
+            new OneToManyAssociationField('configForms', ConfigFormDefinition::class, 'plugin_id', false, 'id'),
+            new OneToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, 'plugin_id', false, 'id'),
+            new OneToManyAssociationField('shopTemplates', ShopTemplateDefinition::class, 'plugin_id', false, 'id'),
         ]);
 
         foreach (self::$extensions as $extension) {

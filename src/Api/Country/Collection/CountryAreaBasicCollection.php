@@ -12,9 +12,9 @@ class CountryAreaBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? CountryAreaBasicStruct
+    public function get(string $id): ? CountryAreaBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): CountryAreaBasicStruct

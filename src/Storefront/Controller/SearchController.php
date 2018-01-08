@@ -29,7 +29,7 @@ class SearchController extends StorefrontController
     }
 
     /**
-     * @Route("/search", name="search_index", options={"seo"=true})
+     * @Route("/search", name="search_index", options={"seo"=false})
      *
      * @param ShopContext $context
      * @param Request     $request
@@ -42,8 +42,8 @@ class SearchController extends StorefrontController
     {
         $searchTerm = $request->get('search');
         $config = $this->configService->getByShop(
-            $context->getShop()->getUuid(),
-            $context->getShop()->getParentUuid()
+            $context->getShop()->getId(),
+            $context->getShop()->getParentId()
         );
 
         if (empty($searchTerm) || strlen($searchTerm) < (int) $config['minsearchlenght']) {

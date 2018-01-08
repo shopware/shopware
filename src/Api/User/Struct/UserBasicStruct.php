@@ -9,12 +9,7 @@ class UserBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $localeUuid;
-
-    /**
-     * @var string
-     */
-    protected $roleUuid;
+    protected $localeId;
 
     /**
      * @var string
@@ -35,6 +30,11 @@ class UserBasicStruct extends Entity
      * @var string
      */
     protected $email;
+
+    /**
+     * @var string
+     */
+    protected $roleId;
 
     /**
      * @var string
@@ -91,24 +91,14 @@ class UserBasicStruct extends Entity
      */
     protected $updatedAt;
 
-    public function getLocaleUuid(): string
+    public function getLocaleId(): string
     {
-        return $this->localeUuid;
+        return $this->localeId;
     }
 
-    public function setLocaleUuid(string $localeUuid): void
+    public function setLocaleId(string $localeId): void
     {
-        $this->localeUuid = $localeUuid;
-    }
-
-    public function getRoleUuid(): string
-    {
-        return $this->roleUuid;
-    }
-
-    public function setRoleUuid(string $roleUuid): void
-    {
-        $this->roleUuid = $roleUuid;
+        $this->localeId = $localeId;
     }
 
     public function getUsername(): string
@@ -149,6 +139,16 @@ class UserBasicStruct extends Entity
     public function setEmail(string $email): void
     {
         $this->email = $email;
+    }
+
+    public function getRoleId(): string
+    {
+        return $this->roleId;
+    }
+
+    public function setRoleId(string $roleId): void
+    {
+        $this->roleId = $roleId;
     }
 
     public function getEncoder(): string

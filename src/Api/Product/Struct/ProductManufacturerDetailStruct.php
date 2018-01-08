@@ -2,11 +2,17 @@
 
 namespace Shopware\Api\Product\Struct;
 
+use Shopware\Api\Media\Struct\MediaBasicStruct;
 use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Product\Collection\ProductManufacturerTranslationBasicCollection;
 
 class ProductManufacturerDetailStruct extends ProductManufacturerBasicStruct
 {
+    /**
+     * @var MediaBasicStruct|null
+     */
+    protected $media;
+
     /**
      * @var ProductBasicCollection
      */
@@ -22,6 +28,16 @@ class ProductManufacturerDetailStruct extends ProductManufacturerBasicStruct
         $this->products = new ProductBasicCollection();
 
         $this->translations = new ProductManufacturerTranslationBasicCollection();
+    }
+
+    public function getMedia(): ?MediaBasicStruct
+    {
+        return $this->media;
+    }
+
+    public function setMedia(?MediaBasicStruct $media): void
+    {
+        $this->media = $media;
     }
 
     public function getProducts(): ProductBasicCollection

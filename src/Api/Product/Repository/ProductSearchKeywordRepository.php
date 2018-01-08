@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -18,8 +18,8 @@ use Shopware\Api\Product\Definition\ProductSearchKeywordDefinition;
 use Shopware\Api\Product\Event\ProductSearchKeyword\ProductSearchKeywordAggregationResultLoadedEvent;
 use Shopware\Api\Product\Event\ProductSearchKeyword\ProductSearchKeywordBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductSearchKeyword\ProductSearchKeywordDetailLoadedEvent;
+use Shopware\Api\Product\Event\ProductSearchKeyword\ProductSearchKeywordIdSearchResultLoadedEvent;
 use Shopware\Api\Product\Event\ProductSearchKeyword\ProductSearchKeywordSearchResultLoadedEvent;
-use Shopware\Api\Product\Event\ProductSearchKeyword\ProductSearchKeywordUuidSearchResultLoadedEvent;
 use Shopware\Api\Product\Struct\ProductSearchKeywordSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,16 +67,16 @@ class ProductSearchKeywordRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): ProductSearchKeywordSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = ProductSearchKeywordSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = ProductSearchKeywordSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new ProductSearchKeywordSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class ProductSearchKeywordRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(ProductSearchKeywordDefinition::class, $criteria, $context);
 
-        $event = new ProductSearchKeywordUuidSearchResultLoadedEvent($result);
+        $event = new ProductSearchKeywordIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): ProductSearchKeywordBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): ProductSearchKeywordBasicCollection
     {
         /** @var ProductSearchKeywordBasicCollection $entities */
-        $entities = $this->reader->readBasic(ProductSearchKeywordDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(ProductSearchKeywordDefinition::class, $ids, $context);
 
         $event = new ProductSearchKeywordBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class ProductSearchKeywordRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): ProductSearchKeywordDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): ProductSearchKeywordDetailCollection
     {
         /** @var ProductSearchKeywordDetailCollection $entities */
-        $entities = $this->reader->readDetail(ProductSearchKeywordDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(ProductSearchKeywordDefinition::class, $ids, $context);
 
         $event = new ProductSearchKeywordDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

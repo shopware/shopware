@@ -36,12 +36,12 @@ class ShopCurrencyDefinition extends EntityDefinition
         }
 
         return self::$fields = new FieldCollection([
-            (new FkField('shop_uuid', 'shopUuid', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('currency_uuid', 'currencyUuid', CurrencyDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('shop_id', 'shopId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('shop', 'shop_uuid', ShopDefinition::class, false),
-            new ManyToOneAssociationField('currency', 'currency_uuid', CurrencyDefinition::class, false),
+            new ManyToOneAssociationField('shop', 'shop_id', ShopDefinition::class, false),
+            new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, false),
         ]);
     }
 

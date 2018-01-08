@@ -12,9 +12,9 @@ class CurrencyTranslationBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? CurrencyTranslationBasicStruct
+    public function get(string $id): ? CurrencyTranslationBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): CurrencyTranslationBasicStruct
@@ -22,31 +22,31 @@ class CurrencyTranslationBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getCurrencyUuids(): array
+    public function getCurrencyIds(): array
     {
         return $this->fmap(function (CurrencyTranslationBasicStruct $currencyTranslation) {
-            return $currencyTranslation->getCurrencyUuid();
+            return $currencyTranslation->getCurrencyId();
         });
     }
 
-    public function filterByCurrencyUuid(string $uuid): self
+    public function filterByCurrencyId(string $id): self
     {
-        return $this->filter(function (CurrencyTranslationBasicStruct $currencyTranslation) use ($uuid) {
-            return $currencyTranslation->getCurrencyUuid() === $uuid;
+        return $this->filter(function (CurrencyTranslationBasicStruct $currencyTranslation) use ($id) {
+            return $currencyTranslation->getCurrencyId() === $id;
         });
     }
 
-    public function getLanguageUuids(): array
+    public function getLanguageIds(): array
     {
         return $this->fmap(function (CurrencyTranslationBasicStruct $currencyTranslation) {
-            return $currencyTranslation->getLanguageUuid();
+            return $currencyTranslation->getLanguageId();
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): self
+    public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (CurrencyTranslationBasicStruct $currencyTranslation) use ($uuid) {
-            return $currencyTranslation->getLanguageUuid() === $uuid;
+        return $this->filter(function (CurrencyTranslationBasicStruct $currencyTranslation) use ($id) {
+            return $currencyTranslation->getLanguageId() === $id;
         });
     }
 

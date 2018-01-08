@@ -24,6 +24,7 @@
 
 namespace Shopware\Seo\Command;
 
+use Ramsey\Uuid\Uuid;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -43,20 +44,20 @@ class GenerateSeoUrlsCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $shops = $this->getContainer()->get('dbal_connection')->fetchAll(
-            'SELECT uuid, fallback_translation_uuid, `is_default` FROM shop'
+            'SELECT id, fallback_translation_id, `is_default` FROM shop'
         );
 
         $generatorRegistry = $this->getContainer()->get('shopware.seo.url_generator_registry');
 
         foreach ($shops as $shop) {
             $context = new TranslationContext(
-                (string) $shop['uuid'],
+                Uuid::fromBytes((string) $shop['id'])->toString(),
                 (bool) $shop['is_default'],
-                $shop['fallback_translation_uuid'] ? (string) $shop['fallback_translation_uuid'] : null
+                $shop['fallback_translation_id'] ? Uuid::fromBytes($shop['fallback_translation_id'])->toString() : null
             );
 
             $generatorRegistry->generate(
-                $context->getShopUuid(),
+                $context->getShopId(),
                 $context,
                 (bool) $input->getOption('force')
             );

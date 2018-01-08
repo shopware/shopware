@@ -5,15 +5,18 @@ namespace Shopware\Api\Product\Definition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\DateField;
+use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\LongTextField;
+use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Media\Definition\MediaDefinition;
 use Shopware\Api\Product\Collection\ProductManufacturerBasicCollection;
 use Shopware\Api\Product\Collection\ProductManufacturerDetailCollection;
 use Shopware\Api\Product\Event\ProductManufacturer\ProductManufacturerWrittenEvent;
@@ -50,18 +53,19 @@ class ProductManufacturerDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new FkField('media_id', 'mediaId', MediaDefinition::class),
             (new StringField('link', 'link'))->setFlags(new Required()),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
-            new StringField('media_uuid', 'mediaUuid'),
             new DateField('updated_at', 'updatedAt'),
             new DateField('created_at', 'createdAt'),
             new TranslatedField(new LongTextField('description', 'description')),
             new TranslatedField(new StringField('meta_title', 'metaTitle')),
             new TranslatedField(new StringField('meta_description', 'metaDescription')),
             new TranslatedField(new StringField('meta_keywords', 'metaKeywords')),
-            new OneToManyAssociationField('products', ProductDefinition::class, 'product_manufacturer_uuid', false, 'uuid'),
-            (new TranslationsAssociationField('translations', ProductManufacturerTranslationDefinition::class, 'product_manufacturer_uuid', false, 'uuid'))->setFlags(new Required()),
+            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
+            new OneToManyAssociationField('products', ProductDefinition::class, 'product_manufacturer_id', false, 'id'),
+            (new TranslationsAssociationField('translations', ProductManufacturerTranslationDefinition::class, 'product_manufacturer_id', false, 'id'))->setFlags(new Required()),
         ]);
 
         foreach (self::$extensions as $extension) {

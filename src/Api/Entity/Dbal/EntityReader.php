@@ -41,7 +41,7 @@ class EntityReader implements EntityReaderInterface
         $this->searcher = $searcher;
     }
 
-    public function readDetail(string $definition, array $uuids, TranslationContext $context): EntityCollection
+    public function readDetail(string $definition, array $ids, TranslationContext $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $collectionClass = $definition::getDetailCollectionClass();
@@ -49,7 +49,7 @@ class EntityReader implements EntityReaderInterface
         $structClass = $definition::getDetailStructClass();
 
         return $this->read(
-            $uuids,
+            $ids,
             $definition,
             $context,
             new $structClass(),
@@ -58,7 +58,7 @@ class EntityReader implements EntityReaderInterface
         );
     }
 
-    public function readBasic(string $definition, array $uuids, TranslationContext $context): EntityCollection
+    public function readBasic(string $definition, array $ids, TranslationContext $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $collectionClass = $definition::getBasicCollectionClass();
@@ -66,7 +66,7 @@ class EntityReader implements EntityReaderInterface
         $structClass = $definition::getBasicStructClass();
 
         return $this->read(
-            $uuids,
+            $ids,
             $definition,
             $context,
             new $structClass(),
@@ -75,14 +75,14 @@ class EntityReader implements EntityReaderInterface
         );
     }
 
-    private function read(array $uuids, string $definition, TranslationContext $context, Entity $entity, EntityCollection $collection, FieldCollection $fields): EntityCollection
+    private function read(array $ids, string $definition, TranslationContext $context, Entity $entity, EntityCollection $collection, FieldCollection $fields): EntityCollection
     {
-        if (empty($uuids)) {
+        if (empty($ids)) {
             return $collection;
         }
 
         /** @var EntityDefinition $definition */
-        $rows = $this->fetch($uuids, $definition, $context, $fields);
+        $rows = $this->fetch($ids, $definition, $context, $fields);
         foreach ($rows as $row) {
             $collection->add(
                 EntityHydrator::hydrate(clone $entity, $definition, $row, $definition::getEntityName())
@@ -99,7 +99,7 @@ class EntityReader implements EntityReaderInterface
         /** @var OneToManyAssociationField[] $associations */
         $associations = $fields->filterInstance(OneToManyAssociationField::class);
         foreach ($associations as $association) {
-            $this->loadOneToMany($uuids, $association, $context, $collection);
+            $this->loadOneToMany($ids, $association, $context, $collection);
         }
 
         /** @var ManyToManyAssociationField[] $associations */
@@ -108,7 +108,7 @@ class EntityReader implements EntityReaderInterface
             $this->loadManyToMany($association, $context, $collection);
         }
 
-        $collection->sortByUuidArray($uuids);
+        $collection->sortByIdArray($ids);
 
         return $collection;
     }
@@ -189,14 +189,14 @@ class EntityReader implements EntityReaderInterface
     }
 
     /**
-     * @param array                   $uuids
+     * @param array                   $ids
      * @param string|EntityDefinition $definition
      * @param TranslationContext      $context
      * @param FieldCollection         $fields
      *
      * @return array
      */
-    private function fetch(array $uuids, string $definition, TranslationContext $context, FieldCollection $fields): array
+    private function fetch(array $ids, string $definition, TranslationContext $context, FieldCollection $fields): array
     {
         $table = $definition::getEntityName();
 
@@ -205,8 +205,8 @@ class EntityReader implements EntityReaderInterface
 
         $this->joinBasic($definition, $context, $table, $query, $fields);
 
-        $query->andWhere(EntityDefinitionResolver::escape($table) . '.`uuid` IN (:ids)');
-        $query->setParameter(':ids', array_values($uuids), Connection::PARAM_STR_ARRAY);
+        $query->andWhere(EntityDefinitionResolver::escape($table) . '.`id` IN (:ids)');
+        $query->setParameter('ids', array_values(EntityDefinitionResolver::uuidStringsToBytes($ids)), Connection::PARAM_STR_ARRAY);
 
         return $query->execute()->fetchAll();
     }
@@ -228,44 +228,44 @@ class EntityReader implements EntityReaderInterface
 
         $field = $definition::getFields()->getByStorageName($association->getStorageName());
 
-        $uuids = $collection->map(function (Entity $entity) use ($field) {
+        $ids = $collection->map(function (Entity $entity) use ($field) {
             return $entity->get($field->getPropertyName());
         });
 
-        $data = $this->readBasic($association->getReferenceClass(), $uuids, $context);
+        $data = $this->readBasic($association->getReferenceClass(), $ids, $context);
 
         /** @var Entity $struct */
         foreach ($collection as $struct) {
-            $uuid = $struct->get($field->getPropertyName());
+            $id = $struct->get($field->getPropertyName());
 
             if ($association->is(Extension::class)) {
-                $struct->addExtension($association->getPropertyName(), $data->get($uuid));
+                $struct->addExtension($association->getPropertyName(), $data->get($id));
                 continue;
             }
 
             $struct->assign([
-                $association->getPropertyName() => $data->get($uuid),
+                $association->getPropertyName() => $data->get($id),
             ]);
         }
     }
 
-    private function loadOneToMany(array $uuids, OneToManyAssociationField $association, TranslationContext $context, EntityCollection $collection): void
+    private function loadOneToMany(array $ids, OneToManyAssociationField $association, TranslationContext $context, EntityCollection $collection): void
     {
         $reference = $association->getReferenceClass();
 
         $field = $reference::getFields()->getByStorageName($association->getReferenceField());
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery($reference::getEntityName() . '.' . $field->getPropertyName(), $uuids));
+        $criteria->addFilter(new TermsQuery($reference::getEntityName() . '.' . $field->getPropertyName(), $ids));
 
-        $associationUuids = $this->searcher->search($reference, $criteria, $context);
+        $associationIds = $this->searcher->search($reference, $criteria, $context);
 
-        $data = $this->readBasic($reference, $associationUuids->getUuids(), $context);
+        $data = $this->readBasic($reference, $associationIds->getIds(), $context);
 
         /** @var Struct|Entity $struct */
         foreach ($collection as $struct) {
             //filter by property allows to avoid building the getter function name
-            $structData = $data->filterByProperty($field->getPropertyName(), $struct->getUuid());
+            $structData = $data->filterByProperty($field->getPropertyName(), $struct->getId());
 
             if ($association->is(Extension::class)) {
                 $struct->addExtension($association->getPropertyName(), $structData);
@@ -280,16 +280,16 @@ class EntityReader implements EntityReaderInterface
 
     private function loadManyToMany(ManyToManyAssociationField $association, TranslationContext $context, EntityCollection $collection): void
     {
-        $uuidProperty = $association->getStructUuidMappingProperty();
+        $idProperty = $association->getStructIdMappingProperty();
 
-        //collect all uuids of many to many association which already stored inside the struct instances
-        $uuids = $this->collectManyToManyUuids($collection, $uuidProperty);
+        //collect all ids of many to many association which already stored inside the struct instances
+        $ids = $this->collectManyToManyIds($collection, $idProperty);
 
-        $data = $this->readBasic($association->getReferenceDefinition(), $uuids, $context);
+        $data = $this->readBasic($association->getReferenceDefinition(), $ids, $context);
 
         foreach ($collection as $struct) {
             //use assign function to avoid setter name building
-            $structData = $data->getList($struct->get($uuidProperty));
+            $structData = $data->getList($struct->get($idProperty));
 
             if ($association->is(Extension::class)) {
                 $struct->addExtension($association->getPropertyName(), $structData);
@@ -324,7 +324,7 @@ class EntityReader implements EntityReaderInterface
                     EntityDefinitionResolver::escape($mapping::getEntityName()),
                     EntityDefinitionResolver::escape($field->getMappingLocalColumn()),
                     EntityDefinitionResolver::escape($root),
-                    EntityDefinitionResolver::escape('uuid'),
+                    EntityDefinitionResolver::escape('id'),
                     EntityDefinitionResolver::escape($root . '.' . $field->getPropertyName()),
                 ],
                 '(SELECT GROUP_CONCAT(#alias#.#mapping_reference_column# SEPARATOR \'|\')
@@ -334,17 +334,17 @@ class EntityReader implements EntityReaderInterface
         );
     }
 
-    private function collectManyToManyUuids(EntityCollection $collection, string $property): array
+    private function collectManyToManyIds(EntityCollection $collection, string $property): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($collection as $struct) {
             $tmp = $struct->get($property);
-            foreach ($tmp as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($tmp as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     /**

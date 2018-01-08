@@ -13,27 +13,22 @@ class ProductBasicStruct extends Entity
     /**
      * @var string|null
      */
-    protected $taxUuid;
+    protected $taxId;
 
     /**
      * @var string|null
      */
-    protected $manufacturerUuid;
+    protected $manufacturerId;
 
     /**
      * @var string|null
      */
-    protected $unitUuid;
+    protected $unitId;
 
     /**
      * @var string
      */
     protected $name;
-
-    /**
-     * @var string|null
-     */
-    protected $containerUuid;
 
     /**
      * @var bool
@@ -44,11 +39,6 @@ class ProductBasicStruct extends Entity
      * @var bool
      */
     protected $active;
-
-    /**
-     * @var string|null
-     */
-    protected $priceGroupUuid;
 
     /**
      * @var string|null
@@ -131,22 +121,22 @@ class ProductBasicStruct extends Entity
     protected $position;
 
     /**
-     * @var float|null
+     * @var float
      */
     protected $weight;
 
     /**
-     * @var float|null
+     * @var float
      */
     protected $width;
 
     /**
-     * @var float|null
+     * @var float
      */
     protected $height;
 
     /**
-     * @var float|null
+     * @var float
      */
     protected $length;
 
@@ -174,6 +164,16 @@ class ProductBasicStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var string|null
+     */
+    protected $containerId;
+
+    /**
+     * @var string|null
+     */
+    protected $priceGroupId;
 
     /**
      * @var array|null
@@ -235,34 +235,34 @@ class ProductBasicStruct extends Entity
      */
     protected $prices;
 
-    public function getTaxUuid(): ?string
+    public function getTaxId(): ?string
     {
-        return $this->taxUuid;
+        return $this->taxId;
     }
 
-    public function setTaxUuid(?string $taxUuid): void
+    public function setTaxId(?string $taxId): void
     {
-        $this->taxUuid = $taxUuid;
+        $this->taxId = $taxId;
     }
 
-    public function getManufacturerUuid(): ?string
+    public function getManufacturerId(): ?string
     {
-        return $this->manufacturerUuid;
+        return $this->manufacturerId;
     }
 
-    public function setManufacturerUuid(?string $manufacturerUuid): void
+    public function setManufacturerId(?string $manufacturerId): void
     {
-        $this->manufacturerUuid = $manufacturerUuid;
+        $this->manufacturerId = $manufacturerId;
     }
 
-    public function getUnitUuid(): ?string
+    public function getUnitId(): ?string
     {
-        return $this->unitUuid;
+        return $this->unitId;
     }
 
-    public function setUnitUuid(?string $unitUuid): void
+    public function setUnitId(?string $unitId): void
     {
-        $this->unitUuid = $unitUuid;
+        $this->unitId = $unitId;
     }
 
     public function getName(): string
@@ -273,16 +273,6 @@ class ProductBasicStruct extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
-    }
-
-    public function getContainerUuid(): ?string
-    {
-        return $this->containerUuid;
-    }
-
-    public function setContainerUuid(?string $containerUuid): void
-    {
-        $this->containerUuid = $containerUuid;
     }
 
     public function getIsMain(): bool
@@ -303,16 +293,6 @@ class ProductBasicStruct extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
-    }
-
-    public function getPriceGroupUuid(): ?string
-    {
-        return $this->priceGroupUuid;
-    }
-
-    public function setPriceGroupUuid(?string $priceGroupUuid): void
-    {
-        $this->priceGroupUuid = $priceGroupUuid;
     }
 
     public function getSupplierNumber(): ?string
@@ -475,42 +455,42 @@ class ProductBasicStruct extends Entity
         $this->position = $position;
     }
 
-    public function getWeight(): ?float
+    public function getWeight(): float
     {
         return $this->weight;
     }
 
-    public function setWeight(?float $weight): void
+    public function setWeight(float $weight): void
     {
         $this->weight = $weight;
     }
 
-    public function getWidth(): ?float
+    public function getWidth(): float
     {
         return $this->width;
     }
 
-    public function setWidth(?float $width): void
+    public function setWidth(float $width): void
     {
         $this->width = $width;
     }
 
-    public function getHeight(): ?float
+    public function getHeight(): float
     {
         return $this->height;
     }
 
-    public function setHeight(?float $height): void
+    public function setHeight(float $height): void
     {
         $this->height = $height;
     }
 
-    public function getLength(): ?float
+    public function getLength(): float
     {
         return $this->length;
     }
 
-    public function setLength(?float $length): void
+    public function setLength(float $length): void
     {
         $this->length = $length;
     }
@@ -563,6 +543,26 @@ class ProductBasicStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getContainerId(): ?string
+    {
+        return $this->containerId;
+    }
+
+    public function setContainerId(?string $containerId): void
+    {
+        $this->containerId = $containerId;
+    }
+
+    public function getPriceGroupId(): ?string
+    {
+        return $this->priceGroupId;
+    }
+
+    public function setPriceGroupId(?string $priceGroupId): void
+    {
+        $this->priceGroupId = $priceGroupId;
     }
 
     public function getCategoryTree(): ?array

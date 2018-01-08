@@ -3,7 +3,7 @@
 namespace Shopware\Api\#bundle#\Repository;
 
 use Shopware\Api\Entity\Search\AggregationResult;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
@@ -16,7 +16,7 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\Api\#bundle#\Event\#classUc#\#classUc#SearchResultLoadedEvent;
 use Shopware\Api\#bundle#\Event\#classUc#\#classUc#BasicLoadedEvent;
 use Shopware\Api\#bundle#\Event\#classUc#\#classUc#AggregationResultLoadedEvent;
-use Shopware\Api\#bundle#\Event\#classUc#\#classUc#UuidSearchResultLoadedEvent;
+use Shopware\Api\#bundle#\Event\#classUc#\#classUc#IdSearchResultLoadedEvent;
 use Shopware\Api\#bundle#\Struct\#classUc#SearchResult;
 use Shopware\Api\#bundle#\Definition\#classUc#Definition;
 use Shopware\Api\#bundle#\Collection\#classUc#BasicCollection;
@@ -66,16 +66,16 @@ class #classUc#Repository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): #classUc#SearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = #classUc#SearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = #classUc#SearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new #classUc#SearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -93,20 +93,20 @@ class #classUc#Repository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(#classUc#Definition::class, $criteria, $context);
 
-        $event = new #classUc#UuidSearchResultLoadedEvent($result);
+        $event = new #classUc#IdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): #classUc#BasicCollection
+    public function readBasic(array $ids, TranslationContext $context): #classUc#BasicCollection
     {
         /** @var #classUc#BasicCollection $entities */
-        $entities = $this->reader->readBasic(#classUc#Definition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(#classUc#Definition::class, $ids, $context);
 
         $event = new #classUc#BasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -114,7 +114,7 @@ class #classUc#Repository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): #classUc##detailCollection#
+    public function readDetail(array $ids, TranslationContext $context): #classUc##detailCollection#
     {
 #detailRead#
     }

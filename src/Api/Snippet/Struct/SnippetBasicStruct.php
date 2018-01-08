@@ -9,17 +9,12 @@ class SnippetBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $shopUuid;
+    protected $shopId;
 
     /**
      * @var string
      */
     protected $namespace;
-
-    /**
-     * @var int
-     */
-    protected $shopId;
 
     /**
      * @var string
@@ -51,14 +46,14 @@ class SnippetBasicStruct extends Entity
      */
     protected $dirty;
 
-    public function getShopUuid(): string
+    public function getShopId(): string
     {
-        return $this->shopUuid;
+        return $this->shopId;
     }
 
-    public function setShopUuid(string $shopUuid): void
+    public function setShopId(string $shopId): void
     {
-        $this->shopUuid = $shopUuid;
+        $this->shopId = $shopId;
     }
 
     public function getNamespace(): string
@@ -69,16 +64,6 @@ class SnippetBasicStruct extends Entity
     public function setNamespace(string $namespace): void
     {
         $this->namespace = $namespace;
-    }
-
-    public function getShopId(): int
-    {
-        return $this->shopId;
-    }
-
-    public function setShopId(int $shopId): void
-    {
-        $this->shopId = $shopId;
     }
 
     public function getLocale(): string

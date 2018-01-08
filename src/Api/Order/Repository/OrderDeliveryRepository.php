@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -18,8 +18,8 @@ use Shopware\Api\Order\Definition\OrderDeliveryDefinition;
 use Shopware\Api\Order\Event\OrderDelivery\OrderDeliveryAggregationResultLoadedEvent;
 use Shopware\Api\Order\Event\OrderDelivery\OrderDeliveryBasicLoadedEvent;
 use Shopware\Api\Order\Event\OrderDelivery\OrderDeliveryDetailLoadedEvent;
+use Shopware\Api\Order\Event\OrderDelivery\OrderDeliveryIdSearchResultLoadedEvent;
 use Shopware\Api\Order\Event\OrderDelivery\OrderDeliverySearchResultLoadedEvent;
-use Shopware\Api\Order\Event\OrderDelivery\OrderDeliveryUuidSearchResultLoadedEvent;
 use Shopware\Api\Order\Struct\OrderDeliverySearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,16 +67,16 @@ class OrderDeliveryRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): OrderDeliverySearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = OrderDeliverySearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = OrderDeliverySearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new OrderDeliverySearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class OrderDeliveryRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(OrderDeliveryDefinition::class, $criteria, $context);
 
-        $event = new OrderDeliveryUuidSearchResultLoadedEvent($result);
+        $event = new OrderDeliveryIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): OrderDeliveryBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): OrderDeliveryBasicCollection
     {
         /** @var OrderDeliveryBasicCollection $entities */
-        $entities = $this->reader->readBasic(OrderDeliveryDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(OrderDeliveryDefinition::class, $ids, $context);
 
         $event = new OrderDeliveryBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class OrderDeliveryRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): OrderDeliveryDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): OrderDeliveryDetailCollection
     {
         /** @var OrderDeliveryDetailCollection $entities */
-        $entities = $this->reader->readDetail(OrderDeliveryDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(OrderDeliveryDefinition::class, $ids, $context);
 
         $event = new OrderDeliveryDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

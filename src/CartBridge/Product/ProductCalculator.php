@@ -61,7 +61,7 @@ class ProductCalculator
         /** @var LineItemInterface $lineItem */
         foreach ($collection as $lineItem) {
             $payload = $lineItem->getPayload();
-            $identifier = $payload['uuid'];
+            $identifier = $payload['id'];
 
             if (!$dataCollection->has($identifier)) {
                 continue;

@@ -7,6 +7,7 @@ use Shopware\Api\Mail\Event\MailAttachment\MailAttachmentBasicLoadedEvent;
 use Shopware\Api\Media\Collection\MediaDetailCollection;
 use Shopware\Api\Media\Event\MediaAlbum\MediaAlbumBasicLoadedEvent;
 use Shopware\Api\Media\Event\MediaTranslation\MediaTranslationBasicLoadedEvent;
+use Shopware\Api\Product\Event\ProductManufacturer\ProductManufacturerBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductMedia\ProductMediaBasicLoadedEvent;
 use Shopware\Api\User\Event\User\UserBasicLoadedEvent;
 use Shopware\Context\Struct\TranslationContext;
@@ -65,6 +66,9 @@ class MediaDetailLoadedEvent extends NestedEvent
         }
         if ($this->media->getTranslations()->count() > 0) {
             $events[] = new MediaTranslationBasicLoadedEvent($this->media->getTranslations(), $this->context);
+        }
+        if ($this->media->getProductManufacturers()->count() > 0) {
+            $events[] = new ProductManufacturerBasicLoadedEvent($this->media->getProductManufacturers(), $this->context);
         }
         if ($this->media->getProductMedia()->count() > 0) {
             $events[] = new ProductMediaBasicLoadedEvent($this->media->getProductMedia(), $this->context);

@@ -9,17 +9,17 @@ class MailAttachmentBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $mailUuid;
+    protected $mailId;
 
     /**
      * @var string
      */
-    protected $mediaUuid;
+    protected $mediaId;
 
     /**
      * @var string|null
      */
-    protected $shopUuid;
+    protected $shopId;
 
     /**
      * @var \DateTime|null
@@ -31,34 +31,34 @@ class MailAttachmentBasicStruct extends Entity
      */
     protected $updatedAt;
 
-    public function getMailUuid(): string
+    public function getMailId(): string
     {
-        return $this->mailUuid;
+        return $this->mailId;
     }
 
-    public function setMailUuid(string $mailUuid): void
+    public function setMailId(string $mailId): void
     {
-        $this->mailUuid = $mailUuid;
+        $this->mailId = $mailId;
     }
 
-    public function getMediaUuid(): string
+    public function getMediaId(): string
     {
-        return $this->mediaUuid;
+        return $this->mediaId;
     }
 
-    public function setMediaUuid(string $mediaUuid): void
+    public function setMediaId(string $mediaId): void
     {
-        $this->mediaUuid = $mediaUuid;
+        $this->mediaId = $mediaId;
     }
 
-    public function getShopUuid(): ?string
+    public function getShopId(): ?string
     {
-        return $this->shopUuid;
+        return $this->shopId;
     }
 
-    public function setShopUuid(?string $shopUuid): void
+    public function setShopId(?string $shopId): void
     {
-        $this->shopUuid = $shopUuid;
+        $this->shopId = $shopId;
     }
 
     public function getCreatedAt(): ?\DateTime

@@ -14,13 +14,13 @@ use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -56,19 +56,19 @@ class CountryStateDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('country_uuid', 'countryUuid', CountryDefinition::class))->setFlags(new Required()),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),
             (new StringField('short_code', 'shortCode'))->setFlags(new Required()),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
             new IntField('position', 'position'),
             new BoolField('active', 'active'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('country', 'country_uuid', CountryDefinition::class, false),
-            (new TranslationsAssociationField('translations', CountryStateTranslationDefinition::class, 'country_state_uuid', false, 'uuid'))->setFlags(new Required()),
-            new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'country_state_uuid', false, 'uuid'),
-            new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'country_state_uuid', false, 'uuid'),
-            new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'country_state_uuid', false, 'uuid'),
+            new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, false),
+            (new TranslationsAssociationField('translations', CountryStateTranslationDefinition::class, 'country_state_id', false, 'id'))->setFlags(new Required()),
+            new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'country_state_id', false, 'id'),
+            new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'country_state_id', false, 'id'),
+            new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'country_state_id', false, 'id'),
         ]);
 
         foreach (self::$extensions as $extension) {

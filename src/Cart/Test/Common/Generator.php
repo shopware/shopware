@@ -58,28 +58,28 @@ class Generator extends TestCase
     ) {
         if ($shop === null) {
             $shop = new ShopDetailStruct();
-            $shop->setUuid('SWAG-SHOP-UUID-1');
+            $shop->setId('FFA32A50-E2D0-4CF3-8389-A53F8D6CD594');
             $shop->setIsDefault(true);
-            $shop->setFallbackTranslationUuid(null);
+            $shop->setFallbackTranslationId(null);
         }
 
         $currency = $currency ?: (new CurrencyBasicStruct())->assign([
-            'uuid' => '1',
+            'id' => '1',
         ]);
 
         if (!$currentCustomerGroup) {
             $currentCustomerGroup = new CustomerGroupBasicStruct();
-            $currentCustomerGroup->setUuid('EK2');
+            $currentCustomerGroup->setId('EK2');
         }
 
         if (!$fallbackCustomerGroup) {
             $fallbackCustomerGroup = new CustomerGroupBasicStruct();
-            $fallbackCustomerGroup->setUuid('EK1');
+            $fallbackCustomerGroup->setId('EK1');
         }
 
         if (!$taxes) {
             $tax = new TaxBasicStruct();
-            $tax->setUuid('SWAG-TAX-UUID-1');
+            $tax->setId('SWAG-TAX-ID-1');
             $tax->setName('test');
             $tax->setRate(19.0);
 
@@ -88,18 +88,18 @@ class Generator extends TestCase
 
         if (!$area) {
             $area = new CountryAreaBasicStruct();
-            $area->setUuid('SWAG-AREA-UUID-1');
+            $area->setId('SWAG-AREA-ID-1');
         }
 
         if (!$country) {
             $country = new CountryBasicStruct();
-            $country->setUuid('SWAG-AREA-COUNTRY-UUID-1');
-            $country->setAreaUuid($area->getUuid());
+            $country->setId('SWAG-AREA-COUNTRY-ID-1');
+            $country->setAreaId($area->getId());
         }
         if (!$state) {
             $state = new CountryStateBasicStruct();
-            $state->setUuid('SWAG-AREA-COUNTRY-STATE-UUID-1');
-            $state->setCountryUuid($country->getUuid());
+            $state->setId('SWAG-AREA-COUNTRY-STATE-ID-1');
+            $state->setCountryId($country->getId());
         }
 
         if (!$shipping) {
@@ -108,9 +108,9 @@ class Generator extends TestCase
             $shipping->setCountryState($state);
         }
 
-        $paymentMethod = (new PaymentMethodBasicStruct())->assign(['uuid' => '1']);
-        $shippingMethod = (new ShippingMethodBasicStruct())->assign(['uuid' => '1']);
-        $customer = (new CustomerBasicStruct())->assign(['uuid' => '1']);
+        $paymentMethod = (new PaymentMethodBasicStruct())->assign(['id' => '1']);
+        $shippingMethod = (new ShippingMethodBasicStruct())->assign(['id' => '1']);
+        $customer = (new CustomerBasicStruct())->assign(['id' => '1']);
 
         return new ShopContext(
             $shop,

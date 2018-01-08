@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -18,8 +18,8 @@ use Shopware\Api\Shop\Definition\ShopDefinition;
 use Shopware\Api\Shop\Event\Shop\ShopAggregationResultLoadedEvent;
 use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Api\Shop\Event\Shop\ShopDetailLoadedEvent;
+use Shopware\Api\Shop\Event\Shop\ShopIdSearchResultLoadedEvent;
 use Shopware\Api\Shop\Event\Shop\ShopSearchResultLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopUuidSearchResultLoadedEvent;
 use Shopware\Api\Shop\Struct\ShopSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,16 +67,16 @@ class ShopRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): ShopSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = ShopSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = ShopSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new ShopSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class ShopRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(ShopDefinition::class, $criteria, $context);
 
-        $event = new ShopUuidSearchResultLoadedEvent($result);
+        $event = new ShopIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): ShopBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): ShopBasicCollection
     {
         /** @var ShopBasicCollection $entities */
-        $entities = $this->reader->readBasic(ShopDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(ShopDefinition::class, $ids, $context);
 
         $event = new ShopBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class ShopRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): ShopDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): ShopDetailCollection
     {
         /** @var ShopDetailCollection $entities */
-        $entities = $this->reader->readDetail(ShopDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(ShopDefinition::class, $ids, $context);
 
         $event = new ShopDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

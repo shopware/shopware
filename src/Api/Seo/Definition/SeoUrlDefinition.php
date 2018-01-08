@@ -6,16 +6,21 @@ use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
+use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\LongTextField;
+use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\StringField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Seo\Collection\SeoUrlBasicCollection;
+use Shopware\Api\Seo\Collection\SeoUrlDetailCollection;
 use Shopware\Api\Seo\Event\SeoUrl\SeoUrlWrittenEvent;
 use Shopware\Api\Seo\Repository\SeoUrlRepository;
 use Shopware\Api\Seo\Struct\SeoUrlBasicStruct;
+use Shopware\Api\Seo\Struct\SeoUrlDetailStruct;
+use Shopware\Api\Shop\Definition\ShopDefinition;
 
 class SeoUrlDefinition extends EntityDefinition
 {
@@ -46,15 +51,16 @@ class SeoUrlDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('shop_uuid', 'shopUuid'))->setFlags(new Required()),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('shop_id', 'shopId', ShopDefinition::class))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
-            (new StringField('foreign_key', 'foreignKey'))->setFlags(new Required()),
+            (new IdField('foreign_key', 'foreignKey'))->setFlags(new Required()),
             (new LongTextField('path_info', 'pathInfo'))->setFlags(new Required()),
             (new LongTextField('seo_path_info', 'seoPathInfo'))->setFlags(new Required()),
             new BoolField('is_canonical', 'isCanonical'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
+            new ManyToOneAssociationField('shop', 'shop_id', ShopDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -87,5 +93,15 @@ class SeoUrlDefinition extends EntityDefinition
     public static function getTranslationDefinitionClass(): ?string
     {
         return null;
+    }
+
+    public static function getDetailStructClass(): string
+    {
+        return SeoUrlDetailStruct::class;
+    }
+
+    public static function getDetailCollectionClass(): string
+    {
+        return SeoUrlDetailCollection::class;
     }
 }

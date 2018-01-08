@@ -12,9 +12,9 @@ class ConfigFormBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ConfigFormBasicStruct
+    public function get(string $id): ? ConfigFormBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ConfigFormBasicStruct
@@ -22,31 +22,31 @@ class ConfigFormBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getParentUuids(): array
+    public function getParentIds(): array
     {
         return $this->fmap(function (ConfigFormBasicStruct $configForm) {
-            return $configForm->getParentUuid();
+            return $configForm->getParentId();
         });
     }
 
-    public function filterByParentUuid(string $uuid): self
+    public function filterByParentId(string $id): self
     {
-        return $this->filter(function (ConfigFormBasicStruct $configForm) use ($uuid) {
-            return $configForm->getParentUuid() === $uuid;
+        return $this->filter(function (ConfigFormBasicStruct $configForm) use ($id) {
+            return $configForm->getParentId() === $id;
         });
     }
 
-    public function getPluginUuids(): array
+    public function getPluginIds(): array
     {
         return $this->fmap(function (ConfigFormBasicStruct $configForm) {
-            return $configForm->getPluginUuid();
+            return $configForm->getPluginId();
         });
     }
 
-    public function filterByPluginUuid(string $uuid): self
+    public function filterByPluginId(string $id): self
     {
-        return $this->filter(function (ConfigFormBasicStruct $configForm) use ($uuid) {
-            return $configForm->getPluginUuid() === $uuid;
+        return $this->filter(function (ConfigFormBasicStruct $configForm) use ($id) {
+            return $configForm->getPluginId() === $id;
         });
     }
 

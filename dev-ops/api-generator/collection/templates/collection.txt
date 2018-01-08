@@ -13,9 +13,9 @@ class #classUc#BasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? #classUc#BasicStruct
+    public function get(string $id): ? #classUc#BasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): #classUc#BasicStruct
@@ -23,7 +23,7 @@ class #classUc#BasicCollection extends EntityCollection
         return parent::current();
     }
 
-#collectiveUuidGetters#
+#collectiveIdGetters#
 
     protected function getExpectedClass(): string
     {

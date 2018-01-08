@@ -9,16 +9,16 @@ class Entity extends Struct
     /**
      * @var string
      */
-    protected $uuid;
+    protected $id;
 
-    public function getUuid(): string
+    public function getId(): string
     {
-        return $this->uuid;
+        return $this->id;
     }
 
-    public function setUuid(string $uuid): void
+    public function setId(string $id): void
     {
-        $this->uuid = $uuid;
+        $this->id = $id;
     }
 
     public function get(string $property)

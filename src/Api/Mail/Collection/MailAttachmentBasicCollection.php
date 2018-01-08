@@ -12,9 +12,9 @@ class MailAttachmentBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? MailAttachmentBasicStruct
+    public function get(string $id): ? MailAttachmentBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): MailAttachmentBasicStruct
@@ -22,45 +22,45 @@ class MailAttachmentBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getMailUuids(): array
+    public function getMailIds(): array
     {
         return $this->fmap(function (MailAttachmentBasicStruct $mailAttachment) {
-            return $mailAttachment->getMailUuid();
+            return $mailAttachment->getMailId();
         });
     }
 
-    public function filterByMailUuid(string $uuid): self
+    public function filterByMailId(string $id): self
     {
-        return $this->filter(function (MailAttachmentBasicStruct $mailAttachment) use ($uuid) {
-            return $mailAttachment->getMailUuid() === $uuid;
+        return $this->filter(function (MailAttachmentBasicStruct $mailAttachment) use ($id) {
+            return $mailAttachment->getMailId() === $id;
         });
     }
 
-    public function getMediaUuids(): array
-    {
-        return $this->fmap(function (MailAttachmentBasicStruct $mailAttachment) {
-            return $mailAttachment->getMediaUuid();
-        });
-    }
-
-    public function filterByMediaUuid(string $uuid): self
-    {
-        return $this->filter(function (MailAttachmentBasicStruct $mailAttachment) use ($uuid) {
-            return $mailAttachment->getMediaUuid() === $uuid;
-        });
-    }
-
-    public function getShopUuids(): array
+    public function getMediaIds(): array
     {
         return $this->fmap(function (MailAttachmentBasicStruct $mailAttachment) {
-            return $mailAttachment->getShopUuid();
+            return $mailAttachment->getMediaId();
         });
     }
 
-    public function filterByShopUuid(string $uuid): self
+    public function filterByMediaId(string $id): self
     {
-        return $this->filter(function (MailAttachmentBasicStruct $mailAttachment) use ($uuid) {
-            return $mailAttachment->getShopUuid() === $uuid;
+        return $this->filter(function (MailAttachmentBasicStruct $mailAttachment) use ($id) {
+            return $mailAttachment->getMediaId() === $id;
+        });
+    }
+
+    public function getShopIds(): array
+    {
+        return $this->fmap(function (MailAttachmentBasicStruct $mailAttachment) {
+            return $mailAttachment->getShopId();
+        });
+    }
+
+    public function filterByShopId(string $id): self
+    {
+        return $this->filter(function (MailAttachmentBasicStruct $mailAttachment) use ($id) {
+            return $mailAttachment->getShopId() === $id;
         });
     }
 

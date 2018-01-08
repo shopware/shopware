@@ -12,6 +12,7 @@ use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
@@ -19,7 +20,6 @@ use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -54,19 +54,19 @@ class ConfigFormDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            new FkField('parent_uuid', 'parentUuid', self::class),
-            new FkField('plugin_uuid', 'pluginUuid', PluginDefinition::class),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new FkField('parent_id', 'parentId', self::class),
+            new FkField('plugin_id', 'pluginId', PluginDefinition::class),
             (new StringField('name', 'name'))->setFlags(new Required()),
             new IntField('position', 'position'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new TranslatedField(new StringField('label', 'label')),
             new TranslatedField(new LongTextField('description', 'description')),
-            new ManyToOneAssociationField('parent', 'parent_uuid', self::class, false),
-            new ManyToOneAssociationField('plugin', 'plugin_uuid', PluginDefinition::class, false),
-            new OneToManyAssociationField('fields', ConfigFormFieldDefinition::class, 'config_form_uuid', false, 'uuid'),
-            new TranslationsAssociationField('translations', ConfigFormTranslationDefinition::class, 'config_form_uuid', false, 'uuid'),
+            new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
+            new ManyToOneAssociationField('plugin', 'plugin_id', PluginDefinition::class, false),
+            new OneToManyAssociationField('fields', ConfigFormFieldDefinition::class, 'config_form_id', false, 'id'),
+            new TranslationsAssociationField('translations', ConfigFormTranslationDefinition::class, 'config_form_id', false, 'id'),
         ]);
 
         foreach (self::$extensions as $extension) {

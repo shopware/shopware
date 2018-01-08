@@ -5,7 +5,7 @@ namespace Shopware\Traceable\Dbal;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\Stopwatch\Stopwatch;
 
@@ -27,7 +27,7 @@ class TraceableEntitySearcher implements EntitySearcherInterface
         $this->stopwatch = $stopwatch;
     }
 
-    public function search(string $definition, Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function search(string $definition, Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         /** @var EntityDefinition $definition */
         $entity = $definition::getEntityName();

@@ -13,9 +13,9 @@ class ProductMediaBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ProductMediaBasicStruct
+    public function get(string $id): ? ProductMediaBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ProductMediaBasicStruct
@@ -23,45 +23,45 @@ class ProductMediaBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getProductUuids(): array
+    public function getProductIds(): array
     {
         return $this->fmap(function (ProductMediaBasicStruct $productMedia) {
-            return $productMedia->getProductUuid();
+            return $productMedia->getProductId();
         });
     }
 
-    public function filterByProductUuid(string $uuid): self
+    public function filterByProductId(string $id): self
     {
-        return $this->filter(function (ProductMediaBasicStruct $productMedia) use ($uuid) {
-            return $productMedia->getProductUuid() === $uuid;
+        return $this->filter(function (ProductMediaBasicStruct $productMedia) use ($id) {
+            return $productMedia->getProductId() === $id;
         });
     }
 
-    public function getMediaUuids(): array
-    {
-        return $this->fmap(function (ProductMediaBasicStruct $productMedia) {
-            return $productMedia->getMediaUuid();
-        });
-    }
-
-    public function filterByMediaUuid(string $uuid): self
-    {
-        return $this->filter(function (ProductMediaBasicStruct $productMedia) use ($uuid) {
-            return $productMedia->getMediaUuid() === $uuid;
-        });
-    }
-
-    public function getParentUuids(): array
+    public function getMediaIds(): array
     {
         return $this->fmap(function (ProductMediaBasicStruct $productMedia) {
-            return $productMedia->getParentUuid();
+            return $productMedia->getMediaId();
         });
     }
 
-    public function filterByParentUuid(string $uuid): self
+    public function filterByMediaId(string $id): self
     {
-        return $this->filter(function (ProductMediaBasicStruct $productMedia) use ($uuid) {
-            return $productMedia->getParentUuid() === $uuid;
+        return $this->filter(function (ProductMediaBasicStruct $productMedia) use ($id) {
+            return $productMedia->getMediaId() === $id;
+        });
+    }
+
+    public function getParentIds(): array
+    {
+        return $this->fmap(function (ProductMediaBasicStruct $productMedia) {
+            return $productMedia->getParentId();
+        });
+    }
+
+    public function filterByParentId(string $id): self
+    {
+        return $this->filter(function (ProductMediaBasicStruct $productMedia) use ($id) {
+            return $productMedia->getParentId() === $id;
         });
     }
 

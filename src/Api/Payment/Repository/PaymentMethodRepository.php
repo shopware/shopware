@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -18,8 +18,8 @@ use Shopware\Api\Payment\Definition\PaymentMethodDefinition;
 use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodAggregationResultLoadedEvent;
 use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
 use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodDetailLoadedEvent;
+use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodIdSearchResultLoadedEvent;
 use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodSearchResultLoadedEvent;
-use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodUuidSearchResultLoadedEvent;
 use Shopware\Api\Payment\Struct\PaymentMethodSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,16 +67,16 @@ class PaymentMethodRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): PaymentMethodSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = PaymentMethodSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = PaymentMethodSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new PaymentMethodSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class PaymentMethodRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(PaymentMethodDefinition::class, $criteria, $context);
 
-        $event = new PaymentMethodUuidSearchResultLoadedEvent($result);
+        $event = new PaymentMethodIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): PaymentMethodBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): PaymentMethodBasicCollection
     {
         /** @var PaymentMethodBasicCollection $entities */
-        $entities = $this->reader->readBasic(PaymentMethodDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(PaymentMethodDefinition::class, $ids, $context);
 
         $event = new PaymentMethodBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class PaymentMethodRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): PaymentMethodDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): PaymentMethodDetailCollection
     {
         /** @var PaymentMethodDetailCollection $entities */
-        $entities = $this->reader->readDetail(PaymentMethodDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(PaymentMethodDefinition::class, $ids, $context);
 
         $event = new PaymentMethodDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

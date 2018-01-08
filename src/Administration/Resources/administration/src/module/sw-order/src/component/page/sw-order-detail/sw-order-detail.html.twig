@@ -1,7 +1,7 @@
 <sw-workspace>
     <header class="toolbar--middle-section" slot="header">
         <h1 class="workspace--headline">
-            <span v-if="!isWorking">{{ order.uuid }} <span class="is--small">von {{ order.customer.firstName }} {{ order.customer.lastName }}</span></span>
+            <span v-if="!isWorking">{{ order.id }} <span class="is--small">von {{ order.customer.firstName }} {{ order.customer.lastName }}</span></span>
             <span v-else class="headline--empty">(lade Bestellung...)</span>
         </h1>
 

@@ -26,37 +26,37 @@ class ListingPriceLoader
         $this->calculator = $calculator;
     }
 
-    public function load(array $productUuids): ProductListingPriceBasicCollection
+    public function load(array $productIds): ProductListingPriceBasicCollection
     {
         $query = $this->connection->createQueryBuilder();
         $query->addSelect([
-            'product.uuid',
+            'product.id',
             'tax.tax_rate',
-            'product_price.customer_group_uuid as customer_group_uuid',
+            'product_price.customer_group_id as customer_group_id',
             'MIN(product_price.price) as price',
             'COUNT(DISTINCT(product_price.price)) as display_from_price',
         ]);
 
         $query->from('product');
-        $query->innerJoin('product', 'product_price', 'product_price', 'product_price.product_uuid = product.uuid');
-        $query->innerJoin('product', 'tax', 'tax', 'tax.uuid = product.tax_uuid');
-        $query->andWhere('product.uuid IN (:uuids)');
-        $query->setParameter(':uuids', $productUuids, Connection::PARAM_STR_ARRAY);
-        $query->addGroupBy('product.uuid');
-        $query->addGroupBy('product_price.customer_group_uuid');
+        $query->innerJoin('product', 'product_price', 'product_price', 'product_price.product_id = product.id');
+        $query->innerJoin('product', 'tax', 'tax', 'tax.id = product.tax_id');
+        $query->andWhere('product.id IN (:ids)');
+        $query->setParameter('ids', $productIds, Connection::PARAM_STR_ARRAY);
+        $query->addGroupBy('product.id');
+        $query->addGroupBy('product_price.customer_group_id');
         $query->addGroupBy('tax.tax_rate');
 
         $rows = $query->execute()->fetchAll();
         $collection = new ProductListingPriceBasicCollection();
         foreach ($rows as $row) {
             $struct = new ProductListingPriceBasicStruct();
-            $struct->setUuid(Uuid::uuid4()->toString());
-            $struct->setProductUuid($row['uuid']);
+            $struct->setId(Uuid::uuid4()->toString());
+            $struct->setProductId($row['id']);
             $gross = ((float) $row['price']) * ((100 + $row['tax_rate']) / 100);
 
             $struct->setSortingPrice($gross);
             $struct->setPrice((float) $row['price']);
-            $struct->setCustomerGroupUuid($row['customer_group_uuid']);
+            $struct->setCustomerGroupId($row['customer_group_id']);
             $struct->setDisplayFromPrice(((int) $row['display_from_price']) > 1);
             $collection->add($struct);
         }

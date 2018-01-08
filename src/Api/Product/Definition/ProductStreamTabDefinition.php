@@ -5,8 +5,8 @@ namespace Shopware\Api\Product\Definition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -36,13 +36,13 @@ class ProductStreamTabDefinition extends EntityDefinition
         }
 
         return self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('product_stream_uuid', 'productStreamUuid', ProductStreamDefinition::class))->setFlags(new Required()),
-            (new FkField('product_uuid', 'productUuid', ProductDefinition::class))->setFlags(new Required()),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class))->setFlags(new Required()),
+            (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('productStream', 'product_stream_uuid', ProductStreamDefinition::class, false),
-            new ManyToOneAssociationField('product', 'product_uuid', ProductDefinition::class, false),
+            new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, false),
+            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
         ]);
     }
 

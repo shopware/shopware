@@ -126,7 +126,7 @@ class ShippingStreetRuleTest extends TestCase
         $address = new CustomerAddressBasicStruct();
         $state = new CountryStateBasicStruct();
         $country = new CountryBasicStruct();
-        $state->setCountryUuid('SWAG-AREA-COUNTRY-UUID-1');
+        $state->setCountryId('SWAG-AREA-COUNTRY-ID-1');
 
         $address->setStreet($street);
         $address->setCountry($country);

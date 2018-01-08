@@ -12,9 +12,9 @@ class CustomerGroupDiscountBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? CustomerGroupDiscountBasicStruct
+    public function get(string $id): ? CustomerGroupDiscountBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): CustomerGroupDiscountBasicStruct
@@ -22,28 +22,28 @@ class CustomerGroupDiscountBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getCustomerGroupUuids(): array
+    public function getCustomerGroupIds(): array
     {
         return $this->fmap(function (CustomerGroupDiscountBasicStruct $customerGroupDiscount) {
-            return $customerGroupDiscount->getCustomerGroupUuid();
+            return $customerGroupDiscount->getCustomerGroupId();
         });
     }
 
-    public function filterByCustomerGroupUuid(string $uuid): self
+    public function filterByCustomerGroupId(string $id): self
     {
-        return $this->filter(function (CustomerGroupDiscountBasicStruct $customerGroupDiscount) use ($uuid) {
-            return $customerGroupDiscount->getCustomerGroupUuid() === $uuid;
+        return $this->filter(function (CustomerGroupDiscountBasicStruct $customerGroupDiscount) use ($id) {
+            return $customerGroupDiscount->getCustomerGroupId() === $id;
         });
     }
 
-    public function getDiscountForCartAmount(float $totalPrice, string $customerGroupUuid): ?float
+    public function getDiscountForCartAmount(float $totalPrice, string $customerGroupId): ?float
     {
         $discount = null;
         foreach ($this->elements as $discountData) {
             if ($discountData->getMinimumCartAmount() > $totalPrice) {
                 break;
             }
-            if ($discountData->getCustomerGroupUuid() === $customerGroupUuid) {
+            if ($discountData->getCustomerGroupId() === $customerGroupId) {
                 $discount = $discountData->getPercentageDiscount() * -1;
             }
         }

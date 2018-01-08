@@ -15,9 +15,9 @@ trait SearchResultTrait
     protected $aggregationResult;
 
     /**
-     * @var UuidSearchResult
+     * @var IdSearchResult
      */
-    protected $uuidResult;
+    protected $idResult;
 
     public function getAggregations(): array
     {
@@ -26,17 +26,17 @@ trait SearchResultTrait
 
     public function getTotal(): int
     {
-        return $this->uuidResult->getTotal();
+        return $this->idResult->getTotal();
     }
 
     public function getCriteria(): Criteria
     {
-        return $this->uuidResult->getCriteria();
+        return $this->idResult->getCriteria();
     }
 
     public function getContext(): TranslationContext
     {
-        return $this->uuidResult->getContext();
+        return $this->idResult->getContext();
     }
 
     public function getAggregationResult(): ?AggregationResult
@@ -44,32 +44,32 @@ trait SearchResultTrait
         return $this->aggregationResult;
     }
 
-    public function getUuidResult(): UuidSearchResult
+    public function getIdResult(): IdSearchResult
     {
-        return $this->uuidResult;
+        return $this->idResult;
     }
 
     public static function createFromResults(
-        UuidSearchResult $uuids,
+        IdSearchResult $ids,
         EntityCollection $entities,
         ?AggregationResult $aggregations
     ) {
         $self = new static($entities->getElements());
 
-        $search = $uuids->getData();
+        $search = $ids->getData();
 
         /** @var Entity $element */
         foreach ($entities->getElements() as $element) {
-            if (!array_key_exists($element->getUuid(), $search)) {
+            if (!array_key_exists($element->getId(), $search)) {
                 continue;
             }
-            $data = $search[$element->getUuid()];
+            $data = $search[$element->getId()];
 
             $element->addExtension('search', new ArrayStruct($data));
         }
 
         $self->aggregationResult = $aggregations;
-        $self->uuidResult = $uuids;
+        $self->idResult = $ids;
 
         return $self;
     }

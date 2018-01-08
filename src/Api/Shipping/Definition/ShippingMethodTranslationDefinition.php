@@ -48,13 +48,13 @@ class ShippingMethodTranslationDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new FkField('shipping_method_uuid', 'shippingMethodUuid', ShippingMethodDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('language_uuid', 'languageUuid', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             new LongTextField('description', 'description'),
             new StringField('comment', 'comment'),
-            new ManyToOneAssociationField('shippingMethod', 'shipping_method_uuid', ShippingMethodDefinition::class, false),
-            new ManyToOneAssociationField('language', 'language_uuid', ShopDefinition::class, false),
+            new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, false),
+            new ManyToOneAssociationField('language', 'language_id', ShopDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

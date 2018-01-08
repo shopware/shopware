@@ -80,7 +80,7 @@ class OrderClearedStateRuleCollector implements CollectorInterface
         $query->select('DISTINCT cleared');
         $query->from('s_order');
         $query->where('userID = :userId');
-        $query->setParameter('userId', $customer->getUuid());
+        $query->setParameter('userId', $customer->getId());
 
         $states = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
 

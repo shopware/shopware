@@ -9,12 +9,12 @@ class LocaleTranslationBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $localeUuid;
+    protected $localeId;
 
     /**
      * @var string
      */
-    protected $languageUuid;
+    protected $languageId;
 
     /**
      * @var string
@@ -26,24 +26,24 @@ class LocaleTranslationBasicStruct extends Entity
      */
     protected $territory;
 
-    public function getLocaleUuid(): string
+    public function getLocaleId(): string
     {
-        return $this->localeUuid;
+        return $this->localeId;
     }
 
-    public function setLocaleUuid(string $localeUuid): void
+    public function setLocaleId(string $localeId): void
     {
-        $this->localeUuid = $localeUuid;
+        $this->localeId = $localeId;
     }
 
-    public function getLanguageUuid(): string
+    public function getLanguageId(): string
     {
-        return $this->languageUuid;
+        return $this->languageId;
     }
 
-    public function setLanguageUuid(string $languageUuid): void
+    public function setLanguageId(string $languageId): void
     {
-        $this->languageUuid = $languageUuid;
+        $this->languageId = $languageId;
     }
 
     public function getName(): string

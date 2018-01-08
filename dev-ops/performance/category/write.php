@@ -16,7 +16,7 @@ $kernel->boot();
 function createWriteContext(): \Shopware\Api\Entity\Write\WriteContext
 {
     return \Shopware\Api\Entitiy\Write\WriteContext::createFromTranslationContext(
-        new \Shopware\Context\Struct\TranslationContext('SWAG-SHOP-UUID-1', true, null)
+        new \Shopware\Context\Struct\TranslationContext('FFA32A50-E2D0-4CF3-8389-A53F8D6CD594', true, null)
     );
 }
 
@@ -24,7 +24,7 @@ $container = $kernel->getContainer();
 
 /** @var \Doctrine\DBAL\Connection $con */
 $con = $container->get('dbal_connection');
-$con->executeUpdate("DELETE FROM category WHERE uuid NOT IN ('SWAG-CATEGORY-UUID-3', 'SWAG-CATEGORY-UUID-39', 'SWAG-CATEGORY-UUID-1');");
+$con->executeUpdate("DELETE FROM category WHERE id NOT IN ('SWAG-CATEGORY-ID-3', 'SWAG-CATEGORY-ID-39', 'SWAG-CATEGORY-ID-1');");
 
 echo "\nPreparing\n\n";
 $writer = $container->get('shopware.framework.write.writer');

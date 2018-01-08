@@ -16,9 +16,9 @@ class OrderBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? OrderBasicStruct
+    public function get(string $id): ? OrderBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): OrderBasicStruct
@@ -26,87 +26,87 @@ class OrderBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getCustomerUuids(): array
+    public function getCustomerIds(): array
     {
         return $this->fmap(function (OrderBasicStruct $order) {
-            return $order->getCustomerUuid();
+            return $order->getCustomerId();
         });
     }
 
-    public function filterByCustomerUuid(string $uuid): self
+    public function filterByCustomerId(string $id): self
     {
-        return $this->filter(function (OrderBasicStruct $order) use ($uuid) {
-            return $order->getCustomerUuid() === $uuid;
+        return $this->filter(function (OrderBasicStruct $order) use ($id) {
+            return $order->getCustomerId() === $id;
         });
     }
 
-    public function getStateUuids(): array
-    {
-        return $this->fmap(function (OrderBasicStruct $order) {
-            return $order->getStateUuid();
-        });
-    }
-
-    public function filterByStateUuid(string $uuid): self
-    {
-        return $this->filter(function (OrderBasicStruct $order) use ($uuid) {
-            return $order->getStateUuid() === $uuid;
-        });
-    }
-
-    public function getPaymentMethodUuids(): array
+    public function getStateIds(): array
     {
         return $this->fmap(function (OrderBasicStruct $order) {
-            return $order->getPaymentMethodUuid();
+            return $order->getStateId();
         });
     }
 
-    public function filterByPaymentMethodUuid(string $uuid): self
+    public function filterByStateId(string $id): self
     {
-        return $this->filter(function (OrderBasicStruct $order) use ($uuid) {
-            return $order->getPaymentMethodUuid() === $uuid;
+        return $this->filter(function (OrderBasicStruct $order) use ($id) {
+            return $order->getStateId() === $id;
         });
     }
 
-    public function getCurrencyUuids(): array
-    {
-        return $this->fmap(function (OrderBasicStruct $order) {
-            return $order->getCurrencyUuid();
-        });
-    }
-
-    public function filterByCurrencyUuid(string $uuid): self
-    {
-        return $this->filter(function (OrderBasicStruct $order) use ($uuid) {
-            return $order->getCurrencyUuid() === $uuid;
-        });
-    }
-
-    public function getShopUuids(): array
+    public function getPaymentMethodIds(): array
     {
         return $this->fmap(function (OrderBasicStruct $order) {
-            return $order->getShopUuid();
+            return $order->getPaymentMethodId();
         });
     }
 
-    public function filterByShopUuid(string $uuid): self
+    public function filterByPaymentMethodId(string $id): self
     {
-        return $this->filter(function (OrderBasicStruct $order) use ($uuid) {
-            return $order->getShopUuid() === $uuid;
+        return $this->filter(function (OrderBasicStruct $order) use ($id) {
+            return $order->getPaymentMethodId() === $id;
         });
     }
 
-    public function getBillingAddressUuids(): array
+    public function getCurrencyIds(): array
     {
         return $this->fmap(function (OrderBasicStruct $order) {
-            return $order->getBillingAddressUuid();
+            return $order->getCurrencyId();
         });
     }
 
-    public function filterByBillingAddressUuid(string $uuid): self
+    public function filterByCurrencyId(string $id): self
     {
-        return $this->filter(function (OrderBasicStruct $order) use ($uuid) {
-            return $order->getBillingAddressUuid() === $uuid;
+        return $this->filter(function (OrderBasicStruct $order) use ($id) {
+            return $order->getCurrencyId() === $id;
+        });
+    }
+
+    public function getShopIds(): array
+    {
+        return $this->fmap(function (OrderBasicStruct $order) {
+            return $order->getShopId();
+        });
+    }
+
+    public function filterByShopId(string $id): self
+    {
+        return $this->filter(function (OrderBasicStruct $order) use ($id) {
+            return $order->getShopId() === $id;
+        });
+    }
+
+    public function getBillingAddressIds(): array
+    {
+        return $this->fmap(function (OrderBasicStruct $order) {
+            return $order->getBillingAddressId();
+        });
+    }
+
+    public function filterByBillingAddressId(string $id): self
+    {
+        return $this->filter(function (OrderBasicStruct $order) use ($id) {
+            return $order->getBillingAddressId() === $id;
         });
     }
 

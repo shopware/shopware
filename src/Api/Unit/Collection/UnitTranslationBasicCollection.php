@@ -12,9 +12,9 @@ class UnitTranslationBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? UnitTranslationBasicStruct
+    public function get(string $id): ? UnitTranslationBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): UnitTranslationBasicStruct
@@ -22,31 +22,31 @@ class UnitTranslationBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getUnitUuids(): array
+    public function getUnitIds(): array
     {
         return $this->fmap(function (UnitTranslationBasicStruct $unitTranslation) {
-            return $unitTranslation->getUnitUuid();
+            return $unitTranslation->getUnitId();
         });
     }
 
-    public function filterByUnitUuid(string $uuid): self
+    public function filterByUnitId(string $id): self
     {
-        return $this->filter(function (UnitTranslationBasicStruct $unitTranslation) use ($uuid) {
-            return $unitTranslation->getUnitUuid() === $uuid;
+        return $this->filter(function (UnitTranslationBasicStruct $unitTranslation) use ($id) {
+            return $unitTranslation->getUnitId() === $id;
         });
     }
 
-    public function getLanguageUuids(): array
+    public function getLanguageIds(): array
     {
         return $this->fmap(function (UnitTranslationBasicStruct $unitTranslation) {
-            return $unitTranslation->getLanguageUuid();
+            return $unitTranslation->getLanguageId();
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): self
+    public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (UnitTranslationBasicStruct $unitTranslation) use ($uuid) {
-            return $unitTranslation->getLanguageUuid() === $uuid;
+        return $this->filter(function (UnitTranslationBasicStruct $unitTranslation) use ($id) {
+            return $unitTranslation->getLanguageId() === $id;
         });
     }
 

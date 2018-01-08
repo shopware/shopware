@@ -3,6 +3,8 @@
 namespace Shopware\DbalIndexing\ProductCategory;
 
 use Doctrine\DBAL\Connection;
+use Ramsey\Uuid\Uuid;
+use Shopware\Api\Entity\Dbal\EntityDefinitionResolver;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
@@ -66,7 +68,7 @@ class ProductCategoryIndexer implements IndexerInterface
 
         $context = TranslationContext::createFromShop($shop);
 
-        $this->pathBuilder->update('SWAG-CATEGORY-UUID-1', $context);
+        $this->pathBuilder->update(CategoryPathBuilder::ROOT, $context);
 
         $iterator = new RepositoryIterator($this->productRepository, $context);
 
@@ -75,12 +77,12 @@ class ProductCategoryIndexer implements IndexerInterface
             new ProgressStartedEvent('Start building category product tree', $iterator->getTotal())
         );
 
-        while ($uuids = $iterator->fetchUuids()) {
-            $this->indexCategoryAssignment($uuids);
+        while ($ids = $iterator->fetchIds()) {
+            $this->indexCategoryAssignment($ids);
 
             $this->eventDispatcher->dispatch(
                 ProgressAdvancedEvent::NAME,
-                new ProgressAdvancedEvent(count($uuids))
+                new ProgressAdvancedEvent(count($ids))
             );
         }
 
@@ -92,54 +94,63 @@ class ProductCategoryIndexer implements IndexerInterface
 
     public function refresh(GenericWrittenEvent $event): void
     {
-        $productUuids = $this->getProductUuids($event);
-        if (empty($productUuids)) {
+        $productIds = $this->getProductIds($event);
+        if (empty($productIds)) {
             return;
         }
 
-        $this->connection->transactional(function () use ($productUuids) {
-            $this->indexCategoryAssignment($productUuids);
+        $this->connection->transactional(function () use ($productIds) {
+            $this->indexCategoryAssignment($productIds);
         });
     }
 
-    private function indexCategoryAssignment(array $uuids): void
+    private function indexCategoryAssignment(array $ids): void
     {
-        $categories = $this->fetchCategories($uuids);
+        $categories = $this->fetchCategories($ids);
 
-        foreach ($categories as $productUuid => $mapping) {
-            $categoryUuids = array_merge(
+        foreach ($categories as $productId => $mapping) {
+            $categoryIds = explode('||', (string) $mapping['ids']);
+
+            $categoryIds = array_map(function (string $bytes) {
+                return Uuid::fromBytes($bytes)->toString();
+            }, $categoryIds);
+
+            $categoryIds = array_merge(
                 explode('|', (string) $mapping['paths']),
-                explode('|', (string) $mapping['uuids'])
+                $categoryIds
             );
 
-            $categoryUuids = array_keys(array_flip(array_filter($categoryUuids)));
+            $categoryIds = array_keys(array_flip(array_filter($categoryIds)));
 
             $this->connection->executeUpdate(
-                'UPDATE product SET category_tree = :tree WHERE uuid = :uuid',
-                ['uuid' => $productUuid, 'tree' => json_encode($categoryUuids)]
+                'UPDATE product SET category_tree = :tree WHERE id = :id',
+                ['id' => $productId, 'tree' => json_encode($categoryIds)]
             );
         }
     }
 
-    private function fetchCategories(array $uuids): array
+    private function fetchCategories(array $ids): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->select([
-            'product.uuid as product_uuid',
+            'product.id as product_id',
             "GROUP_CONCAT(category.path SEPARATOR '|') as paths",
-            "GROUP_CONCAT(category.uuid SEPARATOR '|') as uuids",
+            "GROUP_CONCAT(category.id SEPARATOR '||') as ids",
         ]);
         $query->from('product');
-        $query->leftJoin('product', 'product_category', 'mapping', 'mapping.product_uuid = product.uuid');
-        $query->leftJoin('mapping', 'category', 'category', 'category.uuid = mapping.category_uuid');
-        $query->addGroupBy('product.uuid');
-        $query->andWhere('product.uuid IN (:uuids)');
-        $query->setParameter(':uuids', $uuids, Connection::PARAM_STR_ARRAY);
+        $query->leftJoin('product', 'product_category', 'mapping', 'mapping.product_id = product.id');
+        $query->leftJoin('mapping', 'category', 'category', 'category.id = mapping.category_id');
+        $query->addGroupBy('product.id');
+        $query->andWhere('product.id IN (:ids)');
+
+        $bytes = EntityDefinitionResolver::uuidStringsToBytes($ids);
+
+        $query->setParameter('ids', $bytes, Connection::PARAM_STR_ARRAY);
 
         return $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
     }
 
-    private function getProductUuids(GenericWrittenEvent $event): array
+    private function getProductIds(GenericWrittenEvent $event): array
     {
         $productEvent = $event->getEventByDefinition(ProductCategoryDefinition::class);
 
@@ -147,13 +158,13 @@ class ProductCategoryIndexer implements IndexerInterface
             return [];
         }
 
-        $uuids = [];
+        $ids = [];
 
-        foreach ($productEvent->getUuids() as $uuid) {
-            $uuids[] = $uuid['productUuid'];
+        foreach ($productEvent->getIds() as $id) {
+            $ids[] = $id['productId'];
         }
 
-        return $uuids;
+        return $ids;
     }
 
     private function getDefaultShop(): ShopBasicStruct

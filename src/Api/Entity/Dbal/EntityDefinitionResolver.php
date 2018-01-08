@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Entity\Dbal;
 
+use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\AssociationInterface;
 use Shopware\Api\Entity\Field\Field;
@@ -253,7 +254,7 @@ class EntityDefinitionResolver
             sprintf(
                 '%s.%s = %s.%s',
                 self::escape($root),
-                self::escape('uuid'),
+                self::escape('id'),
                 self::escape($mappingAlias),
                 self::escape($field->getMappingLocalColumn())
             )
@@ -274,7 +275,7 @@ class EntityDefinitionResolver
                 self::escape($mappingAlias),
                 self::escape($field->getMappingReferenceColumn()),
                 self::escape($alias),
-                self::escape('uuid')
+                self::escape('id')
             )
         );
     }
@@ -291,14 +292,15 @@ class EntityDefinitionResolver
         /** @var EntityDefinition $definition */
         $table = $definition::getEntityName() . '_translation';
 
-        $query->setParameter('languageUuid', $context->getShopUuid());
+        $languageId = Uuid::fromString($context->getShopId())->getBytes();
+        $query->setParameter('languageId', $languageId);
 
         $query->leftJoin(
             self::escape($root),
             self::escape($table),
             self::escape($alias),
             sprintf(
-                '%s.%s_uuid = %s.uuid AND %s.language_uuid = :languageUuid',
+                '%s.%s_id = %s.id AND %s.language_id = :languageId',
                 self::escape($alias),
                 $definition::getEntityName(),
                 self::escape($root),
@@ -317,14 +319,15 @@ class EntityDefinitionResolver
             self::escape($table),
             self::escape($alias),
             sprintf(
-                '%s.%s_uuid = %s.uuid AND %s.language_uuid = :fallbackLanguageUuid',
+                '%s.%s_id = %s.id AND %s.language_id = :fallbackLanguageId',
                 self::escape($alias),
                 $definition::getEntityName(),
                 self::escape($root),
                 self::escape($alias)
             )
         );
-        $query->setParameter('fallbackLanguageUuid', $context->getFallbackUuid());
+        $languageId = Uuid::fromString($context->getFallbackId())->getBytes();
+        $query->setParameter('fallbackLanguageId', $languageId);
     }
 
     public static function addTranslationSelect(string $root, string $definition, QueryBuilder $query, TranslationContext $context, FieldCollection $fields): void
@@ -360,5 +363,12 @@ class EntityDefinitionResolver
 
             $query->addSelect($select);
         }
+    }
+
+    public static function uuidStringsToBytes(array $ids)
+    {
+        return array_map(function (string $id) {
+            return Uuid::fromString($id)->getBytes();
+        }, $ids);
     }
 }

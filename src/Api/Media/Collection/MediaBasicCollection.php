@@ -12,9 +12,9 @@ class MediaBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? MediaBasicStruct
+    public function get(string $id): ? MediaBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): MediaBasicStruct
@@ -22,31 +22,31 @@ class MediaBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getAlbumUuids(): array
+    public function getAlbumIds(): array
     {
         return $this->fmap(function (MediaBasicStruct $media) {
-            return $media->getAlbumUuid();
+            return $media->getAlbumId();
         });
     }
 
-    public function filterByAlbumUuid(string $uuid): self
+    public function filterByAlbumId(string $id): self
     {
-        return $this->filter(function (MediaBasicStruct $media) use ($uuid) {
-            return $media->getAlbumUuid() === $uuid;
+        return $this->filter(function (MediaBasicStruct $media) use ($id) {
+            return $media->getAlbumId() === $id;
         });
     }
 
-    public function getUserUuids(): array
+    public function getUserIds(): array
     {
         return $this->fmap(function (MediaBasicStruct $media) {
-            return $media->getUserUuid();
+            return $media->getUserId();
         });
     }
 
-    public function filterByUserUuid(string $uuid): self
+    public function filterByUserId(string $id): self
     {
-        return $this->filter(function (MediaBasicStruct $media) use ($uuid) {
-            return $media->getUserUuid() === $uuid;
+        return $this->filter(function (MediaBasicStruct $media) use ($id) {
+            return $media->getUserId() === $id;
         });
     }
 

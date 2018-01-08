@@ -9,12 +9,12 @@ class ShopTemplateConfigFormFieldBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $shopTemplateUuid;
+    protected $shopTemplateId;
 
     /**
      * @var string
      */
-    protected $shopTemplateConfigFormUuid;
+    protected $shopTemplateConfigFormId;
 
     /**
      * @var string
@@ -76,24 +76,24 @@ class ShopTemplateConfigFormFieldBasicStruct extends Entity
      */
     protected $updatedAt;
 
-    public function getShopTemplateUuid(): string
+    public function getShopTemplateId(): string
     {
-        return $this->shopTemplateUuid;
+        return $this->shopTemplateId;
     }
 
-    public function setShopTemplateUuid(string $shopTemplateUuid): void
+    public function setShopTemplateId(string $shopTemplateId): void
     {
-        $this->shopTemplateUuid = $shopTemplateUuid;
+        $this->shopTemplateId = $shopTemplateId;
     }
 
-    public function getShopTemplateConfigFormUuid(): string
+    public function getShopTemplateConfigFormId(): string
     {
-        return $this->shopTemplateConfigFormUuid;
+        return $this->shopTemplateConfigFormId;
     }
 
-    public function setShopTemplateConfigFormUuid(string $shopTemplateConfigFormUuid): void
+    public function setShopTemplateConfigFormId(string $shopTemplateConfigFormId): void
     {
-        $this->shopTemplateConfigFormUuid = $shopTemplateConfigFormUuid;
+        $this->shopTemplateConfigFormId = $shopTemplateConfigFormId;
     }
 
     public function getType(): string

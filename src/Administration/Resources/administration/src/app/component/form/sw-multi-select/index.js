@@ -64,9 +64,9 @@ Shopware.Component.register('sw-multi-select', {
     },
 
     methods: {
-        onDismissEntry(uuid) {
+        onDismissEntry(id) {
             // Remove the field from the value attribute of the hidden field
-            this.values = this.values.filter((entry) => entry.uuid !== uuid);
+            this.values = this.values.filter((entry) => entry.id !== id);
 
             // Emit change for v-model support
             this.$emit('input', this.values);
@@ -76,13 +76,13 @@ Shopware.Component.register('sw-multi-select', {
             this.isExpanded = this.searchTerm.length > 3 && this.filteredEntries.length > 0;
         },
 
-        onSelectEntry(uuid) {
-            if (!uuid) {
+        onSelectEntry(id) {
+            if (!id) {
                 return false;
             }
 
             const selectedEntry = this.entries.find((item) => {
-                return item.uuid === uuid;
+                return item.id === id;
             });
 
             if (!selectedEntry) {

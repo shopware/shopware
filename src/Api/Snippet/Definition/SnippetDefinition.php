@@ -7,11 +7,10 @@ use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
-use Shopware\Api\Entity\Field\IntField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\StringField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -52,17 +51,16 @@ class SnippetDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('shop_uuid', 'shopUuid', ShopDefinition::class))->setFlags(new Required()),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('shop_id', 'shopId', ShopDefinition::class))->setFlags(new Required()),
             (new StringField('namespace', 'namespace'))->setFlags(new Required()),
-            (new IntField('shop_id', 'shopId'))->setFlags(new Required()),
             (new StringField('locale', 'locale'))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new LongTextField('value', 'value'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new BoolField('dirty', 'dirty'),
-            new ManyToOneAssociationField('shop', 'shop_uuid', ShopDefinition::class, false),
+            new ManyToOneAssociationField('shop', 'shop_id', ShopDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

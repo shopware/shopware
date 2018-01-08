@@ -12,9 +12,9 @@ class ListingFacetBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ListingFacetBasicStruct
+    public function get(string $id): ? ListingFacetBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ListingFacetBasicStruct

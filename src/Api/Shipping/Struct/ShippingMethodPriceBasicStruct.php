@@ -9,7 +9,7 @@ class ShippingMethodPriceBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $shippingMethodUuid;
+    protected $shippingMethodId;
 
     /**
      * @var float
@@ -36,14 +36,14 @@ class ShippingMethodPriceBasicStruct extends Entity
      */
     protected $updatedAt;
 
-    public function getShippingMethodUuid(): string
+    public function getShippingMethodId(): string
     {
-        return $this->shippingMethodUuid;
+        return $this->shippingMethodId;
     }
 
-    public function setShippingMethodUuid(string $shippingMethodUuid): void
+    public function setShippingMethodId(string $shippingMethodId): void
     {
-        $this->shippingMethodUuid = $shippingMethodUuid;
+        $this->shippingMethodId = $shippingMethodId;
     }
 
     public function getQuantityFrom(): float

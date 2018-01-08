@@ -191,7 +191,7 @@ class EntityWriter implements EntityWriterInterface
         $query->from(EntityDefinitionResolver::escape($table));
 
         $query->where($table . '.' . $column . ' IN (:ids)');
-        $query->setParameter(':ids', $ids, Connection::PARAM_STR_ARRAY);
+        $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
 
         return $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
     }

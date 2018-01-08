@@ -31,62 +31,62 @@ class CustomerScope extends Struct
     /**
      * @var string|null
      */
-    protected $customerUuid;
+    protected $customerId;
 
     /**
      * @var string|null
      */
-    protected $billingAddressUuid;
+    protected $billingAddressId;
 
     /**
      * @var string|null
      */
-    protected $shippingAddressUuid;
+    protected $shippingAddressId;
 
     /**
      * @var null|string
      */
-    protected $customerGroupUuid;
+    protected $customerGroupId;
 
     public function __construct(?string $customerId, ?string $customerGroupKey = null, ?string $billingId = null, ?string $shippingId = null)
     {
-        $this->customerUuid = $customerId;
-        $this->billingAddressUuid = $billingId;
-        $this->shippingAddressUuid = $shippingId;
-        $this->customerGroupUuid = $customerGroupKey;
+        $this->customerId = $customerId;
+        $this->billingAddressId = $billingId;
+        $this->shippingAddressId = $shippingId;
+        $this->customerGroupId = $customerGroupKey;
     }
 
-    public function getCustomerUuid(): ?string
+    public function getCustomerId(): ?string
     {
-        return $this->customerUuid;
+        return $this->customerId;
     }
 
-    public function getBillingAddressUuid(): ?string
+    public function getBillingAddressId(): ?string
     {
-        return $this->billingAddressUuid;
+        return $this->billingAddressId;
     }
 
-    public function getShippingAddressUuid(): ?string
+    public function getShippingAddressId(): ?string
     {
-        return $this->shippingAddressUuid;
+        return $this->shippingAddressId;
     }
 
-    public function getCustomerGroupUuid(): ?string
+    public function getCustomerGroupId(): ?string
     {
-        return $this->customerGroupUuid;
+        return $this->customerGroupId;
     }
 
     public static function createFromContext(ShopContext $context): self
     {
         if (!$context->getCustomer()) {
-            return new self(null, $context->getCurrentCustomerGroup()->getUuid(), null, null);
+            return new self(null, $context->getCurrentCustomerGroup()->getId(), null, null);
         }
 
         return new self(
-            $context->getCustomer()->getUuid(),
-            $context->getCurrentCustomerGroup()->getUuid(),
-            $context->getCustomer()->getActiveBillingAddress()->getUuid(),
-            $context->getCustomer()->getActiveShippingAddress()->getUuid()
+            $context->getCustomer()->getId(),
+            $context->getCurrentCustomerGroup()->getId(),
+            $context->getCustomer()->getActiveBillingAddress()->getId(),
+            $context->getCustomer()->getActiveShippingAddress()->getId()
         );
     }
 }

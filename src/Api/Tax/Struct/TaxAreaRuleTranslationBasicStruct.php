@@ -9,36 +9,36 @@ class TaxAreaRuleTranslationBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $taxAreaRuleUuid;
+    protected $taxAreaRuleId;
 
     /**
      * @var string
      */
-    protected $languageUuid;
+    protected $languageId;
 
     /**
      * @var string
      */
     protected $name;
 
-    public function getTaxAreaRuleUuid(): string
+    public function getTaxAreaRuleId(): string
     {
-        return $this->taxAreaRuleUuid;
+        return $this->taxAreaRuleId;
     }
 
-    public function setTaxAreaRuleUuid(string $taxAreaRuleUuid): void
+    public function setTaxAreaRuleId(string $taxAreaRuleId): void
     {
-        $this->taxAreaRuleUuid = $taxAreaRuleUuid;
+        $this->taxAreaRuleId = $taxAreaRuleId;
     }
 
-    public function getLanguageUuid(): string
+    public function getLanguageId(): string
     {
-        return $this->languageUuid;
+        return $this->languageId;
     }
 
-    public function setLanguageUuid(string $languageUuid): void
+    public function setLanguageId(string $languageId): void
     {
-        $this->languageUuid = $languageUuid;
+        $this->languageId = $languageId;
     }
 
     public function getName(): string

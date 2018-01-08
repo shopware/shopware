@@ -9,7 +9,7 @@ class CountryStateBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $countryUuid;
+    protected $countryId;
 
     /**
      * @var string
@@ -41,14 +41,14 @@ class CountryStateBasicStruct extends Entity
      */
     protected $updatedAt;
 
-    public function getCountryUuid(): string
+    public function getCountryId(): string
     {
-        return $this->countryUuid;
+        return $this->countryId;
     }
 
-    public function setCountryUuid(string $countryUuid): void
+    public function setCountryId(string $countryId): void
     {
-        $this->countryUuid = $countryUuid;
+        $this->countryId = $countryId;
     }
 
     public function getShortCode(): string

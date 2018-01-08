@@ -7,6 +7,7 @@ use Shopware\Api\Country\Collection\CountryBasicCollection;
 use Shopware\Api\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Api\Customer\Collection\CustomerGroupBasicCollection;
 use Shopware\Api\Payment\Collection\PaymentMethodBasicCollection;
+use Shopware\Api\Seo\Collection\SeoUrlBasicCollection;
 use Shopware\Api\Shipping\Collection\ShippingMethodBasicCollection;
 use Shopware\Api\Shop\Struct\ShopDetailStruct;
 
@@ -98,16 +99,38 @@ class ShopDetailCollection extends ShopBasicCollection
         );
     }
 
-    public function getAllCurrencyUuids(): array
+    public function getSeoUrlIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getCurrencyUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getSeoUrls()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
+    }
+
+    public function getSeoUrls(): SeoUrlBasicCollection
+    {
+        $collection = new SeoUrlBasicCollection();
+        foreach ($this->elements as $element) {
+            $collection->fill($element->getSeoUrls()->getElements());
+        }
+
+        return $collection;
+    }
+
+    public function getAllCurrencyIds(): array
+    {
+        $ids = [];
+        foreach ($this->elements as $element) {
+            foreach ($element->getCurrencyIds() as $id) {
+                $ids[] = $id;
+            }
+        }
+
+        return $ids;
     }
 
     public function getAllCurrencies(): CurrencyBasicCollection

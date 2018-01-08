@@ -12,9 +12,9 @@ class CountryStateBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? CountryStateBasicStruct
+    public function get(string $id): ? CountryStateBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): CountryStateBasicStruct
@@ -22,17 +22,17 @@ class CountryStateBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getCountryUuids(): array
+    public function getCountryIds(): array
     {
         return $this->fmap(function (CountryStateBasicStruct $countryState) {
-            return $countryState->getCountryUuid();
+            return $countryState->getCountryId();
         });
     }
 
-    public function filterByCountryUuid(string $uuid): self
+    public function filterByCountryId(string $id): self
     {
-        return $this->filter(function (CountryStateBasicStruct $countryState) use ($uuid) {
-            return $countryState->getCountryUuid() === $uuid;
+        return $this->filter(function (CountryStateBasicStruct $countryState) use ($id) {
+            return $countryState->getCountryId() === $id;
         });
     }
 

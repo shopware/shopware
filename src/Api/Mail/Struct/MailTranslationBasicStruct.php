@@ -9,12 +9,12 @@ class MailTranslationBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $mailUuid;
+    protected $mailId;
 
     /**
      * @var string
      */
-    protected $languageUuid;
+    protected $languageId;
 
     /**
      * @var string
@@ -41,24 +41,24 @@ class MailTranslationBasicStruct extends Entity
      */
     protected $contentHtml;
 
-    public function getMailUuid(): string
+    public function getMailId(): string
     {
-        return $this->mailUuid;
+        return $this->mailId;
     }
 
-    public function setMailUuid(string $mailUuid): void
+    public function setMailId(string $mailId): void
     {
-        $this->mailUuid = $mailUuid;
+        $this->mailId = $mailId;
     }
 
-    public function getLanguageUuid(): string
+    public function getLanguageId(): string
     {
-        return $this->languageUuid;
+        return $this->languageId;
     }
 
-    public function setLanguageUuid(string $languageUuid): void
+    public function setLanguageId(string $languageId): void
     {
-        $this->languageUuid = $languageUuid;
+        $this->languageId = $languageId;
     }
 
     public function getFromMail(): string

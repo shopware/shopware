@@ -12,9 +12,9 @@ class ConfigFormFieldValueBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ConfigFormFieldValueBasicStruct
+    public function get(string $id): ? ConfigFormFieldValueBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ConfigFormFieldValueBasicStruct
@@ -22,31 +22,31 @@ class ConfigFormFieldValueBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getShopUuids(): array
+    public function getConfigFormFieldIds(): array
     {
         return $this->fmap(function (ConfigFormFieldValueBasicStruct $configFormFieldValue) {
-            return $configFormFieldValue->getShopUuid();
+            return $configFormFieldValue->getConfigFormFieldId();
         });
     }
 
-    public function filterByShopUuid(string $uuid): self
+    public function filterByConfigFormFieldId(string $id): self
     {
-        return $this->filter(function (ConfigFormFieldValueBasicStruct $configFormFieldValue) use ($uuid) {
-            return $configFormFieldValue->getShopUuid() === $uuid;
+        return $this->filter(function (ConfigFormFieldValueBasicStruct $configFormFieldValue) use ($id) {
+            return $configFormFieldValue->getConfigFormFieldId() === $id;
         });
     }
 
-    public function getConfigFormFieldUuids(): array
+    public function getShopIds(): array
     {
         return $this->fmap(function (ConfigFormFieldValueBasicStruct $configFormFieldValue) {
-            return $configFormFieldValue->getConfigFormFieldUuid();
+            return $configFormFieldValue->getShopId();
         });
     }
 
-    public function filterByConfigFormFieldUuid(string $uuid): self
+    public function filterByShopId(string $id): self
     {
-        return $this->filter(function (ConfigFormFieldValueBasicStruct $configFormFieldValue) use ($uuid) {
-            return $configFormFieldValue->getConfigFormFieldUuid() === $uuid;
+        return $this->filter(function (ConfigFormFieldValueBasicStruct $configFormFieldValue) use ($id) {
+            return $configFormFieldValue->getShopId() === $id;
         });
     }
 

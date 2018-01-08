@@ -47,11 +47,11 @@ class CountryAreaTranslationDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new FkField('country_area_uuid', 'countryAreaUuid', CountryAreaDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('language_uuid', 'languageUuid', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('country_area_id', 'countryAreaId', CountryAreaDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
-            new ManyToOneAssociationField('countryArea', 'country_area_uuid', CountryAreaDefinition::class, false),
-            new ManyToOneAssociationField('language', 'language_uuid', ShopDefinition::class, false),
+            new ManyToOneAssociationField('countryArea', 'country_area_id', CountryAreaDefinition::class, false),
+            new ManyToOneAssociationField('language', 'language_id', ShopDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

@@ -12,9 +12,9 @@ class CurrencyBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? CurrencyBasicStruct
+    public function get(string $id): ? CurrencyBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): CurrencyBasicStruct

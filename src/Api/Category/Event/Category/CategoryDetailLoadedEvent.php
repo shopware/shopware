@@ -6,6 +6,7 @@ use Shopware\Api\Category\Collection\CategoryDetailCollection;
 use Shopware\Api\Category\Event\CategoryTranslation\CategoryTranslationBasicLoadedEvent;
 use Shopware\Api\Media\Event\Media\MediaBasicLoadedEvent;
 use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
+use Shopware\Api\Product\Event\ProductStream\ProductStreamBasicLoadedEvent;
 use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
@@ -54,6 +55,9 @@ class CategoryDetailLoadedEvent extends NestedEvent
         }
         if ($this->categories->getMedia()->count() > 0) {
             $events[] = new MediaBasicLoadedEvent($this->categories->getMedia(), $this->context);
+        }
+        if ($this->categories->getProductStreams()->count() > 0) {
+            $events[] = new ProductStreamBasicLoadedEvent($this->categories->getProductStreams(), $this->context);
         }
         if ($this->categories->getTranslations()->count() > 0) {
             $events[] = new CategoryTranslationBasicLoadedEvent($this->categories->getTranslations(), $this->context);

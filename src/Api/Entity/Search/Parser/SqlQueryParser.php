@@ -7,6 +7,8 @@ use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Dbal\EntityDefinitionResolver;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\ArrayField;
+use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Search\Query\MatchQuery;
 use Shopware\Api\Entity\Search\Query\NestedQuery;
 use Shopware\Api\Entity\Search\Query\NotQuery;
@@ -137,7 +139,14 @@ class SqlQueryParser
         }
 
         $result->addWhere($select . ' IN (:' . $key . ')');
-        $result->addParameter($key, array_values($query->getValue()), Connection::PARAM_STR_ARRAY);
+
+        $value = array_values($query->getValue());
+        if ($field instanceof IdField || $field instanceof FkField) {
+            $value = array_map(function (string $id) {
+                return Uuid::fromString($id)->getBytes();
+            }, $value);
+        }
+        $result->addParameter($key, $value, Connection::PARAM_STR_ARRAY);
 
         return $result;
     }
@@ -162,9 +171,14 @@ class SqlQueryParser
 
             return $result;
         }
-
         $result->addWhere($select . ' = :' . $key);
-        $result->addParameter($key, $query->getValue());
+
+        $value = $query->getValue();
+        if ($field instanceof IdField || $field instanceof FkField) {
+            $value = Uuid::fromString($value)->getBytes();
+        }
+
+        $result->addParameter($key, $value);
 
         return $result;
     }

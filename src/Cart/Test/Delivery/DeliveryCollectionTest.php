@@ -121,7 +121,7 @@ class DeliveryCollectionTest extends TestCase
     private static function createShippingLocation(): ShippingLocation
     {
         $country = new CountryBasicStruct();
-        $country->setAreaUuid('SWAG-AREA-UUID-1');
+        $country->setAreaId('SWAG-AREA-ID-1');
 
         return ShippingLocation::createFromCountry($country);
     }

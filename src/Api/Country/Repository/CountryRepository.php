@@ -8,8 +8,8 @@ use Shopware\Api\Country\Definition\CountryDefinition;
 use Shopware\Api\Country\Event\Country\CountryAggregationResultLoadedEvent;
 use Shopware\Api\Country\Event\Country\CountryBasicLoadedEvent;
 use Shopware\Api\Country\Event\Country\CountryDetailLoadedEvent;
+use Shopware\Api\Country\Event\Country\CountryIdSearchResultLoadedEvent;
 use Shopware\Api\Country\Event\Country\CountrySearchResultLoadedEvent;
-use Shopware\Api\Country\Event\Country\CountryUuidSearchResultLoadedEvent;
 use Shopware\Api\Country\Struct\CountrySearchResult;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
@@ -17,7 +17,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -67,16 +67,16 @@ class CountryRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): CountrySearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = CountrySearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = CountrySearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new CountrySearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class CountryRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(CountryDefinition::class, $criteria, $context);
 
-        $event = new CountryUuidSearchResultLoadedEvent($result);
+        $event = new CountryIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): CountryBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): CountryBasicCollection
     {
         /** @var CountryBasicCollection $entities */
-        $entities = $this->reader->readBasic(CountryDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(CountryDefinition::class, $ids, $context);
 
         $event = new CountryBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class CountryRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): CountryDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): CountryDetailCollection
     {
         /** @var CountryDetailCollection $entities */
-        $entities = $this->reader->readDetail(CountryDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(CountryDefinition::class, $ids, $context);
 
         $event = new CountryDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

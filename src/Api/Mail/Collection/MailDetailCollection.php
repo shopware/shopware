@@ -21,16 +21,16 @@ class MailDetailCollection extends MailBasicCollection
         );
     }
 
-    public function getAttachmentUuids(): array
+    public function getAttachmentIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getAttachments()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getAttachments()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getAttachments(): MailAttachmentBasicCollection
@@ -43,16 +43,16 @@ class MailDetailCollection extends MailBasicCollection
         return $collection;
     }
 
-    public function getTranslationUuids(): array
+    public function getTranslationIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getTranslations()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getTranslations()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getTranslations(): MailTranslationBasicCollection

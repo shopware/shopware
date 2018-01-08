@@ -8,8 +8,8 @@ use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\FloatField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -49,14 +49,14 @@ class ProductListingPriceDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('product_uuid', 'productUuid', ProductDefinition::class))->setFlags(new Required()),
-            (new FkField('customer_group_uuid', 'customerGroupUuid', CustomerGroupDefinition::class))->setFlags(new Required()),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new Required()),
+            (new FkField('customer_group_id', 'customerGroupId', CustomerGroupDefinition::class))->setFlags(new Required()),
             (new FloatField('sorting_price', 'sortingPrice'))->setFlags(new Required()),
             (new FloatField('price', 'price'))->setFlags(new Required()),
             (new BoolField('display_from_price', 'displayFromPrice'))->setFlags(new Required()),
-            new ManyToOneAssociationField('product', 'product_uuid', ProductDefinition::class, false),
-            new ManyToOneAssociationField('customerGroup', 'customer_group_uuid', CustomerGroupDefinition::class, true),
+            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
+            new ManyToOneAssociationField('customerGroup', 'customer_group_id', CustomerGroupDefinition::class, true),
         ]);
 
         foreach (self::$extensions as $extension) {

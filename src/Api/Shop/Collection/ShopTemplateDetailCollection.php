@@ -30,16 +30,16 @@ class ShopTemplateDetailCollection extends ShopTemplateBasicCollection
         );
     }
 
-    public function getShopUuids(): array
+    public function getShopIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getShops()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getShops()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getShops(): ShopBasicCollection
@@ -52,16 +52,16 @@ class ShopTemplateDetailCollection extends ShopTemplateBasicCollection
         return $collection;
     }
 
-    public function getConfigFormUuids(): array
+    public function getConfigFormIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getConfigForms()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getConfigForms()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getConfigForms(): ShopTemplateConfigFormBasicCollection
@@ -74,16 +74,16 @@ class ShopTemplateDetailCollection extends ShopTemplateBasicCollection
         return $collection;
     }
 
-    public function getConfigFormFieldUuids(): array
+    public function getConfigFormFieldIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getConfigFormFields()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getConfigFormFields()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getConfigFormFields(): ShopTemplateConfigFormFieldBasicCollection
@@ -96,16 +96,16 @@ class ShopTemplateDetailCollection extends ShopTemplateBasicCollection
         return $collection;
     }
 
-    public function getConfigPresetUuids(): array
+    public function getConfigPresetIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getConfigPresets()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getConfigPresets()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getConfigPresets(): ShopTemplateConfigPresetBasicCollection

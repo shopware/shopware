@@ -12,9 +12,9 @@ class ShippingMethodTranslationBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ShippingMethodTranslationBasicStruct
+    public function get(string $id): ? ShippingMethodTranslationBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ShippingMethodTranslationBasicStruct
@@ -22,31 +22,31 @@ class ShippingMethodTranslationBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getShippingMethodUuids(): array
+    public function getShippingMethodIds(): array
     {
         return $this->fmap(function (ShippingMethodTranslationBasicStruct $shippingMethodTranslation) {
-            return $shippingMethodTranslation->getShippingMethodUuid();
+            return $shippingMethodTranslation->getShippingMethodId();
         });
     }
 
-    public function filterByShippingMethodUuid(string $uuid): self
+    public function filterByShippingMethodId(string $id): self
     {
-        return $this->filter(function (ShippingMethodTranslationBasicStruct $shippingMethodTranslation) use ($uuid) {
-            return $shippingMethodTranslation->getShippingMethodUuid() === $uuid;
+        return $this->filter(function (ShippingMethodTranslationBasicStruct $shippingMethodTranslation) use ($id) {
+            return $shippingMethodTranslation->getShippingMethodId() === $id;
         });
     }
 
-    public function getLanguageUuids(): array
+    public function getLanguageIds(): array
     {
         return $this->fmap(function (ShippingMethodTranslationBasicStruct $shippingMethodTranslation) {
-            return $shippingMethodTranslation->getLanguageUuid();
+            return $shippingMethodTranslation->getLanguageId();
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): self
+    public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (ShippingMethodTranslationBasicStruct $shippingMethodTranslation) use ($uuid) {
-            return $shippingMethodTranslation->getLanguageUuid() === $uuid;
+        return $this->filter(function (ShippingMethodTranslationBasicStruct $shippingMethodTranslation) use ($id) {
+            return $shippingMethodTranslation->getLanguageId() === $id;
         });
     }
 

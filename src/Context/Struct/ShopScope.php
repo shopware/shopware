@@ -31,34 +31,34 @@ class ShopScope extends Struct
     /**
      * @var string
      */
-    protected $shopUuid;
+    protected $shopId;
 
     /**
      * @var string|null
      */
-    protected $currencyUuid;
+    protected $currencyId;
 
-    public function __construct(string $shopUuid, ?string $currencyUuid = null)
+    public function __construct(string $shopId, ?string $currencyId = null)
     {
-        $this->shopUuid = $shopUuid;
-        $this->currencyUuid = $currencyUuid;
+        $this->shopId = $shopId;
+        $this->currencyId = $currencyId;
     }
 
-    public function getShopUuid(): string
+    public function getShopId(): string
     {
-        return $this->shopUuid;
+        return $this->shopId;
     }
 
-    public function getCurrencyUuid(): ?string
+    public function getCurrencyId(): ?string
     {
-        return $this->currencyUuid;
+        return $this->currencyId;
     }
 
     public static function createFromContext(ShopContext $context): self
     {
         return new self(
-            $context->getShop()->getUuid(),
-            $context->getCurrency()->getUuid()
+            $context->getShop()->getId(),
+            $context->getCurrency()->getId()
         );
     }
 }

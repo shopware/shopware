@@ -5,6 +5,7 @@ namespace Shopware\Api\Media\Collection;
 use Shopware\Api\Category\Collection\CategoryBasicCollection;
 use Shopware\Api\Mail\Collection\MailAttachmentBasicCollection;
 use Shopware\Api\Media\Struct\MediaDetailStruct;
+use Shopware\Api\Product\Collection\ProductManufacturerBasicCollection;
 use Shopware\Api\Product\Collection\ProductMediaBasicCollection;
 use Shopware\Api\User\Collection\UserBasicCollection;
 
@@ -24,16 +25,16 @@ class MediaDetailCollection extends MediaBasicCollection
         );
     }
 
-    public function getCategoryUuids(): array
+    public function getCategoryIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getCategories()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getCategories()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getCategories(): CategoryBasicCollection
@@ -46,16 +47,16 @@ class MediaDetailCollection extends MediaBasicCollection
         return $collection;
     }
 
-    public function getMailAttachmentUuids(): array
+    public function getMailAttachmentIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getMailAttachments()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getMailAttachments()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getMailAttachments(): MailAttachmentBasicCollection
@@ -68,16 +69,16 @@ class MediaDetailCollection extends MediaBasicCollection
         return $collection;
     }
 
-    public function getTranslationUuids(): array
+    public function getTranslationIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getTranslations()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getTranslations()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getTranslations(): MediaTranslationBasicCollection
@@ -90,16 +91,38 @@ class MediaDetailCollection extends MediaBasicCollection
         return $collection;
     }
 
-    public function getProductMediaUuids(): array
+    public function getProductManufacturerIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getProductMedia()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getProductManufacturers()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
+    }
+
+    public function getProductManufacturers(): ProductManufacturerBasicCollection
+    {
+        $collection = new ProductManufacturerBasicCollection();
+        foreach ($this->elements as $element) {
+            $collection->fill($element->getProductManufacturers()->getElements());
+        }
+
+        return $collection;
+    }
+
+    public function getProductMediaIds(): array
+    {
+        $ids = [];
+        foreach ($this->elements as $element) {
+            foreach ($element->getProductMedia()->getIds() as $id) {
+                $ids[] = $id;
+            }
+        }
+
+        return $ids;
     }
 
     public function getProductMedia(): ProductMediaBasicCollection

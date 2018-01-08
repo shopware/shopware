@@ -12,9 +12,9 @@ class ListingSortingTranslationBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ListingSortingTranslationBasicStruct
+    public function get(string $id): ? ListingSortingTranslationBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ListingSortingTranslationBasicStruct
@@ -22,31 +22,31 @@ class ListingSortingTranslationBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getListingSortingUuids(): array
+    public function getListingSortingIds(): array
     {
         return $this->fmap(function (ListingSortingTranslationBasicStruct $listingSortingTranslation) {
-            return $listingSortingTranslation->getListingSortingUuid();
+            return $listingSortingTranslation->getListingSortingId();
         });
     }
 
-    public function filterByListingSortingUuid(string $uuid): self
+    public function filterByListingSortingId(string $id): self
     {
-        return $this->filter(function (ListingSortingTranslationBasicStruct $listingSortingTranslation) use ($uuid) {
-            return $listingSortingTranslation->getListingSortingUuid() === $uuid;
+        return $this->filter(function (ListingSortingTranslationBasicStruct $listingSortingTranslation) use ($id) {
+            return $listingSortingTranslation->getListingSortingId() === $id;
         });
     }
 
-    public function getLanguageUuids(): array
+    public function getLanguageIds(): array
     {
         return $this->fmap(function (ListingSortingTranslationBasicStruct $listingSortingTranslation) {
-            return $listingSortingTranslation->getLanguageUuid();
+            return $listingSortingTranslation->getLanguageId();
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): self
+    public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (ListingSortingTranslationBasicStruct $listingSortingTranslation) use ($uuid) {
-            return $listingSortingTranslation->getLanguageUuid() === $uuid;
+        return $this->filter(function (ListingSortingTranslationBasicStruct $listingSortingTranslation) use ($id) {
+            return $listingSortingTranslation->getLanguageId() === $id;
         });
     }
 

@@ -5,6 +5,7 @@ namespace Shopware\Api\Category\Collection;
 use Shopware\Api\Category\Struct\CategoryBasicStruct;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Media\Collection\MediaBasicCollection;
+use Shopware\Api\Product\Collection\ProductStreamBasicCollection;
 
 class CategoryBasicCollection extends EntityCollection
 {
@@ -13,9 +14,9 @@ class CategoryBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? CategoryBasicStruct
+    public function get(string $id): ? CategoryBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): CategoryBasicStruct
@@ -23,73 +24,73 @@ class CategoryBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getParentUuids(): array
+    public function getParentIds(): array
     {
         return $this->fmap(function (CategoryBasicStruct $category) {
-            return $category->getParentUuid();
+            return $category->getParentId();
         });
     }
 
-    public function filterByParentUuid(string $uuid): self
+    public function filterByParentId(string $id): self
     {
-        return $this->filter(function (CategoryBasicStruct $category) use ($uuid) {
-            return $category->getParentUuid() === $uuid;
+        return $this->filter(function (CategoryBasicStruct $category) use ($id) {
+            return $category->getParentId() === $id;
         });
     }
 
-    public function getMediaUuids(): array
-    {
-        return $this->fmap(function (CategoryBasicStruct $category) {
-            return $category->getMediaUuid();
-        });
-    }
-
-    public function filterByMediaUuid(string $uuid): self
-    {
-        return $this->filter(function (CategoryBasicStruct $category) use ($uuid) {
-            return $category->getMediaUuid() === $uuid;
-        });
-    }
-
-    public function getProductStreamUuids(): array
+    public function getMediaIds(): array
     {
         return $this->fmap(function (CategoryBasicStruct $category) {
-            return $category->getProductStreamUuid();
+            return $category->getMediaId();
         });
     }
 
-    public function filterByProductStreamUuid(string $uuid): self
+    public function filterByMediaId(string $id): self
     {
-        return $this->filter(function (CategoryBasicStruct $category) use ($uuid) {
-            return $category->getProductStreamUuid() === $uuid;
+        return $this->filter(function (CategoryBasicStruct $category) use ($id) {
+            return $category->getMediaId() === $id;
         });
     }
 
-    public function getSortingUuids(): array
-    {
-        return $this->fmap(function (CategoryBasicStruct $category) {
-            return $category->getSortingUuids();
-        });
-    }
-
-    public function filterBySortingUuids(string $uuid): self
-    {
-        return $this->filter(function (CategoryBasicStruct $category) use ($uuid) {
-            return $category->getSortingUuids() === $uuid;
-        });
-    }
-
-    public function getFacetUuids(): array
+    public function getProductStreamIds(): array
     {
         return $this->fmap(function (CategoryBasicStruct $category) {
-            return $category->getFacetUuids();
+            return $category->getProductStreamId();
         });
     }
 
-    public function filterByFacetUuids(string $uuid): self
+    public function filterByProductStreamId(string $id): self
     {
-        return $this->filter(function (CategoryBasicStruct $category) use ($uuid) {
-            return $category->getFacetUuids() === $uuid;
+        return $this->filter(function (CategoryBasicStruct $category) use ($id) {
+            return $category->getProductStreamId() === $id;
+        });
+    }
+
+    public function getSortingIds(): array
+    {
+        return $this->fmap(function (CategoryBasicStruct $category) {
+            return $category->getSortingIds();
+        });
+    }
+
+    public function filterBySortingIds(string $id): self
+    {
+        return $this->filter(function (CategoryBasicStruct $category) use ($id) {
+            return $category->getSortingIds() === $id;
+        });
+    }
+
+    public function getFacetIds(): array
+    {
+        return $this->fmap(function (CategoryBasicStruct $category) {
+            return $category->getFacetIds();
+        });
+    }
+
+    public function filterByFacetIds(string $id): self
+    {
+        return $this->filter(function (CategoryBasicStruct $category) use ($id) {
+            return $category->getFacetIds() === $id;
         });
     }
 
@@ -102,10 +103,28 @@ class CategoryBasicCollection extends EntityCollection
         );
     }
 
+    public function getProductStreams(): ProductStreamBasicCollection
+    {
+        return new ProductStreamBasicCollection(
+            $this->fmap(function (CategoryBasicStruct $category) {
+                return $category->getProductStream();
+            })
+        );
+    }
+
     public function sortByPosition(): self
     {
         $this->sort(function (CategoryBasicStruct $a, CategoryBasicStruct $b) {
             return $a->getPosition() <=> $b->getPosition();
+        });
+
+        return $this;
+    }
+
+    public function sortByName(): self
+    {
+        $this->sort(function (CategoryBasicStruct $a, CategoryBasicStruct $b) {
+            return strnatcasecmp($a->getName(), $b->getName());
         });
 
         return $this;

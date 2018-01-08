@@ -87,10 +87,10 @@ class OneToOneAssociation extends Association
         parent::__construct($sourceTable, $referenceTable, $property, $sourceColumn, $referenceColumn, $inBasic, $nullable,  $joinCondition);
 
         if ($this->referenceColumn === null) {
-            $this->referenceColumn = $this->sourceTable . '_uuid';
+            $this->referenceColumn = $this->sourceTable . '_id';
         }
         if ($this->sourceColumn === null) {
-            $this->sourceColumn = 'uuid';
+            $this->sourceColumn = 'id';
         }
     }
 }
@@ -109,10 +109,10 @@ class OneToManyAssociation extends Association
     ) {
         parent::__construct($sourceTable, $referenceTable, $property, $sourceColumn, $referenceColumn, $inBasic, $nullable, $joinCondition);
         if ($this->referenceColumn === null) {
-            $this->referenceColumn = $this->sourceTable . '_uuid';
+            $this->referenceColumn = $this->sourceTable . '_id';
         }
         if ($this->sourceColumn === null) {
-            $this->sourceColumn = 'uuid';
+            $this->sourceColumn = 'id';
         }
     }
 }
@@ -146,10 +146,10 @@ class ManyToManyAssociation extends Association
         $this->property = $property;
 
         if ($this->referenceColumn === null) {
-            $this->referenceColumn = 'uuid';
+            $this->referenceColumn = 'id';
         }
         if ($this->sourceColumn === null) {
-            $this->sourceColumn = 'uuid';
+            $this->sourceColumn = 'id';
         }
         if ($this->mappingSourceColumn === null) {
             $this->mappingSourceColumn = $this->sourceTable . '_' . $this->sourceColumn;
@@ -176,10 +176,10 @@ class ManyToOneAssociation extends Association
         parent::__construct($sourceTable, $referenceTable, $property, $sourceColumn, $referenceColumn, $inBasic, $nullable, $joinCondition);
 
         if ($this->referenceColumn === null) {
-            $this->referenceColumn = 'uuid';
+            $this->referenceColumn = 'id';
         }
         if ($this->sourceColumn === null) {
-            $this->sourceColumn = $this->referenceTable . '_uuid';
+            $this->sourceColumn = $this->referenceTable . '_id';
         }
     }
 }

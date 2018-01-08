@@ -12,9 +12,9 @@ class AuditLogBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? AuditLogBasicStruct
+    public function get(string $id): ? AuditLogBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): AuditLogBasicStruct
@@ -22,17 +22,17 @@ class AuditLogBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getUserUuids(): array
+    public function getUserIds(): array
     {
         return $this->fmap(function (AuditLogBasicStruct $auditLog) {
-            return $auditLog->getUserUuid();
+            return $auditLog->getUserId();
         });
     }
 
-    public function filterByUserUuid(string $uuid): self
+    public function filterByUserId(string $id): self
     {
-        return $this->filter(function (AuditLogBasicStruct $auditLog) use ($uuid) {
-            return $auditLog->getUserUuid() === $uuid;
+        return $this->filter(function (AuditLogBasicStruct $auditLog) use ($id) {
+            return $auditLog->getUserId() === $id;
         });
     }
 

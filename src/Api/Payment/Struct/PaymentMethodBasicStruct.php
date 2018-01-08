@@ -9,7 +9,7 @@ class PaymentMethodBasicStruct extends Entity
     /**
      * @var string|null
      */
-    protected $pluginUuid;
+    protected $pluginId;
 
     /**
      * @var string
@@ -116,14 +116,14 @@ class PaymentMethodBasicStruct extends Entity
      */
     protected $updatedAt;
 
-    public function getPluginUuid(): ?string
+    public function getPluginId(): ?string
     {
-        return $this->pluginUuid;
+        return $this->pluginId;
     }
 
-    public function setPluginUuid(?string $pluginUuid): void
+    public function setPluginId(?string $pluginId): void
     {
-        $this->pluginUuid = $pluginUuid;
+        $this->pluginId = $pluginId;
     }
 
     public function getTechnicalName(): string

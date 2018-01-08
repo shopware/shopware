@@ -13,11 +13,11 @@ use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FloatField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -51,7 +51,7 @@ class CustomerGroupDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
             new BoolField('display_gross', 'displayGross'),
             new BoolField('input_gross', 'inputGross'),
@@ -61,9 +61,9 @@ class CustomerGroupDefinition extends EntityDefinition
             new FloatField('minimum_order_amount_surcharge', 'minimumOrderAmountSurcharge'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new OneToManyAssociationField('customers', CustomerDefinition::class, 'customer_group_uuid', false, 'uuid'),
-            new OneToManyAssociationField('discounts', CustomerGroupDiscountDefinition::class, 'customer_group_uuid', false, 'uuid'),
-            (new TranslationsAssociationField('translations', CustomerGroupTranslationDefinition::class, 'customer_group_uuid', false, 'uuid'))->setFlags(new Required()),
+            new OneToManyAssociationField('customers', CustomerDefinition::class, 'customer_group_id', false, 'id'),
+            new OneToManyAssociationField('discounts', CustomerGroupDiscountDefinition::class, 'customer_group_id', false, 'id'),
+            (new TranslationsAssociationField('translations', CustomerGroupTranslationDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new Required()),
         ]);
 
         foreach (self::$extensions as $extension) {

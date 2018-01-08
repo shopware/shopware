@@ -10,9 +10,9 @@ class ApiControllerTest extends ApiTestCase
 {
     public function testInsert()
     {
-        $uuid = Uuid::uuid4()->toString();
+        $id = Uuid::uuid4()->toString();
 
-        $data = ['uuid' => $uuid, 'name' => $uuid];
+        $data = ['id' => $id, 'name' => $id];
 
         $client = $this->getClient();
         $client->request('POST', '/api/product', $data);
@@ -20,99 +20,99 @@ class ApiControllerTest extends ApiTestCase
 
         self::assertSame(200, $response->getStatusCode(), $response->getContent());
 
-        $client->request('GET', '/api/product/' . $uuid);
+        $client->request('GET', '/api/product/' . $id);
         $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
     }
 
     public function testOneToManyInsert()
     {
-        $uuid = Uuid::uuid4()->toString();
+        $id = Uuid::uuid4()->toString();
 
-        $data = ['uuid' => $uuid, 'name' => $uuid];
+        $data = ['id' => $id, 'name' => $id];
 
         $client = $this->getClient();
         $client->request('POST', '/api/product', $data);
         self::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
-        $client->request('GET', '/api/product/' . $uuid);
+        $client->request('GET', '/api/product/' . $id);
         $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $data = [
-            'uuid' => $uuid,
+            'id' => $id,
             'price' => 19.99,
-            'customerGroupUuid' => '3294e6f6-372b-415f-ac73-71cbc191548f',
+            'customerGroupId' => '3294e6f6-372b-415f-ac73-71cbc191548f',
         ];
 
-        $client->request('POST', '/api/product/' . $uuid . '/prices/', $data);
+        $client->request('POST', '/api/product/' . $id . '/prices/', $data);
         $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
-        $client->request('GET', '/api/product/' . $uuid . '/prices/');
+        $client->request('GET', '/api/product/' . $id . '/prices/');
         $responseData = json_decode($client->getResponse()->getContent(), true);
         $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $this->assertArrayHasKey('data', $responseData);
-        $this->assertCount(1, $responseData['data'], sprintf('Expected product %s has only one price', $uuid));
+        $this->assertCount(1, $responseData['data'], sprintf('Expected product %s has only one price', $id));
 
         $this->assertArrayHasKey('data', $responseData);
         $this->assertEquals(1, $responseData['total']);
 
         $this->assertSame($data['price'], $responseData['data'][0]['price']);
-        $this->assertSame($data['customerGroupUuid'], $responseData['data'][0]['customerGroupUuid']);
+        $this->assertSame($data['customerGroupId'], $responseData['data'][0]['customerGroupId']);
     }
 
     public function testManyToOneInsert()
     {
-        $uuid = Uuid::uuid4()->toString();
+        $id = Uuid::uuid4()->toString();
 
-        $data = ['uuid' => $uuid, 'name' => $uuid];
+        $data = ['id' => $id, 'name' => $id];
 
         $client = $this->getClient();
         $client->request('POST', '/api/product', $data);
-        self::assertSame(200, $client->getResponse()->getStatusCode(), 'Create product failed uuid:' . $uuid);
+        self::assertSame(200, $client->getResponse()->getStatusCode(), 'Create product failed id:' . $id);
 
         $data = [
-            'uuid' => $uuid,
+            'id' => $id,
             'name' => 'Manufacturer - 1',
             'link' => 'https://www.shopware.com',
         ];
 
-        $client->request('POST', '/api/product/' . $uuid . '/manufacturer/', $data);
-        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), 'Create manufacturer over product failed uuid:' . $uuid);
+        $client->request('POST', '/api/product/' . $id . '/manufacturer/', $data);
+        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), 'Create manufacturer over product failed id:' . $id);
 
-        $client->request('GET', '/api/product/' . $uuid . '/manufacturer/');
+        $client->request('GET', '/api/product/' . $id . '/manufacturer/');
         $responseData = json_decode($client->getResponse()->getContent(), true);
-        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), 'Read manufacturer of product failed uuid:' . $uuid);
+        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), 'Read manufacturer of product failed id:' . $id);
 
         $this->assertArrayHasKey('data', $responseData);
         $this->assertSame($data['name'], $responseData['data'][0]['name']);
         $this->assertSame($data['link'], $responseData['data'][0]['link']);
-        $this->assertSame($data['uuid'], $responseData['data'][0]['uuid']);
+        $this->assertSame($data['id'], $responseData['data'][0]['id']);
     }
 
     public function testManyToManyInsert()
     {
-        $uuid = Uuid::uuid4()->toString();
+        $id = Uuid::uuid4()->toString();
 
-        $data = ['uuid' => $uuid, 'name' => $uuid];
+        $data = ['id' => $id, 'name' => $id];
 
         $client = $this->getClient();
         $client->request('POST', '/api/product', $data);
         self::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $data = [
-            'uuid' => $uuid,
+            'id' => $id,
             'name' => 'Category - 1',
         ];
 
-        $client->request('POST', '/api/product/' . $uuid . '/categories/', $data);
+        $client->request('POST', '/api/product/' . $id . '/categories/', $data);
         $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
-        $client->request('GET', '/api/product/' . $uuid . '/categories/');
+        $client->request('GET', '/api/product/' . $id . '/categories/');
         $responseData = json_decode($client->getResponse()->getContent(), true);
         $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $this->assertArrayHasKey('data', $responseData);
         $this->assertSame($data['name'], $responseData['data'][0]['name']);
-        $this->assertSame($data['uuid'], $responseData['data'][0]['uuid']);
+        $this->assertSame($data['id'], $responseData['data'][0]['id']);
     }
 }

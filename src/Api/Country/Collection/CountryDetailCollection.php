@@ -24,16 +24,16 @@ class CountryDetailCollection extends CountryBasicCollection
         );
     }
 
-    public function getStateUuids(): array
+    public function getStateIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getStates()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getStates()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getStates(): CountryStateBasicCollection
@@ -46,16 +46,16 @@ class CountryDetailCollection extends CountryBasicCollection
         return $collection;
     }
 
-    public function getTranslationUuids(): array
+    public function getTranslationIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getTranslations()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getTranslations()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getTranslations(): CountryTranslationBasicCollection
@@ -68,16 +68,16 @@ class CountryDetailCollection extends CountryBasicCollection
         return $collection;
     }
 
-    public function getCustomerAddressUuids(): array
+    public function getCustomerAddressIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getCustomerAddresses()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getCustomerAddresses()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getCustomerAddresses(): CustomerAddressBasicCollection
@@ -90,16 +90,16 @@ class CountryDetailCollection extends CountryBasicCollection
         return $collection;
     }
 
-    public function getOrderAddressUuids(): array
+    public function getOrderAddressIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getOrderAddresses()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getOrderAddresses()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getOrderAddresses(): OrderAddressBasicCollection
@@ -112,16 +112,16 @@ class CountryDetailCollection extends CountryBasicCollection
         return $collection;
     }
 
-    public function getShopUuids(): array
+    public function getShopIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getShops()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getShops()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getShops(): ShopBasicCollection
@@ -134,16 +134,16 @@ class CountryDetailCollection extends CountryBasicCollection
         return $collection;
     }
 
-    public function getTaxAreaRuleUuids(): array
+    public function getTaxAreaRuleIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getTaxAreaRules()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getTaxAreaRules()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getTaxAreaRules(): TaxAreaRuleBasicCollection

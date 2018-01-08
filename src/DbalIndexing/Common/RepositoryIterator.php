@@ -44,19 +44,19 @@ class RepositoryIterator
         $criteria->setLimit(1);
         $criteria->setFetchCount(true);
 
-        $result = $this->repository->searchUuids($criteria, $this->context);
+        $result = $this->repository->searchIds($criteria, $this->context);
 
         return $result->getTotal();
     }
 
-    public function fetchUuids(): ?array
+    public function fetchIds(): ?array
     {
         $this->criteria->setFetchCount(false);
-        $uuids = $this->repository->searchUuids($this->criteria, $this->context);
+        $ids = $this->repository->searchIds($this->criteria, $this->context);
         $this->criteria->setOffset($this->criteria->getOffset() + $this->criteria->getLimit());
 
-        if (!empty($uuids->getUuids())) {
-            return $uuids->getUuids();
+        if (!empty($ids->getIds())) {
+            return $ids->getIds();
         }
 
         return null;
@@ -68,7 +68,7 @@ class RepositoryIterator
         $result = $this->repository->search($this->criteria, $this->context);
         $this->criteria->setOffset($this->criteria->getOffset() + $this->criteria->getLimit());
 
-        if (empty($result->getUuidResult()->getUuids())) {
+        if (empty($result->getIdResult()->getIds())) {
             return null;
         }
 

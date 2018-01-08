@@ -47,7 +47,7 @@ class SearchPageLoader
      */
     public function load(string $searchTerm, Request $request, ShopContext $context): SearchPageStruct
     {
-        $config = $this->configService->getByShop($context->getShop()->getUuid(), $context->getShop()->getParentUuid());
+        $config = $this->configService->getByShop($context->getShop()->getId(), $context->getShop()->getParentId());
 
         $criteria = $this->createCriteria(trim($searchTerm), $request, $context);
 
@@ -97,13 +97,13 @@ class SearchPageLoader
         ));
 
         $criteria->addFilter(new TermQuery(
-            'product.searchKeywords.shopUuid',
-            $context->getShop()->getUuid()
+            'product.searchKeywords.shopId',
+            $context->getShop()->getId()
         ));
 
         $criteria->addFilter(new TermQuery(
             'product.categoryTree',
-            $context->getShop()->getCategory()->getUuid()
+            $context->getShop()->getCategory()->getId()
         ));
 
         return $criteria;

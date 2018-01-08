@@ -23,16 +23,16 @@ class CountryStateDetailCollection extends CountryStateBasicCollection
         );
     }
 
-    public function getTranslationUuids(): array
+    public function getTranslationIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getTranslations()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getTranslations()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getTranslations(): CountryStateTranslationBasicCollection
@@ -45,16 +45,16 @@ class CountryStateDetailCollection extends CountryStateBasicCollection
         return $collection;
     }
 
-    public function getCustomerAddressUuids(): array
+    public function getCustomerAddressIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getCustomerAddresses()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getCustomerAddresses()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getCustomerAddresses(): CustomerAddressBasicCollection
@@ -67,16 +67,16 @@ class CountryStateDetailCollection extends CountryStateBasicCollection
         return $collection;
     }
 
-    public function getOrderAddressUuids(): array
+    public function getOrderAddressIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getOrderAddresses()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getOrderAddresses()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getOrderAddresses(): OrderAddressBasicCollection
@@ -89,16 +89,16 @@ class CountryStateDetailCollection extends CountryStateBasicCollection
         return $collection;
     }
 
-    public function getTaxAreaRuleUuids(): array
+    public function getTaxAreaRuleIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getTaxAreaRules()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getTaxAreaRules()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getTaxAreaRules(): TaxAreaRuleBasicCollection

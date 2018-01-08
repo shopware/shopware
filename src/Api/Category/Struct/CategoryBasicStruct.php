@@ -4,18 +4,24 @@ namespace Shopware\Api\Category\Struct;
 
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Media\Struct\MediaBasicStruct;
+use Shopware\Api\Product\Struct\ProductStreamBasicStruct;
 
 class CategoryBasicStruct extends Entity
 {
     /**
      * @var string|null
      */
-    protected $parentUuid;
+    protected $parentId;
 
     /**
      * @var string|null
      */
-    protected $mediaUuid;
+    protected $mediaId;
+
+    /**
+     * @var string|null
+     */
+    protected $productStreamId;
 
     /**
      * @var string
@@ -73,11 +79,6 @@ class CategoryBasicStruct extends Entity
     protected $productBoxLayout;
 
     /**
-     * @var string|null
-     */
-    protected $productStreamUuid;
-
-    /**
      * @var bool
      */
     protected $hideSortings;
@@ -85,12 +86,12 @@ class CategoryBasicStruct extends Entity
     /**
      * @var string|null
      */
-    protected $sortingUuids;
+    protected $sortingIds;
 
     /**
      * @var string|null
      */
-    protected $facetUuids;
+    protected $facetIds;
 
     /**
      * @var \DateTime|null
@@ -137,24 +138,39 @@ class CategoryBasicStruct extends Entity
      */
     protected $media;
 
-    public function getParentUuid(): ?string
+    /**
+     * @var ProductStreamBasicStruct|null
+     */
+    protected $productStream;
+
+    public function getParentId(): ?string
     {
-        return $this->parentUuid;
+        return $this->parentId;
     }
 
-    public function setParentUuid(?string $parentUuid): void
+    public function setParentId(?string $parentId): void
     {
-        $this->parentUuid = $parentUuid;
+        $this->parentId = $parentId;
     }
 
-    public function getMediaUuid(): ?string
+    public function getMediaId(): ?string
     {
-        return $this->mediaUuid;
+        return $this->mediaId;
     }
 
-    public function setMediaUuid(?string $mediaUuid): void
+    public function setMediaId(?string $mediaId): void
     {
-        $this->mediaUuid = $mediaUuid;
+        $this->mediaId = $mediaId;
+    }
+
+    public function getProductStreamId(): ?string
+    {
+        return $this->productStreamId;
+    }
+
+    public function setProductStreamId(?string $productStreamId): void
+    {
+        $this->productStreamId = $productStreamId;
     }
 
     public function getName(): string
@@ -267,16 +283,6 @@ class CategoryBasicStruct extends Entity
         $this->productBoxLayout = $productBoxLayout;
     }
 
-    public function getProductStreamUuid(): ?string
-    {
-        return $this->productStreamUuid;
-    }
-
-    public function setProductStreamUuid(?string $productStreamUuid): void
-    {
-        $this->productStreamUuid = $productStreamUuid;
-    }
-
     public function getHideSortings(): bool
     {
         return $this->hideSortings;
@@ -287,24 +293,24 @@ class CategoryBasicStruct extends Entity
         $this->hideSortings = $hideSortings;
     }
 
-    public function getSortingUuids(): ?string
+    public function getSortingIds(): ?string
     {
-        return $this->sortingUuids;
+        return $this->sortingIds;
     }
 
-    public function setSortingUuids(?string $sortingUuids): void
+    public function setSortingIds(?string $sortingIds): void
     {
-        $this->sortingUuids = $sortingUuids;
+        $this->sortingIds = $sortingIds;
     }
 
-    public function getFacetUuids(): ?string
+    public function getFacetIds(): ?string
     {
-        return $this->facetUuids;
+        return $this->facetIds;
     }
 
-    public function setFacetUuids(?string $facetUuids): void
+    public function setFacetIds(?string $facetIds): void
     {
-        $this->facetUuids = $facetUuids;
+        $this->facetIds = $facetIds;
     }
 
     public function getCreatedAt(): ?\DateTime
@@ -395,6 +401,16 @@ class CategoryBasicStruct extends Entity
     public function setMedia(?MediaBasicStruct $media): void
     {
         $this->media = $media;
+    }
+
+    public function getProductStream(): ?ProductStreamBasicStruct
+    {
+        return $this->productStream;
+    }
+
+    public function setProductStream(?ProductStreamBasicStruct $productStream): void
+    {
+        $this->productStream = $productStream;
     }
 
     public function getPathArray(): array

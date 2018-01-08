@@ -7,6 +7,7 @@ use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
@@ -14,7 +15,6 @@ use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -55,9 +55,9 @@ class MailDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('name', 'name'))->setFlags(new PrimaryKey(), new Required()),
-            new FkField('order_state_uuid', 'orderStateUuid', OrderStateDefinition::class),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new FkField('order_state_id', 'orderStateId', OrderStateDefinition::class),
+            (new StringField('name', 'name'))->setFlags(new Required()),
             (new BoolField('is_html', 'isHtml'))->setFlags(new Required()),
             (new StringField('attachment', 'attachment'))->setFlags(new Required()),
             (new TranslatedField(new StringField('from_mail', 'fromMail')))->setFlags(new Required()),
@@ -70,9 +70,9 @@ class MailDefinition extends EntityDefinition
             new BoolField('dirty', 'dirty'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('orderState', 'order_state_uuid', OrderStateDefinition::class, false),
-            new OneToManyAssociationField('attachments', MailAttachmentDefinition::class, 'mail_uuid', false, 'uuid'),
-            (new TranslationsAssociationField('translations', MailTranslationDefinition::class, 'mail_uuid', false, 'uuid'))->setFlags(new Required()),
+            new ManyToOneAssociationField('orderState', 'order_state_id', OrderStateDefinition::class, false),
+            new OneToManyAssociationField('attachments', MailAttachmentDefinition::class, 'mail_id', false, 'id'),
+            (new TranslationsAssociationField('translations', MailTranslationDefinition::class, 'mail_id', false, 'id'))->setFlags(new Required()),
         ]);
 
         foreach (self::$extensions as $extension) {

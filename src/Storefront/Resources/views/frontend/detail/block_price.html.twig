@@ -1,7 +1,7 @@
 {% block frontend_detail_data_block_prices_start %}
     {# @var product \Shopware\Storefront\Bridge\Product\Struct\DetailProductStruct #}
 
-    <div class="block-prices--container block-price--{{ product.uuid }}">
+    <div class="block-prices--container block-price--{{ product.id }}">
 
         {#{hasReferencePrice = ($sArticle.referenceprice > 0)}#}
         {% set hasReferencePrice = 1 %}

@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -18,8 +18,8 @@ use Shopware\Api\Unit\Definition\UnitDefinition;
 use Shopware\Api\Unit\Event\Unit\UnitAggregationResultLoadedEvent;
 use Shopware\Api\Unit\Event\Unit\UnitBasicLoadedEvent;
 use Shopware\Api\Unit\Event\Unit\UnitDetailLoadedEvent;
+use Shopware\Api\Unit\Event\Unit\UnitIdSearchResultLoadedEvent;
 use Shopware\Api\Unit\Event\Unit\UnitSearchResultLoadedEvent;
-use Shopware\Api\Unit\Event\Unit\UnitUuidSearchResultLoadedEvent;
 use Shopware\Api\Unit\Struct\UnitSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,16 +67,16 @@ class UnitRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): UnitSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = UnitSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = UnitSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new UnitSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class UnitRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(UnitDefinition::class, $criteria, $context);
 
-        $event = new UnitUuidSearchResultLoadedEvent($result);
+        $event = new UnitIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): UnitBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): UnitBasicCollection
     {
         /** @var UnitBasicCollection $entities */
-        $entities = $this->reader->readBasic(UnitDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(UnitDefinition::class, $ids, $context);
 
         $event = new UnitBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class UnitRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): UnitDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): UnitDetailCollection
     {
         /** @var UnitDetailCollection $entities */
-        $entities = $this->reader->readDetail(UnitDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(UnitDefinition::class, $ids, $context);
 
         $event = new UnitDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

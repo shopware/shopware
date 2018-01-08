@@ -12,9 +12,9 @@ class ListingSortingBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ListingSortingBasicStruct
+    public function get(string $id): ? ListingSortingBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ListingSortingBasicStruct

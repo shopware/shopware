@@ -48,15 +48,15 @@ class MailTranslationDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new FkField('mail_uuid', 'mailUuid', MailDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('language_uuid', 'languageUuid', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('mail_id', 'mailId', MailDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('from_mail', 'fromMail'))->setFlags(new Required()),
             (new StringField('from_name', 'fromName'))->setFlags(new Required()),
             (new StringField('subject', 'subject'))->setFlags(new Required()),
             (new LongTextField('content', 'content'))->setFlags(new Required()),
             (new LongTextField('content_html', 'contentHtml'))->setFlags(new Required()),
-            new ManyToOneAssociationField('mail', 'mail_uuid', MailDefinition::class, false),
-            new ManyToOneAssociationField('language', 'language_uuid', ShopDefinition::class, false),
+            new ManyToOneAssociationField('mail', 'mail_id', MailDefinition::class, false),
+            new ManyToOneAssociationField('language', 'language_id', ShopDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

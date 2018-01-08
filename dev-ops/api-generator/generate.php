@@ -91,6 +91,13 @@ $inject = [
     ]
 ];
 
+$virtualForeignKeys = [
+    'customer' => [
+        'default_shipping_address_id' => ['customer_address', 'id'],
+        'default_billing_address_id' => ['customer_address', 'id']
+    ]
+];
+
 $htmlFields = [
     'product_translation.description_long'
 ];
@@ -100,7 +107,8 @@ $context = new Context(
     $inBasic,
     $prevent,
     $inject,
-    $htmlFields
+    $htmlFields,
+    $virtualForeignKeys
 );
 
 $generator = new ApiGenerator(__DIR__ . '/../../src/Api/');

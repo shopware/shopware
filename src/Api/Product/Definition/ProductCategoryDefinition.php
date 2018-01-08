@@ -36,12 +36,12 @@ class ProductCategoryDefinition extends EntityDefinition
         }
 
         return self::$fields = new FieldCollection([
-            (new FkField('product_uuid', 'productUuid', ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('category_uuid', 'categoryUuid', CategoryDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('category_id', 'categoryId', CategoryDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('product', 'product_uuid', ProductDefinition::class, false),
-            new ManyToOneAssociationField('category', 'category_uuid', CategoryDefinition::class, false),
+            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
+            new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class, false),
         ]);
     }
 

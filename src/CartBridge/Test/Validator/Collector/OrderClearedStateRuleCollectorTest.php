@@ -74,7 +74,7 @@ class OrderClearedStateRuleCollectorTest extends TestCase
     {
         $context = $this->createMock(ShopContext::class);
         $customer = new CustomerBasicStruct();
-        $customer->setUuid('SWAG-CUSTOMER-UUID-1');
+        $customer->setId('SWAG-CUSTOMER-ID-1');
         $context->method('getCustomer')
             ->will($this->returnValue($customer));
 

@@ -3,6 +3,7 @@
 namespace Shopware\Category\Extension;
 
 use Doctrine\DBAL\Connection;
+use Ramsey\Uuid\Uuid;
 use Shopware\Api\Category\Collection\CategoryBasicCollection;
 use Shopware\Api\Category\Event\Category\CategoryWrittenEvent;
 use Shopware\Api\Category\Repository\CategoryRepository;
@@ -18,6 +19,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CategoryPathBuilder implements EventSubscriberInterface
 {
+    public const ROOT = '57f4ecb1-1628-43e6-9dab-c4a6a7b66eab';
+
     /**
      * @var CategoryRepository
      */
@@ -51,25 +54,25 @@ class CategoryPathBuilder implements EventSubscriberInterface
     {
         $context = TranslationContext::createDefaultContext();
 
-        $parentUuids = $this->fetchParentIds($event->getUuids());
+        $parentIds = $this->fetchParentIds($event->getIds());
 
-        foreach ($parentUuids as $uuid) {
-            $this->update($uuid, $context);
+        foreach ($parentIds as $id) {
+            $this->update($id, $context);
         }
     }
 
-    public function update(string $parentUuid, TranslationContext $context): void
+    public function update(string $parentId, TranslationContext $context): void
     {
         $this->connection->executeUpdate('UPDATE category SET path = NULL');
-        $count = (int) $this->connection->fetchColumn('SELECT COUNT(uuid) FROM category WHERE parent_uuid IS NOT NULL');
+        $count = (int) $this->connection->fetchColumn('SELECT COUNT(id) FROM category WHERE parent_id IS NOT NULL');
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
             new ProgressStartedEvent('Start building category inheritance', $count)
         );
 
-        $parents = $this->loadParents($parentUuid, $context);
-        $parent = $parents->get($parentUuid);
+        $parents = $this->loadParents($parentId, $context);
+        $parent = $parents->get($parentId);
         $this->updateRecursive($parent, $parents, $context);
 
         $this->eventDispatcher->dispatch(
@@ -91,15 +94,15 @@ class CategoryPathBuilder implements EventSubscriberInterface
     private function updateByParent(CategoryBasicStruct $parent, CategoryBasicCollection $parents, TranslationContext $context): CategoryBasicCollection
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('category.parentUuid', $parent->getUuid()));
+        $criteria->addFilter(new TermQuery('category.parentId', $parent->getId()));
         $categories = $this->repository->search($criteria, $context);
 
-        $pathUpdate = $this->connection->prepare('UPDATE category SET path = :path, level = :level WHERE uuid = :uuid');
-        $nameUpdate = $this->connection->prepare('UPDATE category_translation SET path_names = :names WHERE category_uuid = :uuid');
+        $pathUpdate = $this->connection->prepare('UPDATE category SET path = :path, level = :level WHERE id = :id');
+        $nameUpdate = $this->connection->prepare('UPDATE category_translation SET path_names = :names WHERE category_id = :id');
 
         /** @var CategoryBasicStruct $category */
         foreach ($categories as $category) {
-            $uuidPath = implode('|', $parents->getUuids());
+            $idPath = implode('|', $parents->getIds());
 
             $names = $parents->map(
                 function (CategoryBasicStruct $parent) {
@@ -112,14 +115,16 @@ class CategoryPathBuilder implements EventSubscriberInterface
             );
             $names = implode('|', array_filter($names));
 
+            $id = Uuid::fromString($category->getId())->getBytes();
+
             $pathUpdate->execute([
-                'path' => '|' . $uuidPath . '|',
-                'uuid' => $category->getUuid(),
+                'path' => '|' . $idPath . '|',
+                'id' => $id,
                 'level' => $parent->getLevel() + 1,
             ]);
             $nameUpdate->execute([
                 'names' => '|' . $names . '|',
-                'uuid' => $category->getUuid(),
+                'id' => $id,
             ]);
         }
 
@@ -131,29 +136,33 @@ class CategoryPathBuilder implements EventSubscriberInterface
         return $categories;
     }
 
-    private function loadParents(string $parentUuid, TranslationContext $context): CategoryBasicCollection
+    private function loadParents(string $parentId, TranslationContext $context): CategoryBasicCollection
     {
-        $parents = $this->repository->readBasic([$parentUuid], $context);
-        $parent = $parents->get($parentUuid);
+        $parents = $this->repository->readBasic([$parentId], $context);
+        $parent = $parents->get($parentId);
 
-        if ($parent->getParentUuid() !== null) {
+        if ($parent->getParentId() !== null) {
             $parents->merge(
-                $this->loadParents($parent->getParentUuid(), $context)
+                $this->loadParents($parent->getParentId(), $context)
             );
         }
 
         return $parents;
     }
 
-    private function fetchParentIds(array $uuids): array
+    private function fetchParentIds(array $ids): array
     {
         $query = $this->connection->createQueryBuilder();
-        $query->select(['parent_uuid']);
+        $query->select(['parent_id']);
         $query->from('category');
-        $query->where('category.uuid IN (:uuids)');
-        $query->setParameter('uuids', $uuids, Connection::PARAM_STR_ARRAY);
+        $query->where('category.id IN (:ids)');
+        $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
         $parents = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
 
-        return array_filter($parents);
+        $parents = array_filter($parents);
+
+        return array_map(function (string $id) {
+            return Uuid::fromBytes($id)->toString();
+        }, $parents);
     }
 }

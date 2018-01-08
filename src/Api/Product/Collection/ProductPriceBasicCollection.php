@@ -13,9 +13,9 @@ class ProductPriceBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ProductPriceBasicStruct
+    public function get(string $id): ? ProductPriceBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ProductPriceBasicStruct
@@ -23,31 +23,31 @@ class ProductPriceBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getCustomerGroupUuids(): array
+    public function getCustomerGroupIds(): array
     {
         return $this->fmap(function (ProductPriceBasicStruct $productPrice) {
-            return $productPrice->getCustomerGroupUuid();
+            return $productPrice->getCustomerGroupId();
         });
     }
 
-    public function filterByCustomerGroupUuid(string $uuid): self
+    public function filterByCustomerGroupId(string $id): self
     {
-        return $this->filter(function (ProductPriceBasicStruct $productPrice) use ($uuid) {
-            return $productPrice->getCustomerGroupUuid() === $uuid;
+        return $this->filter(function (ProductPriceBasicStruct $productPrice) use ($id) {
+            return $productPrice->getCustomerGroupId() === $id;
         });
     }
 
-    public function getProductUuids(): array
+    public function getProductIds(): array
     {
         return $this->fmap(function (ProductPriceBasicStruct $productPrice) {
-            return $productPrice->getProductUuid();
+            return $productPrice->getProductId();
         });
     }
 
-    public function filterByProductUuid(string $uuid): self
+    public function filterByProductId(string $id): self
     {
-        return $this->filter(function (ProductPriceBasicStruct $productPrice) use ($uuid) {
-            return $productPrice->getProductUuid() === $uuid;
+        return $this->filter(function (ProductPriceBasicStruct $productPrice) use ($id) {
+            return $productPrice->getProductId() === $id;
         });
     }
 

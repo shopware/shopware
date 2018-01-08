@@ -12,11 +12,11 @@ use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\FloatField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -56,23 +56,23 @@ class TaxAreaRuleDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            new FkField('country_area_uuid', 'countryAreaUuid', CountryAreaDefinition::class),
-            new FkField('country_uuid', 'countryUuid', CountryDefinition::class),
-            new FkField('country_state_uuid', 'countryStateUuid', CountryStateDefinition::class),
-            (new FkField('tax_uuid', 'taxUuid', TaxDefinition::class))->setFlags(new Required()),
-            (new FkField('customer_group_uuid', 'customerGroupUuid', CustomerGroupDefinition::class))->setFlags(new Required()),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new FkField('country_area_id', 'countryAreaId', CountryAreaDefinition::class),
+            new FkField('country_id', 'countryId', CountryDefinition::class),
+            new FkField('country_state_id', 'countryStateId', CountryStateDefinition::class),
+            (new FkField('tax_id', 'taxId', TaxDefinition::class))->setFlags(new Required()),
+            (new FkField('customer_group_id', 'customerGroupId', CustomerGroupDefinition::class))->setFlags(new Required()),
             (new FloatField('tax_rate', 'taxRate'))->setFlags(new Required()),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
             new BoolField('active', 'active'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('countryArea', 'country_area_uuid', CountryAreaDefinition::class, false),
-            new ManyToOneAssociationField('country', 'country_uuid', CountryDefinition::class, false),
-            new ManyToOneAssociationField('countryState', 'country_state_uuid', CountryStateDefinition::class, false),
-            new ManyToOneAssociationField('tax', 'tax_uuid', TaxDefinition::class, false),
-            new ManyToOneAssociationField('customerGroup', 'customer_group_uuid', CustomerGroupDefinition::class, false),
-            (new TranslationsAssociationField('translations', TaxAreaRuleTranslationDefinition::class, 'tax_area_rule_uuid', false, 'uuid'))->setFlags(new Required()),
+            new ManyToOneAssociationField('countryArea', 'country_area_id', CountryAreaDefinition::class, false),
+            new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, false),
+            new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, false),
+            new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, false),
+            new ManyToOneAssociationField('customerGroup', 'customer_group_id', CustomerGroupDefinition::class, false),
+            (new TranslationsAssociationField('translations', TaxAreaRuleTranslationDefinition::class, 'tax_area_rule_id', false, 'id'))->setFlags(new Required()),
         ]);
 
         foreach (self::$extensions as $extension) {

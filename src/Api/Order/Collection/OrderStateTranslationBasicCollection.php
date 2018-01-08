@@ -12,9 +12,9 @@ class OrderStateTranslationBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? OrderStateTranslationBasicStruct
+    public function get(string $id): ? OrderStateTranslationBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): OrderStateTranslationBasicStruct
@@ -22,31 +22,31 @@ class OrderStateTranslationBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getOrderStateUuids(): array
+    public function getOrderStateIds(): array
     {
         return $this->fmap(function (OrderStateTranslationBasicStruct $orderStateTranslation) {
-            return $orderStateTranslation->getOrderStateUuid();
+            return $orderStateTranslation->getOrderStateId();
         });
     }
 
-    public function filterByOrderStateUuid(string $uuid): self
+    public function filterByOrderStateId(string $id): self
     {
-        return $this->filter(function (OrderStateTranslationBasicStruct $orderStateTranslation) use ($uuid) {
-            return $orderStateTranslation->getOrderStateUuid() === $uuid;
+        return $this->filter(function (OrderStateTranslationBasicStruct $orderStateTranslation) use ($id) {
+            return $orderStateTranslation->getOrderStateId() === $id;
         });
     }
 
-    public function getLanguageUuids(): array
+    public function getLanguageIds(): array
     {
         return $this->fmap(function (OrderStateTranslationBasicStruct $orderStateTranslation) {
-            return $orderStateTranslation->getLanguageUuid();
+            return $orderStateTranslation->getLanguageId();
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): self
+    public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (OrderStateTranslationBasicStruct $orderStateTranslation) use ($uuid) {
-            return $orderStateTranslation->getLanguageUuid() === $uuid;
+        return $this->filter(function (OrderStateTranslationBasicStruct $orderStateTranslation) use ($id) {
+            return $orderStateTranslation->getLanguageId() === $id;
         });
     }
 

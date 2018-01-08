@@ -74,12 +74,12 @@ class RouteCollector
 
         $path = '/api/' . $this->formatEntityName($definition::getEntityName());
 
-        $uuidPrefix = $this->snakeCaseToCamelCase($definition::getEntityName());
-        $uuidPrefix = $uuidPrefix[0];
+        $idPrefix = $this->snakeCaseToCamelCase($definition::getEntityName());
+        $idPrefix = $idPrefix[0];
 
-        $collection = $this->createRouteClasses($path, $naming, $uuidPrefix);
+        $collection = $this->createRouteClasses($path, $naming, $idPrefix);
 
-        $path .= '/{' . $uuidPrefix . 'Id' . '}';
+        $path .= '/{' . $idPrefix . 'Id' . '}';
 
         /** @var FieldCollection $associations */
         $associations = $definition::getFields()->filterInstance(AssociationInterface::class);
@@ -87,14 +87,14 @@ class RouteCollector
         /** @var AssociationInterface $association */
         foreach ($associations as $association) {
             $collection->addCollection(
-                $this->buildAssociationRoutes($uuidPrefix, $definition, $naming, $path, $association)
+                $this->buildAssociationRoutes($idPrefix, $definition, $naming, $path, $association)
             );
         }
 
         return $collection;
     }
 
-    private function buildAssociationRoutes(string $uuidPrefix, string $definition, string $naming, string $path, AssociationInterface $association): RouteCollection
+    private function buildAssociationRoutes(string $idPrefix, string $definition, string $naming, string $path, AssociationInterface $association): RouteCollection
     {
         /** @var EntityDefinition|string $reference */
         $reference = $association->getReferenceClass();
@@ -108,11 +108,11 @@ class RouteCollector
         $naming .= '.' . $name;
         $path .= '/' . $this->formatEntityName($name);
 
-        $uuidPrefix .= $association->getPropertyName()[0];
+        $idPrefix .= $association->getPropertyName()[0];
 
-        $collection = $this->createRouteClasses($path, $naming, $uuidPrefix);
+        $collection = $this->createRouteClasses($path, $naming, $idPrefix);
 
-        $path .= '/{' . $uuidPrefix . 'Id' . '}';
+        $path .= '/{' . $idPrefix . 'Id' . '}';
 
         /** @var FieldCollection $associations */
         $associations = $reference::getFields()->filterInstance(AssociationInterface::class);
@@ -121,14 +121,14 @@ class RouteCollector
         /** @var AssociationInterface $nested */
         foreach ($associations as $nested) {
             $collection->addCollection(
-                $this->buildAssociationRoutes($uuidPrefix, $reference, $naming, $path, $nested)
+                $this->buildAssociationRoutes($idPrefix, $reference, $naming, $path, $nested)
             );
         }
 
         return $collection;
     }
 
-    private function createRouteClasses(string $path, string $naming, string $uuidPrefix): RouteCollection
+    private function createRouteClasses(string $path, string $naming, string $idPrefix): RouteCollection
     {
         $collection = new RouteCollection();
 
@@ -142,7 +142,7 @@ class RouteCollector
         $route->setDefault('_controller', self::CREATE_ACTION);
         $collection->add($naming . '.create', $route);
 
-        $path .= '/{' . $uuidPrefix . 'Id' . '}';
+        $path .= '/{' . $idPrefix . 'Id' . '}';
 
         $route = new Route($path);
         $route->setMethods(['PATCH']);

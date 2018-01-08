@@ -311,7 +311,7 @@ class PluginManager
                 $data['refresh_date'] = $refreshDate->format('Y-m-d H:i:s');
                 $this->connection->update('plugin', $data, ['name' => $pluginName]);
             } else {
-                $data['uuid'] = $pluginName;
+                $data['id'] = $pluginName;
                 $data['created_at'] = $refreshDate->format('Y-m-d H:i:s');
 
                 $this->connection->insert('plugin', $data);
@@ -369,7 +369,7 @@ class PluginManager
     {
         $plugin = new Struct\Plugin();
 
-        $plugin->setUuid($databasePlugin['name']);
+        $plugin->setId($databasePlugin['name']);
         $plugin->setName($databasePlugin['name']);
         $plugin->setLabel($databasePlugin['label']);
         $plugin->setDescription($databasePlugin['description']);

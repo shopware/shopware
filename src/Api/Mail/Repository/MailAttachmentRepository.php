@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -18,8 +18,8 @@ use Shopware\Api\Mail\Definition\MailAttachmentDefinition;
 use Shopware\Api\Mail\Event\MailAttachment\MailAttachmentAggregationResultLoadedEvent;
 use Shopware\Api\Mail\Event\MailAttachment\MailAttachmentBasicLoadedEvent;
 use Shopware\Api\Mail\Event\MailAttachment\MailAttachmentDetailLoadedEvent;
+use Shopware\Api\Mail\Event\MailAttachment\MailAttachmentIdSearchResultLoadedEvent;
 use Shopware\Api\Mail\Event\MailAttachment\MailAttachmentSearchResultLoadedEvent;
-use Shopware\Api\Mail\Event\MailAttachment\MailAttachmentUuidSearchResultLoadedEvent;
 use Shopware\Api\Mail\Struct\MailAttachmentSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,16 +67,16 @@ class MailAttachmentRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): MailAttachmentSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = MailAttachmentSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = MailAttachmentSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new MailAttachmentSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class MailAttachmentRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(MailAttachmentDefinition::class, $criteria, $context);
 
-        $event = new MailAttachmentUuidSearchResultLoadedEvent($result);
+        $event = new MailAttachmentIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): MailAttachmentBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): MailAttachmentBasicCollection
     {
         /** @var MailAttachmentBasicCollection $entities */
-        $entities = $this->reader->readBasic(MailAttachmentDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(MailAttachmentDefinition::class, $ids, $context);
 
         $event = new MailAttachmentBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class MailAttachmentRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): MailAttachmentDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): MailAttachmentDetailCollection
     {
         /** @var MailAttachmentDetailCollection $entities */
-        $entities = $this->reader->readDetail(MailAttachmentDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(MailAttachmentDefinition::class, $ids, $context);
 
         $event = new MailAttachmentDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

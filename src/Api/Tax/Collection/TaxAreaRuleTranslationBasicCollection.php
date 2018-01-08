@@ -12,9 +12,9 @@ class TaxAreaRuleTranslationBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? TaxAreaRuleTranslationBasicStruct
+    public function get(string $id): ? TaxAreaRuleTranslationBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): TaxAreaRuleTranslationBasicStruct
@@ -22,31 +22,31 @@ class TaxAreaRuleTranslationBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getTaxAreaRuleUuids(): array
+    public function getTaxAreaRuleIds(): array
     {
         return $this->fmap(function (TaxAreaRuleTranslationBasicStruct $taxAreaRuleTranslation) {
-            return $taxAreaRuleTranslation->getTaxAreaRuleUuid();
+            return $taxAreaRuleTranslation->getTaxAreaRuleId();
         });
     }
 
-    public function filterByTaxAreaRuleUuid(string $uuid): self
+    public function filterByTaxAreaRuleId(string $id): self
     {
-        return $this->filter(function (TaxAreaRuleTranslationBasicStruct $taxAreaRuleTranslation) use ($uuid) {
-            return $taxAreaRuleTranslation->getTaxAreaRuleUuid() === $uuid;
+        return $this->filter(function (TaxAreaRuleTranslationBasicStruct $taxAreaRuleTranslation) use ($id) {
+            return $taxAreaRuleTranslation->getTaxAreaRuleId() === $id;
         });
     }
 
-    public function getLanguageUuids(): array
+    public function getLanguageIds(): array
     {
         return $this->fmap(function (TaxAreaRuleTranslationBasicStruct $taxAreaRuleTranslation) {
-            return $taxAreaRuleTranslation->getLanguageUuid();
+            return $taxAreaRuleTranslation->getLanguageId();
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): self
+    public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (TaxAreaRuleTranslationBasicStruct $taxAreaRuleTranslation) use ($uuid) {
-            return $taxAreaRuleTranslation->getLanguageUuid() === $uuid;
+        return $this->filter(function (TaxAreaRuleTranslationBasicStruct $taxAreaRuleTranslation) use ($id) {
+            return $taxAreaRuleTranslation->getLanguageId() === $id;
         });
     }
 

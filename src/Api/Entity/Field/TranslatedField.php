@@ -65,7 +65,7 @@ class TranslatedField extends Field implements WriteContextAware
     {
         $this->storageName = $field->getStorageName();
         $this->foreignClassName = ShopDefinition::class;
-        $this->foreignFieldName = 'uuid';
+        $this->foreignFieldName = 'id';
 
         /* @var Field $field */
         parent::__construct($field->getPropertyName());
@@ -106,8 +106,6 @@ class TranslatedField extends Field implements WriteContextAware
                 $key => $value,
             ],
         ];
-
-        return;
     }
 
     /**

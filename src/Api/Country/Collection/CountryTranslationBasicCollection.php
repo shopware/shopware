@@ -12,9 +12,9 @@ class CountryTranslationBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? CountryTranslationBasicStruct
+    public function get(string $id): ? CountryTranslationBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): CountryTranslationBasicStruct
@@ -22,31 +22,31 @@ class CountryTranslationBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getCountryUuids(): array
+    public function getCountryIds(): array
     {
         return $this->fmap(function (CountryTranslationBasicStruct $countryTranslation) {
-            return $countryTranslation->getCountryUuid();
+            return $countryTranslation->getCountryId();
         });
     }
 
-    public function filterByCountryUuid(string $uuid): self
+    public function filterByCountryId(string $id): self
     {
-        return $this->filter(function (CountryTranslationBasicStruct $countryTranslation) use ($uuid) {
-            return $countryTranslation->getCountryUuid() === $uuid;
+        return $this->filter(function (CountryTranslationBasicStruct $countryTranslation) use ($id) {
+            return $countryTranslation->getCountryId() === $id;
         });
     }
 
-    public function getLanguageUuids(): array
+    public function getLanguageIds(): array
     {
         return $this->fmap(function (CountryTranslationBasicStruct $countryTranslation) {
-            return $countryTranslation->getLanguageUuid();
+            return $countryTranslation->getLanguageId();
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): self
+    public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (CountryTranslationBasicStruct $countryTranslation) use ($uuid) {
-            return $countryTranslation->getLanguageUuid() === $uuid;
+        return $this->filter(function (CountryTranslationBasicStruct $countryTranslation) use ($id) {
+            return $countryTranslation->getLanguageId() === $id;
         });
     }
 

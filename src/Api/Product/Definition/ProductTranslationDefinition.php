@@ -49,8 +49,8 @@ class ProductTranslationDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new FkField('product_uuid', 'productUuid', ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('language_uuid', 'languageUuid', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             new StringField('additional_text', 'additionalText'),
             new LongTextField('keywords', 'keywords'),
@@ -58,8 +58,8 @@ class ProductTranslationDefinition extends EntityDefinition
             new LongTextWithHtmlField('description_long', 'descriptionLong'),
             new StringField('meta_title', 'metaTitle'),
             new StringField('pack_unit', 'packUnit'),
-            new ManyToOneAssociationField('product', 'product_uuid', ProductDefinition::class, false),
-            new ManyToOneAssociationField('language', 'language_uuid', ShopDefinition::class, false),
+            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
+            new ManyToOneAssociationField('language', 'language_id', ShopDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

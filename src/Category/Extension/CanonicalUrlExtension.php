@@ -32,7 +32,7 @@ class CanonicalUrlExtension implements EntityExtensionInterface, EventSubscriber
     public function extendFields(FieldCollection $collection)
     {
         $collection->add(
-            (new ManyToOneAssociationField('canonicalUrl', 'uuid', SeoUrlDefinition::class, true, 'foreign_key'))->setFlags(new Extension(), new Deferred())
+            (new ManyToOneAssociationField('canonicalUrl', 'id', SeoUrlDefinition::class, true, 'foreign_key'))->setFlags(new Extension(), new Deferred())
         );
     }
 
@@ -56,7 +56,7 @@ class CanonicalUrlExtension implements EntityExtensionInterface, EventSubscriber
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('seo_url.name', ListingPageUrlGenerator::ROUTE_NAME));
-        $criteria->addFilter(new TermsQuery('seo_url.foreignKey', $event->getCategories()->getUuids()));
+        $criteria->addFilter(new TermsQuery('seo_url.foreignKey', $event->getCategories()->getIds()));
         $criteria->addFilter(new TermQuery('seo_url.isCanonical', 1));
 
         $urls = $this->seoUrlRepository->search($criteria, $event->getContext());

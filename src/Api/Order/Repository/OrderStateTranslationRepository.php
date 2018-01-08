@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -18,8 +18,8 @@ use Shopware\Api\Order\Definition\OrderStateTranslationDefinition;
 use Shopware\Api\Order\Event\OrderStateTranslation\OrderStateTranslationAggregationResultLoadedEvent;
 use Shopware\Api\Order\Event\OrderStateTranslation\OrderStateTranslationBasicLoadedEvent;
 use Shopware\Api\Order\Event\OrderStateTranslation\OrderStateTranslationDetailLoadedEvent;
+use Shopware\Api\Order\Event\OrderStateTranslation\OrderStateTranslationIdSearchResultLoadedEvent;
 use Shopware\Api\Order\Event\OrderStateTranslation\OrderStateTranslationSearchResultLoadedEvent;
-use Shopware\Api\Order\Event\OrderStateTranslation\OrderStateTranslationUuidSearchResultLoadedEvent;
 use Shopware\Api\Order\Struct\OrderStateTranslationSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,16 +67,16 @@ class OrderStateTranslationRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): OrderStateTranslationSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = OrderStateTranslationSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = OrderStateTranslationSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new OrderStateTranslationSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class OrderStateTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(OrderStateTranslationDefinition::class, $criteria, $context);
 
-        $event = new OrderStateTranslationUuidSearchResultLoadedEvent($result);
+        $event = new OrderStateTranslationIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): OrderStateTranslationBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): OrderStateTranslationBasicCollection
     {
         /** @var OrderStateTranslationBasicCollection $entities */
-        $entities = $this->reader->readBasic(OrderStateTranslationDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(OrderStateTranslationDefinition::class, $ids, $context);
 
         $event = new OrderStateTranslationBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class OrderStateTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): OrderStateTranslationDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): OrderStateTranslationDetailCollection
     {
         /** @var OrderStateTranslationDetailCollection $entities */
-        $entities = $this->reader->readDetail(OrderStateTranslationDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(OrderStateTranslationDefinition::class, $ids, $context);
 
         $event = new OrderStateTranslationDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

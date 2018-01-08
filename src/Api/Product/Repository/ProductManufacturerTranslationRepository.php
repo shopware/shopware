@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -18,8 +18,8 @@ use Shopware\Api\Product\Definition\ProductManufacturerTranslationDefinition;
 use Shopware\Api\Product\Event\ProductManufacturerTranslation\ProductManufacturerTranslationAggregationResultLoadedEvent;
 use Shopware\Api\Product\Event\ProductManufacturerTranslation\ProductManufacturerTranslationBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductManufacturerTranslation\ProductManufacturerTranslationDetailLoadedEvent;
+use Shopware\Api\Product\Event\ProductManufacturerTranslation\ProductManufacturerTranslationIdSearchResultLoadedEvent;
 use Shopware\Api\Product\Event\ProductManufacturerTranslation\ProductManufacturerTranslationSearchResultLoadedEvent;
-use Shopware\Api\Product\Event\ProductManufacturerTranslation\ProductManufacturerTranslationUuidSearchResultLoadedEvent;
 use Shopware\Api\Product\Struct\ProductManufacturerTranslationSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,16 +67,16 @@ class ProductManufacturerTranslationRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): ProductManufacturerTranslationSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = ProductManufacturerTranslationSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = ProductManufacturerTranslationSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new ProductManufacturerTranslationSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class ProductManufacturerTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(ProductManufacturerTranslationDefinition::class, $criteria, $context);
 
-        $event = new ProductManufacturerTranslationUuidSearchResultLoadedEvent($result);
+        $event = new ProductManufacturerTranslationIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): ProductManufacturerTranslationBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): ProductManufacturerTranslationBasicCollection
     {
         /** @var ProductManufacturerTranslationBasicCollection $entities */
-        $entities = $this->reader->readBasic(ProductManufacturerTranslationDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(ProductManufacturerTranslationDefinition::class, $ids, $context);
 
         $event = new ProductManufacturerTranslationBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class ProductManufacturerTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): ProductManufacturerTranslationDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): ProductManufacturerTranslationDetailCollection
     {
         /** @var ProductManufacturerTranslationDetailCollection $entities */
-        $entities = $this->reader->readDetail(ProductManufacturerTranslationDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(ProductManufacturerTranslationDefinition::class, $ids, $context);
 
         $event = new ProductManufacturerTranslationDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

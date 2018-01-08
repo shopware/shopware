@@ -27,8 +27,8 @@ Shopware.Component.register('sw-product-list', {
 
     methods: {
         onEdit(product) {
-            if (product && product.uuid) {
-                this.$router.push({ name: 'sw.product.detail', params: { uuid: product.uuid } });
+            if (product && product.id) {
+                this.$router.push({ name: 'sw.product.detail', params: { id: product.id } });
             }
         },
 

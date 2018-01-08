@@ -119,7 +119,7 @@ class ViewProductTransformer implements ViewLineItemTransformerInterface
             return;
         }
 
-        $covers = $this->fetchCovers($products->getUuids(), $context);
+        $covers = $this->fetchCovers($products->getIds(), $context);
 
         /** @var CalculatedLineItemCollection $collection */
         /** @var CalculatedProduct $calculated */
@@ -131,7 +131,7 @@ class ViewProductTransformer implements ViewLineItemTransformerInterface
             }
 
             /** @var ProductMediaBasicStruct $cover */
-            $cover = $covers->filterByProductUuid($product->getUuid())->first();
+            $cover = $covers->filterByProductId($product->getId())->first();
 
             $template = ViewProduct::createFromProducts($product, $calculated);
 
@@ -143,11 +143,11 @@ class ViewProductTransformer implements ViewLineItemTransformerInterface
         }
     }
 
-    protected function fetchCovers(array $uuids, ShopContext $context): ProductMediaSearchResult
+    protected function fetchCovers(array $ids, ShopContext $context): ProductMediaSearchResult
     {
         /** @var ProductMediaSearchResult $media */
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('product_media.productUuid', $uuids));
+        $criteria->addFilter(new TermsQuery('product_media.productId', $ids));
         $criteria->addFilter(new TermQuery('product_media.isCover', true));
 
         return $this->productMediaRepository->search($criteria, $context->getTranslationContext());

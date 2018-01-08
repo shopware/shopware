@@ -7,8 +7,8 @@
         {% if viewLineItem.extensions.canonicalUrl %}
             {% set detailUrl = viewLineItem.extensions.canonicalUrl.url %}
         {% else %}
-            {% if viewLineItem.uuid %}
-                {% set detailUrl = url('detail_page', { 'uuid': viewLineItem.uuid }) %}
+            {% if viewLineItem.id %}
+                {% set detailUrl = url('detail_page', { 'id': viewLineItem.id }) %}
             {% endif %}
         {% endif %}
 

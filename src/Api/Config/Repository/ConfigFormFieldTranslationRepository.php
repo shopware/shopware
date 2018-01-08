@@ -8,8 +8,8 @@ use Shopware\Api\Config\Definition\ConfigFormFieldTranslationDefinition;
 use Shopware\Api\Config\Event\ConfigFormFieldTranslation\ConfigFormFieldTranslationAggregationResultLoadedEvent;
 use Shopware\Api\Config\Event\ConfigFormFieldTranslation\ConfigFormFieldTranslationBasicLoadedEvent;
 use Shopware\Api\Config\Event\ConfigFormFieldTranslation\ConfigFormFieldTranslationDetailLoadedEvent;
+use Shopware\Api\Config\Event\ConfigFormFieldTranslation\ConfigFormFieldTranslationIdSearchResultLoadedEvent;
 use Shopware\Api\Config\Event\ConfigFormFieldTranslation\ConfigFormFieldTranslationSearchResultLoadedEvent;
-use Shopware\Api\Config\Event\ConfigFormFieldTranslation\ConfigFormFieldTranslationUuidSearchResultLoadedEvent;
 use Shopware\Api\Config\Struct\ConfigFormFieldTranslationSearchResult;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
@@ -17,7 +17,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -67,16 +67,16 @@ class ConfigFormFieldTranslationRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): ConfigFormFieldTranslationSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = ConfigFormFieldTranslationSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = ConfigFormFieldTranslationSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new ConfigFormFieldTranslationSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class ConfigFormFieldTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(ConfigFormFieldTranslationDefinition::class, $criteria, $context);
 
-        $event = new ConfigFormFieldTranslationUuidSearchResultLoadedEvent($result);
+        $event = new ConfigFormFieldTranslationIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): ConfigFormFieldTranslationBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): ConfigFormFieldTranslationBasicCollection
     {
         /** @var ConfigFormFieldTranslationBasicCollection $entities */
-        $entities = $this->reader->readBasic(ConfigFormFieldTranslationDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(ConfigFormFieldTranslationDefinition::class, $ids, $context);
 
         $event = new ConfigFormFieldTranslationBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class ConfigFormFieldTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): ConfigFormFieldTranslationDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): ConfigFormFieldTranslationDetailCollection
     {
         /** @var ConfigFormFieldTranslationDetailCollection $entities */
-        $entities = $this->reader->readDetail(ConfigFormFieldTranslationDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(ConfigFormFieldTranslationDefinition::class, $ids, $context);
 
         $event = new ConfigFormFieldTranslationDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

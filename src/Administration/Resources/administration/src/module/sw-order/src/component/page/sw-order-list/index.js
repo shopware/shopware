@@ -38,8 +38,8 @@ Shopware.Component.register('sw-order-list', {
         },
 
         onEdit(order) {
-            if (order && order.uuid) {
-                this.$router.push({ name: 'sw.order.detail', params: { uuid: order.uuid } });
+            if (order && order.id) {
+                this.$router.push({ name: 'sw.order.detail', params: { id: order.id } });
             }
         },
 

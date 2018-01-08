@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Product\Collection;
 
+use Shopware\Api\Media\Collection\MediaBasicCollection;
 use Shopware\Api\Product\Struct\ProductManufacturerDetailStruct;
 
 class ProductManufacturerDetailCollection extends ProductManufacturerBasicCollection
@@ -11,16 +12,25 @@ class ProductManufacturerDetailCollection extends ProductManufacturerBasicCollec
      */
     protected $elements = [];
 
-    public function getProductUuids(): array
+    public function getMedia(): MediaBasicCollection
     {
-        $uuids = [];
+        return new MediaBasicCollection(
+            $this->fmap(function (ProductManufacturerDetailStruct $productManufacturer) {
+                return $productManufacturer->getMedia();
+            })
+        );
+    }
+
+    public function getProductIds(): array
+    {
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getProducts()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getProducts()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getProducts(): ProductBasicCollection
@@ -33,16 +43,16 @@ class ProductManufacturerDetailCollection extends ProductManufacturerBasicCollec
         return $collection;
     }
 
-    public function getTranslationUuids(): array
+    public function getTranslationIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getTranslations()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getTranslations()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getTranslations(): ProductManufacturerTranslationBasicCollection

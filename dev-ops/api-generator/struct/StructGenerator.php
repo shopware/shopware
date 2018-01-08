@@ -150,7 +150,7 @@ class StructGenerator
         foreach ($definition->columns as $column) {
             $propertyName = $column->propertyName;
 
-            if ($propertyName === 'uuid') {
+            if ($propertyName === 'id') {
                 continue;
             }
 
@@ -181,7 +181,7 @@ class StructGenerator
         foreach ($definition->columns as $column) {
             $propertyName = $column->propertyName;
 
-            if ($propertyName === 'uuid') {
+            if ($propertyName === 'id') {
                 continue;
             }
 
@@ -263,7 +263,7 @@ class StructGenerator
     /**
      * @var string[]
      */
-    protected $#classLc#Uuids = [];
+    protected $#classLc#Ids = [];
 '
                     );
                     $properties[] = str_replace(
@@ -323,14 +323,14 @@ class StructGenerator
                         ['#classLc#', '#classUc#'],
                         [lcfirst($propertyName), ucfirst($propertyName)],
 '
-    public function get#classUc#Uuids(): array
+    public function get#classUc#Ids(): array
     {
-        return $this->#classLc#Uuids;
+        return $this->#classLc#Ids;
     }
 
-    public function set#classUc#Uuids(array $#classLc#Uuids): void
+    public function set#classUc#Ids(array $#classLc#Ids): void
     {
-        $this->#classLc#Uuids = $#classLc#Uuids;
+        $this->#classLc#Ids = $#classLc#Ids;
     }
 '
                     );

@@ -12,9 +12,9 @@ class ShopTemplateBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ShopTemplateBasicStruct
+    public function get(string $id): ? ShopTemplateBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ShopTemplateBasicStruct
@@ -22,31 +22,31 @@ class ShopTemplateBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getPluginUuids(): array
+    public function getPluginIds(): array
     {
         return $this->fmap(function (ShopTemplateBasicStruct $shopTemplate) {
-            return $shopTemplate->getPluginUuid();
+            return $shopTemplate->getPluginId();
         });
     }
 
-    public function filterByPluginUuid(string $uuid): self
+    public function filterByPluginId(string $id): self
     {
-        return $this->filter(function (ShopTemplateBasicStruct $shopTemplate) use ($uuid) {
-            return $shopTemplate->getPluginUuid() === $uuid;
+        return $this->filter(function (ShopTemplateBasicStruct $shopTemplate) use ($id) {
+            return $shopTemplate->getPluginId() === $id;
         });
     }
 
-    public function getParentUuids(): array
+    public function getParentIds(): array
     {
         return $this->fmap(function (ShopTemplateBasicStruct $shopTemplate) {
-            return $shopTemplate->getParentUuid();
+            return $shopTemplate->getParentId();
         });
     }
 
-    public function filterByParentUuid(string $uuid): self
+    public function filterByParentId(string $id): self
     {
-        return $this->filter(function (ShopTemplateBasicStruct $shopTemplate) use ($uuid) {
-            return $shopTemplate->getParentUuid() === $uuid;
+        return $this->filter(function (ShopTemplateBasicStruct $shopTemplate) use ($id) {
+            return $shopTemplate->getParentId() === $id;
         });
     }
 

@@ -9,36 +9,36 @@ class OrderStateTranslationBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $orderStateUuid;
+    protected $orderStateId;
 
     /**
      * @var string
      */
-    protected $languageUuid;
+    protected $languageId;
 
     /**
      * @var string
      */
     protected $description;
 
-    public function getOrderStateUuid(): string
+    public function getOrderStateId(): string
     {
-        return $this->orderStateUuid;
+        return $this->orderStateId;
     }
 
-    public function setOrderStateUuid(string $orderStateUuid): void
+    public function setOrderStateId(string $orderStateId): void
     {
-        $this->orderStateUuid = $orderStateUuid;
+        $this->orderStateId = $orderStateId;
     }
 
-    public function getLanguageUuid(): string
+    public function getLanguageId(): string
     {
-        return $this->languageUuid;
+        return $this->languageId;
     }
 
-    public function setLanguageUuid(string $languageUuid): void
+    public function setLanguageId(string $languageId): void
     {
-        $this->languageUuid = $languageUuid;
+        $this->languageId = $languageId;
     }
 
     public function getDescription(): string

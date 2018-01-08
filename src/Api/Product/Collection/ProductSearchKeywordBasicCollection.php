@@ -12,9 +12,9 @@ class ProductSearchKeywordBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ProductSearchKeywordBasicStruct
+    public function get(string $id): ? ProductSearchKeywordBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ProductSearchKeywordBasicStruct
@@ -22,31 +22,31 @@ class ProductSearchKeywordBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getShopUuids(): array
+    public function getShopIds(): array
     {
         return $this->fmap(function (ProductSearchKeywordBasicStruct $productSearchKeyword) {
-            return $productSearchKeyword->getShopUuid();
+            return $productSearchKeyword->getShopId();
         });
     }
 
-    public function filterByShopUuid(string $uuid): self
+    public function filterByShopId(string $id): self
     {
-        return $this->filter(function (ProductSearchKeywordBasicStruct $productSearchKeyword) use ($uuid) {
-            return $productSearchKeyword->getShopUuid() === $uuid;
+        return $this->filter(function (ProductSearchKeywordBasicStruct $productSearchKeyword) use ($id) {
+            return $productSearchKeyword->getShopId() === $id;
         });
     }
 
-    public function getProductUuids(): array
+    public function getProductIds(): array
     {
         return $this->fmap(function (ProductSearchKeywordBasicStruct $productSearchKeyword) {
-            return $productSearchKeyword->getProductUuid();
+            return $productSearchKeyword->getProductId();
         });
     }
 
-    public function filterByProductUuid(string $uuid): self
+    public function filterByProductId(string $id): self
     {
-        return $this->filter(function (ProductSearchKeywordBasicStruct $productSearchKeyword) use ($uuid) {
-            return $productSearchKeyword->getProductUuid() === $uuid;
+        return $this->filter(function (ProductSearchKeywordBasicStruct $productSearchKeyword) use ($id) {
+            return $productSearchKeyword->getProductId() === $id;
         });
     }
 

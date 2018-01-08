@@ -12,9 +12,9 @@ class ShopTemplateConfigFormFieldBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ShopTemplateConfigFormFieldBasicStruct
+    public function get(string $id): ? ShopTemplateConfigFormFieldBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ShopTemplateConfigFormFieldBasicStruct
@@ -22,31 +22,31 @@ class ShopTemplateConfigFormFieldBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getShopTemplateUuids(): array
+    public function getShopTemplateIds(): array
     {
         return $this->fmap(function (ShopTemplateConfigFormFieldBasicStruct $shopTemplateConfigFormField) {
-            return $shopTemplateConfigFormField->getShopTemplateUuid();
+            return $shopTemplateConfigFormField->getShopTemplateId();
         });
     }
 
-    public function filterByShopTemplateUuid(string $uuid): self
+    public function filterByShopTemplateId(string $id): self
     {
-        return $this->filter(function (ShopTemplateConfigFormFieldBasicStruct $shopTemplateConfigFormField) use ($uuid) {
-            return $shopTemplateConfigFormField->getShopTemplateUuid() === $uuid;
+        return $this->filter(function (ShopTemplateConfigFormFieldBasicStruct $shopTemplateConfigFormField) use ($id) {
+            return $shopTemplateConfigFormField->getShopTemplateId() === $id;
         });
     }
 
-    public function getShopTemplateConfigFormUuids(): array
+    public function getShopTemplateConfigFormIds(): array
     {
         return $this->fmap(function (ShopTemplateConfigFormFieldBasicStruct $shopTemplateConfigFormField) {
-            return $shopTemplateConfigFormField->getShopTemplateConfigFormUuid();
+            return $shopTemplateConfigFormField->getShopTemplateConfigFormId();
         });
     }
 
-    public function filterByShopTemplateConfigFormUuid(string $uuid): self
+    public function filterByShopTemplateConfigFormId(string $id): self
     {
-        return $this->filter(function (ShopTemplateConfigFormFieldBasicStruct $shopTemplateConfigFormField) use ($uuid) {
-            return $shopTemplateConfigFormField->getShopTemplateConfigFormUuid() === $uuid;
+        return $this->filter(function (ShopTemplateConfigFormFieldBasicStruct $shopTemplateConfigFormField) use ($id) {
+            return $shopTemplateConfigFormField->getShopTemplateConfigFormId() === $id;
         });
     }
 

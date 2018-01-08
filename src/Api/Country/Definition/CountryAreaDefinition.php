@@ -12,11 +12,11 @@ use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -51,14 +51,14 @@ class CountryAreaDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
             new BoolField('active', 'active'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new OneToManyAssociationField('countries', CountryDefinition::class, 'country_area_uuid', false, 'uuid'),
-            (new TranslationsAssociationField('translations', CountryAreaTranslationDefinition::class, 'country_area_uuid', false, 'uuid'))->setFlags(new Required()),
-            new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'country_area_uuid', false, 'uuid'),
+            new OneToManyAssociationField('countries', CountryDefinition::class, 'country_area_id', false, 'id'),
+            (new TranslationsAssociationField('translations', CountryAreaTranslationDefinition::class, 'country_area_id', false, 'id'))->setFlags(new Required()),
+            new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'country_area_id', false, 'id'),
         ]);
 
         foreach (self::$extensions as $extension) {

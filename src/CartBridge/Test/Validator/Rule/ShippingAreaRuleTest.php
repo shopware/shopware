@@ -71,8 +71,8 @@ class ShippingAreaRuleTest extends TestCase
     public function matchingEqualsData(): array
     {
         return [
-            [['SWAG-AREA-UUID-1'], 'SWAG-AREA-UUID-1'],
-            [['SWAG-AREA-UUID-1', 'SWAG-AREA-UUID-2', 'SWAG-AREA-UUID-3'], 'SWAG-AREA-UUID-2'],
+            [['SWAG-AREA-ID-1'], 'SWAG-AREA-ID-1'],
+            [['SWAG-AREA-ID-1', 'SWAG-AREA-ID-2', 'SWAG-AREA-ID-3'], 'SWAG-AREA-ID-2'],
         ];
     }
 
@@ -110,8 +110,8 @@ class ShippingAreaRuleTest extends TestCase
     public function matchingNotEqualsData(): array
     {
         return [
-            [['SWAG-AREA-UUID-1'], 'SWAG-AREA-UUID-2'],
-            [['SWAG-AREA-UUID-1', 'SWAG-AREA-UUID-2', 'SWAG-AREA-UUID-3'], 'SWAG-AREA-UUID-4'],
+            [['SWAG-AREA-ID-1'], 'SWAG-AREA-ID-2'],
+            [['SWAG-AREA-ID-1', 'SWAG-AREA-ID-2', 'SWAG-AREA-ID-3'], 'SWAG-AREA-ID-4'],
         ];
     }
 
@@ -124,7 +124,7 @@ class ShippingAreaRuleTest extends TestCase
      */
     public function testUnsupportedOperators(string $operator): void
     {
-        $rule = new ShippingAreaRule(['SWAG-AREA-UUID-1'], $operator);
+        $rule = new ShippingAreaRule(['SWAG-AREA-ID-1'], $operator);
 
         $cart = $this->createMock(CalculatedCart::class);
 
@@ -147,10 +147,10 @@ class ShippingAreaRuleTest extends TestCase
     private function createCountryWithArea(string $areaId): CountryBasicStruct
     {
         $country = new CountryBasicStruct();
-        $country->setUuid('SWAG-AREA-COUNTRY-UUID-1');
+        $country->setId('SWAG-AREA-COUNTRY-ID-1');
         $area = new CountryAreaBasicStruct();
-        $area->setUuid($areaId);
-        $country->setAreaUuid($areaId);
+        $area->setId($areaId);
+        $country->setAreaId($areaId);
 
         return $country;
     }

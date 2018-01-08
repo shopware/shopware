@@ -8,8 +8,8 @@ use Shopware\Api\Customer\Definition\CustomerAddressDefinition;
 use Shopware\Api\Customer\Event\CustomerAddress\CustomerAddressAggregationResultLoadedEvent;
 use Shopware\Api\Customer\Event\CustomerAddress\CustomerAddressBasicLoadedEvent;
 use Shopware\Api\Customer\Event\CustomerAddress\CustomerAddressDetailLoadedEvent;
+use Shopware\Api\Customer\Event\CustomerAddress\CustomerAddressIdSearchResultLoadedEvent;
 use Shopware\Api\Customer\Event\CustomerAddress\CustomerAddressSearchResultLoadedEvent;
-use Shopware\Api\Customer\Event\CustomerAddress\CustomerAddressUuidSearchResultLoadedEvent;
 use Shopware\Api\Customer\Struct\CustomerAddressSearchResult;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
@@ -17,7 +17,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -67,16 +67,16 @@ class CustomerAddressRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): CustomerAddressSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = CustomerAddressSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = CustomerAddressSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new CustomerAddressSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class CustomerAddressRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(CustomerAddressDefinition::class, $criteria, $context);
 
-        $event = new CustomerAddressUuidSearchResultLoadedEvent($result);
+        $event = new CustomerAddressIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): CustomerAddressBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): CustomerAddressBasicCollection
     {
         /** @var CustomerAddressBasicCollection $entities */
-        $entities = $this->reader->readBasic(CustomerAddressDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(CustomerAddressDefinition::class, $ids, $context);
 
         $event = new CustomerAddressBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class CustomerAddressRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): CustomerAddressDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): CustomerAddressDetailCollection
     {
         /** @var CustomerAddressDetailCollection $entities */
-        $entities = $this->reader->readDetail(CustomerAddressDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(CustomerAddressDefinition::class, $ids, $context);
 
         $event = new CustomerAddressDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

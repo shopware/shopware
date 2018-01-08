@@ -138,7 +138,7 @@ class DefinitionGenerator
 
 
                     $template = str_replace(
-                        ['#Definition#', '#MappingDefinition#', '#inBasic#', '#property#', '#sourceColumn#', '#referenceColumn#', '#uuidProperty#'],
+                        ['#Definition#', '#MappingDefinition#', '#inBasic#', '#property#', '#sourceColumn#', '#referenceColumn#', '#idProperty#'],
                         [
                             ucfirst(Util::getTableDomainName($association->referenceTable)),
                             ucfirst(Util::getTableDomainName($association->mappingTable)),
@@ -146,9 +146,9 @@ class DefinitionGenerator
                             $property,
                             $association->mappingSourceColumn,
                             $association->mappingReferenceColumn,
-                            $association->property . 'Uuids'
+                            $association->property . 'Ids'
                         ],
-                        'new ManyToManyAssociationField(\'#property#\', #Definition#Definition::class, #MappingDefinition#Definition::class, #inBasic#, \'#sourceColumn#\', \'#referenceColumn#\', \'#uuidProperty#\')'
+                        'new ManyToManyAssociationField(\'#property#\', #Definition#Definition::class, #MappingDefinition#Definition::class, #inBasic#, \'#sourceColumn#\', \'#referenceColumn#\', \'#idProperty#\')'
                     );
                     break;
                 case ($association instanceof ManyToOneAssociation):
@@ -288,8 +288,8 @@ use Shopware\Api\#bundle#\Struct\#class#DetailStruct;
     {
         $template = $column->type;
 
-        if ($column->name === 'uuid') {
-            $template = 'UuidField';
+        if ($column->name === 'id') {
+            $template = 'IdField';
         } else if ($column->allowHtml) {
             $template = 'LongTextWithHtmlField';
         }

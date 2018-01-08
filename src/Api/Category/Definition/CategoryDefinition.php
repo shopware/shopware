@@ -13,6 +13,7 @@ use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
@@ -21,7 +22,6 @@ use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -29,6 +29,7 @@ use Shopware\Api\Media\Definition\MediaDefinition;
 use Shopware\Api\Product\Definition\ProductCategoryDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Definition\ProductSeoCategoryDefinition;
+use Shopware\Api\Product\Definition\ProductStreamDefinition;
 use Shopware\Api\Shop\Definition\ShopDefinition;
 
 class CategoryDefinition extends EntityDefinition
@@ -60,9 +61,10 @@ class CategoryDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            new FkField('parent_uuid', 'parentUuid', self::class),
-            new FkField('media_uuid', 'mediaUuid', MediaDefinition::class),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new FkField('parent_id', 'parentId', self::class),
+            new FkField('media_id', 'mediaId', MediaDefinition::class),
+            new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
             new LongTextField('path', 'path'),
             new IntField('position', 'position'),
@@ -74,10 +76,9 @@ class CategoryDefinition extends EntityDefinition
             new BoolField('hide_filter', 'hideFilter'),
             new BoolField('hide_top', 'hideTop'),
             new StringField('product_box_layout', 'productBoxLayout'),
-            new StringField('product_stream_uuid', 'productStreamUuid'),
             new BoolField('hide_sortings', 'hideSortings'),
-            new LongTextField('sorting_uuids', 'sortingUuids'),
-            new LongTextField('facet_uuids', 'facetUuids'),
+            new LongTextField('sorting_ids', 'sortingIds'),
+            new LongTextField('facet_ids', 'facetIds'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new TranslatedField(new LongTextField('path_names', 'pathNames')),
@@ -86,12 +87,13 @@ class CategoryDefinition extends EntityDefinition
             new TranslatedField(new LongTextField('meta_description', 'metaDescription')),
             new TranslatedField(new StringField('cms_headline', 'cmsHeadline')),
             new TranslatedField(new LongTextField('cms_description', 'cmsDescription')),
-            new ManyToOneAssociationField('parent', 'parent_uuid', self::class, false),
-            new ManyToOneAssociationField('media', 'media_uuid', MediaDefinition::class, true),
-            (new TranslationsAssociationField('translations', CategoryTranslationDefinition::class, 'category_uuid', false, 'uuid'))->setFlags(new Required()),
-            new OneToManyAssociationField('shops', ShopDefinition::class, 'category_uuid', false, 'uuid'),
-            new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_uuid', 'product_uuid', 'productUuids'),
-            new ManyToManyAssociationField('seoProducts', ProductDefinition::class, ProductSeoCategoryDefinition::class, false, 'category_uuid', 'product_uuid', 'seoProductUuids'),
+            new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
+            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, true),
+            new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, true),
+            (new TranslationsAssociationField('translations', CategoryTranslationDefinition::class, 'category_id', false, 'id'))->setFlags(new Required()),
+            new OneToManyAssociationField('shops', ShopDefinition::class, 'category_id', false, 'id'),
+            new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'productIds'),
+            new ManyToManyAssociationField('seoProducts', ProductDefinition::class, ProductSeoCategoryDefinition::class, false, 'category_id', 'product_id', 'seoProductIds'),
         ]);
 
         foreach (self::$extensions as $extension) {

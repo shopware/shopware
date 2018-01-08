@@ -80,33 +80,33 @@ class DetailPageUrlGenerator implements SeoUrlGeneratorInterface
         $criteria = new Criteria();
         $criteria->setOffset($offset);
         $criteria->setLimit($limit);
-        $criteria->addFilter(new TermQuery('product.categoryTree', $shop->getCategoryUuid()));
+        $criteria->addFilter(new TermQuery('product.categoryTree', $shop->getCategoryId()));
         $criteria->addFilter(new TermQuery('product.active', 1));
         $products = $this->repository->search($criteria, $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('seo_url.isCanonical', 1));
-        $criteria->addFilter(new TermsQuery('seo_url.foreignKey', $products->getUuids()));
+        $criteria->addFilter(new TermsQuery('seo_url.foreignKey', $products->getIds()));
         $criteria->addFilter(new TermQuery('seo_url.name', self::ROUTE_NAME));
-        $criteria->addFilter(new TermQuery('seo_url.shopUuid', $shop->getUuid()));
+        $criteria->addFilter(new TermQuery('seo_url.shopId', $shop->getId()));
         $existingCanonicals = $this->seoUrlRepository->search($criteria, $context);
 
         $routes = new SeoUrlBasicCollection();
         /** @var ProductBasicStruct $product */
         foreach ($products as $product) {
-            $pathInfo = $this->generator->generate(self::ROUTE_NAME, ['uuid' => $product->getUuid()]);
+            $pathInfo = $this->generator->generate(self::ROUTE_NAME, ['id' => $product->getId()]);
 
-            $seoPathInfo = $this->slugify->slugify($product->getName()) . '/' . $this->slugify->slugify($product->getUuid());
+            $seoPathInfo = $this->slugify->slugify($product->getName());
 
             if (!$seoPathInfo || !$pathInfo) {
                 continue;
             }
 
             $url = new SeoUrlBasicStruct();
-            $url->setUuid(Uuid::uuid4()->toString());
-            $url->setShopUuid($shop->getUuid());
+            $url->setId(Uuid::uuid4()->toString());
+            $url->setShopId($shop->getId());
             $url->setName(self::ROUTE_NAME);
-            $url->setForeignKey($product->getUuid());
+            $url->setForeignKey($product->getId());
             $url->setPathInfo($pathInfo);
             $url->setSeoPathInfo($seoPathInfo);
             $url->setCreatedAt(new \DateTime());

@@ -12,9 +12,9 @@ class ShippingMethodPriceBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ShippingMethodPriceBasicStruct
+    public function get(string $id): ? ShippingMethodPriceBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ShippingMethodPriceBasicStruct
@@ -22,17 +22,17 @@ class ShippingMethodPriceBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getShippingMethodUuids(): array
+    public function getShippingMethodIds(): array
     {
         return $this->fmap(function (ShippingMethodPriceBasicStruct $shippingMethodPrice) {
-            return $shippingMethodPrice->getShippingMethodUuid();
+            return $shippingMethodPrice->getShippingMethodId();
         });
     }
 
-    public function filterByShippingMethodUuid(string $uuid): self
+    public function filterByShippingMethodId(string $id): self
     {
-        return $this->filter(function (ShippingMethodPriceBasicStruct $shippingMethodPrice) use ($uuid) {
-            return $shippingMethodPrice->getShippingMethodUuid() === $uuid;
+        return $this->filter(function (ShippingMethodPriceBasicStruct $shippingMethodPrice) use ($id) {
+            return $shippingMethodPrice->getShippingMethodId() === $id;
         });
     }
 

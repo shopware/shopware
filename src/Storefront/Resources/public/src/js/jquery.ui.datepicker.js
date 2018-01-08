@@ -71,12 +71,12 @@
         },
 
         uniqueId: (function() {
-            var uuid = 0;
+            var id = 0;
 
             return function() {
                 return this.each(function() {
                     if ( !this.id ) {
-                        this.id = "ui-id-" + ( ++uuid );
+                        this.id = "ui-id-" + ( ++id );
                     }
                 });
             };
@@ -472,8 +472,8 @@
             nodeName = target.nodeName.toLowerCase();
             inline = (nodeName === "div" || nodeName === "span");
             if (!target.id) {
-                this.uuid += 1;
-                target.id = "dp" + this.uuid;
+                this.id += 1;
+                target.id = "dp" + this.id;
             }
             inst = this._newInst($(target), inline);
             inst.settings = $.extend({}, settings || {});
@@ -625,8 +625,8 @@
                 inst = this._dialogInst; // internal instance
 
             if (!inst) {
-                this.uuid += 1;
-                id = "dp" + this.uuid;
+                this.id += 1;
+                id = "dp" + this.id;
                 this._dialogInput = $("<input type='text' id='" + id +
                     "' style='position: absolute; top: -100px; width: 0px;'/>");
                 this._dialogInput.keydown(this._doKeyDown);
@@ -2363,7 +2363,7 @@
 
     $.datepicker = new Datepicker(); // singleton instance
     $.datepicker.initialized = false;
-    $.datepicker.uuid = new Date().getTime();
+    $.datepicker.id = new Date().getTime();
     $.datepicker.version = "1.11.0";
 
     var datepicker = $.datepicker;

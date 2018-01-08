@@ -9,7 +9,7 @@ class CustomerGroupDiscountBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $customerGroupUuid;
+    protected $customerGroupId;
 
     /**
      * @var float
@@ -31,14 +31,14 @@ class CustomerGroupDiscountBasicStruct extends Entity
      */
     protected $updatedAt;
 
-    public function getCustomerGroupUuid(): string
+    public function getCustomerGroupId(): string
     {
-        return $this->customerGroupUuid;
+        return $this->customerGroupId;
     }
 
-    public function setCustomerGroupUuid(string $customerGroupUuid): void
+    public function setCustomerGroupId(string $customerGroupId): void
     {
-        $this->customerGroupUuid = $customerGroupUuid;
+        $this->customerGroupId = $customerGroupId;
     }
 
     public function getPercentageDiscount(): float

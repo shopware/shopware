@@ -24,6 +24,7 @@
 
 namespace Shopware\Api\Entity\Field;
 
+use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Write\FieldAware\PathAware;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
 use Shopware\Api\Entity\Write\FieldAware\ValidatorAware;
@@ -67,7 +68,7 @@ class FkField extends Field implements WriteContextAware, ValidatorAware, PathAw
      */
     private $path;
 
-    public function __construct(string $storageName, string $propertyName, string $referenceClass, string $referenceField = 'uuid')
+    public function __construct(string $storageName, string $propertyName, string $referenceClass, string $referenceField = 'id')
     {
         $this->referenceClass = $referenceClass;
         $this->storageName = $storageName;
@@ -85,7 +86,7 @@ class FkField extends Field implements WriteContextAware, ValidatorAware, PathAw
             }
         }
 
-        yield $this->storageName => $value;
+        yield $this->storageName => Uuid::fromString($value)->getBytes();
     }
 
     public function getStorageName(): string

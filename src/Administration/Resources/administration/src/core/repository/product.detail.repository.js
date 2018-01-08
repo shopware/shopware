@@ -8,8 +8,8 @@ export default {
     methods: {
         initProduct,
         saveProduct,
-        getProductByUuid,
-        updateProductByUuid,
+        getProductById,
+        updateProductById,
         createProduct,
         getDefaultProduct,
         getNewProduct,
@@ -17,11 +17,11 @@ export default {
     }
 };
 
-function initProduct(uuid, dataKey = 'product') {
+function initProduct(id, dataKey = 'product') {
     this.productDataKey = dataKey;
     this[dataKey] = this.getDefaultProduct();
 
-    if (!uuid) {
+    if (!id) {
         const productProxy = this.getNewProduct();
 
         this.productProxy = productProxy;
@@ -32,7 +32,7 @@ function initProduct(uuid, dataKey = 'product') {
         });
     }
 
-    return this.getProductByUuid(uuid).then((productProxy) => {
+    return this.getProductById(id).then((productProxy) => {
         this.productProxy = productProxy;
         this[dataKey] = productProxy.data;
 
@@ -41,29 +41,29 @@ function initProduct(uuid, dataKey = 'product') {
 }
 
 function saveProduct() {
-    const uuid = this.productProxy.data.uuid;
+    const id = this.productProxy.data.id;
 
-    if (!uuid) {
+    if (!id) {
         return this.createProduct(this.productProxy).then((data) => {
             this.productProxy.data = data;
             return data;
         }).catch();
     }
 
-    return this.updateProductByUuid(uuid, this.productProxy).then((data) => {
+    return this.updateProductById(id, this.productProxy).then((data) => {
         this.productProxy.data = data;
         return data;
     }).catch();
 }
 
-function getProductByUuid(uuid) {
-    return this.productService.getByUuid(uuid).then((response) => {
+function getProductById(id) {
+    return this.productService.getById(id).then((response) => {
         return ProxyFactory.create(response.data);
     });
 }
 
-function updateProductByUuid(uuid, proxy) {
-    if (!uuid || !proxy) {
+function updateProductById(id, proxy) {
+    if (!id || !proxy) {
         return Promise.reject(new Error('Missing required parameters.'));
     }
 
@@ -83,7 +83,7 @@ function updateProductByUuid(uuid, proxy) {
         changeSet.categories = mapCategories(changeSet.categories);
     }
 
-    return this.productService.updateByUuid(uuid, changeSet).then((response) => {
+    return this.productService.updateById(id, changeSet).then((response) => {
         return response.data;
     });
 }
@@ -118,18 +118,18 @@ function getDefaultProduct() {
 
 function getNewProduct() {
     const product = {
-        uuid: null,
-        taxUuid: 'SWAG-TAX-UUID-1',
-        manufacturerUuid: null,
+        id: null,
+        taxId: 'SWAG-TAX-ID-1',
+        manufacturerId: null,
         prices: [{
-            uuid: null,
+            id: null,
             price: 0,
             basePrice: 0,
             pseudoPrice: null,
             quantityStart: 1,
             quantityEnd: null,
             percentage: 0,
-            customerGroupUuid: '3294e6f6-372b-415f-ac73-71cbc191548f'
+            customerGroupId: '3294e6f6-372b-415f-ac73-71cbc191548f'
         }]
     };
 
@@ -137,17 +137,17 @@ function getNewProduct() {
 }
 
 function addProductPrice() {
-    const uuid = utils.createUuid();
+    const id = utils.createId();
 
     this[this.productDataKey].prices.push({
-        uuid,
+        id,
         price: 0,
         basePrice: 0,
         pseudoPrice: null,
         quantityStart: 1,
         quantityEnd: null,
         percentage: null,
-        customerGroupUuid: '3294e6f6-372b-415f-ac73-71cbc191548f'
+        customerGroupId: '3294e6f6-372b-415f-ac73-71cbc191548f'
     });
 }
 
@@ -156,7 +156,7 @@ function mapCategories(categories) {
 
     categories.forEach((entry) => {
         mappedCategories.push({
-            categoryUuid: entry.uuid
+            categoryId: entry.id
         });
     });
 

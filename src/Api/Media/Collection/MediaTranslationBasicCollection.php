@@ -12,9 +12,9 @@ class MediaTranslationBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? MediaTranslationBasicStruct
+    public function get(string $id): ? MediaTranslationBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): MediaTranslationBasicStruct
@@ -22,31 +22,31 @@ class MediaTranslationBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getMediaUuids(): array
+    public function getMediaIds(): array
     {
         return $this->fmap(function (MediaTranslationBasicStruct $mediaTranslation) {
-            return $mediaTranslation->getMediaUuid();
+            return $mediaTranslation->getMediaId();
         });
     }
 
-    public function filterByMediaUuid(string $uuid): self
+    public function filterByMediaId(string $id): self
     {
-        return $this->filter(function (MediaTranslationBasicStruct $mediaTranslation) use ($uuid) {
-            return $mediaTranslation->getMediaUuid() === $uuid;
+        return $this->filter(function (MediaTranslationBasicStruct $mediaTranslation) use ($id) {
+            return $mediaTranslation->getMediaId() === $id;
         });
     }
 
-    public function getLanguageUuids(): array
+    public function getLanguageIds(): array
     {
         return $this->fmap(function (MediaTranslationBasicStruct $mediaTranslation) {
-            return $mediaTranslation->getLanguageUuid();
+            return $mediaTranslation->getLanguageId();
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): self
+    public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (MediaTranslationBasicStruct $mediaTranslation) use ($uuid) {
-            return $mediaTranslation->getLanguageUuid() === $uuid;
+        return $this->filter(function (MediaTranslationBasicStruct $mediaTranslation) use ($id) {
+            return $mediaTranslation->getLanguageId() === $id;
         });
     }
 

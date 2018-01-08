@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -18,8 +18,8 @@ use Shopware\Api\Tax\Definition\TaxDefinition;
 use Shopware\Api\Tax\Event\Tax\TaxAggregationResultLoadedEvent;
 use Shopware\Api\Tax\Event\Tax\TaxBasicLoadedEvent;
 use Shopware\Api\Tax\Event\Tax\TaxDetailLoadedEvent;
+use Shopware\Api\Tax\Event\Tax\TaxIdSearchResultLoadedEvent;
 use Shopware\Api\Tax\Event\Tax\TaxSearchResultLoadedEvent;
-use Shopware\Api\Tax\Event\Tax\TaxUuidSearchResultLoadedEvent;
 use Shopware\Api\Tax\Struct\TaxSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,16 +67,16 @@ class TaxRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): TaxSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = TaxSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = TaxSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new TaxSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class TaxRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(TaxDefinition::class, $criteria, $context);
 
-        $event = new TaxUuidSearchResultLoadedEvent($result);
+        $event = new TaxIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): TaxBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): TaxBasicCollection
     {
         /** @var TaxBasicCollection $entities */
-        $entities = $this->reader->readBasic(TaxDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(TaxDefinition::class, $ids, $context);
 
         $event = new TaxBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class TaxRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): TaxDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): TaxDetailCollection
     {
         /** @var TaxDetailCollection $entities */
-        $entities = $this->reader->readDetail(TaxDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(TaxDefinition::class, $ids, $context);
 
         $event = new TaxDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

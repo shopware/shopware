@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -18,8 +18,8 @@ use Shopware\Api\Media\Definition\MediaDefinition;
 use Shopware\Api\Media\Event\Media\MediaAggregationResultLoadedEvent;
 use Shopware\Api\Media\Event\Media\MediaBasicLoadedEvent;
 use Shopware\Api\Media\Event\Media\MediaDetailLoadedEvent;
+use Shopware\Api\Media\Event\Media\MediaIdSearchResultLoadedEvent;
 use Shopware\Api\Media\Event\Media\MediaSearchResultLoadedEvent;
-use Shopware\Api\Media\Event\Media\MediaUuidSearchResultLoadedEvent;
 use Shopware\Api\Media\Struct\MediaSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,16 +67,16 @@ class MediaRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): MediaSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = MediaSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = MediaSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new MediaSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class MediaRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(MediaDefinition::class, $criteria, $context);
 
-        $event = new MediaUuidSearchResultLoadedEvent($result);
+        $event = new MediaIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): MediaBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): MediaBasicCollection
     {
         /** @var MediaBasicCollection $entities */
-        $entities = $this->reader->readBasic(MediaDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(MediaDefinition::class, $ids, $context);
 
         $event = new MediaBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class MediaRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): MediaDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): MediaDetailCollection
     {
         /** @var MediaDetailCollection $entities */
-        $entities = $this->reader->readDetail(MediaDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(MediaDefinition::class, $ids, $context);
 
         $event = new MediaDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

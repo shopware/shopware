@@ -7,12 +7,12 @@ use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -52,9 +52,9 @@ class ShopTemplateConfigFormFieldDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('shop_template_uuid', 'shopTemplateUuid', ShopTemplateDefinition::class))->setFlags(new Required()),
-            (new FkField('shop_template_config_form_uuid', 'shopTemplateConfigFormUuid', ShopTemplateConfigFormDefinition::class))->setFlags(new Required()),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('shop_template_id', 'shopTemplateId', ShopTemplateDefinition::class))->setFlags(new Required()),
+            (new FkField('shop_template_config_form_id', 'shopTemplateConfigFormId', ShopTemplateConfigFormDefinition::class))->setFlags(new Required()),
             (new StringField('type', 'type'))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             new IntField('position', 'position'),
@@ -67,9 +67,9 @@ class ShopTemplateConfigFormFieldDefinition extends EntityDefinition
             new BoolField('less_compatible', 'lessCompatible'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('shopTemplate', 'shop_template_uuid', ShopTemplateDefinition::class, false),
-            new ManyToOneAssociationField('shopTemplateConfigForm', 'shop_template_config_form_uuid', ShopTemplateConfigFormDefinition::class, false),
-            new OneToManyAssociationField('values', ShopTemplateConfigFormFieldValueDefinition::class, 'shop_template_config_form_field_uuid', false, 'uuid'),
+            new ManyToOneAssociationField('shopTemplate', 'shop_template_id', ShopTemplateDefinition::class, false),
+            new ManyToOneAssociationField('shopTemplateConfigForm', 'shop_template_config_form_id', ShopTemplateConfigFormDefinition::class, false),
+            new OneToManyAssociationField('values', ShopTemplateConfigFormFieldValueDefinition::class, 'shop_template_config_form_field_id', false, 'id'),
         ]);
 
         foreach (self::$extensions as $extension) {

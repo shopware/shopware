@@ -17,5 +17,5 @@ class #classUc#DetailCollection extends #classUc#BasicCollection
         return #classUc#DetailStruct::class;
     }
 
-#collectiveUuidGetters#
+#collectiveIdGetters#
 }

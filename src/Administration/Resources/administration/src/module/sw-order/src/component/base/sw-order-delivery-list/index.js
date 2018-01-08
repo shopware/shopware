@@ -32,7 +32,7 @@ Shopware.Component.register('core-order-delivery-list', {
         getDeliveryList(offset = this.offset, limit = this.limit) {
             this.isWorking = true;
             this.orderDeliveryService
-                .getList(offset, limit, this.order.uuid)
+                .getList(offset, limit, this.order.id)
                 .then((response) => {
                     this.deliveryList = response.data;
                     this.errors = response.errors;

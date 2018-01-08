@@ -8,16 +8,18 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Seo\Collection\SeoUrlBasicCollection;
+use Shopware\Api\Seo\Collection\SeoUrlDetailCollection;
 use Shopware\Api\Seo\Definition\SeoUrlDefinition;
 use Shopware\Api\Seo\Event\SeoUrl\SeoUrlAggregationResultLoadedEvent;
 use Shopware\Api\Seo\Event\SeoUrl\SeoUrlBasicLoadedEvent;
+use Shopware\Api\Seo\Event\SeoUrl\SeoUrlDetailLoadedEvent;
+use Shopware\Api\Seo\Event\SeoUrl\SeoUrlIdSearchResultLoadedEvent;
 use Shopware\Api\Seo\Event\SeoUrl\SeoUrlSearchResultLoadedEvent;
-use Shopware\Api\Seo\Event\SeoUrl\SeoUrlUuidSearchResultLoadedEvent;
 use Shopware\Api\Seo\Struct\SeoUrlSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -65,16 +67,16 @@ class SeoUrlRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): SeoUrlSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = SeoUrlSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = SeoUrlSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new SeoUrlSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -92,20 +94,20 @@ class SeoUrlRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(SeoUrlDefinition::class, $criteria, $context);
 
-        $event = new SeoUrlUuidSearchResultLoadedEvent($result);
+        $event = new SeoUrlIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): SeoUrlBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): SeoUrlBasicCollection
     {
         /** @var SeoUrlBasicCollection $entities */
-        $entities = $this->reader->readBasic(SeoUrlDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(SeoUrlDefinition::class, $ids, $context);
 
         $event = new SeoUrlBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -113,9 +115,15 @@ class SeoUrlRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): SeoUrlBasicCollection
+    public function readDetail(array $ids, TranslationContext $context): SeoUrlDetailCollection
     {
-        return $this->readBasic($uuids, $context);
+        /** @var SeoUrlDetailCollection $entities */
+        $entities = $this->reader->readDetail(SeoUrlDefinition::class, $ids, $context);
+
+        $event = new SeoUrlDetailLoadedEvent($entities, $context);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
+        return $entities;
     }
 
     public function update(array $data, TranslationContext $context): GenericWrittenEvent

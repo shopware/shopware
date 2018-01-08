@@ -12,9 +12,9 @@ class PaymentMethodBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? PaymentMethodBasicStruct
+    public function get(string $id): ? PaymentMethodBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): PaymentMethodBasicStruct
@@ -22,17 +22,17 @@ class PaymentMethodBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getPluginUuids(): array
+    public function getPluginIds(): array
     {
         return $this->fmap(function (PaymentMethodBasicStruct $paymentMethod) {
-            return $paymentMethod->getPluginUuid();
+            return $paymentMethod->getPluginId();
         });
     }
 
-    public function filterByPluginUuid(string $uuid): self
+    public function filterByPluginId(string $id): self
     {
-        return $this->filter(function (PaymentMethodBasicStruct $paymentMethod) use ($uuid) {
-            return $paymentMethod->getPluginUuid() === $uuid;
+        return $this->filter(function (PaymentMethodBasicStruct $paymentMethod) use ($id) {
+            return $paymentMethod->getPluginId() === $id;
         });
     }
 

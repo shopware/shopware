@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Entity\Dbal;
 
+use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\ArrayField;
@@ -11,6 +12,7 @@ use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\FloatField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\LongTextWithHtmlField;
@@ -18,7 +20,6 @@ use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\Extension;
 
@@ -54,7 +55,13 @@ class EntityHydrator
 
             if ($field instanceof ManyToManyAssociationField) {
                 $property = implode('.', [$root, $field->getPropertyName()]);
-                $data[$field->getStructUuidMappingProperty()] = array_filter(explode('|', (string) $row[$property]));
+
+                $ids = array_filter(explode('|', (string) $row[$property]));
+                $ids = array_map(function (string $bytes) {
+                    return Uuid::fromBytes($bytes)->toString();
+                }, $ids);
+
+                $data[$field->getStructIdMappingProperty()] = $ids;
                 continue;
             }
         }
@@ -122,8 +129,13 @@ class EntityHydrator
     private static function castValue(Field $field, $value)
     {
         switch (true) {
-            case $field instanceof UuidField:
-                return (string) $value;
+            case $field instanceof FkField:
+            case $field instanceof IdField:
+                if ($value === null) {
+                    return null;
+                }
+
+                return Uuid::fromBytes($value)->toString();
             case $field instanceof FloatField:
                 return $value === null ? null : (float) $value;
             case $field instanceof IntField:
@@ -136,7 +148,6 @@ class EntityHydrator
                 return $value === null ? null : new \DateTime($value);
             case $field instanceof ArrayField:
                 return json_decode((string) $value, true);
-            case $field instanceof FkField:
             case $field instanceof LongTextField:
             case $field instanceof LongTextWithHtmlField:
             case $field instanceof StringField:

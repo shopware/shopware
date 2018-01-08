@@ -12,9 +12,9 @@ class ProductTranslationBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ProductTranslationBasicStruct
+    public function get(string $id): ? ProductTranslationBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ProductTranslationBasicStruct
@@ -22,31 +22,31 @@ class ProductTranslationBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getProductUuids(): array
+    public function getProductIds(): array
     {
         return $this->fmap(function (ProductTranslationBasicStruct $productTranslation) {
-            return $productTranslation->getProductUuid();
+            return $productTranslation->getProductId();
         });
     }
 
-    public function filterByProductUuid(string $uuid): self
+    public function filterByProductId(string $id): self
     {
-        return $this->filter(function (ProductTranslationBasicStruct $productTranslation) use ($uuid) {
-            return $productTranslation->getProductUuid() === $uuid;
+        return $this->filter(function (ProductTranslationBasicStruct $productTranslation) use ($id) {
+            return $productTranslation->getProductId() === $id;
         });
     }
 
-    public function getLanguageUuids(): array
+    public function getLanguageIds(): array
     {
         return $this->fmap(function (ProductTranslationBasicStruct $productTranslation) {
-            return $productTranslation->getLanguageUuid();
+            return $productTranslation->getLanguageId();
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): self
+    public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (ProductTranslationBasicStruct $productTranslation) use ($uuid) {
-            return $productTranslation->getLanguageUuid() === $uuid;
+        return $this->filter(function (ProductTranslationBasicStruct $productTranslation) use ($id) {
+            return $productTranslation->getLanguageId() === $id;
         });
     }
 

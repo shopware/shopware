@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -18,8 +18,8 @@ use Shopware\Api\Listing\Definition\ListingSortingDefinition;
 use Shopware\Api\Listing\Event\ListingSorting\ListingSortingAggregationResultLoadedEvent;
 use Shopware\Api\Listing\Event\ListingSorting\ListingSortingBasicLoadedEvent;
 use Shopware\Api\Listing\Event\ListingSorting\ListingSortingDetailLoadedEvent;
+use Shopware\Api\Listing\Event\ListingSorting\ListingSortingIdSearchResultLoadedEvent;
 use Shopware\Api\Listing\Event\ListingSorting\ListingSortingSearchResultLoadedEvent;
-use Shopware\Api\Listing\Event\ListingSorting\ListingSortingUuidSearchResultLoadedEvent;
 use Shopware\Api\Listing\Struct\ListingSortingSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,16 +67,16 @@ class ListingSortingRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): ListingSortingSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = ListingSortingSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = ListingSortingSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new ListingSortingSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class ListingSortingRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(ListingSortingDefinition::class, $criteria, $context);
 
-        $event = new ListingSortingUuidSearchResultLoadedEvent($result);
+        $event = new ListingSortingIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): ListingSortingBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): ListingSortingBasicCollection
     {
         /** @var ListingSortingBasicCollection $entities */
-        $entities = $this->reader->readBasic(ListingSortingDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(ListingSortingDefinition::class, $ids, $context);
 
         $event = new ListingSortingBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class ListingSortingRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): ListingSortingDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): ListingSortingDetailCollection
     {
         /** @var ListingSortingDetailCollection $entities */
-        $entities = $this->reader->readDetail(ListingSortingDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(ListingSortingDefinition::class, $ids, $context);
 
         $event = new ListingSortingDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

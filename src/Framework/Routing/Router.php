@@ -190,12 +190,12 @@ class Router implements RouterInterface, RequestMatcherInterface
         $pathInfo = '/' . trim($pathInfo, '/');
 
         $translationContext = new TranslationContext(
-            (string) $shop['uuid'],
+            (string) $shop['id'],
             (bool) $shop['is_default'],
-            (string) $shop['fallback_translation_uuid']
+            (string) $shop['fallback_translation_id']
         );
 
-        $seoUrl = $this->urlResolver->getUrl($shop['uuid'], $pathInfo, $translationContext);
+        $seoUrl = $this->urlResolver->getUrl($shop['id'], $pathInfo, $translationContext);
 
         //generate new url with shop base path/url
         $url = $generator->generate($name, $parameters, $referenceType);
@@ -245,13 +245,13 @@ class Router implements RouterInterface, RequestMatcherInterface
         }
 
         //save detected shop to context for further processes
-        $currencyUuid = $this->getCurrencyUuid($request, $shop['currency_uuid']);
+        $currencyId = $this->getCurrencyId($request, $shop['currency_id']);
 
         $this->context->setParameter('router_shop', $shop);
         $request->attributes->set('router_shop', $shop);
-        $request->attributes->set('_shop_uuid', $shop['uuid']);
-        $request->attributes->set('_currency_uuid', $currencyUuid);
-        $request->attributes->set('_locale_uuid', $shop['locale_uuid']);
+        $request->attributes->set('_shop_id', $shop['id']);
+        $request->attributes->set('_currency_id', $currencyId);
+        $request->attributes->set('_locale_id', $shop['locale_id']);
         $request->setLocale($shop['locale_code']);
 
         $stripBaseUrl = $this->rewriteBaseUrl($shop['base_url'], $shop['base_path']);
@@ -262,9 +262,9 @@ class Router implements RouterInterface, RequestMatcherInterface
         $pathInfo = '/' . trim($pathInfo, '/');
 
         $translationContext = new TranslationContext(
-            (string) $shop['uuid'],
+            (string) $shop['id'],
             (bool) $shop['is_default'],
-            (string) $shop['fallback_translation_uuid']
+            (string) $shop['fallback_translation_id']
         );
 
         if (strpos($pathInfo, '/widgets/') !== false) {
@@ -272,7 +272,7 @@ class Router implements RouterInterface, RequestMatcherInterface
         }
 
         //resolve seo urls to use symfony url matcher for route detection
-        $seoUrl = $this->urlResolver->getPathInfo($shop['uuid'], $pathInfo, $translationContext);
+        $seoUrl = $this->urlResolver->getPathInfo($shop['id'], $pathInfo, $translationContext);
 
         if (!$seoUrl) {
             return $this->match($pathInfo);
@@ -280,7 +280,7 @@ class Router implements RouterInterface, RequestMatcherInterface
 
         $pathInfo = $seoUrl->getPathInfo();
         if (!$seoUrl->getIsCanonical()) {
-            $redirectUrl = $this->urlResolver->getUrl($shop['uuid'], $seoUrl->getPathInfo(), $translationContext);
+            $redirectUrl = $this->urlResolver->getUrl($shop['id'], $seoUrl->getPathInfo(), $translationContext);
             $request->attributes->set(self::SEO_REDIRECT_URL, $redirectUrl);
         }
 
@@ -300,7 +300,7 @@ class Router implements RouterInterface, RequestMatcherInterface
         return rtrim($base, '/') . '/' . ltrim($url, '/');
     }
 
-    protected function getCurrencyUuid(Request $request, string $fallback): string
+    protected function getCurrencyId(Request $request, string $fallback): string
     {
         if ($this->context->getMethod() === 'POST' && $request->get('__currency')) {
             return (string) $request->get('__currency');
@@ -310,8 +310,8 @@ class Router implements RouterInterface, RequestMatcherInterface
             return (string) $request->cookies->get('currency');
         }
 
-        if ($request->attributes->has('_currency_uuid')) {
-            return (string) $request->attributes->get('_currency_uuid');
+        if ($request->attributes->has('_currency_id')) {
+            return (string) $request->attributes->get('_currency_id');
         }
 
         return $fallback;

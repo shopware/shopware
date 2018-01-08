@@ -23,7 +23,7 @@ class TranslationsAssociationField extends SubresourceField implements Associati
         bool $loadInBasic,
         string $localField
     ) {
-        parent::__construct($propertyName, $referenceClass, 'languageUuid');
+        parent::__construct($propertyName, $referenceClass, 'languageId');
         $this->loadInBasic = $loadInBasic;
         $this->localField = $localField;
         $this->referenceField = $referenceField;

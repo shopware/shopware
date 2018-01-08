@@ -11,16 +11,16 @@ class OrderAddressDetailCollection extends OrderAddressBasicCollection
      */
     protected $elements = [];
 
-    public function getOrderUuids(): array
+    public function getOrderIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getOrders()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getOrders()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getOrders(): OrderBasicCollection
@@ -33,16 +33,16 @@ class OrderAddressDetailCollection extends OrderAddressBasicCollection
         return $collection;
     }
 
-    public function getOrderDeliveryUuids(): array
+    public function getOrderDeliveryIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getOrderDeliveries()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getOrderDeliveries()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getOrderDeliveries(): OrderDeliveryBasicCollection

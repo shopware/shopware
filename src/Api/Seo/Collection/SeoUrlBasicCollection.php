@@ -12,9 +12,9 @@ class SeoUrlBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? SeoUrlBasicStruct
+    public function get(string $id): ? SeoUrlBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): SeoUrlBasicStruct
@@ -22,17 +22,17 @@ class SeoUrlBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getShopUuids(): array
+    public function getShopIds(): array
     {
         return $this->fmap(function (SeoUrlBasicStruct $seoUrl) {
-            return $seoUrl->getShopUuid();
+            return $seoUrl->getShopId();
         });
     }
 
-    public function filterByShopUuid(string $uuid): self
+    public function filterByShopId(string $id): self
     {
-        return $this->filter(function (SeoUrlBasicStruct $seoUrl) use ($uuid) {
-            return $seoUrl->getShopUuid() === $uuid;
+        return $this->filter(function (SeoUrlBasicStruct $seoUrl) use ($id) {
+            return $seoUrl->getShopId() === $id;
         });
     }
 

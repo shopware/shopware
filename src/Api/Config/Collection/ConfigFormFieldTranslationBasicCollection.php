@@ -12,9 +12,9 @@ class ConfigFormFieldTranslationBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ConfigFormFieldTranslationBasicStruct
+    public function get(string $id): ? ConfigFormFieldTranslationBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ConfigFormFieldTranslationBasicStruct
@@ -22,31 +22,31 @@ class ConfigFormFieldTranslationBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getConfigFormFieldUuids(): array
+    public function getConfigFormFieldIds(): array
     {
         return $this->fmap(function (ConfigFormFieldTranslationBasicStruct $configFormFieldTranslation) {
-            return $configFormFieldTranslation->getConfigFormFieldUuid();
+            return $configFormFieldTranslation->getConfigFormFieldId();
         });
     }
 
-    public function filterByConfigFormFieldUuid(string $uuid): self
+    public function filterByConfigFormFieldId(string $id): self
     {
-        return $this->filter(function (ConfigFormFieldTranslationBasicStruct $configFormFieldTranslation) use ($uuid) {
-            return $configFormFieldTranslation->getConfigFormFieldUuid() === $uuid;
+        return $this->filter(function (ConfigFormFieldTranslationBasicStruct $configFormFieldTranslation) use ($id) {
+            return $configFormFieldTranslation->getConfigFormFieldId() === $id;
         });
     }
 
-    public function getLocaleUuids(): array
+    public function getLocaleIds(): array
     {
         return $this->fmap(function (ConfigFormFieldTranslationBasicStruct $configFormFieldTranslation) {
-            return $configFormFieldTranslation->getLocaleUuid();
+            return $configFormFieldTranslation->getLocaleId();
         });
     }
 
-    public function filterByLocaleUuid(string $uuid): self
+    public function filterByLocaleId(string $id): self
     {
-        return $this->filter(function (ConfigFormFieldTranslationBasicStruct $configFormFieldTranslation) use ($uuid) {
-            return $configFormFieldTranslation->getLocaleUuid() === $uuid;
+        return $this->filter(function (ConfigFormFieldTranslationBasicStruct $configFormFieldTranslation) use ($id) {
+            return $configFormFieldTranslation->getLocaleId() === $id;
         });
     }
 

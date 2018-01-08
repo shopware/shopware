@@ -9,12 +9,12 @@ class OrderDeliveryPositionBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $orderDeliveryUuid;
+    protected $orderDeliveryId;
 
     /**
      * @var string
      */
-    protected $orderLineItemUuid;
+    protected $orderLineItemId;
 
     /**
      * @var float
@@ -51,24 +51,24 @@ class OrderDeliveryPositionBasicStruct extends Entity
      */
     protected $orderLineItem;
 
-    public function getOrderDeliveryUuid(): string
+    public function getOrderDeliveryId(): string
     {
-        return $this->orderDeliveryUuid;
+        return $this->orderDeliveryId;
     }
 
-    public function setOrderDeliveryUuid(string $orderDeliveryUuid): void
+    public function setOrderDeliveryId(string $orderDeliveryId): void
     {
-        $this->orderDeliveryUuid = $orderDeliveryUuid;
+        $this->orderDeliveryId = $orderDeliveryId;
     }
 
-    public function getOrderLineItemUuid(): string
+    public function getOrderLineItemId(): string
     {
-        return $this->orderLineItemUuid;
+        return $this->orderLineItemId;
     }
 
-    public function setOrderLineItemUuid(string $orderLineItemUuid): void
+    public function setOrderLineItemId(string $orderLineItemId): void
     {
-        $this->orderLineItemUuid = $orderLineItemUuid;
+        $this->orderLineItemId = $orderLineItemId;
     }
 
     public function getUnitPrice(): float

@@ -12,9 +12,9 @@ class UnitBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? UnitBasicStruct
+    public function get(string $id): ? UnitBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): UnitBasicStruct

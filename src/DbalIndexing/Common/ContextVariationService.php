@@ -28,7 +28,7 @@ class ContextVariationService
         $context = TranslationContext::createDefaultContext();
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('shop.is_default'));
-        $criteria->addSorting(new FieldSorting('shop.parent_uuid'));
+        $criteria->addSorting(new FieldSorting('shop.parent_id'));
         $shops = $this->shopRepository->search(new Criteria(), $context);
 
         return $shops->map(function (ShopBasicStruct $shop) {

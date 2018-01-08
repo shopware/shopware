@@ -28,10 +28,10 @@ use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\ReferenceField;
 use Shopware\Api\Entity\Field\SubresourceField;
 use Shopware\Api\Entity\Field\TranslatedField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\DataStack\DataStack;
 use Shopware\Api\Entity\Write\DataStack\ExceptionNoStackItemFound;
@@ -156,7 +156,7 @@ class WriteResource
     {
         $stack = new DataStack($rawData);
 
-        /** @var UuidField|SubresourceField|FkField|ReferenceField $field */
+        /** @var IdField|SubresourceField|FkField|ReferenceField $field */
         foreach ($fields as $field) {
             $key = $field->getPropertyName();
 

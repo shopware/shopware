@@ -21,7 +21,7 @@ class CurrencyDetailStruct extends CurrencyBasicStruct
     /**
      * @var string[]
      */
-    protected $shopUuids = [];
+    protected $shopIds = [];
 
     /**
      * @var ShopBasicCollection
@@ -57,14 +57,14 @@ class CurrencyDetailStruct extends CurrencyBasicStruct
         $this->orders = $orders;
     }
 
-    public function getShopUuids(): array
+    public function getShopIds(): array
     {
-        return $this->shopUuids;
+        return $this->shopIds;
     }
 
-    public function setShopUuids(array $shopUuids): void
+    public function setShopIds(array $shopIds): void
     {
-        $this->shopUuids = $shopUuids;
+        $this->shopIds = $shopIds;
     }
 
     public function getShops(): ShopBasicCollection

@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -18,8 +18,8 @@ use Shopware\Api\Shop\Definition\ShopTemplateConfigFormFieldDefinition;
 use Shopware\Api\Shop\Event\ShopTemplateConfigFormField\ShopTemplateConfigFormFieldAggregationResultLoadedEvent;
 use Shopware\Api\Shop\Event\ShopTemplateConfigFormField\ShopTemplateConfigFormFieldBasicLoadedEvent;
 use Shopware\Api\Shop\Event\ShopTemplateConfigFormField\ShopTemplateConfigFormFieldDetailLoadedEvent;
+use Shopware\Api\Shop\Event\ShopTemplateConfigFormField\ShopTemplateConfigFormFieldIdSearchResultLoadedEvent;
 use Shopware\Api\Shop\Event\ShopTemplateConfigFormField\ShopTemplateConfigFormFieldSearchResultLoadedEvent;
-use Shopware\Api\Shop\Event\ShopTemplateConfigFormField\ShopTemplateConfigFormFieldUuidSearchResultLoadedEvent;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigFormFieldSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,16 +67,16 @@ class ShopTemplateConfigFormFieldRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): ShopTemplateConfigFormFieldSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = ShopTemplateConfigFormFieldSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = ShopTemplateConfigFormFieldSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new ShopTemplateConfigFormFieldSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class ShopTemplateConfigFormFieldRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(ShopTemplateConfigFormFieldDefinition::class, $criteria, $context);
 
-        $event = new ShopTemplateConfigFormFieldUuidSearchResultLoadedEvent($result);
+        $event = new ShopTemplateConfigFormFieldIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): ShopTemplateConfigFormFieldBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): ShopTemplateConfigFormFieldBasicCollection
     {
         /** @var ShopTemplateConfigFormFieldBasicCollection $entities */
-        $entities = $this->reader->readBasic(ShopTemplateConfigFormFieldDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(ShopTemplateConfigFormFieldDefinition::class, $ids, $context);
 
         $event = new ShopTemplateConfigFormFieldBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class ShopTemplateConfigFormFieldRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): ShopTemplateConfigFormFieldDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): ShopTemplateConfigFormFieldDetailCollection
     {
         /** @var ShopTemplateConfigFormFieldDetailCollection $entities */
-        $entities = $this->reader->readDetail(ShopTemplateConfigFormFieldDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(ShopTemplateConfigFormFieldDefinition::class, $ids, $context);
 
         $event = new ShopTemplateConfigFormFieldDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

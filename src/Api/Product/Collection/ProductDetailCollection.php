@@ -12,16 +12,16 @@ class ProductDetailCollection extends ProductBasicCollection
      */
     protected $elements = [];
 
-    public function getMediaUuids(): array
+    public function getMediaIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getMedia()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getMedia()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getMedia(): ProductMediaBasicCollection
@@ -34,16 +34,16 @@ class ProductDetailCollection extends ProductBasicCollection
         return $collection;
     }
 
-    public function getSearchKeywordUuids(): array
+    public function getSearchKeywordIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getSearchKeywords()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getSearchKeywords()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getSearchKeywords(): ProductSearchKeywordBasicCollection
@@ -56,16 +56,16 @@ class ProductDetailCollection extends ProductBasicCollection
         return $collection;
     }
 
-    public function getTranslationUuids(): array
+    public function getTranslationIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getTranslations()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getTranslations()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getTranslations(): ProductTranslationBasicCollection
@@ -78,16 +78,16 @@ class ProductDetailCollection extends ProductBasicCollection
         return $collection;
     }
 
-    public function getAllCategoryUuids(): array
+    public function getAllCategoryIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getCategoryUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getCategoryIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getAllCategories(): CategoryBasicCollection
@@ -100,16 +100,16 @@ class ProductDetailCollection extends ProductBasicCollection
         return $collection;
     }
 
-    public function getAllSeoCategoryUuids(): array
+    public function getAllSeoCategoryIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getSeoCategoryUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getSeoCategoryIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getAllSeoCategories(): CategoryBasicCollection
@@ -122,16 +122,16 @@ class ProductDetailCollection extends ProductBasicCollection
         return $collection;
     }
 
-    public function getAllTabUuids(): array
+    public function getAllTabIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getTabUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getTabIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getAllTabs(): ProductStreamBasicCollection
@@ -144,16 +144,16 @@ class ProductDetailCollection extends ProductBasicCollection
         return $collection;
     }
 
-    public function getAllStreamUuids(): array
+    public function getAllStreamIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getStreamUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getStreamIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getAllStreams(): ProductStreamBasicCollection

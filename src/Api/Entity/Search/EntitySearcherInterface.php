@@ -6,5 +6,5 @@ use Shopware\Context\Struct\TranslationContext;
 
 interface EntitySearcherInterface
 {
-    public function search(string $definition, Criteria $criteria, TranslationContext $context): UuidSearchResult;
+    public function search(string $definition, Criteria $criteria, TranslationContext $context): IdSearchResult;
 }

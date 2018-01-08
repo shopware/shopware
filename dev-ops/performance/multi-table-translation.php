@@ -17,52 +17,52 @@ $schema = <<<'EOD'
     DROP TABLE IF EXISTS `dev_translated`;
   
     CREATE TABLE `dev_not_translated` (
-        `uuid` VARCHAR(42) NOT NULL COLLATE 'utf8_unicode_ci',
+        `id` VARCHAR(42) NOT NULL COLLATE 'utf8_unicode_ci',
         `name` VARCHAR(255) NOT NULL DEFAULT '0' COLLATE 'utf8_unicode_ci',
         `description` TEXT NULL COLLATE 'utf8_unicode_ci',
         `number` INT(11) NOT NULL DEFAULT '0',
-        PRIMARY KEY (`uuid`)
+        PRIMARY KEY (`id`)
     )
     COLLATE='utf8_unicode_ci'
     ENGINE=InnoDB
     ;
     CREATE TABLE `dev_translated` (
-        `uuid` VARCHAR(42) NOT NULL COLLATE 'utf8_unicode_ci',
+        `id` VARCHAR(42) NOT NULL COLLATE 'utf8_unicode_ci',
         `number` INT(11) NOT NULL DEFAULT '0',
-        PRIMARY KEY (`uuid`)
+        PRIMARY KEY (`id`)
     )
     COLLATE='utf8_unicode_ci'
     ENGINE=InnoDB
     ;
     CREATE TABLE `dev_translated_translation` (
-        `dev_trasnslated_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8_unicode_ci',
-        `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8_unicode_ci',
+        `dev_trasnslated_id` VARCHAR(42) NOT NULL COLLATE 'utf8_unicode_ci',
+        `language_id` VARCHAR(42) NOT NULL COLLATE 'utf8_unicode_ci',
         `name` VARCHAR(255) NOT NULL DEFAULT '0' COLLATE 'utf8_unicode_ci',
         `description` TEXT NULL COLLATE 'utf8_unicode_ci',
-        PRIMARY KEY (`language_uuid`, `dev_trasnslated_uuid`),
-        INDEX `FK_dev_translated_translation_language_uuid` (`language_uuid`),
-        INDEX `FK_dev_translated_translation_dev_translated` (`dev_trasnslated_uuid`),
-        CONSTRAINT `FK_dev_translated_translation_dev_translated` FOREIGN KEY (`dev_trasnslated_uuid`) REFERENCES `dev_translated` (`uuid`) ON UPDATE CASCADE ON DELETE CASCADE
+        PRIMARY KEY (`language_id`, `dev_trasnslated_id`),
+        INDEX `FK_dev_translated_translation_language_id` (`language_id`),
+        INDEX `FK_dev_translated_translation_dev_translated` (`dev_trasnslated_id`),
+        CONSTRAINT `FK_dev_translated_translation_dev_translated` FOREIGN KEY (`dev_trasnslated_id`) REFERENCES `dev_translated` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
     )
     COLLATE='utf8_unicode_ci'
     ENGINE=InnoDB
     ;
     CREATE TABLE `dev_multi_translated` (
-        `uuid` VARCHAR(42) NOT NULL COLLATE 'utf8_unicode_ci',
+        `id` VARCHAR(42) NOT NULL COLLATE 'utf8_unicode_ci',
         `number` INT(11) NOT NULL DEFAULT '0',
-        PRIMARY KEY (`uuid`)
+        PRIMARY KEY (`id`)
     )
     COLLATE='utf8_unicode_ci'
     ENGINE=InnoDB
     ;
     CREATE TABLE `dev_multi_translated_translation` (
-        `dev_trasnslated_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8_unicode_ci',
-        `language_uuid` VARCHAR(42) NOT NULL COLLATE 'utf8_unicode_ci',
+        `dev_trasnslated_id` VARCHAR(42) NOT NULL COLLATE 'utf8_unicode_ci',
+        `language_id` VARCHAR(42) NOT NULL COLLATE 'utf8_unicode_ci',
         `name` VARCHAR(255) NOT NULL DEFAULT '0' COLLATE 'utf8_unicode_ci',
         `description` TEXT NULL COLLATE 'utf8_unicode_ci',
-        PRIMARY KEY (`language_uuid`, `dev_trasnslated_uuid`),
-        INDEX `FK_dev_multi_translated_translation_translation_dev_translated` (`dev_trasnslated_uuid`),
-        CONSTRAINT `FK_ddev_multi_translated_translation_translation_dev_translated` FOREIGN KEY (`dev_trasnslated_uuid`) REFERENCES `dev_multi_translated_translation` (`uuid`) ON UPDATE CASCADE ON DELETE CASCADE
+        PRIMARY KEY (`language_id`, `dev_trasnslated_id`),
+        INDEX `FK_dev_multi_translated_translation_translation_dev_translated` (`dev_trasnslated_id`),
+        CONSTRAINT `FK_ddev_multi_translated_translation_translation_dev_translated` FOREIGN KEY (`dev_trasnslated_id`) REFERENCES `dev_multi_translated_translation` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
     )
     COLLATE='utf8_unicode_ci'
     ENGINE=InnoDB
@@ -81,17 +81,17 @@ $connection->exec($schema);
 
 echo "Generating Data\n";
 
-$rootUUids = [];
+$rootIds = [];
 $data = [];
 
 for($i = 1; $i < MAX_ROOT; $i++) {
     $data[$i] = [
-        'uuid' => str_replace('-', '', Ramsey\Uuid\Uuid::uuid4()->toString()),
+        'id' => str_replace('-', '', Ramsey\Uuid\Uuid::id4()->toString()),
         'name' => $faker->text(221),
         'description' => $faker->realText(2000),
         'number' => $faker->randomNumber(5),
     ];
-    $rootUUids[] =  $data[$i]['uuid'];
+    $rootIds[] =  $data[$i]['id'];
 }
 
 echo "Inserting Single Table Data\n";
@@ -105,7 +105,7 @@ for($i = 1; $i < MAX_ROOT; $i++) {
     $dataSet = $data[$i];
 
     $connection->insert('dev_not_translated', [
-        'uuid' => $dataSet['uuid'],
+        'id' => $dataSet['id'],
         'name' => $dataSet['name'],
         'description' => $dataSet['description'],
         'number' => $dataSet['number'],
@@ -124,14 +124,14 @@ for($i = 1; $i < MAX_ROOT; $i++) {
     $dataSet = $data[$i];
 
     $connection->insert('dev_translated', [
-        'uuid' => $dataSet['uuid'],
+        'id' => $dataSet['id'],
         'number' => $dataSet['number'],
     ]);
 
     foreach($languages as $index => $languageKey) {
         $connection->insert('dev_translated_translation', [
-            'dev_trasnslated_uuid' => $dataSet['uuid'],
-            'language_uuid' => $languageKey,
+            'dev_trasnslated_id' => $dataSet['id'],
+            'language_id' => $languageKey,
             'name' => $languageKey . $dataSet['name'],
             'description' => $languageKey . $dataSet['description'],
         ]);
@@ -149,9 +149,9 @@ for($i = 1; $i < SELECT_TESTS; $i++) {
     }
 
     $result = $connection->fetchAll(
-            'SELECT * FROM dev_not_translated t  WHERE t.uuid = :rootUUid',
+            'SELECT * FROM dev_not_translated t  WHERE t.id = :rootId',
             [
-                'rootUUid' => $faker->randomElement($rootUUids),
+                'rootId' => $faker->randomElement($rootIds),
             ]
         );
 
@@ -173,11 +173,11 @@ for($i = 1; $i < SELECT_TESTS; $i++) {
             '
              SELECT * 
              FROM  dev_translated t 
-             INNER JOIN dev_translated_translation tt ON (t.uuid = tt.dev_trasnslated_uuid AND tt.language_uuid = "de") 
-             WHERE t.uuid = :rootUUid
+             INNER JOIN dev_translated_translation tt ON (t.id = tt.dev_trasnslated_id AND tt.language_id = "de") 
+             WHERE t.id = :rootId
              ',
             [
-                'rootUUid' => $faker->randomElement($rootUUids),
+                'rootId' => $faker->randomElement($rootIds),
             ]
         );
 
@@ -197,14 +197,14 @@ for($i = 1; $i < SELECT_TESTS; $i++) {
 
     $result = $connection->fetchAll(
         '
-        SELECT t.uuid, t.number, tt_en.language_uuid AS isNotFallback, tt_en.name AS en_name, tt_en.description AS en_description, tt_fb.name AS fb_name, tt_fb.description AS fb_description
+        SELECT t.id, t.number, tt_en.language_id AS isNotFallback, tt_en.name AS en_name, tt_en.description AS en_description, tt_fb.name AS fb_name, tt_fb.description AS fb_description
         FROM  dev_translated t 
-        LEFT JOIN dev_translated_translation tt_en ON t.uuid = tt_en.dev_trasnslated_uuid AND tt_en.language_uuid = "en" 
-        LEFT JOIN dev_translated_translation tt_fb ON t.uuid = tt_fb.dev_trasnslated_uuid AND tt_fb.language_uuid = "de" 
-        WHERE t.uuid = :rootUUid
+        LEFT JOIN dev_translated_translation tt_en ON t.id = tt_en.dev_trasnslated_id AND tt_en.language_id = "en" 
+        LEFT JOIN dev_translated_translation tt_fb ON t.id = tt_fb.dev_trasnslated_id AND tt_fb.language_id = "de" 
+        WHERE t.id = :rootId
         ',
         [
-            'rootUUid' => $faker->randomElement($rootUUids),
+            'rootId' => $faker->randomElement($rootIds),
         ]
     );
 

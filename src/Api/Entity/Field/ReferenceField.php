@@ -24,6 +24,7 @@
 
 namespace Shopware\Api\Entity\Field;
 
+use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Write\FieldAware\ExceptionStackAware;
 use Shopware\Api\Entity\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Api\Entity\Write\FieldAware\FieldExtenderCollectionAware;
@@ -106,7 +107,9 @@ class ReferenceField extends Field implements PathAware, ExceptionStackAware, Wr
             $this->path . '/' . $key
         );
 
-        yield $this->storageName => $this->writeContext->get($this->referenceClass, $this->referenceField);
+        $id = $this->writeContext->get($this->referenceClass, $this->referenceField);
+
+        yield $this->storageName => Uuid::fromString($id)->getBytes();
     }
 
     public function collectPrimaryKeys(string $type, string $key, $value = null): \Generator

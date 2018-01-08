@@ -4,6 +4,7 @@ namespace Shopware\Api\Category\Event\Category;
 
 use Shopware\Api\Category\Collection\CategoryBasicCollection;
 use Shopware\Api\Media\Event\Media\MediaBasicLoadedEvent;
+use Shopware\Api\Product\Event\ProductStream\ProductStreamBasicLoadedEvent;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -48,6 +49,9 @@ class CategoryBasicLoadedEvent extends NestedEvent
         $events = [];
         if ($this->categories->getMedia()->count() > 0) {
             $events[] = new MediaBasicLoadedEvent($this->categories->getMedia(), $this->context);
+        }
+        if ($this->categories->getProductStreams()->count() > 0) {
+            $events[] = new ProductStreamBasicLoadedEvent($this->categories->getProductStreams(), $this->context);
         }
 
         return new NestedEventCollection($events);

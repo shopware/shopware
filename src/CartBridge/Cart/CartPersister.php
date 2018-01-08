@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace Shopware\CartBridge\Cart;
 
 use Doctrine\DBAL\Connection;
+use Ramsey\Uuid\Uuid;
 use Shopware\Cart\Cart\CartPersisterInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\CartContainer;
@@ -84,12 +85,12 @@ class CartPersister implements CartPersisterInterface
             'name' => $cart->getName(),
             'calculated' => $this->serializer->serialize($cart),
             'container' => $this->serializer->serialize($cart->getCartContainer()),
-            'currency_uuid' => $context->getCurrency()->getUuid(),
-            'shipping_method_uuid' => $context->getShippingMethod()->getUuid(),
-            'payment_method_uuid' => $context->getPaymentMethod()->getUuid(),
-            'country_uuid' => $context->getShippingLocation()->getCountry()->getUuid(),
-            'customer_uuid' => $context->getCustomer() ? $context->getCustomer()->getUuid() : null,
-            'shop_uuid' => $context->getShop()->getUuid(),
+            'currency_id' => Uuid::fromString($context->getCurrency()->getId())->getBytes(),
+            'shipping_method_id' => Uuid::fromString($context->getShippingMethod()->getId())->getBytes(),
+            'payment_method_id' => Uuid::fromString($context->getPaymentMethod()->getId())->getBytes(),
+            'country_id' => Uuid::fromString($context->getShippingLocation()->getCountry()->getId())->getBytes(),
+            'shop_id' => Uuid::fromString($context->getShop()->getId())->getBytes(),
+            'customer_id' => $context->getCustomer() ? Uuid::fromString($context->getCustomer()->getId())->getBytes() : null,
             'price' => $cart->getPrice()->getTotalPrice(),
             'line_item_count' => $cart->getCalculatedLineItems()->count(),
             'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),

@@ -93,9 +93,9 @@ class EntityAggregator implements EntityAggregatorInterface
             $query->select([$field]);
             $query->groupBy($field);
 
-            $uuids = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
+            $ids = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
 
-            return $this->reader->readBasic($aggregation->getDefinition(), $uuids, $context);
+            return $this->reader->readBasic($aggregation->getDefinition(), $ids, $context);
         }
 
         if ($aggregation instanceof ValueCountAggregation) {

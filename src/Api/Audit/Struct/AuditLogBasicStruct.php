@@ -14,17 +14,17 @@ class AuditLogBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $userUuid;
-
-    /**
-     * @var string
-     */
     protected $entity;
 
     /**
      * @var \DateTime
      */
     protected $createdAt;
+
+    /**
+     * @var string|null
+     */
+    protected $userId;
 
     /**
      * @var string|null
@@ -46,16 +46,6 @@ class AuditLogBasicStruct extends Entity
         $this->action = $action;
     }
 
-    public function getUserUuid(): string
-    {
-        return $this->userUuid;
-    }
-
-    public function setUserUuid(string $userUuid): void
-    {
-        $this->userUuid = $userUuid;
-    }
-
     public function getEntity(): string
     {
         return $this->entity;
@@ -74,6 +64,16 @@ class AuditLogBasicStruct extends Entity
     public function setCreatedAt(\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
+    }
+
+    public function getUserId(): ?string
+    {
+        return $this->userId;
+    }
+
+    public function setUserId(?string $userId): void
+    {
+        $this->userId = $userId;
     }
 
     public function getForeignKey(): ?string

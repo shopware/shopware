@@ -96,21 +96,21 @@ class StorefrontContextService implements StorefrontContextServiceInterface
     private function load(bool $useCache): ShopContext
     {
         $shopScope = new ShopScope(
-            $this->getStorefrontShopUuid(),
-            $this->getStorefrontCurrencyUuid()
+            $this->getStorefrontShopId(),
+            $this->getStorefrontCurrencyId()
         );
 
         $customerScope = new CustomerScope(
-            $this->getStorefrontCustomerUuid(),
+            $this->getStorefrontCustomerId(),
             null,
-            $this->getStorefrontBillingAddressUuid(),
-            $this->getStorefrontShippingAddressUuid()
+            $this->getStorefrontBillingAddressId(),
+            $this->getStorefrontShippingAddressId()
         );
 
         $checkoutScope = new CheckoutScope(
-            $this->getStorefrontPaymentMethodUuid(),
-            $this->getStorefrontShippingMethodUuid(),
-            $this->getStorefrontCountryUuid(),
+            $this->getStorefrontPaymentMethodId(),
+            $this->getStorefrontShippingMethodId(),
+            $this->getStorefrontCountryId(),
             $this->getStorefrontStateId()
         );
 
@@ -154,19 +154,19 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         );
     }
 
-    private function getStorefrontShopUuid(): string
+    private function getStorefrontShopId(): string
     {
-        return $this->requestStack->getMasterRequest()->attributes->get('_shop_uuid');
+        return $this->requestStack->getMasterRequest()->attributes->get('_shop_id');
     }
 
-    private function getStorefrontCurrencyUuid(): string
+    private function getStorefrontCurrencyId(): string
     {
-        return $this->requestStack->getMasterRequest()->attributes->get('_currency_uuid');
+        return $this->requestStack->getMasterRequest()->attributes->get('_currency_id');
     }
 
-    private function getStorefrontCountryUuid(): ?string
+    private function getStorefrontCountryId(): ?string
     {
-        if ($countryId = $this->getSessionValueOrNull('country_uuid')) {
+        if ($countryId = $this->getSessionValueOrNull('country_id')) {
             return (string) $countryId;
         }
 
@@ -178,54 +178,54 @@ class StorefrontContextService implements StorefrontContextServiceInterface
      */
     private function getStorefrontStateId(): ?string
     {
-        if ($stateId = $this->getSessionValueOrNull('state_uuid')) {
+        if ($stateId = $this->getSessionValueOrNull('state_id')) {
             return (string) $stateId;
         }
 
         return null;
     }
 
-    private function getStorefrontCustomerUuid(): ?string
+    private function getStorefrontCustomerId(): ?string
     {
         $token = $this->securityTokenStorage->getToken();
 
         if ($token && $token->getUser() && $token->getUser() instanceof CustomerUser) {
-            return $token->getUser()->getUuid();
+            return $token->getUser()->getId();
         }
 
         return null;
     }
 
-    private function getStorefrontBillingAddressUuid(): ?string
+    private function getStorefrontBillingAddressId(): ?string
     {
-        if ($addressId = $this->getSessionValueOrNull('checkout_billing_address_uuid')) {
+        if ($addressId = $this->getSessionValueOrNull('checkout_billing_address_id')) {
             return (string) $addressId;
         }
 
         return null;
     }
 
-    private function getStorefrontShippingAddressUuid(): ?string
+    private function getStorefrontShippingAddressId(): ?string
     {
-        if ($addressId = $this->getSessionValueOrNull('checkout_shipping_address_uuid')) {
+        if ($addressId = $this->getSessionValueOrNull('checkout_shipping_address_id')) {
             return (string) $addressId;
         }
 
         return null;
     }
 
-    private function getStorefrontPaymentMethodUuid(): ?string
+    private function getStorefrontPaymentMethodId(): ?string
     {
-        if ($paymentId = $this->getSessionValueOrNull('payment_method_uuid')) {
+        if ($paymentId = $this->getSessionValueOrNull('payment_method_id')) {
             return (string) $paymentId;
         }
 
         return null;
     }
 
-    private function getStorefrontShippingMethodUuid(): ?string
+    private function getStorefrontShippingMethodId(): ?string
     {
-        if ($dispatchId = $this->getSessionValueOrNull('shipping_method_uuid')) {
+        if ($dispatchId = $this->getSessionValueOrNull('shipping_method_id')) {
             return (string) $dispatchId;
         }
 

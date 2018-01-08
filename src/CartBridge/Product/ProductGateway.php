@@ -61,16 +61,16 @@ class ProductGateway implements ProductGatewayInterface
 
     private function filterCustomerGroupPrices(ProductBasicStruct $product, ShopContext $context): ProductPriceBasicCollection
     {
-        $customerPrices = $product->getPrices()->filterByCustomerGroupUuid(
-            $context->getCurrentCustomerGroup()->getUuid()
+        $customerPrices = $product->getPrices()->filterByCustomerGroupId(
+            $context->getCurrentCustomerGroup()->getId()
         );
 
         if ($customerPrices->count() > 0) {
             return $customerPrices;
         }
 
-        return $product->getPrices()->filterByCustomerGroupUuid(
-            $context->getFallbackCustomerGroup()->getUuid()
+        return $product->getPrices()->filterByCustomerGroupId(
+            $context->getFallbackCustomerGroup()->getId()
         );
     }
 }

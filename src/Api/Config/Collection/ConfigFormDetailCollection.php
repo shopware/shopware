@@ -30,16 +30,16 @@ class ConfigFormDetailCollection extends ConfigFormBasicCollection
         );
     }
 
-    public function getFieldUuids(): array
+    public function getFieldIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getFields()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getFields()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getFields(): ConfigFormFieldBasicCollection
@@ -52,16 +52,16 @@ class ConfigFormDetailCollection extends ConfigFormBasicCollection
         return $collection;
     }
 
-    public function getTranslationUuids(): array
+    public function getTranslationIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getTranslations()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getTranslations()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getTranslations(): ConfigFormTranslationBasicCollection

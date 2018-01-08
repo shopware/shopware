@@ -42,7 +42,7 @@ class DifferentAddressesRule extends Rule
         }
 
         return new Match(
-            $customer->getActiveBillingAddress()->getUuid() !== $customer->getActiveShippingAddress()->getUuid(),
+            $customer->getActiveBillingAddress()->getId() !== $customer->getActiveShippingAddress()->getId(),
             ['Addresses are equal']
         );
     }

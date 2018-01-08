@@ -2,14 +2,20 @@
 
 namespace Shopware\Api\Product\Struct;
 
+use Shopware\Api\Category\Collection\CategoryBasicCollection;
 use Shopware\Api\Product\Collection\ProductBasicCollection;
 
 class ProductStreamDetailStruct extends ProductStreamBasicStruct
 {
     /**
+     * @var CategoryBasicCollection
+     */
+    protected $categories;
+
+    /**
      * @var string[]
      */
-    protected $productTabUuids = [];
+    protected $productTabIds = [];
 
     /**
      * @var ProductBasicCollection
@@ -19,7 +25,7 @@ class ProductStreamDetailStruct extends ProductStreamBasicStruct
     /**
      * @var string[]
      */
-    protected $productUuids = [];
+    protected $productIds = [];
 
     /**
      * @var ProductBasicCollection
@@ -28,19 +34,31 @@ class ProductStreamDetailStruct extends ProductStreamBasicStruct
 
     public function __construct()
     {
+        $this->categories = new CategoryBasicCollection();
+
         $this->productTabs = new ProductBasicCollection();
 
         $this->products = new ProductBasicCollection();
     }
 
-    public function getProductTabUuids(): array
+    public function getCategories(): CategoryBasicCollection
     {
-        return $this->productTabUuids;
+        return $this->categories;
     }
 
-    public function setProductTabUuids(array $productTabUuids): void
+    public function setCategories(CategoryBasicCollection $categories): void
     {
-        $this->productTabUuids = $productTabUuids;
+        $this->categories = $categories;
+    }
+
+    public function getProductTabIds(): array
+    {
+        return $this->productTabIds;
+    }
+
+    public function setProductTabIds(array $productTabIds): void
+    {
+        $this->productTabIds = $productTabIds;
     }
 
     public function getProductTabs(): ProductBasicCollection
@@ -53,14 +71,14 @@ class ProductStreamDetailStruct extends ProductStreamBasicStruct
         $this->productTabs = $productTabs;
     }
 
-    public function getProductUuids(): array
+    public function getProductIds(): array
     {
-        return $this->productUuids;
+        return $this->productIds;
     }
 
-    public function setProductUuids(array $productUuids): void
+    public function setProductIds(array $productIds): void
     {
-        $this->productUuids = $productUuids;
+        $this->productIds = $productIds;
     }
 
     public function getProducts(): ProductBasicCollection

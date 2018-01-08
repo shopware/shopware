@@ -9,7 +9,7 @@ class ConfigFormFieldBasicStruct extends Entity
     /**
      * @var string|null
      */
-    protected $configFormUuid;
+    protected $configFormId;
 
     /**
      * @var string
@@ -66,14 +66,14 @@ class ConfigFormFieldBasicStruct extends Entity
      */
     protected $description;
 
-    public function getConfigFormUuid(): ?string
+    public function getConfigFormId(): ?string
     {
-        return $this->configFormUuid;
+        return $this->configFormId;
     }
 
-    public function setConfigFormUuid(?string $configFormUuid): void
+    public function setConfigFormId(?string $configFormId): void
     {
-        $this->configFormUuid = $configFormUuid;
+        $this->configFormId = $configFormId;
     }
 
     public function getName(): string

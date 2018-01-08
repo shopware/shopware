@@ -9,7 +9,7 @@ class CountryBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $areaUuid;
+    protected $areaId;
 
     /**
      * @var string
@@ -76,14 +76,14 @@ class CountryBasicStruct extends Entity
      */
     protected $updatedAt;
 
-    public function getAreaUuid(): string
+    public function getAreaId(): string
     {
-        return $this->areaUuid;
+        return $this->areaId;
     }
 
-    public function setAreaUuid(string $areaUuid): void
+    public function setAreaId(string $areaId): void
     {
-        $this->areaUuid = $areaUuid;
+        $this->areaId = $areaId;
     }
 
     public function getName(): string

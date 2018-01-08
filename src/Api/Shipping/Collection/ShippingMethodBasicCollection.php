@@ -12,9 +12,9 @@ class ShippingMethodBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ShippingMethodBasicStruct
+    public function get(string $id): ? ShippingMethodBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ShippingMethodBasicStruct
@@ -22,30 +22,30 @@ class ShippingMethodBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getCustomerGroupUuids(): array
+    public function getCustomerGroupIds(): array
     {
         return $this->fmap(function (ShippingMethodBasicStruct $shippingMethod) {
-            return $shippingMethod->getCustomerGroupUuid();
+            return $shippingMethod->getCustomerGroupId();
         });
     }
 
-    public function filterByCustomerGroupUuid(string $uuid): self
+    public function filterByCustomerGroupId(string $id): self
     {
-        return $this->filter(function (ShippingMethodBasicStruct $shippingMethod) use ($uuid) {
-            return $shippingMethod->getCustomerGroupUuid() === $uuid;
+        return $this->filter(function (ShippingMethodBasicStruct $shippingMethod) use ($id) {
+            return $shippingMethod->getCustomerGroupId() === $id;
         });
     }
 
-    public function getPriceUuids(): array
+    public function getPriceIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getPrices()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getPrices()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getPrices(): ShippingMethodPriceBasicCollection

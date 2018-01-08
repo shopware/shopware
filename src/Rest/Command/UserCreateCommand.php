@@ -81,7 +81,7 @@ class UserCreateCommand extends Command
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('user.username', $username));
 
-        $result = $this->userRepository->searchUuids($criteria, new TranslationContext('SWAG-SHOP-UUID-1', true, null));
+        $result = $this->userRepository->searchIds($criteria, new TranslationContext('FFA32A50-E2D0-4CF3-8389-A53F8D6CD594', true, null));
 
         return $result->getTotal() > 0;
     }
@@ -91,17 +91,17 @@ class UserCreateCommand extends Command
         $encoder = $this->encoderFactory->getEncoder(User::class);
         $password = $encoder->encodePassword($password, $username);
 
-        $context = new TranslationContext('SWAG-SHOP-UUID-1', true, null);
+        $context = new TranslationContext('FFA32A50-E2D0-4CF3-8389-A53F8D6CD594', true, null);
 
         $this->userRepository->create([
             [
-                'uuid' => Uuid::uuid4()->toString(),
+                'id' => Uuid::uuid4()->toString(),
                 'name' => $username,
                 'email' => 'admin@example.com',
                 'username' => $username,
                 'password' => $password,
-                'localeUuid' => 'SWAG-LOCALE-UUID-1',
-                'roleUuid' => '123',
+                'localeId' => '7b52d9dd-2b06-40ec-90be-9f57edf29be7',
+                'roleId' => '7b52d9dd-2b06-40ec-90be-9f57edf29be7',
                 'active' => true,
             ],
         ], $context);

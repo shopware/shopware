@@ -17,34 +17,34 @@ $schema = <<<'EOD'
     DROP TABLE IF EXISTS `dev_root_%s`;
     DROP TABLE IF EXISTS `dev_to_one_%s`;
     CREATE TABLE `dev_to_one_%s` (
-	    `uuid` %s,
+	    `id` %s,
         `text` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
         `number` INT(11) NULL DEFAULT NULL,
-        PRIMARY KEY (`uuid`)
+        PRIMARY KEY (`id`)
     )
     COLLATE='utf8_unicode_ci'
     ENGINE=InnoDB
     ;
     CREATE TABLE `dev_root_%s` (
-	    `uuid` %s,
+	    `id` %s,
         `text` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
         `number` INT(11) NULL DEFAULT NULL,
-        `to_one_uuid` %s,
-        PRIMARY KEY (`uuid`),
-        INDEX `fk_dev_root.to_one_uuid` (`to_one_uuid`),
-	    CONSTRAINT `fk_dev_root.to_one_uuid_%s` FOREIGN KEY (`to_one_uuid`) REFERENCES `dev_to_one_%s` (`uuid`) ON UPDATE CASCADE
+        `to_one_id` %s,
+        PRIMARY KEY (`id`),
+        INDEX `fk_dev_root.to_one_id` (`to_one_id`),
+	    CONSTRAINT `fk_dev_root.to_one_id_%s` FOREIGN KEY (`to_one_id`) REFERENCES `dev_to_one_%s` (`id`) ON UPDATE CASCADE
     )
     COLLATE='utf8_unicode_ci'
     ENGINE=InnoDB
    ;
   CREATE TABLE `dev_to_many_%s` (
-	    `uuid` %s,
+	    `id` %s,
         `text` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
         `number` INT(11) NULL DEFAULT NULL,
-        `to_root_uuid` %s,
-        PRIMARY KEY (`uuid`),
-        INDEX `fk_dev_to_many.to_root_uuid` (`to_root_uuid`),
-	    CONSTRAINT `fk_dev_to_many.to_root_uuid_%s` FOREIGN KEY (`to_root_uuid`) REFERENCES `dev_root_%s` (`uuid`) ON UPDATE CASCADE
+        `to_root_id` %s,
+        PRIMARY KEY (`id`),
+        INDEX `fk_dev_to_many.to_root_id` (`to_root_id`),
+	    CONSTRAINT `fk_dev_to_many.to_root_id_%s` FOREIGN KEY (`to_root_id`) REFERENCES `dev_root_%s` (`id`) ON UPDATE CASCADE
     )
     COLLATE='utf8_unicode_ci'
     ENGINE=InnoDB
@@ -105,7 +105,7 @@ foreach($types as $name => $type) {
     $measurement = new Measurement();
     $startInsert = microtime(true);
 
-    $rootUUids = [];
+    $rootIds = [];
 
     $measurement->start(MAX_ROOT);
     for($i = 1; $i < MAX_ROOT; $i++) {
@@ -114,40 +114,40 @@ foreach($types as $name => $type) {
         }
 
         if($name === 'int') {
-            Ramsey\Uuid\Uuid::uuid4()->toString();
-            $uuid = $i;
+            Ramsey\Uuid\Uuid::id4()->toString();
+            $id = $i;
         } else {
-            $uuid = str_replace('-', '', Ramsey\Uuid\Uuid::uuid4()->toString());
+            $id = str_replace('-', '', Ramsey\Uuid\Uuid::id4()->toString());
         }
 
-        $rootUUids[] = $uuid;
+        $rootIds[] = $id;
 
         $connection->insert('dev_to_one_' . $name, [
-            'uuid' => $uuid,
+            'id' => $id,
             'text' => uniqid('foo-', true),
             'number' => rand(0, 5000),
         ]);
 
         $connection->insert('dev_root_' . $name, [
-            'uuid' => $uuid,
+            'id' => $id,
             'text' => uniqid('foo-', true),
             'number' => rand(0, 5000),#
-            'to_one_uuid' => $uuid,
+            'to_one_id' => $id,
         ]);
 
         for($j = 1; $j < MAX_TO_MANY; $j++) {
             if($name === 'int') {
-                Ramsey\Uuid\Uuid::uuid4()->toString();
-                $subUuid = $i * MAX_TO_MANY + $j;
+                Ramsey\Uuid\Uuid::id4()->toString();
+                $subId = $i * MAX_TO_MANY + $j;
             } else {
-                $subUuid = str_replace('-', '', Ramsey\Uuid\Uuid::uuid4()->toString());
+                $subId = str_replace('-', '', Ramsey\Uuid\Uuid::id4()->toString());
             }
 
             $connection->insert('dev_to_many_' . $name, [
-                'uuid' => $subUuid,
+                'id' => $subId,
                 'text' => uniqid('foo-', true),
                 'number' => rand(0, 5000),
-                'to_root_uuid' => $uuid,
+                'to_root_id' => $id,
             ]);
         }
     }
@@ -161,9 +161,9 @@ foreach($types as $name => $type) {
         }
 
         $result = $connection->fetchAll(
-                'SELECT * FROM dev_root_' . $name . ' r INNER JOIN dev_to_one_' . $name . ' one ON r.to_one_uuid = one.uuid LEFT JOIN dev_to_many_' . $name . ' many ON many.to_root_uuid = r.uuid WHERE r.uuid = :rootUUid',
+                'SELECT * FROM dev_root_' . $name . ' r INNER JOIN dev_to_one_' . $name . ' one ON r.to_one_id = one.id LEFT JOIN dev_to_many_' . $name . ' many ON many.to_root_id = r.id WHERE r.id = :rootId',
                 [
-                    'rootUUid' => $faker->randomElement($rootUUids),
+                    'rootId' => $faker->randomElement($rootIds),
                 ]
             );
 
@@ -180,9 +180,9 @@ foreach($types as $name => $type) {
         }
 
         $result = $connection->fetchAll(
-                'SELECT COUNT(*) FROM  dev_to_many_' . $name . ' many WHERE many.to_root_uuid = :rootUUid GROUP BY many.to_root_uuid',
+                'SELECT COUNT(*) FROM  dev_to_many_' . $name . ' many WHERE many.to_root_id = :rootId GROUP BY many.to_root_id',
                 [
-                    'rootUUid' => $faker->randomElement($rootUUids),
+                    'rootId' => $faker->randomElement($rootIds),
                 ]
             );
 

@@ -29,7 +29,7 @@ class CollectionGenerator
     {
         $class = $definition->domainName;
 
-        $collectiveUuidGetters = $this->createCollectiveUuidGetters($definition);
+        $collectiveIdGetters = $this->createCollectiveIdGetters($definition);
 
         $associations = array_filter(
             $definition->associations,
@@ -59,10 +59,7 @@ class CollectionGenerator
         }
 
         $associationGetters = array_unique($associationGetters);
-        $collectiveGetters = array_merge($collectiveUuidGetters, $associationGetters);
-//        if (array_key_exists('collection_functions', $config)) {
-//            $collectiveGetters = array_merge($collectiveGetters, $config['collection_functions']);
-//        }
+        $collectiveGetters = array_merge($collectiveIdGetters, $associationGetters);
 
         $collectiveGetters = implode("\n", $collectiveGetters);
         $collectiveGetters .= $context->getCollectionInjection($definition->tableName);
@@ -70,7 +67,7 @@ class CollectionGenerator
         $uses = implode("\n", array_unique($uses));
 
         $template = str_replace(
-            ['#classUc#', '#classLc#', '#collectiveUuidGetters#', '#uses#', '#bundle#'],
+            ['#classUc#', '#classLc#', '#collectiveIdGetters#', '#uses#', '#bundle#'],
             [ucfirst($class), lcfirst($class), $collectiveGetters, $uses, ucfirst($definition->bundle)],
             file_get_contents(__DIR__.'/templates/collection.txt')
         );
@@ -112,7 +109,7 @@ class CollectionGenerator
         $uses = implode("\n", array_unique($uses));
 
         $template = str_replace(
-            ['#classUc#', '#classLc#', '#collectiveUuidGetters#', '#uses#', '#bundle#'],
+            ['#classUc#', '#classLc#', '#collectiveIdGetters#', '#uses#', '#bundle#'],
             [ucfirst($class), lcfirst($class), $associationGetters, $uses, ucfirst($definition->bundle)],
             file_get_contents(__DIR__.'/templates/detail_collection.txt')
         );
@@ -121,12 +118,12 @@ class CollectionGenerator
         file_put_contents($file, $template);
     }
 
-    private function createCollectiveUuidGetters(TableDefinition $definition)
+    private function createCollectiveIdGetters(TableDefinition $definition)
     {
         $columns = array_filter(
             $definition->columns,
             function(ColumnDefinition $columnDefinition) {
-                return strpos($columnDefinition->name, '_uuid') !== false;
+                return strpos($columnDefinition->name, '_id') !== false;
             }
         );
 
@@ -153,10 +150,10 @@ class CollectionGenerator
                 ['#classUc#', '#classLc#', '#nameUc#'],
                 [ucfirst($class), lcfirst($class), ucfirst($columnName)],
 '
-    public function filterBy#nameUc#(string $uuid): #classUc#BasicCollection
+    public function filterBy#nameUc#(string $id): #classUc#BasicCollection
     {
-        return $this->filter(function(#classUc#BasicStruct $#classLc#) use ($uuid) {
-            return $#classLc#->get#nameUc#() === $uuid;
+        return $this->filter(function(#classUc#BasicStruct $#classLc#) use ($id) {
+            return $#classLc#->get#nameUc#() === $id;
         });
     }'
             );
@@ -201,16 +198,16 @@ class CollectionGenerator
                     ['#classUc#', '#pluralUc#'],
                     [ucfirst($property), ucfirst($plural)],
 '
-    public function get#classUc#Uuids(): array
+    public function get#classUc#Ids(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->get#pluralUc#()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->get#pluralUc#()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }'
                 );
 
@@ -234,15 +231,15 @@ class CollectionGenerator
                 ['#classUc#'],
                 [ucfirst($property)],
 '
-    public function getAll#classUc#Uuids(): array
+    public function getAll#classUc#Ids(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->get#classUc#Uuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->get#classUc#Ids() as $id) {
+                $ids[] = $id;
             }
         }
-        return $uuids;
+        return $ids;
     }'
             );
             $getters[] = str_replace(

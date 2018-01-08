@@ -18,25 +18,25 @@ class ApiService {
             });
     }
 
-    getByUuid(uuid) {
-        if (!uuid) {
-            return Promise.reject(new Error('Missing required argument: uuid'));
+    getById(id) {
+        if (!id) {
+            return Promise.reject(new Error('Missing required argument: id'));
         }
 
         return this.httpClient
-            .get(this.getApiBasePath(uuid))
+            .get(this.getApiBasePath(id))
             .then((response) => {
                 return response.data;
             });
     }
 
-    updateByUuid(uuid, payload) {
-        if (!uuid) {
-            return Promise.reject(new Error('Missing required argument: uuid'));
+    updateById(id, payload) {
+        if (!id) {
+            return Promise.reject(new Error('Missing required argument: id'));
         }
 
         return this.httpClient
-            .patch(this.getApiBasePath(uuid), payload)
+            .patch(this.getApiBasePath(id), payload)
             .then((response) => {
                 return response.data;
             });
@@ -50,11 +50,11 @@ class ApiService {
             });
     }
 
-    getApiBasePath(uuid) {
+    getApiBasePath(id) {
         const returnFormat = (this.returnFormat.length) ? `.${this.returnFormat}` : '';
 
-        if (uuid && uuid.length > 0) {
-            return `${this.apiEndpoint}/${uuid}${returnFormat}`;
+        if (id && id.length > 0) {
+            return `${this.apiEndpoint}/${id}${returnFormat}`;
         }
 
         return `${this.apiEndpoint}${returnFormat}`;

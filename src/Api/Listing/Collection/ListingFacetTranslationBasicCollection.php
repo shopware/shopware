@@ -12,9 +12,9 @@ class ListingFacetTranslationBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ListingFacetTranslationBasicStruct
+    public function get(string $id): ? ListingFacetTranslationBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ListingFacetTranslationBasicStruct
@@ -22,31 +22,31 @@ class ListingFacetTranslationBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getListingFacetUuids(): array
+    public function getListingFacetIds(): array
     {
         return $this->fmap(function (ListingFacetTranslationBasicStruct $listingFacetTranslation) {
-            return $listingFacetTranslation->getListingFacetUuid();
+            return $listingFacetTranslation->getListingFacetId();
         });
     }
 
-    public function filterByListingFacetUuid(string $uuid): self
+    public function filterByListingFacetId(string $id): self
     {
-        return $this->filter(function (ListingFacetTranslationBasicStruct $listingFacetTranslation) use ($uuid) {
-            return $listingFacetTranslation->getListingFacetUuid() === $uuid;
+        return $this->filter(function (ListingFacetTranslationBasicStruct $listingFacetTranslation) use ($id) {
+            return $listingFacetTranslation->getListingFacetId() === $id;
         });
     }
 
-    public function getLanguageUuids(): array
+    public function getLanguageIds(): array
     {
         return $this->fmap(function (ListingFacetTranslationBasicStruct $listingFacetTranslation) {
-            return $listingFacetTranslation->getLanguageUuid();
+            return $listingFacetTranslation->getLanguageId();
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): self
+    public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (ListingFacetTranslationBasicStruct $listingFacetTranslation) use ($uuid) {
-            return $listingFacetTranslation->getLanguageUuid() === $uuid;
+        return $this->filter(function (ListingFacetTranslationBasicStruct $listingFacetTranslation) use ($id) {
+            return $listingFacetTranslation->getLanguageId() === $id;
         });
     }
 

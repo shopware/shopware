@@ -14,12 +14,12 @@ class ProductSearchKeywordBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $shopUuid;
+    protected $shopId;
 
     /**
      * @var string
      */
-    protected $productUuid;
+    protected $productId;
 
     /**
      * @var float
@@ -36,24 +36,24 @@ class ProductSearchKeywordBasicStruct extends Entity
         $this->keyword = $keyword;
     }
 
-    public function getShopUuid(): string
+    public function getShopId(): string
     {
-        return $this->shopUuid;
+        return $this->shopId;
     }
 
-    public function setShopUuid(string $shopUuid): void
+    public function setShopId(string $shopId): void
     {
-        $this->shopUuid = $shopUuid;
+        $this->shopId = $shopId;
     }
 
-    public function getProductUuid(): string
+    public function getProductId(): string
     {
-        return $this->productUuid;
+        return $this->productId;
     }
 
-    public function setProductUuid(string $productUuid): void
+    public function setProductId(string $productId): void
     {
-        $this->productUuid = $productUuid;
+        $this->productId = $productId;
     }
 
     public function getRanking(): float

@@ -7,7 +7,7 @@ export default {
     currency,
     date,
     getObjectChangeSet,
-    createUuid: uuidv4,
+    createId: uuidv4,
     isObject,
     isPlainObject,
     isEmpty,
@@ -148,8 +148,8 @@ function getObjectChangeSet(baseObject, compareObject) {
                 return acc;
             }
 
-            if (isObject(b[key]) && b[key].uuid) {
-                diff.uuid = b[key].uuid;
+            if (isObject(b[key]) && b[key].id) {
+                diff.id = b[key].id;
             }
 
             return { ...acc, [key]: diff };
@@ -186,7 +186,7 @@ function getArrayChangeSet(baseArray, compareArray) {
     const diff = [];
 
     c.forEach((item, index) => {
-        if (!item.uuid) {
+        if (!item.id) {
             const diffObject = getObjectChangeSet(b[index], c[index]);
 
             if (isObject(diffObject) && !isEmpty(diffObject)) {
@@ -194,7 +194,7 @@ function getArrayChangeSet(baseArray, compareArray) {
             }
         } else {
             const compareObject = b.find((compareItem) => {
-                return item.uuid === compareItem.uuid;
+                return item.id === compareItem.id;
             });
 
             if (!compareObject) {
@@ -203,7 +203,7 @@ function getArrayChangeSet(baseArray, compareArray) {
                 const diffObject = getObjectChangeSet(compareObject, item);
 
                 if (isObject(diffObject) && !isEmpty(diffObject)) {
-                    diff.push({ ...diffObject, uuid: item.uuid });
+                    diff.push({ ...diffObject, id: item.id });
                 }
             }
         }

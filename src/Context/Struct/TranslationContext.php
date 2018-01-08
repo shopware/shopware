@@ -32,7 +32,7 @@ class TranslationContext extends Struct
     /**
      * @var string|null
      */
-    protected $fallbackUuid;
+    protected $fallbackId;
 
     /**
      * @var bool
@@ -42,18 +42,18 @@ class TranslationContext extends Struct
     /**
      * @var string
      */
-    protected $shopUuid;
+    protected $shopId;
 
-    public function __construct(string $shopUuid, bool $isDefaultShop, ?string $fallbackUuid)
+    public function __construct(string $shopId, bool $isDefaultShop, ?string $fallbackId)
     {
-        $this->fallbackUuid = $fallbackUuid;
+        $this->fallbackId = $fallbackId;
         $this->isDefaultShop = $isDefaultShop;
-        $this->shopUuid = $shopUuid;
+        $this->shopId = $shopId;
     }
 
-    public function getFallbackUuid(): ? string
+    public function getFallbackId(): ? string
     {
-        return $this->fallbackUuid;
+        return $this->fallbackId;
     }
 
     public function isDefaultShop(): bool
@@ -63,25 +63,25 @@ class TranslationContext extends Struct
 
     public static function createDefaultContext(): self
     {
-        return new self('SWAG-SHOP-UUID-1', true, null);
+        return new self('ffa32a50-e2d0-4cf3-8389-a53f8d6cd594', true, null);
     }
 
     public static function createFromShop(ShopBasicStruct $shop): self
     {
         return new self(
-            $shop->getUuid(),
+            $shop->getId(),
             $shop->getIsDefault(),
-            $shop->getParentUuid()
+            $shop->getParentId()
         );
     }
 
     public function hasFallback(): bool
     {
-        return !$this->isDefaultShop() && $this->getFallbackUuid() !== $this->getShopUuid();
+        return !$this->isDefaultShop() && $this->getFallbackId() !== $this->getShopId();
     }
 
-    public function getShopUuid(): string
+    public function getShopId(): string
     {
-        return $this->shopUuid;
+        return $this->shopId;
     }
 }

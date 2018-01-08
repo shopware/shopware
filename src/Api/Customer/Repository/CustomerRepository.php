@@ -8,8 +8,8 @@ use Shopware\Api\Customer\Definition\CustomerDefinition;
 use Shopware\Api\Customer\Event\Customer\CustomerAggregationResultLoadedEvent;
 use Shopware\Api\Customer\Event\Customer\CustomerBasicLoadedEvent;
 use Shopware\Api\Customer\Event\Customer\CustomerDetailLoadedEvent;
+use Shopware\Api\Customer\Event\Customer\CustomerIdSearchResultLoadedEvent;
 use Shopware\Api\Customer\Event\Customer\CustomerSearchResultLoadedEvent;
-use Shopware\Api\Customer\Event\Customer\CustomerUuidSearchResultLoadedEvent;
 use Shopware\Api\Customer\Struct\CustomerSearchResult;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
@@ -17,7 +17,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -67,16 +67,16 @@ class CustomerRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): CustomerSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = CustomerSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = CustomerSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new CustomerSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class CustomerRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(CustomerDefinition::class, $criteria, $context);
 
-        $event = new CustomerUuidSearchResultLoadedEvent($result);
+        $event = new CustomerIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): CustomerBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): CustomerBasicCollection
     {
         /** @var CustomerBasicCollection $entities */
-        $entities = $this->reader->readBasic(CustomerDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(CustomerDefinition::class, $ids, $context);
 
         $event = new CustomerBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class CustomerRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): CustomerDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): CustomerDetailCollection
     {
         /** @var CustomerDetailCollection $entities */
-        $entities = $this->reader->readDetail(CustomerDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(CustomerDefinition::class, $ids, $context);
 
         $event = new CustomerDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

@@ -18,7 +18,7 @@
             {% if category.extensions.canonicalUrl %}
                 {% set url = category.extensions.canonicalUrl.url %}
             {% else %}
-                {% set url = url('listing_page', { 'uuid': category.uuid }) %}
+                {% set url = url('listing_page', { 'id': category.id }) %}
             {% endif %}
 
             {% block frontend_index_categories_left_entry %}
@@ -26,7 +26,7 @@
                 <li class="navigation--entry{% if navigation.isCategorySelected(category) %} is--active{% endif %}{% if children %} has--sub-categories{% endif %}{% if children|length > 0 %} has--sub-children{% endif %}" role="menuitem">
                     <a class="navigation--link{% if navigation.isCategorySelected(category) %} is--active{% endif %}{% if children %} has--sub-categories{% endif %}{% if children|length > 0 %} link--go-forward{% endif %}"
                        href="{{ url }}"
-                       data-categoryId="{{ category.uuid }}"
+                       data-categoryId="{{ category.id }}"
                        data-fetchUrl="{url module=widgets controller=listing action=getCategory categoryId={$category.id}}"
                        title="{{ category.name|escape }}">
                         {{  category.name }}

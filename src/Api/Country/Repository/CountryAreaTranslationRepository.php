@@ -8,8 +8,8 @@ use Shopware\Api\Country\Definition\CountryAreaTranslationDefinition;
 use Shopware\Api\Country\Event\CountryAreaTranslation\CountryAreaTranslationAggregationResultLoadedEvent;
 use Shopware\Api\Country\Event\CountryAreaTranslation\CountryAreaTranslationBasicLoadedEvent;
 use Shopware\Api\Country\Event\CountryAreaTranslation\CountryAreaTranslationDetailLoadedEvent;
+use Shopware\Api\Country\Event\CountryAreaTranslation\CountryAreaTranslationIdSearchResultLoadedEvent;
 use Shopware\Api\Country\Event\CountryAreaTranslation\CountryAreaTranslationSearchResultLoadedEvent;
-use Shopware\Api\Country\Event\CountryAreaTranslation\CountryAreaTranslationUuidSearchResultLoadedEvent;
 use Shopware\Api\Country\Struct\CountryAreaTranslationSearchResult;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
@@ -17,7 +17,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -67,16 +67,16 @@ class CountryAreaTranslationRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): CountryAreaTranslationSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = CountryAreaTranslationSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = CountryAreaTranslationSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new CountryAreaTranslationSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class CountryAreaTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(CountryAreaTranslationDefinition::class, $criteria, $context);
 
-        $event = new CountryAreaTranslationUuidSearchResultLoadedEvent($result);
+        $event = new CountryAreaTranslationIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): CountryAreaTranslationBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): CountryAreaTranslationBasicCollection
     {
         /** @var CountryAreaTranslationBasicCollection $entities */
-        $entities = $this->reader->readBasic(CountryAreaTranslationDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(CountryAreaTranslationDefinition::class, $ids, $context);
 
         $event = new CountryAreaTranslationBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class CountryAreaTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): CountryAreaTranslationDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): CountryAreaTranslationDetailCollection
     {
         /** @var CountryAreaTranslationDetailCollection $entities */
-        $entities = $this->reader->readDetail(CountryAreaTranslationDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(CountryAreaTranslationDefinition::class, $ids, $context);
 
         $event = new CountryAreaTranslationDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

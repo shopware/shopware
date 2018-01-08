@@ -9,27 +9,27 @@ class TaxAreaRuleBasicStruct extends Entity
     /**
      * @var string|null
      */
-    protected $countryAreaUuid;
+    protected $countryAreaId;
 
     /**
      * @var string|null
      */
-    protected $countryUuid;
+    protected $countryId;
 
     /**
      * @var string|null
      */
-    protected $countryStateUuid;
+    protected $countryStateId;
 
     /**
      * @var string
      */
-    protected $taxUuid;
+    protected $taxId;
 
     /**
      * @var string
      */
-    protected $customerGroupUuid;
+    protected $customerGroupId;
 
     /**
      * @var float
@@ -56,54 +56,54 @@ class TaxAreaRuleBasicStruct extends Entity
      */
     protected $updatedAt;
 
-    public function getCountryAreaUuid(): ?string
+    public function getCountryAreaId(): ?string
     {
-        return $this->countryAreaUuid;
+        return $this->countryAreaId;
     }
 
-    public function setCountryAreaUuid(?string $countryAreaUuid): void
+    public function setCountryAreaId(?string $countryAreaId): void
     {
-        $this->countryAreaUuid = $countryAreaUuid;
+        $this->countryAreaId = $countryAreaId;
     }
 
-    public function getCountryUuid(): ?string
+    public function getCountryId(): ?string
     {
-        return $this->countryUuid;
+        return $this->countryId;
     }
 
-    public function setCountryUuid(?string $countryUuid): void
+    public function setCountryId(?string $countryId): void
     {
-        $this->countryUuid = $countryUuid;
+        $this->countryId = $countryId;
     }
 
-    public function getCountryStateUuid(): ?string
+    public function getCountryStateId(): ?string
     {
-        return $this->countryStateUuid;
+        return $this->countryStateId;
     }
 
-    public function setCountryStateUuid(?string $countryStateUuid): void
+    public function setCountryStateId(?string $countryStateId): void
     {
-        $this->countryStateUuid = $countryStateUuid;
+        $this->countryStateId = $countryStateId;
     }
 
-    public function getTaxUuid(): string
+    public function getTaxId(): string
     {
-        return $this->taxUuid;
+        return $this->taxId;
     }
 
-    public function setTaxUuid(string $taxUuid): void
+    public function setTaxId(string $taxId): void
     {
-        $this->taxUuid = $taxUuid;
+        $this->taxId = $taxId;
     }
 
-    public function getCustomerGroupUuid(): string
+    public function getCustomerGroupId(): string
     {
-        return $this->customerGroupUuid;
+        return $this->customerGroupId;
     }
 
-    public function setCustomerGroupUuid(string $customerGroupUuid): void
+    public function setCustomerGroupId(string $customerGroupId): void
     {
-        $this->customerGroupUuid = $customerGroupUuid;
+        $this->customerGroupId = $customerGroupId;
     }
 
     public function getTaxRate(): float

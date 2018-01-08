@@ -64,7 +64,7 @@ abstract class StorefrontController extends Controller
     private function getNavigation(): Navigation
     {
         $context = $this->get('shopware.storefront.context.storefront_context_service')->getShopContext();
-        $navigationId = $this->get('request_stack')->getCurrentRequest()->attributes->get('active_category_uuid');
+        $navigationId = $this->get('request_stack')->getCurrentRequest()->attributes->get('active_category_id');
 
         return $this->get('shopware.storefront.navigation.navigation_service')->load($navigationId, $context);
     }

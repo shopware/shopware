@@ -8,8 +8,8 @@ use Shopware\Api\Config\Definition\ConfigFormFieldValueDefinition;
 use Shopware\Api\Config\Event\ConfigFormFieldValue\ConfigFormFieldValueAggregationResultLoadedEvent;
 use Shopware\Api\Config\Event\ConfigFormFieldValue\ConfigFormFieldValueBasicLoadedEvent;
 use Shopware\Api\Config\Event\ConfigFormFieldValue\ConfigFormFieldValueDetailLoadedEvent;
+use Shopware\Api\Config\Event\ConfigFormFieldValue\ConfigFormFieldValueIdSearchResultLoadedEvent;
 use Shopware\Api\Config\Event\ConfigFormFieldValue\ConfigFormFieldValueSearchResultLoadedEvent;
-use Shopware\Api\Config\Event\ConfigFormFieldValue\ConfigFormFieldValueUuidSearchResultLoadedEvent;
 use Shopware\Api\Config\Struct\ConfigFormFieldValueSearchResult;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
@@ -17,7 +17,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -67,16 +67,16 @@ class ConfigFormFieldValueRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): ConfigFormFieldValueSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = ConfigFormFieldValueSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = ConfigFormFieldValueSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new ConfigFormFieldValueSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class ConfigFormFieldValueRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(ConfigFormFieldValueDefinition::class, $criteria, $context);
 
-        $event = new ConfigFormFieldValueUuidSearchResultLoadedEvent($result);
+        $event = new ConfigFormFieldValueIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): ConfigFormFieldValueBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): ConfigFormFieldValueBasicCollection
     {
         /** @var ConfigFormFieldValueBasicCollection $entities */
-        $entities = $this->reader->readBasic(ConfigFormFieldValueDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(ConfigFormFieldValueDefinition::class, $ids, $context);
 
         $event = new ConfigFormFieldValueBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class ConfigFormFieldValueRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): ConfigFormFieldValueDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): ConfigFormFieldValueDetailCollection
     {
         /** @var ConfigFormFieldValueDetailCollection $entities */
-        $entities = $this->reader->readDetail(ConfigFormFieldValueDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(ConfigFormFieldValueDefinition::class, $ids, $context);
 
         $event = new ConfigFormFieldValueDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

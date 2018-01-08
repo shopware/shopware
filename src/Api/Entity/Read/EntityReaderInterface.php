@@ -7,7 +7,7 @@ use Shopware\Context\Struct\TranslationContext;
 
 interface EntityReaderInterface
 {
-    public function readDetail(string $definition, array $uuids, TranslationContext $context): EntityCollection;
+    public function readDetail(string $definition, array $ids, TranslationContext $context): EntityCollection;
 
-    public function readBasic(string $definition, array $uuids, TranslationContext $context): EntityCollection;
+    public function readBasic(string $definition, array $ids, TranslationContext $context): EntityCollection;
 }

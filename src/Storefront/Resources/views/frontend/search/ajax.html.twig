@@ -7,7 +7,7 @@
                         {% if product.canonicalUrl %}
                             {% set url = product.canonicalUrl.url %}
                         {% else %}
-                            {% set url = url('detail_page', { 'uuid': product.uuid }) %}
+                            {% set url = url('detail_page', { 'id': product.id }) %}
                         {% endif %}
 
                         <a href="{{ url }}"

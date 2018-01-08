@@ -41,7 +41,7 @@
                                 <div class="select-field">
                                     <select name="__currency" class="currency--select" data-auto-submit="true">
                                         {% for selection in currencies %}
-                                            <option value="{{ selection.uuid }}"{% if selection.uuid == currency.uuid %} selected="selected"{% endif %}>
+                                            <option value="{{ selection.id }}"{% if selection.id == currency.id %} selected="selected"{% endif %}>
                                                 {% if selection.symbol != selection.currency %}{{ selection.symbol|raw }} {% endif %} {{ selection.shortName }}
                                             </option>
                                         {% endfor %}

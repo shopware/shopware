@@ -26,14 +26,27 @@ class Context
      * @var array
      */
     public $htmlFields;
+    /**
+     * @var array
+     */
+    public $virtualForeignKeys;
 
-    public function __construct(array $associations, array $basicAssociations, array $prevent, array $inject, array $htmlFields = [])
+    public function __construct(array $associations, array $basicAssociations, array $prevent, array $inject, array $htmlFields = [], array $virtualForeignKeys = [])
     {
         $this->associations = $associations;
         $this->basicAssociations = $basicAssociations;
         $this->prevent = $prevent;
         $this->inject = $inject;
         $this->htmlFields = $htmlFields;
+        $this->virtualForeignKeys = $virtualForeignKeys;
+    }
+
+    public function getForeignKeys(string $table): array
+    {
+        if (array_key_exists($table, $this->virtualForeignKeys)) {
+            return $this->virtualForeignKeys[$table];
+        }
+        return [];
     }
 
     public function isHtmlField(string $table, string $columnName): bool

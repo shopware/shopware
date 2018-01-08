@@ -12,9 +12,9 @@ class CountryStateTranslationBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? CountryStateTranslationBasicStruct
+    public function get(string $id): ? CountryStateTranslationBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): CountryStateTranslationBasicStruct
@@ -22,31 +22,31 @@ class CountryStateTranslationBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getCountryStateUuids(): array
+    public function getCountryStateIds(): array
     {
         return $this->fmap(function (CountryStateTranslationBasicStruct $countryStateTranslation) {
-            return $countryStateTranslation->getCountryStateUuid();
+            return $countryStateTranslation->getCountryStateId();
         });
     }
 
-    public function filterByCountryStateUuid(string $uuid): self
+    public function filterByCountryStateId(string $id): self
     {
-        return $this->filter(function (CountryStateTranslationBasicStruct $countryStateTranslation) use ($uuid) {
-            return $countryStateTranslation->getCountryStateUuid() === $uuid;
+        return $this->filter(function (CountryStateTranslationBasicStruct $countryStateTranslation) use ($id) {
+            return $countryStateTranslation->getCountryStateId() === $id;
         });
     }
 
-    public function getLanguageUuids(): array
+    public function getLanguageIds(): array
     {
         return $this->fmap(function (CountryStateTranslationBasicStruct $countryStateTranslation) {
-            return $countryStateTranslation->getLanguageUuid();
+            return $countryStateTranslation->getLanguageId();
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): self
+    public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (CountryStateTranslationBasicStruct $countryStateTranslation) use ($uuid) {
-            return $countryStateTranslation->getLanguageUuid() === $uuid;
+        return $this->filter(function (CountryStateTranslationBasicStruct $countryStateTranslation) use ($id) {
+            return $countryStateTranslation->getLanguageId() === $id;
         });
     }
 

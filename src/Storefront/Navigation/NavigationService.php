@@ -44,25 +44,25 @@ class NavigationService
         $this->repository = $repository;
     }
 
-    public function load(string $categoryUuid, ShopContext $context): Navigation
+    public function load(string $categoryId, ShopContext $context): Navigation
     {
-        $activeCategory = $this->repository->readBasic([$categoryUuid], $context->getTranslationContext())
-            ->get($categoryUuid);
+        $activeCategory = $this->repository->readBasic([$categoryId], $context->getTranslationContext())
+            ->get($categoryId);
 
         $systemCategory = $context->getShop()->getCategory();
 
-        $uuids = array_merge($activeCategory->getPathArray(), [$activeCategory->getUuid()]);
+        $ids = array_merge($activeCategory->getPathArray(), [$activeCategory->getId()]);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('category.parentUuid', $uuids));
+        $criteria->addFilter(new TermsQuery('category.parentId', $ids));
         $criteria->addFilter(new TermQuery('category.active', 1));
 
         /** @var CategorySearchResult $categories */
         $categories = $this->repository->search($criteria, $context->getTranslationContext());
 
         $tree = TreeBuilder::buildTree(
-            $systemCategory->getUuid(),
-            $categories->sortByPosition()
+            $systemCategory->getId(),
+            $categories->sortByPosition()->sortByName()
         );
 
         return new Navigation($activeCategory, $tree);

@@ -46,9 +46,9 @@ class StorefrontProductRepository
         $this->productMediaRepository = $productMediaRepository;
     }
 
-    public function read(array $uuids, ShopContext $context): ProductBasicCollection
+    public function read(array $ids, ShopContext $context): ProductBasicCollection
     {
-        $basics = $this->repository->readBasic($uuids, $context->getTranslationContext());
+        $basics = $this->repository->readBasic($ids, $context->getTranslationContext());
 
         return $this->loadListProducts($basics, $context);
     }
@@ -64,11 +64,11 @@ class StorefrontProductRepository
         return $basics;
     }
 
-    private function fetchMedia(array $uuids, ShopContext $context): ProductMediaSearchResult
+    private function fetchMedia(array $ids, ShopContext $context): ProductMediaSearchResult
     {
         /** @var ProductMediaSearchResult $media */
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('product_media.productUuid', $uuids));
+        $criteria->addFilter(new TermsQuery('product_media.productId', $ids));
         $criteria->addSorting(new FieldSorting('product_media.isCover', FieldSorting::DESCENDING));
         $criteria->addSorting(new FieldSorting('product_media.position'));
 
@@ -83,15 +83,15 @@ class StorefrontProductRepository
      */
     private function filterCustomerPrices($prices, ShopContext $context)
     {
-        $current = $prices->filterByCustomerGroupUuid(
-            $context->getCurrentCustomerGroup()->getUuid()
+        $current = $prices->filterByCustomerGroupId(
+            $context->getCurrentCustomerGroup()->getId()
         );
         if ($current->count() > 0) {
             return $current;
         }
 
-        return $prices->filterByCustomerGroupUuid(
-            $context->getFallbackCustomerGroup()->getUuid()
+        return $prices->filterByCustomerGroupId(
+            $context->getFallbackCustomerGroup()->getId()
         );
     }
 
@@ -118,7 +118,7 @@ class StorefrontProductRepository
 
     private function loadListProducts(ProductBasicCollection $products, ShopContext $context): ProductBasicCollection
     {
-        $media = $this->fetchMedia($products->getUuids(), $context);
+        $media = $this->fetchMedia($products->getIds(), $context);
 
         $listingProducts = new ProductBasicCollection();
 
@@ -146,7 +146,7 @@ class StorefrontProductRepository
             );
 
             $product->setMedia(
-                $media->filterByProductUuid($product->getUuid())
+                $media->filterByProductId($product->getId())
             );
 
             $listingProducts->add($product);

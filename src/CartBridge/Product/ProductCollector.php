@@ -51,7 +51,7 @@ class ProductCollector implements CollectorInterface
         }
 
         $payloads = $lineItems->getPayload();
-        $identifiers = array_column($payloads, 'uuid');
+        $identifiers = array_column($payloads, 'id');
 
         $fetchDefinition->add(new ProductFetchDefinition($identifiers));
     }

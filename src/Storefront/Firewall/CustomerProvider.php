@@ -49,7 +49,7 @@ class CustomerProvider implements UserProviderInterface
         $customer = $customerResult->first();
 
         $customerUser = new CustomerUser($customer->getEmail(), $customer->getPassword(), null, ['IS_AUTHENTICATED_FULLY', 'ROLE_CUSTOMER']);
-        $customerUser->setUuid($customer->getUuid());
+        $customerUser->setId($customer->getId());
 
         return $customerUser;
     }

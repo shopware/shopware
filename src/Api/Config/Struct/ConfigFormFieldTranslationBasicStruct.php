@@ -9,12 +9,12 @@ class ConfigFormFieldTranslationBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $configFormFieldUuid;
+    protected $configFormFieldId;
 
     /**
      * @var string
      */
-    protected $localeUuid;
+    protected $localeId;
 
     /**
      * @var string|null
@@ -26,24 +26,24 @@ class ConfigFormFieldTranslationBasicStruct extends Entity
      */
     protected $description;
 
-    public function getConfigFormFieldUuid(): string
+    public function getConfigFormFieldId(): string
     {
-        return $this->configFormFieldUuid;
+        return $this->configFormFieldId;
     }
 
-    public function setConfigFormFieldUuid(string $configFormFieldUuid): void
+    public function setConfigFormFieldId(string $configFormFieldId): void
     {
-        $this->configFormFieldUuid = $configFormFieldUuid;
+        $this->configFormFieldId = $configFormFieldId;
     }
 
-    public function getLocaleUuid(): string
+    public function getLocaleId(): string
     {
-        return $this->localeUuid;
+        return $this->localeId;
     }
 
-    public function setLocaleUuid(string $localeUuid): void
+    public function setLocaleId(string $localeId): void
     {
-        $this->localeUuid = $localeUuid;
+        $this->localeId = $localeId;
     }
 
     public function getLabel(): ?string

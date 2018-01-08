@@ -79,14 +79,14 @@ class SearchIndexer implements IndexerInterface
         $table = $this->indexTableOperator->getIndexName(self::TABLE, $timestamp);
         $documentTable = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp);
 
-        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD PRIMARY KEY `shop_keyword` (`keyword`, `shop_uuid`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD PRIMARY KEY `shop_keyword` (`keyword`, `shop_id`);');
         $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD INDEX `keyword` (`keyword`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD FOREIGN KEY (`shop_uuid`) REFERENCES `shop` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD FOREIGN KEY (`shop_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
 
-        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD PRIMARY KEY `product_shop_keyword` (`keyword`, `shop_uuid`, `product_uuid`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD PRIMARY KEY `product_shop_keyword` (`keyword`, `shop_id`, `product_id`);');
         $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD INDEX `keyword` (`keyword`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`product_uuid`) REFERENCES `product` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE');
-        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`shop_uuid`) REFERENCES `shop` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`shop_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
 
         $contexts = $this->contextVariationService->createContexts();
 
@@ -106,11 +106,11 @@ class SearchIndexer implements IndexerInterface
         }
 
         $context = $productEvent->getContext();
-        $products = $this->productRepository->readBasic($productEvent->getUuids(), $context);
+        $products = $this->productRepository->readBasic($productEvent->getIds(), $context);
 
         foreach ($products as $product) {
             $keywords = $this->analyzerRegistry->analyze($product, $context);
-            $this->writeKeywords($context, $product->getUuid(), $keywords, self::TABLE, self::DOCUMENT_TABLE);
+            $this->writeKeywords($context, $product->getId(), $keywords, self::TABLE, self::DOCUMENT_TABLE);
         }
     }
 
@@ -125,7 +125,7 @@ class SearchIndexer implements IndexerInterface
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
             new ProgressStartedEvent(
-                sprintf('Start analyzing search keywords for shop %s', $context->getShopUuid()),
+                sprintf('Start analyzing search keywords for shop %s', $context->getShopId()),
                 $iterator->getTotal()
             )
         );
@@ -138,7 +138,7 @@ class SearchIndexer implements IndexerInterface
         while ($products) {
             foreach ($products as $product) {
                 $keywords = $this->analyzerRegistry->analyze($product, $context);
-                $this->writeKeywords($context, $product->getUuid(), $keywords, $table, $documentTable);
+                $this->writeKeywords($context, $product->getId(), $keywords, $table, $documentTable);
             }
 
             $this->eventDispatcher->dispatch(
@@ -151,26 +151,29 @@ class SearchIndexer implements IndexerInterface
 
         $this->eventDispatcher->dispatch(
             ProgressFinishedEvent::NAME,
-            new ProgressFinishedEvent(sprintf('Finished analyzing search keywords for shop id %s', $context->getShopUuid()))
+            new ProgressFinishedEvent(sprintf('Finished analyzing search keywords for shop id %s', $context->getShopId()))
         );
     }
 
-    private function writeKeywords(TranslationContext $context, string $productUuid, array $keywords, string $table, string $documentTable)
+    private function writeKeywords(TranslationContext $context, string $productId, array $keywords, string $table, string $documentTable)
     {
         $queue = new MultiInsertQueryQueue($this->connection, 250, false, true);
 
+        $shopId = Uuid::fromString($context->getShopId())->getBytes();
+        $productId = Uuid::fromString($productId)->getBytes();
+
         foreach ($keywords as $keyword => $ranking) {
             $queue->addInsert($table, [
-                'shop_uuid' => $context->getShopUuid(),
+                'shop_id' => $shopId,
                 'keyword' => $keyword,
             ]);
 
             $queue->addInsert($documentTable, [
-                'uuid' => Uuid::uuid4()->toString(),
-                'shop_uuid' => $context->getShopUuid(),
+                'id' => Uuid::uuid4()->getBytes(),
+                'shop_id' => $shopId,
                 'keyword' => $keyword,
                 'ranking' => $ranking,
-                'product_uuid' => $productUuid,
+                'product_id' => $productId,
             ]);
         }
 

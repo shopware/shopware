@@ -12,9 +12,9 @@ class ProductManufacturerBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ProductManufacturerBasicStruct
+    public function get(string $id): ? ProductManufacturerBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ProductManufacturerBasicStruct
@@ -22,17 +22,17 @@ class ProductManufacturerBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getMediaUuids(): array
+    public function getMediaIds(): array
     {
         return $this->fmap(function (ProductManufacturerBasicStruct $productManufacturer) {
-            return $productManufacturer->getMediaUuid();
+            return $productManufacturer->getMediaId();
         });
     }
 
-    public function filterByMediaUuid(string $uuid): self
+    public function filterByMediaId(string $id): self
     {
-        return $this->filter(function (ProductManufacturerBasicStruct $productManufacturer) use ($uuid) {
-            return $productManufacturer->getMediaUuid() === $uuid;
+        return $this->filter(function (ProductManufacturerBasicStruct $productManufacturer) use ($id) {
+            return $productManufacturer->getMediaId() === $id;
         });
     }
 

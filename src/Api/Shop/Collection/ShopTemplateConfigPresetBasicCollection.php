@@ -12,9 +12,9 @@ class ShopTemplateConfigPresetBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ShopTemplateConfigPresetBasicStruct
+    public function get(string $id): ? ShopTemplateConfigPresetBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ShopTemplateConfigPresetBasicStruct
@@ -22,17 +22,17 @@ class ShopTemplateConfigPresetBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getShopTemplateUuids(): array
+    public function getShopTemplateIds(): array
     {
         return $this->fmap(function (ShopTemplateConfigPresetBasicStruct $shopTemplateConfigPreset) {
-            return $shopTemplateConfigPreset->getShopTemplateUuid();
+            return $shopTemplateConfigPreset->getShopTemplateId();
         });
     }
 
-    public function filterByShopTemplateUuid(string $uuid): self
+    public function filterByShopTemplateId(string $id): self
     {
-        return $this->filter(function (ShopTemplateConfigPresetBasicStruct $shopTemplateConfigPreset) use ($uuid) {
-            return $shopTemplateConfigPreset->getShopTemplateUuid() === $uuid;
+        return $this->filter(function (ShopTemplateConfigPresetBasicStruct $shopTemplateConfigPreset) use ($id) {
+            return $shopTemplateConfigPreset->getShopTemplateId() === $id;
         });
     }
 

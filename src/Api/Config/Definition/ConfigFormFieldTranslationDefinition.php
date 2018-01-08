@@ -11,10 +11,10 @@ use Shopware\Api\Config\Struct\ConfigFormFieldTranslationDetailStruct;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\StringField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -49,13 +49,13 @@ class ConfigFormFieldTranslationDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('config_form_field_uuid', 'configFormFieldUuid', ConfigFormFieldDefinition::class))->setFlags(new Required()),
-            (new FkField('locale_uuid', 'localeUuid', LocaleDefinition::class))->setFlags(new Required()),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('config_form_field_id', 'configFormFieldId', ConfigFormFieldDefinition::class))->setFlags(new Required()),
+            (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new Required()),
             new StringField('label', 'label'),
             new LongTextField('description', 'description'),
-            new ManyToOneAssociationField('configFormField', 'config_form_field_uuid', ConfigFormFieldDefinition::class, false),
-            new ManyToOneAssociationField('locale', 'locale_uuid', LocaleDefinition::class, false),
+            new ManyToOneAssociationField('configFormField', 'config_form_field_id', ConfigFormFieldDefinition::class, false),
+            new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

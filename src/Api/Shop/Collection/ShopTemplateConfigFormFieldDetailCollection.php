@@ -29,16 +29,16 @@ class ShopTemplateConfigFormFieldDetailCollection extends ShopTemplateConfigForm
         );
     }
 
-    public function getValueUuids(): array
+    public function getValueIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getValues()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getValues()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getValues(): ShopTemplateConfigFormFieldValueBasicCollection

@@ -5,6 +5,7 @@ namespace Shopware\Api\Media\Struct;
 use Shopware\Api\Category\Collection\CategoryBasicCollection;
 use Shopware\Api\Mail\Collection\MailAttachmentBasicCollection;
 use Shopware\Api\Media\Collection\MediaTranslationBasicCollection;
+use Shopware\Api\Product\Collection\ProductManufacturerBasicCollection;
 use Shopware\Api\Product\Collection\ProductMediaBasicCollection;
 use Shopware\Api\User\Struct\UserBasicStruct;
 
@@ -31,6 +32,11 @@ class MediaDetailStruct extends MediaBasicStruct
     protected $translations;
 
     /**
+     * @var ProductManufacturerBasicCollection
+     */
+    protected $productManufacturers;
+
+    /**
      * @var ProductMediaBasicCollection
      */
     protected $productMedia;
@@ -42,6 +48,8 @@ class MediaDetailStruct extends MediaBasicStruct
         $this->mailAttachments = new MailAttachmentBasicCollection();
 
         $this->translations = new MediaTranslationBasicCollection();
+
+        $this->productManufacturers = new ProductManufacturerBasicCollection();
 
         $this->productMedia = new ProductMediaBasicCollection();
     }
@@ -84,6 +92,16 @@ class MediaDetailStruct extends MediaBasicStruct
     public function setTranslations(MediaTranslationBasicCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getProductManufacturers(): ProductManufacturerBasicCollection
+    {
+        return $this->productManufacturers;
+    }
+
+    public function setProductManufacturers(ProductManufacturerBasicCollection $productManufacturers): void
+    {
+        $this->productManufacturers = $productManufacturers;
     }
 
     public function getProductMedia(): ProductMediaBasicCollection

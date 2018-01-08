@@ -7,14 +7,14 @@ use Shopware\Api\Entity\Entity;
 class MailBasicStruct extends Entity
 {
     /**
+     * @var string|null
+     */
+    protected $orderStateId;
+
+    /**
      * @var string
      */
     protected $name;
-
-    /**
-     * @var string|null
-     */
-    protected $orderStateUuid;
 
     /**
      * @var bool
@@ -76,6 +76,16 @@ class MailBasicStruct extends Entity
      */
     protected $updatedAt;
 
+    public function getOrderStateId(): ?string
+    {
+        return $this->orderStateId;
+    }
+
+    public function setOrderStateId(?string $orderStateId): void
+    {
+        $this->orderStateId = $orderStateId;
+    }
+
     public function getName(): string
     {
         return $this->name;
@@ -84,16 +94,6 @@ class MailBasicStruct extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
-    }
-
-    public function getOrderStateUuid(): ?string
-    {
-        return $this->orderStateUuid;
-    }
-
-    public function setOrderStateUuid(?string $orderStateUuid): void
-    {
-        $this->orderStateUuid = $orderStateUuid;
     }
 
     public function getIsHtml(): bool

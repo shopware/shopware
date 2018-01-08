@@ -8,8 +8,8 @@ use Shopware\Api\Country\Definition\CountryTranslationDefinition;
 use Shopware\Api\Country\Event\CountryTranslation\CountryTranslationAggregationResultLoadedEvent;
 use Shopware\Api\Country\Event\CountryTranslation\CountryTranslationBasicLoadedEvent;
 use Shopware\Api\Country\Event\CountryTranslation\CountryTranslationDetailLoadedEvent;
+use Shopware\Api\Country\Event\CountryTranslation\CountryTranslationIdSearchResultLoadedEvent;
 use Shopware\Api\Country\Event\CountryTranslation\CountryTranslationSearchResultLoadedEvent;
-use Shopware\Api\Country\Event\CountryTranslation\CountryTranslationUuidSearchResultLoadedEvent;
 use Shopware\Api\Country\Struct\CountryTranslationSearchResult;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
@@ -17,7 +17,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -67,16 +67,16 @@ class CountryTranslationRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): CountryTranslationSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = CountryTranslationSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = CountryTranslationSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new CountryTranslationSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class CountryTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(CountryTranslationDefinition::class, $criteria, $context);
 
-        $event = new CountryTranslationUuidSearchResultLoadedEvent($result);
+        $event = new CountryTranslationIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): CountryTranslationBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): CountryTranslationBasicCollection
     {
         /** @var CountryTranslationBasicCollection $entities */
-        $entities = $this->reader->readBasic(CountryTranslationDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(CountryTranslationDefinition::class, $ids, $context);
 
         $event = new CountryTranslationBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class CountryTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): CountryTranslationDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): CountryTranslationDetailCollection
     {
         /** @var CountryTranslationDetailCollection $entities */
-        $entities = $this->reader->readDetail(CountryTranslationDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(CountryTranslationDefinition::class, $ids, $context);
 
         $event = new CountryTranslationDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

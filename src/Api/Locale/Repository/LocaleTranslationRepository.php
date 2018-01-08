@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -18,8 +18,8 @@ use Shopware\Api\Locale\Definition\LocaleTranslationDefinition;
 use Shopware\Api\Locale\Event\LocaleTranslation\LocaleTranslationAggregationResultLoadedEvent;
 use Shopware\Api\Locale\Event\LocaleTranslation\LocaleTranslationBasicLoadedEvent;
 use Shopware\Api\Locale\Event\LocaleTranslation\LocaleTranslationDetailLoadedEvent;
+use Shopware\Api\Locale\Event\LocaleTranslation\LocaleTranslationIdSearchResultLoadedEvent;
 use Shopware\Api\Locale\Event\LocaleTranslation\LocaleTranslationSearchResultLoadedEvent;
-use Shopware\Api\Locale\Event\LocaleTranslation\LocaleTranslationUuidSearchResultLoadedEvent;
 use Shopware\Api\Locale\Struct\LocaleTranslationSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,16 +67,16 @@ class LocaleTranslationRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): LocaleTranslationSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = LocaleTranslationSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = LocaleTranslationSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new LocaleTranslationSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class LocaleTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(LocaleTranslationDefinition::class, $criteria, $context);
 
-        $event = new LocaleTranslationUuidSearchResultLoadedEvent($result);
+        $event = new LocaleTranslationIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): LocaleTranslationBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): LocaleTranslationBasicCollection
     {
         /** @var LocaleTranslationBasicCollection $entities */
-        $entities = $this->reader->readBasic(LocaleTranslationDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(LocaleTranslationDefinition::class, $ids, $context);
 
         $event = new LocaleTranslationBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class LocaleTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): LocaleTranslationDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): LocaleTranslationDetailCollection
     {
         /** @var LocaleTranslationDetailCollection $entities */
-        $entities = $this->reader->readDetail(LocaleTranslationDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(LocaleTranslationDefinition::class, $ids, $context);
 
         $event = new LocaleTranslationDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

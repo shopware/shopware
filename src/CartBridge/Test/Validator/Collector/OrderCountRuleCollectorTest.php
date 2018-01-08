@@ -78,7 +78,7 @@ class OrderCountRuleCollectorTest extends TestCase
             ->will($this->returnValue(1));
 
         $customer = new CustomerBasicStruct();
-        $customer->setUuid('SWAG-CUSTOMER-UUID-1');
+        $customer->setId('SWAG-CUSTOMER-ID-1');
         $context->expects($this->any())
             ->method('getCustomer')
             ->will($this->returnValue($customer));
@@ -110,7 +110,7 @@ class OrderCountRuleCollectorTest extends TestCase
             ->will($this->returnValue(null));
 
         $customer = new CustomerBasicStruct();
-        $customer->setUuid('SWAG-CUSTOMER-UUID-1');
+        $customer->setId('SWAG-CUSTOMER-ID-1');
         $context->expects($this->any())
             ->method('getCustomer')
             ->will($this->returnValue($customer));

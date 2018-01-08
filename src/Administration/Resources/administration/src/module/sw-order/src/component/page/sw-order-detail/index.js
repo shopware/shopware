@@ -58,10 +58,10 @@ Shopware.Component.register('sw-order-detail', {
         },
 
         getOrderData() {
-            const uuid = this.$route.params.uuid;
+            const id = this.$route.params.id;
 
             this.isWorking = true;
-            this.orderService.getByUuid(uuid).then((response) => {
+            this.orderService.getById(id).then((response) => {
                 this.notModifiedOrder = { ...response.data };
                 this.order = response.data;
                 this.isWorking = false;
@@ -105,7 +105,7 @@ Shopware.Component.register('sw-order-detail', {
         },
 
         onSaveForm() {
-            const uuid = this.$route.params.uuid;
+            const id = this.$route.params.id;
             const changeSet = utils.getObjectChangeSet(this.notModifiedOrder, this.order);
 
             // Check if we're having categories and apply them to the change set
@@ -114,7 +114,7 @@ Shopware.Component.register('sw-order-detail', {
             // }
 
             this.isWorking = true;
-            this.orderService.updateByUuid(uuid, changeSet).then((response) => {
+            this.orderService.updateById(id, changeSet).then((response) => {
                 this.notModifiedOrder = { ...response.data };
                 this.order = response.data;
                 this.isWorking = false;

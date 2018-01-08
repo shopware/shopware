@@ -45,16 +45,16 @@ class OrderPersisterTest extends TestCase
         $taxDetector = new TaxDetector();
 
         $billingAddress = new CustomerAddressBasicStruct();
-        $billingAddress->setUuid('SWAG-ADDRESS-UUID-1');
+        $billingAddress->setId('SWAG-ADDRESS-ID-1');
         $billingAddress->setSalutation('mr');
         $billingAddress->setFirstName($faker->firstName);
         $billingAddress->setLastName($faker->lastName);
         $billingAddress->setZipcode($faker->postcode);
         $billingAddress->setCity($faker->city);
-        $billingAddress->setCountryUuid('SWAG-AREA-COUNTRY-UUID-1');
+        $billingAddress->setCountryId('SWAG-AREA-COUNTRY-ID-1');
 
         $customer = new CustomerBasicStruct();
-        $customer->setUuid('SWAG-CUSTOMER-UUID-1');
+        $customer->setId('SWAG-CUSTOMER-ID-1');
         $customer->setDefaultBillingAddress($billingAddress);
 
         $persister = new OrderPersister($repository, $taxDetector);

@@ -26,7 +26,7 @@ namespace Shopware\Api\Entity\Write\FieldAware;
 
 use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Write\Filter\FilterRegistry;
-use Shopware\Api\Entity\Write\UuidGenerator\GeneratorRegistry;
+use Shopware\Api\Entity\Write\IdGenerator\GeneratorRegistry;
 use Shopware\Api\Entity\Write\Validation\ConstraintBuilder;
 use Shopware\Api\Entity\Write\ValueTransformer\ValueTransformerRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -82,8 +82,8 @@ class DefaultExtender extends FieldExtender
             $field->setConstraintBuilder($this->constraintBuilder);
         }
 
-        if ($field instanceof UuidGeneratorRegistryAware) {
-            $field->setUuidGeneratorRegistry($this->generatorRegistry);
+        if ($field instanceof IdGeneratorRegistryAware) {
+            $field->setIdGeneratorRegistry($this->generatorRegistry);
         }
 
         if ($field instanceof FilterRegistryAware) {

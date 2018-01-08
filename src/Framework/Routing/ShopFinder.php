@@ -26,6 +26,8 @@ namespace Shopware\Framework\Routing;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Ramsey\Uuid\Exception\InvalidUuidStringException;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
 
@@ -58,7 +60,7 @@ class ShopFinder
 
         //first use default shop than main shops
         $query->addOrderBy('shop.is_default', 'DESC');
-        $query->addOrderBy('shop.parent_uuid', 'ASC');
+        $query->addOrderBy('shop.parent_id', 'ASC');
 
         $shops = $query->execute()->fetchAll();
 
@@ -82,7 +84,7 @@ class ShopFinder
 
         // direct hit
         if (array_key_exists($url, $paths)) {
-            return $paths[$url];
+            return $this->convertShop($paths[$url]);
         }
 
         // reduce shops to which base url is the beginning of the request
@@ -101,22 +103,22 @@ class ShopFinder
             $lastBaseUrl = $baseUrl;
         }
 
-        return $bestMatch;
+        return $this->convertShop($bestMatch);
     }
 
     protected function createQuery(): QueryBuilder
     {
         $query = $this->connection->createQueryBuilder();
         $query->select([
-            'shop.uuid',
-            'shop.parent_uuid',
+            'shop.id',
+            'shop.parent_id',
             'shop.base_url',
             'shop.hosts',
-            'shop.category_uuid',
-            'shop.locale_uuid',
-            'shop.currency_uuid',
-            'shop.customer_group_uuid',
-            'shop.fallback_translation_uuid',
+            'shop.category_id',
+            'shop.locale_id',
+            'shop.currency_id',
+            'shop.customer_group_id',
+            'shop.fallback_translation_id',
             'shop.customer_scope',
             'shop.is_default',
             'shop.active',
@@ -126,7 +128,7 @@ class ShopFinder
             'locale.code as locale_code',
         ]);
         $query->from('shop', 'shop');
-        $query->innerJoin('shop', 'locale', 'locale', 'locale.uuid = shop.locale_uuid');
+        $query->innerJoin('shop', 'locale', 'locale', 'locale.id = shop.locale_id');
 
         return $query;
     }
@@ -138,13 +140,19 @@ class ShopFinder
             return null;
         }
 
+        try {
+            $id = Uuid::fromString($request->cookies->get('shop'))->getBytes();
+        } catch (InvalidUuidStringException $e) {
+            return null;
+        }
+
         $query = $this->createQuery();
-        $query->andWhere('shop.uuid = :uuid');
-        $query->setParameter('uuid', $request->cookies->get('shop'));
+        $query->andWhere('shop.id = :id');
+        $query->setParameter('id', $id);
         $shop = $query->execute()->fetch(\PDO::FETCH_ASSOC);
 
         if ($shop) {
-            return $shop;
+            return $this->convertShop($shop);
         }
         $request->cookies->set('shop', null);
 
@@ -169,15 +177,47 @@ class ShopFinder
             return null;
         }
 
+        try {
+            $id = Uuid::fromString($request->get('__shop'))->getBytes();
+        } catch (InvalidUuidStringException $e) {
+            return null;
+        }
+
         $query = $this->createQuery();
-        $query->andWhere('shop.uuid = :uuid');
-        $query->setParameter('uuid', $request->get('__shop'));
+        $query->andWhere('shop.id = :id');
+        $query->setParameter('id', $id);
         $shop = $query->execute()->fetch(\PDO::FETCH_ASSOC);
 
         if ($shop) {
-            return $shop;
+            return $this->convertShop($shop);
         }
 
         return null;
+    }
+
+    private function convertShop(array $shop): array
+    {
+        $shop['id'] = Uuid::fromBytes($shop['id'])->toString();
+
+        if (isset($shop['parent_id'])) {
+            $shop['parent_id'] = Uuid::fromBytes($shop['parent_id'])->toString();
+        }
+        if (isset($shop['category_id'])) {
+            $shop['category_id'] = Uuid::fromBytes($shop['category_id'])->toString();
+        }
+        if (isset($shop['locale_id'])) {
+            $shop['locale_id'] = Uuid::fromBytes($shop['locale_id'])->toString();
+        }
+        if (isset($shop['currency_id'])) {
+            $shop['currency_id'] = Uuid::fromBytes($shop['currency_id'])->toString();
+        }
+        if (isset($shop['customer_group_id'])) {
+            $shop['customer_group_id'] = Uuid::fromBytes($shop['customer_group_id'])->toString();
+        }
+        if (isset($shop['fallback_translation_id'])) {
+            $shop['fallback_translation_id'] = Uuid::fromBytes($shop['fallback_translation_id'])->toString();
+        }
+
+        return $shop;
     }
 }

@@ -110,6 +110,6 @@ class BuildCategoryPathCommand extends ContainerAwareCommand implements EventSub
         $this->io = new SymfonyStyle($input, $output);
         $context = TranslationContext::createDefaultContext();
 
-        $this->pathBuilder->update('SWAG-CATEGORY-UUID-1', $context);
+        $this->pathBuilder->update(CategoryPathBuilder::ROOT, $context);
     }
 }

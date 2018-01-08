@@ -3,8 +3,8 @@
 namespace Shopware\Api\Entity;
 
 use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Search\SearchResultInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Context\Struct\TranslationContext;
 
@@ -22,9 +22,9 @@ interface RepositoryInterface
      * @param Criteria           $criteria
      * @param TranslationContext $context
      *
-     * @return UuidSearchResult
+     * @return IdSearchResult
      */
-    public function searchUuids(Criteria $criteria, TranslationContext $context);
+    public function searchIds(Criteria $criteria, TranslationContext $context);
 
     /**
      * @param Criteria           $criteria
@@ -35,20 +35,20 @@ interface RepositoryInterface
     public function search(Criteria $criteria, TranslationContext $context);
 
     /**
-     * @param array              $uuids
+     * @param array              $ids
      * @param TranslationContext $context
      *
      * @return EntityCollection
      */
-    public function readBasic(array $uuids, TranslationContext $context);
+    public function readBasic(array $ids, TranslationContext $context);
 
     /**
-     * @param array              $uuids
+     * @param array              $ids
      * @param TranslationContext $context
      *
      * @return EntityCollection
      */
-    public function readDetail(array $uuids, TranslationContext $context);
+    public function readDetail(array $ids, TranslationContext $context);
 
     public function update(array $data, TranslationContext $context): GenericWrittenEvent;
 

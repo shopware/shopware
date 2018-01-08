@@ -1,11 +1,11 @@
-    public function getDiscountForCartAmount(float $totalPrice, string $customerGroupUuid): ?float
+    public function getDiscountForCartAmount(float $totalPrice, string $customerGroupId): ?float
     {
         $discount = null;
         foreach ($this->elements as $discountData) {
             if ($discountData->getMinimumCartAmount() > $totalPrice) {
                 break;
             }
-            if ($discountData->getCustomerGroupUuid() === $customerGroupUuid) {
+            if ($discountData->getCustomerGroupId() === $customerGroupId) {
                 $discount = $discountData->getPercentageDiscount() * -1;
             }
         }

@@ -14,9 +14,9 @@ use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\StringField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -50,10 +50,10 @@ class CustomerAddressDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('customer_uuid', 'customerUuid', CustomerDefinition::class))->setFlags(new Required()),
-            (new FkField('country_uuid', 'countryUuid', CountryDefinition::class))->setFlags(new Required()),
-            new FkField('country_state_uuid', 'countryStateUuid', CountryStateDefinition::class),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('customer_id', 'customerId', CustomerDefinition::class))->setFlags(new Required()),
+            (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),
+            new FkField('country_state_id', 'countryStateId', CountryStateDefinition::class),
             (new StringField('salutation', 'salutation'))->setFlags(new Required()),
             (new StringField('first_name', 'firstName'))->setFlags(new Required()),
             (new StringField('last_name', 'lastName'))->setFlags(new Required()),
@@ -69,9 +69,9 @@ class CustomerAddressDefinition extends EntityDefinition
             new StringField('additional_address_line2', 'additionalAddressLine2'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('customer', 'customer_uuid', CustomerDefinition::class, false),
-            new ManyToOneAssociationField('country', 'country_uuid', CountryDefinition::class, true),
-            new ManyToOneAssociationField('countryState', 'country_state_uuid', CountryStateDefinition::class, true),
+            new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, false),
+            new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, true),
+            new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, true),
         ]);
 
         foreach (self::$extensions as $extension) {

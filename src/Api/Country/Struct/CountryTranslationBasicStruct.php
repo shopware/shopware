@@ -9,36 +9,36 @@ class CountryTranslationBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $countryUuid;
+    protected $countryId;
 
     /**
      * @var string
      */
-    protected $languageUuid;
+    protected $languageId;
 
     /**
      * @var string
      */
     protected $name;
 
-    public function getCountryUuid(): string
+    public function getCountryId(): string
     {
-        return $this->countryUuid;
+        return $this->countryId;
     }
 
-    public function setCountryUuid(string $countryUuid): void
+    public function setCountryId(string $countryId): void
     {
-        $this->countryUuid = $countryUuid;
+        $this->countryId = $countryId;
     }
 
-    public function getLanguageUuid(): string
+    public function getLanguageId(): string
     {
-        return $this->languageUuid;
+        return $this->languageId;
     }
 
-    public function setLanguageUuid(string $languageUuid): void
+    public function setLanguageId(string $languageId): void
     {
-        $this->languageUuid = $languageUuid;
+        $this->languageId = $languageId;
     }
 
     public function getName(): string

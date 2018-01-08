@@ -12,9 +12,9 @@ class PaymentMethodTranslationBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? PaymentMethodTranslationBasicStruct
+    public function get(string $id): ? PaymentMethodTranslationBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): PaymentMethodTranslationBasicStruct
@@ -22,31 +22,31 @@ class PaymentMethodTranslationBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getPaymentMethodUuids(): array
+    public function getPaymentMethodIds(): array
     {
         return $this->fmap(function (PaymentMethodTranslationBasicStruct $paymentMethodTranslation) {
-            return $paymentMethodTranslation->getPaymentMethodUuid();
+            return $paymentMethodTranslation->getPaymentMethodId();
         });
     }
 
-    public function filterByPaymentMethodUuid(string $uuid): self
+    public function filterByPaymentMethodId(string $id): self
     {
-        return $this->filter(function (PaymentMethodTranslationBasicStruct $paymentMethodTranslation) use ($uuid) {
-            return $paymentMethodTranslation->getPaymentMethodUuid() === $uuid;
+        return $this->filter(function (PaymentMethodTranslationBasicStruct $paymentMethodTranslation) use ($id) {
+            return $paymentMethodTranslation->getPaymentMethodId() === $id;
         });
     }
 
-    public function getLanguageUuids(): array
+    public function getLanguageIds(): array
     {
         return $this->fmap(function (PaymentMethodTranslationBasicStruct $paymentMethodTranslation) {
-            return $paymentMethodTranslation->getLanguageUuid();
+            return $paymentMethodTranslation->getLanguageId();
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): self
+    public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (PaymentMethodTranslationBasicStruct $paymentMethodTranslation) use ($uuid) {
-            return $paymentMethodTranslation->getLanguageUuid() === $uuid;
+        return $this->filter(function (PaymentMethodTranslationBasicStruct $paymentMethodTranslation) use ($id) {
+            return $paymentMethodTranslation->getLanguageId() === $id;
         });
     }
 

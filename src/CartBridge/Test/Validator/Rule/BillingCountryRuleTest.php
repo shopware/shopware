@@ -37,15 +37,15 @@ class BillingCountryRuleTest extends TestCase
 {
     public function testWithExactMatch(): void
     {
-        $rule = new BillingCountryRule(['SWAG-AREA-COUNTRY-UUID-1']);
+        $rule = new BillingCountryRule(['SWAG-AREA-COUNTRY-ID-1']);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $context = $this->createMock(ShopContext::class);
 
         $country = new CountryBasicStruct();
-        $country->setUuid('SWAG-AREA-COUNTRY-UUID-1');
-        $country->setAreaUuid('SWAG-AREA-UUID-1');
+        $country->setId('SWAG-AREA-COUNTRY-ID-1');
+        $country->setAreaId('SWAG-AREA-ID-1');
 
         $billing = new CustomerAddressBasicStruct();
         $billing->setCountry($country);
@@ -64,15 +64,15 @@ class BillingCountryRuleTest extends TestCase
 
     public function testWithNotMatch(): void
     {
-        $rule = new BillingCountryRule(['SWAG-AREA-COUNTRY-UUID-2']);
+        $rule = new BillingCountryRule(['SWAG-AREA-COUNTRY-ID-2']);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $context = $this->createMock(ShopContext::class);
 
         $country = new CountryBasicStruct();
-        $country->setUuid('SWAG-AREA-COUNTRY-UUID-1');
-        $country->setAreaUuid('SWAG-AREA-UUID-1');
+        $country->setId('SWAG-AREA-COUNTRY-ID-1');
+        $country->setAreaId('SWAG-AREA-ID-1');
 
         $billing = new CustomerAddressBasicStruct();
         $billing->setCountry($country);
@@ -91,15 +91,15 @@ class BillingCountryRuleTest extends TestCase
 
     public function testMultipleCountries(): void
     {
-        $rule = new BillingCountryRule(['SWAG-AREA-COUNTRY-UUID-1', 'SWAG-AREA-COUNTRY-UUID-3', 'SWAG-AREA-COUNTRY-UUID-2']);
+        $rule = new BillingCountryRule(['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-3', 'SWAG-AREA-COUNTRY-ID-2']);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $context = $this->createMock(ShopContext::class);
 
         $country = new CountryBasicStruct();
-        $country->setUuid('SWAG-AREA-COUNTRY-UUID-1');
-        $country->setAreaUuid('SWAG-AREA-UUID-1');
+        $country->setId('SWAG-AREA-COUNTRY-ID-1');
+        $country->setAreaId('SWAG-AREA-ID-1');
 
         $billing = new CustomerAddressBasicStruct();
         $billing->setCountry($country);
@@ -118,7 +118,7 @@ class BillingCountryRuleTest extends TestCase
 
     public function testWithoutCustomer(): void
     {
-        $rule = new BillingCountryRule(['SWAG-AREA-COUNTRY-UUID-1', 'SWAG-AREA-COUNTRY-UUID-3', 'SWAG-AREA-COUNTRY-UUID-2']);
+        $rule = new BillingCountryRule(['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-3', 'SWAG-AREA-COUNTRY-ID-2']);
 
         $cart = $this->createMock(CalculatedCart::class);
 

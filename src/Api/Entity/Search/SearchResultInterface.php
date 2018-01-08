@@ -16,5 +16,5 @@ interface SearchResultInterface
 
     public function getAggregationResult(): ?AggregationResult;
 
-    public function getUuidResult(): UuidSearchResult;
+    public function getIdResult(): IdSearchResult;
 }

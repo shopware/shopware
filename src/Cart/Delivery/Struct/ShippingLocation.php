@@ -91,8 +91,8 @@ class ShippingLocation extends Struct
         return $this->address;
     }
 
-    public function getAreaUuid(): string
+    public function getAreaId(): string
     {
-        return $this->getCountry()->getAreaUuid();
+        return $this->getCountry()->getAreaId();
     }
 }

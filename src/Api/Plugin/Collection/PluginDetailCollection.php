@@ -14,16 +14,16 @@ class PluginDetailCollection extends PluginBasicCollection
      */
     protected $elements = [];
 
-    public function getConfigFormUuids(): array
+    public function getConfigFormIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getConfigForms()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getConfigForms()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getConfigForms(): ConfigFormBasicCollection
@@ -36,16 +36,16 @@ class PluginDetailCollection extends PluginBasicCollection
         return $collection;
     }
 
-    public function getPaymentMethodUuids(): array
+    public function getPaymentMethodIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getPaymentMethods()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getPaymentMethods()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getPaymentMethods(): PaymentMethodBasicCollection
@@ -58,16 +58,16 @@ class PluginDetailCollection extends PluginBasicCollection
         return $collection;
     }
 
-    public function getShopTemplateUuids(): array
+    public function getShopTemplateIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getShopTemplates()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getShopTemplates()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getShopTemplates(): ShopTemplateBasicCollection

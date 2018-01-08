@@ -12,9 +12,9 @@ class MailBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? MailBasicStruct
+    public function get(string $id): ? MailBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): MailBasicStruct
@@ -22,17 +22,17 @@ class MailBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getOrderStateUuids(): array
+    public function getOrderStateIds(): array
     {
         return $this->fmap(function (MailBasicStruct $mail) {
-            return $mail->getOrderStateUuid();
+            return $mail->getOrderStateId();
         });
     }
 
-    public function filterByOrderStateUuid(string $uuid): self
+    public function filterByOrderStateId(string $id): self
     {
-        return $this->filter(function (MailBasicStruct $mail) use ($uuid) {
-            return $mail->getOrderStateUuid() === $uuid;
+        return $this->filter(function (MailBasicStruct $mail) use ($id) {
+            return $mail->getOrderStateId() === $id;
         });
     }
 

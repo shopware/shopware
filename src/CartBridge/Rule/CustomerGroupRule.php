@@ -50,7 +50,7 @@ class CustomerGroupRule extends \Shopware\Cart\Rule\Rule
         StructCollection $collection
     ): Match {
         return new Match(
-            in_array($context->getCurrentCustomerGroup()->getUuid(), $this->customerGroupIds, true),
+            in_array($context->getCurrentCustomerGroup()->getId(), $this->customerGroupIds, true),
             ['Current customer group not matched']
         );
     }

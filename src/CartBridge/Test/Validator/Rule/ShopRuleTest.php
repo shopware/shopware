@@ -35,10 +35,10 @@ class ShopRuleTest extends TestCase
 {
     public function testEqualsWithSingleShop(): void
     {
-        $rule = new ShopRule(['SWAG-SHOP-UUID-1'], ShopRule::OPERATOR_EQ);
+        $rule = new ShopRule(['FFA32A50-E2D0-4CF3-8389-A53F8D6CD594'], ShopRule::OPERATOR_EQ);
 
         $shop = new ShopDetailStruct();
-        $shop->setUuid('SWAG-SHOP-UUID-1');
+        $shop->setId('FFA32A50-E2D0-4CF3-8389-A53F8D6CD594');
 
         $cart = $this->createMock(CalculatedCart::class);
 
@@ -53,10 +53,10 @@ class ShopRuleTest extends TestCase
 
     public function testEqualsWithMultipleShops(): void
     {
-        $rule = new ShopRule(['SWAG-SHOP-UUID-2', 'SWAG-SHOP-UUID-3', 'SWAG-SHOP-UUID-4', 'SWAG-SHOP-UUID-1'], ShopRule::OPERATOR_EQ);
+        $rule = new ShopRule(['SWAG-SHOP-ID-2', 'SWAG-SHOP-ID-3', 'SWAG-SHOP-ID-4', 'FFA32A50-E2D0-4CF3-8389-A53F8D6CD594'], ShopRule::OPERATOR_EQ);
 
         $shop = new ShopDetailStruct();
-        $shop->setUuid('SWAG-SHOP-UUID-3');
+        $shop->setId('SWAG-SHOP-ID-3');
 
         $cart = $this->createMock(CalculatedCart::class);
 
@@ -73,10 +73,10 @@ class ShopRuleTest extends TestCase
 
     public function testEqualsNotMatchWithSingleShop(): void
     {
-        $rule = new ShopRule(['SWAG-SHOP-UUID-11'], ShopRule::OPERATOR_EQ);
+        $rule = new ShopRule(['FFA32A50-E2D0-4CF3-8389-A53F8D6CD5941'], ShopRule::OPERATOR_EQ);
 
         $shop = new ShopDetailStruct();
-        $shop->setUuid('SWAG-SHOP-UUID-1');
+        $shop->setId('FFA32A50-E2D0-4CF3-8389-A53F8D6CD594');
 
         $cart = $this->createMock(CalculatedCart::class);
 
@@ -93,10 +93,10 @@ class ShopRuleTest extends TestCase
 
     public function testEqualsNotMatchWithMultipleShops(): void
     {
-        $rule = new ShopRule(['SWAG-SHOP-UUID-2', 'SWAG-SHOP-UUID-3', 'SWAG-SHOP-UUID-4', 'SWAG-SHOP-UUID-1'], ShopRule::OPERATOR_EQ);
+        $rule = new ShopRule(['SWAG-SHOP-ID-2', 'SWAG-SHOP-ID-3', 'SWAG-SHOP-ID-4', 'FFA32A50-E2D0-4CF3-8389-A53F8D6CD594'], ShopRule::OPERATOR_EQ);
 
         $shop = new ShopDetailStruct();
-        $shop->setUuid('SWAG-SHOP-UUID-11');
+        $shop->setId('FFA32A50-E2D0-4CF3-8389-A53F8D6CD5941');
 
         $cart = $this->createMock(CalculatedCart::class);
 
@@ -113,10 +113,10 @@ class ShopRuleTest extends TestCase
 
     public function testNotEqualsWithSingleShop(): void
     {
-        $rule = new ShopRule(['SWAG-SHOP-UUID-1'], ShopRule::OPERATOR_NEQ);
+        $rule = new ShopRule(['FFA32A50-E2D0-4CF3-8389-A53F8D6CD594'], ShopRule::OPERATOR_NEQ);
 
         $shop = new ShopDetailStruct();
-        $shop->setUuid('SWAG-SHOP-UUID-1');
+        $shop->setId('FFA32A50-E2D0-4CF3-8389-A53F8D6CD594');
 
         $cart = $this->createMock(CalculatedCart::class);
 
@@ -131,10 +131,10 @@ class ShopRuleTest extends TestCase
 
     public function testNotEqualsWithMultipleShops(): void
     {
-        $rule = new ShopRule(['SWAG-SHOP-UUID-2', 'SWAG-SHOP-UUID-3', 'SWAG-SHOP-UUID-4', 'SWAG-SHOP-UUID-1'], ShopRule::OPERATOR_NEQ);
+        $rule = new ShopRule(['SWAG-SHOP-ID-2', 'SWAG-SHOP-ID-3', 'SWAG-SHOP-ID-4', 'FFA32A50-E2D0-4CF3-8389-A53F8D6CD594'], ShopRule::OPERATOR_NEQ);
 
         $shop = new ShopDetailStruct();
-        $shop->setUuid('SWAG-SHOP-UUID-3');
+        $shop->setId('SWAG-SHOP-ID-3');
 
         $cart = $this->createMock(CalculatedCart::class);
 
@@ -149,10 +149,10 @@ class ShopRuleTest extends TestCase
 
     public function testNotEqualsNotMatchWithSingleShop(): void
     {
-        $rule = new ShopRule(['SWAG-SHOP-UUID-11'], ShopRule::OPERATOR_NEQ);
+        $rule = new ShopRule(['FFA32A50-E2D0-4CF3-8389-A53F8D6CD5941'], ShopRule::OPERATOR_NEQ);
 
         $shop = new ShopDetailStruct();
-        $shop->setUuid('SWAG-SHOP-UUID-1');
+        $shop->setId('FFA32A50-E2D0-4CF3-8389-A53F8D6CD594');
 
         $cart = $this->createMock(CalculatedCart::class);
 
@@ -167,10 +167,10 @@ class ShopRuleTest extends TestCase
 
     public function testNotEqualsNotMatchWithMultipleShops(): void
     {
-        $rule = new ShopRule(['SWAG-SHOP-UUID-2', 'SWAG-SHOP-UUID-3', 'SWAG-SHOP-UUID-4', 'SWAG-SHOP-UUID-1'], ShopRule::OPERATOR_NEQ);
+        $rule = new ShopRule(['SWAG-SHOP-ID-2', 'SWAG-SHOP-ID-3', 'SWAG-SHOP-ID-4', 'FFA32A50-E2D0-4CF3-8389-A53F8D6CD594'], ShopRule::OPERATOR_NEQ);
 
         $shop = new ShopDetailStruct();
-        $shop->setUuid('SWAG-SHOP-UUID-11');
+        $shop->setId('FFA32A50-E2D0-4CF3-8389-A53F8D6CD5941');
 
         $cart = $this->createMock(CalculatedCart::class);
 
@@ -192,9 +192,9 @@ class ShopRuleTest extends TestCase
      */
     public function testUnsupportedOperators(string $operator): void
     {
-        $rule = new ShopRule(['SWAG-SHOP-UUID-1'], $operator);
+        $rule = new ShopRule(['FFA32A50-E2D0-4CF3-8389-A53F8D6CD594'], $operator);
         $shop = new ShopDetailStruct();
-        $shop->setUuid('SWAG-SHOP-UUID-1');
+        $shop->setId('FFA32A50-E2D0-4CF3-8389-A53F8D6CD594');
 
         $cart = $this->createMock(CalculatedCart::class);
 

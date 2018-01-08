@@ -29,7 +29,7 @@ use Shopware\Context\Struct\TranslationContext;
 
 interface UrlResolverInterface
 {
-    public function getPathInfo(string $shopUuid, string $url, TranslationContext $context): ?SeoUrlBasicStruct;
+    public function getPathInfo(string $shopId, string $url, TranslationContext $context): ?SeoUrlBasicStruct;
 
-    public function getUrl(string $shopUuid, string $pathInfo, TranslationContext $context): ?SeoUrlBasicStruct;
+    public function getUrl(string $shopId, string $pathInfo, TranslationContext $context): ?SeoUrlBasicStruct;
 }

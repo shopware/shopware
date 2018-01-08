@@ -13,9 +13,9 @@ class ProductStreamBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ProductStreamBasicStruct
+    public function get(string $id): ? ProductStreamBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ProductStreamBasicStruct
@@ -23,17 +23,17 @@ class ProductStreamBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getListingSortingUuids(): array
+    public function getListingSortingIds(): array
     {
         return $this->fmap(function (ProductStreamBasicStruct $productStream) {
-            return $productStream->getListingSortingUuid();
+            return $productStream->getListingSortingId();
         });
     }
 
-    public function filterByListingSortingUuid(string $uuid): self
+    public function filterByListingSortingId(string $id): self
     {
-        return $this->filter(function (ProductStreamBasicStruct $productStream) use ($uuid) {
-            return $productStream->getListingSortingUuid() === $uuid;
+        return $this->filter(function (ProductStreamBasicStruct $productStream) use ($id) {
+            return $productStream->getListingSortingId() === $id;
         });
     }
 

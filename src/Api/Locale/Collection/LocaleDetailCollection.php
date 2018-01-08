@@ -13,16 +13,16 @@ class LocaleDetailCollection extends LocaleBasicCollection
      */
     protected $elements = [];
 
-    public function getTranslationUuids(): array
+    public function getTranslationIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getTranslations()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getTranslations()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getTranslations(): LocaleTranslationBasicCollection
@@ -35,16 +35,16 @@ class LocaleDetailCollection extends LocaleBasicCollection
         return $collection;
     }
 
-    public function getShopUuids(): array
+    public function getShopIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getShops()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getShops()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getShops(): ShopBasicCollection
@@ -57,16 +57,16 @@ class LocaleDetailCollection extends LocaleBasicCollection
         return $collection;
     }
 
-    public function getUserUuids(): array
+    public function getUserIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getUsers()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getUsers()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getUsers(): UserBasicCollection

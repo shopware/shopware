@@ -55,7 +55,7 @@ class WriteContext
     public static function createFromTranslationContext(TranslationContext $context): self
     {
         $self = new self($context);
-        $self->set(ShopDefinition::class, 'uuid', $context->getShopUuid());
+        $self->set(ShopDefinition::class, 'id', $context->getShopId());
 
         return $self;
     }

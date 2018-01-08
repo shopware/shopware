@@ -9,36 +9,36 @@ class ListingSortingTranslationBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $listingSortingUuid;
+    protected $listingSortingId;
 
     /**
      * @var string
      */
-    protected $languageUuid;
+    protected $languageId;
 
     /**
      * @var string
      */
     protected $label;
 
-    public function getListingSortingUuid(): string
+    public function getListingSortingId(): string
     {
-        return $this->listingSortingUuid;
+        return $this->listingSortingId;
     }
 
-    public function setListingSortingUuid(string $listingSortingUuid): void
+    public function setListingSortingId(string $listingSortingId): void
     {
-        $this->listingSortingUuid = $listingSortingUuid;
+        $this->listingSortingId = $listingSortingId;
     }
 
-    public function getLanguageUuid(): string
+    public function getLanguageId(): string
     {
-        return $this->languageUuid;
+        return $this->languageId;
     }
 
-    public function setLanguageUuid(string $languageUuid): void
+    public function setLanguageId(string $languageId): void
     {
-        $this->languageUuid = $languageUuid;
+        $this->languageId = $languageId;
     }
 
     public function getLabel(): string

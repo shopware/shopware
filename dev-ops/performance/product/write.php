@@ -16,7 +16,7 @@ $kernel->boot();
 function createWriteContext(): \Shopware\Api\Entity\Write\WriteContext
 {
     return \Shopware\Api\Entity\Write\WriteContext::createFromTranslationContext(
-        new \Shopware\Context\Struct\TranslationContext('SWAG-SHOP-UUID-1', true, null)
+        new \Shopware\Context\Struct\TranslationContext('FFA32A50-E2D0-4CF3-8389-A53F8D6CD594', true, null)
     );
 }
 

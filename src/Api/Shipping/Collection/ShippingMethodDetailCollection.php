@@ -23,16 +23,16 @@ class ShippingMethodDetailCollection extends ShippingMethodBasicCollection
         );
     }
 
-    public function getOrderDeliveryUuids(): array
+    public function getOrderDeliveryIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getOrderDeliveries()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getOrderDeliveries()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getOrderDeliveries(): OrderDeliveryBasicCollection
@@ -45,16 +45,16 @@ class ShippingMethodDetailCollection extends ShippingMethodBasicCollection
         return $collection;
     }
 
-    public function getTranslationUuids(): array
+    public function getTranslationIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getTranslations()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getTranslations()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getTranslations(): ShippingMethodTranslationBasicCollection
@@ -67,16 +67,16 @@ class ShippingMethodDetailCollection extends ShippingMethodBasicCollection
         return $collection;
     }
 
-    public function getShopUuids(): array
+    public function getShopIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getShops()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getShops()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getShops(): ShopBasicCollection

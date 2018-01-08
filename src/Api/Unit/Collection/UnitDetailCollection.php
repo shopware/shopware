@@ -12,16 +12,16 @@ class UnitDetailCollection extends UnitBasicCollection
      */
     protected $elements = [];
 
-    public function getProductUuids(): array
+    public function getProductIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getProducts()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getProducts()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getProducts(): ProductBasicCollection
@@ -34,16 +34,16 @@ class UnitDetailCollection extends UnitBasicCollection
         return $collection;
     }
 
-    public function getTranslationUuids(): array
+    public function getTranslationIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getTranslations()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getTranslations()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getTranslations(): UnitTranslationBasicCollection

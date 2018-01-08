@@ -100,6 +100,7 @@ class StructureCollector
                 $foreignKey->getForeignColumns()[0]
             ];
         }
+        $foreignKeys = array_merge($foreignKeys, $context->getForeignKeys($table));
 
         $columns = [];
 
@@ -149,6 +150,7 @@ class StructureCollector
         foreach ($rawForeignKeys as $foreignKey) {
             $foreignKeys[$foreignKey->getLocalColumns()[0]] = [$foreignKey->getForeignTableName(), $foreignKey->getForeignColumns()[0]];
         }
+        $foreignKeys = array_merge($foreignKeys, $context->getForeignKeys($tableDefinition->tableName));
 
         $existing = $context->getAssociationsForTable($tableDefinition->tableName);
 
@@ -182,7 +184,7 @@ class StructureCollector
 
     private function isPrimary(Column $column, array $indexes): bool
     {
-        if ($column->getName() === 'uuid') {
+        if ($column->getName() === 'id') {
             return true;
         }
 
@@ -222,6 +224,8 @@ class StructureCollector
                 return 'BoolField';
             case 'Json':
                 return 'ArrayField';
+            case 'Binary':
+                return 'IdField';
             default:
                 echo "ERROR: unmapped type {$column->getType()}\n";
                 return '';

@@ -7,14 +7,14 @@ use Shopware\Api\Entity\Entity;
 class ConfigFormFieldValueBasicStruct extends Entity
 {
     /**
-     * @var string|null
-     */
-    protected $shopUuid;
-
-    /**
      * @var string
      */
-    protected $configFormFieldUuid;
+    protected $configFormFieldId;
+
+    /**
+     * @var string|null
+     */
+    protected $shopId;
 
     /**
      * @var string
@@ -31,24 +31,24 @@ class ConfigFormFieldValueBasicStruct extends Entity
      */
     protected $updatedAt;
 
-    public function getShopUuid(): ?string
+    public function getConfigFormFieldId(): string
     {
-        return $this->shopUuid;
+        return $this->configFormFieldId;
     }
 
-    public function setShopUuid(?string $shopUuid): void
+    public function setConfigFormFieldId(string $configFormFieldId): void
     {
-        $this->shopUuid = $shopUuid;
+        $this->configFormFieldId = $configFormFieldId;
     }
 
-    public function getConfigFormFieldUuid(): string
+    public function getShopId(): ?string
     {
-        return $this->configFormFieldUuid;
+        return $this->shopId;
     }
 
-    public function setConfigFormFieldUuid(string $configFormFieldUuid): void
+    public function setShopId(?string $shopId): void
     {
-        $this->configFormFieldUuid = $configFormFieldUuid;
+        $this->shopId = $shopId;
     }
 
     public function getValue(): string

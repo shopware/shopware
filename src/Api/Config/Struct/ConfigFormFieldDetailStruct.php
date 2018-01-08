@@ -3,6 +3,7 @@
 namespace Shopware\Api\Config\Struct;
 
 use Shopware\Api\Config\Collection\ConfigFormFieldTranslationBasicCollection;
+use Shopware\Api\Config\Collection\ConfigFormFieldValueBasicCollection;
 
 class ConfigFormFieldDetailStruct extends ConfigFormFieldBasicStruct
 {
@@ -16,9 +17,16 @@ class ConfigFormFieldDetailStruct extends ConfigFormFieldBasicStruct
      */
     protected $translations;
 
+    /**
+     * @var ConfigFormFieldValueBasicCollection
+     */
+    protected $values;
+
     public function __construct()
     {
         $this->translations = new ConfigFormFieldTranslationBasicCollection();
+
+        $this->values = new ConfigFormFieldValueBasicCollection();
     }
 
     public function getConfigForm(): ?ConfigFormBasicStruct
@@ -39,5 +47,15 @@ class ConfigFormFieldDetailStruct extends ConfigFormFieldBasicStruct
     public function setTranslations(ConfigFormFieldTranslationBasicCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getValues(): ConfigFormFieldValueBasicCollection
+    {
+        return $this->values;
+    }
+
+    public function setValues(ConfigFormFieldValueBasicCollection $values): void
+    {
+        $this->values = $values;
     }
 }

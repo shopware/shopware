@@ -58,7 +58,7 @@ class Util
 
     public static function createAssociationPropertyName(string $table, string $columnName)
     {
-        $tmp = str_replace('_uuid', '', $columnName);
+        $tmp = str_replace('_id', '', $columnName);
 
         return self::getTableDomainName(
             self::removeTableInName($table, $tmp)

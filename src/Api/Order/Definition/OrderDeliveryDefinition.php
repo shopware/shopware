@@ -6,11 +6,11 @@ use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -51,22 +51,22 @@ class OrderDeliveryDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('order_uuid', 'orderUuid', OrderDefinition::class))->setFlags(new Required()),
-            (new FkField('shipping_address_uuid', 'shippingAddressUuid', OrderAddressDefinition::class))->setFlags(new Required()),
-            (new FkField('order_state_uuid', 'orderStateUuid', OrderStateDefinition::class))->setFlags(new Required()),
-            (new FkField('shipping_method_uuid', 'shippingMethodUuid', ShippingMethodDefinition::class))->setFlags(new Required()),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('order_id', 'orderId', OrderDefinition::class))->setFlags(new Required()),
+            (new FkField('shipping_address_id', 'shippingAddressId', OrderAddressDefinition::class))->setFlags(new Required()),
+            (new FkField('order_state_id', 'orderStateId', OrderStateDefinition::class))->setFlags(new Required()),
+            (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->setFlags(new Required()),
             (new DateField('shipping_date_earliest', 'shippingDateEarliest'))->setFlags(new Required()),
             (new DateField('shipping_date_latest', 'shippingDateLatest'))->setFlags(new Required()),
             (new LongTextField('payload', 'payload'))->setFlags(new Required()),
             new StringField('tracking_code', 'trackingCode'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('order', 'order_uuid', OrderDefinition::class, false),
-            new ManyToOneAssociationField('shippingAddress', 'shipping_address_uuid', OrderAddressDefinition::class, true),
-            new ManyToOneAssociationField('orderState', 'order_state_uuid', OrderStateDefinition::class, true),
-            new ManyToOneAssociationField('shippingMethod', 'shipping_method_uuid', ShippingMethodDefinition::class, true),
-            new OneToManyAssociationField('positions', OrderDeliveryPositionDefinition::class, 'order_delivery_uuid', false, 'uuid'),
+            new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false),
+            new ManyToOneAssociationField('shippingAddress', 'shipping_address_id', OrderAddressDefinition::class, true),
+            new ManyToOneAssociationField('orderState', 'order_state_id', OrderStateDefinition::class, true),
+            new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, true),
+            new OneToManyAssociationField('positions', OrderDeliveryPositionDefinition::class, 'order_delivery_id', false, 'id'),
         ]);
 
         foreach (self::$extensions as $extension) {

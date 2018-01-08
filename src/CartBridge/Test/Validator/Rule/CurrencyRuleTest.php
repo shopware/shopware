@@ -35,12 +35,12 @@ class CurrencyRuleTest extends TestCase
 {
     public function testMatch(): void
     {
-        $rule = new CurrencyRule(['SWAG-CURRENCY-UUID-1']);
+        $rule = new CurrencyRule(['SWAG-CURRENCY-ID-1']);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $currency = new CurrencyBasicStruct();
-        $currency->setUuid('SWAG-CURRENCY-UUID-1');
+        $currency->setId('SWAG-CURRENCY-ID-1');
 
         $context = $this->createMock(ShopContext::class);
 
@@ -55,12 +55,12 @@ class CurrencyRuleTest extends TestCase
 
     public function testNotMatch(): void
     {
-        $rule = new CurrencyRule(['SWAG-CURRENCY-UUID-2', 'SWAG-CURRENCY-UUID-3', 'SWAG-CURRENCY-UUID-1']);
+        $rule = new CurrencyRule(['SWAG-CURRENCY-ID-2', 'SWAG-CURRENCY-ID-3', 'SWAG-CURRENCY-ID-1']);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $currency = new CurrencyBasicStruct();
-        $currency->setUuid('SWAG-CURRENCY-UUID-5');
+        $currency->setId('SWAG-CURRENCY-ID-5');
 
         $context = $this->createMock(ShopContext::class);
 
@@ -75,12 +75,12 @@ class CurrencyRuleTest extends TestCase
 
     public function testMultipleCurrencies(): void
     {
-        $rule = new CurrencyRule(['SWAG-CURRENCY-UUID-2', 'SWAG-CURRENCY-UUID-3', 'SWAG-CURRENCY-UUID-1']);
+        $rule = new CurrencyRule(['SWAG-CURRENCY-ID-2', 'SWAG-CURRENCY-ID-3', 'SWAG-CURRENCY-ID-1']);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $currency = new CurrencyBasicStruct();
-        $currency->setUuid('SWAG-CURRENCY-UUID-3');
+        $currency->setId('SWAG-CURRENCY-ID-3');
 
         $context = $this->createMock(ShopContext::class);
 

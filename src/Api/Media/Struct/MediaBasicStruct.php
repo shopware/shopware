@@ -9,12 +9,12 @@ class MediaBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $albumUuid;
+    protected $albumId;
 
     /**
      * @var string|null
      */
-    protected $userUuid;
+    protected $userId;
 
     /**
      * @var string
@@ -65,24 +65,24 @@ class MediaBasicStruct extends Entity
      */
     protected $url;
 
-    public function getAlbumUuid(): string
+    public function getAlbumId(): string
     {
-        return $this->albumUuid;
+        return $this->albumId;
     }
 
-    public function setAlbumUuid(string $albumUuid): void
+    public function setAlbumId(string $albumId): void
     {
-        $this->albumUuid = $albumUuid;
+        $this->albumId = $albumId;
     }
 
-    public function getUserUuid(): ?string
+    public function getUserId(): ?string
     {
-        return $this->userUuid;
+        return $this->userId;
     }
 
-    public function setUserUuid(?string $userUuid): void
+    public function setUserId(?string $userId): void
     {
-        $this->userUuid = $userUuid;
+        $this->userId = $userId;
     }
 
     public function getFileName(): string

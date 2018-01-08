@@ -6,8 +6,8 @@ use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -49,15 +49,15 @@ class MailAttachmentDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('mail_uuid', 'mailUuid', MailDefinition::class))->setFlags(new Required()),
-            (new FkField('media_uuid', 'mediaUuid', MediaDefinition::class))->setFlags(new Required()),
-            new FkField('shop_uuid', 'shopUuid', ShopDefinition::class),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('mail_id', 'mailId', MailDefinition::class))->setFlags(new Required()),
+            (new FkField('media_id', 'mediaId', MediaDefinition::class))->setFlags(new Required()),
+            new FkField('shop_id', 'shopId', ShopDefinition::class),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('mail', 'mail_uuid', MailDefinition::class, false),
-            new ManyToOneAssociationField('media', 'media_uuid', MediaDefinition::class, false),
-            new ManyToOneAssociationField('shop', 'shop_uuid', ShopDefinition::class, false),
+            new ManyToOneAssociationField('mail', 'mail_id', MailDefinition::class, false),
+            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
+            new ManyToOneAssociationField('shop', 'shop_id', ShopDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

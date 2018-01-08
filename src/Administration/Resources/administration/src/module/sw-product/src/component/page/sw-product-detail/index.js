@@ -31,7 +31,7 @@ Shopware.Component.register('sw-product-detail', {
 
             this.customerGroups.forEach((item) => {
                 options.push({
-                    value: item.uuid,
+                    value: item.id,
                     label: item.name
                 });
             });
@@ -45,13 +45,13 @@ Shopware.Component.register('sw-product-detail', {
                 { field: 'quantityEnd', label: 'Bis', type: 'number' },
                 { field: 'price', label: 'Preis', type: 'number' },
                 { field: 'pseudoPrice', label: 'Pseudo Preis', type: 'number' },
-                { field: 'customerGroupUuid', label: 'Kundengruppe', type: 'select', options: this.customerGroupOptions }
+                { field: 'customerGroupId', label: 'Kundengruppe', type: 'select', options: this.customerGroupOptions }
             ];
         }
     },
 
     created() {
-        this.initProduct(this.$route.params.uuid).then((proxy) => {
+        this.initProduct(this.$route.params.id).then((proxy) => {
             this.$emit(
                 'core-product-detail:load:after',
                 proxy.data
@@ -105,8 +105,8 @@ Shopware.Component.register('sw-product-detail', {
                     data
                 );
 
-                if (!this.$route.params.uuid && data.uuid) {
-                    this.$router.push({ path: `/core/product/detail/${data.uuid}` });
+                if (!this.$route.params.id && data.id) {
+                    this.$router.push({ path: `/core/product/detail/${data.id}` });
                 }
             }).catch(() => {
                 this.isWorking = false;

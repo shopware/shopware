@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -18,8 +18,8 @@ use Shopware\Api\Order\Definition\OrderDefinition;
 use Shopware\Api\Order\Event\Order\OrderAggregationResultLoadedEvent;
 use Shopware\Api\Order\Event\Order\OrderBasicLoadedEvent;
 use Shopware\Api\Order\Event\Order\OrderDetailLoadedEvent;
+use Shopware\Api\Order\Event\Order\OrderIdSearchResultLoadedEvent;
 use Shopware\Api\Order\Event\Order\OrderSearchResultLoadedEvent;
-use Shopware\Api\Order\Event\Order\OrderUuidSearchResultLoadedEvent;
 use Shopware\Api\Order\Struct\OrderSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,16 +67,16 @@ class OrderRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): OrderSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = OrderSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = OrderSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new OrderSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class OrderRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(OrderDefinition::class, $criteria, $context);
 
-        $event = new OrderUuidSearchResultLoadedEvent($result);
+        $event = new OrderIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): OrderBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): OrderBasicCollection
     {
         /** @var OrderBasicCollection $entities */
-        $entities = $this->reader->readBasic(OrderDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(OrderDefinition::class, $ids, $context);
 
         $event = new OrderBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class OrderRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): OrderDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): OrderDetailCollection
     {
         /** @var OrderDetailCollection $entities */
-        $entities = $this->reader->readDetail(OrderDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(OrderDefinition::class, $ids, $context);
 
         $event = new OrderDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

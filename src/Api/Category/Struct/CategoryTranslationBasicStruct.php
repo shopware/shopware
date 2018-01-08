@@ -9,12 +9,12 @@ class CategoryTranslationBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $categoryUuid;
+    protected $categoryId;
 
     /**
      * @var string
      */
-    protected $languageUuid;
+    protected $languageId;
 
     /**
      * @var string
@@ -51,24 +51,24 @@ class CategoryTranslationBasicStruct extends Entity
      */
     protected $cmsDescription;
 
-    public function getCategoryUuid(): string
+    public function getCategoryId(): string
     {
-        return $this->categoryUuid;
+        return $this->categoryId;
     }
 
-    public function setCategoryUuid(string $categoryUuid): void
+    public function setCategoryId(string $categoryId): void
     {
-        $this->categoryUuid = $categoryUuid;
+        $this->categoryId = $categoryId;
     }
 
-    public function getLanguageUuid(): string
+    public function getLanguageId(): string
     {
-        return $this->languageUuid;
+        return $this->languageId;
     }
 
-    public function setLanguageUuid(string $languageUuid): void
+    public function setLanguageId(string $languageId): void
     {
-        $this->languageUuid = $languageUuid;
+        $this->languageId = $languageId;
     }
 
     public function getName(): string

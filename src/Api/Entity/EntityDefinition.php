@@ -50,14 +50,30 @@ abstract class EntityDefinition
 
     public static function getWriteOrder(): array
     {
-        return array_values(
-            array_merge(
-                static::filterAssociationReferences(ManyToOneAssociationField::class, static::getFields()),
-                array_filter([static::class, static::getTranslationDefinitionClass()]),
-                static::filterAssociationReferences(OneToManyAssociationField::class, static::getFields()),
-                static::filterAssociationReferences(ManyToManyAssociationField::class, static::getFields())
-            )
-        );
+        $manyToOne = static::filterAssociationReferences(ManyToOneAssociationField::class, static::getFields());
+
+        $oneToMany = static::filterAssociationReferences(OneToManyAssociationField::class, static::getFields());
+
+        $manyToMany = static::filterAssociationReferences(ManyToManyAssociationField::class, static::getFields());
+
+        $self = array_filter([static::class, static::getTranslationDefinitionClass()]);
+
+        /*
+         * If a linked entity exists once as OneToMany but also as ManyToOne (bi-directional foreign keys),
+         * it must be treated as OneToMany. In the MySQL database,
+         * no foreign key may be created for the ManyToOne relation.
+         *
+         * Examples:
+         *      a customer has 1:N addresses
+         *      a customer has 1:1 default_shipping_address
+         *      a customer has 1:1 default_billing_address
+         */
+        $c = array_intersect($manyToOne, $oneToMany);
+        foreach ($c as $index => $value) {
+            unset($manyToOne[$index]);
+        }
+
+        return array_unique(array_values(array_merge($manyToOne, $self, $oneToMany, $manyToMany)));
     }
 
     public static function getPrimaryKeys(): FieldCollection
@@ -78,10 +94,10 @@ abstract class EntityDefinition
             return null;
         }
 
-        $uuids = $identifiers[static::class];
+        $ids = $identifiers[static::class];
         $class = self::getWrittenEventClass();
 
-        return new $class($uuids, $context, $errors);
+        return new $class($ids, $context, $errors);
     }
 
     public static function getDefaults(string $type): array

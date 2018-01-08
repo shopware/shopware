@@ -2,16 +2,18 @@
 
 namespace Shopware\Api\Product\Definition;
 
+use Shopware\Api\Category\Definition\CategoryDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
+use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -52,17 +54,18 @@ class ProductStreamDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            new FkField('listing_sorting_uuid', 'listingSortingUuid', ListingSortingDefinition::class),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new FkField('listing_sorting_id', 'listingSortingId', ListingSortingDefinition::class),
             (new StringField('name', 'name'))->setFlags(new Required()),
             new LongTextField('conditions', 'conditions'),
             new IntField('type', 'type'),
             new LongTextField('description', 'description'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('listingSorting', 'listing_sorting_uuid', ListingSortingDefinition::class, true),
-            new ManyToManyAssociationField('productTabs', ProductDefinition::class, ProductStreamTabDefinition::class, false, 'product_stream_uuid', 'product_uuid', 'productTabUuids'),
-            new ManyToManyAssociationField('products', ProductDefinition::class, ProductStreamAssignmentDefinition::class, false, 'product_stream_uuid', 'product_uuid', 'productUuids'),
+            new ManyToOneAssociationField('listingSorting', 'listing_sorting_id', ListingSortingDefinition::class, true),
+            new OneToManyAssociationField('categories', CategoryDefinition::class, 'product_stream_id', false, 'id'),
+            new ManyToManyAssociationField('productTabs', ProductDefinition::class, ProductStreamTabDefinition::class, false, 'product_stream_id', 'product_id', 'productTabIds'),
+            new ManyToManyAssociationField('products', ProductDefinition::class, ProductStreamAssignmentDefinition::class, false, 'product_stream_id', 'product_id', 'productIds'),
         ]);
 
         foreach (self::$extensions as $extension) {

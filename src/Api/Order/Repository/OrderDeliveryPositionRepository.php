@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -18,8 +18,8 @@ use Shopware\Api\Order\Definition\OrderDeliveryPositionDefinition;
 use Shopware\Api\Order\Event\OrderDeliveryPosition\OrderDeliveryPositionAggregationResultLoadedEvent;
 use Shopware\Api\Order\Event\OrderDeliveryPosition\OrderDeliveryPositionBasicLoadedEvent;
 use Shopware\Api\Order\Event\OrderDeliveryPosition\OrderDeliveryPositionDetailLoadedEvent;
+use Shopware\Api\Order\Event\OrderDeliveryPosition\OrderDeliveryPositionIdSearchResultLoadedEvent;
 use Shopware\Api\Order\Event\OrderDeliveryPosition\OrderDeliveryPositionSearchResultLoadedEvent;
-use Shopware\Api\Order\Event\OrderDeliveryPosition\OrderDeliveryPositionUuidSearchResultLoadedEvent;
 use Shopware\Api\Order\Struct\OrderDeliveryPositionSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,16 +67,16 @@ class OrderDeliveryPositionRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): OrderDeliveryPositionSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = OrderDeliveryPositionSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = OrderDeliveryPositionSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new OrderDeliveryPositionSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class OrderDeliveryPositionRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(OrderDeliveryPositionDefinition::class, $criteria, $context);
 
-        $event = new OrderDeliveryPositionUuidSearchResultLoadedEvent($result);
+        $event = new OrderDeliveryPositionIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): OrderDeliveryPositionBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): OrderDeliveryPositionBasicCollection
     {
         /** @var OrderDeliveryPositionBasicCollection $entities */
-        $entities = $this->reader->readBasic(OrderDeliveryPositionDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(OrderDeliveryPositionDefinition::class, $ids, $context);
 
         $event = new OrderDeliveryPositionBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class OrderDeliveryPositionRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): OrderDeliveryPositionDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): OrderDeliveryPositionDetailCollection
     {
         /** @var OrderDeliveryPositionDetailCollection $entities */
-        $entities = $this->reader->readDetail(OrderDeliveryPositionDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(OrderDeliveryPositionDefinition::class, $ids, $context);
 
         $event = new OrderDeliveryPositionDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

@@ -27,7 +27,7 @@ class RepositoryGenerator
     {
         $template = file_get_contents(__DIR__ . '/template.txt');
 
-        $detail = '     return $this->readBasic($uuids, $context);';
+        $detail = '     return $this->readBasic($ids, $context);';
         $detailCollection = 'BasicCollection';
 
         $uses = [];
@@ -42,7 +42,7 @@ class RepositoryGenerator
                 [ucfirst($definition->domainName)],
                 '
         /** @var #classUc#DetailCollection $entities */
-        $entities = $this->reader->readDetail(#classUc#Definition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(#classUc#Definition::class, $ids, $context);
 
         $event = new #classUc#DetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

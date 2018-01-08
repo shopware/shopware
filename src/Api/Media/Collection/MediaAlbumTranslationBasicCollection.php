@@ -12,9 +12,9 @@ class MediaAlbumTranslationBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? MediaAlbumTranslationBasicStruct
+    public function get(string $id): ? MediaAlbumTranslationBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): MediaAlbumTranslationBasicStruct
@@ -22,31 +22,31 @@ class MediaAlbumTranslationBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getMediaAlbumUuids(): array
+    public function getMediaAlbumIds(): array
     {
         return $this->fmap(function (MediaAlbumTranslationBasicStruct $mediaAlbumTranslation) {
-            return $mediaAlbumTranslation->getMediaAlbumUuid();
+            return $mediaAlbumTranslation->getMediaAlbumId();
         });
     }
 
-    public function filterByMediaAlbumUuid(string $uuid): self
+    public function filterByMediaAlbumId(string $id): self
     {
-        return $this->filter(function (MediaAlbumTranslationBasicStruct $mediaAlbumTranslation) use ($uuid) {
-            return $mediaAlbumTranslation->getMediaAlbumUuid() === $uuid;
+        return $this->filter(function (MediaAlbumTranslationBasicStruct $mediaAlbumTranslation) use ($id) {
+            return $mediaAlbumTranslation->getMediaAlbumId() === $id;
         });
     }
 
-    public function getLanguageUuids(): array
+    public function getLanguageIds(): array
     {
         return $this->fmap(function (MediaAlbumTranslationBasicStruct $mediaAlbumTranslation) {
-            return $mediaAlbumTranslation->getLanguageUuid();
+            return $mediaAlbumTranslation->getLanguageId();
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): self
+    public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (MediaAlbumTranslationBasicStruct $mediaAlbumTranslation) use ($uuid) {
-            return $mediaAlbumTranslation->getLanguageUuid() === $uuid;
+        return $this->filter(function (MediaAlbumTranslationBasicStruct $mediaAlbumTranslation) use ($id) {
+            return $mediaAlbumTranslation->getLanguageId() === $id;
         });
     }
 

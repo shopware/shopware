@@ -15,22 +15,22 @@ class EntityCollection extends Collection
             );
         }
 
-        $this->elements[$entity->getUuid()] = $entity;
+        $this->elements[$entity->getId()] = $entity;
     }
 
-    public function get(string $uuid)
+    public function get(string $id)
     {
-        if ($this->has($uuid)) {
-            return $this->elements[$uuid];
+        if ($this->has($id)) {
+            return $this->elements[$id];
         }
 
         return null;
     }
 
-    public function getUuids(): array
+    public function getIds(): array
     {
         return $this->fmap(function (Entity $entity) {
-            return $entity->getUuid();
+            return $entity->getId();
         });
     }
 
@@ -47,29 +47,29 @@ class EntityCollection extends Collection
     {
         /** @var Entity $entity */
         foreach ($collection as $entity) {
-            if ($this->has($entity->getUuid())) {
+            if ($this->has($entity->getId())) {
                 continue;
             }
             $this->add($entity);
         }
     }
 
-    public function remove(string $uuid): void
+    public function remove(string $id): void
     {
-        parent::doRemoveByKey($uuid);
+        parent::doRemoveByKey($id);
     }
 
-    public function getList(array $uuids)
+    public function getList(array $ids)
     {
-        return new static(array_intersect_key($this->elements, array_flip($uuids)));
+        return new static(array_intersect_key($this->elements, array_flip($ids)));
     }
 
-    public function sortByUuidArray(array $uuids)
+    public function sortByIdArray(array $ids)
     {
         $sorted = [];
-        foreach ($uuids as $uuid) {
-            if (array_key_exists($uuid, $this->elements)) {
-                $sorted[$uuid] = $this->elements[$uuid];
+        foreach ($ids as $id) {
+            if (array_key_exists($id, $this->elements)) {
+                $sorted[$id] = $this->elements[$id];
             }
         }
         $this->elements = $sorted;

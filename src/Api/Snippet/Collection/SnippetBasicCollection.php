@@ -12,9 +12,9 @@ class SnippetBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? SnippetBasicStruct
+    public function get(string $id): ? SnippetBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): SnippetBasicStruct
@@ -22,17 +22,17 @@ class SnippetBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getShopUuids(): array
+    public function getShopIds(): array
     {
         return $this->fmap(function (SnippetBasicStruct $snippet) {
-            return $snippet->getShopUuid();
+            return $snippet->getShopId();
         });
     }
 
-    public function filterByShopUuid(string $uuid): self
+    public function filterByShopId(string $id): self
     {
-        return $this->filter(function (SnippetBasicStruct $snippet) use ($uuid) {
-            return $snippet->getShopUuid() === $uuid;
+        return $this->filter(function (SnippetBasicStruct $snippet) use ($id) {
+            return $snippet->getShopId() === $id;
         });
     }
 

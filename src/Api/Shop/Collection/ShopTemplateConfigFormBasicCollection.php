@@ -12,9 +12,9 @@ class ShopTemplateConfigFormBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ShopTemplateConfigFormBasicStruct
+    public function get(string $id): ? ShopTemplateConfigFormBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ShopTemplateConfigFormBasicStruct
@@ -22,31 +22,31 @@ class ShopTemplateConfigFormBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getParentUuids(): array
+    public function getParentIds(): array
     {
         return $this->fmap(function (ShopTemplateConfigFormBasicStruct $shopTemplateConfigForm) {
-            return $shopTemplateConfigForm->getParentUuid();
+            return $shopTemplateConfigForm->getParentId();
         });
     }
 
-    public function filterByParentUuid(string $uuid): self
+    public function filterByParentId(string $id): self
     {
-        return $this->filter(function (ShopTemplateConfigFormBasicStruct $shopTemplateConfigForm) use ($uuid) {
-            return $shopTemplateConfigForm->getParentUuid() === $uuid;
+        return $this->filter(function (ShopTemplateConfigFormBasicStruct $shopTemplateConfigForm) use ($id) {
+            return $shopTemplateConfigForm->getParentId() === $id;
         });
     }
 
-    public function getShopTemplateUuids(): array
+    public function getShopTemplateIds(): array
     {
         return $this->fmap(function (ShopTemplateConfigFormBasicStruct $shopTemplateConfigForm) {
-            return $shopTemplateConfigForm->getShopTemplateUuid();
+            return $shopTemplateConfigForm->getShopTemplateId();
         });
     }
 
-    public function filterByShopTemplateUuid(string $uuid): self
+    public function filterByShopTemplateId(string $id): self
     {
-        return $this->filter(function (ShopTemplateConfigFormBasicStruct $shopTemplateConfigForm) use ($uuid) {
-            return $shopTemplateConfigForm->getShopTemplateUuid() === $uuid;
+        return $this->filter(function (ShopTemplateConfigFormBasicStruct $shopTemplateConfigForm) use ($id) {
+            return $shopTemplateConfigForm->getShopTemplateId() === $id;
         });
     }
 

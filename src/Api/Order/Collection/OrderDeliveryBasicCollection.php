@@ -13,9 +13,9 @@ class OrderDeliveryBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? OrderDeliveryBasicStruct
+    public function get(string $id): ? OrderDeliveryBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): OrderDeliveryBasicStruct
@@ -23,59 +23,59 @@ class OrderDeliveryBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getOrderUuids(): array
+    public function getOrderIds(): array
     {
         return $this->fmap(function (OrderDeliveryBasicStruct $orderDelivery) {
-            return $orderDelivery->getOrderUuid();
+            return $orderDelivery->getOrderId();
         });
     }
 
-    public function filterByOrderUuid(string $uuid): self
+    public function filterByOrderId(string $id): self
     {
-        return $this->filter(function (OrderDeliveryBasicStruct $orderDelivery) use ($uuid) {
-            return $orderDelivery->getOrderUuid() === $uuid;
+        return $this->filter(function (OrderDeliveryBasicStruct $orderDelivery) use ($id) {
+            return $orderDelivery->getOrderId() === $id;
         });
     }
 
-    public function getShippingAddressUuids(): array
-    {
-        return $this->fmap(function (OrderDeliveryBasicStruct $orderDelivery) {
-            return $orderDelivery->getShippingAddressUuid();
-        });
-    }
-
-    public function filterByShippingAddressUuid(string $uuid): self
-    {
-        return $this->filter(function (OrderDeliveryBasicStruct $orderDelivery) use ($uuid) {
-            return $orderDelivery->getShippingAddressUuid() === $uuid;
-        });
-    }
-
-    public function getOrderStateUuids(): array
+    public function getShippingAddressIds(): array
     {
         return $this->fmap(function (OrderDeliveryBasicStruct $orderDelivery) {
-            return $orderDelivery->getOrderStateUuid();
+            return $orderDelivery->getShippingAddressId();
         });
     }
 
-    public function filterByOrderStateUuid(string $uuid): self
+    public function filterByShippingAddressId(string $id): self
     {
-        return $this->filter(function (OrderDeliveryBasicStruct $orderDelivery) use ($uuid) {
-            return $orderDelivery->getOrderStateUuid() === $uuid;
+        return $this->filter(function (OrderDeliveryBasicStruct $orderDelivery) use ($id) {
+            return $orderDelivery->getShippingAddressId() === $id;
         });
     }
 
-    public function getShippingMethodUuids(): array
+    public function getOrderStateIds(): array
     {
         return $this->fmap(function (OrderDeliveryBasicStruct $orderDelivery) {
-            return $orderDelivery->getShippingMethodUuid();
+            return $orderDelivery->getOrderStateId();
         });
     }
 
-    public function filterByShippingMethodUuid(string $uuid): self
+    public function filterByOrderStateId(string $id): self
     {
-        return $this->filter(function (OrderDeliveryBasicStruct $orderDelivery) use ($uuid) {
-            return $orderDelivery->getShippingMethodUuid() === $uuid;
+        return $this->filter(function (OrderDeliveryBasicStruct $orderDelivery) use ($id) {
+            return $orderDelivery->getOrderStateId() === $id;
+        });
+    }
+
+    public function getShippingMethodIds(): array
+    {
+        return $this->fmap(function (OrderDeliveryBasicStruct $orderDelivery) {
+            return $orderDelivery->getShippingMethodId();
+        });
+    }
+
+    public function filterByShippingMethodId(string $id): self
+    {
+        return $this->filter(function (OrderDeliveryBasicStruct $orderDelivery) use ($id) {
+            return $orderDelivery->getShippingMethodId() === $id;
         });
     }
 

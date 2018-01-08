@@ -44,6 +44,8 @@ class ApiGenerator
     public function generate(Context $context)
     {
         $tables = $this->readTables();
+        $files = __DIR__ . '/../../src/Api/**/Event/**/*SearchResultLoadedEvent.php';
+        @exec('rm -R ' . $files);
 
         $definitions = (new StructureCollector($this->schemaManager))->collect($tables, $context);
 

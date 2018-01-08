@@ -12,9 +12,9 @@ class OrderStateBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? OrderStateBasicStruct
+    public function get(string $id): ? OrderStateBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): OrderStateBasicStruct

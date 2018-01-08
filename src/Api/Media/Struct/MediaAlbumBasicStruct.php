@@ -9,7 +9,7 @@ class MediaAlbumBasicStruct extends Entity
     /**
      * @var string|null
      */
-    protected $parentUuid;
+    protected $parentId;
 
     /**
      * @var string
@@ -61,14 +61,14 @@ class MediaAlbumBasicStruct extends Entity
      */
     protected $updatedAt;
 
-    public function getParentUuid(): ?string
+    public function getParentId(): ?string
     {
-        return $this->parentUuid;
+        return $this->parentId;
     }
 
-    public function setParentUuid(?string $parentUuid): void
+    public function setParentId(?string $parentId): void
     {
-        $this->parentUuid = $parentUuid;
+        $this->parentId = $parentId;
     }
 
     public function getName(): string

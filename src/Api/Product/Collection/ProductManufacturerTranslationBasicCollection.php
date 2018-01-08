@@ -12,9 +12,9 @@ class ProductManufacturerTranslationBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ProductManufacturerTranslationBasicStruct
+    public function get(string $id): ? ProductManufacturerTranslationBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ProductManufacturerTranslationBasicStruct
@@ -22,31 +22,31 @@ class ProductManufacturerTranslationBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getProductManufacturerUuids(): array
+    public function getProductManufacturerIds(): array
     {
         return $this->fmap(function (ProductManufacturerTranslationBasicStruct $productManufacturerTranslation) {
-            return $productManufacturerTranslation->getProductManufacturerUuid();
+            return $productManufacturerTranslation->getProductManufacturerId();
         });
     }
 
-    public function filterByProductManufacturerUuid(string $uuid): self
+    public function filterByProductManufacturerId(string $id): self
     {
-        return $this->filter(function (ProductManufacturerTranslationBasicStruct $productManufacturerTranslation) use ($uuid) {
-            return $productManufacturerTranslation->getProductManufacturerUuid() === $uuid;
+        return $this->filter(function (ProductManufacturerTranslationBasicStruct $productManufacturerTranslation) use ($id) {
+            return $productManufacturerTranslation->getProductManufacturerId() === $id;
         });
     }
 
-    public function getLanguageUuids(): array
+    public function getLanguageIds(): array
     {
         return $this->fmap(function (ProductManufacturerTranslationBasicStruct $productManufacturerTranslation) {
-            return $productManufacturerTranslation->getLanguageUuid();
+            return $productManufacturerTranslation->getLanguageId();
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): self
+    public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (ProductManufacturerTranslationBasicStruct $productManufacturerTranslation) use ($uuid) {
-            return $productManufacturerTranslation->getLanguageUuid() === $uuid;
+        return $this->filter(function (ProductManufacturerTranslationBasicStruct $productManufacturerTranslation) use ($id) {
+            return $productManufacturerTranslation->getLanguageId() === $id;
         });
     }
 

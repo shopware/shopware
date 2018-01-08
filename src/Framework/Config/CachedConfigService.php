@@ -45,16 +45,16 @@ class CachedConfigService implements ConfigServiceInterface
         $this->cache = $cache;
     }
 
-    public function getByShop(string $shopUuid, ?string $parentUuid): array
+    public function getByShop(string $shopId, ?string $parentId): array
     {
-        $cacheKey = sprintf('shop_config_%d', $shopUuid);
+        $cacheKey = sprintf('shop_config_%d', $shopId);
 
         $item = $this->cache->getItem($cacheKey);
         if ($item->isHit()) {
             return $item->get();
         }
 
-        $config = $this->configService->getByShop($shopUuid, $parentUuid);
+        $config = $this->configService->getByShop($shopId, $parentId);
         $item->set($config);
 
         $this->cache->save($item);

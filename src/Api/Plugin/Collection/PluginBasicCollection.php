@@ -12,9 +12,9 @@ class PluginBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? PluginBasicStruct
+    public function get(string $id): ? PluginBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): PluginBasicStruct

@@ -14,9 +14,9 @@ class ProductBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ProductBasicStruct
+    public function get(string $id): ? ProductBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ProductBasicStruct
@@ -24,73 +24,73 @@ class ProductBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getTaxUuids(): array
+    public function getTaxIds(): array
     {
         return $this->fmap(function (ProductBasicStruct $product) {
-            return $product->getTaxUuid();
+            return $product->getTaxId();
         });
     }
 
-    public function filterByTaxUuid(string $uuid): self
+    public function filterByTaxId(string $id): self
     {
-        return $this->filter(function (ProductBasicStruct $product) use ($uuid) {
-            return $product->getTaxUuid() === $uuid;
+        return $this->filter(function (ProductBasicStruct $product) use ($id) {
+            return $product->getTaxId() === $id;
         });
     }
 
-    public function getManufacturerUuids(): array
-    {
-        return $this->fmap(function (ProductBasicStruct $product) {
-            return $product->getManufacturerUuid();
-        });
-    }
-
-    public function filterByManufacturerUuid(string $uuid): self
-    {
-        return $this->filter(function (ProductBasicStruct $product) use ($uuid) {
-            return $product->getManufacturerUuid() === $uuid;
-        });
-    }
-
-    public function getUnitUuids(): array
+    public function getManufacturerIds(): array
     {
         return $this->fmap(function (ProductBasicStruct $product) {
-            return $product->getUnitUuid();
+            return $product->getManufacturerId();
         });
     }
 
-    public function filterByUnitUuid(string $uuid): self
+    public function filterByManufacturerId(string $id): self
     {
-        return $this->filter(function (ProductBasicStruct $product) use ($uuid) {
-            return $product->getUnitUuid() === $uuid;
+        return $this->filter(function (ProductBasicStruct $product) use ($id) {
+            return $product->getManufacturerId() === $id;
         });
     }
 
-    public function getContainerUuids(): array
-    {
-        return $this->fmap(function (ProductBasicStruct $product) {
-            return $product->getContainerUuid();
-        });
-    }
-
-    public function filterByContainerUuid(string $uuid): self
-    {
-        return $this->filter(function (ProductBasicStruct $product) use ($uuid) {
-            return $product->getContainerUuid() === $uuid;
-        });
-    }
-
-    public function getPriceGroupUuids(): array
+    public function getUnitIds(): array
     {
         return $this->fmap(function (ProductBasicStruct $product) {
-            return $product->getPriceGroupUuid();
+            return $product->getUnitId();
         });
     }
 
-    public function filterByPriceGroupUuid(string $uuid): self
+    public function filterByUnitId(string $id): self
     {
-        return $this->filter(function (ProductBasicStruct $product) use ($uuid) {
-            return $product->getPriceGroupUuid() === $uuid;
+        return $this->filter(function (ProductBasicStruct $product) use ($id) {
+            return $product->getUnitId() === $id;
+        });
+    }
+
+    public function getContainerIds(): array
+    {
+        return $this->fmap(function (ProductBasicStruct $product) {
+            return $product->getContainerId();
+        });
+    }
+
+    public function filterByContainerId(string $id): self
+    {
+        return $this->filter(function (ProductBasicStruct $product) use ($id) {
+            return $product->getContainerId() === $id;
+        });
+    }
+
+    public function getPriceGroupIds(): array
+    {
+        return $this->fmap(function (ProductBasicStruct $product) {
+            return $product->getPriceGroupId();
+        });
+    }
+
+    public function filterByPriceGroupId(string $id): self
+    {
+        return $this->filter(function (ProductBasicStruct $product) use ($id) {
+            return $product->getPriceGroupId() === $id;
         });
     }
 
@@ -121,16 +121,16 @@ class ProductBasicCollection extends EntityCollection
         );
     }
 
-    public function getListingPriceUuids(): array
+    public function getListingPriceIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getListingPrices()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getListingPrices()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getListingPrices(): ProductListingPriceBasicCollection
@@ -143,16 +143,16 @@ class ProductBasicCollection extends EntityCollection
         return $collection;
     }
 
-    public function getPriceUuids(): array
+    public function getPriceIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getPrices()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getPrices()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getPrices(): ProductPriceBasicCollection

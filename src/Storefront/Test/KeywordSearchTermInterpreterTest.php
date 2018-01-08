@@ -119,7 +119,7 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
         foreach ($keywords as $keyword) {
             $this->connection->insert('search_keyword', [
                 'keyword' => $keyword,
-                'shop_uuid' => 'SWAG-SHOP-UUID-1',
+                'shop_id' => 'ffa32a50-e2d0-4cf3-8389-a53f8d6cd594',
             ]);
         }
     }

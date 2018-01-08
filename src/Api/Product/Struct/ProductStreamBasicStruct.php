@@ -10,7 +10,7 @@ class ProductStreamBasicStruct extends Entity
     /**
      * @var string|null
      */
-    protected $listingSortingUuid;
+    protected $listingSortingId;
 
     /**
      * @var string
@@ -47,14 +47,14 @@ class ProductStreamBasicStruct extends Entity
      */
     protected $listingSorting;
 
-    public function getListingSortingUuid(): ?string
+    public function getListingSortingId(): ?string
     {
-        return $this->listingSortingUuid;
+        return $this->listingSortingId;
     }
 
-    public function setListingSortingUuid(?string $listingSortingUuid): void
+    public function setListingSortingId(?string $listingSortingId): void
     {
-        $this->listingSortingUuid = $listingSortingUuid;
+        $this->listingSortingId = $listingSortingId;
     }
 
     public function getName(): string

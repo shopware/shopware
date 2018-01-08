@@ -12,9 +12,9 @@ class TaxBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? TaxBasicStruct
+    public function get(string $id): ? TaxBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): TaxBasicStruct

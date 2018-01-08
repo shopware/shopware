@@ -14,9 +14,9 @@ class ShopBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ShopBasicStruct
+    public function get(string $id): ? ShopBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ShopBasicStruct
@@ -24,157 +24,157 @@ class ShopBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getParentUuids(): array
+    public function getParentIds(): array
     {
         return $this->fmap(function (ShopBasicStruct $shop) {
-            return $shop->getParentUuid();
+            return $shop->getParentId();
         });
     }
 
-    public function filterByParentUuid(string $uuid): self
+    public function filterByParentId(string $id): self
     {
-        return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
-            return $shop->getParentUuid() === $uuid;
+        return $this->filter(function (ShopBasicStruct $shop) use ($id) {
+            return $shop->getParentId() === $id;
         });
     }
 
-    public function getTemplateUuids(): array
-    {
-        return $this->fmap(function (ShopBasicStruct $shop) {
-            return $shop->getTemplateUuid();
-        });
-    }
-
-    public function filterByTemplateUuid(string $uuid): self
-    {
-        return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
-            return $shop->getTemplateUuid() === $uuid;
-        });
-    }
-
-    public function getDocumentTemplateUuids(): array
+    public function getTemplateIds(): array
     {
         return $this->fmap(function (ShopBasicStruct $shop) {
-            return $shop->getDocumentTemplateUuid();
+            return $shop->getTemplateId();
         });
     }
 
-    public function filterByDocumentTemplateUuid(string $uuid): self
+    public function filterByTemplateId(string $id): self
     {
-        return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
-            return $shop->getDocumentTemplateUuid() === $uuid;
+        return $this->filter(function (ShopBasicStruct $shop) use ($id) {
+            return $shop->getTemplateId() === $id;
         });
     }
 
-    public function getCategoryUuids(): array
-    {
-        return $this->fmap(function (ShopBasicStruct $shop) {
-            return $shop->getCategoryUuid();
-        });
-    }
-
-    public function filterByCategoryUuid(string $uuid): self
-    {
-        return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
-            return $shop->getCategoryUuid() === $uuid;
-        });
-    }
-
-    public function getLocaleUuids(): array
+    public function getDocumentTemplateIds(): array
     {
         return $this->fmap(function (ShopBasicStruct $shop) {
-            return $shop->getLocaleUuid();
+            return $shop->getDocumentTemplateId();
         });
     }
 
-    public function filterByLocaleUuid(string $uuid): self
+    public function filterByDocumentTemplateId(string $id): self
     {
-        return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
-            return $shop->getLocaleUuid() === $uuid;
+        return $this->filter(function (ShopBasicStruct $shop) use ($id) {
+            return $shop->getDocumentTemplateId() === $id;
         });
     }
 
-    public function getCurrencyUuids(): array
-    {
-        return $this->fmap(function (ShopBasicStruct $shop) {
-            return $shop->getCurrencyUuid();
-        });
-    }
-
-    public function filterByCurrencyUuid(string $uuid): self
-    {
-        return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
-            return $shop->getCurrencyUuid() === $uuid;
-        });
-    }
-
-    public function getCustomerGroupUuids(): array
+    public function getCategoryIds(): array
     {
         return $this->fmap(function (ShopBasicStruct $shop) {
-            return $shop->getCustomerGroupUuid();
+            return $shop->getCategoryId();
         });
     }
 
-    public function filterByCustomerGroupUuid(string $uuid): self
+    public function filterByCategoryId(string $id): self
     {
-        return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
-            return $shop->getCustomerGroupUuid() === $uuid;
+        return $this->filter(function (ShopBasicStruct $shop) use ($id) {
+            return $shop->getCategoryId() === $id;
         });
     }
 
-    public function getFallbackTranslationUuids(): array
-    {
-        return $this->fmap(function (ShopBasicStruct $shop) {
-            return $shop->getFallbackTranslationUuid();
-        });
-    }
-
-    public function filterByFallbackTranslationUuid(string $uuid): self
-    {
-        return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
-            return $shop->getFallbackTranslationUuid() === $uuid;
-        });
-    }
-
-    public function getPaymentMethodUuids(): array
+    public function getLocaleIds(): array
     {
         return $this->fmap(function (ShopBasicStruct $shop) {
-            return $shop->getPaymentMethodUuid();
+            return $shop->getLocaleId();
         });
     }
 
-    public function filterByPaymentMethodUuid(string $uuid): self
+    public function filterByLocaleId(string $id): self
     {
-        return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
-            return $shop->getPaymentMethodUuid() === $uuid;
+        return $this->filter(function (ShopBasicStruct $shop) use ($id) {
+            return $shop->getLocaleId() === $id;
         });
     }
 
-    public function getShippingMethodUuids(): array
-    {
-        return $this->fmap(function (ShopBasicStruct $shop) {
-            return $shop->getShippingMethodUuid();
-        });
-    }
-
-    public function filterByShippingMethodUuid(string $uuid): self
-    {
-        return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
-            return $shop->getShippingMethodUuid() === $uuid;
-        });
-    }
-
-    public function getCountryUuids(): array
+    public function getCurrencyIds(): array
     {
         return $this->fmap(function (ShopBasicStruct $shop) {
-            return $shop->getCountryUuid();
+            return $shop->getCurrencyId();
         });
     }
 
-    public function filterByCountryUuid(string $uuid): self
+    public function filterByCurrencyId(string $id): self
     {
-        return $this->filter(function (ShopBasicStruct $shop) use ($uuid) {
-            return $shop->getCountryUuid() === $uuid;
+        return $this->filter(function (ShopBasicStruct $shop) use ($id) {
+            return $shop->getCurrencyId() === $id;
+        });
+    }
+
+    public function getCustomerGroupIds(): array
+    {
+        return $this->fmap(function (ShopBasicStruct $shop) {
+            return $shop->getCustomerGroupId();
+        });
+    }
+
+    public function filterByCustomerGroupId(string $id): self
+    {
+        return $this->filter(function (ShopBasicStruct $shop) use ($id) {
+            return $shop->getCustomerGroupId() === $id;
+        });
+    }
+
+    public function getFallbackTranslationIds(): array
+    {
+        return $this->fmap(function (ShopBasicStruct $shop) {
+            return $shop->getFallbackTranslationId();
+        });
+    }
+
+    public function filterByFallbackTranslationId(string $id): self
+    {
+        return $this->filter(function (ShopBasicStruct $shop) use ($id) {
+            return $shop->getFallbackTranslationId() === $id;
+        });
+    }
+
+    public function getPaymentMethodIds(): array
+    {
+        return $this->fmap(function (ShopBasicStruct $shop) {
+            return $shop->getPaymentMethodId();
+        });
+    }
+
+    public function filterByPaymentMethodId(string $id): self
+    {
+        return $this->filter(function (ShopBasicStruct $shop) use ($id) {
+            return $shop->getPaymentMethodId() === $id;
+        });
+    }
+
+    public function getShippingMethodIds(): array
+    {
+        return $this->fmap(function (ShopBasicStruct $shop) {
+            return $shop->getShippingMethodId();
+        });
+    }
+
+    public function filterByShippingMethodId(string $id): self
+    {
+        return $this->filter(function (ShopBasicStruct $shop) use ($id) {
+            return $shop->getShippingMethodId() === $id;
+        });
+    }
+
+    public function getCountryIds(): array
+    {
+        return $this->fmap(function (ShopBasicStruct $shop) {
+            return $shop->getCountryId();
+        });
+    }
+
+    public function filterByCountryId(string $id): self
+    {
+        return $this->filter(function (ShopBasicStruct $shop) use ($id) {
+            return $shop->getCountryId() === $id;
         });
     }
 

@@ -12,9 +12,9 @@ class UserBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? UserBasicStruct
+    public function get(string $id): ? UserBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): UserBasicStruct
@@ -22,31 +22,45 @@ class UserBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getLocaleUuids(): array
+    public function getLocaleIds(): array
     {
         return $this->fmap(function (UserBasicStruct $user) {
-            return $user->getLocaleUuid();
+            return $user->getLocaleId();
         });
     }
 
-    public function filterByLocaleUuid(string $uuid): self
+    public function filterByLocaleId(string $id): self
     {
-        return $this->filter(function (UserBasicStruct $user) use ($uuid) {
-            return $user->getLocaleUuid() === $uuid;
+        return $this->filter(function (UserBasicStruct $user) use ($id) {
+            return $user->getLocaleId() === $id;
         });
     }
 
-    public function getRoleUuids(): array
+    public function getRoleIds(): array
     {
         return $this->fmap(function (UserBasicStruct $user) {
-            return $user->getRoleUuid();
+            return $user->getRoleId();
         });
     }
 
-    public function filterByRoleUuid(string $uuid): self
+    public function filterByRoleId(string $id): self
     {
-        return $this->filter(function (UserBasicStruct $user) use ($uuid) {
-            return $user->getRoleUuid() === $uuid;
+        return $this->filter(function (UserBasicStruct $user) use ($id) {
+            return $user->getRoleId() === $id;
+        });
+    }
+
+    public function getSessionIds(): array
+    {
+        return $this->fmap(function (UserBasicStruct $user) {
+            return $user->getSessionId();
+        });
+    }
+
+    public function filterBySessionId(string $id): self
+    {
+        return $this->filter(function (UserBasicStruct $user) use ($id) {
+            return $user->getSessionId() === $id;
         });
     }
 

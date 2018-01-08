@@ -22,16 +22,16 @@ class UserDetailCollection extends UserBasicCollection
         );
     }
 
-    public function getMediaUuids(): array
+    public function getMediaIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getMedia()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getMedia()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getMedia(): MediaBasicCollection

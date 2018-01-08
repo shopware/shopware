@@ -11,16 +11,16 @@ class CustomerGroupDetailCollection extends CustomerGroupBasicCollection
      */
     protected $elements = [];
 
-    public function getCustomerUuids(): array
+    public function getCustomerIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getCustomers()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getCustomers()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getCustomers(): CustomerBasicCollection
@@ -33,16 +33,16 @@ class CustomerGroupDetailCollection extends CustomerGroupBasicCollection
         return $collection;
     }
 
-    public function getDiscountUuids(): array
+    public function getDiscountIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getDiscounts()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getDiscounts()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getDiscounts(): CustomerGroupDiscountBasicCollection
@@ -55,16 +55,16 @@ class CustomerGroupDetailCollection extends CustomerGroupBasicCollection
         return $collection;
     }
 
-    public function getTranslationUuids(): array
+    public function getTranslationIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getTranslations()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getTranslations()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getTranslations(): CustomerGroupTranslationBasicCollection

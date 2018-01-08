@@ -9,12 +9,12 @@ class PaymentMethodTranslationBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $paymentMethodUuid;
+    protected $paymentMethodId;
 
     /**
      * @var string
      */
-    protected $languageUuid;
+    protected $languageId;
 
     /**
      * @var string
@@ -26,24 +26,24 @@ class PaymentMethodTranslationBasicStruct extends Entity
      */
     protected $additionalDescription;
 
-    public function getPaymentMethodUuid(): string
+    public function getPaymentMethodId(): string
     {
-        return $this->paymentMethodUuid;
+        return $this->paymentMethodId;
     }
 
-    public function setPaymentMethodUuid(string $paymentMethodUuid): void
+    public function setPaymentMethodId(string $paymentMethodId): void
     {
-        $this->paymentMethodUuid = $paymentMethodUuid;
+        $this->paymentMethodId = $paymentMethodId;
     }
 
-    public function getLanguageUuid(): string
+    public function getLanguageId(): string
     {
-        return $this->languageUuid;
+        return $this->languageId;
     }
 
-    public function setLanguageUuid(string $languageUuid): void
+    public function setLanguageId(string $languageId): void
     {
-        $this->languageUuid = $languageUuid;
+        $this->languageId = $languageId;
     }
 
     public function getName(): string

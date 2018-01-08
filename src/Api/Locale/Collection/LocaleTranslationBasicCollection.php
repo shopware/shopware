@@ -12,9 +12,9 @@ class LocaleTranslationBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? LocaleTranslationBasicStruct
+    public function get(string $id): ? LocaleTranslationBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): LocaleTranslationBasicStruct
@@ -22,31 +22,31 @@ class LocaleTranslationBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getLocaleUuids(): array
+    public function getLocaleIds(): array
     {
         return $this->fmap(function (LocaleTranslationBasicStruct $localeTranslation) {
-            return $localeTranslation->getLocaleUuid();
+            return $localeTranslation->getLocaleId();
         });
     }
 
-    public function filterByLocaleUuid(string $uuid): self
+    public function filterByLocaleId(string $id): self
     {
-        return $this->filter(function (LocaleTranslationBasicStruct $localeTranslation) use ($uuid) {
-            return $localeTranslation->getLocaleUuid() === $uuid;
+        return $this->filter(function (LocaleTranslationBasicStruct $localeTranslation) use ($id) {
+            return $localeTranslation->getLocaleId() === $id;
         });
     }
 
-    public function getLanguageUuids(): array
+    public function getLanguageIds(): array
     {
         return $this->fmap(function (LocaleTranslationBasicStruct $localeTranslation) {
-            return $localeTranslation->getLanguageUuid();
+            return $localeTranslation->getLanguageId();
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): self
+    public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (LocaleTranslationBasicStruct $localeTranslation) use ($uuid) {
-            return $localeTranslation->getLanguageUuid() === $uuid;
+        return $this->filter(function (LocaleTranslationBasicStruct $localeTranslation) use ($id) {
+            return $localeTranslation->getLanguageId() === $id;
         });
     }
 

@@ -62,7 +62,7 @@ class ApiContextValueResolver implements ArgumentValueResolverInterface
         yield new ApiContext(
             $payload,
             $shopContext,
-            $this->getUserUuid($shopContext->getTranslationContext()),
+            $this->getUserId($shopContext->getTranslationContext()),
             $parameters->all(),
             $outputFormat,
             $resultFormat
@@ -101,7 +101,7 @@ class ApiContextValueResolver implements ArgumentValueResolverInterface
         return $payload ?? [];
     }
 
-    private function getUserUuid(TranslationContext $context): string
+    private function getUserId(TranslationContext $context): string
     {
         $token = $this->tokenStorage->getToken();
         if (!$token) {
@@ -121,14 +121,14 @@ class ApiContextValueResolver implements ArgumentValueResolverInterface
         $criteria->addFilter(new TermQuery(UserDefinition::getEntityName() . '.username', $name));
 
         $users = $this->searcher->search(UserDefinition::class, $criteria, $context);
-        $uuids = $users->getUuids();
+        $ids = $users->getIds();
 
-        $uuid = array_shift($uuids);
+        $id = array_shift($ids);
 
-        if (!$uuid) {
+        if (!$id) {
             return $this->mapping[$name] = ApiContext::KERNEL_USER;
         }
 
-        return $this->mapping[$name] = $uuid;
+        return $this->mapping[$name] = $id;
     }
 }

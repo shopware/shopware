@@ -11,7 +11,7 @@ class ManyToOneAssociationField extends ReferenceField implements AssociationInt
         string $storageName,
         string $referenceClass,
         bool $loadInBasic,
-        string $referenceField = 'uuid'
+        string $referenceField = 'id'
     ) {
         parent::__construct($storageName, $propertyName, $referenceField, $referenceClass);
         $this->loadInBasic = $loadInBasic;

@@ -14,9 +14,9 @@ class CustomerAddressBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? CustomerAddressBasicStruct
+    public function get(string $id): ? CustomerAddressBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): CustomerAddressBasicStruct
@@ -24,45 +24,59 @@ class CustomerAddressBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getCustomerUuids(): array
+    public function getCustomerIds(): array
     {
         return $this->fmap(function (CustomerAddressBasicStruct $customerAddress) {
-            return $customerAddress->getCustomerUuid();
+            return $customerAddress->getCustomerId();
         });
     }
 
-    public function filterByCustomerUuid(string $uuid): self
+    public function filterByCustomerId(string $id): self
     {
-        return $this->filter(function (CustomerAddressBasicStruct $customerAddress) use ($uuid) {
-            return $customerAddress->getCustomerUuid() === $uuid;
+        return $this->filter(function (CustomerAddressBasicStruct $customerAddress) use ($id) {
+            return $customerAddress->getCustomerId() === $id;
         });
     }
 
-    public function getCountryUuids(): array
-    {
-        return $this->fmap(function (CustomerAddressBasicStruct $customerAddress) {
-            return $customerAddress->getCountryUuid();
-        });
-    }
-
-    public function filterByCountryUuid(string $uuid): self
-    {
-        return $this->filter(function (CustomerAddressBasicStruct $customerAddress) use ($uuid) {
-            return $customerAddress->getCountryUuid() === $uuid;
-        });
-    }
-
-    public function getCountryStateUuids(): array
+    public function getCountryIds(): array
     {
         return $this->fmap(function (CustomerAddressBasicStruct $customerAddress) {
-            return $customerAddress->getCountryStateUuid();
+            return $customerAddress->getCountryId();
         });
     }
 
-    public function filterByCountryStateUuid(string $uuid): self
+    public function filterByCountryId(string $id): self
     {
-        return $this->filter(function (CustomerAddressBasicStruct $customerAddress) use ($uuid) {
-            return $customerAddress->getCountryStateUuid() === $uuid;
+        return $this->filter(function (CustomerAddressBasicStruct $customerAddress) use ($id) {
+            return $customerAddress->getCountryId() === $id;
+        });
+    }
+
+    public function getCountryStateIds(): array
+    {
+        return $this->fmap(function (CustomerAddressBasicStruct $customerAddress) {
+            return $customerAddress->getCountryStateId();
+        });
+    }
+
+    public function filterByCountryStateId(string $id): self
+    {
+        return $this->filter(function (CustomerAddressBasicStruct $customerAddress) use ($id) {
+            return $customerAddress->getCountryStateId() === $id;
+        });
+    }
+
+    public function getVatIds(): array
+    {
+        return $this->fmap(function (CustomerAddressBasicStruct $customerAddress) {
+            return $customerAddress->getVatId();
+        });
+    }
+
+    public function filterByVatId(string $id): self
+    {
+        return $this->filter(function (CustomerAddressBasicStruct $customerAddress) use ($id) {
+            return $customerAddress->getVatId() === $id;
         });
     }
 

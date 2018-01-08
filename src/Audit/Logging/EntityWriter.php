@@ -5,7 +5,7 @@ namespace Shopware\Audit\Logging;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Audit\Definition\AuditLogDefinition;
 use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\Entity\Field\UuidField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\Query\TermQuery;
@@ -61,10 +61,10 @@ class EntityWriter implements EntityWriterInterface
         /** @var EntityDefinition $definition */
         $primary = $definition::getPrimaryKeys();
 
-        if ($primary->count() === 1 && $primary->first() instanceof UuidField) {
+        if ($primary->count() === 1 && $primary->first() instanceof IdField) {
             foreach ($rawData as &$data) {
-                if (!isset($data['uuid'])) {
-                    $data['uuid'] = Uuid::uuid4()->toString();
+                if (!isset($data['id'])) {
+                    $data['id'] = Uuid::uuid4()->toString();
                 }
             }
         }
@@ -88,19 +88,19 @@ class EntityWriter implements EntityWriterInterface
                 'entity' => $definition,
                 'createdAt' => new \DateTime(),
                 'payload' => json_encode($data),
-                'userUuid' => $this->getUserUuid($writeContext->getTranslationContext()),
+//                'userId' => $this->getUserId($writeContext->getTranslationContext()),
                 'action' => $action,
             ];
 
-            if (isset($data['uuid'])) {
-                $log['foreignKey'] = $data['uuid'];
+            if (isset($data['id'])) {
+                $log['foreignKey'] = $data['id'];
             }
 
             $this->decorated->insert(AuditLogDefinition::class, [$log], $writeContext);
         }
     }
 
-    private function getUserUuid(TranslationContext $context): string
+    private function getUserId(TranslationContext $context): string
     {
         $token = $this->tokenStorage->getToken();
         if (!$token) {
@@ -120,14 +120,14 @@ class EntityWriter implements EntityWriterInterface
         $criteria->addFilter(new TermQuery(UserDefinition::getEntityName() . '.username', $name));
 
         $users = $this->searcher->search(UserDefinition::class, $criteria, $context);
-        $uuids = $users->getUuids();
+        $ids = $users->getIds();
 
-        $uuid = array_shift($uuids);
+        $id = array_shift($ids);
 
-        if (!$uuid) {
+        if (!$id) {
             return $this->mapping[$name] = ApiContext::KERNEL_USER;
         }
 
-        return $this->mapping[$name] = $uuid;
+        return $this->mapping[$name] = $id;
     }
 }

@@ -11,12 +11,12 @@ class OrderAddressBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $countryUuid;
+    protected $countryId;
 
     /**
      * @var string|null
      */
-    protected $countryStateUuid;
+    protected $countryStateId;
 
     /**
      * @var string
@@ -103,24 +103,24 @@ class OrderAddressBasicStruct extends Entity
      */
     protected $countryState;
 
-    public function getCountryUuid(): string
+    public function getCountryId(): string
     {
-        return $this->countryUuid;
+        return $this->countryId;
     }
 
-    public function setCountryUuid(string $countryUuid): void
+    public function setCountryId(string $countryId): void
     {
-        $this->countryUuid = $countryUuid;
+        $this->countryId = $countryId;
     }
 
-    public function getCountryStateUuid(): ?string
+    public function getCountryStateId(): ?string
     {
-        return $this->countryStateUuid;
+        return $this->countryStateId;
     }
 
-    public function setCountryStateUuid(?string $countryStateUuid): void
+    public function setCountryStateId(?string $countryStateId): void
     {
-        $this->countryStateUuid = $countryStateUuid;
+        $this->countryStateId = $countryStateId;
     }
 
     public function getSalutation(): string

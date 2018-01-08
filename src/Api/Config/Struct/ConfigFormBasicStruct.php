@@ -9,12 +9,12 @@ class ConfigFormBasicStruct extends Entity
     /**
      * @var string|null
      */
-    protected $parentUuid;
+    protected $parentId;
 
     /**
      * @var string|null
      */
-    protected $pluginUuid;
+    protected $pluginId;
 
     /**
      * @var string
@@ -46,24 +46,24 @@ class ConfigFormBasicStruct extends Entity
      */
     protected $description;
 
-    public function getParentUuid(): ?string
+    public function getParentId(): ?string
     {
-        return $this->parentUuid;
+        return $this->parentId;
     }
 
-    public function setParentUuid(?string $parentUuid): void
+    public function setParentId(?string $parentId): void
     {
-        $this->parentUuid = $parentUuid;
+        $this->parentId = $parentId;
     }
 
-    public function getPluginUuid(): ?string
+    public function getPluginId(): ?string
     {
-        return $this->pluginUuid;
+        return $this->pluginId;
     }
 
-    public function setPluginUuid(?string $pluginUuid): void
+    public function setPluginId(?string $pluginId): void
     {
-        $this->pluginUuid = $pluginUuid;
+        $this->pluginId = $pluginId;
     }
 
     public function getName(): string

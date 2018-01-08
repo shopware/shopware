@@ -5,9 +5,9 @@ class OrderLineItemApiService extends ApiService {
         super(httpClient, loginService, apiEndpoint, returnFormat);
     }
 
-    getList(offset = 0, limit = 25, orderUuid) {
-        if (!orderUuid) {
-            return Promise.reject(new Error('Missing required argument: orderUuid'));
+    getList(offset = 0, limit = 25, orderId) {
+        if (!orderId) {
+            return Promise.reject(new Error('Missing required argument: orderId'));
         }
 
         const queryString = JSON.stringify({
@@ -15,8 +15,8 @@ class OrderLineItemApiService extends ApiService {
             queries: [
                 {
                     type: 'term',
-                    field: 'order_line_item.orderUuid',
-                    value: orderUuid
+                    field: 'order_line_item.orderId',
+                    value: orderId
                 }
             ]
         });

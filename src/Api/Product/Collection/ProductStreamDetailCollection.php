@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Product\Collection;
 
+use Shopware\Api\Category\Collection\CategoryBasicCollection;
 use Shopware\Api\Product\Struct\ProductStreamDetailStruct;
 
 class ProductStreamDetailCollection extends ProductStreamBasicCollection
@@ -11,16 +12,38 @@ class ProductStreamDetailCollection extends ProductStreamBasicCollection
      */
     protected $elements = [];
 
-    public function getAllProductTabUuids(): array
+    public function getCategoryIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getProductTabUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getCategories()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
+    }
+
+    public function getCategories(): CategoryBasicCollection
+    {
+        $collection = new CategoryBasicCollection();
+        foreach ($this->elements as $element) {
+            $collection->fill($element->getCategories()->getElements());
+        }
+
+        return $collection;
+    }
+
+    public function getAllProductTabIds(): array
+    {
+        $ids = [];
+        foreach ($this->elements as $element) {
+            foreach ($element->getProductTabIds() as $id) {
+                $ids[] = $id;
+            }
+        }
+
+        return $ids;
     }
 
     public function getAllProductTabs(): ProductBasicCollection
@@ -33,16 +56,16 @@ class ProductStreamDetailCollection extends ProductStreamBasicCollection
         return $collection;
     }
 
-    public function getAllProductUuids(): array
+    public function getAllProductIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getProductUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getProductIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getAllProducts(): ProductBasicCollection

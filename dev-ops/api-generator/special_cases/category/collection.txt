@@ -6,3 +6,12 @@
         });
         return $this;
     }
+
+    public function sortByName(): CategoryBasicCollection
+    {
+        $this->sort(function (CategoryBasicStruct $a, CategoryBasicStruct $b) {
+            return strnatcasecmp($a->getName(), $b->getName());
+        });
+
+        return $this;
+    }

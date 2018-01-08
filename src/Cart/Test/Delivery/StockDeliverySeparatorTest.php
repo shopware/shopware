@@ -115,7 +115,7 @@ class StockDeliverySeparatorTest extends TestCase
         $this->separator->addItemsToDeliveries(
             $deliveries,
             new CalculatedLineItemCollection([$item]),
-            Generator::createContext(null, null, null, null, null, null, $location->getAreaUuid(), $location->getCountry(), $location->getState())
+            Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState())
         );
 
         static::assertEquals(
@@ -125,7 +125,7 @@ class StockDeliverySeparatorTest extends TestCase
                         DeliveryPosition::createByLineItemForInStockDate($item),
                     ]),
                     new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-02')),
-                    (new ShippingMethodBasicStruct())->assign(['uuid' => '1']),
+                    (new ShippingMethodBasicStruct())->assign(['id' => '1']),
                     $location,
                     new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
@@ -167,7 +167,7 @@ class StockDeliverySeparatorTest extends TestCase
         $this->separator->addItemsToDeliveries(
             $deliveries,
             new CalculatedLineItemCollection([$itemA, $itemB]),
-            Generator::createContext(null, null, null, null, null, null, $location->getAreaUuid(), $location->getCountry(), $location->getState())
+            Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState())
         );
 
         static::assertEquals(
@@ -178,7 +178,7 @@ class StockDeliverySeparatorTest extends TestCase
                         DeliveryPosition::createByLineItemForInStockDate($itemB),
                     ]),
                     new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-02')),
-                    (new ShippingMethodBasicStruct())->assign(['uuid' => '1']),
+                    (new ShippingMethodBasicStruct())->assign(['id' => '1']),
                     $location,
                     new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
@@ -218,7 +218,7 @@ class StockDeliverySeparatorTest extends TestCase
         $this->separator->addItemsToDeliveries(
             $deliveries,
             new CalculatedLineItemCollection([$itemA, $itemB]),
-            Generator::createContext(null, null, null, null, null, null, $location->getAreaUuid(), $location->getCountry(), $location->getState())
+            Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState())
         );
 
         static::assertEquals(
@@ -229,7 +229,7 @@ class StockDeliverySeparatorTest extends TestCase
                         DeliveryPosition::createByLineItemForOutOfStockDate($itemB),
                     ]),
                     new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-05')),
-                    (new ShippingMethodBasicStruct())->assign(['uuid' => '1']),
+                    (new ShippingMethodBasicStruct())->assign(['id' => '1']),
                     $location,
                     new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
@@ -263,7 +263,7 @@ class StockDeliverySeparatorTest extends TestCase
         $this->separator->addItemsToDeliveries(
             $deliveries,
             new CalculatedLineItemCollection([$product, $voucher]),
-            Generator::createContext(null, null, null, null, null, null, $location->getAreaUuid(), $location->getCountry(), $location->getState())
+            Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState())
         );
 
         static::assertEquals(
@@ -273,7 +273,7 @@ class StockDeliverySeparatorTest extends TestCase
                         DeliveryPosition::createByLineItemForInStockDate($product),
                     ]),
                     $product->getInStockDeliveryDate(),
-                    (new ShippingMethodBasicStruct())->assign(['uuid' => '1']),
+                    (new ShippingMethodBasicStruct())->assign(['id' => '1']),
                     $location,
                     new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
@@ -302,7 +302,7 @@ class StockDeliverySeparatorTest extends TestCase
         $this->separator->addItemsToDeliveries(
             $deliveries,
             new CalculatedLineItemCollection([$product]),
-            Generator::createContext(null, null, null, null, null, null, $location->getAreaUuid(), $location->getCountry(), $location->getState())
+            Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState())
         );
 
         static::assertEquals(
@@ -315,7 +315,7 @@ class StockDeliverySeparatorTest extends TestCase
                         ),
                     ]),
                     $product->getInStockDeliveryDate(),
-                    (new ShippingMethodBasicStruct())->assign(['uuid' => '1']),
+                    (new ShippingMethodBasicStruct())->assign(['id' => '1']),
                     $location,
                     new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
@@ -327,7 +327,7 @@ class StockDeliverySeparatorTest extends TestCase
                         ),
                     ]),
                     $product->getOutOfStockDeliveryDate(),
-                    (new ShippingMethodBasicStruct())->assign(['uuid' => '1']),
+                    (new ShippingMethodBasicStruct())->assign(['id' => '1']),
                     $location,
                     new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
@@ -342,10 +342,10 @@ class StockDeliverySeparatorTest extends TestCase
         $address->setCountryState(new CountryStateBasicStruct());
 
         $country = new CountryBasicStruct();
-        $country->setAreaUuid('SWAG-AREA-UUID-1');
+        $country->setAreaId('SWAG-AREA-ID-1');
 
         $address->setCountry($country);
-        $address->getCountryState()->setCountryUuid('SWAG-AREA-COUNTRY-UUID-1');
+        $address->getCountryState()->setCountryId('SWAG-AREA-COUNTRY-ID-1');
 
         return ShippingLocation::createFromAddress($address);
     }

@@ -10,22 +10,22 @@ class OrderDeliveryBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $orderUuid;
+    protected $orderId;
 
     /**
      * @var string
      */
-    protected $shippingAddressUuid;
+    protected $shippingAddressId;
 
     /**
      * @var string
      */
-    protected $orderStateUuid;
+    protected $orderStateId;
 
     /**
      * @var string
      */
-    protected $shippingMethodUuid;
+    protected $shippingMethodId;
 
     /**
      * @var \DateTime
@@ -72,44 +72,44 @@ class OrderDeliveryBasicStruct extends Entity
      */
     protected $shippingMethod;
 
-    public function getOrderUuid(): string
+    public function getOrderId(): string
     {
-        return $this->orderUuid;
+        return $this->orderId;
     }
 
-    public function setOrderUuid(string $orderUuid): void
+    public function setOrderId(string $orderId): void
     {
-        $this->orderUuid = $orderUuid;
+        $this->orderId = $orderId;
     }
 
-    public function getShippingAddressUuid(): string
+    public function getShippingAddressId(): string
     {
-        return $this->shippingAddressUuid;
+        return $this->shippingAddressId;
     }
 
-    public function setShippingAddressUuid(string $shippingAddressUuid): void
+    public function setShippingAddressId(string $shippingAddressId): void
     {
-        $this->shippingAddressUuid = $shippingAddressUuid;
+        $this->shippingAddressId = $shippingAddressId;
     }
 
-    public function getOrderStateUuid(): string
+    public function getOrderStateId(): string
     {
-        return $this->orderStateUuid;
+        return $this->orderStateId;
     }
 
-    public function setOrderStateUuid(string $orderStateUuid): void
+    public function setOrderStateId(string $orderStateId): void
     {
-        $this->orderStateUuid = $orderStateUuid;
+        $this->orderStateId = $orderStateId;
     }
 
-    public function getShippingMethodUuid(): string
+    public function getShippingMethodId(): string
     {
-        return $this->shippingMethodUuid;
+        return $this->shippingMethodId;
     }
 
-    public function setShippingMethodUuid(string $shippingMethodUuid): void
+    public function setShippingMethodId(string $shippingMethodId): void
     {
-        $this->shippingMethodUuid = $shippingMethodUuid;
+        $this->shippingMethodId = $shippingMethodId;
     }
 
     public function getShippingDateEarliest(): \DateTime

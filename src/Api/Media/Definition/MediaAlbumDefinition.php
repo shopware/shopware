@@ -7,6 +7,7 @@ use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
@@ -14,7 +15,6 @@ use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -54,8 +54,8 @@ class MediaAlbumDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            new FkField('parent_uuid', 'parentUuid', self::class),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new FkField('parent_id', 'parentId', self::class),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
             new IntField('position', 'position'),
             new BoolField('create_thumbnails', 'createThumbnails'),
@@ -66,9 +66,9 @@ class MediaAlbumDefinition extends EntityDefinition
             new IntField('thumbnail_high_dpi_quality', 'thumbnailHighDpiQuality'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('parent', 'parent_uuid', self::class, false),
-            new OneToManyAssociationField('media', MediaDefinition::class, 'media_album_uuid', false, 'uuid'),
-            (new TranslationsAssociationField('translations', MediaAlbumTranslationDefinition::class, 'media_album_uuid', false, 'uuid'))->setFlags(new Required()),
+            new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
+            new OneToManyAssociationField('media', MediaDefinition::class, 'media_album_id', false, 'id'),
+            (new TranslationsAssociationField('translations', MediaAlbumTranslationDefinition::class, 'media_album_id', false, 'id'))->setFlags(new Required()),
         ]);
 
         foreach (self::$extensions as $extension) {

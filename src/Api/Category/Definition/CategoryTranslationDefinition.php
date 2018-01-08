@@ -48,8 +48,8 @@ class CategoryTranslationDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new FkField('category_uuid', 'categoryUuid', CategoryDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('language_uuid', 'languageUuid', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('category_id', 'categoryId', CategoryDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             new LongTextField('path_names', 'pathNames'),
             new LongTextField('meta_keywords', 'metaKeywords'),
@@ -57,8 +57,8 @@ class CategoryTranslationDefinition extends EntityDefinition
             new LongTextField('meta_description', 'metaDescription'),
             new StringField('cms_headline', 'cmsHeadline'),
             new LongTextField('cms_description', 'cmsDescription'),
-            new ManyToOneAssociationField('category', 'category_uuid', CategoryDefinition::class, false),
-            new ManyToOneAssociationField('language', 'language_uuid', ShopDefinition::class, false),
+            new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class, false),
+            new ManyToOneAssociationField('language', 'language_id', ShopDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

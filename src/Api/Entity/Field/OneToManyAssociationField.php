@@ -21,7 +21,7 @@ class OneToManyAssociationField extends SubresourceField implements AssociationI
         string $referenceClass,
         string $referenceField,
         bool $loadInBasic,
-        string $localField = 'uuid'
+        string $localField = 'id'
     ) {
         parent::__construct($propertyName, $referenceClass);
         $this->loadInBasic = $loadInBasic;

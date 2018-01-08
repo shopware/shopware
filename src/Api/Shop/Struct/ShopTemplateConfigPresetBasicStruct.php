@@ -9,7 +9,7 @@ class ShopTemplateConfigPresetBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $shopTemplateUuid;
+    protected $shopTemplateId;
 
     /**
      * @var string
@@ -36,14 +36,14 @@ class ShopTemplateConfigPresetBasicStruct extends Entity
      */
     protected $updatedAt;
 
-    public function getShopTemplateUuid(): string
+    public function getShopTemplateId(): string
     {
-        return $this->shopTemplateUuid;
+        return $this->shopTemplateId;
     }
 
-    public function setShopTemplateUuid(string $shopTemplateUuid): void
+    public function setShopTemplateId(string $shopTemplateId): void
     {
-        $this->shopTemplateUuid = $shopTemplateUuid;
+        $this->shopTemplateId = $shopTemplateId;
     }
 
     public function getName(): string

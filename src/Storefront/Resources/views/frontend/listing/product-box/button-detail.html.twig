@@ -1,10 +1,10 @@
 {% block frontend_listing_product_box_button_detail %}
 
     {# @var product \Shopware\Storefront\Bridge\Product\Struct\ListingProductStruct #}
-    {% if product.canonicalUrl %}
-        {% set url = product.canonicalUrl.url %}
+    {% if product.extensions.canonicalUrl %}
+        {% set url = product.extensions.canonicalUrl.url %}
     {% else %}
-        {% set url = url('detail_page', { 'uuid': product.uuid }) %}
+        {% set url = url('detail_page', { 'id': product.id }) %}
     {% endif %}
 
     {% block frontend_listing_product_box_button_detail_title %}

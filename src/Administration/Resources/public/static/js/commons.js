@@ -165,8 +165,8 @@ function getObjectChangeSet(baseObject, compareObject) {
                 return acc;
             }
 
-            if (isObject(b[key]) && b[key].uuid) {
-                diff.uuid = b[key].uuid;
+            if (isObject(b[key]) && b[key].id) {
+                diff.id = b[key].id;
             }
 
             return __WEBPACK_IMPORTED_MODULE_1_babel_runtime_helpers_extends___default()({}, acc, __WEBPACK_IMPORTED_MODULE_4_babel_runtime_helpers_defineProperty___default()({}, key, diff));
@@ -205,7 +205,7 @@ function getArrayChangeSet(baseArray, compareArray) {
     var diff = [];
 
     c.forEach(function (item, index) {
-        if (!item.uuid) {
+        if (!item.id) {
             var diffObject = getObjectChangeSet(b[index], c[index]);
 
             if (isObject(diffObject) && !isEmpty(diffObject)) {
@@ -213,7 +213,7 @@ function getArrayChangeSet(baseArray, compareArray) {
             }
         } else {
             var compareObject = b.find(function (compareItem) {
-                return item.uuid === compareItem.uuid;
+                return item.id === compareItem.id;
             });
 
             if (!compareObject) {
@@ -222,7 +222,7 @@ function getArrayChangeSet(baseArray, compareArray) {
                 var _diffObject = getObjectChangeSet(compareObject, item);
 
                 if (isObject(_diffObject) && !isEmpty(_diffObject)) {
-                    diff.push(__WEBPACK_IMPORTED_MODULE_1_babel_runtime_helpers_extends___default()({}, _diffObject, { uuid: item.uuid }));
+                    diff.push(__WEBPACK_IMPORTED_MODULE_1_babel_runtime_helpers_extends___default()({}, _diffObject, { id: item.id }));
                 }
             }
         }

@@ -28,7 +28,7 @@ Shopware.Module.register('sw-product', {
 
         detail: {
             component: 'sw-product-detail',
-            path: 'detail/:uuid',
+            path: 'detail/:id',
             meta: {
                 parentPath: 'sw.product.index'
             }

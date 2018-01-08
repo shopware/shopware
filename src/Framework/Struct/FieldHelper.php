@@ -80,15 +80,15 @@ class FieldHelper
     public function getProductStreamFields(): array
     {
         return [
-            'productStream.uuid as __array_key',
+            'productStream.id as __array_key',
             'productStream.id as __productStream_id',
-            'productStream.uuid as __productStream_uuid',
+            'productStream.id as __productStream_id',
             'productStream.name as __productStream_name',
             'productStream.conditions as __productStream_conditions',
             'productStream.type as __productStream_type',
             'productStream.description as __productStream_description',
             'productStream.listing_sorting_id as __productStream_listing_sorting_id',
-            'productStream.listing_sorting_uuid as __productStream_listing_sorting_uuid',
+            'productStream.listing_sorting_id as __productStream_listing_sorting_id',
         ];
     }
 
@@ -99,11 +99,11 @@ class FieldHelper
     public function getAlbumFields(): array
     {
         return [
-            'album.uuid as __array_key',
-            'album.uuid as __album_uuid',
+            'album.id as __array_key',
+            'album.id as __album_id',
             'album.id as __album_id',
             'album.name as __album_name',
-            'album.parent_uuid as __album_parent_uuid',
+            'album.parent_id as __album_parent_id',
             'album.parent_id as __album_parent_id',
             'album.position as __album_position',
             'album.create_thumbnails as __album_create_thumbnails',
@@ -122,9 +122,9 @@ class FieldHelper
     public function getAreaFields(): array
     {
         return [
-            'area.uuid as __array_key',
+            'area.id as __array_key',
             'area.id as __area_id',
-            'area.uuid as __area_uuid',
+            'area.id as __area_id',
             'area.name as __area_name',
             'area.active as __area_active',
         ];
@@ -137,7 +137,7 @@ class FieldHelper
     public function getAreaCountryFields(): array
     {
         return [
-            'areaCountry.uuid as __array_key',
+            'areaCountry.id as __array_key',
             'areaCountry.name as __areaCountry_name',
             'areaCountry.iso as __areaCountry_iso',
             'areaCountry.en as __areaCountry_en',
@@ -151,8 +151,8 @@ class FieldHelper
             'areaCountry.iso3 as __areaCountry_iso3',
             'areaCountry.display_state_in_registration as __areaCountry_display_state_in_registration',
             'areaCountry.force_state_in_registration as __areaCountry_force_state_in_registration',
-            'areaCountry.uuid as __areaCountry_uuid',
-            'areaCountry.area_uuid as __areaCountry_area_uuid',
+            'areaCountry.id as __areaCountry_id',
+            'areaCountry.area_id as __areaCountry_area_id',
         ];
     }
 
@@ -163,9 +163,9 @@ class FieldHelper
     public function getAreaCountryStateFields(): array
     {
         return [
-            'areaCountryState.uuid as __array_key',
-            'areaCountryState.uuid as __areaCountryState_uuid',
-            'areaCountryState.area_country_uuid as __areaCountryState_area_country_uuid',
+            'areaCountryState.id as __array_key',
+            'areaCountryState.id as __areaCountryState_id',
+            'areaCountryState.area_country_id as __areaCountryState_area_country_id',
             'areaCountryState.name as __areaCountryState_name',
             'areaCountryState.short_code as __areaCountryState_short_code',
             'areaCountryState.position as __areaCountryState_position',
@@ -180,9 +180,9 @@ class FieldHelper
     public function getCategoryFields(): array
     {
         return [
-            'category.uuid as __array_key',
-            'category.uuid as __category_uuid',
-            'category.parent_uuid as __category_parent_uuid',
+            'category.id as __array_key',
+            'category.id as __category_id',
+            'category.parent_id as __category_parent_id',
             'category.path as __category_path',
             'category.description as __category_description',
             'category.position as __category_position',
@@ -200,7 +200,7 @@ class FieldHelper
             'category.external as __category_external',
             'category.hide_filter as __category_hide_filter',
             'category.hide_top as __category_hide_top',
-            'category.media_uuid as __category_media_uuid',
+            'category.media_id as __category_media_id',
             'category.product_box_layout as __category_product_box_layout',
             'category.stream_id as __category_stream_id',
             'category.hide_sortings as __category_hide_sortings',
@@ -216,8 +216,8 @@ class FieldHelper
     public function getCurrencyFields(): array
     {
         return [
-            'currency.uuid as __array_key',
-            'currency.uuid as __currency_uuid',
+            'currency.id as __array_key',
+            'currency.id as __currency_id',
             'currency.currency as __currency_currency',
             'currency.name as __currency_name',
             'currency.standard as __currency_standard',
@@ -235,9 +235,9 @@ class FieldHelper
     public function getCustomerFields(): array
     {
         return [
-            'customer.uuid as __array_key',
+            'customer.id as __array_key',
             'customer.id as __customer_id',
-            'customer.uuid as __customer_uuid',
+            'customer.id as __customer_id',
             'customer.password as __customer_password',
             'customer.encoder as __customer_encoder',
             'customer.email as __customer_email',
@@ -245,7 +245,7 @@ class FieldHelper
             'customer.account_mode as __customer_account_mode',
             'customer.confirmation_key as __customer_confirmation_key',
             'customer.payment_method_id as __customer_payment_method_id',
-            'customer.payment_method_uuid as __customer_payment_method_uuid',
+            'customer.payment_method_id as __customer_payment_method_id',
             'customer.first_login as __customer_first_login',
             'customer.last_login as __customer_last_login',
             'customer.session_id as __customer_session_id',
@@ -253,23 +253,23 @@ class FieldHelper
             'customer.validation as __customer_validation',
             'customer.affiliate as __customer_affiliate',
             'customer.customer_group_key as __customer_customer_group_key',
-            'customer.customer_group_uuid as __customer_customer_group_uuid',
+            'customer.customer_group_id as __customer_customer_group_id',
             'customer.default_payment_method_id as __customer_default_payment_method_id',
-            'customer.default_payment_method_uuid as __customer_default_payment_method_uuid',
+            'customer.default_payment_method_id as __customer_default_payment_method_id',
             'customer.sub_shop_id as __customer_sub_shop_id',
-            'customer.sub_shop_uuid as __customer_sub_shop_uuid',
+            'customer.sub_shop_id as __customer_sub_shop_id',
             'customer.main_shop_id as __customer_main_shop_id',
-            'customer.main_shop_uuid as __customer_main_shop_uuid',
+            'customer.main_shop_id as __customer_main_shop_id',
             'customer.referer as __customer_referer',
             'customer.price_group_id as __customer_price_group_id',
-            'customer.price_group_uuid as __customer_price_group_uuid',
+            'customer.price_group_id as __customer_price_group_id',
             'customer.internal_comment as __customer_internal_comment',
             'customer.failed_logins as __customer_failed_logins',
             'customer.locked_until as __customer_locked_until',
             'customer.default_billing_address_id as __customer_default_billing_address_id',
-            'customer.default_billing_address_uuid as __customer_default_billing_address_uuid',
+            'customer.default_billing_address_id as __customer_default_billing_address_id',
             'customer.default_shipping_address_id as __customer_default_shipping_address_id',
-            'customer.default_shipping_address_uuid as __customer_default_shipping_address_uuid',
+            'customer.default_shipping_address_id as __customer_default_shipping_address_id',
             'customer.title as __customer_title',
             'customer.salutation as __customer_salutation',
             'customer.first_name as __customer_first_name',
@@ -286,11 +286,11 @@ class FieldHelper
     public function getCustomerAddressFields(): array
     {
         return [
-            'customerAddress.uuid as __array_key',
+            'customerAddress.id as __array_key',
             'customerAddress.id as __customerAddress_id',
-            'customerAddress.uuid as __customerAddress_uuid',
+            'customerAddress.id as __customerAddress_id',
             'customerAddress.customer_id as __customerAddress_customer_id',
-            'customerAddress.customer_uuid as __customerAddress_customer_uuid',
+            'customerAddress.customer_id as __customerAddress_customer_id',
             'customerAddress.company as __customerAddress_company',
             'customerAddress.department as __customerAddress_department',
             'customerAddress.salutation as __customerAddress_salutation',
@@ -301,9 +301,9 @@ class FieldHelper
             'customerAddress.zipcode as __customerAddress_zipcode',
             'customerAddress.city as __customerAddress_city',
             'customerAddress.area_country_id as __customerAddress_area_country_id',
-            'customerAddress.area_country_uuid as __customerAddress_area_country_uuid',
+            'customerAddress.area_country_id as __customerAddress_area_country_id',
             'customerAddress.area_country_state_id as __customerAddress_area_country_state_id',
-            'customerAddress.area_country_state_uuid as __customerAddress_area_country_state_uuid',
+            'customerAddress.area_country_state_id as __customerAddress_area_country_state_id',
             'customerAddress.vat_id as __customerAddress_vat_id',
             'customerAddress.phone_number as __customerAddress_phone_number',
             'customerAddress.additional_address_line1 as __customerAddress_additional_address_line1',
@@ -318,8 +318,8 @@ class FieldHelper
     public function getCustomerGroupFields(): array
     {
         return [
-            'customerGroup.uuid as __array_key',
-            'customerGroup.uuid as __customerGroup_uuid',
+            'customerGroup.id as __array_key',
+            'customerGroup.id as __customerGroup_id',
             'customerGroup.group_key as __customerGroup_group_key',
             'customerGroup.description as __customerGroup_description',
             'customerGroup.display_gross_prices as __customerGroup_display_gross_prices',
@@ -338,9 +338,9 @@ class FieldHelper
     public function getHolidayFields(): array
     {
         return [
-            'holiday.uuid as __array_key',
+            'holiday.id as __array_key',
             'holiday.id as __holiday_id',
-            'holiday.uuid as __holiday_uuid',
+            'holiday.id as __holiday_id',
             'holiday.name as __holiday_name',
             'holiday.calculation as __holiday_calculation',
             'holiday.date as __holiday_date',
@@ -354,8 +354,8 @@ class FieldHelper
     public function getLocaleFields(): array
     {
         return [
-            'locale.uuid as __array_key',
-            'locale.uuid as __locale_uuid',
+            'locale.id as __array_key',
+            'locale.id as __locale_id',
             'locale.locale as __locale_locale',
             'locale.language as __locale_language',
             'locale.territory as __locale_territory',
@@ -369,9 +369,9 @@ class FieldHelper
     public function getMediaFields(): array
     {
         return [
-            'media.uuid as __array_key',
-            'media.uuid as __media_uuid',
-            'media.album_uuid as __media_album_uuid',
+            'media.id as __array_key',
+            'media.id as __media_id',
+            'media.album_id as __media_album_id',
             'media.name as __media_name',
             'media.description as __media_description',
             'media.file_name as __media_file_name',
@@ -379,7 +379,7 @@ class FieldHelper
             'media.file_size as __media_file_size',
             'media.meta_data as __media_meta_data',
             'media.created_at as __media_created_at',
-            'media.user_uuid as __media_user_uuid',
+            'media.user_id as __media_user_id',
             'media.id as __media_id',
             'media.album_id as __media_album_id',
             'media.user_id as __media_user_id',
@@ -394,8 +394,8 @@ class FieldHelper
     public function getPaymentMethodFields(): array
     {
         return [
-            'paymentMethod.uuid as __array_key',
-            'paymentMethod.uuid as __paymentMethod_uuid',
+            'paymentMethod.id as __array_key',
+            'paymentMethod.id as __paymentMethod_id',
             'paymentMethod.name as __paymentMethod_name',
             'paymentMethod.description as __paymentMethod_description',
             'paymentMethod.template as __paymentMethod_template',
@@ -412,7 +412,7 @@ class FieldHelper
             'paymentMethod.used_iframe as __paymentMethod_used_iframe',
             'paymentMethod.hide_prospect as __paymentMethod_hide_prospect',
             'paymentMethod.action as __paymentMethod_action',
-            'paymentMethod.plugin_uuid as __paymentMethod_plugin_uuid',
+            'paymentMethod.plugin_id as __paymentMethod_plugin_id',
             'paymentMethod.source as __paymentMethod_source',
             'paymentMethod.mobile_inactive as __paymentMethod_mobile_inactive',
             'paymentMethod.risk_rules as __paymentMethod_risk_rules',
@@ -426,9 +426,9 @@ class FieldHelper
     public function getPriceGroupFields(): array
     {
         return [
-            'priceGroup.uuid as __array_key',
+            'priceGroup.id as __array_key',
             'priceGroup.id as __priceGroup_id',
-            'priceGroup.uuid as __priceGroup_uuid',
+            'priceGroup.id as __priceGroup_id',
             'priceGroup.description as __priceGroup_description',
         ];
     }
@@ -440,10 +440,10 @@ class FieldHelper
     public function getPriceGroupDiscountFields(): array
     {
         return [
-            'priceGroupDiscount.uuid as __array_key',
-            'priceGroupDiscount.uuid as __priceGroupDiscount_uuid',
-            'priceGroupDiscount.price_group_uuid as __priceGroupDiscount_price_group_uuid',
-            'priceGroupDiscount.customer_group_uuid as __priceGroupDiscount_customer_group_uuid',
+            'priceGroupDiscount.id as __array_key',
+            'priceGroupDiscount.id as __priceGroupDiscount_id',
+            'priceGroupDiscount.price_group_id as __priceGroupDiscount_price_group_id',
+            'priceGroupDiscount.customer_group_id as __priceGroupDiscount_customer_group_id',
             'priceGroupDiscount.discount as __priceGroupDiscount_discount',
             'priceGroupDiscount.discount_start as __priceGroupDiscount_discount_start',
         ];
@@ -456,9 +456,9 @@ class FieldHelper
     public function getShippingMethodFields(): array
     {
         return [
-            'shippingMethod.uuid as __array_key',
+            'shippingMethod.id as __array_key',
             'shippingMethod.id as __shippingMethod_id',
-            'shippingMethod.uuid as __shippingMethod_uuid',
+            'shippingMethod.id as __shippingMethod_id',
             'shippingMethod.name as __shippingMethod_name',
             'shippingMethod.type as __shippingMethod_type',
             'shippingMethod.description as __shippingMethod_description',
@@ -470,9 +470,9 @@ class FieldHelper
             'shippingMethod.tax_calculation as __shippingMethod_tax_calculation',
             'shippingMethod.shipping_free as __shippingMethod_shipping_free',
             'shippingMethod.shop_id as __shippingMethod_shop_id',
-            'shippingMethod.shop_uuid as __shippingMethod_shop_uuid',
+            'shippingMethod.shop_id as __shippingMethod_shop_id',
             'shippingMethod.customer_group_id as __shippingMethod_customer_group_id',
-            'shippingMethod.customer_group_uuid as __shippingMethod_customer_group_uuid',
+            'shippingMethod.customer_group_id as __shippingMethod_customer_group_id',
             'shippingMethod.bind_shippingfree as __shippingMethod_bind_shippingfree',
             'shippingMethod.bind_time_from as __shippingMethod_bind_time_from',
             'shippingMethod.bind_time_to as __shippingMethod_bind_time_to',
@@ -497,14 +497,14 @@ class FieldHelper
     public function getShippingMethodPriceFields(): array
     {
         return [
-            'shippingMethodPrice.uuid as __array_key',
+            'shippingMethodPrice.id as __array_key',
             'shippingMethodPrice.id as __shippingMethodPrice_id',
-            'shippingMethodPrice.uuid as __shippingMethodPrice_uuid',
+            'shippingMethodPrice.id as __shippingMethodPrice_id',
             'shippingMethodPrice.from as __shippingMethodPrice_from',
             'shippingMethodPrice.value as __shippingMethodPrice_value',
             'shippingMethodPrice.factor as __shippingMethodPrice_factor',
             'shippingMethodPrice.shipping_method_id as __shippingMethodPrice_shipping_method_id',
-            'shippingMethodPrice.shipping_method_uuid as __shippingMethodPrice_shipping_method_uuid',
+            'shippingMethodPrice.shipping_method_id as __shippingMethodPrice_shipping_method_id',
         ];
     }
 
@@ -515,9 +515,9 @@ class FieldHelper
     public function getShopFields(): array
     {
         return [
-            'shop.uuid as __array_key',
+            'shop.id as __array_key',
             'shop.id as __shop_id',
-            'shop.uuid as __shop_uuid',
+            'shop.id as __shop_id',
             'shop.main_id as __shop_main_id',
             'shop.name as __shop_name',
             'shop.title as __shop_title',
@@ -541,17 +541,17 @@ class FieldHelper
             'shop.shipping_method_id as __shop_shipping_method_id',
             'shop.area_country_id as __shop_area_country_id',
             'shop.tax_calculation_type as __shop_tax_calculation_type',
-            'shop.main_uuid as __shop_main_uuid',
-            'shop.shop_template_uuid as __shop_shop_template_uuid',
-            'shop.document_template_uuid as __shop_document_template_uuid',
-            'shop.category_uuid as __shop_category_uuid',
-            'shop.locale_uuid as __shop_locale_uuid',
-            'shop.currency_uuid as __shop_currency_uuid',
-            'shop.customer_group_uuid as __shop_customer_group_uuid',
-            'shop.fallback_translation_uuid as __shop_fallback_translation_uuid',
-            'shop.payment_method_uuid as __shop_payment_method_uuid',
-            'shop.shipping_method_uuid as __shop_shipping_method_uuid',
-            'shop.area_country_uuid as __shop_area_country_uuid',
+            'shop.main_id as __shop_main_id',
+            'shop.shop_template_id as __shop_shop_template_id',
+            'shop.document_template_id as __shop_document_template_id',
+            'shop.category_id as __shop_category_id',
+            'shop.locale_id as __shop_locale_id',
+            'shop.currency_id as __shop_currency_id',
+            'shop.customer_group_id as __shop_customer_group_id',
+            'shop.fallback_translation_id as __shop_fallback_translation_id',
+            'shop.payment_method_id as __shop_payment_method_id',
+            'shop.shipping_method_id as __shop_shipping_method_id',
+            'shop.area_country_id as __shop_area_country_id',
         ];
     }
 
@@ -562,9 +562,9 @@ class FieldHelper
     public function getShopTemplateFields(): array
     {
         return [
-            'shopTemplate.uuid as __array_key',
+            'shopTemplate.id as __array_key',
             'shopTemplate.id as __shopTemplate_id',
-            'shopTemplate.uuid as __shopTemplate_uuid',
+            'shopTemplate.id as __shopTemplate_id',
             'shopTemplate.template as __shopTemplate_template',
             'shopTemplate.name as __shopTemplate_name',
             'shopTemplate.description as __shopTemplate_description',
@@ -575,9 +575,9 @@ class FieldHelper
             'shopTemplate.emotion as __shopTemplate_emotion',
             'shopTemplate.version as __shopTemplate_version',
             'shopTemplate.plugin_id as __shopTemplate_plugin_id',
-            'shopTemplate.plugin_uuid as __shopTemplate_plugin_uuid',
+            'shopTemplate.plugin_id as __shopTemplate_plugin_id',
             'shopTemplate.parent_id as __shopTemplate_parent_id',
-            'shopTemplate.parent_uuid as __shopTemplate_parent_uuid',
+            'shopTemplate.parent_id as __shopTemplate_parent_id',
         ];
     }
 
@@ -588,9 +588,9 @@ class FieldHelper
     public function getTaxFields(): array
     {
         return [
-            'tax.uuid as __array_key',
+            'tax.id as __array_key',
             'tax.id as __tax_id',
-            'tax.uuid as __tax_uuid',
+            'tax.id as __tax_id',
             'tax.tax_rate as __tax_tax_rate',
             'tax.description as __tax_description',
         ];
@@ -603,19 +603,19 @@ class FieldHelper
     public function getTaxAreaRuleFields(): array
     {
         return [
-            'taxAreaRule.uuid as __array_key',
+            'taxAreaRule.id as __array_key',
             'taxAreaRule.id as __taxAreaRule_id',
-            'taxAreaRule.uuid as __taxAreaRule_uuid',
+            'taxAreaRule.id as __taxAreaRule_id',
             'taxAreaRule.area_id as __taxAreaRule_area_id',
-            'taxAreaRule.area_uuid as __taxAreaRule_area_uuid',
+            'taxAreaRule.area_id as __taxAreaRule_area_id',
             'taxAreaRule.area_country_id as __taxAreaRule_area_country_id',
-            'taxAreaRule.area_country_uuid as __taxAreaRule_area_country_uuid',
+            'taxAreaRule.area_country_id as __taxAreaRule_area_country_id',
             'taxAreaRule.area_country_state_id as __taxAreaRule_area_country_state_id',
-            'taxAreaRule.area_country_state_uuid as __taxAreaRule_area_country_state_uuid',
+            'taxAreaRule.area_country_state_id as __taxAreaRule_area_country_state_id',
             'taxAreaRule.tax_id as __taxAreaRule_tax_id',
-            'taxAreaRule.tax_uuid as __taxAreaRule_tax_uuid',
+            'taxAreaRule.tax_id as __taxAreaRule_tax_id',
             'taxAreaRule.customer_group_id as __taxAreaRule_customer_group_id',
-            'taxAreaRule.customer_group_uuid as __taxAreaRule_customer_group_uuid',
+            'taxAreaRule.customer_group_id as __taxAreaRule_customer_group_id',
             'taxAreaRule.tax_rate as __taxAreaRule_tax_rate',
             'taxAreaRule.name as __taxAreaRule_name',
             'taxAreaRule.active as __taxAreaRule_active',
@@ -629,9 +629,9 @@ class FieldHelper
     public function getUnitFields(): array
     {
         return [
-            'unit.uuid as __array_key',
+            'unit.id as __array_key',
             'unit.id as __unit_id',
-            'unit.uuid as __unit_uuid',
+            'unit.id as __unit_id',
             'unit.unit as __unit_unit',
             'unit.description as __unit_description',
         ];

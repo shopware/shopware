@@ -6,12 +6,12 @@ use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -52,7 +52,7 @@ class OrderStateDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new StringField('type', 'type'))->setFlags(new Required()),
             (new TranslatedField(new StringField('description', 'description')))->setFlags(new Required()),
@@ -60,10 +60,10 @@ class OrderStateDefinition extends EntityDefinition
             new BoolField('has_mail', 'hasMail'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new OneToManyAssociationField('mails', MailDefinition::class, 'order_state_uuid', false, 'uuid'),
-            new OneToManyAssociationField('orders', OrderDefinition::class, 'order_state_uuid', false, 'uuid'),
-            new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'order_state_uuid', false, 'uuid'),
-            (new TranslationsAssociationField('translations', OrderStateTranslationDefinition::class, 'order_state_uuid', false, 'uuid'))->setFlags(new Required()),
+            new OneToManyAssociationField('mails', MailDefinition::class, 'order_state_id', false, 'id'),
+            new OneToManyAssociationField('orders', OrderDefinition::class, 'order_state_id', false, 'id'),
+            new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'order_state_id', false, 'id'),
+            (new TranslationsAssociationField('translations', OrderStateTranslationDefinition::class, 'order_state_id', false, 'id'))->setFlags(new Required()),
         ]);
 
         foreach (self::$extensions as $extension) {

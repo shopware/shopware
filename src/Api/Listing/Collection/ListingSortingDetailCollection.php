@@ -12,16 +12,16 @@ class ListingSortingDetailCollection extends ListingSortingBasicCollection
      */
     protected $elements = [];
 
-    public function getTranslationUuids(): array
+    public function getTranslationIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getTranslations()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getTranslations()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getTranslations(): ListingSortingTranslationBasicCollection
@@ -34,16 +34,16 @@ class ListingSortingDetailCollection extends ListingSortingBasicCollection
         return $collection;
     }
 
-    public function getProductStreamUuids(): array
+    public function getProductStreamIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getProductStreams()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getProductStreams()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getProductStreams(): ProductStreamBasicCollection

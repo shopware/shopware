@@ -13,16 +13,16 @@ class CurrencyDetailCollection extends CurrencyBasicCollection
      */
     protected $elements = [];
 
-    public function getTranslationUuids(): array
+    public function getTranslationIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getTranslations()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getTranslations()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getTranslations(): CurrencyTranslationBasicCollection
@@ -35,16 +35,16 @@ class CurrencyDetailCollection extends CurrencyBasicCollection
         return $collection;
     }
 
-    public function getOrderUuids(): array
+    public function getOrderIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getOrders()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getOrders()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getOrders(): OrderBasicCollection
@@ -57,16 +57,16 @@ class CurrencyDetailCollection extends CurrencyBasicCollection
         return $collection;
     }
 
-    public function getAllShopUuids(): array
+    public function getAllShopIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getShopUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getShopIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getAllShops(): ShopBasicCollection

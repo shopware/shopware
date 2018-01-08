@@ -62,8 +62,8 @@ class CustomerGroupDiscountCollector implements CollectorInterface
         $criteria = new Criteria();
         $criteria->addFilter(
             new TermQuery(
-                'customer_group_discount.customerGroupUuid',
-                $context->getCurrentCustomerGroup()->getUuid()
+                'customer_group_discount.customerGroupId',
+                $context->getCurrentCustomerGroup()->getId()
             )
         );
         $discounts = $this->customerGroupDiscountRepository->search($criteria, $context->getTranslationContext());

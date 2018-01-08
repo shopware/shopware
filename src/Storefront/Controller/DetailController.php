@@ -42,11 +42,11 @@ class DetailController extends StorefrontController
     }
 
     /**
-     * @Route("/detail/{uuid}", name="detail_page", options={"seo"="true"})
+     * @Route("/detail/{id}", name="detail_page", options={"seo"="true"})
      */
-    public function indexAction(string $uuid, ShopContext $context, Request $request)
+    public function indexAction(string $id, ShopContext $context, Request $request)
     {
-        $product = $this->detailPageLoader->load($uuid, $context);
+        $product = $this->detailPageLoader->load($id, $context);
 
         return $this->renderStorefront('@Storefront/frontend/detail/index.html.twig', [
             'product' => $product,

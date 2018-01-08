@@ -36,8 +36,8 @@
             <sw-field label="City" id="city" type="string" name="city" v-model="address.city" placeholder="The City of the address"></sw-field>
         </div>
         <div class="container--item">
-            <sw-field label="Area country" id="areaCountryUuid" type="select" name="country" placeholder="The country" v-model="address.areaCountryUuid">
-                <option v-for="country in countries" :value="country.uuid">{{ country.name }}</option>
+            <sw-field label="Area country" id="areaCountryId" type="select" name="country" placeholder="The country" v-model="address.areaCountryId">
+                <option v-for="country in countries" :value="country.id">{{ country.name }}</option>
             </sw-field>
         </div>
     </div>

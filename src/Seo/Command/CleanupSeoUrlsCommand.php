@@ -26,6 +26,7 @@ namespace Shopware\Seo\Command;
 
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
+use Shopware\Api\Seo\Repository\SeoUrlRepository;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -43,23 +44,23 @@ class CleanupSeoUrlsCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $repo = $this->getContainer()->get('shopware.seo_url.repository');
+        $repo = $this->getContainer()->get(SeoUrlRepository::class);
 
         $criteria = new Criteria();
         $criteria->setOffset(0);
         $criteria->setLimit(100);
-        $criteria->addFilter(new TermQuery('is_canonical', false));
+        $criteria->addFilter(new TermQuery('isCanonical', false));
 
         $context = TranslationContext::createDefaultContext();
 
-        $ids = $repo->search($criteria, $context)->getUuids();
+        $ids = $repo->search($criteria, $context)->getIds();
 
         do {
             $repo->delete($ids);
 
             $criteria->setOffset($criteria->getOffset() + $criteria->getLimit());
 
-            $ids = $repo->search($criteria, $context)->getUuids();
+            $ids = $repo->search($criteria, $context)->getIds();
         } while ($ids);
     }
 }

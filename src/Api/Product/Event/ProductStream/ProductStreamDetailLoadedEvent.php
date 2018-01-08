@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Product\Event\ProductStream;
 
+use Shopware\Api\Category\Event\Category\CategoryBasicLoadedEvent;
 use Shopware\Api\Listing\Event\ListingSorting\ListingSortingBasicLoadedEvent;
 use Shopware\Api\Product\Collection\ProductStreamDetailCollection;
 use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
@@ -49,6 +50,9 @@ class ProductStreamDetailLoadedEvent extends NestedEvent
         $events = [];
         if ($this->productStreams->getListingSortings()->count() > 0) {
             $events[] = new ListingSortingBasicLoadedEvent($this->productStreams->getListingSortings(), $this->context);
+        }
+        if ($this->productStreams->getCategories()->count() > 0) {
+            $events[] = new CategoryBasicLoadedEvent($this->productStreams->getCategories(), $this->context);
         }
         if ($this->productStreams->getAllProductTabs()->count() > 0) {
             $events[] = new ProductBasicLoadedEvent($this->productStreams->getAllProductTabs(), $this->context);

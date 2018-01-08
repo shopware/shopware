@@ -12,9 +12,9 @@ class LogBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? LogBasicStruct
+    public function get(string $id): ? LogBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): LogBasicStruct

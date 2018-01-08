@@ -30,7 +30,7 @@ class ApiController extends RestController
         $path = $this->buildEntityPath($request->getPathInfo());
 
         $root = $path[0]['entity'];
-        $uuid = $path[count($path) - 1]['value'];
+        $id = $path[count($path) - 1]['value'];
 
         $definition = $this->get('shopware.api.entity_definition_registry')->get($root);
 
@@ -52,9 +52,9 @@ class ApiController extends RestController
         }
 
         /** @var RepositoryInterface $repository */
-        $entities = $repository->readDetail([$uuid], $context->getTranslationContext());
+        $entities = $repository->readDetail([$id], $context->getTranslationContext());
 
-        $entity = $entities->get($uuid);
+        $entity = $entities->get($id);
 
         return $this->createResponse(['data' => $entity], $context);
     }
@@ -116,7 +116,7 @@ class ApiController extends RestController
             /* @var ManyToManyAssociationField $reverse */
             $criteria->addFilter(
                 new TermQuery(
-                    sprintf('%s.%s.uuid', $definition::getEntityName(), $reverse->getPropertyName()),
+                    sprintf('%s.%s.id', $definition::getEntityName(), $reverse->getPropertyName()),
                     $parent['value']
                 )
             );
@@ -134,7 +134,7 @@ class ApiController extends RestController
 
             $criteria->addFilter(
                 new TermQuery(
-                    //add filter to parent value: prices.productUuid = SW1
+                    //add filter to parent value: prices.productId = SW1
                     $definition::getEntityName() . '.' . $foreignKey->getPropertyName(),
                     $parent['value']
                 )
@@ -157,8 +157,8 @@ class ApiController extends RestController
             /* @var OneToManyAssociationField $reverse */
             $criteria->addFilter(
                 new TermQuery(
-                    //filter inverse association to parent value:  manufacturer.products.uuid = SW1
-                    sprintf('%s.%s.uuid', $definition::getEntityName(), $reverse->getPropertyName()),
+                    //filter inverse association to parent value:  manufacturer.products.id = SW1
+                    sprintf('%s.%s.id', $definition::getEntityName(), $reverse->getPropertyName()),
                     $parent['value']
                 )
             );
@@ -199,7 +199,7 @@ class ApiController extends RestController
         $last = $path[count($path) - 1];
 
         if ($type === self::WRITE_UPDATE && isset($last['value'])) {
-            $payload['uuid'] = $last['value'];
+            $payload['id'] = $last['value'];
         }
 
         $first = array_shift($path);
@@ -214,7 +214,7 @@ class ApiController extends RestController
             $events = $this->executeWriteOperation($definition, $payload, $context, $type);
             $event = $events->getEventByDefinition($definition);
 
-            $entities = $repository->readBasic($event->getUuids(), $context->getTranslationContext());
+            $entities = $repository->readBasic($event->getIds(), $context->getTranslationContext());
 
             return $this->createResponse(['data' => $entities->first()], $context);
         }
@@ -247,7 +247,7 @@ class ApiController extends RestController
             $event = $events->getEventByDefinition($definition);
 
             $repository = $this->get($definition::getRepositoryClass());
-            $entities = $repository->readBasic($event->getUuids(), $context->getTranslationContext());
+            $entities = $repository->readBasic($event->getIds(), $context->getTranslationContext());
 
             return $this->createResponse(['data' => $entities->first()], $context);
         }
@@ -258,15 +258,15 @@ class ApiController extends RestController
             $events = $this->executeWriteOperation($definition, $payload, $context, $type);
             $event = $events->getEventByDefinition($definition);
 
-            $entities = $repository->readBasic($event->getUuids(), $context->getTranslationContext());
+            $entities = $repository->readBasic($event->getIds(), $context->getTranslationContext());
             $entity = $entities->first();
 
             $foreignKey = $parentDefinition::getFields()
                 ->getByStorageName($association->getStorageName());
 
             $payload = [
-                'uuid' => $parent['value'],
-                $foreignKey->getPropertyName() => $entity->getUuid(),
+                'id' => $parent['value'],
+                $foreignKey->getPropertyName() => $entity->getId(),
             ];
 
             $repository = $this->get($parentDefinition::getRepositoryClass());
@@ -285,7 +285,7 @@ class ApiController extends RestController
         $event = $events->getEventByDefinition($reference);
 
         $repository = $this->get($reference::getRepositoryClass());
-        $entities = $repository->readBasic($event->getUuids(), $context->getTranslationContext());
+        $entities = $repository->readBasic($event->getIds(), $context->getTranslationContext());
         $entity = $entities->first();
 
         $repository = $this->get($parentDefinition::getRepositoryClass());
@@ -295,9 +295,9 @@ class ApiController extends RestController
         );
 
         $payload = [
-            'uuid' => $parent['value'],
+            'id' => $parent['value'],
             $association->getPropertyName() => [
-                [$foreignKey->getPropertyName() => $entity->getUuid()],
+                [$foreignKey->getPropertyName() => $entity->getId()],
             ],
         ];
 

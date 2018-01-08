@@ -5,11 +5,11 @@ namespace Shopware\Api\Locale\Definition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\DateField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -51,15 +51,15 @@ class LocaleDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('code', 'code'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new StringField('code', 'code'))->setFlags(new Required()),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
             (new TranslatedField(new StringField('territory', 'territory')))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new TranslationsAssociationField('translations', LocaleTranslationDefinition::class, 'locale_uuid', false, 'uuid'))->setFlags(new Required()),
-            new OneToManyAssociationField('shops', ShopDefinition::class, 'locale_uuid', false, 'uuid'),
-            new OneToManyAssociationField('users', UserDefinition::class, 'locale_uuid', false, 'uuid'),
+            (new TranslationsAssociationField('translations', LocaleTranslationDefinition::class, 'locale_id', false, 'id'))->setFlags(new Required()),
+            new OneToManyAssociationField('shops', ShopDefinition::class, 'locale_id', false, 'id'),
+            new OneToManyAssociationField('users', UserDefinition::class, 'locale_id', false, 'id'),
         ]);
 
         foreach (self::$extensions as $extension) {

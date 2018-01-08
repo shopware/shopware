@@ -66,14 +66,14 @@ class SyncController extends RestController
                         $eventDefinition = $event->getDefinition();
 
                         if (array_key_exists($eventDefinition, $result)) {
-                            $result[$eventDefinition]['uuids'] = array_merge(
-                                $result[$eventDefinition]['uuids'],
-                                $event->getUuids()
+                            $result[$eventDefinition]['ids'] = array_merge(
+                                $result[$eventDefinition]['ids'],
+                                $event->getIds()
                             );
                         } else {
                             $result[$eventDefinition] = [
                                 'definition' => $eventDefinition,
-                                'uuids' => $event->getUuids(),
+                                'ids' => $event->getIds(),
                             ];
                         }
 

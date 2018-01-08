@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -16,8 +16,8 @@ use Shopware\Api\Log\Collection\LogBasicCollection;
 use Shopware\Api\Log\Definition\LogDefinition;
 use Shopware\Api\Log\Event\Log\LogAggregationResultLoadedEvent;
 use Shopware\Api\Log\Event\Log\LogBasicLoadedEvent;
+use Shopware\Api\Log\Event\Log\LogIdSearchResultLoadedEvent;
 use Shopware\Api\Log\Event\Log\LogSearchResultLoadedEvent;
-use Shopware\Api\Log\Event\Log\LogUuidSearchResultLoadedEvent;
 use Shopware\Api\Log\Struct\LogSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -65,16 +65,16 @@ class LogRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): LogSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = LogSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = LogSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new LogSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -92,20 +92,20 @@ class LogRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(LogDefinition::class, $criteria, $context);
 
-        $event = new LogUuidSearchResultLoadedEvent($result);
+        $event = new LogIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): LogBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): LogBasicCollection
     {
         /** @var LogBasicCollection $entities */
-        $entities = $this->reader->readBasic(LogDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(LogDefinition::class, $ids, $context);
 
         $event = new LogBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -113,9 +113,9 @@ class LogRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): LogBasicCollection
+    public function readDetail(array $ids, TranslationContext $context): LogBasicCollection
     {
-        return $this->readBasic($uuids, $context);
+        return $this->readBasic($ids, $context);
     }
 
     public function update(array $data, TranslationContext $context): GenericWrittenEvent

@@ -71,16 +71,18 @@ class SeoUrlGeneratorRegistry
         $this->shopRepository = $shopRepository;
     }
 
-    public function generate(string $shopUuid, TranslationContext $context, bool $force): void
+    public function generate(string $shopId, TranslationContext $context, bool $force): void
     {
-        $shop = $this->shopRepository->readBasic([$shopUuid], $context)->get($shopUuid);
+        $shop = $this->shopRepository->readBasic([$shopId], $context)->get($shopId);
 
         foreach ($this->generators as $generator) {
             $this->connection->transactional(
                 function () use ($shop, $generator, $context, $force) {
                     $offset = 0;
 
-                    while (count($urls = $generator->fetch($shop, $context, $offset, self::LIMIT))) {
+                    $urls = $generator->fetch($shop, $context, $offset, self::LIMIT);
+
+                    while ($urls->count() > 0) {
                         if (!$force) {
                             $urls = $this->filterNoneExistingRoutes($shop, $context, $generator->getName(), $urls);
                         }
@@ -91,6 +93,7 @@ class SeoUrlGeneratorRegistry
                         }
 
                         $offset += self::LIMIT;
+                        $urls = $generator->fetch($shop, $context, $offset, self::LIMIT);
                     }
                 }
             );
@@ -107,7 +110,7 @@ class SeoUrlGeneratorRegistry
 
         $criteria->addFilter(new TermQuery('seo_url.name', $name));
         $criteria->addFilter(new TermsQuery('seo_url.foreignKey', $urls->getForeignKeys()));
-        $criteria->addFilter(new TermQuery('seo_url.shopUuid', $shop->getUuid()));
+        $criteria->addFilter(new TermQuery('seo_url.shopId', $shop->getId()));
 
         $existing = $this->repository->search($criteria, $context);
 

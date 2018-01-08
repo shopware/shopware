@@ -32,7 +32,7 @@ Shopware.Component.register('core-order-line-item-list', {
         getOrderItemsList(offset = this.offset, limit = this.limit) {
             this.isWorking = true;
             this.orderLineItemService
-                .getList(offset, limit, this.order.uuid)
+                .getList(offset, limit, this.order.id)
                 .then((response) => {
                     this.lineItems = response.data;
                     this.errors = response.errors;

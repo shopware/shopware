@@ -9,7 +9,7 @@ class SeoUrlBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $shopUuid;
+    protected $shopId;
 
     /**
      * @var string
@@ -50,14 +50,14 @@ class SeoUrlBasicStruct extends Entity
      */
     protected $url;
 
-    public function getShopUuid(): string
+    public function getShopId(): string
     {
-        return $this->shopUuid;
+        return $this->shopId;
     }
 
-    public function setShopUuid(string $shopUuid): void
+    public function setShopId(string $shopId): void
     {
-        $this->shopUuid = $shopUuid;
+        $this->shopId = $shopId;
     }
 
     public function getName(): string

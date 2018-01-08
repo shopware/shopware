@@ -20,16 +20,16 @@ class OrderLineItemDetailCollection extends OrderLineItemBasicCollection
         );
     }
 
-    public function getOrderDeliveryPositionUuids(): array
+    public function getOrderDeliveryPositionIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getOrderDeliveryPositions()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getOrderDeliveryPositions()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getOrderDeliveryPositions(): OrderDeliveryPositionBasicCollection

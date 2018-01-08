@@ -96,7 +96,7 @@ class ListingPriceIndexer implements IndexerInterface
     {
         $context = TranslationContext::createDefaultContext();
 
-        $customerGroups = $this->customerGroupRepository->searchUuids(new Criteria(), $context);
+        $customerGroups = $this->customerGroupRepository->searchIds(new Criteria(), $context);
 
         $this->indexTableOperator->createTable(self::TABLE, $timestamp);
 
@@ -107,20 +107,20 @@ class ListingPriceIndexer implements IndexerInterface
             new ProgressStartedEvent('Start indexing listing prices', $iterator->getTotal())
         );
 
-        while ($uuids = $iterator->fetchUuids()) {
-            $this->indexListingPrices($uuids, $customerGroups->getUuids(), $timestamp);
+        while ($ids = $iterator->fetchIds()) {
+            $this->indexListingPrices($ids, $customerGroups->getIds(), $timestamp);
 
             $this->eventDispatcher->dispatch(
                 ProgressAdvancedEvent::NAME,
-                new ProgressAdvancedEvent(count($uuids))
+                new ProgressAdvancedEvent(count($ids))
             );
         }
 
         $this->connection->transactional(function () use ($timestamp) {
             $this->indexTableOperator->renameTable(self::TABLE, $timestamp);
-            $this->connection->executeUpdate('ALTER TABLE product_listing_price ADD PRIMARY KEY (uuid)');
-            $this->connection->executeUpdate('ALTER TABLE product_listing_price ADD CONSTRAINT FOREIGN KEY (product_uuid) REFERENCES product (uuid) ON DELETE CASCADE ON UPDATE CASCADE');
-            $this->connection->executeUpdate('ALTER TABLE product_listing_price ADD CONSTRAINT FOREIGN KEY (customer_group_uuid) REFERENCES customer_group (uuid) ON DELETE CASCADE ON UPDATE CASCADE');
+            $this->connection->executeUpdate('ALTER TABLE product_listing_price ADD PRIMARY KEY (id)');
+            $this->connection->executeUpdate('ALTER TABLE product_listing_price ADD CONSTRAINT FOREIGN KEY (product_id) REFERENCES product (id) ON DELETE CASCADE ON UPDATE CASCADE');
+            $this->connection->executeUpdate('ALTER TABLE product_listing_price ADD CONSTRAINT FOREIGN KEY (customer_group_id) REFERENCES customer_group (id) ON DELETE CASCADE ON UPDATE CASCADE');
         });
 
         $this->eventDispatcher->dispatch(
@@ -131,54 +131,54 @@ class ListingPriceIndexer implements IndexerInterface
 
     public function refresh(GenericWrittenEvent $event): void
     {
-        $uuids = $this->getProductUuids($event);
-        if (empty($uuids)) {
+        $ids = $this->getProductIds($event);
+        if (empty($ids)) {
             return;
         }
 
-        $customerGroups = $this->customerGroupRepository->searchUuids(new Criteria(), $event->getContext());
+        $customerGroups = $this->customerGroupRepository->searchIds(new Criteria(), $event->getContext());
 
-        $this->connection->transactional(function () use ($uuids, $customerGroups) {
+        $this->connection->transactional(function () use ($ids, $customerGroups) {
             $this->connection->executeUpdate(
-                'DELETE FROM product_listing_price WHERE product_uuid IN (:uuids)',
-                ['uuids' => $uuids],
-                ['uuids' => Connection::PARAM_STR_ARRAY]
+                'DELETE FROM product_listing_price WHERE product_id IN (:ids)',
+                ['ids' => $ids],
+                ['ids' => Connection::PARAM_STR_ARRAY]
             );
 
-            $this->indexListingPrices($uuids, $customerGroups->getUuids(), null);
+            $this->indexListingPrices($ids, $customerGroups->getIds(), null);
         });
     }
 
     private function indexListingPrices(
-        array $uuids,
-        array $customerGroupUuids,
+        array $ids,
+        array $customerGroupIds,
         ?\DateTime $timestamp
     ): void {
-        $listingPrices = $this->listingPriceLoader->load($uuids);
+        $listingPrices = $this->listingPriceLoader->load($ids);
 
         $table = $this->indexTableOperator->getIndexName(self::TABLE, $timestamp);
 
         $queue = new MultiInsertQueryQueue($this->connection);
 
-        foreach ($uuids as $productUuid) {
-            $prices = $this->prepareProductPrices($productUuid, $listingPrices, $customerGroupUuids);
+        foreach ($ids as $productId) {
+            $prices = $this->prepareProductPrices($productId, $listingPrices, $customerGroupIds);
 
             /** @var ProductListingPriceBasicStruct $price */
             foreach ($prices as $price) {
                 $queue->addInsert(
                     $table,
                     [
-                        'uuid' => $price->getUuid(),
-                        'product_uuid' => $price->getProductUuid(),
-                        'customer_group_uuid' => $price->getCustomerGroupUuid(),
+                        'id' => $price->getId(),
+                        'product_id' => $price->getProductId(),
+                        'customer_group_id' => $price->getCustomerGroupId(),
                         'price' => $price->getPrice(),
                         'sorting_price' => $price->getSortingPrice(),
                         'display_from_price' => $price->getDisplayFromPrice() ? 1 : 0,
                     ],
                     [
-                        'uuid' => \PDO::PARAM_STR,
-                        'product_uuid' => \PDO::PARAM_STR,
-                        'customer_group_uuid' => \PDO::PARAM_STR,
+                        'id' => \PDO::PARAM_STR,
+                        'product_id' => \PDO::PARAM_STR,
+                        'customer_group_id' => \PDO::PARAM_STR,
                         'display_from_price' => \PDO::PARAM_BOOL,
                     ]
                 );
@@ -188,17 +188,17 @@ class ListingPriceIndexer implements IndexerInterface
     }
 
     private function prepareProductPrices(
-        string $productUuid,
+        string $productId,
         ProductListingPriceBasicCollection $listingPrices,
-        array $customerGroupUuids
+        array $customerGroupIds
     ): ProductListingPriceBasicCollection {
-        $prices = $listingPrices->filterByProductUuid($productUuid);
+        $prices = $listingPrices->filterByProductId($productId);
 
         /** @var ProductListingPriceBasicCollection $fallback */
-        $fallback = $prices->filterByCustomerGroupUuid(StorefrontContextService::FALLBACK_CUSTOMER_GROUP);
+        $fallback = $prices->filterByCustomerGroupId(StorefrontContextService::FALLBACK_CUSTOMER_GROUP);
 
         if ($fallback->count() <= 0) {
-            $this->logger->log(Logger::WARNING, sprintf('Product %s has no default customer group price', $productUuid));
+            $this->logger->log(Logger::WARNING, sprintf('Product %s has no default customer group price', $productId));
 
             return $prices;
         }
@@ -206,45 +206,45 @@ class ListingPriceIndexer implements IndexerInterface
         $fallback = $fallback->first();
 
         /* @var ProductListingPriceBasicStruct $fallback */
-        foreach ($customerGroupUuids as $customerGroupUuid) {
-            if ($customerGroupUuid === StorefrontContextService::FALLBACK_CUSTOMER_GROUP) {
+        foreach ($customerGroupIds as $customerGroupId) {
+            if ($customerGroupId === StorefrontContextService::FALLBACK_CUSTOMER_GROUP) {
                 continue;
             }
 
             //check if customer prices exists
-            $customerPrice = $prices->filterByCustomerGroupUuid($customerGroupUuid);
+            $customerPrice = $prices->filterByCustomerGroupId($customerGroupId);
             if ($customerPrice->count() > 0) {
                 continue;
             }
 
             $customerPrice = clone $fallback;
-            $customerPrice->setCustomerGroupUuid($customerGroupUuid);
-            $customerPrice->setUuid(Uuid::uuid4()->toString());
+            $customerPrice->setCustomerGroupId($customerGroupId);
+            $customerPrice->setId(Uuid::uuid4()->toString());
             $prices->add($customerPrice);
         }
 
         return $prices;
     }
 
-    private function getProductUuids(GenericWrittenEvent $event): array
+    private function getProductIds(GenericWrittenEvent $event): array
     {
         /** @var NestedEventCollection $events */
         $products = $event->getEventByDefinition(ProductDefinition::class);
 
         $affectedPrices = $event->getEventByDefinition(ProductPriceDefinition::class);
 
-        $uuids = [];
+        $ids = [];
         if ($products) {
-            $uuids = array_merge($uuids, $products->getUuids());
+            $ids = array_merge($ids, $products->getIds());
         }
 
         if ($affectedPrices) {
             $criteria = new Criteria();
-            $criteria->addFilter(new TermsQuery('product_price.uuid', $affectedPrices->getUuids()));
+            $criteria->addFilter(new TermsQuery('product_price.id', $affectedPrices->getIds()));
             $affectedPrices = $this->priceRepository->search($criteria, $event->getContext());
-            $uuids = array_merge($uuids, $affectedPrices->getProductUuids());
+            $ids = array_merge($ids, $affectedPrices->getProductIds());
         }
 
-        return array_unique($uuids);
+        return array_unique($ids);
     }
 }

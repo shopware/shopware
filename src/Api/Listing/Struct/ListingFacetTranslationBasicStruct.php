@@ -9,36 +9,36 @@ class ListingFacetTranslationBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $listingFacetUuid;
+    protected $listingFacetId;
 
     /**
      * @var string
      */
-    protected $languageUuid;
+    protected $languageId;
 
     /**
      * @var string
      */
     protected $name;
 
-    public function getListingFacetUuid(): string
+    public function getListingFacetId(): string
     {
-        return $this->listingFacetUuid;
+        return $this->listingFacetId;
     }
 
-    public function setListingFacetUuid(string $listingFacetUuid): void
+    public function setListingFacetId(string $listingFacetId): void
     {
-        $this->listingFacetUuid = $listingFacetUuid;
+        $this->listingFacetId = $listingFacetId;
     }
 
-    public function getLanguageUuid(): string
+    public function getLanguageId(): string
     {
-        return $this->languageUuid;
+        return $this->languageId;
     }
 
-    public function setLanguageUuid(string $languageUuid): void
+    public function setLanguageId(string $languageId): void
     {
-        $this->languageUuid = $languageUuid;
+        $this->languageId = $languageId;
     }
 
     public function getName(): string

@@ -12,9 +12,9 @@ class CustomerGroupTranslationBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? CustomerGroupTranslationBasicStruct
+    public function get(string $id): ? CustomerGroupTranslationBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): CustomerGroupTranslationBasicStruct
@@ -22,31 +22,31 @@ class CustomerGroupTranslationBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getCustomerGroupUuids(): array
+    public function getCustomerGroupIds(): array
     {
         return $this->fmap(function (CustomerGroupTranslationBasicStruct $customerGroupTranslation) {
-            return $customerGroupTranslation->getCustomerGroupUuid();
+            return $customerGroupTranslation->getCustomerGroupId();
         });
     }
 
-    public function filterByCustomerGroupUuid(string $uuid): self
+    public function filterByCustomerGroupId(string $id): self
     {
-        return $this->filter(function (CustomerGroupTranslationBasicStruct $customerGroupTranslation) use ($uuid) {
-            return $customerGroupTranslation->getCustomerGroupUuid() === $uuid;
+        return $this->filter(function (CustomerGroupTranslationBasicStruct $customerGroupTranslation) use ($id) {
+            return $customerGroupTranslation->getCustomerGroupId() === $id;
         });
     }
 
-    public function getLanguageUuids(): array
+    public function getLanguageIds(): array
     {
         return $this->fmap(function (CustomerGroupTranslationBasicStruct $customerGroupTranslation) {
-            return $customerGroupTranslation->getLanguageUuid();
+            return $customerGroupTranslation->getLanguageId();
         });
     }
 
-    public function filterByLanguageUuid(string $uuid): self
+    public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (CustomerGroupTranslationBasicStruct $customerGroupTranslation) use ($uuid) {
-            return $customerGroupTranslation->getLanguageUuid() === $uuid;
+        return $this->filter(function (CustomerGroupTranslationBasicStruct $customerGroupTranslation) use ($id) {
+            return $customerGroupTranslation->getLanguageId() === $id;
         });
     }
 

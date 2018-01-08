@@ -13,9 +13,9 @@ class ProductListingPriceBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? ProductListingPriceBasicStruct
+    public function get(string $id): ? ProductListingPriceBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): ProductListingPriceBasicStruct
@@ -23,31 +23,31 @@ class ProductListingPriceBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getProductUuids(): array
+    public function getProductIds(): array
     {
         return $this->fmap(function (ProductListingPriceBasicStruct $productListingPrice) {
-            return $productListingPrice->getProductUuid();
+            return $productListingPrice->getProductId();
         });
     }
 
-    public function filterByProductUuid(string $uuid): self
+    public function filterByProductId(string $id): self
     {
-        return $this->filter(function (ProductListingPriceBasicStruct $productListingPrice) use ($uuid) {
-            return $productListingPrice->getProductUuid() === $uuid;
+        return $this->filter(function (ProductListingPriceBasicStruct $productListingPrice) use ($id) {
+            return $productListingPrice->getProductId() === $id;
         });
     }
 
-    public function getCustomerGroupUuids(): array
+    public function getCustomerGroupIds(): array
     {
         return $this->fmap(function (ProductListingPriceBasicStruct $productListingPrice) {
-            return $productListingPrice->getCustomerGroupUuid();
+            return $productListingPrice->getCustomerGroupId();
         });
     }
 
-    public function filterByCustomerGroupUuid(string $uuid): self
+    public function filterByCustomerGroupId(string $id): self
     {
-        return $this->filter(function (ProductListingPriceBasicStruct $productListingPrice) use ($uuid) {
-            return $productListingPrice->getCustomerGroupUuid() === $uuid;
+        return $this->filter(function (ProductListingPriceBasicStruct $productListingPrice) use ($id) {
+            return $productListingPrice->getCustomerGroupId() === $id;
         });
     }
 

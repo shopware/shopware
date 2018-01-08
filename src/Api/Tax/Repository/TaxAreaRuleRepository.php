@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\UuidSearchResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
@@ -18,8 +18,8 @@ use Shopware\Api\Tax\Definition\TaxAreaRuleDefinition;
 use Shopware\Api\Tax\Event\TaxAreaRule\TaxAreaRuleAggregationResultLoadedEvent;
 use Shopware\Api\Tax\Event\TaxAreaRule\TaxAreaRuleBasicLoadedEvent;
 use Shopware\Api\Tax\Event\TaxAreaRule\TaxAreaRuleDetailLoadedEvent;
+use Shopware\Api\Tax\Event\TaxAreaRule\TaxAreaRuleIdSearchResultLoadedEvent;
 use Shopware\Api\Tax\Event\TaxAreaRule\TaxAreaRuleSearchResultLoadedEvent;
-use Shopware\Api\Tax\Event\TaxAreaRule\TaxAreaRuleUuidSearchResultLoadedEvent;
 use Shopware\Api\Tax\Struct\TaxAreaRuleSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,16 +67,16 @@ class TaxAreaRuleRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, TranslationContext $context): TaxAreaRuleSearchResult
     {
-        $uuids = $this->searchUuids($criteria, $context);
+        $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($uuids->getUuids(), $context);
+        $entities = $this->readBasic($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = TaxAreaRuleSearchResult::createFromResults($uuids, $entities, $aggregations);
+        $result = TaxAreaRuleSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new TaxAreaRuleSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -94,20 +94,20 @@ class TaxAreaRuleRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchUuids(Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(TaxAreaRuleDefinition::class, $criteria, $context);
 
-        $event = new TaxAreaRuleUuidSearchResultLoadedEvent($result);
+        $event = new TaxAreaRuleIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $uuids, TranslationContext $context): TaxAreaRuleBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): TaxAreaRuleBasicCollection
     {
         /** @var TaxAreaRuleBasicCollection $entities */
-        $entities = $this->reader->readBasic(TaxAreaRuleDefinition::class, $uuids, $context);
+        $entities = $this->reader->readBasic(TaxAreaRuleDefinition::class, $ids, $context);
 
         $event = new TaxAreaRuleBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -115,10 +115,10 @@ class TaxAreaRuleRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $uuids, TranslationContext $context): TaxAreaRuleDetailCollection
+    public function readDetail(array $ids, TranslationContext $context): TaxAreaRuleDetailCollection
     {
         /** @var TaxAreaRuleDetailCollection $entities */
-        $entities = $this->reader->readDetail(TaxAreaRuleDefinition::class, $uuids, $context);
+        $entities = $this->reader->readDetail(TaxAreaRuleDefinition::class, $ids, $context);
 
         $event = new TaxAreaRuleDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

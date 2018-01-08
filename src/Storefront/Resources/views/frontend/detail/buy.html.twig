@@ -11,12 +11,12 @@
         {% block frontend_detail_buy_configurator_inputs %}
             {% if product.sConfigurator and product.sConfiguratorSettings.type == 3 %}
                 {% for group in product.sConfigurator %}
-                    <input type="hidden" name="group[{{ group.group_uuid }}]" value="{{ group.selected_value }}"/>
+                    <input type="hidden" name="group[{{ group.group_id }}]" value="{{ group.selected_value }}"/>
                 {% endfor %}
             {% endif %}
         {% endblock %}
 
-        <input type="hidden" name="identifier" value="{{ product.uuid }}"/>
+        <input type="hidden" name="identifier" value="{{ product.id }}"/>
 
         {#{$sCountConfigurator=$sArticle.sConfigurator|@count}#}
 

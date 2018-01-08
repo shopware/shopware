@@ -3,12 +3,13 @@
 namespace Shopware\Api\Entity\Dbal;
 
 use Doctrine\DBAL\Connection;
+use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Search\Parser\SqlQueryParser;
 use Shopware\Api\Entity\Search\Query\ScoreQuery;
-use Shopware\Api\Entity\Search\UuidSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 
 class EntitySearcher implements EntitySearcherInterface
@@ -23,16 +24,16 @@ class EntitySearcher implements EntitySearcherInterface
         $this->connection = $connection;
     }
 
-    public function search(string $definition, Criteria $criteria, TranslationContext $context): UuidSearchResult
+    public function search(string $definition, Criteria $criteria, TranslationContext $context): IdSearchResult
     {
         /** @var EntityDefinition $definition */
         $table = $definition::getEntityName();
         $query = new QueryBuilder($this->connection);
 
-        //add uuid select, e.g. `product`.`uuid`;
+        //add id select, e.g. `product`.`id`;
         $query->addSelect(
-            EntityDefinitionResolver::escape($table) . '.' . EntityDefinitionResolver::escape('uuid') . ' as array_key',
-            EntityDefinitionResolver::escape($table) . '.' . EntityDefinitionResolver::escape('uuid') . ' as primary_key'
+            EntityDefinitionResolver::escape($table) . '.' . EntityDefinitionResolver::escape('id') . ' as array_key',
+            EntityDefinitionResolver::escape($table) . '.' . EntityDefinitionResolver::escape('id') . ' as primary_key'
         );
 
         //build from path with escaped alias, e.g. FROM product as `product`
@@ -71,7 +72,7 @@ class EntitySearcher implements EntitySearcherInterface
             $query->setMaxResults($criteria->getLimit());
         }
 
-        //execute and fetch uuids
+        //execute and fetch ids
         $data = $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
 
         if ($criteria->fetchCount()) {
@@ -80,7 +81,14 @@ class EntitySearcher implements EntitySearcherInterface
             $total = count($data);
         }
 
-        return new UuidSearchResult($total, $data, $criteria, $context);
+        $converted = [];
+        foreach ($data as $key => $values) {
+            $key = Uuid::fromBytes($key)->toString();
+            $values['primary_key'] = $key;
+            $converted[$key] = $values;
+        }
+
+        return new IdSearchResult($total, $converted, $criteria, $context);
     }
 
     private function addQueries(string $definition, Criteria $criteria, QueryBuilder $query): void
@@ -165,7 +173,7 @@ class EntitySearcher implements EntitySearcherInterface
         }
 
         $fields = [
-            EntityDefinitionResolver::escape($table) . '.' . EntityDefinitionResolver::escape('uuid'),
+            EntityDefinitionResolver::escape($table) . '.' . EntityDefinitionResolver::escape('id'),
         ];
 
         // each order by column has to be inside the group by statement (sql_mode=only_full_group_by)

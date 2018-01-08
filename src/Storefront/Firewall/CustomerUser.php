@@ -15,7 +15,7 @@ class CustomerUser implements UserInterface, EquatableInterface
     /**
      * @var string
      */
-    private $uuid;
+    private $id;
 
     public function __construct($username, $password, $salt, $roles = [])
     {
@@ -66,13 +66,13 @@ class CustomerUser implements UserInterface, EquatableInterface
         return true;
     }
 
-    public function getUuid(): string
+    public function getId(): string
     {
-        return $this->uuid;
+        return $this->id;
     }
 
-    public function setUuid(string $uuid)
+    public function setId(string $id)
     {
-        $this->uuid = $uuid;
+        $this->id = $id;
     }
 }

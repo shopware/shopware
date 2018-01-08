@@ -10,12 +10,12 @@ class ProductListingPriceBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $productUuid;
+    protected $productId;
 
     /**
      * @var string
      */
-    protected $customerGroupUuid;
+    protected $customerGroupId;
 
     /**
      * @var float
@@ -37,24 +37,24 @@ class ProductListingPriceBasicStruct extends Entity
      */
     protected $customerGroup;
 
-    public function getProductUuid(): string
+    public function getProductId(): string
     {
-        return $this->productUuid;
+        return $this->productId;
     }
 
-    public function setProductUuid(string $productUuid): void
+    public function setProductId(string $productId): void
     {
-        $this->productUuid = $productUuid;
+        $this->productId = $productId;
     }
 
-    public function getCustomerGroupUuid(): string
+    public function getCustomerGroupId(): string
     {
-        return $this->customerGroupUuid;
+        return $this->customerGroupId;
     }
 
-    public function setCustomerGroupUuid(string $customerGroupUuid): void
+    public function setCustomerGroupId(string $customerGroupId): void
     {
-        $this->customerGroupUuid = $customerGroupUuid;
+        $this->customerGroupId = $customerGroupId;
     }
 
     public function getSortingPrice(): float

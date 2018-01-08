@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Product\Event\ProductManufacturer;
 
+use Shopware\Api\Media\Event\Media\MediaBasicLoadedEvent;
 use Shopware\Api\Product\Collection\ProductManufacturerDetailCollection;
 use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductManufacturerTranslation\ProductManufacturerTranslationBasicLoadedEvent;
@@ -47,6 +48,9 @@ class ProductManufacturerDetailLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
+        if ($this->productManufacturers->getMedia()->count() > 0) {
+            $events[] = new MediaBasicLoadedEvent($this->productManufacturers->getMedia(), $this->context);
+        }
         if ($this->productManufacturers->getProducts()->count() > 0) {
             $events[] = new ProductBasicLoadedEvent($this->productManufacturers->getProducts(), $this->context);
         }

@@ -12,9 +12,9 @@ class LocaleBasicCollection extends EntityCollection
      */
     protected $elements = [];
 
-    public function get(string $uuid): ? LocaleBasicStruct
+    public function get(string $id): ? LocaleBasicStruct
     {
-        return parent::get($uuid);
+        return parent::get($id);
     }
 
     public function current(): LocaleBasicStruct

@@ -12,16 +12,16 @@ class TaxDetailCollection extends TaxBasicCollection
      */
     protected $elements = [];
 
-    public function getProductUuids(): array
+    public function getProductIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getProducts()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getProducts()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getProducts(): ProductBasicCollection
@@ -34,16 +34,16 @@ class TaxDetailCollection extends TaxBasicCollection
         return $collection;
     }
 
-    public function getAreaRuleUuids(): array
+    public function getAreaRuleIds(): array
     {
-        $uuids = [];
+        $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getAreaRules()->getUuids() as $uuid) {
-                $uuids[] = $uuid;
+            foreach ($element->getAreaRules()->getIds() as $id) {
+                $ids[] = $id;
             }
         }
 
-        return $uuids;
+        return $ids;
     }
 
     public function getAreaRules(): TaxAreaRuleBasicCollection

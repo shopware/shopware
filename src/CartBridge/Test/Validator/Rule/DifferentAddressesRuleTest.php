@@ -43,10 +43,10 @@ class DifferentAddressesRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $billing = new CustomerAddressBasicStruct();
-        $billing->setUuid('SWAG-CUSTOMER-ADDRESS-UUID-1');
+        $billing->setId('SWAG-CUSTOMER-ADDRESS-ID-1');
 
         $shipping = new CustomerAddressBasicStruct();
-        $shipping->setUuid('SWAG-CUSTOMER-ADDRESS-UUID-2');
+        $shipping->setId('SWAG-CUSTOMER-ADDRESS-ID-2');
 
         $customer = new CustomerBasicStruct();
         $customer->setDefaultBillingAddress($billing);
@@ -70,10 +70,10 @@ class DifferentAddressesRuleTest extends TestCase
         $context = $this->createMock(ShopContext::class);
 
         $billing = new CustomerAddressBasicStruct();
-        $billing->setUuid('SWAG-CUSTOMER-ADDRESS-UUID-1');
+        $billing->setId('SWAG-CUSTOMER-ADDRESS-ID-1');
 
         $shipping = new CustomerAddressBasicStruct();
-        $shipping->setUuid('SWAG-CUSTOMER-ADDRESS-UUID-1');
+        $shipping->setId('SWAG-CUSTOMER-ADDRESS-ID-1');
 
         $customer = new CustomerBasicStruct();
         $customer->setDefaultBillingAddress($billing);

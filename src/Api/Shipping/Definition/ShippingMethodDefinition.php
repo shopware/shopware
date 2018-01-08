@@ -9,6 +9,7 @@ use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\FloatField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
@@ -16,7 +17,6 @@ use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
-use Shopware\Api\Entity\Field\UuidField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -58,8 +58,8 @@ class ShippingMethodDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            (new UuidField('uuid', 'uuid'))->setFlags(new PrimaryKey(), new Required()),
-            new FkField('customer_group_uuid', 'customerGroupUuid', CustomerGroupDefinition::class),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new FkField('customer_group_id', 'customerGroupId', CustomerGroupDefinition::class),
             (new IntField('type', 'type'))->setFlags(new Required()),
             (new BoolField('bind_shippingfree', 'bindShippingfree'))->setFlags(new Required()),
             (new BoolField('bind_laststock', 'bindLaststock'))->setFlags(new Required()),
@@ -86,11 +86,11 @@ class ShippingMethodDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             new TranslatedField(new LongTextField('description', 'description')),
             new TranslatedField(new StringField('comment', 'comment')),
-            new ManyToOneAssociationField('customerGroup', 'customer_group_uuid', CustomerGroupDefinition::class, false),
-            new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_method_uuid', false, 'uuid'),
-            new OneToManyAssociationField('prices', ShippingMethodPriceDefinition::class, 'shipping_method_uuid', true, 'uuid'),
-            (new TranslationsAssociationField('translations', ShippingMethodTranslationDefinition::class, 'shipping_method_uuid', false, 'uuid'))->setFlags(new Required()),
-            new OneToManyAssociationField('shops', ShopDefinition::class, 'shipping_method_uuid', false, 'uuid'),
+            new ManyToOneAssociationField('customerGroup', 'customer_group_id', CustomerGroupDefinition::class, false),
+            new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_method_id', false, 'id'),
+            new OneToManyAssociationField('prices', ShippingMethodPriceDefinition::class, 'shipping_method_id', true, 'id'),
+            (new TranslationsAssociationField('translations', ShippingMethodTranslationDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new Required()),
+            new OneToManyAssociationField('shops', ShopDefinition::class, 'shipping_method_id', false, 'id'),
         ]);
 
         foreach (self::$extensions as $extension) {

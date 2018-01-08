@@ -28,7 +28,7 @@ class ProductDetailStruct extends ProductBasicStruct
     /**
      * @var string[]
      */
-    protected $categoryUuids = [];
+    protected $categoryIds = [];
 
     /**
      * @var CategoryBasicCollection
@@ -38,7 +38,7 @@ class ProductDetailStruct extends ProductBasicStruct
     /**
      * @var string[]
      */
-    protected $seoCategoryUuids = [];
+    protected $seoCategoryIds = [];
 
     /**
      * @var CategoryBasicCollection
@@ -48,7 +48,7 @@ class ProductDetailStruct extends ProductBasicStruct
     /**
      * @var string[]
      */
-    protected $tabUuids = [];
+    protected $tabIds = [];
 
     /**
      * @var ProductStreamBasicCollection
@@ -58,7 +58,7 @@ class ProductDetailStruct extends ProductBasicStruct
     /**
      * @var string[]
      */
-    protected $streamUuids = [];
+    protected $streamIds = [];
 
     /**
      * @var ProductStreamBasicCollection
@@ -112,14 +112,14 @@ class ProductDetailStruct extends ProductBasicStruct
         $this->translations = $translations;
     }
 
-    public function getCategoryUuids(): array
+    public function getCategoryIds(): array
     {
-        return $this->categoryUuids;
+        return $this->categoryIds;
     }
 
-    public function setCategoryUuids(array $categoryUuids): void
+    public function setCategoryIds(array $categoryIds): void
     {
-        $this->categoryUuids = $categoryUuids;
+        $this->categoryIds = $categoryIds;
     }
 
     public function getCategories(): CategoryBasicCollection
@@ -132,14 +132,14 @@ class ProductDetailStruct extends ProductBasicStruct
         $this->categories = $categories;
     }
 
-    public function getSeoCategoryUuids(): array
+    public function getSeoCategoryIds(): array
     {
-        return $this->seoCategoryUuids;
+        return $this->seoCategoryIds;
     }
 
-    public function setSeoCategoryUuids(array $seoCategoryUuids): void
+    public function setSeoCategoryIds(array $seoCategoryIds): void
     {
-        $this->seoCategoryUuids = $seoCategoryUuids;
+        $this->seoCategoryIds = $seoCategoryIds;
     }
 
     public function getSeoCategories(): CategoryBasicCollection
@@ -152,14 +152,14 @@ class ProductDetailStruct extends ProductBasicStruct
         $this->seoCategories = $seoCategories;
     }
 
-    public function getTabUuids(): array
+    public function getTabIds(): array
     {
-        return $this->tabUuids;
+        return $this->tabIds;
     }
 
-    public function setTabUuids(array $tabUuids): void
+    public function setTabIds(array $tabIds): void
     {
-        $this->tabUuids = $tabUuids;
+        $this->tabIds = $tabIds;
     }
 
     public function getTabs(): ProductStreamBasicCollection
@@ -172,14 +172,14 @@ class ProductDetailStruct extends ProductBasicStruct
         $this->tabs = $tabs;
     }
 
-    public function getStreamUuids(): array
+    public function getStreamIds(): array
     {
-        return $this->streamUuids;
+        return $this->streamIds;
     }
 
-    public function setStreamUuids(array $streamUuids): void
+    public function setStreamIds(array $streamIds): void
     {
-        $this->streamUuids = $streamUuids;
+        $this->streamIds = $streamIds;
     }
 
     public function getStreams(): ProductStreamBasicCollection

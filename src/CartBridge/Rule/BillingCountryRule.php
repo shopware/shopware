@@ -54,7 +54,7 @@ class BillingCountryRule extends Rule
             return new Match(false, ['Not logged in customer']);
         }
 
-        $id = $customer->getActiveBillingAddress()->getCountry()->getUuid();
+        $id = $customer->getActiveBillingAddress()->getCountry()->getId();
 
         return new Match(
             in_array($id, $this->countryIds, true),

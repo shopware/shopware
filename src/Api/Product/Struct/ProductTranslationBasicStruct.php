@@ -9,12 +9,12 @@ class ProductTranslationBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $productUuid;
+    protected $productId;
 
     /**
      * @var string
      */
-    protected $languageUuid;
+    protected $languageId;
 
     /**
      * @var string
@@ -51,24 +51,24 @@ class ProductTranslationBasicStruct extends Entity
      */
     protected $packUnit;
 
-    public function getProductUuid(): string
+    public function getProductId(): string
     {
-        return $this->productUuid;
+        return $this->productId;
     }
 
-    public function setProductUuid(string $productUuid): void
+    public function setProductId(string $productId): void
     {
-        $this->productUuid = $productUuid;
+        $this->productId = $productId;
     }
 
-    public function getLanguageUuid(): string
+    public function getLanguageId(): string
     {
-        return $this->languageUuid;
+        return $this->languageId;
     }
 
-    public function setLanguageUuid(string $languageUuid): void
+    public function setLanguageId(string $languageId): void
     {
-        $this->languageUuid = $languageUuid;
+        $this->languageId = $languageId;
     }
 
     public function getName(): string

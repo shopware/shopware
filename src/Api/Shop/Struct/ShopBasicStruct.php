@@ -11,57 +11,57 @@ class ShopBasicStruct extends Entity
     /**
      * @var string|null
      */
-    protected $parentUuid;
+    protected $parentId;
 
     /**
      * @var string
      */
-    protected $templateUuid;
+    protected $templateId;
 
     /**
      * @var string
      */
-    protected $documentTemplateUuid;
+    protected $documentTemplateId;
 
     /**
      * @var string
      */
-    protected $categoryUuid;
+    protected $categoryId;
 
     /**
      * @var string
      */
-    protected $localeUuid;
+    protected $localeId;
 
     /**
      * @var string
      */
-    protected $currencyUuid;
+    protected $currencyId;
 
     /**
      * @var string
      */
-    protected $customerGroupUuid;
+    protected $customerGroupId;
 
     /**
      * @var string|null
      */
-    protected $fallbackTranslationUuid;
+    protected $fallbackTranslationId;
 
     /**
      * @var string|null
      */
-    protected $paymentMethodUuid;
+    protected $paymentMethodId;
 
     /**
      * @var string|null
      */
-    protected $shippingMethodUuid;
+    protected $shippingMethodId;
 
     /**
      * @var string|null
      */
-    protected $countryUuid;
+    protected $countryId;
 
     /**
      * @var string
@@ -143,114 +143,114 @@ class ShopBasicStruct extends Entity
      */
     protected $currency;
 
-    public function getParentUuid(): ?string
+    public function getParentId(): ?string
     {
-        return $this->parentUuid;
+        return $this->parentId;
     }
 
-    public function setParentUuid(?string $parentUuid): void
+    public function setParentId(?string $parentId): void
     {
-        $this->parentUuid = $parentUuid;
+        $this->parentId = $parentId;
     }
 
-    public function getTemplateUuid(): string
+    public function getTemplateId(): string
     {
-        return $this->templateUuid;
+        return $this->templateId;
     }
 
-    public function setTemplateUuid(string $templateUuid): void
+    public function setTemplateId(string $templateId): void
     {
-        $this->templateUuid = $templateUuid;
+        $this->templateId = $templateId;
     }
 
-    public function getDocumentTemplateUuid(): string
+    public function getDocumentTemplateId(): string
     {
-        return $this->documentTemplateUuid;
+        return $this->documentTemplateId;
     }
 
-    public function setDocumentTemplateUuid(string $documentTemplateUuid): void
+    public function setDocumentTemplateId(string $documentTemplateId): void
     {
-        $this->documentTemplateUuid = $documentTemplateUuid;
+        $this->documentTemplateId = $documentTemplateId;
     }
 
-    public function getCategoryUuid(): string
+    public function getCategoryId(): string
     {
-        return $this->categoryUuid;
+        return $this->categoryId;
     }
 
-    public function setCategoryUuid(string $categoryUuid): void
+    public function setCategoryId(string $categoryId): void
     {
-        $this->categoryUuid = $categoryUuid;
+        $this->categoryId = $categoryId;
     }
 
-    public function getLocaleUuid(): string
+    public function getLocaleId(): string
     {
-        return $this->localeUuid;
+        return $this->localeId;
     }
 
-    public function setLocaleUuid(string $localeUuid): void
+    public function setLocaleId(string $localeId): void
     {
-        $this->localeUuid = $localeUuid;
+        $this->localeId = $localeId;
     }
 
-    public function getCurrencyUuid(): string
+    public function getCurrencyId(): string
     {
-        return $this->currencyUuid;
+        return $this->currencyId;
     }
 
-    public function setCurrencyUuid(string $currencyUuid): void
+    public function setCurrencyId(string $currencyId): void
     {
-        $this->currencyUuid = $currencyUuid;
+        $this->currencyId = $currencyId;
     }
 
-    public function getCustomerGroupUuid(): string
+    public function getCustomerGroupId(): string
     {
-        return $this->customerGroupUuid;
+        return $this->customerGroupId;
     }
 
-    public function setCustomerGroupUuid(string $customerGroupUuid): void
+    public function setCustomerGroupId(string $customerGroupId): void
     {
-        $this->customerGroupUuid = $customerGroupUuid;
+        $this->customerGroupId = $customerGroupId;
     }
 
-    public function getFallbackTranslationUuid(): ?string
+    public function getFallbackTranslationId(): ?string
     {
-        return $this->fallbackTranslationUuid;
+        return $this->fallbackTranslationId;
     }
 
-    public function setFallbackTranslationUuid(?string $fallbackTranslationUuid): void
+    public function setFallbackTranslationId(?string $fallbackTranslationId): void
     {
-        $this->fallbackTranslationUuid = $fallbackTranslationUuid;
+        $this->fallbackTranslationId = $fallbackTranslationId;
     }
 
-    public function getPaymentMethodUuid(): ?string
+    public function getPaymentMethodId(): ?string
     {
-        return $this->paymentMethodUuid;
+        return $this->paymentMethodId;
     }
 
-    public function setPaymentMethodUuid(?string $paymentMethodUuid): void
+    public function setPaymentMethodId(?string $paymentMethodId): void
     {
-        $this->paymentMethodUuid = $paymentMethodUuid;
+        $this->paymentMethodId = $paymentMethodId;
     }
 
-    public function getShippingMethodUuid(): ?string
+    public function getShippingMethodId(): ?string
     {
-        return $this->shippingMethodUuid;
+        return $this->shippingMethodId;
     }
 
-    public function setShippingMethodUuid(?string $shippingMethodUuid): void
+    public function setShippingMethodId(?string $shippingMethodId): void
     {
-        $this->shippingMethodUuid = $shippingMethodUuid;
+        $this->shippingMethodId = $shippingMethodId;
     }
 
-    public function getCountryUuid(): ?string
+    public function getCountryId(): ?string
     {
-        return $this->countryUuid;
+        return $this->countryId;
     }
 
-    public function setCountryUuid(?string $countryUuid): void
+    public function setCountryId(?string $countryId): void
     {
-        $this->countryUuid = $countryUuid;
+        $this->countryId = $countryId;
     }
 
     public function getName(): string

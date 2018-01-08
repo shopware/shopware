@@ -9,12 +9,12 @@ class CurrencyTranslationBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $currencyUuid;
+    protected $currencyId;
 
     /**
      * @var string
      */
-    protected $languageUuid;
+    protected $languageId;
 
     /**
      * @var string
@@ -26,24 +26,24 @@ class CurrencyTranslationBasicStruct extends Entity
      */
     protected $name;
 
-    public function getCurrencyUuid(): string
+    public function getCurrencyId(): string
     {
-        return $this->currencyUuid;
+        return $this->currencyId;
     }
 
-    public function setCurrencyUuid(string $currencyUuid): void
+    public function setCurrencyId(string $currencyId): void
     {
-        $this->currencyUuid = $currencyUuid;
+        $this->currencyId = $currencyId;
     }
 
-    public function getLanguageUuid(): string
+    public function getLanguageId(): string
     {
-        return $this->languageUuid;
+        return $this->languageId;
     }
 
-    public function setLanguageUuid(string $languageUuid): void
+    public function setLanguageId(string $languageId): void
     {
-        $this->languageUuid = $languageUuid;
+        $this->languageId = $languageId;
     }
 
     public function getShortName(): string

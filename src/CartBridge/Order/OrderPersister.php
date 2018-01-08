@@ -62,7 +62,7 @@ class OrderPersister implements OrderPersisterInterface
 
     private function convert(CalculatedCart $calculatedCart, ShopContext $context): array
     {
-        $addressUuid = Uuid::uuid4()->toString();
+        $addressId = Uuid::uuid4()->toString();
 
         $data = [
             'date' => (new \DateTime())->format('Y-m-d H:i:s'),
@@ -73,12 +73,12 @@ class OrderPersister implements OrderPersisterInterface
             'shippingNet' => $calculatedCart->getShippingCosts()->getTotalPrice() - $calculatedCart->getShippingCosts()->getCalculatedTaxes()->getAmount(),
             'isNet' => !$this->taxDetector->useGross($context),
             'isTaxFree' => $this->taxDetector->isNetDelivery($context),
-            'customerUuid' => $context->getCustomer()->getUuid(),
-            'stateUuid' => 'SWAG-ORDER-STATE-UUID-0',
-            'paymentMethodUuid' => $context->getPaymentMethod()->getUuid(),
-            'currencyUuid' => $context->getCurrency()->getUuid(),
-            'shopUuid' => $context->getShop()->getUuid(),
-            'billingAddressUuid' => $addressUuid,
+            'customerId' => $context->getCustomer()->getId(),
+            'stateId' => '1194a493-8067-42c9-b85e-61f1f2cf9be8',
+            'paymentMethodId' => $context->getPaymentMethod()->getId(),
+            'currencyId' => $context->getCurrency()->getId(),
+            'shopId' => $context->getShop()->getId(),
+            'billingAddressId' => $addressId,
             'lineItems' => [],
             'deliveries' => [],
             'context' => json_encode($context),
@@ -88,16 +88,16 @@ class OrderPersister implements OrderPersisterInterface
         $address = $context->getCustomer()->getActiveBillingAddress();
 
         $data['billingAddress'] = $this->convertAddress($address);
-        $data['billingAddress']['uuid'] = $addressUuid;
+        $data['billingAddress']['id'] = $addressId;
 
         $lineItemMap = [];
         /** @var CalculatedLineItemInterface $lineItem */
         foreach ($calculatedCart->getCalculatedLineItems() as $lineItem) {
-            $uuid = Uuid::uuid4()->toString();
-            $lineItemMap[$lineItem->getIdentifier()] = $uuid;
+            $id = Uuid::uuid4()->toString();
+            $lineItemMap[$lineItem->getIdentifier()] = $id;
 
             $data['lineItems'][] = [
-                'uuid' => $uuid,
+                'id' => $id,
                 'identifier' => $lineItem->getIdentifier(),
                 'quantity' => $lineItem->getQuantity(),
                 'unitPrice' => $lineItem->getPrice()->getUnitPrice(),
@@ -112,9 +112,9 @@ class OrderPersister implements OrderPersisterInterface
             $deliveryData = [
                 'shippingDateEarliest' => $delivery->getDeliveryDate()->getEarliest()->format('Y-m-d H:i:s'),
                 'shippingDateLatest' => $delivery->getDeliveryDate()->getLatest()->format('Y-m-d H:i:s'),
-                'shippingMethodUuid' => $delivery->getShippingMethod()->getUuid(),
+                'shippingMethodId' => $delivery->getShippingMethod()->getId(),
                 'shippingAddress' => $this->convertAddress($delivery->getLocation()->getAddress()),
-                'orderStateUuid' => 'SWAG-ORDER-STATE-UUID-0',
+                'orderStateId' => '1194a493-8067-42c9-b85e-61f1f2cf9be8',
                 'positions' => [],
                 'payload' => json_encode($delivery),
             ];
@@ -126,7 +126,7 @@ class OrderPersister implements OrderPersisterInterface
                     'totalPrice' => $position->getPrice()->getTotalPrice(),
                     'quantity' => $position->getQuantity(),
                     'payload' => json_encode($position),
-                    'orderLineItemUuid' => $lineItemMap[$position->getIdentifier()],
+                    'orderLineItemId' => $lineItemMap[$position->getIdentifier()],
                 ];
             }
 
@@ -152,8 +152,8 @@ class OrderPersister implements OrderPersisterInterface
             'phoneNumber' => $address->getPhoneNumber(),
             'additionalAddressLine1' => $address->getAdditionalAddressLine1(),
             'additionalAddressLine2' => $address->getAdditionalAddressLine2(),
-            'countryUuid' => $address->getCountryUuid(),
-            'countryStateUuid' => $address->getCountryStateUuid(),
+            'countryId' => $address->getCountryId(),
+            'countryStateId' => $address->getCountryStateId(),
         ]);
     }
 }

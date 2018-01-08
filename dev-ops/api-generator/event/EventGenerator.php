@@ -42,7 +42,7 @@ class EventGenerator
 
         $this->createAggregationResultEvent($definition);
 
-        $this->createUuidSearchResultEvent($definition);
+        $this->createIdSearchResultEvent($definition);
 
         if ($definition->hasDetail()) {
             $this->generateDetail($definition);
@@ -209,9 +209,9 @@ class EventGenerator
         file_put_contents($file, $template);
     }
 
-    private function createUuidSearchResultEvent(TableDefinition $definition)
+    private function createIdSearchResultEvent(TableDefinition $definition)
     {
-        $template = file_get_contents(__DIR__.'/uuid_search_result.txt');
+        $template = file_get_contents(__DIR__.'/id_search_result.txt');
 
         $template = str_replace(
             ['#bundle#', '#classUc#', '#table#'],
@@ -224,7 +224,7 @@ class EventGenerator
         );
 
         $file = sprintf(
-            $this->directory.'/%s/Event/%s/%sUuidSearchResultLoadedEvent.php',
+            $this->directory.'/%s/Event/%s/%sIdSearchResultLoadedEvent.php',
             ucfirst($definition->bundle),
             ucfirst($definition->domainName),
             ucfirst($definition->domainName)

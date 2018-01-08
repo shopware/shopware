@@ -11,7 +11,8 @@ module.exports = {
     },
 
     globals: {
-        Shopware: true
+        Shopware: true,
+        VueJS: true
     },
 
     // https://github.com/airbnb/javascript

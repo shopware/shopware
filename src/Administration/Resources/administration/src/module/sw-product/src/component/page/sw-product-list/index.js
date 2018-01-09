@@ -17,7 +17,7 @@ Shopware.Component.register('sw-product-list', {
     },
 
     created() {
-        this.receiveProductList({
+        this.getProductList({
             limit: this.limit,
             offset: this.offset
         });
@@ -43,7 +43,7 @@ Shopware.Component.register('sw-product-list', {
             this.offset = offset;
             this.limit = limit;
 
-            this.receiveProductList({
+            this.getProductList({
                 limit,
                 offset
             });

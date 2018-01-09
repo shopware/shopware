@@ -8,7 +8,6 @@ use Shopware\Api\Currency\Event\Currency\CurrencyBasicLoadedEvent;
 use Shopware\Api\Customer\Event\CustomerGroup\CustomerGroupBasicLoadedEvent;
 use Shopware\Api\Locale\Event\Locale\LocaleBasicLoadedEvent;
 use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
-use Shopware\Api\Seo\Event\SeoUrl\SeoUrlBasicLoadedEvent;
 use Shopware\Api\Shipping\Event\ShippingMethod\ShippingMethodBasicLoadedEvent;
 use Shopware\Api\Shop\Collection\ShopDetailCollection;
 use Shopware\Api\Shop\Event\ShopTemplate\ShopTemplateBasicLoadedEvent;
@@ -86,9 +85,6 @@ class ShopDetailLoadedEvent extends NestedEvent
         }
         if ($this->shops->getCountries()->count() > 0) {
             $events[] = new CountryBasicLoadedEvent($this->shops->getCountries(), $this->context);
-        }
-        if ($this->shops->getSeoUrls()->count() > 0) {
-            $events[] = new SeoUrlBasicLoadedEvent($this->shops->getSeoUrls(), $this->context);
         }
         if ($this->shops->getAllCurrencies()->count() > 0) {
             $events[] = new CurrencyBasicLoadedEvent($this->shops->getAllCurrencies(), $this->context);

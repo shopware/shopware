@@ -81,7 +81,7 @@ class UpdateQuery extends WriteQuery
 
     public function getEntityPrimaryKey()
     {
-        $pk = array_map(function($value) {
+        $pk = array_map(function ($value) {
             return Uuid::fromBytes($value)->toString();
         }, $this->pkData);
 

@@ -16,14 +16,12 @@ use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Locale\Definition\LocaleDefinition;
 use Shopware\Api\Payment\Definition\PaymentMethodDefinition;
-use Shopware\Api\Seo\Definition\SeoUrlDefinition;
 use Shopware\Api\Shipping\Definition\ShippingMethodDefinition;
 use Shopware\Api\Shop\Collection\ShopBasicCollection;
 use Shopware\Api\Shop\Collection\ShopDetailCollection;
@@ -98,7 +96,6 @@ class ShopDefinition extends EntityDefinition
             new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, false),
             new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, false),
             new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, false),
-            new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'shop_id', false, 'id'),
             new ManyToManyAssociationField('currencies', CurrencyDefinition::class, ShopCurrencyDefinition::class, false, 'shop_id', 'currency_id', 'currencyIds'),
         ]);
 

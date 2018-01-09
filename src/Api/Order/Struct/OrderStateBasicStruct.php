@@ -14,11 +14,6 @@ class OrderStateBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $type;
-
-    /**
-     * @var string
-     */
     protected $description;
 
     /**
@@ -49,16 +44,6 @@ class OrderStateBasicStruct extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
-    }
-
-    public function getType(): string
-    {
-        return $this->type;
-    }
-
-    public function setType(string $type): void
-    {
-        $this->type = $type;
     }
 
     public function getDescription(): string

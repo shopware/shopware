@@ -28,7 +28,7 @@ class WriterTest extends KernelTestCase
         self::bootKernel();
         $this->id = Uuid::uuid4()->toString();
         $this->idBytes = Uuid::fromString($this->id)->getBytes();
-        
+
         $container = self::$kernel->getContainer();
         $this->connection = $container->get('dbal_connection');
         $this->connection->beginTransaction();
@@ -269,8 +269,9 @@ class WriterTest extends KernelTestCase
 
         self::assertCount(2, $productTranslations, print_r($productTranslations, true));
 
-        $productTranslations = array_map(function($a) {
-            $a['language_id'] = Uuid::fromBytes($a['language_id'])->toString();;
+        $productTranslations = array_map(function ($a) {
+            $a['language_id'] = Uuid::fromBytes($a['language_id'])->toString();
+
             return $a;
         }, $productTranslations);
 
@@ -281,7 +282,6 @@ class WriterTest extends KernelTestCase
                 self::assertNull($translation['description_long']);
                 self::assertNull($translation['meta_title']);
                 self::assertNull($translation['keywords']);
-
             } else {
                 self::assertSame('2ABC', $translation['name']);
                 self::assertSame('foo', $translation['description']);

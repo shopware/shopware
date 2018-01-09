@@ -14,12 +14,12 @@ class ProductManufacturerBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $link;
+    protected $name;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected $name;
+    protected $link;
 
     /**
      * @var \DateTime|null
@@ -61,16 +61,6 @@ class ProductManufacturerBasicStruct extends Entity
         $this->mediaId = $mediaId;
     }
 
-    public function getLink(): string
-    {
-        return $this->link;
-    }
-
-    public function setLink(string $link): void
-    {
-        $this->link = $link;
-    }
-
     public function getName(): string
     {
         return $this->name;
@@ -79,6 +69,16 @@ class ProductManufacturerBasicStruct extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getLink(): ?string
+    {
+        return $this->link;
+    }
+
+    public function setLink(?string $link): void
+    {
+        $this->link = $link;
     }
 
     public function getUpdatedAt(): ?\DateTime

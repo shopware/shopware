@@ -54,7 +54,6 @@ class OrderStateDefinition extends EntityDefinition
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
-            (new StringField('type', 'type'))->setFlags(new Required()),
             (new TranslatedField(new StringField('description', 'description')))->setFlags(new Required()),
             new IntField('position', 'position'),
             new BoolField('has_mail', 'hasMail'),

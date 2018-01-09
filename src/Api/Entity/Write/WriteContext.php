@@ -163,6 +163,7 @@ class WriteContext
                 return true;
             }
         }
+
         return false;
     }
 

@@ -193,7 +193,7 @@ class DemodataCommand extends ContainerAwareCommand
 
         $payload = [];
 
-        for ($i = 0; $i < $count; $i++) {
+        for ($i = 0; $i < $count; ++$i) {
             $graduaded = [
                 [
                     'customerGroupId' => '3294e6f6-372b-415f-ac73-71cbc191548f',

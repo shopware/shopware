@@ -208,7 +208,7 @@ class ApiController extends RestController
 
         $first = array_shift($path);
 
-        /** @var string|EntityDefinition $definition */
+        /* @var string|EntityDefinition $definition */
         if (count($path) === 0) {
             $definition = $first['definition'];
 

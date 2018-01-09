@@ -13,7 +13,6 @@ use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\User\Definition\UserDefinition;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Rest\ApiContext;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 

@@ -37,10 +37,10 @@ class DemodataCommand extends ContainerAwareCommand
 
     protected function configure()
     {
-        $this->addOption('product', 'p', InputOption::VALUE_REQUIRED, 'Product count', 500);
-        $this->addOption('category', 'c', InputOption::VALUE_REQUIRED, 'Category count', 10);
-        $this->addOption('manufacturer', 'm', InputOption::VALUE_REQUIRED, 'Manufacturer count', 50);
-        $this->addOption('customer', null, InputOption::VALUE_REQUIRED, 'Customer count', 200);
+        $this->addOption('products', 'p', InputOption::VALUE_REQUIRED, 'Product count', 500);
+        $this->addOption('categories', 'c', InputOption::VALUE_REQUIRED, 'Category count', 10);
+        $this->addOption('manufacturers', 'm', InputOption::VALUE_REQUIRED, 'Manufacturer count', 50);
+        $this->addOption('customers', null, InputOption::VALUE_REQUIRED, 'Customer count', 200);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -50,14 +50,18 @@ class DemodataCommand extends ContainerAwareCommand
 
         $this->io->title('Demodata Generator');
 
-        $this->createCustomer($input->getOption('customer'));
-        $categories = $this->createCategory($input->getOption('category'));
-        $manufacturer = $this->createManufacturer($input->getOption('manufacturer'));
-        $this->createProduct($categories, $manufacturer, $input->getOption('product'));
+        $this->createCustomer($input->getOption('customers'));
+        $categories = $this->createCategory($input->getOption('categories'));
+        $manufacturer = $this->createManufacturer($input->getOption('manufacturers'));
+        $this->createProduct($categories, $manufacturer, $input->getOption('products'));
 
         $this->io->newLine();
 
         $this->io->success('Successfully created demodata.');
+
+        $arguments = ['command' => 'category:build:path'];
+        $command = $this->getApplication()->find('category:build:path');
+        $command->run(new ArrayInput($arguments), $output);
 
         $arguments = ['command' => 'dbal:refresh:index'];
         $command = $this->getApplication()->find('dbal:refresh:index');

@@ -119,7 +119,7 @@ function getDefaultProduct() {
 function getNewProduct() {
     const product = {
         id: null,
-        taxId: 'SWAG-TAX-ID-1',
+        taxId: '49260353-68e3-4d9f-a695-e017d7a231b9',
         manufacturerId: null,
         prices: [{
             id: null,

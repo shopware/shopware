@@ -101,11 +101,11 @@ class ApiContextValueResolver implements ArgumentValueResolverInterface
         return $payload ?? [];
     }
 
-    private function getUserId(TranslationContext $context): string
+    private function getUserId(TranslationContext $context): ?string
     {
         $token = $this->tokenStorage->getToken();
         if (!$token) {
-            return ApiContext::KERNEL_USER;
+            return null;
         }
 
         /** @var UserInterface $user */
@@ -126,7 +126,7 @@ class ApiContextValueResolver implements ArgumentValueResolverInterface
         $id = array_shift($ids);
 
         if (!$id) {
-            return $this->mapping[$name] = ApiContext::KERNEL_USER;
+            return $this->mapping[$name] = null;
         }
 
         return $this->mapping[$name] = $id;

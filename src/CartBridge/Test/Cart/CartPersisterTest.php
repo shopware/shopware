@@ -140,6 +140,7 @@ class CartPersisterTest extends TestCase
             new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
             new DeliveryCollection()
         );
+
         $persister->save($calc, Generator::createContext());
     }
 }

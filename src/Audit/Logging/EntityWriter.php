@@ -83,15 +83,19 @@ class EntityWriter implements EntityWriterInterface
 
     private function writeAuditLog(string $definition, array $rawData, WriteContext $writeContext, string $action)
     {
+        $userId = $this->getUserId($writeContext->getTranslationContext());
+
         foreach ($rawData as $data) {
             $log = [
                 'entity' => $definition,
                 'createdAt' => new \DateTime(),
                 'payload' => json_encode($data),
-//                'userId' => $this->getUserId($writeContext->getTranslationContext()),
                 'action' => $action,
             ];
 
+            if ($userId) {
+                $log['userId'] = $userId;
+            }
             if (isset($data['id'])) {
                 $log['foreignKey'] = $data['id'];
             }
@@ -100,11 +104,11 @@ class EntityWriter implements EntityWriterInterface
         }
     }
 
-    private function getUserId(TranslationContext $context): string
+    private function getUserId(TranslationContext $context): ?string
     {
         $token = $this->tokenStorage->getToken();
         if (!$token) {
-            return ApiContext::KERNEL_USER;
+            return null;
         }
 
         /** @var UserInterface $user */
@@ -125,7 +129,7 @@ class EntityWriter implements EntityWriterInterface
         $id = array_shift($ids);
 
         if (!$id) {
-            return $this->mapping[$name] = ApiContext::KERNEL_USER;
+            return $this->mapping[$name] = null;
         }
 
         return $this->mapping[$name] = $id;

@@ -63,6 +63,7 @@ class ApiControllerTest extends ApiTestCase
     public function testManyToOneInsert()
     {
         $id = Uuid::uuid4()->toString();
+        $manufacturer = Uuid::uuid4()->toString();
 
         $data = ['id' => $id, 'name' => $id];
 
@@ -71,13 +72,13 @@ class ApiControllerTest extends ApiTestCase
         self::assertSame(200, $client->getResponse()->getStatusCode(), 'Create product failed id:' . $id);
 
         $data = [
-            'id' => $id,
+            'id' => $manufacturer,
             'name' => 'Manufacturer - 1',
             'link' => 'https://www.shopware.com',
         ];
 
         $client->request('POST', '/api/product/' . $id . '/manufacturer/', $data);
-        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), 'Create manufacturer over product failed id:' . $id);
+        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), 'Create manufacturer over product failed id:' . $id . "\n" . $client->getResponse()->getContent());
 
         $client->request('GET', '/api/product/' . $id . '/manufacturer/');
         $responseData = json_decode($client->getResponse()->getContent(), true);

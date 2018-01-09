@@ -25,6 +25,7 @@
 namespace Shopware\Api\Entity\Write\Query;
 
 use Doctrine\DBAL\Connection;
+use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Dbal\EntityDefinitionResolver;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\Field;
@@ -79,12 +80,15 @@ class InsertQuery extends WriteQuery
             /** @var StorageAware|Field $field */
             $field = $pk->first();
 
-            return $this->payload[$field->getStorageName()];
+            $uuid = $this->payload[$field->getStorageName()];
+
+            return Uuid::fromBytes($uuid)->toString();
         }
 
         /** @var StorageAware|Field $field */
         foreach ($pk as $field) {
-            $data[$field->getPropertyName()] = $this->payload[$field->getStorageName()];
+            $uuid = Uuid::fromBytes($this->payload[$field->getStorageName()]);
+            $data[$field->getPropertyName()] = $uuid->toString();
         }
 
         return $data;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test;
 
+use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Search\Term\SearchTerm;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter;
@@ -119,7 +120,7 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
         foreach ($keywords as $keyword) {
             $this->connection->insert('search_keyword', [
                 'keyword' => $keyword,
-                'shop_id' => 'ffa32a50-e2d0-4cf3-8389-a53f8d6cd594',
+                'shop_id' => Uuid::fromString('ffa32a50-e2d0-4cf3-8389-a53f8d6cd594')->getBytes(),
             ]);
         }
     }

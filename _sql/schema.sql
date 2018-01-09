@@ -955,7 +955,7 @@ CREATE TABLE `audit_log` (
 DROP TABLE IF EXISTS `product_manufacturer`;
 CREATE TABLE `product_manufacturer` (
   `id` binary(16) NOT NULL,
-  `link` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `link` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `media_id` binary(16) DEFAULT NULL,

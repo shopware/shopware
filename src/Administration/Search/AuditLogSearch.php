@@ -4,6 +4,7 @@ namespace Shopware\Administration\Search;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Ramsey\Uuid\Uuid;
 use Shopware\Api\Customer\Definition\CustomerDefinition;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
@@ -137,7 +138,7 @@ class AuditLogSearch
         ]);
         $query->from('audit_log', 'log');
         $query->andWhere('log.user_id = :user');
-        $query->setParameter('user', $userId);
+        $query->setParameter('user', Uuid::fromString($userId)->getBytes());
         $query->addGroupBy('entity');
         $query->addGroupBy('foreign_key');
         $query->addOrderBy('action_count', 'DESC');
@@ -173,7 +174,8 @@ class AuditLogSearch
     {
         $fallback = 1.1;
         foreach ($scoring as $score) {
-            if ($score['foreign_key'] === $id) {
+            $foreignKey = Uuid::fromBytes($score['foreign_key'])->toString();
+            if ($foreignKey === $id) {
                 return 1 + ($score['action_count'] / 10);
             }
         }

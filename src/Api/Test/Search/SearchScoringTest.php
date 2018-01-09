@@ -3,6 +3,7 @@
 namespace Shopware\Api\Test\Search;
 
 use Doctrine\DBAL\Connection;
+use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
@@ -51,8 +52,8 @@ class SearchScoringTest extends KernelTestCase
 
         $context = TranslationContext::createDefaultContext();
         $this->repository->create([
-            ['id' => 'product-1', 'name' => 'product 1 test'],
-            ['id' => 'product-2', 'name' => 'product 2 test'],
+            ['id' => Uuid::uuid4()->toString(), 'name' => 'product 1 test'],
+            ['id' => Uuid::uuid4()->toString(), 'name' => 'product 2 test'],
         ], $context);
 
         $result = $this->repository->search($criteria, $context);

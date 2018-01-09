@@ -28,8 +28,8 @@ class ApiTest extends ApiTestCase
                 'id' => Uuid::uuid4()->toString(),
                 'name' => 'test123',
                 'the_unknown_field' => 'do nothing?',
-                'taxId' => 'SWAG-TAX-ID-1',
-                'productManufacturer' => ['id' => 'SWAG-PRODUCT-MANUFACTURER-ID-2'],
+                'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                'productManufacturer' => ['id' => Uuid::uuid4()->toString(), 'name' => 'Test'],
             ]
         );
 

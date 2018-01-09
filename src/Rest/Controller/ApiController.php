@@ -204,8 +204,8 @@ class ApiController extends RestController
 
         $first = array_shift($path);
 
+        /** @var string|EntityDefinition $definition */
         if (count($path) === 0) {
-            /** @var EntityDefinition $definition */
             $definition = $first['definition'];
 
             /** @var RepositoryInterface $repository */
@@ -226,7 +226,6 @@ class ApiController extends RestController
             $parent = array_pop($path);
         }
 
-        /** @var EntityDefinition $definition */
         $definition = $child['definition'];
 
         $association = $child['field'];
@@ -278,7 +277,7 @@ class ApiController extends RestController
 
         /** @var ManyToManyAssociationField $association */
 
-        /** @var EntityDefinition $reference */
+        /** @var EntityDefinition|string $reference */
         $reference = $association->getReferenceDefinition();
 
         $events = $this->executeWriteOperation($reference, $payload, $context, $type);

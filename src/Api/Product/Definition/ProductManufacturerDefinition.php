@@ -55,7 +55,7 @@ class ProductManufacturerDefinition extends EntityDefinition
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new FkField('media_id', 'mediaId', MediaDefinition::class),
-            (new StringField('link', 'link'))->setFlags(new Required()),
+            new StringField('link', 'link'),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
             new DateField('updated_at', 'updatedAt'),
             new DateField('created_at', 'createdAt'),

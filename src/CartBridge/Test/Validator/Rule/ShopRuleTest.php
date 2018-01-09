@@ -53,7 +53,7 @@ class ShopRuleTest extends TestCase
 
     public function testEqualsWithMultipleShops(): void
     {
-        $rule = new ShopRule(['SWAG-SHOP-ID-2', 'SWAG-SHOP-ID-3', 'SWAG-SHOP-ID-4', 'FFA32A50-E2D0-4CF3-8389-A53F8D6CD594'], ShopRule::OPERATOR_EQ);
+        $rule = new ShopRule(['2d905256-e751-4967-8dd5-a32a81b94f1f', 'SWAG-SHOP-ID-3', 'SWAG-SHOP-ID-4', 'FFA32A50-E2D0-4CF3-8389-A53F8D6CD594'], ShopRule::OPERATOR_EQ);
 
         $shop = new ShopDetailStruct();
         $shop->setId('SWAG-SHOP-ID-3');
@@ -93,7 +93,7 @@ class ShopRuleTest extends TestCase
 
     public function testEqualsNotMatchWithMultipleShops(): void
     {
-        $rule = new ShopRule(['SWAG-SHOP-ID-2', 'SWAG-SHOP-ID-3', 'SWAG-SHOP-ID-4', 'FFA32A50-E2D0-4CF3-8389-A53F8D6CD594'], ShopRule::OPERATOR_EQ);
+        $rule = new ShopRule(['2d905256-e751-4967-8dd5-a32a81b94f1f', 'SWAG-SHOP-ID-3', 'SWAG-SHOP-ID-4', 'FFA32A50-E2D0-4CF3-8389-A53F8D6CD594'], ShopRule::OPERATOR_EQ);
 
         $shop = new ShopDetailStruct();
         $shop->setId('FFA32A50-E2D0-4CF3-8389-A53F8D6CD5941');
@@ -131,7 +131,7 @@ class ShopRuleTest extends TestCase
 
     public function testNotEqualsWithMultipleShops(): void
     {
-        $rule = new ShopRule(['SWAG-SHOP-ID-2', 'SWAG-SHOP-ID-3', 'SWAG-SHOP-ID-4', 'FFA32A50-E2D0-4CF3-8389-A53F8D6CD594'], ShopRule::OPERATOR_NEQ);
+        $rule = new ShopRule(['2d905256-e751-4967-8dd5-a32a81b94f1f', 'SWAG-SHOP-ID-3', 'SWAG-SHOP-ID-4', 'FFA32A50-E2D0-4CF3-8389-A53F8D6CD594'], ShopRule::OPERATOR_NEQ);
 
         $shop = new ShopDetailStruct();
         $shop->setId('SWAG-SHOP-ID-3');
@@ -167,7 +167,7 @@ class ShopRuleTest extends TestCase
 
     public function testNotEqualsNotMatchWithMultipleShops(): void
     {
-        $rule = new ShopRule(['SWAG-SHOP-ID-2', 'SWAG-SHOP-ID-3', 'SWAG-SHOP-ID-4', 'FFA32A50-E2D0-4CF3-8389-A53F8D6CD594'], ShopRule::OPERATOR_NEQ);
+        $rule = new ShopRule(['2d905256-e751-4967-8dd5-a32a81b94f1f', 'SWAG-SHOP-ID-3', 'SWAG-SHOP-ID-4', 'FFA32A50-E2D0-4CF3-8389-A53F8D6CD594'], ShopRule::OPERATOR_NEQ);
 
         $shop = new ShopDetailStruct();
         $shop->setId('FFA32A50-E2D0-4CF3-8389-A53F8D6CD5941');

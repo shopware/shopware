@@ -40,6 +40,11 @@ class AuditLogSearchTest extends KernelTestCase
      */
     private $context;
 
+    /**
+     * @var string
+     */
+    private $userId;
+
     protected function setUp()
     {
         $kernel = self::bootKernel();
@@ -60,15 +65,16 @@ class AuditLogSearchTest extends KernelTestCase
             DELETE FROM `product`;
         ');
 
+        $this->userId = Uuid::uuid4()->toString();
+
         $repo = $this->container->get(UserRepository::class);
         $repo->upsert([
             [
-                'id' => 'user-1',
-                'localeId' => 'SWAG-LOCALE-ID-1',
+                'id' => $this->userId,
+                'localeId' => '7b52d9dd-2b06-40ec-90be-9f57edf29be7',
                 'name' => 'test-user',
                 'username' => 'test-user',
                 'email' => 'test@example.com',
-                'roleId' => 'test',
                 'password' => 'shopware',
             ],
         ], $context);
@@ -86,14 +92,17 @@ class AuditLogSearchTest extends KernelTestCase
     {
         $context = TranslationContext::createDefaultContext();
 
+        $p1 = Uuid::uuid4()->toString();
+        $p2 = Uuid::uuid4()->toString();
+
         $this->productRepository->upsert([
-            ['id' => 'product-1', 'name' => 'test product 1'],
-            ['id' => 'product-2', 'name' => 'test product 2'],
-            ['id' => 'product-3', 'name' => 'notmatch'],
-            ['id' => 'product-4', 'name' => 'notmatch'],
+            ['id' => $p1, 'name' => 'test product 1'],
+            ['id' => $p2, 'name' => 'test product 2'],
+            ['id' => Uuid::uuid4()->toString(), 'name' => 'notmatch'],
+            ['id' => Uuid::uuid4()->toString(), 'name' => 'notmatch'],
         ], $context);
 
-        $result = $this->search->search('test product', 1, 20, $context, 'user-1');
+        $result = $this->search->search('test product', 1, 20, $context, $this->userId);
 
         //no audit log exists? product 1 was insert first and should match first
         self::assertEquals(2, $result['total']);
@@ -107,9 +116,6 @@ class AuditLogSearchTest extends KernelTestCase
         $second = $result['data'][1];
         self::assertInstanceOf(ProductBasicStruct::class, $second);
 
-        self::assertSame($first->getId(), 'product-1');
-        self::assertSame($second->getId(), 'product-2');
-
         $firstScore = $first->getExtension('search')->get('score');
         $secondScore = $second->getExtension('search')->get('score');
 
@@ -117,28 +123,28 @@ class AuditLogSearchTest extends KernelTestCase
 
         $logs = [
             [
-                'id' => Uuid::uuid4()->toString(),
-                'user_id' => 'user-1',
+                'id' => Uuid::uuid4()->getBytes(),
+                'user_id' => Uuid::fromString($this->userId)->getBytes(),
                 'entity' => ProductDefinition::class,
-                'foreign_key' => 'product-2',
+                'foreign_key' => Uuid::fromString($p2)->getBytes(),
                 'action' => 'insert',
                 'payload' => json_encode(''),
                 'created_at' => '2017-01-01',
             ],
             [
-                'id' => Uuid::uuid4()->toString(),
-                'user_id' => 'user-1',
+                'id' => Uuid::uuid4()->getBytes(),
+                'user_id' => Uuid::fromString($this->userId)->getBytes(),
                 'entity' => ProductDefinition::class,
-                'foreign_key' => 'product-2',
+                'foreign_key' => Uuid::fromString($p2)->getBytes(),
                 'action' => 'update',
                 'payload' => json_encode(''),
                 'created_at' => '2017-01-02',
             ],
             [
-                'id' => Uuid::uuid4()->toString(),
-                'user_id' => 'user-1',
+                'id' => Uuid::uuid4()->getBytes(),
+                'user_id' => Uuid::fromString($this->userId)->getBytes(),
                 'entity' => ProductDefinition::class,
-                'foreign_key' => 'product-2',
+                'foreign_key' => Uuid::fromString($p2)->getBytes(),
                 'action' => 'upsert',
                 'payload' => json_encode(''),
                 'created_at' => '2017-01-03',
@@ -150,7 +156,7 @@ class AuditLogSearchTest extends KernelTestCase
             $this->connection->insert('audit_log', $log);
         }
 
-        $result = $this->search->search('test product', 1, 20, $context, 'user-1');
+        $result = $this->search->search('test product', 1, 20, $context, $this->userId);
 
         self::assertEquals(2, $result['total']);
         self::assertCount(2, $result['data']);
@@ -164,8 +170,8 @@ class AuditLogSearchTest extends KernelTestCase
         self::assertInstanceOf(ProductBasicStruct::class, $second);
 
         // `product-2` should now be boosted
-        self::assertSame($first->getId(), 'product-2');
-        self::assertSame($second->getId(), 'product-1');
+        self::assertSame($first->getId(), $p2);
+        self::assertSame($second->getId(), $p1);
 
         $firstScore = $first->getExtension('search')->get('score');
         $secondScore = $second->getExtension('search')->get('score');

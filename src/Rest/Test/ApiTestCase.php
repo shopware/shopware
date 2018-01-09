@@ -58,12 +58,12 @@ class ApiTestCase extends WebTestCase
         $password = Uuid::uuid4()->toString();
 
         self::$container->get('dbal_connection')->insert('user', [
-            'id' => Uuid::uuid4()->toString(),
+            'id' => Uuid::uuid4()->getBytes(),
             'name' => $username,
             'email' => 'admin@example.com',
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT, ['cost' => 13]),
-            'locale_id' => 'SWAG-LOCALE-ID-1',
+            'locale_id' => Uuid::fromString('7b52d9dd-2b06-40ec-90be-9f57edf29be7')->getBytes(),
             'user_role_id' => '123',
             'active' => 1,
         ]);

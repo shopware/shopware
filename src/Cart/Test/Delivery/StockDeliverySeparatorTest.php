@@ -125,7 +125,7 @@ class StockDeliverySeparatorTest extends TestCase
                         DeliveryPosition::createByLineItemForInStockDate($item),
                     ]),
                     new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-02')),
-                    (new ShippingMethodBasicStruct())->assign(['id' => '1']),
+                    (new ShippingMethodBasicStruct())->assign(['id' => '8beeb66e-9dda-46b1-8891-a059257a590e']),
                     $location,
                     new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
@@ -178,7 +178,7 @@ class StockDeliverySeparatorTest extends TestCase
                         DeliveryPosition::createByLineItemForInStockDate($itemB),
                     ]),
                     new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-02')),
-                    (new ShippingMethodBasicStruct())->assign(['id' => '1']),
+                    (new ShippingMethodBasicStruct())->assign(['id' => '8beeb66e-9dda-46b1-8891-a059257a590e']),
                     $location,
                     new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
@@ -229,7 +229,7 @@ class StockDeliverySeparatorTest extends TestCase
                         DeliveryPosition::createByLineItemForOutOfStockDate($itemB),
                     ]),
                     new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-05')),
-                    (new ShippingMethodBasicStruct())->assign(['id' => '1']),
+                    (new ShippingMethodBasicStruct())->assign(['id' => '8beeb66e-9dda-46b1-8891-a059257a590e']),
                     $location,
                     new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
@@ -273,7 +273,7 @@ class StockDeliverySeparatorTest extends TestCase
                         DeliveryPosition::createByLineItemForInStockDate($product),
                     ]),
                     $product->getInStockDeliveryDate(),
-                    (new ShippingMethodBasicStruct())->assign(['id' => '1']),
+                    (new ShippingMethodBasicStruct())->assign(['id' => '8beeb66e-9dda-46b1-8891-a059257a590e']),
                     $location,
                     new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
@@ -315,7 +315,7 @@ class StockDeliverySeparatorTest extends TestCase
                         ),
                     ]),
                     $product->getInStockDeliveryDate(),
-                    (new ShippingMethodBasicStruct())->assign(['id' => '1']),
+                    (new ShippingMethodBasicStruct())->assign(['id' => '8beeb66e-9dda-46b1-8891-a059257a590e']),
                     $location,
                     new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
@@ -327,7 +327,7 @@ class StockDeliverySeparatorTest extends TestCase
                         ),
                     ]),
                     $product->getOutOfStockDeliveryDate(),
-                    (new ShippingMethodBasicStruct())->assign(['id' => '1']),
+                    (new ShippingMethodBasicStruct())->assign(['id' => '8beeb66e-9dda-46b1-8891-a059257a590e']),
                     $location,
                     new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
@@ -342,10 +342,11 @@ class StockDeliverySeparatorTest extends TestCase
         $address->setCountryState(new CountryStateBasicStruct());
 
         $country = new CountryBasicStruct();
-        $country->setAreaId('SWAG-AREA-ID-1');
+        $country->setId('5cff02b1-0297-41a4-891c-430bcd9e3603');
+        $country->setAreaId('5cff02b1-0297-41a4-891c-430bcd9e3603');
 
         $address->setCountry($country);
-        $address->getCountryState()->setCountryId('SWAG-AREA-COUNTRY-ID-1');
+        $address->getCountryState()->setCountryId('5cff02b1-0297-41a4-891c-430bcd9e3603');
 
         return ShippingLocation::createFromAddress($address);
     }

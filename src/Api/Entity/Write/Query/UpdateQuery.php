@@ -25,6 +25,7 @@
 namespace Shopware\Api\Entity\Write\Query;
 
 use Doctrine\DBAL\Connection;
+use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\EntityDefinition;
 
 class UpdateQuery extends WriteQuery
@@ -80,12 +81,16 @@ class UpdateQuery extends WriteQuery
 
     public function getEntityPrimaryKey()
     {
-        if (count($this->pkData) === 1) {
-            $tmp = array_values($this->pkData);
+        $pk = array_map(function($value) {
+            return Uuid::fromBytes($value)->toString();
+        }, $this->pkData);
+
+        if (count($pk) === 1) {
+            $tmp = array_values($pk);
 
             return $tmp[0];
         }
 
-        return $this->pkData;
+        return $pk;
     }
 }

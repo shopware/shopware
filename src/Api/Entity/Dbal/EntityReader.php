@@ -327,7 +327,7 @@ class EntityReader implements EntityReaderInterface
                     EntityDefinitionResolver::escape('id'),
                     EntityDefinitionResolver::escape($root . '.' . $field->getPropertyName()),
                 ],
-                '(SELECT GROUP_CONCAT(#alias#.#mapping_reference_column# SEPARATOR \'|\')
+                '(SELECT GROUP_CONCAT(#alias#.#mapping_reference_column# SEPARATOR \'|||\')
                   FROM #mapping_table# #alias#
                   WHERE #alias#.#mapping_local_column# = #root#.#source_column#) as #property#'
             )

@@ -168,9 +168,9 @@ class ListingPriceIndexer implements IndexerInterface
                 $queue->addInsert(
                     $table,
                     [
-                        'id' => $price->getId(),
-                        'product_id' => $price->getProductId(),
-                        'customer_group_id' => $price->getCustomerGroupId(),
+                        'id' => Uuid::fromString($price->getId())->getBytes(),
+                        'product_id' => Uuid::fromString($price->getProductId())->getBytes(),
+                        'customer_group_id' => Uuid::fromString($price->getCustomerGroupId())->getBytes(),
                         'price' => $price->getPrice(),
                         'sorting_price' => $price->getSortingPrice(),
                         'display_from_price' => $price->getDisplayFromPrice() ? 1 : 0,

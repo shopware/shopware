@@ -14,6 +14,7 @@ use Shopware\Storefront\Context\StorefrontContextService;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -34,6 +35,14 @@ class DemodataCommand extends ContainerAwareCommand
      */
     private $io;
 
+    protected function configure()
+    {
+        $this->addOption('product', 'p', InputOption::VALUE_REQUIRED, 'Product count', 500);
+        $this->addOption('category', 'c', InputOption::VALUE_REQUIRED, 'Category count', 10);
+        $this->addOption('manufacturer', 'm', InputOption::VALUE_REQUIRED, 'Manufacturer count', 50);
+        $this->addOption('customer', null, InputOption::VALUE_REQUIRED, 'Customer count', 200);
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->io = new SymfonyStyle($input, $output);
@@ -41,10 +50,10 @@ class DemodataCommand extends ContainerAwareCommand
 
         $this->io->title('Demodata Generator');
 
-        $this->createCustomer();
-        $categories = $this->createCategory();
-        $manufacturer = $this->createManufacturer();
-        $this->createProduct($categories, $manufacturer);
+        $this->createCustomer($input->getOption('customer'));
+        $categories = $this->createCategory($input->getOption('category'));
+        $manufacturer = $this->createManufacturer($input->getOption('manufacturer'));
+        $this->createProduct($categories, $manufacturer, $input->getOption('product'));
 
         $this->io->newLine();
 
@@ -152,6 +161,10 @@ class DemodataCommand extends ContainerAwareCommand
         }
 
         $chunkSize = 150;
+        if (count($payload) < $chunkSize) {
+            $chunkSize = count($payload);
+        }
+
         $chunks = array_chunk($payload, $chunkSize);
         $repository = $this->getContainer()->get(CustomerRepository::class);
         foreach ($chunks as $chunk) {
@@ -165,63 +178,64 @@ class DemodataCommand extends ContainerAwareCommand
 
     private function createProduct(array $categories, array $manufacturer, $count = 500)
     {
-        $chunkSize = 250;
         $x = 0;
         $categoryCount = count($categories) - 1;
         $manufacturerCount = count($manufacturer) - 1;
         $writer = $this->getContainer()->get('shopware.api.entity_writer');
 
+        $chunkSize = 150;
+        if ($count < $chunkSize) {
+            $chunkSize = $count;
+        }
+
         $this->io->section(sprintf('Generating %d products...', $count));
         $progressbar = $this->io->createProgressBar($count);
 
-        while ($x < $count) {
-            $payload = [];
+        $payload = [];
 
-            for ($i = 0; $i < $chunkSize; ++$i) {
-                $graduaded = [
-                    [
-                        'customerGroupId' => '3294e6f6-372b-415f-ac73-71cbc191548f',
-                        'price' => $this->faker->randomFloat(2, 60, 100),
-                        'quantityStart' => 1,
-                        'quantityEnd' => 4,
-                    ], [
-                        'customerGroupId' => '3294e6f6-372b-415f-ac73-71cbc191548f',
-                        'price' => $this->faker->randomFloat(2, 40, 59),
-                        'quantityStart' => 5,
-                    ],
-                ];
+        for ($i = 0; $i < $count; $i++) {
+            $graduaded = [
+                [
+                    'customerGroupId' => '3294e6f6-372b-415f-ac73-71cbc191548f',
+                    'price' => $this->faker->randomFloat(2, 60, 100),
+                    'quantityStart' => 1,
+                    'quantityEnd' => 4,
+                ], [
+                    'customerGroupId' => '3294e6f6-372b-415f-ac73-71cbc191548f',
+                    'price' => $this->faker->randomFloat(2, 40, 59),
+                    'quantityStart' => 5,
+                ],
+            ];
 
-                $prices = [
-                    [
-                        'customerGroupId' => '3294e6f6-372b-415f-ac73-71cbc191548f',
-                        'price' => $this->faker->randomFloat(2, 60, 100),
-                        'quantityStart' => 1,
-                        'quantityEnd' => 4,
-                    ],
-                ];
+            $prices = [
+                [
+                    'customerGroupId' => '3294e6f6-372b-415f-ac73-71cbc191548f',
+                    'price' => $this->faker->randomFloat(2, 60, 100),
+                    'quantityStart' => 1,
+                    'quantityEnd' => 4,
+                ],
+            ];
 
-                $payload[] = [
-                    'id' => $this->faker->uuid,
-                    'name' => $this->faker->name,
-                    'description' => $this->faker->text(),
-                    'descriptionLong' => $this->faker->randomHtml(2, 3),
-                    'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
-                    'manufacturerId' => $manufacturer[random_int(0, $manufacturerCount)],
-                    'active' => true,
-                    'categories' => [
-                        ['categoryId' => $categories[random_int(0, $categoryCount)]],
-                    ],
-                    'stock' => $this->faker->randomNumber(),
-                    'prices' => random_int(0, 1) === 1 ? $graduaded : $prices,
-                ];
+            $payload[] = [
+                'id' => $this->faker->uuid,
+                'name' => $this->faker->name,
+                'description' => $this->faker->text(),
+                'descriptionLong' => $this->faker->randomHtml(2, 3),
+                'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                'manufacturerId' => $manufacturer[random_int(0, $manufacturerCount)],
+                'active' => true,
+                'categories' => [
+                    ['categoryId' => $categories[random_int(0, $categoryCount)]],
+                ],
+                'stock' => $this->faker->randomNumber(),
+                'prices' => random_int(0, 1) === 1 ? $graduaded : $prices,
+            ];
+
+            if ($i % $chunkSize === 0) {
+                $writer->upsert(ProductDefinition::class, $payload, WriteContext::createFromTranslationContext($this->getContext()));
+                $progressbar->advance($chunkSize);
+                $payload = [];
             }
-
-            $x += $chunkSize;
-
-            $writer->upsert(ProductDefinition::class, $payload, WriteContext::createFromTranslationContext($this->getContext()));
-
-            $progressbar->advance($chunkSize);
-            $payload = null;
         }
 
         $progressbar->finish();

@@ -80,6 +80,13 @@ class EntityWriter implements EntityWriterInterface
         return $this->decorated->update($definition, $rawData, $writeContext);
     }
 
+    public function delete(string $definition, array $ids, WriteContext $writeContext)
+    {
+        $this->writeAuditLog($definition, $ids, $writeContext, __FUNCTION__);
+
+        return $this->decorated->delete($definition, $ids, $writeContext);
+    }
+
     private function writeAuditLog(string $definition, array $rawData, WriteContext $writeContext, string $action)
     {
         $userId = $this->getUserId($writeContext->getTranslationContext());

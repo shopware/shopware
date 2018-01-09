@@ -1,12 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Test;
+namespace Shopware\Api\Test\Entity\Write;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
+use Shopware\Api\Category\Definition\CategoryDefinition;
+use Shopware\Api\Country\Definition\CountryAreaDefinition;
+use Shopware\Api\Country\Definition\CountryDefinition;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\FieldException\WriteStackException;
 use Shopware\Api\Entity\Write\WriteContext;
+use Shopware\Api\Product\Definition\ProductCategoryDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Category\Extension\CategoryPathBuilder;
 use Shopware\Context\Struct\TranslationContext;
@@ -38,6 +42,201 @@ class WriterTest extends KernelTestCase
     {
         $this->connection->rollBack();
         parent::tearDown();
+    }
+
+    public function testDelete()
+    {
+        $id = Uuid::uuid4();
+
+        $context = $this->createWriteContext();
+
+        $this->getWriter()->insert(
+            CountryAreaDefinition::class,
+            [
+                ['id' => $id->toString(), 'name' => 'test-country']
+            ],
+            $context
+        );
+
+        $exists = $this->connection->fetchAll('SELECT * FROM country_area WHERE id = :id', ['id' => $id->getBytes()]);
+        $this->assertNotEmpty($exists);
+
+        $this->getWriter()->delete(
+            CountryAreaDefinition::class,
+            [
+                ['id' => $id->toString()]
+            ],
+            $context
+        );
+
+        $exists = $this->connection->fetchAll('SELECT * FROM country_area WHERE id = :id', ['id' => $id->getBytes()]);
+        $this->assertEmpty($exists);
+    }
+
+    public function testMultiDelete()
+    {
+        $id = Uuid::uuid4();
+        $id2 = Uuid::uuid4();
+
+        $context = $this->createWriteContext();
+
+        $this->getWriter()->insert(
+            CountryAreaDefinition::class,
+            [
+                ['id' => $id->toString(), 'name' => 'test-country1'],
+                ['id' => $id2->toString(), 'name' => 'test-country2']
+            ],
+            $context
+        );
+
+        $exists = $this->connection->fetchAll(
+            'SELECT * FROM country_area WHERE id IN (:id) ',
+            ['id' => [$id->getBytes(), $id2->getBytes()]],
+            ['id' => Connection::PARAM_STR_ARRAY]
+        );
+
+        $this->assertCount(2, $exists);
+
+        $this->getWriter()->delete(
+            CountryAreaDefinition::class,
+            [
+                ['id' => $id->toString()],
+                ['id' => $id2->toString()]
+            ],
+            $context
+        );
+
+        $exists = $this->connection->fetchAll(
+            'SELECT * FROM country_area WHERE id IN (:id) ',
+            ['id' => [$id->getBytes(), $id2->getBytes()]],
+            ['id' => Connection::PARAM_STR_ARRAY]
+        );
+
+        $this->assertEmpty($exists);
+    }
+
+
+    public function testMultiDeleteWithNoneExistingId()
+    {
+        $id = Uuid::uuid4();
+        $id2 = Uuid::uuid4();
+
+        $context = $this->createWriteContext();
+
+        $this->getWriter()->insert(
+            CountryAreaDefinition::class,
+            [
+                ['id' => $id->toString(), 'name' => 'test-country1'],
+                ['id' => $id2->toString(), 'name' => 'test-country2']
+            ],
+            $context
+        );
+
+        $exists = $this->connection->fetchAll(
+            'SELECT * FROM country_area WHERE id IN (:id) ',
+            ['id' => [$id->getBytes(), $id2->getBytes()]],
+            ['id' => Connection::PARAM_STR_ARRAY]
+        );
+
+        $this->assertCount(2, $exists);
+
+        $this->getWriter()->delete(
+            CountryAreaDefinition::class,
+            [
+                ['id' => $id->toString()],
+                ['id' => $id2->toString()],
+                ['id' => Uuid::uuid4()->toString()],
+                ['id' => Uuid::uuid4()->toString()],
+                ['id' => Uuid::uuid4()->toString()]
+            ],
+            $context
+        );
+
+        $exists = $this->connection->fetchAll(
+            'SELECT * FROM country_area WHERE id IN (:id) ',
+            ['id' => [$id->getBytes(), $id2->getBytes()]],
+            ['id' => Connection::PARAM_STR_ARRAY]
+        );
+
+        $this->assertEmpty($exists);
+    }
+
+    public function testDeleteWithMultiplePrimaryColumns()
+    {
+        $productId = Uuid::uuid4();
+        $categoryId = Uuid::uuid4();
+
+        $context = $this->createWriteContext();
+        $this->getWriter()->insert(ProductDefinition::class, [
+            [
+                'id' => $productId->toString(),
+                'name' => 'test 1',
+                'categories' => [
+                    ['category' => ['id' => $categoryId->toString(), 'name' => 'test']]
+                ]
+            ]
+
+        ], $context);
+
+        $exists = $this->connection->fetchAll(
+            'SELECT * FROM product_category WHERE product_id = :product AND category_id = :category',
+            ['product' => $productId->getBytes(), 'category' => $categoryId->getBytes()]
+        );
+        $this->assertCount(1, $exists);
+
+        $this->getWriter()->delete(ProductCategoryDefinition::class, [
+            ['productId' => $productId->toString(), 'categoryId' => $categoryId->toString()]
+        ], $context);
+
+        $exists = $this->connection->fetchAll(
+            'SELECT * FROM product_category WHERE product_id = :product AND category_id = :category',
+            ['product' => $productId->getBytes(), 'category' => $categoryId->getBytes()]
+        );
+        $this->assertEmpty($exists);
+    }
+
+
+    public function testMultiDeleteWithMultiplePrimaryColumns()
+    {
+        $productId = Uuid::uuid4();
+        $productId2 = Uuid::uuid4();
+        $categoryId = Uuid::uuid4();
+
+        $context = $this->createWriteContext();
+        $this->getWriter()->insert(ProductDefinition::class, [
+            [
+                'id' => $productId->toString(),
+                'name' => 'test 1',
+                'categories' => [
+                    ['category' => ['id' => $categoryId->toString(), 'name' => 'test']]
+                ]
+            ],[
+                'id' => $productId2->toString(),
+                'name' => 'test 1',
+                'categories' => [
+                    ['categoryId' => $categoryId->toString()]
+                ]
+            ]
+        ], $context);
+
+        $exists = $this->connection->fetchAll(
+            'SELECT * FROM product_category WHERE product_id IN (:product) AND category_id = :category',
+            ['product' => [$productId->getBytes(), $productId2->getBytes()], 'category' => $categoryId->getBytes()],
+            ['product' => Connection::PARAM_STR_ARRAY]
+        );
+        $this->assertCount(2, $exists);
+
+        $this->getWriter()->delete(ProductCategoryDefinition::class, [
+            ['productId' => $productId->toString(), 'categoryId' => $categoryId->toString()],
+            ['productId' => $productId2->toString(), 'categoryId' => $categoryId->toString()]
+        ], $context);
+
+        $exists = $this->connection->fetchAll(
+            'SELECT * FROM product_category WHERE product_id IN (:product) AND category_id = :category',
+            ['product' => [$productId->getBytes(), $productId2->getBytes()], 'category' => $categoryId->getBytes()],
+            ['product' => Connection::PARAM_STR_ARRAY]
+        );
+        $this->assertEmpty($exists);
     }
 
     public function testInsertWithId()

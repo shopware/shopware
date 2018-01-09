@@ -25,11 +25,15 @@
 namespace Shopware\Api\Entity\Dbal;
 
 use Doctrine\DBAL\Connection;
+use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\EntityDefinition;
+use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\FieldAware\DefaultExtender;
 use Shopware\Api\Entity\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Api\Entity\Write\FieldException\FieldExceptionStack;
+use Shopware\Api\Entity\Write\Query\DeleteQuery;
 use Shopware\Api\Entity\Write\Query\InsertQuery;
 use Shopware\Api\Entity\Write\Query\UpdateQuery;
 use Shopware\Api\Entity\Write\Query\WriteQuery;
@@ -94,6 +98,41 @@ class EntityWriter implements EntityWriterInterface
         $queryQueue->execute($this->connection);
 
         return $writeIdentifiers;
+    }
+
+    /**
+     * @param EntityDefinition|string $definition
+     * @param array $ids
+     * @param WriteContext $writeContext
+     * @return array
+     */
+    public function delete(string $definition, array $ids, WriteContext $writeContext)
+    {
+        $this->validateWriteInput($ids);
+
+        $queryQueue = new WriteQueryQueue();
+        $queryQueue->setOrder($definition, ...$definition::getWriteOrder());
+
+        $fields = $definition::getPrimaryKeys();
+
+        foreach ($ids as $raw) {
+            $mapped = [];
+
+            /** @var IdField|FkField $field */
+            foreach ($fields as $field) {
+                if (isset($raw[$field->getPropertyName()])) {
+                    $mapped[$field->getStorageName()] = $raw[$field->getPropertyName()];
+                }
+            }
+
+            $queryQueue->add($definition, new DeleteQuery($definition, $mapped));
+        }
+
+        $identifiers = $this->getWriteIdentifiers($queryQueue);
+
+        $queryQueue->execute($this->connection);
+
+        return $identifiers;
     }
 
     private function getWriteIdentifiers(WriteQueryQueue $queue): array

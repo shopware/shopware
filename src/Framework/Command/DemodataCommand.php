@@ -59,10 +59,6 @@ class DemodataCommand extends ContainerAwareCommand
 
         $this->io->success('Successfully created demodata.');
 
-        $arguments = ['command' => 'category:build:path'];
-        $command = $this->getApplication()->find('category:build:path');
-        $command->run(new ArrayInput($arguments), $output);
-
         $arguments = ['command' => 'dbal:refresh:index'];
         $command = $this->getApplication()->find('dbal:refresh:index');
         $command->run(new ArrayInput($arguments), $output);

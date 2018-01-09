@@ -15,7 +15,7 @@
 
         <div class="sw-product--list">
             {% block core_product_list_grid %}
-                <sw-grid :items="productList" :pagination="true" v-on:edit="onEdit">
+                <sw-grid :items="productList.products" :pagination="true" v-on:edit="onEdit">
                     {% block core_product_list_grid_slots %}
 
                         <template slot="columns" slot-scope="{ item }">
@@ -55,7 +55,7 @@
                 </sw-grid>
             {% endblock %}
 
-            <sw-loader v-if="isWorking"></sw-loader>
+            <sw-loader v-if="productList.isWorking"></sw-loader>
         </div>
     </sw-workspace>
 {% endblock %}

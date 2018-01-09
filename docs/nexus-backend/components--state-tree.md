@@ -37,6 +37,18 @@ In the background we're generating getters and setters for you (see for [further
 This enables you to use `v-model` on your template without worrying about necessary computed properties including their 
 getters and setters.
 
+Please notice we're namespacing the properties from the state with the state key (e.g. in this case `login.<key>`). You can
+change the mapping using the property `mapping`:
+
+```
+Shopware.Component.register('sw-login', {
+    stateMapping: {
+        state: 'login',
+        mapping: 'fooBar'
+    }
+});
+```
+
 You can customize the behavior when defining a property called `properties` to define the state properties you want to use in 
 your component.
 
@@ -86,3 +98,18 @@ Shopware.Component.register('sw-login', {
     }
 });
 ```
+
+### Multiple state trees in a component
+It's also possible to map more than one state tree to a component:
+
+```
+Shopware.Component.register('sw-login', {
+   stateMapping: [{
+       state: 'login'
+   }, {
+       state: 'productList'
+   }]
+});
+```
+
+All the above configurations can be applied when working with multiple state trees in a component.

@@ -9,7 +9,7 @@ Shopware.State.register('productList', {
     state() {
         return {
             isWorking: false,
-            productList: [],
+            products: [],
             lastErrors: {}
         };
     },
@@ -31,12 +31,12 @@ Shopware.State.register('productList', {
             state.isWorking = payload;
         },
         [RECEIVE_PRODUCT_LIST_SUCCESS](state, payload) {
-            state.productList = payload.data;
+            state.products = payload.data;
             state.isWorking = false;
             state.lastErrors = {};
         },
         [RECEIVE_PRODUCT_LIST_FAILURE](state, payload) {
-            state.productList = [];
+            state.products = [];
             state.isWorking = false;
             state.lastErrors = payload.data;
         }

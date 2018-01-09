@@ -7,8 +7,8 @@ Shopware.Component.register('sw-login', {
     },
 
     watch: {
-        token() {
-            if (!this.token.length || this.expiry === -1) {
+        'login.token'() {
+            if (!this.login.token.length || this.login.expiry === -1) {
                 return;
             }
 

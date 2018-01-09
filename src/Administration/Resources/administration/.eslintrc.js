@@ -61,6 +61,8 @@ module.exports = {
         // Allow both types of linebreak because of multiple contributors with different systems.
         'linebreak-style': 0,
 
+        'object-shorthand': 0,
+
         'no-prototype-builtins': 0,
 
         'object-curly-newline': [ 'error', { 'consistent': true } ],

@@ -14,7 +14,6 @@ const container = new Bottle({
 });
 
 const application = new ApplicationBootstrapper(container);
-StateFactory.install(VueJS.default);
 
 application
     .addFactory('vue', () => {

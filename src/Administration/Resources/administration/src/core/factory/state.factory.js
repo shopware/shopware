@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { sync } from 'vuex-router-sync';
 import VueX, {
     mapState,
@@ -136,7 +137,6 @@ function registerStateModule(namespacePath, moduleDefinition) {
     }
 
     moduleDefinition = generateMutationsForStateProperties(moduleDefinition);
-    // storeInstance.registerModule(namespacePath, moduleDefinition);
     stateRegistry.set(namespaceAsString, moduleDefinition);
 
     return true;
@@ -199,81 +199,91 @@ function getMutationName(name, prefix = '_swUpdate') {
 function install(Vue) {
     Vue.mixin({
         beforeCreate() {
-            this.$store = storeInstance;
-
             if (!this.$options.stateMapping) {
                 return;
             }
-            const stateMapping = this.$options.stateMapping;
-            const stateKey = stateMapping.state;
+            const comp = this;
 
-            if (!stateRegistry.has(stateKey)) {
-                utils.warn(
-                    'StateFactory',
-                    `"${stateKey}" is not registered in the state tree, the state can't be mapped.`,
-                    `The following keys are valid: ${Array.from(stateRegistry.keys()).join(', ')}`
-                );
-                return;
+            let stateMapping = this.$options.stateMapping;
+            if (utils.isObject(stateMapping)) {
+                stateMapping = [stateMapping];
             }
 
-            const stateDefinition = stateRegistry.get(stateKey);
-            const initialState = stateDefinition.state();
-
-            // Generate computed properties, either the defined properties or all properties from the state, if not false
-            // or empty array provided
-            if (!Object.prototype.hasOwnProperty.bind(stateMapping, 'properties')
-                || stateMapping.properties !== false
-                || (utils.isArray(stateMapping.properties) && !stateMapping.properties.length)
-            ) {
-                const generatedComputed = {};
-                let propertyMapping = Object.keys(initialState);
-
-                if (utils.isArray(stateMapping.properties)) {
-                    propertyMapping = stateMapping.properties;
+            stateMapping.forEach((item) => {
+                const stateKey = item.state;
+                if (!stateRegistry.has(stateKey)) {
+                    utils.warn(
+                        'StateFactory',
+                        `"${stateKey}" is not registered in the state tree, the state can't be mapped.`,
+                        `The following keys are valid: ${Array.from(stateRegistry.keys()).join(', ')}`
+                    );
+                    return;
                 }
 
-                Object.keys(initialState).forEach((key) => {
-                    // Just generate computed properties for the user defined properties
-                    if (propertyMapping.indexOf(key) === -1) {
-                        return;
+                const stateDefinition = stateRegistry.get(stateKey);
+                const initialState = stateDefinition.state();
+                const mappingKey = item.mapping || stateKey;
+
+                // Generate computed properties, either the defined properties or all properties from the state, if not false
+                // or empty array provided
+                if (!Object.prototype.hasOwnProperty.bind(stateMapping, 'properties')
+                    || stateMapping.properties !== false
+                    || (utils.isArray(stateMapping.properties) && !stateMapping.properties.length)
+                ) {
+                    const generatedComputed = {};
+                    let propertyMapping = Object.keys(initialState);
+
+                    if (utils.isArray(stateMapping.properties)) {
+                        propertyMapping = stateMapping.properties;
                     }
 
-                    // Support for "v-model", see {@link https://vuex.vuejs.org/en/forms.html#two-way-computed-property}
-                    generatedComputed[key] = {
-                        get() {
-                            return this.$store.state[stateKey][key];
-                        },
-                        set(value) {
-                            this.$store.commit(
-                                `${stateKey}/${getMutationName(key)}`,
-                                value
-                            );
+                    Object.keys(initialState).forEach((key) => {
+                        // Just generate computed properties for the user defined properties
+                        if (propertyMapping.indexOf(key) === -1) {
+                            return;
+                        }
+
+                        // Support for "v-model", see {@link https://vuex.vuejs.org/en/forms.html#two-way-computed-property}
+                        Object.defineProperty(generatedComputed, key, {
+                            configurable: true,
+                            enumerable: true,
+                            get () {
+                                return comp.$store.state[stateKey][key];
+                            },
+                            set (value) {
+                                comp.$store.commit(
+                                    `${stateKey}/${getMutationName(key)}`,
+                                    value
+                                );
+                            }
+                        });
+                    });
+
+                    this.$options.computed = {
+                        ...this.$options.computed,
+                        [mappingKey]() {
+                            return generatedComputed;
                         }
                     };
-                });
+                }
 
-                this.$options.computed = {
-                    ...this.$options.computed,
-                    ...generatedComputed
+                // Don't try to map actions when no actions are defined
+                if (!stateDefinition.actions || stateDefinition.actions.length < 1) {
+                    return;
+                }
+
+                // Either map the defined actions or all available actions from the state definition
+                const actions = stateMapping.actions || Object.keys(stateDefinition.actions);
+
+                // If the user provides `false` or an empty array, we don't map the actions
+                if (stateMapping.actions === false || (utils.isArray(stateMapping.actions) && stateMapping.actions.length)) {
+                    return;
+                }
+                this.$options.methods = {
+                    ...this.$options.methods,
+                    ...mapActions(stateKey, actions)
                 };
-            }
-
-            // Don't try to map actions when no actions are defined
-            if (!stateDefinition.actions || stateDefinition.actions.length < 1) {
-                return;
-            }
-
-            // Either map the defined actions or all available actions from the state definition
-            const actions = stateMapping.actions || Object.keys(stateDefinition.actions);
-
-            // If the user provides `false` or an empty array, we don't map the actions
-            if (stateMapping.actions === false || (utils.isArray(stateMapping.actions) && stateMapping.actions.length)) {
-                return;
-            }
-            this.$options.methods = {
-                ...this.$options.methods,
-                ...mapActions(stateKey, actions)
-            };
+            });
         }
     });
 

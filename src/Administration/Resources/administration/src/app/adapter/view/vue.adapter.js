@@ -90,12 +90,16 @@ export default function VueAdapter(context, componentFactory, stateFactory, Vue)
     function createInstance(renderElement, router, providers) {
         const components = getComponents();
 
-        stateFactory.initialize(Vue);
+        // We need the store instance to inject it into the Vue constructor
+        const store = stateFactory.initialize(Vue);
+
+        // Enables to see the router changes in VueX
         stateFactory.mapRouterToState(router);
 
         return new Vue({
             el: renderElement,
             router,
+            store,
             components,
             template: '<sw-admin />',
             provide() {

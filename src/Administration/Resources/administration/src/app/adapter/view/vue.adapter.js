@@ -1,4 +1,3 @@
-/* eslint-disable */
 import 'src/app/component/components';
 import VueRouter from 'vue-router';
 import VueMoment from 'vue-moment';
@@ -91,6 +90,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, Vue)
     function createInstance(renderElement, router, providers) {
         const components = getComponents();
 
+        stateFactory.initialize(Vue);
         stateFactory.mapRouterToState(router);
 
         return new Vue({

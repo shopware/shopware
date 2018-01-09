@@ -47,6 +47,13 @@ Shopware.State.register('login', {
             state.isWorking = false;
         },
         [LOGIN_USER_WITH_PASSWORD_FAILURE](state, payload) {
+            if (!payload.response) {
+                state.error = payload.message;
+                state.message = `Something went wrong requesting "${payload.config.url}".`;
+                state.isWorking = false;
+                return;
+            }
+
             let data = payload.response.data.errors;
             data = data.length > 1 ? data : data[0];
 

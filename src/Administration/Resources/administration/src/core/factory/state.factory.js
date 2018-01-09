@@ -11,22 +11,23 @@ import utils from 'src/core/service/util.service';
  * Core store definition
  * @type {Object}
  */
-import storeDefinition from 'src/core/store';
+import storeDefinition from 'src/app/store';
 
 /**
  * Registry for the state tree namespaces
  * @type {Map}
  */
-const namespaceRegistry = new Map();
+const stateRegistry = new Map();
 
 /**
  * VueX store instance
- * @type {Store}
+ * @type {Store<any>}
  */
 let storeInstance;
 let unsync;
 
 export default {
+    initialize,
     mapRouterToState,
     unmapRouterFromState,
     getStoreInstance,
@@ -38,6 +39,20 @@ export default {
     removeStateModule,
     install
 };
+
+function initialize(viewInstance) {
+    install(viewInstance);
+
+    storeInstance = createStoreInstance(storeDefinition);
+
+    // Initialize the collected state trees
+    stateRegistry.forEach((item, key) => {
+        const path = key.split('/');
+        storeInstance.registerModule(path, item);
+    });
+
+    return storeInstance;
+}
 
 /**
  * Maps the router changes to the global state object.
@@ -121,8 +136,8 @@ function registerStateModule(namespacePath, moduleDefinition) {
     }
 
     moduleDefinition = generateMutationsForStateProperties(moduleDefinition);
-    storeInstance.registerModule(namespacePath, moduleDefinition);
-    namespaceRegistry.set(namespaceAsString, moduleDefinition);
+    // storeInstance.registerModule(namespacePath, moduleDefinition);
+    stateRegistry.set(namespaceAsString, moduleDefinition);
 
     return true;
 }
@@ -192,16 +207,16 @@ function install(Vue) {
             const stateMapping = this.$options.stateMapping;
             const stateKey = stateMapping.state;
 
-            if (!namespaceRegistry.has(stateKey)) {
+            if (!stateRegistry.has(stateKey)) {
                 utils.warn(
                     'StateFactory',
                     `"${stateKey}" is not registered in the state tree, the state can't be mapped.`,
-                    `The following keys are valid: ${Array.from(namespaceRegistry.keys()).join(', ')}`
+                    `The following keys are valid: ${Array.from(stateRegistry.keys()).join(', ')}`
                 );
                 return;
             }
 
-            const stateDefinition = namespaceRegistry.get(stateKey);
+            const stateDefinition = stateRegistry.get(stateKey);
             const initialState = stateDefinition.state();
 
             // Generate computed properties, either the defined properties or all properties from the state, if not false

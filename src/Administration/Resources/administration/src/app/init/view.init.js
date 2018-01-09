@@ -6,11 +6,12 @@ import ViewFactory from 'src/core/factory/view.factory';
 /**
  * Initializes the view of the application
  *
- * @param diContainer
- * @returns {Bottle}
+ * @param container
+ * @returns {ViewFactory}
  */
 export default function initializeView(container) {
     const factoryContainer = this.getContainer('factory');
+
     const adapter = VueAdapter(
         container.contextService,
         factoryContainer.component,

@@ -55,7 +55,6 @@ const exposedInterface = {
     Utils: utils,
     Application: application,
     State: {
-        Store: StateFactory.getStoreInstance(),
         mapActions: StateFactory.mapActions,
         mapState: StateFactory.mapState,
         mapMutations: StateFactory.mapMutations,

@@ -72,12 +72,16 @@ class ApiController extends RestController
         $repository = $this->get($definition::getRepositoryClass());
 
         if (empty($path)) {
-            $data = $repository->search(
+            $result = $repository->search(
                 $this->createListingCriteria($request),
                 $context->getTranslationContext()
             );
 
-            return $this->createResponse(['data' => $data], $context);
+            return $this->createResponse([
+                'data' => $result,
+                'total' => $result->getTotal(),
+                'aggregations' => $result->getAggregations(),
+            ], $context);
         }
 
         $child = array_pop($path);
@@ -424,6 +428,7 @@ class ApiController extends RestController
     {
         $criteria = new Criteria();
         $criteria->setLimit(10);
+        $criteria->setFetchCount(true);
 
         if ($request->query->has('offset')) {
             $criteria->setOffset((int) $request->query->get('offset'));

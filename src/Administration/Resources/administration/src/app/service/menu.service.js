@@ -1,6 +1,16 @@
+/**
+ * @module app/service/menu
+ */
 import FlatTree from 'src/core/helper/flattree.helper';
 
-export default function MenuService(moduleFactory) {
+/**
+ * @method createMenuService
+ * @memberOf module:app/service/menu
+ * @param moduleFactory
+ * @returns {{getMainMenu: getMainMenu, addItem: FlatTree.add, removeItem: FlatTree.remove}}
+ * @constructor
+ */
+export default function createMenuService(moduleFactory) {
     const flatTree = new FlatTree();
 
     return {
@@ -13,6 +23,7 @@ export default function MenuService(moduleFactory) {
      * Iterates the module registry from the {@link ModuleFactory} and adds the menu items to
      * the flat tree instance.
      *
+     * @memberOf module:app/service/menu
      * @returns {Object} main menu as a data tree hierarchy
      */
     function getMainMenu() {

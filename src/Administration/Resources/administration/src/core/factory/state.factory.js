@@ -1,4 +1,6 @@
-/* eslint-disable */
+/**
+ * @module core/factory/state
+ */
 import { sync } from 'vuex-router-sync';
 import VueX, {
     mapState,
@@ -247,10 +249,10 @@ function install(Vue) {
                         Object.defineProperty(generatedComputed, key, {
                             configurable: true,
                             enumerable: true,
-                            get () {
+                            get() {
                                 return comp.$store.state[stateKey][key];
                             },
-                            set (value) {
+                            set(value) {
                                 comp.$store.commit(
                                     `${stateKey}/${getMutationName(key)}`,
                                     value

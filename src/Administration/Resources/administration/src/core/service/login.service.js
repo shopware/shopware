@@ -1,3 +1,15 @@
+/**
+ * @module core/service/login
+ */
+
+/**
+ *
+ * @memberOf module:core/service/login
+ * @constructor
+ * @method createLoginService
+ * @param httpClient
+ * @returns {Object}
+ */
 export default function createLoginService(httpClient) {
     /** @var {String} localStorage token */
     let localStorageKey = 'bearerAuth';
@@ -18,6 +30,7 @@ export default function createLoginService(httpClient) {
      * Sends an AJAX request to the authentication end point and tries to log in the user with the provided
      * password.
      *
+     * @memberOf module:core/service/login
      * @param {String} user Username
      * @param {String} pass Password
      * @returns {Observable<AjaxResponse>|AxiosPromise}
@@ -33,6 +46,7 @@ export default function createLoginService(httpClient) {
      * Saves the bearer authentication object in the localStorage using the {@link localStorageKey} as the
      * object identifier.
      *
+     * @memberOf module:core/service/login
      * @param {String} token - Bearer token from the API
      * @param {Number} expiry - Expiry date as an unix timestamp
      * @returns {Object} saved authentication object
@@ -48,6 +62,7 @@ export default function createLoginService(httpClient) {
      * Returns saved bearer authentication object. Either you're getting the full object or when you're specifying
      * the `section` argument and getting either the token or the expiry date.
      *
+     * @memberOf module:core/service/login
      * @param {String} {section=null}
      * @returns {Boolean|String|Number}
      */
@@ -68,6 +83,7 @@ export default function createLoginService(httpClient) {
     /**
      * Clears the local stored bearer authentication object.
      *
+     * @memberOf module:core/service/login
      * @returns {Boolean}
      */
     function clearBearerAuthentication() {
@@ -78,6 +94,7 @@ export default function createLoginService(httpClient) {
     /**
      * Returns the bearer token
      *
+     * @memberOf module:core/service/login
      * @returns {Boolean|String}
      */
     function getToken() {
@@ -87,6 +104,7 @@ export default function createLoginService(httpClient) {
     /**
      * Returns the expiry date of the token as an unix timestamp.
      *
+     * @memberOf module:core/service/login
      * @returns {Boolean|String|Number}
      */
     function getExpiry() {
@@ -96,6 +114,7 @@ export default function createLoginService(httpClient) {
     /**
      * Validates the token using the current time (based on the OS system clock of the user) and the server time.
      *
+     * @memberOf module:core/service/login
      * @param {Number} expiry - Expiry date as an unix timestamp
      * @returns {Boolean}
      */
@@ -107,6 +126,7 @@ export default function createLoginService(httpClient) {
     /**
      * Returns the localStorage key
      *
+     * @memberOf module:core/service/login
      * @returns {String}
      */
     function getLocalStorageKey() {
@@ -116,6 +136,7 @@ export default function createLoginService(httpClient) {
     /**
      * Sets the localStorage key
      *
+     * @memberOf module:core/service/login
      * @param {String} storageKey
      * @param {Boolean} [clearKey=true] Should the localStorage be cleared before setting a new auth object
      * @returns {String}

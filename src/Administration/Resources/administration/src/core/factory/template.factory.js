@@ -1,3 +1,6 @@
+/**
+ * @module core/factory/template
+ */
 import Twig from 'twig';
 import utils from 'src/core/service/util.service';
 
@@ -19,7 +22,7 @@ export default {
  * Holds a list with all registered component templates.
  * Including registered overrides.
  *
- * @type {Map}
+ * @type {Map<any, any>}
  */
 const templateRegistry = new Map();
 
@@ -33,7 +36,7 @@ Twig.extend((TwigCore) => {
      * Since the data binding is done in Vue this could lead to syntax issues.
      * We are only using the block system for template inheritance.
      *
-     * @type {[*]}
+     * @type {Array<any>}
      */
     TwigCore.token.definitions = [
         TwigCore.token.definitions[0],

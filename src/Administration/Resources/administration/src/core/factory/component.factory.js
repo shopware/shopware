@@ -1,3 +1,6 @@
+/**
+ * @module core/factory/component
+ */
 import utils from 'src/core/service/util.service';
 import TemplateFactory from 'src/core/factory/template.factory';
 
@@ -11,10 +14,18 @@ export default {
     getOverrideRegistry
 };
 
-/** @type Map componentRegistry - Registry which holds all component registry */
+/**
+ * Registry which holds all component registry
+ *
+ * @type {Map<any, any>}
+ */
 const componentRegistry = new Map();
 
-/** @type Map overrideRegistry - Registry which holds all component overrides */
+/**
+ * Registry which holds all component overrides
+ *
+ * @type {Map<any, any>}
+ */
 const overrideRegistry = new Map();
 
 /**

@@ -1,4 +1,10 @@
-// <reference path="@types/common.d.ts" />
+/**
+ * Shopware End Developer API
+ * @module Shopware
+ * @ignore
+ */
+
+// <reference path="types/common.d.ts" />
 const Bottle = require('bottlejs');
 
 const ModuleFactory = require('src/core/factory/module.factory').default;
@@ -32,10 +38,19 @@ application
         return StateFactory;
     });
 
-const exposedInterface = {
+module.exports = {
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
     Module: {
         register: ModuleFactory.registerModule
     },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
     Component: {
         register: ComponentFactory.register,
         extend: ComponentFactory.extend,
@@ -43,6 +58,11 @@ const exposedInterface = {
         build: ComponentFactory.build,
         getTemplate: ComponentFactory.getComponentTemplate
     },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
     Template: {
         register: TemplateFactory.registerComponentTemplate,
         extend: TemplateFactory.extendComponentTemplate,
@@ -51,8 +71,22 @@ const exposedInterface = {
         find: TemplateFactory.findCustomTemplate,
         findOverride: TemplateFactory.findCustomTemplate
     },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {module:core/service/utils}
+     */
     Utils: utils,
+
+    /**
+     * @memberOf module:Shopware
+     * @type {module:core/application}
+     */
     Application: application,
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
     State: {
         mapActions: StateFactory.mapActions,
         mapState: StateFactory.mapState,
@@ -61,5 +95,3 @@ const exposedInterface = {
         register: StateFactory.registerStateModule
     }
 };
-
-module.exports = exposedInterface;

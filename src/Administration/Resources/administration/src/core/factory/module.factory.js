@@ -1,3 +1,6 @@
+/**
+ * @module core/factory/module
+ */
 import utils from 'src/core/service/util.service';
 
 export default {
@@ -6,13 +9,16 @@ export default {
     getModuleRegistry
 };
 
-/** @type Map modules - Registry for modules */
+/**
+ * Registry for modules
+ * @type {Map<any, any>}
+ */
 const modules = new Map();
 
 /**
  * Returns the registry of all modules mounted in the application.
  *
- * @returns {Map} modules - Registry of all modules
+ * @returns {Map<any, any>} modules - Registry of all modules
  */
 function getModuleRegistry() {
     return modules;

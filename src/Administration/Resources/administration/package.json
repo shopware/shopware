@@ -22,12 +22,15 @@
     "test": "npm run unit && npm run e2e",
     "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs",
     "security-check": "./node_modules/.bin/nsp check",
-    "check-dependencies": "./node_modules/.bin/ncu"
+    "check-dependencies": "./node_modules/.bin/ncu",
+    "generate-api-docs": "./node_modules/.bin/jsdoc src -r -c jsdoc.config.js"
   },
   "dependencies": {
     "axios": "^0.17.1",
     "bottlejs": "^1.6.3",
+    "docdash": "^0.4.0",
     "expose-loader": "^0.7.4",
+    "jsdoc": "^3.5.5",
     "twig": "^1.10.5",
     "uuid": "^3.1.0",
     "vue": "^2.5.11",

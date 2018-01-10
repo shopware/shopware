@@ -1,3 +1,17 @@
+/**
+ * @module core/factory/router
+ */
+
+/**
+ * Initializes the router for the application.
+ *
+ * @constructor
+ * @param {VueRouter} Router
+ * @param {ViewFactory} View
+ * @param {ModuleFactory} moduleFactory
+ * @param {LoginService} LoginService
+ * @returns {{}}
+ */
 export default function createRouter(Router, View, moduleFactory, LoginService) {
     let allRoutes = [];
     let moduleRoutes = [];
@@ -12,6 +26,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
     /**
      * Creates the router instance for the application.
      *
+     * @memberof module:core/factory/router
      * @param {Object} [opts={}]
      * @returns {VueRouter} router
      */
@@ -32,6 +47,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      * Installs the navigation guard interceptor which provides every route, if possible, with the module definition.
      * This is useful to generalize the route managing.
      *
+     * @memberof module:core/factory/router
      * @param {VueRouter} router
      * @returns {VueRouter} router
      */
@@ -87,6 +103,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      * Registers the module routes as child routes of the root core route to automatically
      * providing the administration base structure to every module.
      *
+     * @memberof module:core/factory/router
      * @param {Array} core - Core routes
      * @param {Array} module - Module routes
      * @returns {Array} core - new core routes definition
@@ -122,6 +139,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      * Registers the core module routes. The provided component name will be remapped to the corresponding
      * view component.
      *
+     * @memberof module:core/factory/router
      * @param {Array} routes
      * @returns {Array} moduleRoutes - converted routes array
      */
@@ -140,6 +158,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      * and remaps the component names (e.g. either `route.component` or `route.components`) to
      * the corresponding view component which should be registered under the same name.
      *
+     * @memberof module:core/factory/router
      * @param {Array} routes
      * @returns {Array} allRoutes - converted routes array
      */
@@ -158,6 +177,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      * to a view component, so the router works with component instead of looking up component names
      * in the internal registry of the view framework.
      *
+     * @memberof module:core/factory/router
      * @param {Object} route - Route definition
      * @returns {Object} route - Converted route definition
      */
@@ -187,6 +207,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
     /**
      * Get a component using the argument `componentName` from the view layer.
      *
+     * @memberof module:core/factory/router
      * @param {String} componentName
      * @returns {Vue|null} - View component or null
      */

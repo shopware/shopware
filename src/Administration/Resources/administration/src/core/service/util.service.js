@@ -1,3 +1,7 @@
+/**
+ * @module core/service/utils
+ */
+
 import uuidv4 from 'uuid/v4';
 
 export default {
@@ -79,34 +83,81 @@ function currency(val, sign) {
     return val.toLocaleString(language, opts);
 }
 
+/**
+ * Formats a Date object to a localized string
+ *
+ * @param {Date} val
+ * @param {String} [locale='de-DE']
+ * @returns {string}
+ */
 function date(val, locale = 'de-DE') {
     return val.toLocaleString(locale);
 }
 
+/**
+ * Checks if the provided argument is an object
+ *
+ * @param {any} object Object to check
+ * @returns {boolean}
+ */
 function isObject(object) {
     return object !== null && typeof object === 'object';
 }
 
+/**
+ * Checks if the provided argument is a plain object
+ *
+ * @param {any} obj
+ * @returns {boolean}
+ */
 function isPlainObject(obj) {
     return obj.toString() === '[object Object]';
 }
 
+/**
+ * Checks if the provided argument is an empty object
+ *
+ * @param {Object} object
+ * @returns {boolean}
+ */
 function isEmpty(object) {
     return Object.keys(object).length === 0;
 }
 
+/**
+ * Checks if the provided argument is a regular expression
+ *
+ * @param {any} exp
+ * @returns {boolean}
+ */
 function isRegExp(exp) {
     return exp.toString() === '[object RegExp]';
 }
 
+/**
+ * Checks if the provided argument is an array
+ * @param {any} array
+ * @returns {boolean}
+ */
 function isArray(array) {
     return Array.isArray(array);
 }
 
+/**
+ *
+ * @param func
+ * @returns {boolean}
+ */
 function isFunction(func) {
     return func !== null && typeof func === 'function';
 }
 
+/**
+ * Checks if the provided argument is a date object
+ *
+ * @param {any} dateObject
+ * @returns {boolean}
+ */
 function isDate(dateObject) {
     return dateObject instanceof Date;
 }

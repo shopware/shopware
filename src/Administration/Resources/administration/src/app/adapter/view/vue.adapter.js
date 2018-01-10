@@ -1,8 +1,10 @@
+/**
+ * @module app/adapter/view/vue
+ */
 import 'src/app/component/components';
 import VueRouter from 'vue-router';
-import VueMoment from 'vue-moment';
-
 import utils from 'src/core/service/util.service';
+import VueMoment from 'vue-moment';
 
 /**
  * Contains the global Vue.js components
@@ -10,6 +12,13 @@ import utils from 'src/core/service/util.service';
  */
 const vueComponents = {};
 
+/**
+ * @method VueAdapter
+ * @memberOf module:app/adapter/view/vue
+ * @param context
+ * @param componentFactory
+ * @returns {VueAdapter}
+ */
 export default function VueAdapter(context, componentFactory, stateFactory, Vue) {
     Vue.use(VueRouter);
     Vue.use(VueMoment);
@@ -85,7 +94,8 @@ export default function VueAdapter(context, componentFactory, stateFactory, Vue)
      * @param renderElement
      * @param router
      * @param providers
-     * @returns {*}
+     * @memberOf module:app/adapter/view/vue
+     * @returns {Vue}
      */
     function createInstance(renderElement, router, providers) {
         const components = getComponents();
@@ -111,7 +121,8 @@ export default function VueAdapter(context, componentFactory, stateFactory, Vue)
     /**
      * Initializes all core components as Vue components.
      *
-     * @returns {*}
+     * @memberOf module:app/adapter/view/vue
+     * @returns {Object}
      */
     function initComponents() {
         const componentRegistry = componentFactory.getComponentRegistry();
@@ -128,7 +139,8 @@ export default function VueAdapter(context, componentFactory, stateFactory, Vue)
      * Includes the full rendered template with all overrides.
      *
      * @param componentName
-     * @returns {*}
+     * @memberOf module:app/adapter/view/vue
+     * @returns {Function}
      */
     function createComponent(componentName) {
         const componentConfig = Shopware.Component.build(componentName);
@@ -138,7 +150,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, Vue)
         }
 
         const vueComponent = Vue.component(componentName, componentConfig);
-
+        console.log(vueComponent);
         vueComponents[componentName] = vueComponent;
 
         return vueComponent;
@@ -148,6 +160,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, Vue)
      * Returns a final Vue component by its name.
      *
      * @param componentName
+     * @memberOf module:app/adapter/view/vue
      * @returns {null|Component}
      */
     function getComponent(componentName) {
@@ -161,6 +174,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, Vue)
     /**
      * Returns the complete set of available Vue components.
      *
+     * @memberOf module:app/adapter/view/vue
      * @returns {Object}
      */
     function getComponents() {
@@ -170,6 +184,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, Vue)
     /**
      * Returns the adapter wrapper
      *
+     * @memberOf module:app/adapter/view/vue
      * @returns {Vue}
      */
     function getWrapper() {
@@ -179,6 +194,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, Vue)
     /**
      * Returns the name of the adapter
      *
+     * @memberOf module:app/adapter/view/vue
      * @returns {string}
      */
     function getName() {

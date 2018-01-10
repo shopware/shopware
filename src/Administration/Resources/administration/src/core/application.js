@@ -1,4 +1,6 @@
-/* global Shopware */
+/**
+ * @module core/application
+ */
 
 /**
  * The application bootstrapper bootstraps the application and registers the necessary
@@ -9,8 +11,9 @@
  * services too.
  *
  * @class
+ * @memberOf module:core/application
  */
-export default class ApplicationBootstrapper {
+class ApplicationBootstrapper {
     /**
      * Provides the necessary class properties for the class to work probably
      *
@@ -324,3 +327,5 @@ export default class ApplicationBootstrapper {
         return this;
     }
 }
+
+export default ApplicationBootstrapper;

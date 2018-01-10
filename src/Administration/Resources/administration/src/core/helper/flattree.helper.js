@@ -2,14 +2,13 @@ import utils from 'src/core/service/util.service';
 
 /**
  * The flat tree converts a collection of flat objects into a data tree hierarchy.
- *
- * @private
- * @class FlatTree
+ * @class
  */
-export default class FlatTree {
+class FlatTree {
     /**
      * Creates a new instance of registered nodes.
      *
+     * @memberOf FlatTree
      * @constructor
      */
     constructor() {
@@ -94,3 +93,5 @@ export default class FlatTree {
         return this._registeredNodes;
     }
 }
+
+export default FlatTree;

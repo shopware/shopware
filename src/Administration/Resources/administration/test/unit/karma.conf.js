@@ -39,8 +39,7 @@ module.exports = function (config) {
                     '--disable-web-security',
                     '--disable-gpu',
                     '--headless',
-                    '--remote-debugging-port=9222',
-
+                    '--remote-debugging-port=9222'
                 ]
             }
         },
@@ -56,6 +55,6 @@ module.exports = function (config) {
             useBrowserName: false,
             outputDir: artifactsPath,
             outputFile: 'administration.junit.xml'
-        },
+        }
     });
 };

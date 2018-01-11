@@ -10,6 +10,12 @@ Shopware.Component.register('sw-product-list', {
         state: 'productList'
     },
 
+    computed: {
+        total() {
+            return this.productList.total;
+        }
+    },
+
     data() {
         return {
             errors: []
@@ -33,7 +39,7 @@ Shopware.Component.register('sw-product-list', {
                 this.$router.push({
                     name: 'sw.product.detail',
                     params: {
-                        uuid: product.uuid
+                        id: product.id
                     }
                 });
             }

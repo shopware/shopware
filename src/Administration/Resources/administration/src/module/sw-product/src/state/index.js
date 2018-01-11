@@ -10,7 +10,8 @@ Shopware.State.register('productList', {
         return {
             isWorking: false,
             products: [],
-            lastErrors: {}
+            lastErrors: {},
+            total: 0
         };
     },
     actions: {
@@ -32,6 +33,7 @@ Shopware.State.register('productList', {
         },
         [RECEIVE_PRODUCT_LIST_SUCCESS](state, payload) {
             state.products = payload.data;
+            state.total = payload.total;
             state.isWorking = false;
             state.lastErrors = {};
         },

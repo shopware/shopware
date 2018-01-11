@@ -3,8 +3,7 @@ export default {
     data() {
         return {
             page: 1,
-            limit: 25,
-            total: 0
+            limit: 25
         };
     },
 

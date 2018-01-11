@@ -13,6 +13,8 @@ class Util
         $lastChar = substr($domainName, strlen($domainName) - 1, 1);
 
         switch (true) {
+            case ($domainName === 'children'):
+                return 'children';
             case ($domainName === 'categoryTree'):
                 return 'categoryTree';
             case ($domainName === 'productTree'):

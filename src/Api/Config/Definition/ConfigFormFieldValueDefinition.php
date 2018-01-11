@@ -4,6 +4,7 @@ namespace Shopware\Api\Config\Definition;
 
 use Shopware\Api\Config\Collection\ConfigFormFieldValueBasicCollection;
 use Shopware\Api\Config\Collection\ConfigFormFieldValueDetailCollection;
+use Shopware\Api\Config\Event\ConfigFormFieldValue\ConfigFormFieldValueDeletedEvent;
 use Shopware\Api\Config\Event\ConfigFormFieldValue\ConfigFormFieldValueWrittenEvent;
 use Shopware\Api\Config\Repository\ConfigFormFieldValueRepository;
 use Shopware\Api\Config\Struct\ConfigFormFieldValueBasicStruct;
@@ -74,6 +75,11 @@ class ConfigFormFieldValueDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ConfigFormFieldValueBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ConfigFormFieldValueDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

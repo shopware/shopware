@@ -16,8 +16,10 @@ use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
+use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Locale\Definition\LocaleDefinition;
@@ -25,6 +27,7 @@ use Shopware\Api\Payment\Definition\PaymentMethodDefinition;
 use Shopware\Api\Shipping\Definition\ShippingMethodDefinition;
 use Shopware\Api\Shop\Collection\ShopBasicCollection;
 use Shopware\Api\Shop\Collection\ShopDetailCollection;
+use Shopware\Api\Shop\Event\Shop\ShopDeletedEvent;
 use Shopware\Api\Shop\Event\Shop\ShopWrittenEvent;
 use Shopware\Api\Shop\Repository\ShopRepository;
 use Shopware\Api\Shop\Struct\ShopBasicStruct;
@@ -68,9 +71,9 @@ class ShopDefinition extends EntityDefinition
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new Required()),
             (new FkField('customer_group_id', 'customerGroupId', CustomerGroupDefinition::class))->setFlags(new Required()),
             new FkField('fallback_translation_id', 'fallbackTranslationId', self::class),
-            new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class),
-            new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class),
-            new FkField('country_id', 'countryId', CountryDefinition::class),
+            (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->setFlags(new Required()),
+            (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->setFlags(new Required()),
+            (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new IntField('position', 'position'))->setFlags(new Required()),
             (new StringField('host', 'host'))->setFlags(new Required()),
@@ -96,7 +99,8 @@ class ShopDefinition extends EntityDefinition
             new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, false),
             new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, false),
             new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, false),
-            new ManyToManyAssociationField('currencies', CurrencyDefinition::class, ShopCurrencyDefinition::class, false, 'shop_id', 'currency_id', 'currencyIds'),
+            (new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('currencies', CurrencyDefinition::class, ShopCurrencyDefinition::class, false, 'shop_id', 'currency_id', 'currencyIds'))->setFlags(new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -114,6 +118,11 @@ class ShopDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ShopBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ShopDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

@@ -242,6 +242,7 @@ class EntityDefinitionResolver
         $table = $mapping::getEntityName();
 
         $mappingAlias = $root . '.' . $field->getPropertyName() . '.mapping';
+
         if ($query->hasState($mappingAlias)) {
             return;
         }

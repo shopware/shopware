@@ -15,8 +15,10 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Order\Collection\OrderAddressBasicCollection;
 use Shopware\Api\Order\Collection\OrderAddressDetailCollection;
+use Shopware\Api\Order\Event\OrderAddress\OrderAddressDeletedEvent;
 use Shopware\Api\Order\Event\OrderAddress\OrderAddressWrittenEvent;
 use Shopware\Api\Order\Repository\OrderAddressRepository;
 use Shopware\Api\Order\Struct\OrderAddressBasicStruct;
@@ -71,8 +73,8 @@ class OrderAddressDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, true),
             new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, true),
-            new OneToManyAssociationField('orders', OrderDefinition::class, 'billing_address_id', false, 'id'),
-            new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_address_id', false, 'id'),
+            (new OneToManyAssociationField('orders', OrderDefinition::class, 'billing_address_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_address_id', false, 'id'))->setFlags(new RestrictDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -90,6 +92,11 @@ class OrderAddressDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return OrderAddressBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return OrderAddressDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

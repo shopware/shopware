@@ -4,6 +4,7 @@ namespace Shopware\Api\Shop\Struct;
 
 use Shopware\Api\Plugin\Struct\PluginBasicStruct;
 use Shopware\Api\Shop\Collection\ShopBasicCollection;
+use Shopware\Api\Shop\Collection\ShopTemplateBasicCollection;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigFormBasicCollection;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigFormFieldBasicCollection;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigPresetBasicCollection;
@@ -26,6 +27,11 @@ class ShopTemplateDetailStruct extends ShopTemplateBasicStruct
     protected $shops;
 
     /**
+     * @var ShopTemplateBasicCollection
+     */
+    protected $children;
+
+    /**
      * @var ShopTemplateConfigFormBasicCollection
      */
     protected $configForms;
@@ -43,6 +49,8 @@ class ShopTemplateDetailStruct extends ShopTemplateBasicStruct
     public function __construct()
     {
         $this->shops = new ShopBasicCollection();
+
+        $this->children = new ShopTemplateBasicCollection();
 
         $this->configForms = new ShopTemplateConfigFormBasicCollection();
 
@@ -79,6 +87,16 @@ class ShopTemplateDetailStruct extends ShopTemplateBasicStruct
     public function setShops(ShopBasicCollection $shops): void
     {
         $this->shops = $shops;
+    }
+
+    public function getChildren(): ShopTemplateBasicCollection
+    {
+        return $this->children;
+    }
+
+    public function setChildren(ShopTemplateBasicCollection $children): void
+    {
+        $this->children = $children;
     }
 
     public function getConfigForms(): ShopTemplateConfigFormBasicCollection

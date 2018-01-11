@@ -16,11 +16,14 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Mail\Definition\MailAttachmentDefinition;
 use Shopware\Api\Media\Collection\MediaBasicCollection;
 use Shopware\Api\Media\Collection\MediaDetailCollection;
+use Shopware\Api\Media\Event\Media\MediaDeletedEvent;
 use Shopware\Api\Media\Event\Media\MediaWrittenEvent;
 use Shopware\Api\Media\Repository\MediaRepository;
 use Shopware\Api\Media\Struct\MediaBasicStruct;
@@ -72,10 +75,10 @@ class MediaDefinition extends EntityDefinition
             new ManyToOneAssociationField('album', 'media_album_id', MediaAlbumDefinition::class, true),
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, false),
             new OneToManyAssociationField('categories', CategoryDefinition::class, 'media_id', false, 'id'),
-            new OneToManyAssociationField('mailAttachments', MailAttachmentDefinition::class, 'media_id', false, 'id'),
-            (new TranslationsAssociationField('translations', MediaTranslationDefinition::class, 'media_id', false, 'id'))->setFlags(new Required()),
+            (new OneToManyAssociationField('mailAttachments', MailAttachmentDefinition::class, 'media_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new TranslationsAssociationField('translations', MediaTranslationDefinition::class, 'media_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             new OneToManyAssociationField('productManufacturers', ProductManufacturerDefinition::class, 'media_id', false, 'id'),
-            new OneToManyAssociationField('productMedia', ProductMediaDefinition::class, 'media_id', false, 'id'),
+            (new OneToManyAssociationField('productMedia', ProductMediaDefinition::class, 'media_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -93,6 +96,11 @@ class MediaDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return MediaBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return MediaDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Config\Struct;
 
+use Shopware\Api\Config\Collection\ConfigFormBasicCollection;
 use Shopware\Api\Config\Collection\ConfigFormFieldBasicCollection;
 use Shopware\Api\Config\Collection\ConfigFormTranslationBasicCollection;
 use Shopware\Api\Plugin\Struct\PluginBasicStruct;
@@ -19,6 +20,11 @@ class ConfigFormDetailStruct extends ConfigFormBasicStruct
     protected $plugin;
 
     /**
+     * @var ConfigFormBasicCollection
+     */
+    protected $children;
+
+    /**
      * @var ConfigFormFieldBasicCollection
      */
     protected $fields;
@@ -30,6 +36,8 @@ class ConfigFormDetailStruct extends ConfigFormBasicStruct
 
     public function __construct()
     {
+        $this->children = new ConfigFormBasicCollection();
+
         $this->fields = new ConfigFormFieldBasicCollection();
 
         $this->translations = new ConfigFormTranslationBasicCollection();
@@ -53,6 +61,16 @@ class ConfigFormDetailStruct extends ConfigFormBasicStruct
     public function setPlugin(?PluginBasicStruct $plugin): void
     {
         $this->plugin = $plugin;
+    }
+
+    public function getChildren(): ConfigFormBasicCollection
+    {
+        return $this->children;
+    }
+
+    public function setChildren(ConfigFormBasicCollection $children): void
+    {
+        $this->children = $children;
     }
 
     public function getFields(): ConfigFormFieldBasicCollection

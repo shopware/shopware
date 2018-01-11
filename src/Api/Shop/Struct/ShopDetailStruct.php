@@ -8,6 +8,7 @@ use Shopware\Api\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Api\Shop\Collection\ShopBasicCollection;
 
 class ShopDetailStruct extends ShopBasicStruct
 {
@@ -42,19 +43,24 @@ class ShopDetailStruct extends ShopBasicStruct
     protected $fallbackTranslation;
 
     /**
-     * @var PaymentMethodBasicStruct|null
+     * @var PaymentMethodBasicStruct
      */
     protected $paymentMethod;
 
     /**
-     * @var ShippingMethodBasicStruct|null
+     * @var ShippingMethodBasicStruct
      */
     protected $shippingMethod;
 
     /**
-     * @var CountryBasicStruct|null
+     * @var CountryBasicStruct
      */
     protected $country;
+
+    /**
+     * @var ShopBasicCollection
+     */
+    protected $children;
 
     /**
      * @var string[]
@@ -68,6 +74,8 @@ class ShopDetailStruct extends ShopBasicStruct
 
     public function __construct()
     {
+        $this->children = new ShopBasicCollection();
+
         $this->currencies = new CurrencyBasicCollection();
     }
 
@@ -131,34 +139,44 @@ class ShopDetailStruct extends ShopBasicStruct
         $this->fallbackTranslation = $fallbackTranslation;
     }
 
-    public function getPaymentMethod(): ?PaymentMethodBasicStruct
+    public function getPaymentMethod(): PaymentMethodBasicStruct
     {
         return $this->paymentMethod;
     }
 
-    public function setPaymentMethod(?PaymentMethodBasicStruct $paymentMethod): void
+    public function setPaymentMethod(PaymentMethodBasicStruct $paymentMethod): void
     {
         $this->paymentMethod = $paymentMethod;
     }
 
-    public function getShippingMethod(): ?ShippingMethodBasicStruct
+    public function getShippingMethod(): ShippingMethodBasicStruct
     {
         return $this->shippingMethod;
     }
 
-    public function setShippingMethod(?ShippingMethodBasicStruct $shippingMethod): void
+    public function setShippingMethod(ShippingMethodBasicStruct $shippingMethod): void
     {
         $this->shippingMethod = $shippingMethod;
     }
 
-    public function getCountry(): ?CountryBasicStruct
+    public function getCountry(): CountryBasicStruct
     {
         return $this->country;
     }
 
-    public function setCountry(?CountryBasicStruct $country): void
+    public function setCountry(CountryBasicStruct $country): void
     {
         $this->country = $country;
+    }
+
+    public function getChildren(): ShopBasicCollection
+    {
+        return $this->children;
+    }
+
+    public function setChildren(ShopBasicCollection $children): void
+    {
+        $this->children = $children;
     }
 
     public function getCurrencyIds(): array

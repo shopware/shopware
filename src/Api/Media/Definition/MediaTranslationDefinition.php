@@ -13,6 +13,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Media\Collection\MediaTranslationBasicCollection;
 use Shopware\Api\Media\Collection\MediaTranslationDetailCollection;
+use Shopware\Api\Media\Event\MediaTranslation\MediaTranslationDeletedEvent;
 use Shopware\Api\Media\Event\MediaTranslation\MediaTranslationWrittenEvent;
 use Shopware\Api\Media\Repository\MediaTranslationRepository;
 use Shopware\Api\Media\Struct\MediaTranslationBasicStruct;
@@ -71,6 +72,11 @@ class MediaTranslationDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return MediaTranslationBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return MediaTranslationDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

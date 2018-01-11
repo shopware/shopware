@@ -14,10 +14,12 @@ use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigFormFieldBasicCollection;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigFormFieldDetailCollection;
+use Shopware\Api\Shop\Event\ShopTemplateConfigFormField\ShopTemplateConfigFormFieldDeletedEvent;
 use Shopware\Api\Shop\Event\ShopTemplateConfigFormField\ShopTemplateConfigFormFieldWrittenEvent;
 use Shopware\Api\Shop\Repository\ShopTemplateConfigFormFieldRepository;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigFormFieldBasicStruct;
@@ -69,7 +71,7 @@ class ShopTemplateConfigFormFieldDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('shopTemplate', 'shop_template_id', ShopTemplateDefinition::class, false),
             new ManyToOneAssociationField('shopTemplateConfigForm', 'shop_template_config_form_id', ShopTemplateConfigFormDefinition::class, false),
-            new OneToManyAssociationField('values', ShopTemplateConfigFormFieldValueDefinition::class, 'shop_template_config_form_field_id', false, 'id'),
+            (new OneToManyAssociationField('values', ShopTemplateConfigFormFieldValueDefinition::class, 'shop_template_config_form_field_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -87,6 +89,11 @@ class ShopTemplateConfigFormFieldDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ShopTemplateConfigFormFieldBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ShopTemplateConfigFormFieldDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

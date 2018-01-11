@@ -19,6 +19,7 @@ use Shopware\Api\Locale\Definition\LocaleDefinition;
 use Shopware\Api\Media\Definition\MediaDefinition;
 use Shopware\Api\User\Collection\UserBasicCollection;
 use Shopware\Api\User\Collection\UserDetailCollection;
+use Shopware\Api\User\Event\User\UserDeletedEvent;
 use Shopware\Api\User\Event\User\UserWrittenEvent;
 use Shopware\Api\User\Repository\UserRepository;
 use Shopware\Api\User\Struct\UserBasicStruct;
@@ -90,6 +91,11 @@ class UserDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return UserBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return UserDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

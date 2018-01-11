@@ -49,17 +49,17 @@ class ShopBasicStruct extends Entity
     protected $fallbackTranslationId;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $paymentMethodId;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $shippingMethodId;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $countryId;
 
@@ -223,32 +223,32 @@ class ShopBasicStruct extends Entity
         $this->fallbackTranslationId = $fallbackTranslationId;
     }
 
-    public function getPaymentMethodId(): ?string
+    public function getPaymentMethodId(): string
     {
         return $this->paymentMethodId;
     }
 
-    public function setPaymentMethodId(?string $paymentMethodId): void
+    public function setPaymentMethodId(string $paymentMethodId): void
     {
         $this->paymentMethodId = $paymentMethodId;
     }
 
-    public function getShippingMethodId(): ?string
+    public function getShippingMethodId(): string
     {
         return $this->shippingMethodId;
     }
 
-    public function setShippingMethodId(?string $shippingMethodId): void
+    public function setShippingMethodId(string $shippingMethodId): void
     {
         $this->shippingMethodId = $shippingMethodId;
     }
 
-    public function getCountryId(): ?string
+    public function getCountryId(): string
     {
         return $this->countryId;
     }
 
-    public function setCountryId(?string $countryId): void
+    public function setCountryId(string $countryId): void
     {
         $this->countryId = $countryId;
     }

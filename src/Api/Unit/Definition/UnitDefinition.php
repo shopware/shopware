@@ -11,11 +11,14 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Unit\Collection\UnitBasicCollection;
 use Shopware\Api\Unit\Collection\UnitDetailCollection;
+use Shopware\Api\Unit\Event\Unit\UnitDeletedEvent;
 use Shopware\Api\Unit\Event\Unit\UnitWrittenEvent;
 use Shopware\Api\Unit\Repository\UnitRepository;
 use Shopware\Api\Unit\Struct\UnitBasicStruct;
@@ -55,8 +58,8 @@ class UnitDefinition extends EntityDefinition
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new OneToManyAssociationField('products', ProductDefinition::class, 'unit_id', false, 'id'),
-            (new TranslationsAssociationField('translations', UnitTranslationDefinition::class, 'unit_id', false, 'id'))->setFlags(new Required()),
+            (new OneToManyAssociationField('products', ProductDefinition::class, 'unit_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new TranslationsAssociationField('translations', UnitTranslationDefinition::class, 'unit_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -74,6 +77,11 @@ class UnitDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return UnitBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return UnitDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

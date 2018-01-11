@@ -12,7 +12,7 @@ use Shopware\Api\Tax\Collection\TaxAreaRuleBasicCollection;
 class CountryDetailStruct extends CountryBasicStruct
 {
     /**
-     * @var CountryAreaBasicStruct
+     * @var CountryAreaBasicStruct|null
      */
     protected $area;
 
@@ -61,12 +61,12 @@ class CountryDetailStruct extends CountryBasicStruct
         $this->taxAreaRules = new TaxAreaRuleBasicCollection();
     }
 
-    public function getArea(): CountryAreaBasicStruct
+    public function getArea(): ?CountryAreaBasicStruct
     {
         return $this->area;
     }
 
-    public function setArea(CountryAreaBasicStruct $area): void
+    public function setArea(?CountryAreaBasicStruct $area): void
     {
         $this->area = $area;
     }

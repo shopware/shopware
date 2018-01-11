@@ -16,10 +16,12 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Mail\Collection\MailBasicCollection;
 use Shopware\Api\Mail\Collection\MailDetailCollection;
+use Shopware\Api\Mail\Event\Mail\MailDeletedEvent;
 use Shopware\Api\Mail\Event\Mail\MailWrittenEvent;
 use Shopware\Api\Mail\Repository\MailRepository;
 use Shopware\Api\Mail\Struct\MailBasicStruct;
@@ -71,8 +73,8 @@ class MailDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('orderState', 'order_state_id', OrderStateDefinition::class, false),
-            new OneToManyAssociationField('attachments', MailAttachmentDefinition::class, 'mail_id', false, 'id'),
-            (new TranslationsAssociationField('translations', MailTranslationDefinition::class, 'mail_id', false, 'id'))->setFlags(new Required()),
+            (new OneToManyAssociationField('attachments', MailAttachmentDefinition::class, 'mail_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField('translations', MailTranslationDefinition::class, 'mail_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -90,6 +92,11 @@ class MailDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return MailBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return MailDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

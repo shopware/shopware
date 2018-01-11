@@ -24,6 +24,7 @@ class ApiController extends RestController
 {
     public const WRITE_UPDATE = 'update';
     public const WRITE_CREATE = 'create';
+    public const WRITE_DELETE = 'delete';
 
     public function detailAction(Request $request, ApiContext $context): Response
     {
@@ -190,8 +191,47 @@ class ApiController extends RestController
         return $this->write($request, $context, self::WRITE_UPDATE);
     }
 
-    public function deleteAction()
+    public function deleteAction(Request $request, ApiContext $context): Response
     {
+        $path = $this->buildEntityPath($request->getPathInfo());
+
+        $last = $path[count($path) - 1];
+
+        $id = $last['value'];
+
+        $first = array_shift($path);
+
+        /* @var string|EntityDefinition $definition */
+        if (count($path) === 0) {
+            //first api level call /product/{id}
+            $definition = $first['definition'];
+
+            $id = $this->doDelete($context, $definition, $id);
+
+            return $this->createResponse(['data' => $id], $context);
+        }
+
+        $child = array_pop($path);
+        $parent = $first;
+        if (!empty($path)) {
+            $parent = array_pop($path);
+        }
+
+        $definition = $child['definition'];
+
+        /** @var AssociationInterface $association */
+        $association = $child['field'];
+
+        if ($association instanceof OneToManyAssociationField) {
+            $id = $this->doDelete($context, $definition, $id);
+
+            return $this->createResponse(['data' => $id], $context);
+        }
+
+//        // DELETE api/product/{id}/category/{id}
+//        if ($association instanceof ManyToManyAssociationField) {
+//
+//        }
     }
 
     private function write(Request $request, ApiContext $context, string $type): Response
@@ -317,7 +357,6 @@ class ApiController extends RestController
         /* @var RepositoryInterface $repository */
         switch ($type) {
             case self::WRITE_CREATE:
-
                 return $repository->create([$payload], $context->getTranslationContext());
 
             case self::WRITE_UPDATE:
@@ -445,5 +484,40 @@ class ApiController extends RestController
         }
 
         return $criteria;
+    }
+
+    /**
+     * @param ApiContext              $context
+     * @param string|EntityDefinition $definition
+     * @param string                  $id
+     *
+     * @throws \RuntimeException
+     *
+     * @return array
+     */
+    private function doDelete(ApiContext $context, $definition, $id): array
+    {
+        /** @var RepositoryInterface $repository */
+        $repository = $this->get($definition::getRepositoryClass());
+
+        $fields = $definition::getPrimaryKeys();
+
+        if ($fields->count() > 1 && empty($context->getPayload())) {
+            throw new \RuntimeException(
+                sprintf('Entity primary key is defined by multiple columns. Please provide primary key in payload.')
+            );
+        }
+
+        if ($fields->count() > 1) {
+            $mapping = $context->getPayload();
+        } else {
+            $pk = $fields->first();
+            /** @var Field $pk */
+            $mapping = [$pk->getPropertyName() => $id];
+        }
+
+        $result = $repository->delete([$mapping], $context->getTranslationContext());
+
+        return $mapping;
     }
 }

@@ -55,4 +55,6 @@ interface RepositoryInterface
     public function upsert(array $data, TranslationContext $context): GenericWrittenEvent;
 
     public function create(array $data, TranslationContext $context): GenericWrittenEvent;
+
+    public function delete(array $data, TranslationContext $context): GenericWrittenEvent;
 }

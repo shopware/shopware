@@ -106,6 +106,10 @@ class EntityWriter implements EntityWriterInterface
                 $log['foreignKey'] = $data['id'];
             }
 
+            //invalid uuid provided, skip audit log insert and
+            if (isset($log['foreignKey']) && !Uuid::isValid($data['id'])) {
+                return;
+            }
             $this->decorated->insert(AuditLogDefinition::class, [$log], $writeContext);
         }
     }

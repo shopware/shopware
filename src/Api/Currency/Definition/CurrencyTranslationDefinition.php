@@ -4,6 +4,7 @@ namespace Shopware\Api\Currency\Definition;
 
 use Shopware\Api\Currency\Collection\CurrencyTranslationBasicCollection;
 use Shopware\Api\Currency\Collection\CurrencyTranslationDetailCollection;
+use Shopware\Api\Currency\Event\CurrencyTranslation\CurrencyTranslationDeletedEvent;
 use Shopware\Api\Currency\Event\CurrencyTranslation\CurrencyTranslationWrittenEvent;
 use Shopware\Api\Currency\Repository\CurrencyTranslationRepository;
 use Shopware\Api\Currency\Struct\CurrencyTranslationBasicStruct;
@@ -70,6 +71,11 @@ class CurrencyTranslationDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return CurrencyTranslationBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return CurrencyTranslationDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

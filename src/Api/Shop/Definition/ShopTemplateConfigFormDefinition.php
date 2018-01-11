@@ -12,10 +12,12 @@ use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigFormBasicCollection;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigFormDetailCollection;
+use Shopware\Api\Shop\Event\ShopTemplateConfigForm\ShopTemplateConfigFormDeletedEvent;
 use Shopware\Api\Shop\Event\ShopTemplateConfigForm\ShopTemplateConfigFormWrittenEvent;
 use Shopware\Api\Shop\Repository\ShopTemplateConfigFormRepository;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigFormBasicStruct;
@@ -61,7 +63,8 @@ class ShopTemplateConfigFormDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
             new ManyToOneAssociationField('shopTemplate', 'shop_template_id', ShopTemplateDefinition::class, false),
-            new OneToManyAssociationField('fields', ShopTemplateConfigFormFieldDefinition::class, 'shop_template_config_form_id', false, 'id'),
+            (new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('fields', ShopTemplateConfigFormFieldDefinition::class, 'shop_template_config_form_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -79,6 +82,11 @@ class ShopTemplateConfigFormDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ShopTemplateConfigFormBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ShopTemplateConfigFormDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

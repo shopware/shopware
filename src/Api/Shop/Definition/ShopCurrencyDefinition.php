@@ -3,16 +3,16 @@
 namespace Shopware\Api\Shop\Definition;
 
 use Shopware\Api\Currency\Definition\CurrencyDefinition;
-use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\MappingEntityDefinition;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Shop\Event\ShopCurrency\ShopCurrencyWrittenEvent;
 
-class ShopCurrencyDefinition extends EntityDefinition
+class ShopCurrencyDefinition extends MappingEntityDefinition
 {
     /**
      * @var FieldCollection
@@ -45,28 +45,13 @@ class ShopCurrencyDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        throw new \RuntimeException('Mapping table do not have own repositories');
-    }
-
-    public static function getBasicCollectionClass(): string
-    {
-        throw new \RuntimeException('Mapping table do not have own collection classes');
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        throw new \RuntimeException('Mapping table do not have own struct classes');
-    }
-
     public static function getWrittenEventClass(): string
     {
         return ShopCurrencyWrittenEvent::class;
     }
 
-    public static function getTranslationDefinitionClass(): ?string
+    public static function getDeletedEventClass(): string
     {
-        return null;
+        return ShopCurrencyDeletedEvent::class;
     }
 }

@@ -24,7 +24,7 @@ $container = $kernel->getContainer();
 
 /** @var \Doctrine\DBAL\Connection $con */
 $con = $container->get('dbal_connection');
-$con->executeUpdate('DELETE FROM product');
+//$con->executeUpdate('DELETE FROM product');
 
 echo "\nPreparing\n\n";
 $writer = $container->get('shopware.api.entity_writer');
@@ -41,7 +41,7 @@ foreach ($products as $i => $product) {
 
     try {
         $writer->insert(
-            \Shopware\Product\Definition\ProductDefinition::class,
+            \Shopware\Api\Product\Definition\ProductDefinition::class,
             $product,
             createWriteContext()
         );

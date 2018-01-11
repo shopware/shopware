@@ -54,6 +54,9 @@ class ConfigFormDetailLoadedEvent extends NestedEvent
         if ($this->configForms->getPlugins()->count() > 0) {
             $events[] = new PluginBasicLoadedEvent($this->configForms->getPlugins(), $this->context);
         }
+        if ($this->configForms->getChildren()->count() > 0) {
+            $events[] = new ConfigFormBasicLoadedEvent($this->configForms->getChildren(), $this->context);
+        }
         if ($this->configForms->getFields()->count() > 0) {
             $events[] = new ConfigFormFieldBasicLoadedEvent($this->configForms->getFields(), $this->context);
         }

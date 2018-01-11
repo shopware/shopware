@@ -53,9 +53,24 @@ $associations = [
 ];
 
 $prevent = [
-    'shop' => ['snippet', 'templateConfigFormFieldValue', 'productSeoCategory', 'customer', 'order', 'seoUrl',  'mailAttachment', 'configFormFieldValue', 'productSearchKeyword'],
-    'locale' => ['configFormFieldTranslation', 'configFormTranslation'],
-    'customer_address' => ['customers'],
+    'shop' => [
+        'snippet',
+        'templateConfigFormFieldValue',
+        'productSeoCategory',
+        'customer',
+        'order',
+        'seoUrl',
+        'mailAttachment',
+        'configFormFieldValue',
+        'productSearchKeyword'
+    ],
+    'locale' => [
+        'configFormFieldTranslation',
+        'configFormTranslation'
+    ],
+    'customer_address' => [
+        'customers'
+    ],
     'customer_group' => [
         'productListingPrices',
         'productPrices',
@@ -93,8 +108,8 @@ $inject = [
 
 $virtualForeignKeys = [
     'customer' => [
-        'default_shipping_address_id' => ['customer_address', 'id'],
-        'default_billing_address_id' => ['customer_address', 'id']
+        'default_shipping_address_id' => ['customer_address', 'id', 'CASCADE'],
+        'default_billing_address_id' => ['customer_address', 'id', 'CASCADE']
     ]
 ];
 

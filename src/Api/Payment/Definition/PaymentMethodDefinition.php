@@ -18,11 +18,14 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Order\Definition\OrderDefinition;
 use Shopware\Api\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Api\Payment\Collection\PaymentMethodDetailCollection;
+use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodDeletedEvent;
 use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodWrittenEvent;
 use Shopware\Api\Payment\Repository\PaymentMethodRepository;
 use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
@@ -83,11 +86,11 @@ class PaymentMethodDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('plugin', 'plugin_id', PluginDefinition::class, false),
-            new OneToManyAssociationField('customers', CustomerDefinition::class, 'default_payment_method_id', false, 'id'),
-            new OneToManyAssociationField('customers', CustomerDefinition::class, 'last_payment_method_id', false, 'id'),
-            new OneToManyAssociationField('orders', OrderDefinition::class, 'payment_method_id', false, 'id'),
-            (new TranslationsAssociationField('translations', PaymentMethodTranslationDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new Required()),
-            new OneToManyAssociationField('shops', ShopDefinition::class, 'payment_method_id', false, 'id'),
+            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'default_payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'last_payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('orders', OrderDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new TranslationsAssociationField('translations', PaymentMethodTranslationDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
+            (new OneToManyAssociationField('shops', ShopDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -105,6 +108,11 @@ class PaymentMethodDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return PaymentMethodBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return PaymentMethodDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

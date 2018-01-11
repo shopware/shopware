@@ -13,6 +13,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Mail\Collection\MailAttachmentBasicCollection;
 use Shopware\Api\Mail\Collection\MailAttachmentDetailCollection;
+use Shopware\Api\Mail\Event\MailAttachment\MailAttachmentDeletedEvent;
 use Shopware\Api\Mail\Event\MailAttachment\MailAttachmentWrittenEvent;
 use Shopware\Api\Mail\Repository\MailAttachmentRepository;
 use Shopware\Api\Mail\Struct\MailAttachmentBasicStruct;
@@ -75,6 +76,11 @@ class MailAttachmentDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return MailAttachmentBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return MailAttachmentDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

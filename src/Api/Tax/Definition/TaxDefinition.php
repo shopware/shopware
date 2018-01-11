@@ -10,11 +10,14 @@ use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Tax\Collection\TaxBasicCollection;
 use Shopware\Api\Tax\Collection\TaxDetailCollection;
+use Shopware\Api\Tax\Event\Tax\TaxDeletedEvent;
 use Shopware\Api\Tax\Event\Tax\TaxWrittenEvent;
 use Shopware\Api\Tax\Repository\TaxRepository;
 use Shopware\Api\Tax\Struct\TaxBasicStruct;
@@ -54,8 +57,8 @@ class TaxDefinition extends EntityDefinition
             (new StringField('name', 'name'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new OneToManyAssociationField('products', ProductDefinition::class, 'tax_id', false, 'id'),
-            new OneToManyAssociationField('areaRules', TaxAreaRuleDefinition::class, 'tax_id', false, 'id'),
+            (new OneToManyAssociationField('products', ProductDefinition::class, 'tax_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('areaRules', TaxAreaRuleDefinition::class, 'tax_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -73,6 +76,11 @@ class TaxDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return TaxBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return TaxDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

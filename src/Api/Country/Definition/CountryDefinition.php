@@ -4,6 +4,7 @@ namespace Shopware\Api\Country\Definition;
 
 use Shopware\Api\Country\Collection\CountryBasicCollection;
 use Shopware\Api\Country\Collection\CountryDetailCollection;
+use Shopware\Api\Country\Event\Country\CountryDeletedEvent;
 use Shopware\Api\Country\Event\Country\CountryWrittenEvent;
 use Shopware\Api\Country\Repository\CountryRepository;
 use Shopware\Api\Country\Struct\CountryBasicStruct;
@@ -22,8 +23,10 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Order\Definition\OrderAddressDefinition;
 use Shopware\Api\Shop\Definition\ShopDefinition;
 use Shopware\Api\Tax\Definition\TaxAreaRuleDefinition;
@@ -58,7 +61,7 @@ class CountryDefinition extends EntityDefinition
 
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('country_area_id', 'areaId', CountryAreaDefinition::class))->setFlags(new Required()),
+            new FkField('country_area_id', 'areaId', CountryAreaDefinition::class),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
             new StringField('iso', 'iso'),
             new IntField('position', 'position'),
@@ -73,12 +76,12 @@ class CountryDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('area', 'country_area_id', CountryAreaDefinition::class, false),
-            new OneToManyAssociationField('states', CountryStateDefinition::class, 'country_id', false, 'id'),
-            (new TranslationsAssociationField('translations', CountryTranslationDefinition::class, 'country_id', false, 'id'))->setFlags(new Required()),
-            new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'country_id', false, 'id'),
-            new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'country_id', false, 'id'),
-            new OneToManyAssociationField('shops', ShopDefinition::class, 'country_id', false, 'id'),
-            new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'country_id', false, 'id'),
+            (new OneToManyAssociationField('states', CountryStateDefinition::class, 'country_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField('translations', CountryTranslationDefinition::class, 'country_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
+            (new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('shops', ShopDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'country_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -96,6 +99,11 @@ class CountryDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return CountryBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return CountryDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

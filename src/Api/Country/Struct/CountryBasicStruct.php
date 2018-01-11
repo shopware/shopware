@@ -7,7 +7,7 @@ use Shopware\Api\Entity\Entity;
 class CountryBasicStruct extends Entity
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected $areaId;
 
@@ -76,12 +76,12 @@ class CountryBasicStruct extends Entity
      */
     protected $updatedAt;
 
-    public function getAreaId(): string
+    public function getAreaId(): ?string
     {
         return $this->areaId;
     }
 
-    public function setAreaId(string $areaId): void
+    public function setAreaId(?string $areaId): void
     {
         $this->areaId = $areaId;
     }

@@ -11,10 +11,13 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Locale\Collection\LocaleBasicCollection;
 use Shopware\Api\Locale\Collection\LocaleDetailCollection;
+use Shopware\Api\Locale\Event\Locale\LocaleDeletedEvent;
 use Shopware\Api\Locale\Event\Locale\LocaleWrittenEvent;
 use Shopware\Api\Locale\Repository\LocaleRepository;
 use Shopware\Api\Locale\Struct\LocaleBasicStruct;
@@ -57,9 +60,9 @@ class LocaleDefinition extends EntityDefinition
             (new TranslatedField(new StringField('territory', 'territory')))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new TranslationsAssociationField('translations', LocaleTranslationDefinition::class, 'locale_id', false, 'id'))->setFlags(new Required()),
-            new OneToManyAssociationField('shops', ShopDefinition::class, 'locale_id', false, 'id'),
-            new OneToManyAssociationField('users', UserDefinition::class, 'locale_id', false, 'id'),
+            (new TranslationsAssociationField('translations', LocaleTranslationDefinition::class, 'locale_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
+            (new OneToManyAssociationField('shops', ShopDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('users', UserDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -77,6 +80,11 @@ class LocaleDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return LocaleBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return LocaleDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

@@ -13,11 +13,14 @@ use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Plugin\Definition\PluginDefinition;
 use Shopware\Api\Shop\Collection\ShopTemplateBasicCollection;
 use Shopware\Api\Shop\Collection\ShopTemplateDetailCollection;
+use Shopware\Api\Shop\Event\ShopTemplate\ShopTemplateDeletedEvent;
 use Shopware\Api\Shop\Event\ShopTemplate\ShopTemplateWrittenEvent;
 use Shopware\Api\Shop\Repository\ShopTemplateRepository;
 use Shopware\Api\Shop\Struct\ShopTemplateBasicStruct;
@@ -68,11 +71,12 @@ class ShopTemplateDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('plugin', 'plugin_id', PluginDefinition::class, false),
             new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
-            new OneToManyAssociationField('shops', ShopDefinition::class, 'document_template_id', false, 'id'),
-            new OneToManyAssociationField('shops', ShopDefinition::class, 'shop_template_id', false, 'id'),
-            new OneToManyAssociationField('configForms', ShopTemplateConfigFormDefinition::class, 'shop_template_id', false, 'id'),
-            new OneToManyAssociationField('configFormFields', ShopTemplateConfigFormFieldDefinition::class, 'shop_template_id', false, 'id'),
-            new OneToManyAssociationField('configPresets', ShopTemplateConfigPresetDefinition::class, 'shop_template_id', false, 'id'),
+            (new OneToManyAssociationField('shops', ShopDefinition::class, 'document_template_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('shops', ShopDefinition::class, 'shop_template_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('configForms', ShopTemplateConfigFormDefinition::class, 'shop_template_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('configFormFields', ShopTemplateConfigFormFieldDefinition::class, 'shop_template_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('configPresets', ShopTemplateConfigPresetDefinition::class, 'shop_template_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -90,6 +94,11 @@ class ShopTemplateDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ShopTemplateBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ShopTemplateDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

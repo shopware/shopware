@@ -46,6 +46,8 @@ abstract class EntityDefinition
 
     abstract public static function getWrittenEventClass(): string;
 
+    abstract public static function getDeletedEventClass(): string;
+
     abstract public static function getTranslationDefinitionClass(): ?string;
 
     public static function getWriteOrder(): array

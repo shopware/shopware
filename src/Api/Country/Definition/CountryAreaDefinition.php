@@ -4,6 +4,7 @@ namespace Shopware\Api\Country\Definition;
 
 use Shopware\Api\Country\Collection\CountryAreaBasicCollection;
 use Shopware\Api\Country\Collection\CountryAreaDetailCollection;
+use Shopware\Api\Country\Event\CountryArea\CountryAreaDeletedEvent;
 use Shopware\Api\Country\Event\CountryArea\CountryAreaWrittenEvent;
 use Shopware\Api\Country\Repository\CountryAreaRepository;
 use Shopware\Api\Country\Struct\CountryAreaBasicStruct;
@@ -18,6 +19,7 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Tax\Definition\TaxAreaRuleDefinition;
@@ -57,8 +59,8 @@ class CountryAreaDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new OneToManyAssociationField('countries', CountryDefinition::class, 'country_area_id', false, 'id'),
-            (new TranslationsAssociationField('translations', CountryAreaTranslationDefinition::class, 'country_area_id', false, 'id'))->setFlags(new Required()),
-            new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'country_area_id', false, 'id'),
+            (new TranslationsAssociationField('translations', CountryAreaTranslationDefinition::class, 'country_area_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
+            (new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'country_area_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -76,6 +78,11 @@ class CountryAreaDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return CountryAreaBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return CountryAreaDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

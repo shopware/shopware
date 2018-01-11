@@ -13,10 +13,12 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Listing\Collection\ListingFacetBasicCollection;
 use Shopware\Api\Listing\Collection\ListingFacetDetailCollection;
+use Shopware\Api\Listing\Event\ListingFacet\ListingFacetDeletedEvent;
 use Shopware\Api\Listing\Event\ListingFacet\ListingFacetWrittenEvent;
 use Shopware\Api\Listing\Repository\ListingFacetRepository;
 use Shopware\Api\Listing\Struct\ListingFacetBasicStruct;
@@ -61,7 +63,7 @@ class ListingFacetDefinition extends EntityDefinition
             new IntField('position', 'position'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new TranslationsAssociationField('translations', ListingFacetTranslationDefinition::class, 'listing_facet_id', false, 'id'))->setFlags(new Required()),
+            (new TranslationsAssociationField('translations', ListingFacetTranslationDefinition::class, 'listing_facet_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -79,6 +81,11 @@ class ListingFacetDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ListingFacetBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ListingFacetDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

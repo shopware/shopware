@@ -4,6 +4,7 @@ namespace Shopware\Api\Country\Definition;
 
 use Shopware\Api\Country\Collection\CountryTranslationBasicCollection;
 use Shopware\Api\Country\Collection\CountryTranslationDetailCollection;
+use Shopware\Api\Country\Event\CountryTranslation\CountryTranslationDeletedEvent;
 use Shopware\Api\Country\Event\CountryTranslation\CountryTranslationWrittenEvent;
 use Shopware\Api\Country\Repository\CountryTranslationRepository;
 use Shopware\Api\Country\Struct\CountryTranslationBasicStruct;
@@ -69,6 +70,11 @@ class CountryTranslationDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return CountryTranslationBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return CountryTranslationDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

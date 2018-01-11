@@ -114,6 +114,8 @@ class DefinitionGenerator
             }
             $isTranslationTable = strpos($association->referenceTable, '_translation') !== false;
 
+            $flags = [];
+
             switch (true) {
                 case ($association instanceof ManyToManyAssociation):
                     $uses[] = 'use Shopware\Api\Entity\Field\ManyToManyAssociationField;';
@@ -203,7 +205,7 @@ class DefinitionGenerator
 
                     if ($this->hasRequiredTranslationColumn($definition)) {
                         $uses[] = 'use Shopware\\Api\\Entity\\Write\\Flag\\Required;';
-                        $template = '('.$template.')->setFlags(new Required())';
+                        $flags[] = 'Required';
                     }
 
                     break;
@@ -237,6 +239,24 @@ class DefinitionGenerator
             if ($template === null) {
                 continue;
             }
+
+            if ($association->cascadeDelete === 'CASCADE' && !$association instanceof ManyToOneAssociation) {
+                $flags[] = 'CascadeDelete';
+            } else if ($association->cascadeDelete === '') {
+                $flags[] = 'RestrictDelete';
+            }
+
+            if (!empty($flags)) {
+                $flags = array_unique($flags);
+
+                $flags = array_map(function($flag) {
+                    return 'new ' . $flag . '()';
+                }, $flags);
+                $flags = implode(', ', $flags);
+
+                $template = '(' . $template . ')->setFlags('. $flags .')';
+            }
+
 
             $fields[] = str_replace(
                 ['#property#', '#template#'],

@@ -41,6 +41,7 @@
         <service class="Shopware\Api\Entity\Dbal\EntityWriter" id="shopware.api.entity_writer">
             <argument type="service" id="dbal_connection"/>
             <argument type="service" id="shopware.api.write.field_aware.default_extender"/>
+            <argument type="service" id="Shopware\Api\Entity\Dbal\EntityForeignKeyResolver"/>
         </service>
 
         <service id="shopware.validation.constraint_builder" class="Shopware\Api\Entity\Write\Validation\ConstraintBuilder"/>
@@ -78,7 +79,7 @@
             <tag name="shopware.api.entity.write.filter"/>
         </service>
 
-        <!-- ID GENERATOOR -->
+        <!-- ID GENERATOR -->
         <service id="shopware.api.entity.write.id_generator.registry" class="Shopware\Api\Entity\Write\IdGenerator\GeneratorRegistry">
             <argument type="tagged" tag="shopware.api.entity.write.id_generator" />
         </service>
@@ -92,5 +93,11 @@
 
             <tag name="shopware.api.entity.write.id_generator"/>
         </service>
+
+        <service id="Shopware\Api\Entity\Dbal\EntityForeignKeyResolver" class="Shopware\Api\Entity\Dbal\EntityForeignKeyResolver">
+            <argument id="dbal_connection" type="service"/>
+        </service>
+
+
     </services>
 </container>

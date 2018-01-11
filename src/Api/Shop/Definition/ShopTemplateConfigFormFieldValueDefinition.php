@@ -14,6 +14,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigFormFieldValueBasicCollection;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigFormFieldValueDetailCollection;
+use Shopware\Api\Shop\Event\ShopTemplateConfigFormFieldValue\ShopTemplateConfigFormFieldValueDeletedEvent;
 use Shopware\Api\Shop\Event\ShopTemplateConfigFormFieldValue\ShopTemplateConfigFormFieldValueWrittenEvent;
 use Shopware\Api\Shop\Repository\ShopTemplateConfigFormFieldValueRepository;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigFormFieldValueBasicStruct;
@@ -73,6 +74,11 @@ class ShopTemplateConfigFormFieldValueDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ShopTemplateConfigFormFieldValueBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ShopTemplateConfigFormFieldValueDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

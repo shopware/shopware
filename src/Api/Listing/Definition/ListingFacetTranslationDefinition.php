@@ -12,6 +12,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Listing\Collection\ListingFacetTranslationBasicCollection;
 use Shopware\Api\Listing\Collection\ListingFacetTranslationDetailCollection;
+use Shopware\Api\Listing\Event\ListingFacetTranslation\ListingFacetTranslationDeletedEvent;
 use Shopware\Api\Listing\Event\ListingFacetTranslation\ListingFacetTranslationWrittenEvent;
 use Shopware\Api\Listing\Repository\ListingFacetTranslationRepository;
 use Shopware\Api\Listing\Struct\ListingFacetTranslationBasicStruct;
@@ -69,6 +70,11 @@ class ListingFacetTranslationDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ListingFacetTranslationBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ListingFacetTranslationDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

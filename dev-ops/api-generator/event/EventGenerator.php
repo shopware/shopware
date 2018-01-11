@@ -32,6 +32,8 @@ class EventGenerator
         }
         $this->createWrittenEvent($definition);
 
+        $this->createDeletedEvent($definition);
+
         if ($definition->isMappingTable) {
             return;
         }
@@ -249,6 +251,25 @@ class EventGenerator
 
         $file = sprintf(
             $this->directory.'/%s/Event/%s/%sAggregationResultLoadedEvent.php',
+            ucfirst($definition->bundle),
+            ucfirst($definition->domainName),
+            ucfirst($definition->domainName)
+        );
+
+        file_put_contents($file, $template);
+    }
+
+    private function createDeletedEvent($definition): void
+    {
+        $template = file_get_contents(__DIR__.'/deleted_event.txt');
+        $template = str_replace(
+            ['#bundle#', '#classUc#', '#table#'],
+            [ucfirst($definition->bundle), ucfirst($definition->domainName), $definition->tableName],
+            $template
+        );
+
+        $file = sprintf(
+            $this->directory.'/%s/Event/%s/%sDeletedEvent.php',
             ucfirst($definition->bundle),
             ucfirst($definition->domainName),
             ucfirst($definition->domainName)

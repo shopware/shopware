@@ -13,6 +13,7 @@ use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Shop\Definition\ShopDefinition;
 use Shopware\Api\Tax\Collection\TaxAreaRuleTranslationBasicCollection;
 use Shopware\Api\Tax\Collection\TaxAreaRuleTranslationDetailCollection;
+use Shopware\Api\Tax\Event\TaxAreaRuleTranslation\TaxAreaRuleTranslationDeletedEvent;
 use Shopware\Api\Tax\Event\TaxAreaRuleTranslation\TaxAreaRuleTranslationWrittenEvent;
 use Shopware\Api\Tax\Repository\TaxAreaRuleTranslationRepository;
 use Shopware\Api\Tax\Struct\TaxAreaRuleTranslationBasicStruct;
@@ -69,6 +70,11 @@ class TaxAreaRuleTranslationDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return TaxAreaRuleTranslationBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return TaxAreaRuleTranslationDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

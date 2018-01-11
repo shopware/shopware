@@ -13,6 +13,7 @@ use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Shop\Definition\ShopDefinition;
 use Shopware\Api\Unit\Collection\UnitTranslationBasicCollection;
 use Shopware\Api\Unit\Collection\UnitTranslationDetailCollection;
+use Shopware\Api\Unit\Event\UnitTranslation\UnitTranslationDeletedEvent;
 use Shopware\Api\Unit\Event\UnitTranslation\UnitTranslationWrittenEvent;
 use Shopware\Api\Unit\Repository\UnitTranslationRepository;
 use Shopware\Api\Unit\Struct\UnitTranslationBasicStruct;
@@ -70,6 +71,11 @@ class UnitTranslationDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return UnitTranslationBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return UnitTranslationDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

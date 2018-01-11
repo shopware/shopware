@@ -6,6 +6,7 @@ use Shopware\Api\Country\Definition\CountryDefinition;
 use Shopware\Api\Country\Definition\CountryStateDefinition;
 use Shopware\Api\Customer\Collection\CustomerAddressBasicCollection;
 use Shopware\Api\Customer\Collection\CustomerAddressDetailCollection;
+use Shopware\Api\Customer\Event\CustomerAddress\CustomerAddressDeletedEvent;
 use Shopware\Api\Customer\Event\CustomerAddress\CustomerAddressWrittenEvent;
 use Shopware\Api\Customer\Repository\CustomerAddressRepository;
 use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
@@ -89,6 +90,11 @@ class CustomerAddressDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return CustomerAddressBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return CustomerAddressDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

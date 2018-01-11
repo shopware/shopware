@@ -12,6 +12,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Media\Collection\MediaAlbumTranslationBasicCollection;
 use Shopware\Api\Media\Collection\MediaAlbumTranslationDetailCollection;
+use Shopware\Api\Media\Event\MediaAlbumTranslation\MediaAlbumTranslationDeletedEvent;
 use Shopware\Api\Media\Event\MediaAlbumTranslation\MediaAlbumTranslationWrittenEvent;
 use Shopware\Api\Media\Repository\MediaAlbumTranslationRepository;
 use Shopware\Api\Media\Struct\MediaAlbumTranslationBasicStruct;
@@ -69,6 +70,11 @@ class MediaAlbumTranslationDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return MediaAlbumTranslationBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return MediaAlbumTranslationDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

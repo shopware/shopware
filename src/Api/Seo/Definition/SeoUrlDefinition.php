@@ -16,6 +16,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Seo\Collection\SeoUrlBasicCollection;
 use Shopware\Api\Seo\Collection\SeoUrlDetailCollection;
+use Shopware\Api\Seo\Event\SeoUrl\SeoUrlDeletedEvent;
 use Shopware\Api\Seo\Event\SeoUrl\SeoUrlWrittenEvent;
 use Shopware\Api\Seo\Repository\SeoUrlRepository;
 use Shopware\Api\Seo\Struct\SeoUrlBasicStruct;
@@ -78,6 +79,11 @@ class SeoUrlDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return SeoUrlBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return SeoUrlDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

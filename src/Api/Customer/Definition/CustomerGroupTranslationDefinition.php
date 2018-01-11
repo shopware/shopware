@@ -4,6 +4,7 @@ namespace Shopware\Api\Customer\Definition;
 
 use Shopware\Api\Customer\Collection\CustomerGroupTranslationBasicCollection;
 use Shopware\Api\Customer\Collection\CustomerGroupTranslationDetailCollection;
+use Shopware\Api\Customer\Event\CustomerGroupTranslation\CustomerGroupTranslationDeletedEvent;
 use Shopware\Api\Customer\Event\CustomerGroupTranslation\CustomerGroupTranslationWrittenEvent;
 use Shopware\Api\Customer\Repository\CustomerGroupTranslationRepository;
 use Shopware\Api\Customer\Struct\CustomerGroupTranslationBasicStruct;
@@ -69,6 +70,11 @@ class CustomerGroupTranslationDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return CustomerGroupTranslationBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return CustomerGroupTranslationDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

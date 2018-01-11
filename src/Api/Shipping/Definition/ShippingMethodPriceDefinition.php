@@ -14,6 +14,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Shipping\Collection\ShippingMethodPriceBasicCollection;
 use Shopware\Api\Shipping\Collection\ShippingMethodPriceDetailCollection;
+use Shopware\Api\Shipping\Event\ShippingMethodPrice\ShippingMethodPriceDeletedEvent;
 use Shopware\Api\Shipping\Event\ShippingMethodPrice\ShippingMethodPriceWrittenEvent;
 use Shopware\Api\Shipping\Repository\ShippingMethodPriceRepository;
 use Shopware\Api\Shipping\Struct\ShippingMethodPriceBasicStruct;
@@ -73,6 +74,11 @@ class ShippingMethodPriceDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ShippingMethodPriceBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ShippingMethodPriceDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

@@ -12,6 +12,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Listing\Collection\ListingSortingTranslationBasicCollection;
 use Shopware\Api\Listing\Collection\ListingSortingTranslationDetailCollection;
+use Shopware\Api\Listing\Event\ListingSortingTranslation\ListingSortingTranslationDeletedEvent;
 use Shopware\Api\Listing\Event\ListingSortingTranslation\ListingSortingTranslationWrittenEvent;
 use Shopware\Api\Listing\Repository\ListingSortingTranslationRepository;
 use Shopware\Api\Listing\Struct\ListingSortingTranslationBasicStruct;
@@ -69,6 +70,11 @@ class ListingSortingTranslationDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ListingSortingTranslationBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ListingSortingTranslationDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

@@ -18,11 +18,14 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Order\Definition\OrderDeliveryDefinition;
 use Shopware\Api\Shipping\Collection\ShippingMethodBasicCollection;
 use Shopware\Api\Shipping\Collection\ShippingMethodDetailCollection;
+use Shopware\Api\Shipping\Event\ShippingMethod\ShippingMethodDeletedEvent;
 use Shopware\Api\Shipping\Event\ShippingMethod\ShippingMethodWrittenEvent;
 use Shopware\Api\Shipping\Repository\ShippingMethodRepository;
 use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
@@ -87,10 +90,10 @@ class ShippingMethodDefinition extends EntityDefinition
             new TranslatedField(new LongTextField('description', 'description')),
             new TranslatedField(new StringField('comment', 'comment')),
             new ManyToOneAssociationField('customerGroup', 'customer_group_id', CustomerGroupDefinition::class, false),
-            new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_method_id', false, 'id'),
-            new OneToManyAssociationField('prices', ShippingMethodPriceDefinition::class, 'shipping_method_id', true, 'id'),
-            (new TranslationsAssociationField('translations', ShippingMethodTranslationDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new Required()),
-            new OneToManyAssociationField('shops', ShopDefinition::class, 'shipping_method_id', false, 'id'),
+            (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('prices', ShippingMethodPriceDefinition::class, 'shipping_method_id', true, 'id'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField('translations', ShippingMethodTranslationDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
+            (new OneToManyAssociationField('shops', ShopDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -108,6 +111,11 @@ class ShippingMethodDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ShippingMethodBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ShippingMethodDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

@@ -4,6 +4,7 @@ namespace Shopware\Api\Customer\Definition;
 
 use Shopware\Api\Customer\Collection\CustomerBasicCollection;
 use Shopware\Api\Customer\Collection\CustomerDetailCollection;
+use Shopware\Api\Customer\Event\Customer\CustomerDeletedEvent;
 use Shopware\Api\Customer\Event\Customer\CustomerWrittenEvent;
 use Shopware\Api\Customer\Repository\CustomerRepository;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
@@ -20,8 +21,10 @@ use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Order\Definition\OrderDefinition;
 use Shopware\Api\Payment\Definition\PaymentMethodDefinition;
 use Shopware\Api\Shop\Definition\ShopDefinition;
@@ -94,8 +97,8 @@ class CustomerDefinition extends EntityDefinition
             new ManyToOneAssociationField('lastPaymentMethod', 'last_payment_method_id', PaymentMethodDefinition::class, true),
             new ManyToOneAssociationField('defaultBillingAddress', 'default_billing_address_id', CustomerAddressDefinition::class, true),
             new ManyToOneAssociationField('defaultShippingAddress', 'default_shipping_address_id', CustomerAddressDefinition::class, true),
-            new OneToManyAssociationField('addresses', CustomerAddressDefinition::class, 'customer_id', false, 'id'),
-            new OneToManyAssociationField('orders', OrderDefinition::class, 'customer_id', false, 'id'),
+            (new OneToManyAssociationField('addresses', CustomerAddressDefinition::class, 'customer_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('orders', OrderDefinition::class, 'customer_id', false, 'id'))->setFlags(new RestrictDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -113,6 +116,11 @@ class CustomerDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return CustomerBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return CustomerDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

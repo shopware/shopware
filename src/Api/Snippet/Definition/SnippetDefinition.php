@@ -17,6 +17,7 @@ use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Shop\Definition\ShopDefinition;
 use Shopware\Api\Snippet\Collection\SnippetBasicCollection;
 use Shopware\Api\Snippet\Collection\SnippetDetailCollection;
+use Shopware\Api\Snippet\Event\Snippet\SnippetDeletedEvent;
 use Shopware\Api\Snippet\Event\Snippet\SnippetWrittenEvent;
 use Shopware\Api\Snippet\Repository\SnippetRepository;
 use Shopware\Api\Snippet\Struct\SnippetBasicStruct;
@@ -78,6 +79,11 @@ class SnippetDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return SnippetBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return SnippetDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

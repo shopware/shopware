@@ -14,6 +14,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Product\Collection\ProductSearchKeywordBasicCollection;
 use Shopware\Api\Product\Collection\ProductSearchKeywordDetailCollection;
+use Shopware\Api\Product\Event\ProductSearchKeyword\ProductSearchKeywordDeletedEvent;
 use Shopware\Api\Product\Event\ProductSearchKeyword\ProductSearchKeywordWrittenEvent;
 use Shopware\Api\Product\Repository\ProductSearchKeywordRepository;
 use Shopware\Api\Product\Struct\ProductSearchKeywordBasicStruct;
@@ -50,9 +51,9 @@ class ProductSearchKeywordDefinition extends EntityDefinition
 
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('keyword', 'keyword'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('shop_id', 'shopId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('shop_id', 'shopId', ShopDefinition::class))->setFlags(new Required()),
+            (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new Required()),
+            (new StringField('keyword', 'keyword'))->setFlags(new Required()),
             (new FloatField('ranking', 'ranking'))->setFlags(new Required()),
             new ManyToOneAssociationField('shop', 'shop_id', ShopDefinition::class, false),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
@@ -73,6 +74,11 @@ class ProductSearchKeywordDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ProductSearchKeywordBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ProductSearchKeywordDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

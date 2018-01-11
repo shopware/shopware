@@ -22,6 +22,28 @@ class CategoryDetailCollection extends CategoryBasicCollection
         );
     }
 
+    public function getChildrenIds(): array
+    {
+        $ids = [];
+        foreach ($this->elements as $element) {
+            foreach ($element->getChildren()->getIds() as $id) {
+                $ids[] = $id;
+            }
+        }
+
+        return $ids;
+    }
+
+    public function getChildren(): CategoryBasicCollection
+    {
+        $collection = new CategoryBasicCollection();
+        foreach ($this->elements as $element) {
+            $collection->fill($element->getChildren()->getElements());
+        }
+
+        return $collection;
+    }
+
     public function getTranslationIds(): array
     {
         $ids = [];

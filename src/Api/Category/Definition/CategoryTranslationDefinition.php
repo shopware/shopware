@@ -4,6 +4,7 @@ namespace Shopware\Api\Category\Definition;
 
 use Shopware\Api\Category\Collection\CategoryTranslationBasicCollection;
 use Shopware\Api\Category\Collection\CategoryTranslationDetailCollection;
+use Shopware\Api\Category\Event\CategoryTranslation\CategoryTranslationDeletedEvent;
 use Shopware\Api\Category\Event\CategoryTranslation\CategoryTranslationWrittenEvent;
 use Shopware\Api\Category\Repository\CategoryTranslationRepository;
 use Shopware\Api\Category\Struct\CategoryTranslationBasicStruct;
@@ -76,6 +77,11 @@ class CategoryTranslationDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return CategoryTranslationBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return CategoryTranslationDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

@@ -63,7 +63,7 @@ CREATE TABLE `category` (
   KEY `fk_category.parent_id` (`parent_id`),
   CONSTRAINT `fk_category.media_id` FOREIGN KEY (`media_id`) REFERENCES `media` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_category.parent_id` FOREIGN KEY (`parent_id`) REFERENCES `category` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_category.product_stream_id` FOREIGN KEY (`product_stream_id`) REFERENCES `product_stream` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_category.product_stream_id` FOREIGN KEY (`product_stream_id`) REFERENCES `product_stream` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -184,10 +184,10 @@ CREATE TABLE `country` (
   `force_state_in_registration` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  `country_area_id` binary(16) NOT NULL,
+  `country_area_id` binary(16) NULL,
   PRIMARY KEY (`id`),
   KEY `fk_area_country.country_area_id` (`country_area_id`),
-  CONSTRAINT `fk_area_country.country_area_id` FOREIGN KEY (`country_area_id`) REFERENCES `country_area` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_area_country.country_area_id` FOREIGN KEY (`country_area_id`) REFERENCES `country_area` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -326,11 +326,11 @@ CREATE TABLE `customer` (
   KEY `fk_customer.main_shop_id` (`main_shop_id`),
   KEY `fk_customer.default_billing_address_id` (`default_billing_address_id`),
   KEY `fk_customer.default_shipping_address_id` (`default_shipping_address_id`),
-  CONSTRAINT `fk_customer.customer_group_id` FOREIGN KEY (`customer_group_id`) REFERENCES `customer_group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_customer.default_payment_method_id` FOREIGN KEY (`default_payment_method_id`) REFERENCES `payment_method` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_customer.last_payment_method_id` FOREIGN KEY (`last_payment_method_id`) REFERENCES `payment_method` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_customer.main_shop_id` FOREIGN KEY (`main_shop_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_customer.shop_id` FOREIGN KEY (`shop_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_customer.customer_group_id` FOREIGN KEY (`customer_group_id`) REFERENCES `customer_group` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_customer.default_payment_method_id` FOREIGN KEY (`default_payment_method_id`) REFERENCES `payment_method` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_customer.last_payment_method_id` FOREIGN KEY (`last_payment_method_id`) REFERENCES `payment_method` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_customer.main_shop_id` FOREIGN KEY (`main_shop_id`) REFERENCES `shop` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_customer.shop_id` FOREIGN KEY (`shop_id`) REFERENCES `shop` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -359,7 +359,7 @@ CREATE TABLE `customer_address` (
   KEY `fk_customer_address.customer_id` (`customer_id`),
   KEY `fk_customer_address.country_id` (`country_id`),
   KEY `fk_customer_address.country_state_id` (`country_state_id`),
-  CONSTRAINT `fk_customer_address.country_id` FOREIGN KEY (`country_id`) REFERENCES `country` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_customer_address.country_id` FOREIGN KEY (`country_id`) REFERENCES `country` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_customer_address.country_state_id` FOREIGN KEY (`country_state_id`) REFERENCES `country_state` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_customer_address.customer_id` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -518,7 +518,7 @@ CREATE TABLE `mail` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `fk_mail.order_state_id` (`order_state_id`),
-  CONSTRAINT `fk_mail.order_state_id` FOREIGN KEY (`order_state_id`) REFERENCES `order_state` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_mail.order_state_id` FOREIGN KEY (`order_state_id`) REFERENCES `order_state` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -535,8 +535,8 @@ CREATE TABLE `mail_attachment` (
   KEY `fk_mail_attachment.media_id` (`media_id`),
   KEY `fk_mail_attachment.shop_id` (`shop_id`),
   CONSTRAINT `fk_mail_attachment.mail_id` FOREIGN KEY (`mail_id`) REFERENCES `mail` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_mail_attachment.media_id` FOREIGN KEY (`media_id`) REFERENCES `media` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_mail_attachment.shop_id` FOREIGN KEY (`shop_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_mail_attachment.media_id` FOREIGN KEY (`media_id`) REFERENCES `media` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_mail_attachment.shop_id` FOREIGN KEY (`shop_id`) REFERENCES `shop` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
@@ -571,8 +571,8 @@ CREATE TABLE `media` (
   KEY `path` (`file_name`),
   KEY `fk_media.media_album_id` (`media_album_id`),
   KEY `fk_media.user_id` (`user_id`),
-  CONSTRAINT `fk_media.media_album_id` FOREIGN KEY (`media_album_id`) REFERENCES `media_album` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_media.user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_media.media_album_id` FOREIGN KEY (`media_album_id`) REFERENCES `media_album` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_media.user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -646,12 +646,12 @@ CREATE TABLE `order` (
   KEY `fk_order.currency_id` (`currency_id`),
   KEY `fk_order.billing_address_id` (`billing_address_id`),
   KEY `fk_order.shop_id` (`shop_id`),
-  CONSTRAINT `fk_order.billing_address_id` FOREIGN KEY (`billing_address_id`) REFERENCES `order_address` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_order.currency_id` FOREIGN KEY (`currency_id`) REFERENCES `currency` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_order.customer_id` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_order.order_state_id` FOREIGN KEY (`order_state_id`) REFERENCES `order_state` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_order.payment_method_id` FOREIGN KEY (`payment_method_id`) REFERENCES `payment_method` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_order.shop_id` FOREIGN KEY (`shop_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_order.billing_address_id` FOREIGN KEY (`billing_address_id`) REFERENCES `order_address` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_order.currency_id` FOREIGN KEY (`currency_id`) REFERENCES `currency` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_order.customer_id` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_order.order_state_id` FOREIGN KEY (`order_state_id`) REFERENCES `order_state` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_order.payment_method_id` FOREIGN KEY (`payment_method_id`) REFERENCES `payment_method` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_order.shop_id` FOREIGN KEY (`shop_id`) REFERENCES `shop` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -678,8 +678,8 @@ CREATE TABLE `order_address` (
   PRIMARY KEY (`id`),
   KEY `fk_order_address.country_state_id` (`country_state_id`),
   KEY `fk_order_address.country_id` (`country_id`),
-  CONSTRAINT `fk_order_address.country_id` FOREIGN KEY (`country_id`) REFERENCES `country` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_order_address.country_state_id` FOREIGN KEY (`country_state_id`) REFERENCES `country_state` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_order_address.country_id` FOREIGN KEY (`country_id`) REFERENCES `country` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_order_address.country_state_id` FOREIGN KEY (`country_state_id`) REFERENCES `country_state` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -702,9 +702,9 @@ CREATE TABLE `order_delivery` (
   KEY `fk_order_delivery.shipping_method_id` (`shipping_method_id`),
   KEY `fk_order_delivery.order_state_id` (`order_state_id`),
   CONSTRAINT `fk_order_delivery.order_id` FOREIGN KEY (`order_id`) REFERENCES `order` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_order_delivery.order_state_id` FOREIGN KEY (`order_state_id`) REFERENCES `order_state` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_order_delivery.shipping_address_id` FOREIGN KEY (`shipping_address_id`) REFERENCES `order_address` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_order_delivery.shipping_method_id` FOREIGN KEY (`shipping_method_id`) REFERENCES `shipping_method` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_order_delivery.order_state_id` FOREIGN KEY (`order_state_id`) REFERENCES `order_state` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_order_delivery.shipping_address_id` FOREIGN KEY (`shipping_address_id`) REFERENCES `order_address` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_order_delivery.shipping_method_id` FOREIGN KEY (`shipping_method_id`) REFERENCES `shipping_method` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -885,9 +885,9 @@ CREATE TABLE `product` (
   KEY `fk_product.product_manufacturer_id` (`product_manufacturer_id`),
   KEY `fk_product.tax_id` (`tax_id`),
   KEY `fk_product.unit_id` (`unit_id`),
-  CONSTRAINT `fk_product.product_manufacturer_id` FOREIGN KEY (`product_manufacturer_id`) REFERENCES `product_manufacturer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_product.tax_id` FOREIGN KEY (`tax_id`) REFERENCES `tax` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_product.unit_id` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_product.product_manufacturer_id` FOREIGN KEY (`product_manufacturer_id`) REFERENCES `product_manufacturer` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_product.tax_id` FOREIGN KEY (`tax_id`) REFERENCES `tax` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_product.unit_id` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -923,7 +923,8 @@ CREATE TABLE `product_listing_price` (
 CREATE TABLE `search_keyword` (
   `keyword` varchar(500) NOT NULL,
   `shop_id` binary(16) NOT NULL,
-  PRIMARY KEY `keyword_shop_uuid` (`keyword`, `shop_id`)
+  PRIMARY KEY `keyword_shop_uuid` (`keyword`, `shop_id`),
+  CONSTRAINT `fk_search_keyword.shop_id` FOREIGN KEY (`shop_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE `product_search_keyword` (
@@ -961,7 +962,7 @@ CREATE TABLE `product_manufacturer` (
   `media_id` binary(16) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_product_manufacturer.media_id` (`media_id`),
-  CONSTRAINT `fk_product_manufacturer.media_id` FOREIGN KEY (`media_id`) REFERENCES `media` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_product_manufacturer.media_id` FOREIGN KEY (`media_id`) REFERENCES `media` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -1051,7 +1052,7 @@ CREATE TABLE `product_stream` (
   `listing_sorting_id` binary(16) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_product_stream.listing_sorting_id` (`listing_sorting_id`),
-  CONSTRAINT `fk_product_stream.listing_sorting_id` FOREIGN KEY (`listing_sorting_id`) REFERENCES `listing_sorting` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_product_stream.listing_sorting_id` FOREIGN KEY (`listing_sorting_id`) REFERENCES `listing_sorting` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -1179,7 +1180,7 @@ CREATE TABLE `shipping_method` (
   `customer_group_id` binary(16) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_shipping_method.customer_group_id` (`customer_group_id`),
-  CONSTRAINT `fk_shipping_method.customer_group_id` FOREIGN KEY (`customer_group_id`) REFERENCES `customer_group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_shipping_method.customer_group_id` FOREIGN KEY (`customer_group_id`) REFERENCES `customer_group` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -1238,9 +1239,9 @@ CREATE TABLE `shop` (
   `currency_id` binary(16) NOT NULL,
   `customer_group_id` binary(16) NOT NULL,
   `fallback_translation_id` binary(16) DEFAULT NULL,
-  `payment_method_id` binary(16) DEFAULT NULL,
-  `shipping_method_id` binary(16) DEFAULT NULL,
-  `country_id` binary(16) DEFAULT NULL,
+  `payment_method_id` binary(16) NOT NULL,
+  `shipping_method_id` binary(16) NOT NULL,
+  `country_id` binary(16) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `host` (`host`),
   KEY `fk_shop.parent_id` (`parent_id`),
@@ -1254,17 +1255,17 @@ CREATE TABLE `shop` (
   KEY `fk_shop.payment_method_id` (`payment_method_id`),
   KEY `fk_shop.shipping_method_id` (`shipping_method_id`),
   KEY `fk_shop.country_id` (`country_id`),
-  CONSTRAINT `fk_shop.category_id` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop.country_id` FOREIGN KEY (`country_id`) REFERENCES `country` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop.currency_id` FOREIGN KEY (`currency_id`) REFERENCES `currency` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop.customer_group_id` FOREIGN KEY (`customer_group_id`) REFERENCES `customer_group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop.document_template_id` FOREIGN KEY (`document_template_id`) REFERENCES `shop_template` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop.fallback_translation_id` FOREIGN KEY (`fallback_translation_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop.locale_id` FOREIGN KEY (`locale_id`) REFERENCES `locale` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop.parent_id` FOREIGN KEY (`parent_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop.payment_method_id` FOREIGN KEY (`payment_method_id`) REFERENCES `payment_method` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop.shipping_method_id` FOREIGN KEY (`shipping_method_id`) REFERENCES `shipping_method` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop.shop_template_id` FOREIGN KEY (`shop_template_id`) REFERENCES `shop_template` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_shop.category_id` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_shop.country_id` FOREIGN KEY (`country_id`) REFERENCES `country` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_shop.currency_id` FOREIGN KEY (`currency_id`) REFERENCES `currency` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_shop.customer_group_id` FOREIGN KEY (`customer_group_id`) REFERENCES `customer_group` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_shop.document_template_id` FOREIGN KEY (`document_template_id`) REFERENCES `shop_template` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_shop.fallback_translation_id` FOREIGN KEY (`fallback_translation_id`) REFERENCES `shop` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_shop.locale_id` FOREIGN KEY (`locale_id`) REFERENCES `locale` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_shop.parent_id` FOREIGN KEY (`parent_id`) REFERENCES `shop` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_shop.payment_method_id` FOREIGN KEY (`payment_method_id`) REFERENCES `payment_method` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_shop.shipping_method_id` FOREIGN KEY (`shipping_method_id`) REFERENCES `shipping_method` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_shop.shop_template_id` FOREIGN KEY (`shop_template_id`) REFERENCES `shop_template` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -1494,7 +1495,7 @@ CREATE TABLE `user` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),
   KEY `fk_user.locale_id` (`locale_id`),
-  CONSTRAINT `fk_user.locale_id` FOREIGN KEY (`locale_id`) REFERENCES `locale` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_user.locale_id` FOREIGN KEY (`locale_id`) REFERENCES `locale` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS=1;

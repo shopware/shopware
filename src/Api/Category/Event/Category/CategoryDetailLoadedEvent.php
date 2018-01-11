@@ -59,6 +59,9 @@ class CategoryDetailLoadedEvent extends NestedEvent
         if ($this->categories->getProductStreams()->count() > 0) {
             $events[] = new ProductStreamBasicLoadedEvent($this->categories->getProductStreams(), $this->context);
         }
+        if ($this->categories->getChildren()->count() > 0) {
+            $events[] = new CategoryBasicLoadedEvent($this->categories->getChildren(), $this->context);
+        }
         if ($this->categories->getTranslations()->count() > 0) {
             $events[] = new CategoryTranslationBasicLoadedEvent($this->categories->getTranslations(), $this->context);
         }

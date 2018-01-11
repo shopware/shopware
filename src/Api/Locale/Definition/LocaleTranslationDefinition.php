@@ -12,6 +12,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Locale\Collection\LocaleTranslationBasicCollection;
 use Shopware\Api\Locale\Collection\LocaleTranslationDetailCollection;
+use Shopware\Api\Locale\Event\LocaleTranslation\LocaleTranslationDeletedEvent;
 use Shopware\Api\Locale\Event\LocaleTranslation\LocaleTranslationWrittenEvent;
 use Shopware\Api\Locale\Repository\LocaleTranslationRepository;
 use Shopware\Api\Locale\Struct\LocaleTranslationBasicStruct;
@@ -70,6 +71,11 @@ class LocaleTranslationDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return LocaleTranslationBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return LocaleTranslationDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

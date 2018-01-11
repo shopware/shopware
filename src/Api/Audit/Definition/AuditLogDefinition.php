@@ -3,6 +3,7 @@
 namespace Shopware\Api\Audit\Definition;
 
 use Shopware\Api\Audit\Collection\AuditLogBasicCollection;
+use Shopware\Api\Audit\Event\AuditLog\AuditLogDeletedEvent;
 use Shopware\Api\Audit\Event\AuditLog\AuditLogWrittenEvent;
 use Shopware\Api\Audit\Repository\AuditLogRepository;
 use Shopware\Api\Audit\Struct\AuditLogBasicStruct;
@@ -69,6 +70,11 @@ class AuditLogDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return AuditLogBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return AuditLogDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

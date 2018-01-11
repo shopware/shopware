@@ -13,6 +13,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Payment\Collection\PaymentMethodTranslationBasicCollection;
 use Shopware\Api\Payment\Collection\PaymentMethodTranslationDetailCollection;
+use Shopware\Api\Payment\Event\PaymentMethodTranslation\PaymentMethodTranslationDeletedEvent;
 use Shopware\Api\Payment\Event\PaymentMethodTranslation\PaymentMethodTranslationWrittenEvent;
 use Shopware\Api\Payment\Repository\PaymentMethodTranslationRepository;
 use Shopware\Api\Payment\Struct\PaymentMethodTranslationBasicStruct;
@@ -71,6 +72,11 @@ class PaymentMethodTranslationDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return PaymentMethodTranslationBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return PaymentMethodTranslationDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

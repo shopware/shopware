@@ -4,6 +4,7 @@ namespace Shopware\Api\Customer\Definition;
 
 use Shopware\Api\Customer\Collection\CustomerGroupDiscountBasicCollection;
 use Shopware\Api\Customer\Collection\CustomerGroupDiscountDetailCollection;
+use Shopware\Api\Customer\Event\CustomerGroupDiscount\CustomerGroupDiscountDeletedEvent;
 use Shopware\Api\Customer\Event\CustomerGroupDiscount\CustomerGroupDiscountWrittenEvent;
 use Shopware\Api\Customer\Repository\CustomerGroupDiscountRepository;
 use Shopware\Api\Customer\Struct\CustomerGroupDiscountBasicStruct;
@@ -72,6 +73,11 @@ class CustomerGroupDiscountDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return CustomerGroupDiscountBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return CustomerGroupDiscountDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

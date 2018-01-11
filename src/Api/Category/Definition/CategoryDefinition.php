@@ -4,6 +4,7 @@ namespace Shopware\Api\Category\Definition;
 
 use Shopware\Api\Category\Collection\CategoryBasicCollection;
 use Shopware\Api\Category\Collection\CategoryDetailCollection;
+use Shopware\Api\Category\Event\Category\CategoryDeletedEvent;
 use Shopware\Api\Category\Event\Category\CategoryWrittenEvent;
 use Shopware\Api\Category\Repository\CategoryRepository;
 use Shopware\Api\Category\Struct\CategoryBasicStruct;
@@ -23,8 +24,10 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Media\Definition\MediaDefinition;
 use Shopware\Api\Product\Definition\ProductCategoryDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;
@@ -90,10 +93,11 @@ class CategoryDefinition extends EntityDefinition
             new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, true),
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, true),
-            (new TranslationsAssociationField('translations', CategoryTranslationDefinition::class, 'category_id', false, 'id'))->setFlags(new Required()),
-            new OneToManyAssociationField('shops', ShopDefinition::class, 'category_id', false, 'id'),
-            new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'productIds'),
-            new ManyToManyAssociationField('seoProducts', ProductDefinition::class, ProductSeoCategoryDefinition::class, false, 'category_id', 'product_id', 'seoProductIds'),
+            (new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField('translations', CategoryTranslationDefinition::class, 'category_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
+            (new OneToManyAssociationField('shops', ShopDefinition::class, 'category_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'productIds'))->setFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('seoProducts', ProductDefinition::class, ProductSeoCategoryDefinition::class, false, 'category_id', 'product_id', 'seoProductIds'))->setFlags(new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -111,6 +115,11 @@ class CategoryDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return CategoryBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return CategoryDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

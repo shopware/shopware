@@ -2,12 +2,15 @@
 
 namespace Shopware\Api\#BundleName#\Definition;
 
-use Shopware\Api\Entity\EntityDefinition;
+use Shopware\Api\Entity\MappingEntityDefinition;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\#BundleName#\Event\#TableDomainNameUc#\#TableDomainNameUc#WrittenEvent;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
+use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+
 #uses#
 
-class #TableDomainNameUc#Definition extends EntityDefinition
+class #TableDomainNameUc#Definition extends MappingEntityDefinition
 {
     /**
      * @var FieldCollection
@@ -35,29 +38,14 @@ class #TableDomainNameUc#Definition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        throw new \RuntimeException('Mapping table do not have own repositories');
-    }
-
-    public static function getBasicCollectionClass(): string
-    {
-        throw new \RuntimeException('Mapping table do not have own collection classes');
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        throw new \RuntimeException('Mapping table do not have own struct classes');
-    }
-
     public static function getWrittenEventClass(): string
     {
         return #TableDomainNameUc#WrittenEvent::class;
     }
 
-    public static function getTranslationDefinitionClass(): ?string
+    public static function getDeletedEventClass(): string
     {
-        return null;
+        return #TableDomainNameUc#DeletedEvent::class;
     }
 
 #injection#

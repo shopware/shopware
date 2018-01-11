@@ -14,10 +14,12 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Listing\Collection\ListingSortingBasicCollection;
 use Shopware\Api\Listing\Collection\ListingSortingDetailCollection;
+use Shopware\Api\Listing\Event\ListingSorting\ListingSortingDeletedEvent;
 use Shopware\Api\Listing\Event\ListingSorting\ListingSortingWrittenEvent;
 use Shopware\Api\Listing\Repository\ListingSortingRepository;
 use Shopware\Api\Listing\Struct\ListingSortingBasicStruct;
@@ -61,7 +63,7 @@ class ListingSortingDefinition extends EntityDefinition
             new IntField('position', 'position'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new TranslationsAssociationField('translations', ListingSortingTranslationDefinition::class, 'listing_sorting_id', false, 'id'))->setFlags(new Required()),
+            (new TranslationsAssociationField('translations', ListingSortingTranslationDefinition::class, 'listing_sorting_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             new OneToManyAssociationField('productStreams', ProductStreamDefinition::class, 'listing_sorting_id', false, 'id'),
         ]);
 
@@ -80,6 +82,11 @@ class ListingSortingDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ListingSortingBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ListingSortingDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

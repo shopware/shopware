@@ -129,7 +129,7 @@ class OrderRepository implements RepositoryInterface
     public function update(array $data, TranslationContext $context): GenericWrittenEvent
     {
         $affected = $this->writer->update(OrderDefinition::class, $data, WriteContext::createFromTranslationContext($context));
-        $event = GenericWrittenEvent::createFromWriterResult($affected, $context, []);
+        $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
@@ -138,7 +138,7 @@ class OrderRepository implements RepositoryInterface
     public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
     {
         $affected = $this->writer->upsert(OrderDefinition::class, $data, WriteContext::createFromTranslationContext($context));
-        $event = GenericWrittenEvent::createFromWriterResult($affected, $context, []);
+        $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
@@ -147,7 +147,16 @@ class OrderRepository implements RepositoryInterface
     public function create(array $data, TranslationContext $context): GenericWrittenEvent
     {
         $affected = $this->writer->insert(OrderDefinition::class, $data, WriteContext::createFromTranslationContext($context));
-        $event = GenericWrittenEvent::createFromWriterResult($affected, $context, []);
+        $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
+        $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
+
+        return $event;
+    }
+
+    public function delete(array $ids, TranslationContext $context): GenericWrittenEvent
+    {
+        $affected = $this->writer->delete(OrderDefinition::class, $ids, WriteContext::createFromTranslationContext($context));
+        $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;

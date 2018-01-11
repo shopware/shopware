@@ -2,17 +2,17 @@
 
 namespace Shopware\Api\Product\Definition;
 
-use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\MappingEntityDefinition;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Product\Event\ProductStreamAssignment\ProductStreamAssignmentWrittenEvent;
 
-class ProductStreamAssignmentDefinition extends EntityDefinition
+class ProductStreamAssignmentDefinition extends MappingEntityDefinition
 {
     /**
      * @var FieldCollection
@@ -46,28 +46,13 @@ class ProductStreamAssignmentDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        throw new \RuntimeException('Mapping table do not have own repositories');
-    }
-
-    public static function getBasicCollectionClass(): string
-    {
-        throw new \RuntimeException('Mapping table do not have own collection classes');
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        throw new \RuntimeException('Mapping table do not have own struct classes');
-    }
-
     public static function getWrittenEventClass(): string
     {
         return ProductStreamAssignmentWrittenEvent::class;
     }
 
-    public static function getTranslationDefinitionClass(): ?string
+    public static function getDeletedEventClass(): string
     {
-        return null;
+        return ProductStreamAssignmentDeletedEvent::class;
     }
 }

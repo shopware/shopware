@@ -13,6 +13,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Shipping\Collection\ShippingMethodTranslationBasicCollection;
 use Shopware\Api\Shipping\Collection\ShippingMethodTranslationDetailCollection;
+use Shopware\Api\Shipping\Event\ShippingMethodTranslation\ShippingMethodTranslationDeletedEvent;
 use Shopware\Api\Shipping\Event\ShippingMethodTranslation\ShippingMethodTranslationWrittenEvent;
 use Shopware\Api\Shipping\Repository\ShippingMethodTranslationRepository;
 use Shopware\Api\Shipping\Struct\ShippingMethodTranslationBasicStruct;
@@ -72,6 +73,11 @@ class ShippingMethodTranslationDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ShippingMethodTranslationBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ShippingMethodTranslationDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

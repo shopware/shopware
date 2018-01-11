@@ -9,11 +9,6 @@ class ProductSearchKeywordBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $keyword;
-
-    /**
-     * @var string
-     */
     protected $shopId;
 
     /**
@@ -22,19 +17,14 @@ class ProductSearchKeywordBasicStruct extends Entity
     protected $productId;
 
     /**
+     * @var string
+     */
+    protected $keyword;
+
+    /**
      * @var float
      */
     protected $ranking;
-
-    public function getKeyword(): string
-    {
-        return $this->keyword;
-    }
-
-    public function setKeyword(string $keyword): void
-    {
-        $this->keyword = $keyword;
-    }
 
     public function getShopId(): string
     {
@@ -54,6 +44,16 @@ class ProductSearchKeywordBasicStruct extends Entity
     public function setProductId(string $productId): void
     {
         $this->productId = $productId;
+    }
+
+    public function getKeyword(): string
+    {
+        return $this->keyword;
+    }
+
+    public function setKeyword(string $keyword): void
+    {
+        $this->keyword = $keyword;
     }
 
     public function getRanking(): float

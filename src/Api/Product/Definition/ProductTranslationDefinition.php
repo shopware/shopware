@@ -14,6 +14,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Product\Collection\ProductTranslationBasicCollection;
 use Shopware\Api\Product\Collection\ProductTranslationDetailCollection;
+use Shopware\Api\Product\Event\ProductTranslation\ProductTranslationDeletedEvent;
 use Shopware\Api\Product\Event\ProductTranslation\ProductTranslationWrittenEvent;
 use Shopware\Api\Product\Repository\ProductTranslationRepository;
 use Shopware\Api\Product\Struct\ProductTranslationBasicStruct;
@@ -77,6 +78,11 @@ class ProductTranslationDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ProductTranslationBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ProductTranslationDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

@@ -4,6 +4,7 @@ namespace Shopware\Api\Customer\Definition;
 
 use Shopware\Api\Customer\Collection\CustomerGroupBasicCollection;
 use Shopware\Api\Customer\Collection\CustomerGroupDetailCollection;
+use Shopware\Api\Customer\Event\CustomerGroup\CustomerGroupDeletedEvent;
 use Shopware\Api\Customer\Event\CustomerGroup\CustomerGroupWrittenEvent;
 use Shopware\Api\Customer\Repository\CustomerGroupRepository;
 use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
@@ -19,8 +20,10 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 
 class CustomerGroupDefinition extends EntityDefinition
 {
@@ -61,9 +64,9 @@ class CustomerGroupDefinition extends EntityDefinition
             new FloatField('minimum_order_amount_surcharge', 'minimumOrderAmountSurcharge'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new OneToManyAssociationField('customers', CustomerDefinition::class, 'customer_group_id', false, 'id'),
-            new OneToManyAssociationField('discounts', CustomerGroupDiscountDefinition::class, 'customer_group_id', false, 'id'),
-            (new TranslationsAssociationField('translations', CustomerGroupTranslationDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new Required()),
+            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('discounts', CustomerGroupDiscountDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField('translations', CustomerGroupTranslationDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -81,6 +84,11 @@ class CustomerGroupDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return CustomerGroupBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return CustomerGroupDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Shop\Struct;
 
+use Shopware\Api\Shop\Collection\ShopTemplateConfigFormBasicCollection;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigFormFieldBasicCollection;
 
 class ShopTemplateConfigFormDetailStruct extends ShopTemplateConfigFormBasicStruct
@@ -17,12 +18,19 @@ class ShopTemplateConfigFormDetailStruct extends ShopTemplateConfigFormBasicStru
     protected $shopTemplate;
 
     /**
+     * @var ShopTemplateConfigFormBasicCollection
+     */
+    protected $children;
+
+    /**
      * @var ShopTemplateConfigFormFieldBasicCollection
      */
     protected $fields;
 
     public function __construct()
     {
+        $this->children = new ShopTemplateConfigFormBasicCollection();
+
         $this->fields = new ShopTemplateConfigFormFieldBasicCollection();
     }
 
@@ -44,6 +52,16 @@ class ShopTemplateConfigFormDetailStruct extends ShopTemplateConfigFormBasicStru
     public function setShopTemplate(ShopTemplateBasicStruct $shopTemplate): void
     {
         $this->shopTemplate = $shopTemplate;
+    }
+
+    public function getChildren(): ShopTemplateConfigFormBasicCollection
+    {
+        return $this->children;
+    }
+
+    public function setChildren(ShopTemplateConfigFormBasicCollection $children): void
+    {
+        $this->children = $children;
     }
 
     public function getFields(): ShopTemplateConfigFormFieldBasicCollection

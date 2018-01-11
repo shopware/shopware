@@ -15,6 +15,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Order\Collection\OrderDeliveryPositionBasicCollection;
 use Shopware\Api\Order\Collection\OrderDeliveryPositionDetailCollection;
+use Shopware\Api\Order\Event\OrderDeliveryPosition\OrderDeliveryPositionDeletedEvent;
 use Shopware\Api\Order\Event\OrderDeliveryPosition\OrderDeliveryPositionWrittenEvent;
 use Shopware\Api\Order\Repository\OrderDeliveryPositionRepository;
 use Shopware\Api\Order\Struct\OrderDeliveryPositionBasicStruct;
@@ -77,6 +78,11 @@ class OrderDeliveryPositionDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return OrderDeliveryPositionBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return OrderDeliveryPositionDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

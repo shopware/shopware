@@ -14,10 +14,12 @@ use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Order\Collection\OrderLineItemBasicCollection;
 use Shopware\Api\Order\Collection\OrderLineItemDetailCollection;
+use Shopware\Api\Order\Event\OrderLineItem\OrderLineItemDeletedEvent;
 use Shopware\Api\Order\Event\OrderLineItem\OrderLineItemWrittenEvent;
 use Shopware\Api\Order\Repository\OrderLineItemRepository;
 use Shopware\Api\Order\Struct\OrderLineItemBasicStruct;
@@ -63,7 +65,7 @@ class OrderLineItemDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false),
-            new OneToManyAssociationField('orderDeliveryPositions', OrderDeliveryPositionDefinition::class, 'order_line_item_id', false, 'id'),
+            (new OneToManyAssociationField('orderDeliveryPositions', OrderDeliveryPositionDefinition::class, 'order_line_item_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -81,6 +83,11 @@ class OrderLineItemDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return OrderLineItemBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return OrderLineItemDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

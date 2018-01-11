@@ -18,10 +18,12 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Tax\Collection\TaxAreaRuleBasicCollection;
 use Shopware\Api\Tax\Collection\TaxAreaRuleDetailCollection;
+use Shopware\Api\Tax\Event\TaxAreaRule\TaxAreaRuleDeletedEvent;
 use Shopware\Api\Tax\Event\TaxAreaRule\TaxAreaRuleWrittenEvent;
 use Shopware\Api\Tax\Repository\TaxAreaRuleRepository;
 use Shopware\Api\Tax\Struct\TaxAreaRuleBasicStruct;
@@ -72,7 +74,7 @@ class TaxAreaRuleDefinition extends EntityDefinition
             new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, false),
             new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, false),
             new ManyToOneAssociationField('customerGroup', 'customer_group_id', CustomerGroupDefinition::class, false),
-            (new TranslationsAssociationField('translations', TaxAreaRuleTranslationDefinition::class, 'tax_area_rule_id', false, 'id'))->setFlags(new Required()),
+            (new TranslationsAssociationField('translations', TaxAreaRuleTranslationDefinition::class, 'tax_area_rule_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -90,6 +92,11 @@ class TaxAreaRuleDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return TaxAreaRuleBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return TaxAreaRuleDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

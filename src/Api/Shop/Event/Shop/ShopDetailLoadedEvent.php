@@ -86,6 +86,9 @@ class ShopDetailLoadedEvent extends NestedEvent
         if ($this->shops->getCountries()->count() > 0) {
             $events[] = new CountryBasicLoadedEvent($this->shops->getCountries(), $this->context);
         }
+        if ($this->shops->getChildren()->count() > 0) {
+            $events[] = new ShopBasicLoadedEvent($this->shops->getChildren(), $this->context);
+        }
         if ($this->shops->getAllCurrencies()->count() > 0) {
             $events[] = new CurrencyBasicLoadedEvent($this->shops->getAllCurrencies(), $this->context);
         }

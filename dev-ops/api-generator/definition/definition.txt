@@ -9,6 +9,10 @@ use Shopware\Api\#BundleName#\Repository\#TableDomainNameUc#Repository;
 use Shopware\Api\#BundleName#\Collection\#TableDomainNameUc#BasicCollection;
 use Shopware\Api\#BundleName#\Struct\#TableDomainNameUc#BasicStruct;
 use Shopware\Api\#BundleName#\Event\#TableDomainNameUc#\#TableDomainNameUc#WrittenEvent;
+use Shopware\Api\#BundleName#\Event\#TableDomainNameUc#\#TableDomainNameUc#DeletedEvent;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
+use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+
 #uses#
 
 class #TableDomainNameUc#Definition extends EntityDefinition
@@ -58,6 +62,11 @@ class #TableDomainNameUc#Definition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return #TableDomainNameUc#BasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return #TableDomainNameUc#DeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

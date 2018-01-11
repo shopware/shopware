@@ -14,11 +14,14 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Media\Definition\MediaDefinition;
 use Shopware\Api\Product\Collection\ProductManufacturerBasicCollection;
 use Shopware\Api\Product\Collection\ProductManufacturerDetailCollection;
+use Shopware\Api\Product\Event\ProductManufacturer\ProductManufacturerDeletedEvent;
 use Shopware\Api\Product\Event\ProductManufacturer\ProductManufacturerWrittenEvent;
 use Shopware\Api\Product\Repository\ProductManufacturerRepository;
 use Shopware\Api\Product\Struct\ProductManufacturerBasicStruct;
@@ -64,8 +67,8 @@ class ProductManufacturerDefinition extends EntityDefinition
             new TranslatedField(new StringField('meta_description', 'metaDescription')),
             new TranslatedField(new StringField('meta_keywords', 'metaKeywords')),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
-            new OneToManyAssociationField('products', ProductDefinition::class, 'product_manufacturer_id', false, 'id'),
-            (new TranslationsAssociationField('translations', ProductManufacturerTranslationDefinition::class, 'product_manufacturer_id', false, 'id'))->setFlags(new Required()),
+            (new OneToManyAssociationField('products', ProductDefinition::class, 'product_manufacturer_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new TranslationsAssociationField('translations', ProductManufacturerTranslationDefinition::class, 'product_manufacturer_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -83,6 +86,11 @@ class ProductManufacturerDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ProductManufacturerBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ProductManufacturerDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

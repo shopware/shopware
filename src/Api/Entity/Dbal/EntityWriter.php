@@ -25,19 +25,21 @@
 namespace Shopware\Api\Entity\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\IdField;
+use Shopware\Api\Entity\MappingEntityDefinition;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\FieldAware\DefaultExtender;
 use Shopware\Api\Entity\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Api\Entity\Write\FieldAware\StorageAware;
 use Shopware\Api\Entity\Write\FieldException\FieldExceptionStack;
 use Shopware\Api\Entity\Write\Query\DeleteQuery;
 use Shopware\Api\Entity\Write\Query\InsertQuery;
 use Shopware\Api\Entity\Write\Query\UpdateQuery;
 use Shopware\Api\Entity\Write\Query\WriteQuery;
 use Shopware\Api\Entity\Write\Query\WriteQueryQueue;
+use Shopware\Api\Entity\Write\Validation\RestrictDeleteViolation;
+use Shopware\Api\Entity\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Entity\Write\WriteResource;
 
@@ -53,10 +55,19 @@ class EntityWriter implements EntityWriterInterface
      */
     private $defaultExtender;
 
-    public function __construct(Connection $connection, DefaultExtender $defaultExtender)
-    {
+    /**
+     * @var EntityForeignKeyResolver
+     */
+    private $foreignKeyResolver;
+
+    public function __construct(
+        Connection $connection,
+        DefaultExtender $defaultExtender,
+        EntityForeignKeyResolver $foreignKeyResolver
+    ) {
         $this->connection = $connection;
         $this->defaultExtender = $defaultExtender;
+        $this->foreignKeyResolver = $foreignKeyResolver;
     }
 
     public function upsert(string $definition, array $rawData, WriteContext $writeContext): array
@@ -102,11 +113,16 @@ class EntityWriter implements EntityWriterInterface
 
     /**
      * @param EntityDefinition|string $definition
-     * @param array $ids
-     * @param WriteContext $writeContext
+     * @param array                   $ids
+     * @param WriteContext            $writeContext
+     *
+     * @throws RestrictDeleteViolationException
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     *
      * @return array
      */
-    public function delete(string $definition, array $ids, WriteContext $writeContext)
+    public function delete(string $definition, array $ids, WriteContext $writeContext): array
     {
         $this->validateWriteInput($ids);
 
@@ -115,16 +131,48 @@ class EntityWriter implements EntityWriterInterface
 
         $fields = $definition::getPrimaryKeys();
 
+        $resolved = [];
         foreach ($ids as $raw) {
             $mapped = [];
 
-            /** @var IdField|FkField $field */
+            /** @var StorageAware|IdField $field */
             foreach ($fields as $field) {
-                if (isset($raw[$field->getPropertyName()])) {
-                    $mapped[$field->getStorageName()] = $raw[$field->getPropertyName()];
+                if (!array_key_exists($field->getPropertyName(), $raw)) {
+                    throw new \InvalidArgumentException(
+                        sprintf('Missing primary key value %s for entity %s', $field->getPropertyName(), $definition::getEntityName())
+                    );
                 }
+
+                $mapped[$field->getStorageName()] = $raw[$field->getPropertyName()];
             }
 
+            $resolved[] = $mapped;
+        }
+
+        $instance = new $definition();
+        if (!$instance instanceof MappingEntityDefinition) {
+            $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($definition, $resolved);
+
+            if (!empty($restrictions)) {
+                $restrictions = array_map(function ($restriction) {
+                    return new RestrictDeleteViolation($restriction['pk'], $restriction['restrictions']);
+                }, $restrictions);
+
+                throw new RestrictDeleteViolationException($restrictions);
+            }
+        }
+
+        $cascades = [];
+        if (!$instance instanceof MappingEntityDefinition) {
+            $cascadeDeletes = $this->foreignKeyResolver->getAffectedDeletes($definition, $resolved);
+
+            $cascadeDeletes = array_column($cascadeDeletes, 'restrictions');
+            foreach ($cascadeDeletes as $cascadeDelete) {
+                $cascades = array_merge_recursive($cascades, $cascadeDelete);
+            }
+        }
+
+        foreach ($resolved as $mapped) {
             $queryQueue->add($definition, new DeleteQuery($definition, $mapped));
         }
 
@@ -132,7 +180,7 @@ class EntityWriter implements EntityWriterInterface
 
         $queryQueue->execute($this->connection);
 
-        return $identifiers;
+        return array_merge_recursive($identifiers, $cascades);
     }
 
     private function getWriteIdentifiers(WriteQueryQueue $queue): array

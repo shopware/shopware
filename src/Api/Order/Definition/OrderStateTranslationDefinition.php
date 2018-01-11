@@ -12,6 +12,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Order\Collection\OrderStateTranslationBasicCollection;
 use Shopware\Api\Order\Collection\OrderStateTranslationDetailCollection;
+use Shopware\Api\Order\Event\OrderStateTranslation\OrderStateTranslationDeletedEvent;
 use Shopware\Api\Order\Event\OrderStateTranslation\OrderStateTranslationWrittenEvent;
 use Shopware\Api\Order\Repository\OrderStateTranslationRepository;
 use Shopware\Api\Order\Struct\OrderStateTranslationBasicStruct;
@@ -69,6 +70,11 @@ class OrderStateTranslationDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return OrderStateTranslationBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return OrderStateTranslationDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

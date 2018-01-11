@@ -13,6 +13,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Mail\Collection\MailTranslationBasicCollection;
 use Shopware\Api\Mail\Collection\MailTranslationDetailCollection;
+use Shopware\Api\Mail\Event\MailTranslation\MailTranslationDeletedEvent;
 use Shopware\Api\Mail\Event\MailTranslation\MailTranslationWrittenEvent;
 use Shopware\Api\Mail\Repository\MailTranslationRepository;
 use Shopware\Api\Mail\Struct\MailTranslationBasicStruct;
@@ -74,6 +75,11 @@ class MailTranslationDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return MailTranslationBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return MailTranslationDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

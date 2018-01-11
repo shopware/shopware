@@ -4,6 +4,7 @@ namespace Shopware\Api\Config\Definition;
 
 use Shopware\Api\Config\Collection\ConfigFormBasicCollection;
 use Shopware\Api\Config\Collection\ConfigFormDetailCollection;
+use Shopware\Api\Config\Event\ConfigForm\ConfigFormDeletedEvent;
 use Shopware\Api\Config\Event\ConfigForm\ConfigFormWrittenEvent;
 use Shopware\Api\Config\Repository\ConfigFormRepository;
 use Shopware\Api\Config\Struct\ConfigFormBasicStruct;
@@ -21,6 +22,7 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Plugin\Definition\PluginDefinition;
@@ -65,8 +67,9 @@ class ConfigFormDefinition extends EntityDefinition
             new TranslatedField(new LongTextField('description', 'description')),
             new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
             new ManyToOneAssociationField('plugin', 'plugin_id', PluginDefinition::class, false),
-            new OneToManyAssociationField('fields', ConfigFormFieldDefinition::class, 'config_form_id', false, 'id'),
-            new TranslationsAssociationField('translations', ConfigFormTranslationDefinition::class, 'config_form_id', false, 'id'),
+            (new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('fields', ConfigFormFieldDefinition::class, 'config_form_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField('translations', ConfigFormTranslationDefinition::class, 'config_form_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -84,6 +87,11 @@ class ConfigFormDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ConfigFormBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ConfigFormDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

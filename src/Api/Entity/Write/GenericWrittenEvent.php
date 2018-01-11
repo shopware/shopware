@@ -9,7 +9,7 @@ use Shopware\Framework\Event\NestedEventCollection;
 
 class GenericWrittenEvent extends NestedEvent
 {
-    public const NAME = 'generic.entity.written';
+    public const NAME = 'entity.written';
 
     /**
      * @var TranslationContext
@@ -62,13 +62,26 @@ class GenericWrittenEvent extends NestedEvent
         return null;
     }
 
-    public static function createFromWriterResult(array $identifiers, TranslationContext $context, array $errors)
+    public static function createWithWrittenEvents(array $identifiers, TranslationContext $context, array $errors): self
     {
         $events = new NestedEventCollection();
 
         /** @var EntityDefinition $definition */
         foreach ($identifiers as $definition => $ids) {
             $class = $definition::getWrittenEventClass();
+            $events->add(new $class($ids, $context, $errors));
+        }
+
+        return new self($context, $events, $errors);
+    }
+
+    public static function createWithDeletedEvents(array $identifiers, TranslationContext $context, array $errors): self
+    {
+        $events = new NestedEventCollection();
+
+        /** @var EntityDefinition $definition */
+        foreach ($identifiers as $definition => $ids) {
+            $class = $definition::getDeletedEventClass();
             $events->add(new $class($ids, $context, $errors));
         }
 

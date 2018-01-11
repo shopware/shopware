@@ -16,6 +16,7 @@ use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Media\Definition\MediaDefinition;
 use Shopware\Api\Product\Collection\ProductMediaBasicCollection;
 use Shopware\Api\Product\Collection\ProductMediaDetailCollection;
+use Shopware\Api\Product\Event\ProductMedia\ProductMediaDeletedEvent;
 use Shopware\Api\Product\Event\ProductMedia\ProductMediaWrittenEvent;
 use Shopware\Api\Product\Repository\ProductMediaRepository;
 use Shopware\Api\Product\Struct\ProductMediaBasicStruct;
@@ -77,6 +78,11 @@ class ProductMediaDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ProductMediaBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ProductMediaDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

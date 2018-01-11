@@ -15,6 +15,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigPresetBasicCollection;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigPresetDetailCollection;
+use Shopware\Api\Shop\Event\ShopTemplateConfigPreset\ShopTemplateConfigPresetDeletedEvent;
 use Shopware\Api\Shop\Event\ShopTemplateConfigPreset\ShopTemplateConfigPresetWrittenEvent;
 use Shopware\Api\Shop\Repository\ShopTemplateConfigPresetRepository;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigPresetBasicStruct;
@@ -74,6 +75,11 @@ class ShopTemplateConfigPresetDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ShopTemplateConfigPresetBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ShopTemplateConfigPresetDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

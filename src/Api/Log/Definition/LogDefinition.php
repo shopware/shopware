@@ -12,6 +12,7 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Log\Collection\LogBasicCollection;
+use Shopware\Api\Log\Event\Log\LogDeletedEvent;
 use Shopware\Api\Log\Event\Log\LogWrittenEvent;
 use Shopware\Api\Log\Repository\LogRepository;
 use Shopware\Api\Log\Struct\LogBasicStruct;
@@ -73,6 +74,11 @@ class LogDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return LogBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return LogDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Media\Struct;
 
+use Shopware\Api\Media\Collection\MediaAlbumBasicCollection;
 use Shopware\Api\Media\Collection\MediaAlbumTranslationBasicCollection;
 use Shopware\Api\Media\Collection\MediaBasicCollection;
 
@@ -18,6 +19,11 @@ class MediaAlbumDetailStruct extends MediaAlbumBasicStruct
     protected $media;
 
     /**
+     * @var MediaAlbumBasicCollection
+     */
+    protected $children;
+
+    /**
      * @var MediaAlbumTranslationBasicCollection
      */
     protected $translations;
@@ -25,6 +31,8 @@ class MediaAlbumDetailStruct extends MediaAlbumBasicStruct
     public function __construct()
     {
         $this->media = new MediaBasicCollection();
+
+        $this->children = new MediaAlbumBasicCollection();
 
         $this->translations = new MediaAlbumTranslationBasicCollection();
     }
@@ -47,6 +55,16 @@ class MediaAlbumDetailStruct extends MediaAlbumBasicStruct
     public function setMedia(MediaBasicCollection $media): void
     {
         $this->media = $media;
+    }
+
+    public function getChildren(): MediaAlbumBasicCollection
+    {
+        return $this->children;
+    }
+
+    public function setChildren(MediaAlbumBasicCollection $children): void
+    {
+        $this->children = $children;
     }
 
     public function getTranslations(): MediaAlbumTranslationBasicCollection

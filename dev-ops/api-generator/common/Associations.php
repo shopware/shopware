@@ -47,6 +47,11 @@ abstract class Association
      */
     public $nullable = false;
 
+    /**
+     * @var string
+     */
+    public $cascadeDelete;
+
     public function __construct(
         string $sourceTable,
         string $referenceTable,
@@ -55,7 +60,8 @@ abstract class Association
         ?string $referenceColumn,
         bool $inBasic = false,
         bool $nullable = false,
-        array $joinCondition = []
+        array $joinCondition = [],
+        ?string $cascadeDelete = null
     ) {
         $this->sourceTable = $sourceTable;
         $this->sourceColumn = $sourceColumn;
@@ -69,6 +75,7 @@ abstract class Association
         $this->referenceBundle = Util::getBundleName($referenceTable);
         $this->referenceTableDomainName = Util::getTableDomainName($this->referenceTable);
         $this->nullable = $nullable;
+        $this->cascadeDelete = $cascadeDelete;
     }
 }
 
@@ -84,7 +91,7 @@ class OneToOneAssociation extends Association
         bool $nullable = false,
         array $joinCondition = []
     ) {
-        parent::__construct($sourceTable, $referenceTable, $property, $sourceColumn, $referenceColumn, $inBasic, $nullable,  $joinCondition);
+        parent::__construct($sourceTable, $referenceTable, $property, $sourceColumn, $referenceColumn, $inBasic, $nullable, $joinCondition, 'CASCADE');
 
         if ($this->referenceColumn === null) {
             $this->referenceColumn = $this->sourceTable . '_id';
@@ -105,15 +112,17 @@ class OneToManyAssociation extends Association
         ?string $sourceColumn = null,
         ?string $referenceColumn = null,
         bool $nullable = false,
-        array $joinCondition = []
+        array $joinCondition = [],
+        $onDelete
     ) {
-        parent::__construct($sourceTable, $referenceTable, $property, $sourceColumn, $referenceColumn, $inBasic, $nullable, $joinCondition);
+        parent::__construct($sourceTable, $referenceTable, $property, $sourceColumn, $referenceColumn, $inBasic, $nullable, $joinCondition, $onDelete);
         if ($this->referenceColumn === null) {
             $this->referenceColumn = $this->sourceTable . '_id';
         }
         if ($this->sourceColumn === null) {
             $this->sourceColumn = 'id';
         }
+
     }
 }
 
@@ -138,7 +147,7 @@ class ManyToManyAssociation extends Association
         bool $nullable = false,
         array $joinCondition = []
     ) {
-        parent::__construct($sourceTable, $referenceTable, $property, $sourceColumn, $referenceColumn, $inBasic, $nullable, $joinCondition);
+        parent::__construct($sourceTable, $referenceTable, $property, $sourceColumn, $referenceColumn, $inBasic, $nullable, $joinCondition, 'CASCADE');
 
         $this->mappingTable = $mappingTable;
         $this->mappingSourceColumn = $mappingSourceColumn;
@@ -171,9 +180,10 @@ class ManyToOneAssociation extends Association
         ?string $sourceColumn = null,
         ?string $referenceColumn = null,
         bool $nullable = false,
-        array $joinCondition = []
+        array $joinCondition = [],
+        $onDelete = false
     ) {
-        parent::__construct($sourceTable, $referenceTable, $property, $sourceColumn, $referenceColumn, $inBasic, $nullable, $joinCondition);
+        parent::__construct($sourceTable, $referenceTable, $property, $sourceColumn, $referenceColumn, $inBasic, $nullable, $joinCondition, $onDelete);
 
         if ($this->referenceColumn === null) {
             $this->referenceColumn = 'id';

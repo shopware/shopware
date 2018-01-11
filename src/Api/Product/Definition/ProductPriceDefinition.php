@@ -16,6 +16,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Product\Collection\ProductPriceBasicCollection;
 use Shopware\Api\Product\Collection\ProductPriceDetailCollection;
+use Shopware\Api\Product\Event\ProductPrice\ProductPriceDeletedEvent;
 use Shopware\Api\Product\Event\ProductPrice\ProductPriceWrittenEvent;
 use Shopware\Api\Product\Repository\ProductPriceRepository;
 use Shopware\Api\Product\Struct\ProductPriceBasicStruct;
@@ -80,6 +81,11 @@ class ProductPriceDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ProductPriceBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ProductPriceDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

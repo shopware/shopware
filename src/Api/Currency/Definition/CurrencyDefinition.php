@@ -4,6 +4,7 @@ namespace Shopware\Api\Currency\Definition;
 
 use Shopware\Api\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Api\Currency\Collection\CurrencyDetailCollection;
+use Shopware\Api\Currency\Event\Currency\CurrencyDeletedEvent;
 use Shopware\Api\Currency\Event\Currency\CurrencyWrittenEvent;
 use Shopware\Api\Currency\Repository\CurrencyRepository;
 use Shopware\Api\Currency\Struct\CurrencyBasicStruct;
@@ -21,8 +22,10 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Order\Definition\OrderDefinition;
 use Shopware\Api\Shop\Definition\ShopCurrencyDefinition;
 use Shopware\Api\Shop\Definition\ShopDefinition;
@@ -66,9 +69,9 @@ class CurrencyDefinition extends EntityDefinition
             new IntField('position', 'position'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new TranslationsAssociationField('translations', CurrencyTranslationDefinition::class, 'currency_id', false, 'id'))->setFlags(new Required()),
-            new OneToManyAssociationField('orders', OrderDefinition::class, 'currency_id', false, 'id'),
-            new ManyToManyAssociationField('shops', ShopDefinition::class, ShopCurrencyDefinition::class, false, 'currency_id', 'shop_id', 'shopIds'),
+            (new TranslationsAssociationField('translations', CurrencyTranslationDefinition::class, 'currency_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
+            (new OneToManyAssociationField('orders', OrderDefinition::class, 'currency_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new ManyToManyAssociationField('shops', ShopDefinition::class, ShopCurrencyDefinition::class, false, 'currency_id', 'shop_id', 'shopIds'))->setFlags(new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -86,6 +89,11 @@ class CurrencyDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return CurrencyBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return CurrencyDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

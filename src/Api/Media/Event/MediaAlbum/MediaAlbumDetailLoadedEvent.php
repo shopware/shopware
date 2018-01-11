@@ -53,6 +53,9 @@ class MediaAlbumDetailLoadedEvent extends NestedEvent
         if ($this->mediaAlbum->getMedia()->count() > 0) {
             $events[] = new MediaBasicLoadedEvent($this->mediaAlbum->getMedia(), $this->context);
         }
+        if ($this->mediaAlbum->getChildren()->count() > 0) {
+            $events[] = new MediaAlbumBasicLoadedEvent($this->mediaAlbum->getChildren(), $this->context);
+        }
         if ($this->mediaAlbum->getTranslations()->count() > 0) {
             $events[] = new MediaAlbumTranslationBasicLoadedEvent($this->mediaAlbum->getTranslations(), $this->context);
         }

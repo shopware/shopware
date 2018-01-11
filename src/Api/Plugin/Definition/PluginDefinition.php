@@ -12,11 +12,13 @@ use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Payment\Definition\PaymentMethodDefinition;
 use Shopware\Api\Plugin\Collection\PluginBasicCollection;
 use Shopware\Api\Plugin\Collection\PluginDetailCollection;
+use Shopware\Api\Plugin\Event\Plugin\PluginDeletedEvent;
 use Shopware\Api\Plugin\Event\Plugin\PluginWrittenEvent;
 use Shopware\Api\Plugin\Repository\PluginRepository;
 use Shopware\Api\Plugin\Struct\PluginBasicStruct;
@@ -78,9 +80,9 @@ class PluginDefinition extends EntityDefinition
             new StringField('update_source', 'updateSource'),
             new StringField('update_version', 'updateVersion'),
             new DateField('updated_at', 'updatedAt'),
-            new OneToManyAssociationField('configForms', ConfigFormDefinition::class, 'plugin_id', false, 'id'),
-            new OneToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, 'plugin_id', false, 'id'),
-            new OneToManyAssociationField('shopTemplates', ShopTemplateDefinition::class, 'plugin_id', false, 'id'),
+            (new OneToManyAssociationField('configForms', ConfigFormDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('shopTemplates', ShopTemplateDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -98,6 +100,11 @@ class PluginDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return PluginBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return PluginDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

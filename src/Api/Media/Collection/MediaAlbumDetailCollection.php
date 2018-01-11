@@ -42,6 +42,28 @@ class MediaAlbumDetailCollection extends MediaAlbumBasicCollection
         return $collection;
     }
 
+    public function getChildrenIds(): array
+    {
+        $ids = [];
+        foreach ($this->elements as $element) {
+            foreach ($element->getChildren()->getIds() as $id) {
+                $ids[] = $id;
+            }
+        }
+
+        return $ids;
+    }
+
+    public function getChildren(): MediaAlbumBasicCollection
+    {
+        $collection = new MediaAlbumBasicCollection();
+        foreach ($this->elements as $element) {
+            $collection->fill($element->getChildren()->getElements());
+        }
+
+        return $collection;
+    }
+
     public function getTranslationIds(): array
     {
         $ids = [];

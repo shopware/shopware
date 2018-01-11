@@ -4,6 +4,7 @@ namespace Shopware\Api\Config\Definition;
 
 use Shopware\Api\Config\Collection\ConfigFormTranslationBasicCollection;
 use Shopware\Api\Config\Collection\ConfigFormTranslationDetailCollection;
+use Shopware\Api\Config\Event\ConfigFormTranslation\ConfigFormTranslationDeletedEvent;
 use Shopware\Api\Config\Event\ConfigFormTranslation\ConfigFormTranslationWrittenEvent;
 use Shopware\Api\Config\Repository\ConfigFormTranslationRepository;
 use Shopware\Api\Config\Struct\ConfigFormTranslationBasicStruct;
@@ -73,6 +74,11 @@ class ConfigFormTranslationDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ConfigFormTranslationBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ConfigFormTranslationDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

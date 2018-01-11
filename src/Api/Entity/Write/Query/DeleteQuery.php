@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Entity\Write\Query;
 
@@ -36,7 +36,7 @@ class DeleteQuery extends WriteQuery
     {
         $table = $this->definition::getEntityName();
 
-        $pk = array_map(function($value) {
+        $pk = array_map(function ($value) {
             return Uuid::fromString($value)->getBytes();
         }, $this->pkData);
 

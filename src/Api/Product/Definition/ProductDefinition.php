@@ -21,10 +21,12 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Product\Collection\ProductDetailCollection;
+use Shopware\Api\Product\Event\Product\ProductDeletedEvent;
 use Shopware\Api\Product\Event\Product\ProductWrittenEvent;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
@@ -105,15 +107,15 @@ class ProductDefinition extends EntityDefinition
             new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true),
             new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true),
             new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, true),
-            new OneToManyAssociationField('listingPrices', ProductListingPriceDefinition::class, 'product_id', true, 'id'),
-            new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false, 'id'),
-            new OneToManyAssociationField('prices', ProductPriceDefinition::class, 'product_id', true, 'id'),
-            new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id', false, 'id'),
-            (new TranslationsAssociationField('translations', ProductTranslationDefinition::class, 'product_id', false, 'id'))->setFlags(new Required()),
-            new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, false, 'product_id', 'category_id', 'categoryIds'),
-            new ManyToManyAssociationField('seoCategories', CategoryDefinition::class, ProductSeoCategoryDefinition::class, false, 'product_id', 'category_id', 'seoCategoryIds'),
-            new ManyToManyAssociationField('tabs', ProductStreamDefinition::class, ProductStreamTabDefinition::class, false, 'product_id', 'product_stream_id', 'tabIds'),
-            new ManyToManyAssociationField('streams', ProductStreamDefinition::class, ProductStreamAssignmentDefinition::class, false, 'product_id', 'product_stream_id', 'streamIds'),
+            (new OneToManyAssociationField('listingPrices', ProductListingPriceDefinition::class, 'product_id', true, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('prices', ProductPriceDefinition::class, 'product_id', true, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField('translations', ProductTranslationDefinition::class, 'product_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
+            (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, false, 'product_id', 'category_id', 'categoryIds'))->setFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('seoCategories', CategoryDefinition::class, ProductSeoCategoryDefinition::class, false, 'product_id', 'category_id', 'seoCategoryIds'))->setFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('tabs', ProductStreamDefinition::class, ProductStreamTabDefinition::class, false, 'product_id', 'product_stream_id', 'tabIds'))->setFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('streams', ProductStreamDefinition::class, ProductStreamAssignmentDefinition::class, false, 'product_id', 'product_stream_id', 'streamIds'))->setFlags(new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -131,6 +133,11 @@ class ProductDefinition extends EntityDefinition
     public static function getBasicCollectionClass(): string
     {
         return ProductBasicCollection::class;
+    }
+
+    public static function getDeletedEventClass(): string
+    {
+        return ProductDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string

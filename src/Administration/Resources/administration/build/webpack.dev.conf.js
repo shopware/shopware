@@ -37,7 +37,7 @@ var chunks = Object.keys(baseWebpackConfig.entry).map((entry) => {
     return entry;
 });
 
-module.exports = merge(baseWebpackConfig, {
+const mergedWebpackConfig = merge(baseWebpackConfig, {
   module: {
     rules: utils.styleLoaders({ sourceMap: config.dev.cssSourceMap })
   },
@@ -61,3 +61,5 @@ module.exports = merge(baseWebpackConfig, {
     new FriendlyErrorsPlugin()
   ]
 });
+
+module.exports = mergedWebpackConfig;

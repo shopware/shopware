@@ -23,7 +23,9 @@
     "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs",
     "security-check": "./node_modules/.bin/nsp check",
     "check-dependencies": "./node_modules/.bin/ncu",
-    "generate-api-docs": "./node_modules/.bin/jsdoc src -r -c jsdoc.config.js"
+    "generate-api-docs": "./node_modules/.bin/jsdoc src -r -c jsdoc.config.js",
+    "storybook-watch": "start-storybook -p 9001 -c .storybook",
+    "storybook-generate": "build-storybook -c .storybook -o ../../../../build/artifacts/storybook"
   },
   "dependencies": {
     "axios": "^0.17.1",
@@ -41,6 +43,11 @@
     "vuex-router-sync": "^5.0.0"
   },
   "devDependencies": {
+    "@storybook/addon-actions": "^3.3.9",
+    "@storybook/addon-centered": "^3.3.9",
+    "@storybook/addon-knobs": "^3.3.9",
+    "@storybook/addons": "^3.3.9",
+    "@storybook/vue": "^3.3.8",
     "ajv": "^5.5.2",
     "autoprefixer": "^7.2.3",
     "axios-mock-adapter": "^1.10.0",

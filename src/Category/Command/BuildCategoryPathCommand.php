@@ -30,6 +30,7 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
+use Shopware\Defaults;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -110,6 +111,6 @@ class BuildCategoryPathCommand extends ContainerAwareCommand implements EventSub
         $this->io = new SymfonyStyle($input, $output);
         $context = TranslationContext::createDefaultContext();
 
-        $this->pathBuilder->update(CategoryPathBuilder::ROOT, $context);
+        $this->pathBuilder->update(Defaults::ROOT_CATEGORY, $context);
     }
 }

@@ -19,6 +19,7 @@ use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\DbalIndexing\Indexer\IndexerInterface;
+use Shopware\Defaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductCategoryIndexer implements IndexerInterface
@@ -68,7 +69,7 @@ class ProductCategoryIndexer implements IndexerInterface
 
         $context = TranslationContext::createFromShop($shop);
 
-        $this->pathBuilder->update(CategoryPathBuilder::ROOT, $context);
+        $this->pathBuilder->update(Defaults::ROOT_CATEGORY, $context);
 
         $iterator = new RepositoryIterator($this->productRepository, $context);
 

@@ -49,7 +49,7 @@ use Shopware\Context\Struct\CustomerScope;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\ShopScope;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Storefront\Context\StorefrontContextService;
+use Shopware\Defaults;
 
 class ContextFactory implements ContextFactoryInterface
 {
@@ -155,11 +155,11 @@ class ContextFactory implements ContextFactoryInterface
 
         //fallback customer group is hard coded to 'EK'
         $customerGroups = $this->customerGroupRepository->readBasic(
-            [StorefrontContextService::FALLBACK_CUSTOMER_GROUP],
+            [Defaults::FALLBACK_CUSTOMER_GROUP],
             $translationContext
         );
 
-        $fallbackGroup = $customerGroups->get(StorefrontContextService::FALLBACK_CUSTOMER_GROUP);
+        $fallbackGroup = $customerGroups->get(Defaults::FALLBACK_CUSTOMER_GROUP);
         $customerGroup = $shop->getCustomerGroup();
 
         $customer = null;

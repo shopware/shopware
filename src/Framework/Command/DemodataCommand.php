@@ -10,6 +10,7 @@ use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Repository\ProductManufacturerRepository;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Defaults;
 use Shopware\Storefront\Context\StorefrontContextService;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -139,7 +140,7 @@ class DemodataCommand extends ContainerAwareCommand
                 'email' => $this->faker->safeEmail,
                 'password' => $password,
                 'defaultPaymentMethodId' => 'e84976ace9ab4928a3dcc387b66dbaa6',
-                'groupId' => StorefrontContextService::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'defaultBillingAddressId' => $addressId,
                 'defaultShippingAddressId' => $addressId,
                 'addresses' => [

@@ -23,9 +23,9 @@ use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\DbalIndexing\Indexer\IndexerInterface;
+use Shopware\Defaults;
 use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Storefront\Context\StorefrontContextService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingPriceIndexer implements IndexerInterface
@@ -195,7 +195,7 @@ class ListingPriceIndexer implements IndexerInterface
         $prices = $listingPrices->filterByProductId($productId);
 
         /** @var ProductListingPriceBasicCollection $fallback */
-        $fallback = $prices->filterByCustomerGroupId(StorefrontContextService::FALLBACK_CUSTOMER_GROUP);
+        $fallback = $prices->filterByCustomerGroupId(Defaults::FALLBACK_CUSTOMER_GROUP);
 
         if ($fallback->count() <= 0) {
             $this->logger->log(Logger::WARNING, sprintf('Product %s has no default customer group price', $productId));
@@ -207,7 +207,7 @@ class ListingPriceIndexer implements IndexerInterface
 
         /* @var ProductListingPriceBasicStruct $fallback */
         foreach ($customerGroupIds as $customerGroupId) {
-            if ($customerGroupId === StorefrontContextService::FALLBACK_CUSTOMER_GROUP) {
+            if ($customerGroupId === Defaults::FALLBACK_CUSTOMER_GROUP) {
                 continue;
             }
 

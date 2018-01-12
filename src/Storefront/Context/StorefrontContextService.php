@@ -42,8 +42,6 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
  */
 class StorefrontContextService implements StorefrontContextServiceInterface
 {
-    public const FALLBACK_CUSTOMER_GROUP = '3294e6f6-372b-415f-ac73-71cbc191548f';
-
     /**
      * @var ContextFactoryInterface
      */

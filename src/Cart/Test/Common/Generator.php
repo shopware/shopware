@@ -40,9 +40,8 @@ use Shopware\Api\Tax\Collection\TaxBasicCollection;
 use Shopware\Api\Tax\Struct\TaxBasicStruct;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\Tax\TaxDetector;
-use Shopware\CartBridge\Product\ProductPriceGateway;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Storefront\Context\StorefrontContextService;
+use Shopware\Defaults;
 
 class Generator extends TestCase
 {
@@ -71,12 +70,12 @@ class Generator extends TestCase
 
         if (!$currentCustomerGroup) {
             $currentCustomerGroup = new CustomerGroupBasicStruct();
-            $currentCustomerGroup->setId(StorefrontContextService::FALLBACK_CUSTOMER_GROUP);
+            $currentCustomerGroup->setId(Defaults::FALLBACK_CUSTOMER_GROUP);
         }
 
         if (!$fallbackCustomerGroup) {
             $fallbackCustomerGroup = new CustomerGroupBasicStruct();
-            $fallbackCustomerGroup->setId(StorefrontContextService::FALLBACK_CUSTOMER_GROUP);
+            $fallbackCustomerGroup->setId(Defaults::FALLBACK_CUSTOMER_GROUP);
         }
 
         if (!$taxes) {

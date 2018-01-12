@@ -14,8 +14,8 @@ class DataProxy {
      * @param {Object} data Any kind of data
      */
     constructor(data) {
-        this.originalData = this.deepCopy(data);
-        this.processedData = this.deepCopy(data);
+        this.originalData = DataProxy.deepCopy(data);
+        this.processedData = DataProxy.deepCopy(data);
 
         this.versions = [];
     }

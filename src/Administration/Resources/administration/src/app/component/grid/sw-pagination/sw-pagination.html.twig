@@ -10,7 +10,7 @@
 
     <div class="page-selection">
         Page
-        <input type="number" class="page-selection--field" name="current-page-number" min="1" :max="maxPage" :value="currentPage" v-model="currentPage" @change="pageChange">
+        <input type="number" class="page-selection--field" name="current-page-number" min="1" :max="maxPage" v-model="currentPage" @change="pageChange">
         of <span class="number">{{ maxPage }}</span>
     </div>
 

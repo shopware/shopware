@@ -11,8 +11,17 @@ export default {
         maxPage() {
             return Math.ceil(this.total / this.limit);
         },
-        offset() {
-            return (this.page - 1) * this.limit;
+        offset: {
+            get() {
+                return (this.page - 1) * this.limit;
+            },
+            set(offset) {
+                if (offset <= 0) {
+                    this.page = 1;
+                } else {
+                    this.page = (offset / this.limit) + 1;
+                }
+            }
         }
     },
 

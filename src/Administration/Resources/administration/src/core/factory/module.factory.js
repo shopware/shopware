@@ -134,7 +134,6 @@ function registerModule(moduleId, module) {
         if (route.alias && route.alias.length > 0
             && (!route.coreRoute)) {
             route.alias = `/${splitModuleId.join('/')}/${route.alias}`;
-            console.log(route.alias);
         }
 
         moduleRoutes.set(route.name, route);

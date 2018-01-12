@@ -150,7 +150,6 @@ export default function VueAdapter(context, componentFactory, stateFactory, Vue)
         }
 
         const vueComponent = Vue.component(componentName, componentConfig);
-        console.log(vueComponent);
         vueComponents[componentName] = vueComponent;
 
         return vueComponent;

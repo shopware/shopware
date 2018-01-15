@@ -3,10 +3,10 @@
 namespace Shopware\Api\Test\Shop\Definition;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Api\Shop\Definition\ShopTemplateConfigFormFieldDefinition;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Shop\Definition\ShopTemplateConfigFormFieldDefinition;
 
 class ShopTemplateConfigFormFieldDefinitionTest extends TestCase
 {
@@ -15,7 +15,7 @@ class ShopTemplateConfigFormFieldDefinitionTest extends TestCase
         $fields = ShopTemplateConfigFormFieldDefinition::getFields()->filterByFlag(Required::class);
 
         $this->assertEquals(
-            ['id','shopTemplateId','shopTemplateConfigFormId','type','name'],
+            ['id', 'shopTemplateId', 'shopTemplateConfigFormId', 'type', 'name'],
             $fields->getKeys()
         );
     }

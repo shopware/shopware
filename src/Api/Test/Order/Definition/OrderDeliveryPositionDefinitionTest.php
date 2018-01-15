@@ -3,10 +3,10 @@
 namespace Shopware\Api\Test\Order\Definition;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Api\Order\Definition\OrderDeliveryPositionDefinition;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Order\Definition\OrderDeliveryPositionDefinition;
 
 class OrderDeliveryPositionDefinitionTest extends TestCase
 {

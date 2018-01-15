@@ -3,10 +3,10 @@
 namespace Shopware\Api\Test\Snippet\Definition;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Api\Snippet\Definition\SnippetDefinition;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Snippet\Definition\SnippetDefinition;
 
 class SnippetDefinitionTest extends TestCase
 {

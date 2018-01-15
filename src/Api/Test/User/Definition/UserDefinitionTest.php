@@ -3,10 +3,10 @@
 namespace Shopware\Api\Test\User\Definition;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Api\User\Definition\UserDefinition;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\User\Definition\UserDefinition;
 
 class UserDefinitionTest extends TestCase
 {

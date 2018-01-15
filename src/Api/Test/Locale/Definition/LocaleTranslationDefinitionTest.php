@@ -3,10 +3,10 @@
 namespace Shopware\Api\Test\Locale\Definition;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Api\Locale\Definition\LocaleTranslationDefinition;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Locale\Definition\LocaleTranslationDefinition;
 
 class LocaleTranslationDefinitionTest extends TestCase
 {

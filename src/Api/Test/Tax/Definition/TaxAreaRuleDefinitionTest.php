@@ -3,10 +3,10 @@
 namespace Shopware\Api\Test\Tax\Definition;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Api\Tax\Definition\TaxAreaRuleDefinition;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Tax\Definition\TaxAreaRuleDefinition;
 
 class TaxAreaRuleDefinitionTest extends TestCase
 {

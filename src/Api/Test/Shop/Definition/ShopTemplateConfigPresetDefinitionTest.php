@@ -3,10 +3,10 @@
 namespace Shopware\Api\Test\Shop\Definition;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Api\Shop\Definition\ShopTemplateConfigPresetDefinition;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Shop\Definition\ShopTemplateConfigPresetDefinition;
 
 class ShopTemplateConfigPresetDefinitionTest extends TestCase
 {

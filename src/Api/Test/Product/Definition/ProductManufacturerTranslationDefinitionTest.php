@@ -3,10 +3,10 @@
 namespace Shopware\Api\Test\Product\Definition;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Api\Product\Definition\ProductManufacturerTranslationDefinition;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Product\Definition\ProductManufacturerTranslationDefinition;
 
 class ProductManufacturerTranslationDefinitionTest extends TestCase
 {

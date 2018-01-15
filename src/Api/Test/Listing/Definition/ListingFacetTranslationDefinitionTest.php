@@ -3,10 +3,10 @@
 namespace Shopware\Api\Test\Listing\Definition;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Api\Listing\Definition\ListingFacetTranslationDefinition;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Listing\Definition\ListingFacetTranslationDefinition;
 
 class ListingFacetTranslationDefinitionTest extends TestCase
 {

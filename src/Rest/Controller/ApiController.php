@@ -15,6 +15,7 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Parser\QueryStringParser;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
+use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Rest\ApiContext;
 use Shopware\Rest\RestController;
 use Symfony\Component\HttpFoundation\Request;
@@ -228,10 +229,42 @@ class ApiController extends RestController
             return $this->createResponse(['data' => $id], $context);
         }
 
-//        // DELETE api/product/{id}/category/{id}
-//        if ($association instanceof ManyToManyAssociationField) {
-//
-//        }
+        // DELETE api/product/{id}/manufacturer/{id}
+        if ($association instanceof ManyToOneAssociationField) {
+            $id = $this->doDelete($context, $definition, $id);
+
+            return $this->createResponse(['data' => $id], $context);
+        }
+
+        // DELETE api/product/{id}/category/{id}
+        if ($association instanceof ManyToManyAssociationField) {
+            $fields = $definition::getPrimaryKeys();
+
+            $local = $definition::getFields()->getByStorageName(
+                $association->getMappingLocalColumn()
+            );
+
+            $reference = $definition::getFields()->getByStorageName(
+                $association->getMappingReferenceColumn()
+            );
+
+            $mapping = [
+                $local->getPropertyName() => $parent['value'],
+                $reference->getPropertyName() => $id,
+            ];
+
+            $writer = $this->get('shopware.api.entity_writer');
+
+            $writer->delete(
+                $definition,
+                [$mapping],
+                WriteContext::createFromTranslationContext($context->getTranslationContext())
+            );
+
+            return $this->createResponse(['data' => $mapping], $context);
+        }
+
+        throw new \RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
     }
 
     private function write(Request $request, ApiContext $context, string $type): Response
@@ -516,7 +549,7 @@ class ApiController extends RestController
             $mapping = [$pk->getPropertyName() => $id];
         }
 
-        $result = $repository->delete([$mapping], $context->getTranslationContext());
+        $repository->delete([$mapping], $context->getTranslationContext());
 
         return $mapping;
     }

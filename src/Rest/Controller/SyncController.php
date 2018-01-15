@@ -18,11 +18,17 @@ use Symfony\Component\HttpFoundation\Response;
 class SyncController extends RestController
 {
     public const ACTION_UPSERT = 'upsert';
+    public const ACTION_DELETE = 'delete';
 
     /**
      * @var DefinitionRegistry
      */
     protected $registry;
+
+    /**
+     * @var ContainerInterface
+     */
+    protected $container;
 
     public function __construct(DefinitionRegistry $registry, ContainerInterface $container)
     {
@@ -55,6 +61,14 @@ class SyncController extends RestController
             $repository = $this->container->get($definition::getRepositoryClass());
 
             switch ($action) {
+                case self::ACTION_DELETE:
+                    /** @var WrittenEvent $event */
+                    $generic = $repository->delete([$operation['payload']], $context);
+
+                    $errors = array_merge($errors, $generic->getErrors());
+
+                    break;
+
                 case self::ACTION_UPSERT:
                     /** @var WrittenEvent $event */
                     $generic = $repository->upsert(

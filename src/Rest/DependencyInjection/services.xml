@@ -51,7 +51,7 @@
             </call>
         </service>
 
-        <service class="Shopware\Rest\Controller\SyncController" public="true" id="shopware.rest.controller.sync_controller" >
+        <service class="Shopware\Rest\Controller\SyncController" public="true" id="shopware.api.controller.sync_controller" >
             <argument type="service" id="shopware.api.entity_definition_registry"/>
             <argument type="service" id="service_container"/>
         </service>

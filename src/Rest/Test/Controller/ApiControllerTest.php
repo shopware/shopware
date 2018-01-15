@@ -142,7 +142,7 @@ class ApiControllerTest extends ApiTestCase
         $this->assertEmpty($exists);
     }
 
-    public function testDeleteOneToManyWithId()
+    public function testDeleteOneToMany()
     {
         $id = Uuid::uuid4();
         $priceId = Uuid::uuid4();
@@ -173,5 +173,83 @@ class ApiControllerTest extends ApiTestCase
 
         $exists = $connection->fetchAll('SELECT * FROM product_price WHERE product_id = :id', ['id' => $id->getBytes()]);
         $this->assertEmpty($exists);
+    }
+
+    public function testDeleteManyToOne()
+    {
+        $country = Uuid::uuid4();
+        $area = Uuid::uuid4();
+
+        $data = [
+            'id' => $country->toString(),
+            'name' => 'Country',
+            'area' => ['id' => $area->toString(), 'name' => 'Test'],
+        ];
+
+        $client = $this->getClient();
+        $client->request('POST', '/api/country', $data);
+        self::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        /** @var Connection $connection */
+        $connection = self::$container->get('dbal_connection');
+        $exists = $connection->fetchAll('SELECT * FROM country WHERE id = :id', ['id' => $country->getBytes()]);
+        $this->assertNotEmpty($exists);
+
+        $exists = $connection->fetchAll('SELECT * FROM country_area WHERE id = :id', ['id' => $area->getBytes()]);
+        $this->assertNotEmpty($exists);
+
+        $client = $this->getClient();
+        $client->request('DELETE', '/api/country/' . $country->toString() . '/area/' . $area->toString());
+        self::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $exists = $connection->fetchAll('SELECT * FROM country WHERE id = :id', ['id' => $country->getBytes()]);
+        $this->assertNotEmpty($exists);
+
+        $exists = $connection->fetchAll('SELECT * FROM country_area WHERE id = :id', ['id' => $area->getBytes()]);
+        $this->assertEmpty($exists);
+    }
+
+    public function testDeleteManyToMany()
+    {
+        $id = Uuid::uuid4();
+        $category = Uuid::uuid4();
+
+        $data = [
+            'id' => $id->toString(),
+            'name' => 'Test',
+            'categories' => [
+                ['category' => [
+                    'id' => $category->toString(), 'name' => 'Test',
+                ]],
+            ],
+        ];
+
+        $client = $this->getClient();
+        $client->request('POST', '/api/product', $data);
+        self::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        /** @var Connection $connection */
+        $connection = self::$container->get('dbal_connection');
+        $exists = $connection->fetchAll('SELECT * FROM product WHERE id = :id', ['id' => $id->getBytes()]);
+        $this->assertNotEmpty($exists);
+
+        $exists = $connection->fetchAll('SELECT * FROM category WHERE id = :id', ['id' => $category->getBytes()]);
+        $this->assertNotEmpty($exists);
+
+        $client = $this->getClient();
+        $client->request('DELETE', '/api/product/' . $id->toString() . '/categories/' . $category->toString());
+        self::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $exists = $connection->fetchAll(
+            'SELECT * FROM product_category WHERE product_id = :product AND category_id = :category',
+            ['category' => $category->getBytes(), 'product' => $id->toString()]
+        );
+        $this->assertEmpty($exists);
+
+        $exists = $connection->fetchAll('SELECT * FROM product WHERE id = :id', ['id' => $id->getBytes()]);
+        $this->assertNotEmpty($exists);
+
+        $exists = $connection->fetchAll('SELECT * FROM category WHERE id = :id', ['id' => $category->getBytes()]);
+        $this->assertNotEmpty($exists);
     }
 }

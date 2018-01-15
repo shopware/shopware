@@ -9,6 +9,7 @@ use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\MappingEntityDefinition;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Product\Event\ProductSeoCategory\ProductSeoCategoryDeletedEvent;
 use Shopware\Api\Product\Event\ProductSeoCategory\ProductSeoCategoryWrittenEvent;
 use Shopware\Api\Shop\Definition\ShopDefinition;
 

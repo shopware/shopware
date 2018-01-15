@@ -28,7 +28,7 @@ class EntityHydrator
     public static function hydrate(Entity $entity, string $definition, array $row, string $root): Entity
     {
         /** @var EntityDefinition $definition */
-        $fields = $definition::getFields();
+        $fields = $definition::getFields()->getDetailProperties();
 
         $data = [];
         $toOneAssociations = [];

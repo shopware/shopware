@@ -24,7 +24,7 @@ class ShopDefinitionTest extends TestCase
     {
         $fields = ShopDefinition::getFields()->filterByFlag(CascadeDelete::class);
         $this->assertEquals(
-            ['children', 'currencies'],
+            ['configFormFieldValues', 'productSearchKeywords', 'productSeoCategories', 'seoUrls', 'children', 'templateConfigFormFieldValues', 'snippets', 'currencies'],
             $fields->getKeys()
         );
     }
@@ -32,6 +32,6 @@ class ShopDefinitionTest extends TestCase
     public function testOnDeleteRestrictDefined()
     {
         $fields = ShopDefinition::getFields()->filterByFlag(RestrictDelete::class);
-        $this->assertEquals([], $fields->getKeys());
+        $this->assertEquals(['customers', 'orders'], $fields->getKeys());
     }
 }

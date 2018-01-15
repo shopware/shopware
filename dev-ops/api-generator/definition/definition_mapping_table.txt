@@ -5,6 +5,7 @@ namespace Shopware\Api\#BundleName#\Definition;
 use Shopware\Api\Entity\MappingEntityDefinition;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\#BundleName#\Event\#TableDomainNameUc#\#TableDomainNameUc#WrittenEvent;
+use Shopware\Api\#BundleName#\Event\#TableDomainNameUc#\#TableDomainNameUc#DeletedEvent;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Entity\Write\Flag\WriteOnly;

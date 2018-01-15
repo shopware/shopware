@@ -242,7 +242,7 @@ class DefinitionGenerator
                 $flags[] = 'RestrictDelete';
             }
 
-            if ($context->writeOnly($association)) {
+            if ($association->writeOnly) {
                 $flags[] = 'WriteOnly';
             }
 

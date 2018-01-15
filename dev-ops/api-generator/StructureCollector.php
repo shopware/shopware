@@ -42,6 +42,16 @@ class StructureCollector
             );
         }
 
+        foreach ($tables as $table) {
+            $definition = $definitions[$table];
+            $definition->associations = array_filter(
+                $definition->associations,
+                function(Association $association) use ($context) {
+                    return !$context->prevent($association);
+                }
+            );
+        }
+
         foreach ($definitions as $definition) {
             $sorted = array_merge(
                 array_filter($definition->associations, function(Association $association) {
@@ -246,7 +256,7 @@ class StructureCollector
 
             if ($column->getName() === 'parent_id') {
                 $domain = 'parent';
-                $manyToOne[] = new OneToManyAssociation(
+                $association = new OneToManyAssociation(
                     $tableDefinition->tableName,
                     $tableDefinition->tableName,
                     'children',
@@ -257,6 +267,8 @@ class StructureCollector
                     [],
                     'CASCADE'
                 );
+                $association->writeOnly = $context->writeOnly($association);
+                $manyToOne[] = $association;
             } else {
                 $domain = Util::createAssociationPropertyName($tableDefinition->tableName, $column->getName());
             }
@@ -273,6 +285,7 @@ class StructureCollector
                 null
             );
             $association->inBasic = $context->loadInBasic($association);
+            $association->writeOnly = $context->writeOnly($association);
 
             $manyToOne[] = $association;
         }
@@ -337,7 +350,7 @@ class StructureCollector
                 [],
                 $onDelete
             );
-
+            $association->writeOnly = $context->writeOnly($association);
             $association->inBasic = $context->loadInBasic($association);
 
             $referenceDefinition->associations[] = $association;

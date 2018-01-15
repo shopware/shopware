@@ -54,7 +54,7 @@ class EntityReader implements EntityReaderInterface
             $context,
             new $structClass(),
             new $collectionClass(),
-            $definition::getFields()
+            $definition::getFields()->getDetailProperties()
         );
     }
 

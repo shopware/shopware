@@ -22,8 +22,7 @@ class StructField extends Field implements AssociationInterface
         parent::__construct($propertyName);
         $this->inBasic = $inBasic;
         $this->structClass = $structClass;
-        $this->setFlags(new ReadOnly());
-        $this->setFlags(new Deferred());
+        $this->setFlags(new ReadOnly(), new Deferred());
     }
 
     public function __invoke(string $type, string $key, $value = null): \Generator

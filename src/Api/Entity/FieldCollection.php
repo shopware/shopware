@@ -6,6 +6,7 @@ use Shopware\Api\Entity\Field\AssociationInterface;
 use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
 use Shopware\Api\Entity\Write\Flag\ReadOnly;
+use Shopware\Api\Entity\Write\Flag\WriteOnly;
 use Shopware\Framework\Struct\Collection;
 
 class FieldCollection extends Collection
@@ -45,7 +46,20 @@ class FieldCollection extends Collection
         return $this->filter(
             function (Field $field) {
                 if ($field instanceof AssociationInterface) {
-                    return $field->loadInBasic();
+                    return $field->loadInBasic() && !$field->is(WriteOnly::class);
+                }
+
+                return true;
+            }
+        );
+    }
+
+    public function getDetailProperties(): self
+    {
+        return $this->filter(
+            function (Field $field) {
+                if ($field instanceof AssociationInterface) {
+                    return !$field->is(WriteOnly::class);
                 }
 
                 return true;

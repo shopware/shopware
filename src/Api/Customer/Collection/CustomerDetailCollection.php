@@ -4,7 +4,6 @@ namespace Shopware\Api\Customer\Collection;
 
 use Shopware\Api\Customer\Struct\CustomerDetailStruct;
 use Shopware\Api\Order\Collection\OrderBasicCollection;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
 
 class CustomerDetailCollection extends CustomerBasicCollection
 {
@@ -12,15 +11,6 @@ class CustomerDetailCollection extends CustomerBasicCollection
      * @var CustomerDetailStruct[]
      */
     protected $elements = [];
-
-    public function getMainShops(): ShopBasicCollection
-    {
-        return new ShopBasicCollection(
-            $this->fmap(function (CustomerDetailStruct $customer) {
-                return $customer->getMainShop();
-            })
-        );
-    }
 
     public function getAddressIds(): array
     {

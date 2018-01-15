@@ -24,7 +24,7 @@ class CustomerGroupDefinitionTest extends TestCase
     {
         $fields = CustomerGroupDefinition::getFields()->filterByFlag(CascadeDelete::class);
         $this->assertEquals(
-            ['discounts', 'translations'],
+            ['discounts', 'translations', 'productListingPrices', 'productPrices', 'taxAreaRules'],
             $fields->getKeys()
         );
     }
@@ -32,6 +32,6 @@ class CustomerGroupDefinitionTest extends TestCase
     public function testOnDeleteRestrictDefined()
     {
         $fields = CustomerGroupDefinition::getFields()->filterByFlag(RestrictDelete::class);
-        $this->assertEquals(['customers'], $fields->getKeys());
+        $this->assertEquals(['customers', 'shops'], $fields->getKeys());
     }
 }

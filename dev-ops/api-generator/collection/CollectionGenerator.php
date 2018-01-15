@@ -34,7 +34,7 @@ class CollectionGenerator
         $associations = array_filter(
             $definition->associations,
             function(Association $association) {
-                return $association->inBasic;
+                return $association->inBasic && !$association->writeOnly;
             }
         );
 
@@ -83,7 +83,7 @@ class CollectionGenerator
         $associations = array_filter(
             $definition->associations,
             function(Association $association) {
-              return $association->inBasic === false;
+              return $association->inBasic === false && !$association->writeOnly;
             }
         );
 

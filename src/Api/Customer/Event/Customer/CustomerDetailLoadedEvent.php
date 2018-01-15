@@ -59,9 +59,6 @@ class CustomerDetailLoadedEvent extends NestedEvent
         if ($this->customers->getShops()->count() > 0) {
             $events[] = new ShopBasicLoadedEvent($this->customers->getShops(), $this->context);
         }
-        if ($this->customers->getMainShops()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->customers->getMainShops(), $this->context);
-        }
         if ($this->customers->getLastPaymentMethods()->count() > 0) {
             $events[] = new PaymentMethodBasicLoadedEvent($this->customers->getLastPaymentMethods(), $this->context);
         }

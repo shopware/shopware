@@ -24,6 +24,12 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Entity\Write\Flag\WriteOnly;
+use Shopware\Api\Product\Definition\ProductListingPriceDefinition;
+use Shopware\Api\Product\Definition\ProductPriceDefinition;
+use Shopware\Api\Shipping\Definition\ShippingMethodDefinition;
+use Shopware\Api\Shop\Definition\ShopDefinition;
+use Shopware\Api\Tax\Definition\TaxAreaRuleDefinition;
 
 class CustomerGroupDefinition extends EntityDefinition
 {
@@ -67,6 +73,11 @@ class CustomerGroupDefinition extends EntityDefinition
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('discounts', CustomerGroupDiscountDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', CustomerGroupTranslationDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
+            (new OneToManyAssociationField('productListingPrices', ProductListingPriceDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('productPrices', ProductPriceDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new WriteOnly()),
+            (new OneToManyAssociationField('shops', ShopDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
         ]);
 
         foreach (self::$extensions as $extension) {

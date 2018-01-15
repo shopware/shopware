@@ -309,7 +309,6 @@ CREATE TABLE `customer` (
   `customer_group_id` binary(16) NOT NULL,
   `default_payment_method_id` binary(16) NOT NULL,
   `shop_id` binary(16) NOT NULL,
-  `main_shop_id` binary(16) NOT NULL,
   `last_payment_method_id` binary(16) DEFAULT NULL,
   `default_billing_address_id` binary(16) NOT NULL,
   `default_shipping_address_id` binary(16) NOT NULL,
@@ -323,13 +322,11 @@ CREATE TABLE `customer` (
   KEY `fk_customer.customer_group_id` (`customer_group_id`),
   KEY `fk_customer.default_payment_method_id` (`default_payment_method_id`),
   KEY `fk_customer.shop_id` (`shop_id`),
-  KEY `fk_customer.main_shop_id` (`main_shop_id`),
   KEY `fk_customer.default_billing_address_id` (`default_billing_address_id`),
   KEY `fk_customer.default_shipping_address_id` (`default_shipping_address_id`),
   CONSTRAINT `fk_customer.customer_group_id` FOREIGN KEY (`customer_group_id`) REFERENCES `customer_group` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_customer.default_payment_method_id` FOREIGN KEY (`default_payment_method_id`) REFERENCES `payment_method` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_customer.last_payment_method_id` FOREIGN KEY (`last_payment_method_id`) REFERENCES `payment_method` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_customer.main_shop_id` FOREIGN KEY (`main_shop_id`) REFERENCES `shop` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_customer.shop_id` FOREIGN KEY (`shop_id`) REFERENCES `shop` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

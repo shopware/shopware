@@ -15,7 +15,7 @@ class CustomerDefinitionTest extends TestCase
         $fields = CustomerDefinition::getFields()->filterByFlag(Required::class);
 
         $this->assertEquals(
-            ['id', 'groupId', 'defaultPaymentMethodId', 'shopId', 'mainShopId', 'defaultBillingAddressId', 'defaultShippingAddressId', 'number', 'salutation', 'firstName', 'lastName', 'password', 'email'],
+            ['id', 'groupId', 'defaultPaymentMethodId', 'shopId', 'defaultBillingAddressId', 'defaultShippingAddressId', 'number', 'salutation', 'firstName', 'lastName', 'password', 'email'],
             $fields->getKeys()
         );
     }

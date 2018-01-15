@@ -10,6 +10,7 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\MappingEntityDefinition;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Shop\Event\ShopCurrency\ShopCurrencyDeletedEvent;
 use Shopware\Api\Shop\Event\ShopCurrency\ShopCurrencyWrittenEvent;
 
 class ShopCurrencyDefinition extends MappingEntityDefinition

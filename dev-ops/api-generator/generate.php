@@ -64,13 +64,7 @@ $writeOnly = [
         'configFormFieldValue',
         'productSearchKeyword'
     ],
-    'locale' => [
-        'configFormFieldTranslation',
-        'configFormTranslation'
-    ],
-    'customer_address' => [
-        'customers'
-    ],
+
     'customer_group' => [
         'productListingPrices',
         'productPrices',
@@ -117,13 +111,18 @@ $htmlFields = [
     'product_translation.description_long'
 ];
 
+$prevent = [
+    'customer_address' => ['customers'],
+    'locale' => ['configFormFieldTranslation', 'configFormTranslation'],
+];
 $context = new Context(
     $associations,
     $inBasic,
     $writeOnly,
     $inject,
     $htmlFields,
-    $virtualForeignKeys
+    $virtualForeignKeys,
+    $prevent
 );
 
 $generator = new ApiGenerator(__DIR__ . '/../../src/Api/');

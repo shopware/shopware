@@ -32,6 +32,9 @@ class TableDefinition
     {
         /** @var Association $association */
         foreach ($this->associations as $association) {
+            if ($association->writeOnly) {
+                continue;
+            }
             if ($association->inBasic === false) {
                 return true;
             }

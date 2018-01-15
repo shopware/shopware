@@ -24,11 +24,6 @@ class CustomerBasicStruct extends Entity
     protected $shopId;
 
     /**
-     * @var string
-     */
-    protected $mainShopId;
-
-    /**
      * @var string|null
      */
     protected $lastPaymentMethodId;
@@ -230,16 +225,6 @@ class CustomerBasicStruct extends Entity
     public function setShopId(string $shopId): void
     {
         $this->shopId = $shopId;
-    }
-
-    public function getMainShopId(): string
-    {
-        return $this->mainShopId;
-    }
-
-    public function setMainShopId(string $mainShopId): void
-    {
-        $this->mainShopId = $mainShopId;
     }
 
     public function getLastPaymentMethodId(): ?string

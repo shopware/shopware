@@ -66,20 +66,6 @@ class CustomerBasicCollection extends EntityCollection
         });
     }
 
-    public function getMainShopIds(): array
-    {
-        return $this->fmap(function (CustomerBasicStruct $customer) {
-            return $customer->getMainShopId();
-        });
-    }
-
-    public function filterByMainShopId(string $id): self
-    {
-        return $this->filter(function (CustomerBasicStruct $customer) use ($id) {
-            return $customer->getMainShopId() === $id;
-        });
-    }
-
     public function getLastPaymentMethodIds(): array
     {
         return $this->fmap(function (CustomerBasicStruct $customer) {

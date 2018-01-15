@@ -52,7 +52,7 @@ $associations = [
     new ManyToManyAssociation('product_stream', 'product', 'product', 'product_stream_assignment'),
 ];
 
-$prevent = [
+$writeOnly = [
     'shop' => [
         'snippet',
         'templateConfigFormFieldValue',
@@ -120,7 +120,7 @@ $htmlFields = [
 $context = new Context(
     $associations,
     $inBasic,
-    $prevent,
+    $writeOnly,
     $inject,
     $htmlFields,
     $virtualForeignKeys

@@ -15,7 +15,7 @@ class Context
     /**
      * @var array
      */
-    public $prevent;
+    public $writeOnly;
 
     /**
      * @var array
@@ -26,16 +26,17 @@ class Context
      * @var array
      */
     public $htmlFields;
+
     /**
      * @var array
      */
     public $virtualForeignKeys;
 
-    public function __construct(array $associations, array $basicAssociations, array $prevent, array $inject, array $htmlFields = [], array $virtualForeignKeys = [])
+    public function __construct(array $associations, array $basicAssociations, array $writeOnly, array $inject, array $htmlFields = [], array $virtualForeignKeys = [])
     {
         $this->associations = $associations;
         $this->basicAssociations = $basicAssociations;
-        $this->prevent = $prevent;
+        $this->writeOnly = $writeOnly;
         $this->inject = $inject;
         $this->htmlFields = $htmlFields;
         $this->virtualForeignKeys = $virtualForeignKeys;
@@ -79,12 +80,12 @@ class Context
         return $inject['struct'];
     }
 
-    public function prevent(Association $association): bool
+    public function writeOnly(Association $association): bool
     {
-        if (!array_key_exists($association->sourceTable, $this->prevent)) {
+        if (!array_key_exists($association->sourceTable, $this->writeOnly)) {
             return false;
         }
-        $prevent = $this->prevent[$association->sourceTable];
+        $prevent = $this->writeOnly[$association->sourceTable];
 
         if (in_array($association->property, $prevent, true)) {
             return true;

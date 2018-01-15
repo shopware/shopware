@@ -12,6 +12,7 @@ use Shopware\Api\#BundleName#\Event\#TableDomainNameUc#\#TableDomainNameUc#Writt
 use Shopware\Api\#BundleName#\Event\#TableDomainNameUc#\#TableDomainNameUc#DeletedEvent;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Entity\Write\Flag\WriteOnly;
 
 #uses#
 

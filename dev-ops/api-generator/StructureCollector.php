@@ -42,16 +42,6 @@ class StructureCollector
             );
         }
 
-        foreach ($tables as $table) {
-            $definition = $definitions[$table];
-            $definition->associations = array_filter(
-                $definition->associations,
-                function(Association $association) use ($context) {
-                    return !$context->prevent($association);
-                }
-            );
-        }
-
         foreach ($definitions as $definition) {
             $sorted = array_merge(
                 array_filter($definition->associations, function(Association $association) {

@@ -37,8 +37,8 @@ class StructGenerator
 
         $associations = array_filter(
             $definition->associations,
-            function(Association $association) {
-                return $association->inBasic;
+            function(Association $association) use ($context) {
+                return $association->inBasic && !$context->writeOnly($association);
             }
         );
 
@@ -73,8 +73,8 @@ class StructGenerator
 
         $associations = array_filter(
             $definition->associations,
-            function(Association $association) {
-                return $association->inBasic === false;
+            function(Association $association) use ($context) {
+                return $association->inBasic === false  && !$context->writeOnly($association);
             }
         );
 

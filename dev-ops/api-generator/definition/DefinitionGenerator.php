@@ -185,10 +185,6 @@ class DefinitionGenerator
 
                     break;
                 case ($association instanceof OneToManyAssociation && $isTranslationTable):
-                    if ($definition->tableName === 'shop' && $association->referenceTable !== 'shop_translation') {
-                        $template = null;
-                        continue 2;
-                    }
                     $uses[] = 'use Shopware\Api\Entity\Field\TranslationsAssociationField;';
 
                     $template = str_replace(
@@ -244,6 +240,10 @@ class DefinitionGenerator
                 $flags[] = 'CascadeDelete';
             } else if ($association->cascadeDelete === '') {
                 $flags[] = 'RestrictDelete';
+            }
+
+            if ($context->writeOnly($association)) {
+                $flags[] = 'WriteOnly';
             }
 
             if (!empty($flags)) {

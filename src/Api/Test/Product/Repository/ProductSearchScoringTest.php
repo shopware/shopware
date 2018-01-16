@@ -46,9 +46,7 @@ class ProductSearchScoringTest extends KernelTestCase
         $queries = $builder->buildScoreQueries($pattern, ProductDefinition::class, ProductDefinition::getEntityName());
 
         $criteria = new Criteria();
-        foreach ($queries as $query) {
-            $criteria->addQuery($query);
-        }
+        $criteria->addQueries($queries);
 
         $context = TranslationContext::createDefaultContext();
         $this->repository->create([

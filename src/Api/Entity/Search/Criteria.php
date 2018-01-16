@@ -117,6 +117,15 @@ class Criteria extends Struct
         return $this;
     }
 
+    public function addQueries(array $queries): self
+    {
+        foreach ($queries as $query) {
+            $this->addQuery($query);
+        }
+
+        return $this;
+    }
+
     public function getSortingFields(): array
     {
         $fields = [];

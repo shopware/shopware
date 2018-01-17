@@ -17,7 +17,7 @@ use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
 use Shopware\Api\Product\Struct\ProductManufacturerBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Storefront\Context\StorefrontContextService;
+use Shopware\Defaults;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -111,7 +111,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'prices' => [
                     [
                         'id' => $id->toString(),
-                        'customerGroupId' => StorefrontContextService::FALLBACK_CUSTOMER_GROUP,
+                        'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                         'price' => 10
                     ]
                 ]
@@ -143,7 +143,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertEquals(10, $price->getPrice());
 
         $this->assertInstanceOf(CustomerGroupBasicStruct::class, $price->getCustomerGroup());
-        $this->assertEquals(StorefrontContextService::FALLBACK_CUSTOMER_GROUP, $price->getCustomerGroup()->getId());
+        $this->assertEquals(Defaults::FALLBACK_CUSTOMER_GROUP, $price->getCustomerGroup()->getId());
     }
 }
 

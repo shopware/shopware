@@ -16,7 +16,7 @@ use Shopware\Api\Shop\Definition\ShopTemplateDefinition;
 use Shopware\Api\Shop\Repository\ShopRepository;
 use Shopware\Api\Test\TestWriteContext;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Storefront\Context\StorefrontContextService;
+use Shopware\Defaults;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -220,7 +220,7 @@ class CategoryRepositoryTest extends KernelTestCase
                 'documentTemplateId' => $shopId->toString(),
                 'localeId' => '7b52d9dd-2b06-40ec-90be-9f57edf29be7',
                 'currencyId' => '4c8eba11-bd35-46d7-86af-bed481a6e665',
-                'customerGroupId' => StorefrontContextService::FALLBACK_CUSTOMER_GROUP,
+                'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'paymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'shippingMethodId' => '8beeb66e-9dda-46b1-8891-a059257a590e',
                 'countryId' => 'bd5e2dcf-547e-4df6-bb1f-f58a554bc69e',

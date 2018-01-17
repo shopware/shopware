@@ -4,8 +4,8 @@ namespace Shopware\Rest\Test\Controller;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
+use Shopware\Defaults;
 use Shopware\Rest\Test\ApiTestCase;
-use Shopware\Storefront\Context\StorefrontContextService;
 use Symfony\Component\HttpFoundation\Response;
 
 class ApiControllerTest extends ApiTestCase
@@ -151,7 +151,7 @@ class ApiControllerTest extends ApiTestCase
             'id' => $id->toString(),
             'name' => $id->toString(),
             'prices' => [
-                ['id' => $priceId->toString(), 'price' => 10.99, 'customerGroupId' => StorefrontContextService::FALLBACK_CUSTOMER_GROUP],
+                ['id' => $priceId->toString(), 'price' => 10.99, 'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP],
             ],
         ];
 

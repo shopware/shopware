@@ -841,12 +841,12 @@ CREATE TABLE `plugin` (
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
 DROP TABLE IF EXISTS `product`;
 CREATE TABLE `product` (
   `id` binary(16) NOT NULL,
   `is_main` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `active` tinyint(1) unsigned NOT NULL DEFAULT '1',
+  `price` decimal(10,3) NOT NULL,
   `supplier_number` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `ean` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `stock` int(11) NOT NULL DEFAULT '0',
@@ -878,6 +878,7 @@ CREATE TABLE `product` (
   `price_group_id` binary(16) DEFAULT NULL,
   `unit_id` binary(16) DEFAULT NULL,
   `category_tree` json NULL,
+  `prices` json NULL,
   PRIMARY KEY (`id`),
   KEY `fk_product.product_manufacturer_id` (`product_manufacturer_id`),
   KEY `fk_product.tax_id` (`tax_id`),
@@ -899,22 +900,6 @@ CREATE TABLE `product_category` (
   KEY `fk_product_category.product_id` (`product_id`),
   CONSTRAINT `fk_product_category.category_id` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_product_category.product_id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `product_listing_price`;
-CREATE TABLE `product_listing_price` (
-  `id` binary(16) NOT NULL,
-  `sorting_price` float NOT NULL,
-  `price` float NOT NULL,
-  `display_from_price` TINYINT(1) NOT NULL,
-  `product_id` binary(16) NOT NULL,
-  `customer_group_id` binary(16) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `fk_product_listing_price.product_id` (`product_id`),
-  KEY `fk_product_listing_price.customer_group_id` (`customer_group_id`),
-  CONSTRAINT `fk_product_listing_price.customer_group_id` FOREIGN KEY (`customer_group_id`) REFERENCES `customer_group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_product_listing_price.product_id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `search_keyword` (
@@ -995,31 +980,6 @@ CREATE TABLE `product_media` (
   CONSTRAINT `fk_product_media.media_id` FOREIGN KEY (`media_id`) REFERENCES `media` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_product_media.product_id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `product_price`;
-CREATE TABLE `product_price` (
-  `id` binary(16) NOT NULL,
-  `quantity_start` int(11) NOT NULL DEFAULT '0',
-  `quantity_end` int(11) DEFAULT NULL,
-  `price` double NOT NULL DEFAULT '0',
-  `pseudo_price` double DEFAULT NULL,
-  `base_price` double DEFAULT NULL,
-  `percentage` decimal(10,2) DEFAULT NULL,
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  `customer_group_id` binary(16) NOT NULL,
-  `product_id` binary(16) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `pricegroup_2` (`quantity_start`),
-  KEY `pricegroup` (`quantity_end`),
-  KEY `product_prices` (`quantity_start`),
-  KEY `fk_product_price.customer_group_id` (`customer_group_id`),
-  KEY `fk_product_price.product_id` (`product_id`),
-  CONSTRAINT `fk_product_price.customer_group_id` FOREIGN KEY (`customer_group_id`) REFERENCES `customer_group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_product_price.product_id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 DROP TABLE IF EXISTS `product_seo_category`;
 CREATE TABLE `product_seo_category` (

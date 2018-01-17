@@ -50,8 +50,8 @@ class ProductSearchScoringTest extends KernelTestCase
 
         $context = TranslationContext::createDefaultContext();
         $this->repository->create([
-            ['id' => Uuid::uuid4()->toString(), 'name' => 'product 1 test'],
-            ['id' => Uuid::uuid4()->toString(), 'name' => 'product 2 test'],
+            ['id' => Uuid::uuid4()->toString(), 'name' => 'product 1 test', 'price' => 10],
+            ['id' => Uuid::uuid4()->toString(), 'name' => 'product 2 test', 'price' => 10],
         ], $context);
 
         $result = $this->repository->search($criteria, $context);

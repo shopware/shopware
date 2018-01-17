@@ -10,6 +10,7 @@ use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Search\Parser\SqlQueryParser;
 use Shopware\Api\Entity\Search\Query\ScoreQuery;
+use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Context\Struct\TranslationContext;
 
 class EntitySearcher implements EntitySearcherInterface
@@ -54,15 +55,15 @@ class EntitySearcher implements EntitySearcherInterface
             EntityDefinitionResolver::joinField($fieldName, $definition, $table, $query, $context);
         }
 
-        $this->addFilters($definition, $criteria, $query);
+        $this->addFilters($definition, $criteria, $query, $context);
 
-        $this->addQueries($definition, $criteria, $query);
+        $this->addQueries($definition, $criteria, $query, $context);
 
-        $this->addSortings($definition, $criteria, $query);
+        $this->addSortings($definition, $criteria, $query, $context);
 
         $this->addFetchCount($criteria, $query);
 
-        $this->addGroupBy($definition, $criteria, $query);
+        $this->addGroupBy($definition, $criteria, $query, $context);
 
         //add pagination
         if ($criteria->getOffset() >= 0) {
@@ -91,10 +92,15 @@ class EntitySearcher implements EntitySearcherInterface
         return new IdSearchResult($total, $converted, $criteria, $context);
     }
 
-    private function addQueries(string $definition, Criteria $criteria, QueryBuilder $query): void
+    private function addQueries(string $definition, Criteria $criteria, QueryBuilder $query, TranslationContext $context): void
     {
         /** @var string|EntityDefinition $definition */
-        $queries = SqlQueryParser::parseRanking($criteria->getQueries(), $definition, $definition::getEntityName());
+        $queries = SqlQueryParser::parseRanking(
+            $criteria->getQueries(),
+            $definition,
+            $definition::getEntityName(),
+            $context
+        );
         if (empty($queries->getWheres())) {
             return;
         }
@@ -122,9 +128,9 @@ class EntitySearcher implements EntitySearcherInterface
         }
     }
 
-    private function addFilters(string $definition, Criteria $criteria, QueryBuilder $query): void
+    private function addFilters(string $definition, Criteria $criteria, QueryBuilder $query, TranslationContext $context): void
     {
-        $parsed = SqlQueryParser::parse($criteria->getAllFilters(), $definition);
+        $parsed = SqlQueryParser::parse($criteria->getAllFilters(), $definition, $context);
 
         if (empty($parsed->getWheres())) {
             return;
@@ -136,7 +142,7 @@ class EntitySearcher implements EntitySearcherInterface
         }
     }
 
-    private function addSortings(string $definition, Criteria $criteria, QueryBuilder $query): void
+    private function addSortings(string $definition, Criteria $criteria, QueryBuilder $query, TranslationContext $context): void
     {
         /* @var string|EntityDefinition $definition */
         foreach ($criteria->getSortings() as $sorting) {
@@ -144,7 +150,8 @@ class EntitySearcher implements EntitySearcherInterface
                 EntityDefinitionResolver::resolveField(
                     $sorting->getField(),
                     $definition,
-                    $definition::getEntityName()
+                    $definition::getEntityName(),
+                    $context
                 ),
                 $sorting->getDirection()
             );
@@ -163,7 +170,7 @@ class EntitySearcher implements EntitySearcherInterface
         $query->select($selects);
     }
 
-    private function addGroupBy(string $definition, Criteria $criteria, QueryBuilder $query): void
+    private function addGroupBy(string $definition, Criteria $criteria, QueryBuilder $query, TranslationContext $context): void
     {
         /** @var string|EntityDefinition $definition */
         $table = $definition::getEntityName();
@@ -181,7 +188,8 @@ class EntitySearcher implements EntitySearcherInterface
             $fields[] = EntityDefinitionResolver::resolveField(
                 $sorting->getField(),
                 $definition,
-                $definition::getEntityName()
+                $definition::getEntityName(),
+                $context
             );
         }
 

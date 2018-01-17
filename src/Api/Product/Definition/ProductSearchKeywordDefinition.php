@@ -51,9 +51,9 @@ class ProductSearchKeywordDefinition extends EntityDefinition
 
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('keyword', 'keyword'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('shop_id', 'shopId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('shop_id', 'shopId', ShopDefinition::class))->setFlags(new Required()),
+            (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new Required()),
+            (new StringField('keyword', 'keyword'))->setFlags(new Required()),
             (new FloatField('ranking', 'ranking'))->setFlags(new Required()),
             new ManyToOneAssociationField('shop', 'shop_id', ShopDefinition::class, false),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),

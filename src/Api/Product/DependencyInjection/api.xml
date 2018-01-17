@@ -18,16 +18,6 @@
          <service class="Shopware\Api\Product\Definition\ProductCategoryDefinition" id="shopware.product.product_category_definition" >
             <tag name="shopware.entity.definition" entity="product_category" />
         </service>
-         <service class="Shopware\Api\Product\Definition\ProductListingPriceDefinition" id="shopware.product.product_listing_price_definition" >
-            <tag name="shopware.entity.definition" entity="product_listing_price" />
-        </service>
-        <service class="Shopware\Api\Product\Repository\ProductListingPriceRepository" id="Shopware\Api\Product\Repository\ProductListingPriceRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
          <service class="Shopware\Api\Product\Definition\ProductManufacturerDefinition" id="shopware.product.product_manufacturer_definition" >
             <tag name="shopware.entity.definition" entity="product_manufacturer" />
         </service>
@@ -52,16 +42,6 @@
             <tag name="shopware.entity.definition" entity="product_media" />
         </service>
         <service class="Shopware\Api\Product\Repository\ProductMediaRepository" id="Shopware\Api\Product\Repository\ProductMediaRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
-         <service class="Shopware\Api\Product\Definition\ProductPriceDefinition" id="shopware.product.product_price_definition" >
-            <tag name="shopware.entity.definition" entity="product_price" />
-        </service>
-        <service class="Shopware\Api\Product\Repository\ProductPriceRepository" id="Shopware\Api\Product\Repository\ProductPriceRepository" public="true">
           <argument id="shopware.api.entity_reader" type="service"/>
           <argument id="shopware.api.entity_writer" type="service"/>
           <argument id="shopware.api.entity_searcher" type="service"/>

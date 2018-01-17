@@ -18,6 +18,7 @@ use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\LongTextWithHtmlField;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
+use Shopware\Api\Entity\Field\PriceRulesField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\FieldCollection;
@@ -147,6 +148,7 @@ class EntityHydrator
             case $field instanceof DateField:
                 return $value === null ? null : new \DateTime($value);
             case $field instanceof ArrayField:
+            case $field instanceof PriceRulesField:
                 return json_decode((string) $value, true);
             case $field instanceof LongTextField:
             case $field instanceof LongTextWithHtmlField:

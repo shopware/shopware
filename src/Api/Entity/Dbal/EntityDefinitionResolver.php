@@ -9,6 +9,7 @@ use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
+use Shopware\Api\Entity\Field\SqlParseAware;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
@@ -58,7 +59,7 @@ class EntityDefinitionResolver
         );
     }
 
-    public static function resolveField(string $fieldName, string $definition, string $root): string
+    public static function resolveField(string $fieldName, string $definition, string $root, TranslationContext $context): string
     {
         $original = $fieldName;
         $prefix = $root . '.';
@@ -72,6 +73,10 @@ class EntityDefinitionResolver
 
         if ($fields->has($fieldName)) {
             $field = $fields->get($fieldName);
+
+            if ($field instanceof SqlParseAware) {
+                return $field->parse($root, $context);
+            }
 
             if ($field instanceof TranslatedField) {
                 return implode('.', [
@@ -106,7 +111,8 @@ class EntityDefinitionResolver
         return self::resolveField(
             $original,
             $referenceClass,
-            implode('.', [$root, $field->getPropertyName()])
+            implode('.', [$root, $field->getPropertyName()]),
+            $context
         );
     }
 

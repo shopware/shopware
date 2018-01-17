@@ -3,8 +3,6 @@
 namespace Shopware\Api\Product\Struct;
 
 use Shopware\Api\Entity\Entity;
-use Shopware\Api\Product\Collection\ProductListingPriceBasicCollection;
-use Shopware\Api\Product\Collection\ProductPriceBasicCollection;
 use Shopware\Api\Tax\Struct\TaxBasicStruct;
 use Shopware\Api\Unit\Struct\UnitBasicStruct;
 
@@ -24,6 +22,11 @@ class ProductBasicStruct extends Entity
      * @var string|null
      */
     protected $unitId;
+
+    /**
+     * @var float
+     */
+    protected $price;
 
     /**
      * @var string
@@ -181,6 +184,11 @@ class ProductBasicStruct extends Entity
     protected $categoryTree;
 
     /**
+     * @var array|null
+     */
+    protected $prices;
+
+    /**
      * @var string|null
      */
     protected $additionalText;
@@ -225,16 +233,6 @@ class ProductBasicStruct extends Entity
      */
     protected $unit;
 
-    /**
-     * @var ProductListingPriceBasicCollection
-     */
-    protected $listingPrices;
-
-    /**
-     * @var ProductPriceBasicCollection
-     */
-    protected $prices;
-
     public function getTaxId(): ?string
     {
         return $this->taxId;
@@ -263,6 +261,16 @@ class ProductBasicStruct extends Entity
     public function setUnitId(?string $unitId): void
     {
         $this->unitId = $unitId;
+    }
+
+    public function getPrice(): float
+    {
+        return $this->price;
+    }
+
+    public function setPrice(float $price): void
+    {
+        $this->price = $price;
     }
 
     public function getName(): string
@@ -575,6 +583,16 @@ class ProductBasicStruct extends Entity
         $this->categoryTree = $categoryTree;
     }
 
+    public function getPrices(): ?array
+    {
+        return $this->prices;
+    }
+
+    public function setPrices(?array $prices): void
+    {
+        $this->prices = $prices;
+    }
+
     public function getAdditionalText(): ?string
     {
         return $this->additionalText;
@@ -663,25 +681,5 @@ class ProductBasicStruct extends Entity
     public function setUnit(?UnitBasicStruct $unit): void
     {
         $this->unit = $unit;
-    }
-
-    public function getListingPrices(): ProductListingPriceBasicCollection
-    {
-        return $this->listingPrices;
-    }
-
-    public function setListingPrices(ProductListingPriceBasicCollection $listingPrices): void
-    {
-        $this->listingPrices = $listingPrices;
-    }
-
-    public function getPrices(): ProductPriceBasicCollection
-    {
-        return $this->prices;
-    }
-
-    public function setPrices(ProductPriceBasicCollection $prices): void
-    {
-        $this->prices = $prices;
     }
 }

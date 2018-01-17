@@ -17,20 +17,26 @@ use Shopware\Api\Entity\Search\Query\RangeQuery;
 use Shopware\Api\Entity\Search\Query\ScoreQuery;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
+use Shopware\Context\Struct\TranslationContext;
 
 class SqlQueryParser
 {
-    public static function parseRanking(array $queries, string $definition, string $root)
+    public static function parseRanking(array $queries, string $definition, string $root, TranslationContext $context): ParseResult
     {
         $result = new ParseResult();
 
         /** @var ScoreQuery $query */
         foreach ($queries as $query) {
-            $parsed = self::parse($query->getQuery(), $definition, $root);
+            $parsed = self::parse($query->getQuery(), $definition, $context, $root);
 
             foreach ($parsed->getWheres() as $where) {
                 if ($query->getScoreField()) {
-                    $field = EntityDefinitionResolver::resolveField($query->getScoreField(), $definition, $root);
+                    $field = EntityDefinitionResolver::resolveField(
+                        $query->getScoreField(),
+                        $definition,
+                        $root,
+                        $context
+                    );
 
                     $result->addWhere(
                         sprintf('IF(%s , %s * %s, 0)', $where, $query->getScore(), $field)
@@ -51,7 +57,7 @@ class SqlQueryParser
         return $result;
     }
 
-    public static function parse(Query $query, string $definition, string $root = null): ParseResult
+    public static function parse(Query $query, string $definition, TranslationContext $context, string $root = null): ParseResult
     {
         if ($root === null) {
             /** @var EntityDefinition $definition */
@@ -60,29 +66,29 @@ class SqlQueryParser
 
         switch (true) {
             case $query instanceof NotQuery:
-                return self::parseNotQuery($query, $definition, $root);
+                return self::parseNotQuery($query, $definition, $root, $context);
             case $query instanceof NestedQuery:
-                return self::parseNestedQuery($query, $definition, $root);
+                return self::parseNestedQuery($query, $definition, $root, $context);
             case $query instanceof TermQuery:
-                return self::parseTermQuery($query, $definition, $root);
+                return self::parseTermQuery($query, $definition, $root, $context);
             case $query instanceof TermsQuery:
-                return self::parseTermsQuery($query, $definition, $root);
+                return self::parseTermsQuery($query, $definition, $root, $context);
             case $query instanceof MatchQuery:
-                return self::parseMatchQuery($query, $definition, $root);
+                return self::parseMatchQuery($query, $definition, $root, $context);
             case $query instanceof RangeQuery:
-                return self::parseRangeQuery($query, $definition, $root);
+                return self::parseRangeQuery($query, $definition, $root, $context);
             default:
                 throw new \RuntimeException(sprintf('Unsupported query %s', get_class($query)));
         }
     }
 
-    private static function parseRangeQuery(RangeQuery $query, string $definition, string $root): ParseResult
+    private static function parseRangeQuery(RangeQuery $query, string $definition, string $root, TranslationContext $context): ParseResult
     {
         $result = new ParseResult();
 
         $key = self::getKey();
 
-        $field = EntityDefinitionResolver::resolveField($query->getField(), $definition, $root);
+        $field = EntityDefinitionResolver::resolveField($query->getField(), $definition, $root, $context);
 
         $where = [];
 
@@ -110,11 +116,11 @@ class SqlQueryParser
         return $result;
     }
 
-    private static function parseMatchQuery(MatchQuery $query, string $definition, string $root): ParseResult
+    private static function parseMatchQuery(MatchQuery $query, string $definition, string $root, TranslationContext $context): ParseResult
     {
         $key = self::getKey();
 
-        $field = EntityDefinitionResolver::resolveField($query->getField(), $definition, $root);
+        $field = EntityDefinitionResolver::resolveField($query->getField(), $definition, $root, $context);
 
         $result = new ParseResult();
         $result->addWhere($field . ' LIKE :' . $key);
@@ -123,10 +129,10 @@ class SqlQueryParser
         return $result;
     }
 
-    private static function parseTermsQuery(TermsQuery $query, string $definition, string $root): ParseResult
+    private static function parseTermsQuery(TermsQuery $query, string $definition, string $root, TranslationContext $context): ParseResult
     {
         $key = self::getKey();
-        $select = EntityDefinitionResolver::resolveField($query->getField(), $definition, $root);
+        $select = EntityDefinitionResolver::resolveField($query->getField(), $definition, $root, $context);
         $field = EntityDefinitionResolver::getField($query->getField(), $definition, $root);
 
         $result = new ParseResult();
@@ -151,10 +157,10 @@ class SqlQueryParser
         return $result;
     }
 
-    private static function parseTermQuery(TermQuery $query, string $definition, string $root): ParseResult
+    private static function parseTermQuery(TermQuery $query, string $definition, string $root, TranslationContext $context): ParseResult
     {
         $key = self::getKey();
-        $select = EntityDefinitionResolver::resolveField($query->getField(), $definition, $root);
+        $select = EntityDefinitionResolver::resolveField($query->getField(), $definition, $root, $context);
         $field = EntityDefinitionResolver::getField($query->getField(), $definition, $root);
 
         $result = new ParseResult();
@@ -183,9 +189,9 @@ class SqlQueryParser
         return $result;
     }
 
-    private static function parseNestedQuery(NestedQuery $query, string $definition, string $root): ParseResult
+    private static function parseNestedQuery(NestedQuery $query, string $definition, string $root, TranslationContext $context): ParseResult
     {
-        $result = self::iterateNested($query, $definition, $root);
+        $result = self::iterateNested($query, $definition, $root, $context);
 
         $wheres = $result->getWheres();
 
@@ -199,9 +205,9 @@ class SqlQueryParser
         return $result;
     }
 
-    private static function parseNotQuery(NotQuery $query, string $definition, string $root): ParseResult
+    private static function parseNotQuery(NotQuery $query, string $definition, string $root, TranslationContext $context): ParseResult
     {
-        $result = self::iterateNested($query, $definition, $root);
+        $result = self::iterateNested($query, $definition, $root, $context);
 
         $wheres = $result->getWheres();
 
@@ -215,12 +221,12 @@ class SqlQueryParser
         return $result;
     }
 
-    private static function iterateNested(NestedQuery $query, string $definition, string $root): ParseResult
+    private static function iterateNested(NestedQuery $query, string $definition, string $root, TranslationContext $context): ParseResult
     {
         $result = new ParseResult();
         foreach ($query->getQueries() as $nestedQuery) {
             $result = $result->merge(
-                self::parse($nestedQuery, $definition, $root)
+                self::parse($nestedQuery, $definition, $context, $root)
             );
         }
 

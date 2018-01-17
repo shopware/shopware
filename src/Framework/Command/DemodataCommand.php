@@ -195,30 +195,10 @@ class DemodataCommand extends ContainerAwareCommand
         $payload = [];
 
         for ($i = 0; $i < $count; ++$i) {
-            $graduaded = [
-                [
-                    'customerGroupId' => '3294e6f6-372b-415f-ac73-71cbc191548f',
-                    'price' => $this->faker->randomFloat(2, 60, 100),
-                    'quantityStart' => 1,
-                    'quantityEnd' => 4,
-                ], [
-                    'customerGroupId' => '3294e6f6-372b-415f-ac73-71cbc191548f',
-                    'price' => $this->faker->randomFloat(2, 40, 59),
-                    'quantityStart' => 5,
-                ],
-            ];
-
-            $prices = [
-                [
-                    'customerGroupId' => '3294e6f6-372b-415f-ac73-71cbc191548f',
-                    'price' => $this->faker->randomFloat(2, 60, 100),
-                    'quantityStart' => 1,
-                    'quantityEnd' => 4,
-                ],
-            ];
 
             $payload[] = [
                 'id' => $this->faker->uuid,
+                'price' => mt_rand(1, 1000),
                 'name' => $this->faker->name,
                 'description' => $this->faker->text(),
                 'descriptionLong' => $this->faker->randomHtml(2, 3),
@@ -228,8 +208,7 @@ class DemodataCommand extends ContainerAwareCommand
                 'categories' => [
                     ['categoryId' => $categories[random_int(0, $categoryCount)]],
                 ],
-                'stock' => $this->faker->randomNumber(),
-                'prices' => random_int(0, 1) === 1 ? $graduaded : $prices,
+                'stock' => $this->faker->randomNumber()
             ];
 
             if ($i % $chunkSize === 0) {

@@ -17,6 +17,7 @@ use Shopware\Api\Entity\Field\LongTextWithHtmlField;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
+use Shopware\Api\Entity\Field\PriceRulesField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
@@ -67,6 +68,7 @@ class ProductDefinition extends EntityDefinition
             new FkField('tax_id', 'taxId', TaxDefinition::class),
             new FkField('product_manufacturer_id', 'manufacturerId', ProductManufacturerDefinition::class),
             new FkField('unit_id', 'unitId', UnitDefinition::class),
+            (new FloatField('price', 'price'))->setFlags(new Required()),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
             new BoolField('is_main', 'isMain'),
             new BoolField('active', 'active'),
@@ -98,6 +100,7 @@ class ProductDefinition extends EntityDefinition
             new IdField('container_id', 'containerId'),
             new IdField('price_group_id', 'priceGroupId'),
             new ArrayField('category_tree', 'categoryTree'),
+            new PriceRulesField('prices', 'prices'),
             new TranslatedField(new StringField('additional_text', 'additionalText')),
             new TranslatedField(new LongTextField('keywords', 'keywords')),
             new TranslatedField(new LongTextField('description', 'description')),
@@ -107,9 +110,7 @@ class ProductDefinition extends EntityDefinition
             new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true),
             new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true),
             new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, true),
-            (new OneToManyAssociationField('listingPrices', ProductListingPriceDefinition::class, 'product_id', true, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('prices', ProductPriceDefinition::class, 'product_id', true, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', ProductTranslationDefinition::class, 'product_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, false, 'product_id', 'category_id', 'categoryIds'))->setFlags(new CascadeDelete()),

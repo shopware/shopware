@@ -40,23 +40,6 @@
             <argument type="service" id="Shopware\Api\Shop\Repository\ShopRepository"/>
         </service>
 
-        <service class="Shopware\DbalIndexing\ListingPrice\ListingPriceIndexer" id="shopware.dbal_indexing.listing_price_indexer">
-            <tag name="shopware.dbal_indexing.indexer"/>
-            <argument type="service" id="Shopware\Api\Product\Repository\ProductRepository"/>
-            <argument type="service" id="Shopware\Api\Customer\Repository\CustomerGroupRepository"/>
-            <argument type="service" id="shopware.dbal_indexing.listing_price_loader"/>
-            <argument type="service" id="dbal_connection"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="logger"/>
-            <argument type="service" id="shopware.dbal_indexing.index_table_operator"/>
-            <argument type="service" id="Shopware\Api\Product\Repository\ProductPriceRepository"/>
-        </service>
-
-        <service class="Shopware\DbalIndexing\ListingPrice\ListingPriceLoader" id="shopware.dbal_indexing.listing_price_loader">
-            <argument id="dbal_connection" type="service"/>
-            <argument type="service" id="cart.price.calculator"/>
-        </service>
-
         <service class="Shopware\DbalIndexing\Command\RefreshIndexCommand" id="shopware.dbal_indexing.command.refresh_index_command">
             <argument type="service" id="shopware.dbal_indexing.indexer.shop_indexer"/>
             <tag name="kernel.event_subscriber"/>

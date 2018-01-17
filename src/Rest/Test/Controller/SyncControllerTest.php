@@ -28,6 +28,7 @@ class SyncControllerTest extends ApiTestCase
                 'payload' => [
                     'id' => $id1->toString(),
                     'name' => 'CREATE-1',
+                    'price' => 10
                 ],
             ],
             [
@@ -36,6 +37,7 @@ class SyncControllerTest extends ApiTestCase
                 'payload' => [
                     'id' => $id2->toString(),
                     'name' => 'CREATE-2',
+                    'price' => 10
                 ],
             ],
         ];
@@ -71,6 +73,7 @@ class SyncControllerTest extends ApiTestCase
                     'id' => $id,
                     'active' => true,
                     'name' => 'CREATE-1',
+                    'price' => 10
                 ],
             ],
             [
@@ -79,6 +82,7 @@ class SyncControllerTest extends ApiTestCase
                 'payload' => [
                     'id' => $id,
                     'active' => false,
+                    'price' => 10
                 ],
             ],
         ];
@@ -117,6 +121,7 @@ class SyncControllerTest extends ApiTestCase
                 'payload' => [
                     'id' => $productId,
                     'name' => 'PROD-1',
+                    'price' => 10,
                     'categories' => [
                         ['categoryId' => $categoryId],
                     ],
@@ -158,6 +163,7 @@ class SyncControllerTest extends ApiTestCase
                 'payload' => [
                     'id' => $product,
                     'name' => 'PROD-1',
+                    'price' => 10,
                     'categories' => [
                         [
                             'category' => [
@@ -174,6 +180,7 @@ class SyncControllerTest extends ApiTestCase
                 'payload' => [
                     'id' => $product2,
                     'name' => 'PROD-2',
+                    'price' => 10,
                     'categories' => [
                         ['categoryId' => $category],
                     ],
@@ -214,7 +221,8 @@ class SyncControllerTest extends ApiTestCase
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
                     'id' => $product->toString(),
-                    'name' => 'PROD-1'
+                    'name' => 'PROD-1',
+                    'price' => 10
                 ],
             ],
             [
@@ -223,6 +231,7 @@ class SyncControllerTest extends ApiTestCase
                 'payload' => [
                     'id' => $product2->toString(),
                     'name' => 'PROD-2',
+                    'price' => 10
                 ],
             ],
         ];

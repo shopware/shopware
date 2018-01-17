@@ -15,7 +15,7 @@ class ProductSearchKeywordDefinitionTest extends TestCase
         $fields = ProductSearchKeywordDefinition::getFields()->filterByFlag(Required::class);
 
         $this->assertEquals(
-            ['id', 'keyword', 'shopId', 'productId', 'ranking'],
+            ['id', 'shopId', 'productId', 'keyword', 'ranking'],
             $fields->getKeys()
         );
     }

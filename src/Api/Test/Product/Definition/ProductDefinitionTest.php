@@ -15,7 +15,7 @@ class ProductDefinitionTest extends TestCase
         $fields = ProductDefinition::getFields()->filterByFlag(Required::class);
 
         $this->assertEquals(
-            ['id', 'name', 'translations'],
+            ['id', 'price', 'name', 'translations'],
             $fields->getKeys()
         );
     }
@@ -24,7 +24,7 @@ class ProductDefinitionTest extends TestCase
     {
         $fields = ProductDefinition::getFields()->filterByFlag(CascadeDelete::class);
         $this->assertEquals(
-            ['listingPrices', 'media', 'prices', 'searchKeywords', 'translations', 'categories', 'seoCategories', 'tabs', 'streams'],
+            ['media', 'searchKeywords', 'translations', 'categories', 'seoCategories', 'tabs', 'streams'],
             $fields->getKeys()
         );
     }

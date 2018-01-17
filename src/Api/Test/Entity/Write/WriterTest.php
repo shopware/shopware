@@ -169,6 +169,7 @@ class WriterTest extends KernelTestCase
             [
                 'id' => $productId->toString(),
                 'name' => 'test 1',
+                'price' => 10,
                 'categories' => [
                     ['category' => ['id' => $categoryId->toString(), 'name' => 'test']],
                 ],
@@ -215,12 +216,14 @@ class WriterTest extends KernelTestCase
             [
                 'id' => $productId->toString(),
                 'name' => 'test 1',
+                'price' => 10,
                 'categories' => [
                     ['category' => ['id' => $categoryId->toString(), 'name' => 'test']],
                 ],
             ], [
                 'id' => $productId2->toString(),
                 'name' => 'test 1',
+                'price' => 10,
                 'categories' => [
                     ['categoryId' => $categoryId->toString()],
                 ],
@@ -255,6 +258,7 @@ class WriterTest extends KernelTestCase
                 [
                     'id' => $this->id,
                     'name' => 'test',
+                    'price' => 10,
                     'the_unknown_field' => 'do nothing?',
                     'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
                     'manufacturer' => ['id' => Uuid::uuid4()->toString(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
@@ -288,6 +292,7 @@ class WriterTest extends KernelTestCase
                     'the_unknown_field' => 'do nothing?',
                     'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
                     'name' => 'foo',
+                    'price' => 10,
                     'manufacturer' => ['id' => Uuid::uuid4()->toString(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
                 ],
             ],
@@ -325,12 +330,7 @@ class WriterTest extends KernelTestCase
                     'categories' => [
                         ['categoryId' => Defaults::ROOT_CATEGORY],
                     ],
-                    'prices' => [
-                        [
-                            'price' => (float) 999,
-                            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                        ],
-                    ],
+                    'price' => 10
                 ],
             ],
             $this->createWriteContext()
@@ -360,6 +360,7 @@ class WriterTest extends KernelTestCase
                     'descriptionLong' => '<p>html</p>',
                     'availableFrom' => new \DateTime('2011-01-01T15:03:01.012345Z'),
                     'availableTo' => new \DateTime('2011-01-01T15:03:01.012345Z'),
+                    'price' => 10,
                     'manufacturer' => [
                         'id' => $productManufacturerId,
                         'link' => 'http://www.shopware.com',
@@ -536,6 +537,7 @@ class WriterTest extends KernelTestCase
                 [
                     'id' => $this->id,
                     'name' => 'Test product',
+                    'price' => 10,
                     'tax_id' => '49260353-68e3-4d9f-a695-e017d7a231b9',
                     'manufacturer' => [
                         'id' => Uuid::uuid4()->toString(),

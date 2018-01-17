@@ -24,7 +24,7 @@ class CustomerGroupDefinitionTest extends TestCase
     {
         $fields = CustomerGroupDefinition::getFields()->filterByFlag(CascadeDelete::class);
         $this->assertEquals(
-            ['discounts', 'translations', 'productListingPrices', 'productPrices', 'taxAreaRules'],
+            ['discounts', 'translations', 'taxAreaRules'],
             $fields->getKeys()
         );
     }

@@ -96,6 +96,7 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-spec-reporter": "0.0.32",
     "karma-webpack": "^2.0.9",
+    "launch-editor-middleware": "^2.2.0",
     "less": "^2.7.3",
     "less-loader": "^4.0.5",
     "lolex": "^2.3.1",

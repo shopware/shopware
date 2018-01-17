@@ -2,10 +2,15 @@ var utils = require('./utils');
 var webpack = require('webpack');
 var config = require('../config');
 var merge = require('webpack-merge');
+var path = require('path');
 var baseWebpackConfig = require('./webpack.base.conf');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');
 var plugins = {};
+
+function resolve(dir) {
+    return path.join(__dirname, '..', dir)
+}
 
 // Temporarily save the app entry point and remove it from the entry definition to sort the object the way we need it.
 // We need the following order
@@ -38,6 +43,9 @@ var chunks = Object.keys(baseWebpackConfig.entry).map((entry) => {
 });
 
 const mergedWebpackConfig = merge(baseWebpackConfig, {
+  node: {
+    __filename: true
+  },
   module: {
     rules: utils.styleLoaders({ sourceMap: config.dev.cssSourceMap })
   },
@@ -62,4 +70,18 @@ const mergedWebpackConfig = merge(baseWebpackConfig, {
   ]
 });
 
-module.exports = mergedWebpackConfig;
+module.exports = merge(mergedWebpackConfig, {
+  resolveLoader: {
+    modules: [
+      'node_modules',
+       path.resolve(__dirname, 'loaders')
+    ]
+  },
+  module: {
+    rules: [{
+        test: /\.js$/,
+        loader: 'sw-devmode-loader',
+        include: [resolve('src')],
+    }]
+  }
+});

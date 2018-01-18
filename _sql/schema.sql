@@ -844,6 +844,11 @@ CREATE TABLE `plugin` (
 DROP TABLE IF EXISTS `product`;
 CREATE TABLE `product` (
   `id` binary(16) NOT NULL,
+  `parent_id` binary(16) NULL,
+  `tax_id` binary(16) DEFAULT NULL,
+  `product_manufacturer_id` binary(16) DEFAULT NULL,
+  `price_group_id` binary(16) DEFAULT NULL,
+  `unit_id` binary(16) DEFAULT NULL,
   `is_main` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `active` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `price` decimal(10,3) NOT NULL,
@@ -872,11 +877,6 @@ CREATE TABLE `product` (
   `release_date` datetime DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  `container_id` binary(16) DEFAULT NULL,
-  `tax_id` binary(16) DEFAULT NULL,
-  `product_manufacturer_id` binary(16) DEFAULT NULL,
-  `price_group_id` binary(16) DEFAULT NULL,
-  `unit_id` binary(16) DEFAULT NULL,
   `category_tree` json NULL,
   `prices` json NULL,
   PRIMARY KEY (`id`),
@@ -885,7 +885,8 @@ CREATE TABLE `product` (
   KEY `fk_product.unit_id` (`unit_id`),
   CONSTRAINT `fk_product.product_manufacturer_id` FOREIGN KEY (`product_manufacturer_id`) REFERENCES `product_manufacturer` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_product.tax_id` FOREIGN KEY (`tax_id`) REFERENCES `tax` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_product.unit_id` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT `fk_product.unit_id` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_product.parent_id` FOREIGN KEY (`parent_id`) REFERENCES `product` (`parent_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 

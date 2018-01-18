@@ -57,9 +57,9 @@ class EntityHydrator
             if ($field instanceof ManyToManyAssociationField) {
                 $property = implode('.', [$root, $field->getPropertyName()]);
 
-                $ids = array_filter(explode('|||', (string) $row[$property]));
+                $ids = array_filter(explode('||', (string) $row[$property]));
                 $ids = array_map(function (string $bytes) {
-                    return Uuid::fromBytes($bytes)->toString();
+                    return Uuid::fromString($bytes)->toString();
                 }, $ids);
 
                 $data[$field->getStructIdMappingProperty()] = $ids;

@@ -110,11 +110,14 @@ class ProductCategoryIndexer implements IndexerInterface
         $categories = $this->fetchCategories($ids);
 
         foreach ($categories as $productId => $mapping) {
-            $categoryIds = array_filter(explode('||', (string) $mapping['ids']));
 
-            $categoryIds = array_map(function (string $bytes) {
-                return Uuid::fromBytes($bytes)->toString();
-            }, $categoryIds);
+            $categoryIds = array_filter(explode('||', (string)$mapping['ids']));
+            $categoryIds = array_map(
+                function (string $bytes) {
+                    return Uuid::fromString($bytes)->toString();
+                },
+                $categoryIds
+            );
 
             $categoryIds = array_merge(
                 explode('|', (string) $mapping['paths']),
@@ -136,7 +139,7 @@ class ProductCategoryIndexer implements IndexerInterface
         $query->select([
             'product.id as product_id',
             "GROUP_CONCAT(category.path SEPARATOR '|') as paths",
-            "GROUP_CONCAT(category.id SEPARATOR '||') as ids",
+            "GROUP_CONCAT(HEX(category.id) SEPARATOR '||') as ids",
         ]);
         $query->from('product');
         $query->leftJoin('product', 'product_category', 'mapping', 'mapping.product_id = product.id');

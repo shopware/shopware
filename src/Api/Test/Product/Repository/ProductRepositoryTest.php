@@ -4,6 +4,7 @@ namespace Shopware\Api\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
+use Shopware\Api\Category\Repository\CategoryRepository;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\IdSearchResult;
@@ -194,6 +195,48 @@ class ProductRepositoryTest extends KernelTestCase
             [$id->toString(), $id3->toString(), $id2->toString()],
             $products->getIds()
         );
+    }
+
+    public function testPaginatedCategoryAssociation()
+    {
+        $parentId = Uuid::uuid4()->toString();
+        $categories = [
+            ['id' => $parentId, 'name' => 'master']
+        ];
+
+        for ($i = 0; $i < 99; $i++) {
+            $categories[] = [
+                'id' => Uuid::uuid4()->toString(),
+                'name' => 'test' . $i,
+                'parentId' => $parentId
+            ];
+        }
+
+        $this->container->get(CategoryRepository::class)
+            ->create($categories, TranslationContext::createDefaultContext());
+
+        $mapping = array_map(function (array $category) {
+            return ['categoryId' => $category['id']];
+        }, $categories);
+
+        $id = Uuid::uuid4()->toString();
+        $product = [
+            'id' => $id,
+            'name' => 'Test product',
+            'price' => 100,
+            'categories' => $mapping
+        ];
+
+        $this->container->get(ProductRepository::class)
+            ->create([$product], TranslationContext::createDefaultContext());
+
+        $detail = $this->container->get(ProductRepository::class)
+            ->readDetail([$id], TranslationContext::createDefaultContext());
+        
+        echo '<pre>';
+        print_r($detail->getAllCategories()->count());
+        exit();
+
     }
 }
 

@@ -13,6 +13,7 @@ use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\InheritedDefinition;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
@@ -20,6 +21,8 @@ use Shopware\Api\Entity\Search\Query\TermsQuery;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
 use Shopware\Api\Entity\Write\Flag\Deferred;
 use Shopware\Api\Entity\Write\Flag\Extension;
+use Shopware\Api\Entity\Write\Flag\Inherited;
+use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\Struct;
 
@@ -83,6 +86,7 @@ class EntityReader implements EntityReaderInterface
 
         /** @var EntityDefinition $definition */
         $rows = $this->fetch($ids, $definition, $context, $fields);
+       
         foreach ($rows as $row) {
             $collection->add(
                 EntityHydrator::hydrate(clone $entity, $definition, $row, $definition::getEntityName())
@@ -96,10 +100,11 @@ class EntityReader implements EntityReaderInterface
             $this->loadManyToOne($definition, $association, $context, $collection);
         }
 
+
         /** @var OneToManyAssociationField[] $associations */
         $associations = $fields->filterInstance(OneToManyAssociationField::class);
         foreach ($associations as $association) {
-            $this->loadOneToMany($ids, $association, $context, $collection);
+            $this->loadOneToMany($definition, $association, $context, $collection);
         }
 
         /** @var ManyToManyAssociationField[] $associations */
@@ -121,11 +126,20 @@ class EntityReader implements EntityReaderInterface
         FieldCollection $fields
     ): void {
         /** @var EntityDefinition $definition */
-        $fields = $fields->filter(function (Field $field) {
+        $filtered = $fields->filter(function (Field $field) {
             return !$field->is(Deferred::class);
         });
 
-        foreach ($fields as $field) {
+        $parent = null;
+
+        $instance = new $definition();
+        if ($instance instanceof InheritedDefinition) {
+            /** @var InheritedDefinition|EntityDefinition|string $definition */
+            $parent = $definition::getFields()->get($definition::getParentPropertyName());
+            EntityDefinitionResolver::joinManyToOne($definition, $root, $parent, $query);
+        }
+
+        foreach ($filtered as $field) {
             //translated fields are handled after loop all together
             if ($field instanceof TranslatedField) {
                 continue;
@@ -138,16 +152,16 @@ class EntityReader implements EntityReaderInterface
 
             //many to one associations can be directly fetched in same query
             if ($field instanceof ManyToOneAssociationField) {
-                /** @var EntityDefinition $reference */
+                /** @var EntityDefinition|string $reference */
                 $reference = $field->getReferenceClass();
 
                 $basics = $reference::getFields()->getBasicProperties();
 
-                if ($this->requiresToManyAssociation($basics)) {
+                if ($this->requiresToManyAssociation($reference, $basics)) {
                     continue;
                 }
 
-                EntityDefinitionResolver::joinManyToOne($root, $field, $query);
+                EntityDefinitionResolver::joinManyToOne($definition, $root, $field, $query);
 
                 $alias = $root . '.' . $field->getPropertyName();
                 $this->joinBasic($field->getReferenceClass(), $context, $alias, $query, $basics);
@@ -166,13 +180,24 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
+            if ($field instanceof StorageAware && $field->is(Inherited::class) && $parent !== null) {
+                $parentAlias = $root . '.' . $parent->getPropertyName();
+
+                $child = EntityDefinitionResolver::escape($root) . '.' . EntityDefinitionResolver::escape($field->getStorageName());
+                $parentField = EntityDefinitionResolver::escape($parentAlias) . '.' . EntityDefinitionResolver::escape($field->getStorageName());
+                $fieldAlias = EntityDefinitionResolver::escape($root . '.' . $field->getPropertyName());
+
+                $query->addSelect(
+                    sprintf('COALESCE(%s, %s) as %s', $child, $parentField, $fieldAlias)
+                );
+                continue;
+            }
+
             //all other StorageAware fields are stored inside the main entity
             if ($field instanceof StorageAware) {
                 /* @var Field $field */
                 $query->addSelect(
-                    EntityDefinitionResolver::escape($root) . '.' . EntityDefinitionResolver::escape(
-                        $field->getStorageName()
-                    )
+                    EntityDefinitionResolver::escape($root) . '.' . EntityDefinitionResolver::escape($field->getStorageName())
                     . ' as ' .
                     EntityDefinitionResolver::escape($root . '.' . $field->getPropertyName())
                 );
@@ -222,7 +247,7 @@ class EntityReader implements EntityReaderInterface
         $reference = $association->getReferenceClass();
 
         $fields = $reference::getFields()->getBasicProperties();
-        if (!$this->requiresToManyAssociation($fields)) {
+        if (!$this->requiresToManyAssociation($reference, $fields)) {
             return;
         }
 
@@ -249,8 +274,24 @@ class EntityReader implements EntityReaderInterface
         }
     }
 
-    private function loadOneToMany(array $ids, OneToManyAssociationField $association, TranslationContext $context, EntityCollection $collection): void
+    private function loadOneToMany(string $definition, OneToManyAssociationField $association, TranslationContext $context, EntityCollection $collection): void
     {
+        $ids = array_values($collection->getIds());
+        $instance = new $definition();
+        /** @var string|EntityDefinition|InheritedDefinition $definition */
+
+        $parentId = null;
+        if ($instance instanceof InheritedDefinition) {
+            /** @var ManyToOneAssociationField $parent */
+            $parent = $definition::getFields()->get($definition::getParentPropertyName());
+            $parentId = $definition::getFields()->getByStorageName($parent->getStorageName());
+            $parentIds = $collection->map(function(Entity $entity) use ($parentId) {
+                return $entity->get($parentId->getPropertyName());
+            });
+            $parentIds = array_values(array_filter($parentIds));
+            $ids = array_unique(array_merge($ids, $parentIds));
+        }
+
         $reference = $association->getReferenceClass();
 
         $field = $reference::getFields()->getByStorageName($association->getReferenceField());
@@ -266,6 +307,10 @@ class EntityReader implements EntityReaderInterface
         foreach ($collection as $struct) {
             //filter by property allows to avoid building the getter function name
             $structData = $data->filterByProperty($field->getPropertyName(), $struct->getId());
+
+            if ($structData->count() <= 0 && $instance instanceof InheritedDefinition && $association->is(Inherited::class)) {
+                $structData = $data->filterByProperty($field->getPropertyName(), $struct->get($parentId->getPropertyName()));
+            }
 
             if ($association->is(Extension::class)) {
                 $struct->addExtension($association->getPropertyName(), $structData);
@@ -348,11 +393,12 @@ class EntityReader implements EntityReaderInterface
     }
 
     /**
-     * @param $fields
+     * @param string $definition
+     * @param FieldCollection $fields
      *
      * @return mixed
      */
-    private function requiresToManyAssociation(FieldCollection $fields)
+    private function requiresToManyAssociation(string $definition, FieldCollection $fields)
     {
         foreach ($fields as $field) {
             if (!$field instanceof AssociationInterface) {
@@ -366,7 +412,11 @@ class EntityReader implements EntityReaderInterface
             /** @var ManyToOneAssociationField $field */
             $reference = $field->getReferenceClass();
 
-            if ($this->requiresToManyAssociation($reference::getFields()->getBasicProperties())) {
+            if ($reference === $definition) {
+                continue;
+            }
+
+            if ($this->requiresToManyAssociation($reference, $reference::getFields()->getBasicProperties())) {
                 return true;
             }
         }

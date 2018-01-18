@@ -11,6 +11,11 @@ class ProductBasicStruct extends Entity
     /**
      * @var string|null
      */
+    protected $parentId;
+
+    /**
+     * @var string|null
+     */
     protected $taxId;
 
     /**
@@ -24,24 +29,14 @@ class ProductBasicStruct extends Entity
     protected $unitId;
 
     /**
-     * @var float
-     */
-    protected $price;
-
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var bool
-     */
-    protected $isMain;
-
-    /**
      * @var bool
      */
     protected $active;
+
+    /**
+     * @var float|null
+     */
+    protected $price;
 
     /**
      * @var string|null
@@ -54,12 +49,12 @@ class ProductBasicStruct extends Entity
     protected $ean;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $stock;
 
     /**
-     * @var bool
+     * @var bool|null
      */
     protected $isCloseout;
 
@@ -79,7 +74,7 @@ class ProductBasicStruct extends Entity
     protected $maxPurchase;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $minPurchase;
 
@@ -94,52 +89,52 @@ class ProductBasicStruct extends Entity
     protected $referenceUnit;
 
     /**
-     * @var bool
+     * @var bool|null
      */
     protected $shippingFree;
 
     /**
-     * @var float
+     * @var float|null
      */
     protected $purchasePrice;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $pseudoSales;
 
     /**
-     * @var bool
+     * @var bool|null
      */
     protected $markAsTopseller;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $sales;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $position;
 
     /**
-     * @var float
+     * @var float|null
      */
     protected $weight;
 
     /**
-     * @var float
+     * @var float|null
      */
     protected $width;
 
     /**
-     * @var float
+     * @var float|null
      */
     protected $height;
 
     /**
-     * @var float
+     * @var float|null
      */
     protected $length;
 
@@ -149,7 +144,7 @@ class ProductBasicStruct extends Entity
     protected $template;
 
     /**
-     * @var bool
+     * @var bool|null
      */
     protected $allowNotification;
 
@@ -171,11 +166,6 @@ class ProductBasicStruct extends Entity
     /**
      * @var string|null
      */
-    protected $containerId;
-
-    /**
-     * @var string|null
-     */
     protected $priceGroupId;
 
     /**
@@ -192,6 +182,11 @@ class ProductBasicStruct extends Entity
      * @var string|null
      */
     protected $additionalText;
+
+    /**
+     * @var string|null
+     */
+    protected $name;
 
     /**
      * @var string|null
@@ -233,6 +228,16 @@ class ProductBasicStruct extends Entity
      */
     protected $unit;
 
+    public function getParentId(): ?string
+    {
+        return $this->parentId;
+    }
+
+    public function setParentId(?string $parentId): void
+    {
+        $this->parentId = $parentId;
+    }
+
     public function getTaxId(): ?string
     {
         return $this->taxId;
@@ -263,36 +268,6 @@ class ProductBasicStruct extends Entity
         $this->unitId = $unitId;
     }
 
-    public function getPrice(): float
-    {
-        return $this->price;
-    }
-
-    public function setPrice(float $price): void
-    {
-        $this->price = $price;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
-    public function getIsMain(): bool
-    {
-        return $this->isMain;
-    }
-
-    public function setIsMain(bool $isMain): void
-    {
-        $this->isMain = $isMain;
-    }
-
     public function getActive(): bool
     {
         return $this->active;
@@ -301,6 +276,16 @@ class ProductBasicStruct extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function getPrice(): ?float
+    {
+        return $this->price;
+    }
+
+    public function setPrice(?float $price): void
+    {
+        $this->price = $price;
     }
 
     public function getSupplierNumber(): ?string
@@ -323,22 +308,22 @@ class ProductBasicStruct extends Entity
         $this->ean = $ean;
     }
 
-    public function getStock(): int
+    public function getStock(): ?int
     {
         return $this->stock;
     }
 
-    public function setStock(int $stock): void
+    public function setStock(?int $stock): void
     {
         $this->stock = $stock;
     }
 
-    public function getIsCloseout(): bool
+    public function getIsCloseout(): ?bool
     {
         return $this->isCloseout;
     }
 
-    public function setIsCloseout(bool $isCloseout): void
+    public function setIsCloseout(?bool $isCloseout): void
     {
         $this->isCloseout = $isCloseout;
     }
@@ -373,12 +358,12 @@ class ProductBasicStruct extends Entity
         $this->maxPurchase = $maxPurchase;
     }
 
-    public function getMinPurchase(): int
+    public function getMinPurchase(): ?int
     {
         return $this->minPurchase;
     }
 
-    public function setMinPurchase(int $minPurchase): void
+    public function setMinPurchase(?int $minPurchase): void
     {
         $this->minPurchase = $minPurchase;
     }
@@ -403,102 +388,102 @@ class ProductBasicStruct extends Entity
         $this->referenceUnit = $referenceUnit;
     }
 
-    public function getShippingFree(): bool
+    public function getShippingFree(): ?bool
     {
         return $this->shippingFree;
     }
 
-    public function setShippingFree(bool $shippingFree): void
+    public function setShippingFree(?bool $shippingFree): void
     {
         $this->shippingFree = $shippingFree;
     }
 
-    public function getPurchasePrice(): float
+    public function getPurchasePrice(): ?float
     {
         return $this->purchasePrice;
     }
 
-    public function setPurchasePrice(float $purchasePrice): void
+    public function setPurchasePrice(?float $purchasePrice): void
     {
         $this->purchasePrice = $purchasePrice;
     }
 
-    public function getPseudoSales(): int
+    public function getPseudoSales(): ?int
     {
         return $this->pseudoSales;
     }
 
-    public function setPseudoSales(int $pseudoSales): void
+    public function setPseudoSales(?int $pseudoSales): void
     {
         $this->pseudoSales = $pseudoSales;
     }
 
-    public function getMarkAsTopseller(): bool
+    public function getMarkAsTopseller(): ?bool
     {
         return $this->markAsTopseller;
     }
 
-    public function setMarkAsTopseller(bool $markAsTopseller): void
+    public function setMarkAsTopseller(?bool $markAsTopseller): void
     {
         $this->markAsTopseller = $markAsTopseller;
     }
 
-    public function getSales(): int
+    public function getSales(): ?int
     {
         return $this->sales;
     }
 
-    public function setSales(int $sales): void
+    public function setSales(?int $sales): void
     {
         $this->sales = $sales;
     }
 
-    public function getPosition(): int
+    public function getPosition(): ?int
     {
         return $this->position;
     }
 
-    public function setPosition(int $position): void
+    public function setPosition(?int $position): void
     {
         $this->position = $position;
     }
 
-    public function getWeight(): float
+    public function getWeight(): ?float
     {
         return $this->weight;
     }
 
-    public function setWeight(float $weight): void
+    public function setWeight(?float $weight): void
     {
         $this->weight = $weight;
     }
 
-    public function getWidth(): float
+    public function getWidth(): ?float
     {
         return $this->width;
     }
 
-    public function setWidth(float $width): void
+    public function setWidth(?float $width): void
     {
         $this->width = $width;
     }
 
-    public function getHeight(): float
+    public function getHeight(): ?float
     {
         return $this->height;
     }
 
-    public function setHeight(float $height): void
+    public function setHeight(?float $height): void
     {
         $this->height = $height;
     }
 
-    public function getLength(): float
+    public function getLength(): ?float
     {
         return $this->length;
     }
 
-    public function setLength(float $length): void
+    public function setLength(?float $length): void
     {
         $this->length = $length;
     }
@@ -513,12 +498,12 @@ class ProductBasicStruct extends Entity
         $this->template = $template;
     }
 
-    public function getAllowNotification(): bool
+    public function getAllowNotification(): ?bool
     {
         return $this->allowNotification;
     }
 
-    public function setAllowNotification(bool $allowNotification): void
+    public function setAllowNotification(?bool $allowNotification): void
     {
         $this->allowNotification = $allowNotification;
     }
@@ -551,16 +536,6 @@ class ProductBasicStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-    }
-
-    public function getContainerId(): ?string
-    {
-        return $this->containerId;
-    }
-
-    public function setContainerId(?string $containerId): void
-    {
-        $this->containerId = $containerId;
     }
 
     public function getPriceGroupId(): ?string
@@ -601,6 +576,16 @@ class ProductBasicStruct extends Entity
     public function setAdditionalText(?string $additionalText): void
     {
         $this->additionalText = $additionalText;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): void
+    {
+        $this->name = $name;
     }
 
     public function getKeywords(): ?string

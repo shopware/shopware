@@ -28,7 +28,7 @@ class LanguageAnalyzer implements SearchAnalyzerInterface
     public function analyze(ProductBasicStruct $product, TranslationContext $context): array
     {
         $tokens = [];
-        $tokens = $this->mergeTokens($tokens, $this->tokenizer->tokenize($product->getName()), 500);
+        $tokens = $this->mergeTokens($tokens, $this->tokenizer->tokenize((string) $product->getName()), 500);
         $tokens = $this->mergeTokens($tokens, $this->tokenizer->tokenize((string) $product->getKeywords()), 400);
         $tokens = $this->mergeTokens($tokens, $this->tokenizer->tokenize((string) $product->getMetaTitle()), 200);
 

@@ -53,6 +53,9 @@ class ProductDetailLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
+        if ($this->products->getParents()->count() > 0) {
+            $events[] = new ProductBasicLoadedEvent($this->products->getParents(), $this->context);
+        }
         if ($this->products->getTaxes()->count() > 0) {
             $events[] = new TaxBasicLoadedEvent($this->products->getTaxes(), $this->context);
         }
@@ -61,6 +64,9 @@ class ProductDetailLoadedEvent extends NestedEvent
         }
         if ($this->products->getUnits()->count() > 0) {
             $events[] = new UnitBasicLoadedEvent($this->products->getUnits(), $this->context);
+        }
+        if ($this->products->getChildren()->count() > 0) {
+            $events[] = new ProductBasicLoadedEvent($this->products->getChildren(), $this->context);
         }
         if ($this->products->getMedia()->count() > 0) {
             $events[] = new ProductMediaBasicLoadedEvent($this->products->getMedia(), $this->context);

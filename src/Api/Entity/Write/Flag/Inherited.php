@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -23,26 +22,8 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\CartBridge\Product;
+namespace Shopware\Api\Entity\Write\Flag;
 
-use Shopware\Api\Product\Collection\ProductBasicCollection;
-use Shopware\Api\Product\Repository\ProductRepository;
-use Shopware\Context\Struct\ShopContext;
-
-class ProductGateway implements ProductGatewayInterface
+class Inherited extends Flag
 {
-    /**
-     * @var ProductRepository
-     */
-    private $repository;
-
-    public function __construct(ProductRepository $repository)
-    {
-        $this->repository = $repository;
-    }
-
-    public function get(array $numbers, ShopContext $context): ProductBasicCollection
-    {
-        return $this->repository->readBasic($numbers, $context->getTranslationContext());
-    }
 }

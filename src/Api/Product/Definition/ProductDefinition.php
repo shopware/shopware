@@ -17,12 +17,13 @@ use Shopware\Api\Entity\Field\LongTextWithHtmlField;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
-use Shopware\Api\Entity\Field\PriceRulesField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\InheritedDefinition;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
+use Shopware\Api\Entity\Write\Flag\Inherited;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Product\Collection\ProductBasicCollection;
@@ -35,7 +36,7 @@ use Shopware\Api\Product\Struct\ProductDetailStruct;
 use Shopware\Api\Tax\Definition\TaxDefinition;
 use Shopware\Api\Unit\Definition\UnitDefinition;
 
-class ProductDefinition extends EntityDefinition
+class ProductDefinition extends EntityDefinition implements InheritedDefinition
 {
     /**
      * @var FieldCollection
@@ -57,6 +58,11 @@ class ProductDefinition extends EntityDefinition
         return 'product';
     }
 
+    public static function getParentPropertyName(): string
+    {
+        return 'parent';
+    }
+
     public static function getFields(): FieldCollection
     {
         if (self::$fields) {
@@ -65,58 +71,70 @@ class ProductDefinition extends EntityDefinition
 
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            new FkField('tax_id', 'taxId', TaxDefinition::class),
-            new FkField('product_manufacturer_id', 'manufacturerId', ProductManufacturerDefinition::class),
-            new FkField('unit_id', 'unitId', UnitDefinition::class),
-            (new FloatField('price', 'price'))->setFlags(new Required()),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
-            new BoolField('is_main', 'isMain'),
+            new FkField('parent_id', 'parentId', self::class),
+
+            //not inherited fields
             new BoolField('active', 'active'),
-            new StringField('supplier_number', 'supplierNumber'),
-            new StringField('ean', 'ean'),
+            new FkField('product_manufacturer_id', 'manufacturerId', ProductManufacturerDefinition::class),
             new IntField('stock', 'stock'),
-            new BoolField('is_closeout', 'isCloseout'),
-            new IntField('min_stock', 'minStock'),
-            new IntField('purchase_steps', 'purchaseSteps'),
-            new IntField('max_purchase', 'maxPurchase'),
-            new IntField('min_purchase', 'minPurchase'),
-            new FloatField('purchase_unit', 'purchaseUnit'),
-            new FloatField('reference_unit', 'referenceUnit'),
-            new BoolField('shipping_free', 'shippingFree'),
-            new FloatField('purchase_price', 'purchasePrice'),
-            new IntField('pseudo_sales', 'pseudoSales'),
-            new BoolField('mark_as_topseller', 'markAsTopseller'),
-            new IntField('sales', 'sales'),
-            new IntField('position', 'position'),
-            new FloatField('weight', 'weight'),
-            new FloatField('width', 'width'),
-            new FloatField('height', 'height'),
-            new FloatField('length', 'length'),
-            new StringField('template', 'template'),
-            new BoolField('allow_notification', 'allowNotification'),
-            new DateField('release_date', 'releaseDate'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new IdField('container_id', 'containerId'),
-            new IdField('price_group_id', 'priceGroupId'),
-            new ArrayField('category_tree', 'categoryTree'),
-            new PriceRulesField('prices', 'prices'),
-            new TranslatedField(new StringField('additional_text', 'additionalText')),
-            new TranslatedField(new LongTextField('keywords', 'keywords')),
-            new TranslatedField(new LongTextField('description', 'description')),
-            new TranslatedField(new LongTextWithHtmlField('description_long', 'descriptionLong')),
-            new TranslatedField(new StringField('meta_title', 'metaTitle')),
-            new TranslatedField(new StringField('pack_unit', 'packUnit')),
-            new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true),
-            new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true),
-            new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, true),
-            (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField('translations', ProductTranslationDefinition::class, 'product_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, false, 'product_id', 'category_id', 'categoryIds'))->setFlags(new CascadeDelete()),
+
+            (new FkField('tax_id', 'taxId', TaxDefinition::class))->setFlags(new Inherited()),
+            (new FkField('unit_id', 'unitId', UnitDefinition::class))->setFlags(new Inherited()),
+            (new FloatField('price', 'price'))->setFlags(new Inherited()),
+            (new StringField('supplier_number', 'supplierNumber'))->setFlags(new Inherited()),
+            (new StringField('ean', 'ean'))->setFlags(new Inherited()),
+            (new BoolField('is_closeout', 'isCloseout'))->setFlags(new Inherited()),
+            (new IntField('min_stock', 'minStock'))->setFlags(new Inherited()),
+            (new IntField('purchase_steps', 'purchaseSteps'))->setFlags(new Inherited()),
+            (new IntField('max_purchase', 'maxPurchase'))->setFlags(new Inherited()),
+            (new IntField('min_purchase', 'minPurchase'))->setFlags(new Inherited()),
+            (new FloatField('purchase_unit', 'purchaseUnit'))->setFlags(new Inherited()),
+            (new FloatField('reference_unit', 'referenceUnit'))->setFlags(new Inherited()),
+            (new BoolField('shipping_free', 'shippingFree'))->setFlags(new Inherited()),
+            (new FloatField('purchase_price', 'purchasePrice'))->setFlags(new Inherited()),
+            (new IntField('pseudo_sales', 'pseudoSales'))->setFlags(new Inherited()),
+            (new BoolField('mark_as_topseller', 'markAsTopseller'))->setFlags(new Inherited()),
+            (new IntField('sales', 'sales'))->setFlags(new Inherited()),
+            (new IntField('position', 'position'))->setFlags(new Inherited()),
+            (new FloatField('weight', 'weight'))->setFlags(new Inherited()),
+            (new FloatField('width', 'width'))->setFlags(new Inherited()),
+            (new FloatField('height', 'height'))->setFlags(new Inherited()),
+            (new FloatField('length', 'length'))->setFlags(new Inherited()),
+            (new StringField('template', 'template'))->setFlags(new Inherited()),
+            (new BoolField('allow_notification', 'allowNotification'))->setFlags(new Inherited()),
+            (new DateField('release_date', 'releaseDate'))->setFlags(new Inherited()),
+            (new IdField('price_group_id', 'priceGroupId'))->setFlags(new Inherited()),
+            (new IdField('media_join_id', 'mediaJoinId'))->setFlags(new Inherited()),
+
+            (new ArrayField('category_tree', 'categoryTree'))->setFlags(new Inherited()),
+            (new ArrayField('prices', 'prices'))->setFlags(new Inherited()),
+
+            (new TranslatedField(new StringField('additional_text', 'additionalText')))->setFlags(new Inherited()),
+            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Inherited()),
+            (new TranslatedField(new LongTextField('keywords', 'keywords')))->setFlags(new Inherited()),
+            (new TranslatedField(new LongTextField('description', 'description')))->setFlags(new Inherited()),
+            (new TranslatedField(new LongTextWithHtmlField('description_long', 'descriptionLong')))->setFlags(new Inherited()),
+            (new TranslatedField(new StringField('meta_title', 'metaTitle')))->setFlags(new Inherited()),
+            (new TranslatedField(new StringField('pack_unit', 'packUnit')))->setFlags(new Inherited()),
+
+            new ManyToOneAssociationField('parent', 'parent_id', self::class, true),
+            (new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete()),
+
+            (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true))->setFlags(new Inherited()),
+            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true))->setFlags(new Inherited()),
+            (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, true))->setFlags(new Inherited()),
+
+            (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false, 'media_join_id'))->setFlags(new CascadeDelete(), new Inherited()),
+            (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, false, 'product_id', 'category_id', 'categoryIds'))->setFlags(new CascadeDelete(), new Inherited()),
+
             (new ManyToManyAssociationField('seoCategories', CategoryDefinition::class, ProductSeoCategoryDefinition::class, false, 'product_id', 'category_id', 'seoCategoryIds'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('tabs', ProductStreamDefinition::class, ProductStreamTabDefinition::class, false, 'product_id', 'product_stream_id', 'tabIds'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('streams', ProductStreamDefinition::class, ProductStreamAssignmentDefinition::class, false, 'product_id', 'product_stream_id', 'streamIds'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField('translations', ProductTranslationDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
+
         ]);
 
         foreach (self::$extensions as $extension) {

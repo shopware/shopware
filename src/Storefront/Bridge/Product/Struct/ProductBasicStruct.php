@@ -4,9 +4,7 @@ namespace Shopware\Storefront\Bridge\Product\Struct;
 
 use Shopware\Api\Product\Collection\ProductMediaBasicCollection;
 use Shopware\Api\Product\Struct\ProductBasicStruct as ApiBasicStruct;
-use Shopware\Api\Product\Struct\ProductListingPriceBasicStruct;
 use Shopware\Api\Product\Struct\ProductMediaBasicStruct;
-use Shopware\Api\Product\Struct\ProductPriceBasicStruct;
 use Shopware\Cart\Price\Struct\Price;
 
 class ProductBasicStruct extends ApiBasicStruct

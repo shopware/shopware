@@ -6,8 +6,6 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
 use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 use Shopware\Api\Product\Collection\ProductBasicCollection;
-use Shopware\Api\Product\Collection\ProductListingPriceBasicCollection;
-use Shopware\Api\Product\Collection\ProductPriceBasicCollection;
 use Shopware\Api\Product\Repository\ProductMediaRepository;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Product\Struct\ProductMediaSearchResult;

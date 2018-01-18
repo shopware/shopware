@@ -15,8 +15,8 @@ use Shopware\Api\Shop\Definition\ShopDefinition;
 use Shopware\Api\Shop\Definition\ShopTemplateDefinition;
 use Shopware\Api\Shop\Repository\ShopRepository;
 use Shopware\Api\Test\TestWriteContext;
-use Shopware\Defaults;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Defaults;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

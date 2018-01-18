@@ -24,6 +24,20 @@ class ProductBasicCollection extends EntityCollection
         return parent::current();
     }
 
+    public function getParentIds(): array
+    {
+        return $this->fmap(function (ProductBasicStruct $product) {
+            return $product->getParentId();
+        });
+    }
+
+    public function filterByParentId(string $id): self
+    {
+        return $this->filter(function (ProductBasicStruct $product) use ($id) {
+            return $product->getParentId() === $id;
+        });
+    }
+
     public function getTaxIds(): array
     {
         return $this->fmap(function (ProductBasicStruct $product) {
@@ -63,20 +77,6 @@ class ProductBasicCollection extends EntityCollection
     {
         return $this->filter(function (ProductBasicStruct $product) use ($id) {
             return $product->getUnitId() === $id;
-        });
-    }
-
-    public function getContainerIds(): array
-    {
-        return $this->fmap(function (ProductBasicStruct $product) {
-            return $product->getContainerId();
-        });
-    }
-
-    public function filterByContainerId(string $id): self
-    {
-        return $this->filter(function (ProductBasicStruct $product) use ($id) {
-            return $product->getContainerId() === $id;
         });
     }
 

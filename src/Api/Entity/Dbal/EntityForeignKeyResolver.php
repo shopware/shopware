@@ -137,7 +137,7 @@ class EntityForeignKeyResolver
             }
 
             if ($cascade instanceof ManyToOneAssociationField) {
-                EntityDefinitionResolver::joinManyToOne($root, $cascade, $query);
+                EntityDefinitionResolver::joinManyToOne($definition, $root, $cascade, $query);
 
                 $query->addSelect(
                     'GROUP_CONCAT(HEX(' .

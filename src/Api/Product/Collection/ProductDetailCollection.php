@@ -12,6 +12,37 @@ class ProductDetailCollection extends ProductBasicCollection
      */
     protected $elements = [];
 
+    public function getParents(): ProductBasicCollection
+    {
+        return new ProductBasicCollection(
+            $this->fmap(function (ProductDetailStruct $product) {
+                return $product->getParent();
+            })
+        );
+    }
+
+    public function getChildrenIds(): array
+    {
+        $ids = [];
+        foreach ($this->elements as $element) {
+            foreach ($element->getChildren()->getIds() as $id) {
+                $ids[] = $id;
+            }
+        }
+
+        return $ids;
+    }
+
+    public function getChildren(): ProductBasicCollection
+    {
+        $collection = new ProductBasicCollection();
+        foreach ($this->elements as $element) {
+            $collection->fill($element->getChildren()->getElements());
+        }
+
+        return $collection;
+    }
+
     public function getMediaIds(): array
     {
         $ids = [];

@@ -42,7 +42,6 @@ class DemodataCommand extends ContainerAwareCommand
         $this->writer = $writer;
     }
 
-
     protected function configure()
     {
         $this->addOption('products', 'p', InputOption::VALUE_REQUIRED, 'Product count', 500);
@@ -199,7 +198,7 @@ class DemodataCommand extends ContainerAwareCommand
                 'categories' => [
                     ['categoryId' => $categories[random_int(0, $categoryCount)]],
                 ],
-                'stock' => $this->faker->randomNumber()
+                'stock' => $this->faker->randomNumber(),
             ];
 
             if ($i % $size === 0) {

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Test\Entity;
 
@@ -32,18 +32,19 @@ class EntityReaderTest extends KernelTestCase
         $this->connection->beginTransaction();
         $this->connection->executeUpdate('DELETE FROM product');
     }
+
     public function testMaxGroupConcat()
     {
         $parentId = Uuid::uuid4()->toString();
         $categories = [
-            ['id' => $parentId, 'name' => 'master']
+            ['id' => $parentId, 'name' => 'master'],
         ];
 
-        for ($i = 0; $i < 400; $i++) {
+        for ($i = 0; $i < 400; ++$i) {
             $categories[] = [
                 'id' => Uuid::uuid4()->toString(),
                 'name' => 'test' . $i,
-                'parentId' => $parentId
+                'parentId' => $parentId,
             ];
         }
 
@@ -59,7 +60,7 @@ class EntityReaderTest extends KernelTestCase
             'id' => $id,
             'name' => 'Test product',
             'price' => 100,
-            'categories' => $mapping
+            'categories' => $mapping,
         ];
 
         $this->container->get(ProductRepository::class)

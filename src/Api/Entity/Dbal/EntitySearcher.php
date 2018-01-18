@@ -10,7 +10,6 @@ use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Search\Parser\SqlQueryParser;
 use Shopware\Api\Entity\Search\Query\ScoreQuery;
-use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Context\Struct\TranslationContext;
 
 class EntitySearcher implements EntitySearcherInterface

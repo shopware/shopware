@@ -3,6 +3,7 @@
 namespace Shopware\Api\Product\Struct;
 
 use Shopware\Api\Category\Collection\CategoryBasicCollection;
+use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Product\Collection\ProductMediaBasicCollection;
 use Shopware\Api\Product\Collection\ProductSearchKeywordBasicCollection;
 use Shopware\Api\Product\Collection\ProductStreamBasicCollection;
@@ -10,6 +11,16 @@ use Shopware\Api\Product\Collection\ProductTranslationBasicCollection;
 
 class ProductDetailStruct extends ProductBasicStruct
 {
+    /**
+     * @var ProductBasicStruct|null
+     */
+    protected $parent;
+
+    /**
+     * @var ProductBasicCollection
+     */
+    protected $children;
+
     /**
      * @var ProductMediaBasicCollection
      */
@@ -67,6 +78,8 @@ class ProductDetailStruct extends ProductBasicStruct
 
     public function __construct()
     {
+        $this->children = new ProductBasicCollection();
+
         $this->media = new ProductMediaBasicCollection();
 
         $this->searchKeywords = new ProductSearchKeywordBasicCollection();
@@ -80,6 +93,26 @@ class ProductDetailStruct extends ProductBasicStruct
         $this->tabs = new ProductStreamBasicCollection();
 
         $this->streams = new ProductStreamBasicCollection();
+    }
+
+    public function getParent(): ?ProductBasicStruct
+    {
+        return $this->parent;
+    }
+
+    public function setParent(?ProductBasicStruct $parent): void
+    {
+        $this->parent = $parent;
+    }
+
+    public function getChildren(): ProductBasicCollection
+    {
+        return $this->children;
+    }
+
+    public function setChildren(ProductBasicCollection $children): void
+    {
+        $this->children = $children;
     }
 
     public function getMedia(): ProductMediaBasicCollection

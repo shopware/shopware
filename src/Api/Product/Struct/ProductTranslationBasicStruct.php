@@ -17,14 +17,14 @@ class ProductTranslationBasicStruct extends Entity
     protected $languageId;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected $name;
+    protected $additionalText;
 
     /**
      * @var string|null
      */
-    protected $additionalText;
+    protected $name;
 
     /**
      * @var string|null
@@ -71,16 +71,6 @@ class ProductTranslationBasicStruct extends Entity
         $this->languageId = $languageId;
     }
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
     public function getAdditionalText(): ?string
     {
         return $this->additionalText;
@@ -89,6 +79,16 @@ class ProductTranslationBasicStruct extends Entity
     public function setAdditionalText(?string $additionalText): void
     {
         $this->additionalText = $additionalText;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): void
+    {
+        $this->name = $name;
     }
 
     public function getKeywords(): ?string

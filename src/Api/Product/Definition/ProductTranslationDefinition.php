@@ -52,8 +52,8 @@ class ProductTranslationDefinition extends EntityDefinition
         self::$fields = new FieldCollection([
             (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('name', 'name'))->setFlags(new Required()),
             new StringField('additional_text', 'additionalText'),
+            new StringField('name', 'name'),
             new LongTextField('keywords', 'keywords'),
             new LongTextField('description', 'description'),
             new LongTextWithHtmlField('description_long', 'descriptionLong'),

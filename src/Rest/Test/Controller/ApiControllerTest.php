@@ -4,7 +4,6 @@ namespace Shopware\Rest\Test\Controller;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Defaults;
 use Shopware\Rest\Test\ApiTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -42,7 +41,7 @@ class ApiControllerTest extends ApiTestCase
         $data = [
             'id' => $id,
             'name' => 'test_state',
-            'shortCode' => 'test'
+            'shortCode' => 'test',
         ];
 
         $client->request('POST', '/api/country/' . $id . '/states/', $data);

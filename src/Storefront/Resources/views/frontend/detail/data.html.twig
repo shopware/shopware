@@ -6,13 +6,13 @@
     {% else %}
         <div class="product--price price--default{if $sArticle.has_pseudoprice} price--discount{/if}">
             {% block frontend_detail_data_price_configurator %}
-                {% set price = product.price(1) %}
+                {% set price = product.calculatedPrice %}
 
                 {% if price %}
                     {% block frontend_detail_data_price_default %}
                         <span class="price--content content--default">
                             <meta itemprop="price" content="{$sArticle.price|replace:',':'.'}">
-                            {{ price.price|localizedcurrency(context.currency.shortName) }}{% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
+                            {{ price.totalPrice|localizedcurrency(context.currency.shortName) }}{% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
                         </span>
                     {% endblock %}
                 {% endif %}

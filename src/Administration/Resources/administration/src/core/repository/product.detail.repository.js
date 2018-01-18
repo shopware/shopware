@@ -1,5 +1,4 @@
 import ProxyFactory from './../factory/data-proxy.factory';
-import utils from './../service/util.service';
 
 export default {
 
@@ -12,8 +11,7 @@ export default {
         updateProductById,
         createProduct,
         getDefaultProduct,
-        getNewProduct,
-        addProductPrice
+        getNewProduct
     }
 };
 
@@ -121,34 +119,10 @@ function getNewProduct() {
         id: null,
         taxId: '49260353-68e3-4d9f-a695-e017d7a231b9',
         manufacturerId: null,
-        prices: [{
-            id: null,
-            price: 0,
-            basePrice: 0,
-            pseudoPrice: null,
-            quantityStart: 1,
-            quantityEnd: null,
-            percentage: 0,
-            customerGroupId: '3294e6f6-372b-415f-ac73-71cbc191548f'
-        }]
+        price: 0
     };
 
     return ProxyFactory.create(product);
-}
-
-function addProductPrice() {
-    const id = utils.createId();
-
-    this[this.productDataKey].prices.push({
-        id,
-        price: 0,
-        basePrice: 0,
-        pseudoPrice: null,
-        quantityStart: 1,
-        quantityEnd: null,
-        percentage: null,
-        customerGroupId: '3294e6f6-372b-415f-ac73-71cbc191548f'
-    });
 }
 
 function mapCategories(categories) {

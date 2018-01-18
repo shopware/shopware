@@ -1,6 +1,13 @@
 <sw-card title="Produkt Informationen" description="Allgemeine Informationen zum Produkt. Lorem ipsum dolor sit amet, consectetur adipisicing elit. A dolor praesentium repellat sequi tempora. Facilis minima, quibusdam. Assumenda atque commodi dicta, eum excepturi nostrum optio quis quos reiciendis vel voluptatem.">
 
-    <sw-field label="Titel" id="title" type="text" name="name" placeholder="Your product title..." v-model="product.name"></sw-field>
+    <div class="split--container">
+        <div class="container--item">
+            <sw-field label="Titel" id="title" type="text" name="name" placeholder="Your product title..." v-model="product.name"></sw-field>
+        </div>
+        <div class="container--item">
+            <sw-field label="Preis" id="price" type="number" name="name" suffix="EUR" placeholder="Product price..." v-model="product.price"></sw-field>
+        </div>
+    </div>
 
     <sw-field label="Artikel-Beschreibung" id="descriptionLong" type="textarea" name="descriptionLong" placeholder="Your product description..." v-model="product.descriptionLong"></sw-field>
 

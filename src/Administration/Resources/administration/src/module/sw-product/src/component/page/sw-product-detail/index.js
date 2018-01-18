@@ -12,8 +12,7 @@ Shopware.Component.register('sw-product-detail', {
             isWorking: false,
             product: {
                 attribute: {},
-                categories: [],
-                prices: []
+                categories: []
             },
             taxRates: [],
             manufacturers: [],
@@ -37,16 +36,6 @@ Shopware.Component.register('sw-product-detail', {
             });
 
             return options;
-        },
-
-        priceColumns() {
-            return [
-                { field: 'quantityStart', label: 'Von', type: 'number' },
-                { field: 'quantityEnd', label: 'Bis', type: 'number' },
-                { field: 'price', label: 'Preis', type: 'number' },
-                { field: 'pseudoPrice', label: 'Pseudo Preis', type: 'number' },
-                { field: 'customerGroupId', label: 'Kundengruppe', type: 'select', options: this.customerGroupOptions }
-            ];
         }
     },
 

@@ -128,24 +128,13 @@ class ProductCalculator
 
     private function getQuantityPrice(int $quantity, ProductBasicStruct $product): ?PriceDefinition
     {
-        $product->getPrices()->sort(
-            function (ProductPriceBasicStruct $a, ProductPriceBasicStruct $b) {
-                return $a->getQuantityStart() < $b->getQuantityStart();
-            }
+        return new PriceDefinition(
+            $product->getPrice(),
+            new TaxRuleCollection([
+                new TaxRule($product->getTax()->getRate()),
+            ]),
+            $quantity,
+            true
         );
-
-        foreach ($product->getPrices() as $price) {
-            if ($price->getQuantityStart() <= $quantity) {
-                return new PriceDefinition(
-                    $price->getPrice(),
-                    new TaxRuleCollection([
-                        new TaxRule($product->getTax()->getRate()),
-                    ]),
-                    $quantity
-                );
-            }
-        }
-
-        return null;
     }
 }

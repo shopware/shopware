@@ -63,7 +63,6 @@ class ProductRepositoryTest extends KernelTestCase
         parent::tearDown();
     }
 
-
     public function testReadAndWriteOfProductManufacturerAssociation()
     {
         $id = Uuid::uuid4();
@@ -204,7 +203,7 @@ class ProductRepositoryTest extends KernelTestCase
             ['id' => $parentId, 'name' => 'master']
         ];
 
-        for ($i = 0; $i < 99; $i++) {
+        for ($i = 0; $i < 39; $i++) {
             $categories[] = [
                 'id' => Uuid::uuid4()->toString(),
                 'name' => 'test' . $i,
@@ -233,10 +232,7 @@ class ProductRepositoryTest extends KernelTestCase
         $detail = $this->container->get(ProductRepository::class)
             ->readDetail([$id], TranslationContext::createDefaultContext());
         
-        echo '<pre>';
-        print_r($detail->getAllCategories()->count());
-        exit();
-
+        $this->assertCount(40, $detail->getAllCategories());
     }
 }
 

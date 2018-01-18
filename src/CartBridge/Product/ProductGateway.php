@@ -28,7 +28,6 @@ namespace Shopware\CartBridge\Product;
 use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Product\Collection\ProductPriceBasicCollection;
 use Shopware\Api\Product\Repository\ProductRepository;
-use Shopware\Api\Product\Struct\ProductBasicStruct;
 use Shopware\Context\Struct\ShopContext;
 
 class ProductGateway implements ProductGatewayInterface
@@ -45,32 +44,6 @@ class ProductGateway implements ProductGatewayInterface
 
     public function get(array $numbers, ShopContext $context): ProductBasicCollection
     {
-        $products = $this->repository->readBasic(
-            $numbers,
-            $context->getTranslationContext()
-        );
-
-        foreach ($products as $product) {
-            $product->setPrices(
-                $this->filterCustomerGroupPrices($product, $context)
-            );
-        }
-
-        return $products;
-    }
-
-    private function filterCustomerGroupPrices(ProductBasicStruct $product, ShopContext $context): ProductPriceBasicCollection
-    {
-        $customerPrices = $product->getPrices()->filterByCustomerGroupId(
-            $context->getCurrentCustomerGroup()->getId()
-        );
-
-        if ($customerPrices->count() > 0) {
-            return $customerPrices;
-        }
-
-        return $product->getPrices()->filterByCustomerGroupId(
-            $context->getFallbackCustomerGroup()->getId()
-        );
+        return $this->repository->readBasic($numbers, $context->getTranslationContext());
     }
 }

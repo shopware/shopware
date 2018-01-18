@@ -37,7 +37,7 @@
                                 {% endblock %}
 
                                 {% block core_product_list_grid_columns_price %}
-                                    <sw-grid-column flex="100px" label="Price">{{ item.listingPrices[0].price | currency }}</sw-grid-column>
+                                    <sw-grid-column flex="100px" label="Price">{{ item.price | currency }}</sw-grid-column>
                                 {% endblock %}
 
                                 {% block core_product_list_grid_columns_stock %}

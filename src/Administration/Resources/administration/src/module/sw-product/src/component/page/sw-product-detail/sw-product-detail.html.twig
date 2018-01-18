@@ -47,11 +47,6 @@
 
         <sw-product-basic-form :product="product" :manufacturers="manufacturers" :isWorking="isWorking" :serviceProvider="categoryService"></sw-product-basic-form>
 
-        <sw-card title="Preise">
-            <sw-form-grid :columns="priceColumns" :items="product.prices"></sw-form-grid>
-            <sw-loader v-if="isWorking"></sw-loader>
-        </sw-card>
-
         {% block core_product_detail_workspace_additional %}{% endblock %}
     </div>
 </sw-workspace>

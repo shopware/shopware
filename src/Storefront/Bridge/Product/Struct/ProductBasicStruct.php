@@ -7,6 +7,7 @@ use Shopware\Api\Product\Struct\ProductBasicStruct as ApiBasicStruct;
 use Shopware\Api\Product\Struct\ProductListingPriceBasicStruct;
 use Shopware\Api\Product\Struct\ProductMediaBasicStruct;
 use Shopware\Api\Product\Struct\ProductPriceBasicStruct;
+use Shopware\Cart\Price\Struct\Price;
 
 class ProductBasicStruct extends ApiBasicStruct
 {
@@ -14,6 +15,11 @@ class ProductBasicStruct extends ApiBasicStruct
      * @var ProductMediaBasicCollection
      */
     protected $media;
+
+    /**
+     * @var Price
+     */
+    protected $calculatedPrice;
 
     public function getCover(): ?ProductMediaBasicStruct
     {
@@ -34,42 +40,6 @@ class ProductBasicStruct extends ApiBasicStruct
         $this->media = $media;
     }
 
-    public function displayFromPrice(): bool
-    {
-        return $this->getListingPrice()->getDisplayFromPrice();
-    }
-
-    public function getListingPrice(): ProductListingPriceBasicStruct
-    {
-        if ($this->listingPrices->count() > 0) {
-            return $this->listingPrices->first();
-        }
-        $price = ProductListingPriceBasicStruct::createFrom(
-            $this->getPrices()->last()
-        );
-        $price->setDisplayFromPrice(
-            $this->getPrices()->count() > 1
-        );
-
-        return $price;
-    }
-
-    public function getPrice(int $quantity): ?ProductPriceBasicStruct
-    {
-        foreach ($this->getPrices() as $price) {
-            if ($price->getQuantityStart() > $quantity) {
-                continue;
-            }
-            if ($price->getQuantityEnd() !== null && $price->getQuantityEnd() < $quantity) {
-                continue;
-            }
-
-            return $price;
-        }
-
-        return null;
-    }
-
     public function isAvailable(): bool
     {
         if (!$this->getIsCloseout()) {
@@ -77,5 +47,15 @@ class ProductBasicStruct extends ApiBasicStruct
         }
 
         return $this->getStock() >= $this->getMinPurchase();
+    }
+
+    public function getCalculatedPrice(): Price
+    {
+        return $this->calculatedPrice;
+    }
+
+    public function setCalculatedPrice(Price $calculatedPrice): void
+    {
+        $this->calculatedPrice = $calculatedPrice;
     }
 }

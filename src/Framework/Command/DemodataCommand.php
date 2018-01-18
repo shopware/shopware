@@ -4,14 +4,14 @@ namespace Shopware\Framework\Command;
 
 use Faker\Factory;
 use Faker\Generator;
-use Shopware\Api\Category\Repository\CategoryRepository;
-use Shopware\Api\Customer\Repository\CustomerRepository;
+use Shopware\Api\Category\Definition\CategoryDefinition;
+use Shopware\Api\Customer\Definition\CustomerDefinition;
+use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Product\Definition\ProductDefinition;
-use Shopware\Api\Product\Repository\ProductManufacturerRepository;
+use Shopware\Api\Product\Definition\ProductManufacturerDefinition;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Defaults;
-use Shopware\Storefront\Context\StorefrontContextService;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -27,14 +27,21 @@ class DemodataCommand extends ContainerAwareCommand
     private $faker;
 
     /**
-     * @var TranslationContext
-     */
-    private $context;
-
-    /**
      * @var SymfonyStyle
      */
     private $io;
+
+    /**
+     * @var EntityWriterInterface
+     */
+    private $writer;
+
+    public function __construct(?string $name = null, EntityWriterInterface $writer)
+    {
+        parent::__construct($name);
+        $this->writer = $writer;
+    }
+
 
     protected function configure()
     {
@@ -67,14 +74,13 @@ class DemodataCommand extends ContainerAwareCommand
 
     private function getContext()
     {
-        return $this->context ?? $this->context = new TranslationContext('FFA32A50-E2D0-4CF3-8389-A53F8D6CD594', true, null);
+        return WriteContext::createFromTranslationContext(
+            TranslationContext::createDefaultContext()
+        );
     }
 
     private function createCategory($count = 10)
     {
-        $this->io->section("Generating {$count} categories...");
-        $this->io->progressStart($count);
-
         $payload = [];
         for ($i = 0; $i < $count; ++$i) {
             $payload[] = [
@@ -82,44 +88,36 @@ class DemodataCommand extends ContainerAwareCommand
                 'name' => $this->faker->words(rand(1, 3), true),
                 'parentId' => 'a1abd0ee-0aa6-4fcd-aef7-25b8b84e5943',
             ];
-            $this->io->progressAdvance();
         }
-
-        $this->io->progressFinish();
-
-        $this->io->comment('Writing to database...');
-
-        $repository = $this->getContainer()->get(CategoryRepository::class);
-        $repository->upsert($payload, $this->getContext());
-
-        $this->io->note(sprintf('Generating %d sub categories...', $count * 10));
-        $this->io->progressStart($count);
-
-        $childPayload = [];
-        foreach ($payload as $category) {
+        $parents = $payload;
+        foreach ($parents as $category) {
             for ($x = 0; $x < 40; ++$x) {
-                $childPayload[] = [
+                $payload[] = [
                     'id' => $this->faker->uuid,
                     'name' => $this->faker->words(rand(1, 3), true),
                     'parentId' => $category['id'],
                 ];
-                $this->io->progressAdvance();
             }
+        }
+
+        $count = count($payload);
+        $this->io->section("Generating {$count} categories...");
+        $this->io->progressStart($count);
+
+        $chunks = array_chunk($payload, 100);
+        foreach ($chunks as $chunk) {
+            $this->writer->upsert(CategoryDefinition::class, $chunk, $this->getContext());
+            $this->io->progressAdvance(count($chunk));
         }
 
         $this->io->progressFinish();
         $this->io->comment('Writing to database...');
 
-        $repository->upsert($childPayload, $this->getContext());
-
-        return array_merge(array_column($payload, 'id'), array_column($childPayload, 'id'));
+        return array_column($payload, 'id');
     }
 
     private function createCustomer($count = 500)
     {
-        $this->io->section(sprintf('Generating %d customers...', $count));
-        $this->io->progressStart($count);
-
         $number = $this->faker->randomNumber;
         $password = password_hash('shopware', PASSWORD_BCRYPT, ['cost' => 13]);
 
@@ -161,16 +159,13 @@ class DemodataCommand extends ContainerAwareCommand
             $payload[] = $customer;
         }
 
-        $chunkSize = 150;
-        if (count($payload) < $chunkSize) {
-            $chunkSize = count($payload);
-        }
+        $this->io->section(sprintf('Generating %d customers...', count($payload)));
+        $this->io->progressStart(count($payload));
 
-        $chunks = array_chunk($payload, $chunkSize);
-        $repository = $this->getContainer()->get(CustomerRepository::class);
+        $chunks = array_chunk($payload, 150);
         foreach ($chunks as $chunk) {
-            $repository->upsert($chunk, $this->getContext());
-            $this->io->progressAdvance($chunkSize);
+            $this->writer->upsert(CustomerDefinition::class, $chunk, $this->getContext());
+            $this->io->progressAdvance(count($chunk));
         }
 
         $this->io->progressFinish();
@@ -179,23 +174,19 @@ class DemodataCommand extends ContainerAwareCommand
 
     private function createProduct(array $categories, array $manufacturer, $count = 500)
     {
-        $x = 0;
         $categoryCount = count($categories) - 1;
         $manufacturerCount = count($manufacturer) - 1;
-        $writer = $this->getContainer()->get('shopware.api.entity_writer');
+        $payload = [];
 
-        $chunkSize = 150;
-        if ($count < $chunkSize) {
-            $chunkSize = $count;
+        $size = 100;
+        if ($size > $count) {
+            $size = $count;
         }
 
         $this->io->section(sprintf('Generating %d products...', $count));
-        $progressbar = $this->io->createProgressBar($count);
-
-        $payload = [];
+        $this->io->progressStart($count);
 
         for ($i = 0; $i < $count; ++$i) {
-
             $payload[] = [
                 'id' => $this->faker->uuid,
                 'price' => mt_rand(1, 1000),
@@ -211,14 +202,14 @@ class DemodataCommand extends ContainerAwareCommand
                 'stock' => $this->faker->randomNumber()
             ];
 
-            if ($i % $chunkSize === 0) {
-                $writer->upsert(ProductDefinition::class, $payload, WriteContext::createFromTranslationContext($this->getContext()));
-                $progressbar->advance($chunkSize);
+            if ($i % $size === 0) {
+                $this->writer->upsert(ProductDefinition::class, $payload, $this->getContext());
+                $this->io->progressAdvance(count($payload));
                 $payload = [];
             }
         }
 
-        $progressbar->finish();
+        $this->io->progressFinish();
     }
 
     private function createManufacturer($count = 50)
@@ -233,15 +224,16 @@ class DemodataCommand extends ContainerAwareCommand
                 'name' => $this->faker->company,
                 'link' => $this->faker->url,
             ];
-            $this->io->progressAdvance();
+        }
+
+        $chunks = array_chunk($payload, 100);
+
+        foreach ($chunks as $chunk) {
+            $this->writer->upsert(ProductManufacturerDefinition::class, $chunk, $this->getContext());
+            $this->io->progressAdvance(count($chunk));
         }
 
         $this->io->progressFinish();
-
-        $this->io->comment('Writing to database...');
-
-        $repository = $this->getContainer()->get(ProductManufacturerRepository::class);
-        $repository->upsert($payload, $this->getContext());
 
         return array_column($payload, 'id');
     }

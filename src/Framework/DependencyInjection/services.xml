@@ -136,6 +136,8 @@
 
         <service class="Shopware\Framework\Command\DemodataCommand" id="shopware.framework.command.demodata_command">
             <tag name="console.command" command="framework:demodata" />
+            <argument>framework:demodata</argument>
+            <argument type="service" id="shopware.api.entity_writer"/>
         </service>
 
     </services>

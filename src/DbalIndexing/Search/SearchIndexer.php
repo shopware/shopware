@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
+use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Context\Struct\TranslationContext;
@@ -108,17 +109,19 @@ class SearchIndexer implements IndexerInterface
         $context = $productEvent->getContext();
         $products = $this->productRepository->readBasic($productEvent->getIds(), $context);
 
+        $queue = new MultiInsertQueryQueue($this->connection, 250, false, true);
         foreach ($products as $product) {
             $keywords = $this->analyzerRegistry->analyze($product, $context);
-            $this->writeKeywords($context, $product->getId(), $keywords, self::TABLE, self::DOCUMENT_TABLE);
+            $this->updateQueryQueue($queue, $context, $product->getId(), $keywords, self::TABLE, self::DOCUMENT_TABLE);
         }
+        $queue->execute();
     }
 
     private function indexContext(TranslationContext $context, \DateTime $timestamp): void
     {
         $criteria = new Criteria();
         $criteria->setOffset(0);
-        $criteria->setLimit(50);
+        $criteria->setLimit(200);
 
         $iterator = new RepositoryIterator($this->productRepository, $context, $criteria);
 
@@ -133,13 +136,17 @@ class SearchIndexer implements IndexerInterface
         $table = $this->indexTableOperator->getIndexName(self::TABLE, $timestamp);
         $documentTable = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp);
 
+        /** @var ProductBasicCollection $products */
         $products = $iterator->fetch();
+
         /** @var ProductSearchResult $products */
         while ($products) {
+            $queue = new MultiInsertQueryQueue($this->connection, 250, false, true);
             foreach ($products as $product) {
                 $keywords = $this->analyzerRegistry->analyze($product, $context);
-                $this->writeKeywords($context, $product->getId(), $keywords, $table, $documentTable);
+                $this->updateQueryQueue($queue, $context, $product->getId(), $keywords, $table, $documentTable);
             }
+            $queue->execute();
 
             $this->eventDispatcher->dispatch(
                 ProgressAdvancedEvent::NAME,
@@ -155,10 +162,14 @@ class SearchIndexer implements IndexerInterface
         );
     }
 
-    private function writeKeywords(TranslationContext $context, string $productId, array $keywords, string $table, string $documentTable)
-    {
-        $queue = new MultiInsertQueryQueue($this->connection, 250, false, true);
-
+    private function updateQueryQueue(
+        MultiInsertQueryQueue $queue,
+        TranslationContext $context,
+        string $productId,
+        array $keywords,
+        string $table,
+        string $documentTable
+    ) {
         $shopId = Uuid::fromString($context->getShopId())->getBytes();
         $productId = Uuid::fromString($productId)->getBytes();
 
@@ -176,7 +187,5 @@ class SearchIndexer implements IndexerInterface
                 'product_id' => $productId,
             ]);
         }
-
-        $queue->execute();
     }
 }

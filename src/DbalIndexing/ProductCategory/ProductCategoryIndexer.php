@@ -110,7 +110,6 @@ class ProductCategoryIndexer implements IndexerInterface
         $categories = $this->fetchCategories($ids);
 
         foreach ($categories as $productId => $mapping) {
-
             $categoryIds = array_filter(explode('||', (string)$mapping['ids']));
             $categoryIds = array_map(
                 function (string $bytes) {

@@ -195,45 +195,6 @@ class ProductRepositoryTest extends KernelTestCase
             $products->getIds()
         );
     }
-
-    public function testPaginatedCategoryAssociation()
-    {
-        $parentId = Uuid::uuid4()->toString();
-        $categories = [
-            ['id' => $parentId, 'name' => 'master']
-        ];
-
-        for ($i = 0; $i < 39; $i++) {
-            $categories[] = [
-                'id' => Uuid::uuid4()->toString(),
-                'name' => 'test' . $i,
-                'parentId' => $parentId
-            ];
-        }
-
-        $this->container->get(CategoryRepository::class)
-            ->create($categories, TranslationContext::createDefaultContext());
-
-        $mapping = array_map(function (array $category) {
-            return ['categoryId' => $category['id']];
-        }, $categories);
-
-        $id = Uuid::uuid4()->toString();
-        $product = [
-            'id' => $id,
-            'name' => 'Test product',
-            'price' => 100,
-            'categories' => $mapping
-        ];
-
-        $this->container->get(ProductRepository::class)
-            ->create([$product], TranslationContext::createDefaultContext());
-
-        $detail = $this->container->get(ProductRepository::class)
-            ->readDetail([$id], TranslationContext::createDefaultContext());
-        
-        $this->assertCount(40, $detail->getAllCategories());
-    }
 }
 
 class CallableClass

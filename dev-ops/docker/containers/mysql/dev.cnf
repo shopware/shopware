@@ -12,3 +12,4 @@ join_buffer_size=256K
 table_open_cache=128
 
 max_connections=10000
+group_concat_max_len=3200000

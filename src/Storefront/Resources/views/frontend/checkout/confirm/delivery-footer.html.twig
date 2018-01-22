@@ -16,12 +16,10 @@
             <b>{% trans from 'frontend/checkout/cart_footer' %}CheckoutDeliveryAddress{% endtrans %}</b>
         </div>
         <div class="shipping-address--content" style="width: 30%; float: left;">
-            {{ location.address.street }}<br>
-            {{ location.address.zipcode }} {{ location.address.city }}<br>
-            {% if location.address.state %} {{ location.address.state.name }}<br>{% endif %}
-            {{ location.country.name }}<br>
+            {{ include('@Storefront/frontend/_includes/address.html.twig', {
+                'address': location.address
+            }) }}
         </div>
-        <br style="clear: both;" />
     </div>
     <div class="delivery-date" style="margin: 20px 16px 16px 16px;">
         <div class="delivery-date--label" style="width: 65%; float: left; text-align: right; margin-right: 5%;">

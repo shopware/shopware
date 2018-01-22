@@ -1,6 +1,5 @@
 import { Module } from 'src/core/shopware';
 import './src/component/page/sw-login';
-import './src/state';
 
 Module.register('sw-login', {
     type: 'core',

@@ -9,7 +9,6 @@ function resolve(dir) {
 
 module.exports = {
     entry: {
-        VueJS: resolve('node_modules') + '/vue/dist/vue.esm.js',
         commons: resolve('src') + '/core/common.js',
         app: resolve('src') + '/app/main.js'
     },
@@ -25,8 +24,6 @@ module.exports = {
         alias: {
             'vue$': 'vue/dist/vue.esm.js',
             'src': resolve('src'),
-            'atom': resolve('src/app/common/atom'),
-            'molecule': resolve('src/app/common/molecule'),
             'module': resolve('src/module'),
             'less': resolve('src/app/assets/less')
         }

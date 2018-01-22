@@ -1,6 +1,5 @@
 import { Module } from 'src/core/shopware';
 import './src/component';
-import './src/state';
 
 Module.register('sw-product', {
     type: 'core',
@@ -45,7 +44,8 @@ Module.register('sw-product', {
     }, {
         path: 'sw.product.create',
         label: 'Produkt anlegen',
-        parent: 'sw.product.index'
+        parent: 'sw.product.index',
+        icon: 'box'
     }],
 
     commands: [{

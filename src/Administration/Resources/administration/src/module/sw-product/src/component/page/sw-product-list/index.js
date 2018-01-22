@@ -1,38 +1,13 @@
-import { Component } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import PaginationMixin from 'src/app/component/mixin/pagination.mixin';
-import utils from 'src/core/service/util.service';
-import './sw-product-list.less';
 import template from './sw-product-list.twig';
+import './sw-product-list.less';
 
 Component.register('sw-product-list', {
-    mixins: [PaginationMixin],
-
-    stateMapping: {
-        state: 'productList'
-    },
-
-    computed: {
-        total() {
-            return this.productList.total;
-        }
-    },
-
-    data() {
-        return {
-            errors: []
-        };
-    },
-
-    created() {
-        this.getProductList({
-            limit: this.limit,
-            offset: this.offset
-        });
-    },
-
-    filters: {
-        currency: utils.currency
-    },
+    mixins: [
+        PaginationMixin,
+        Mixin.getByName('productList')
+    ],
 
     methods: {
         onEdit(product) {

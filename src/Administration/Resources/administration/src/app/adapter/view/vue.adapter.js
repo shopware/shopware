@@ -1,10 +1,15 @@
 /**
  * @module app/adapter/view/vue
  */
-import 'src/app/component/components';
+import Vue from 'vue';
 import VueRouter from 'vue-router';
-import utils from 'src/core/service/util.service';
 import VueMoment from 'vue-moment';
+import VueX from 'vuex';
+import { sync } from 'vuex-router-sync';
+import storeDefinition from 'src/app/store';
+import utils from 'src/core/service/util.service';
+
+import 'src/app/component/components';
 
 /**
  * Contains the global Vue.js components
@@ -17,66 +22,10 @@ const vueComponents = {};
  * @memberOf module:app/adapter/view/vue
  * @param context
  * @param componentFactory
+ * @param stateFactory
  * @returns {VueAdapter}
  */
-export default function VueAdapter(context, componentFactory, stateFactory, Vue) {
-    Vue.use(VueRouter);
-    Vue.use(VueMoment);
-
-    /**
-     * Extend Vue prototype to access super class for component inheritance.
-     */
-    Object.defineProperties(Vue.prototype, {
-        $super: {
-            get() {
-                /**
-                 * Registers a proxy as the $super property on every instance.
-                 * Makes it possible to dynamically access methods of an extended component.
-                 */
-                return new Proxy(this, {
-                    get(target, key) {
-                        /** Fallback method which will be returned if the called method does not exist on a super class. */
-                        function empty() {
-                            utils.warn('View', `The method "${key}" is not defined in any super class.`, target);
-                        }
-
-                        /**
-                         * Recursively search for a method in super classes.
-                         * This enables multi level inheritance.
-                         */
-                        function getSuperMethod(comp, methodName) {
-                            if (comp.extends && comp.extends.methods && comp.extends.methods[methodName]) {
-                                return comp.extends.methods[methodName];
-                            } else if (comp.extends.extends) {
-                                return getSuperMethod(comp.extends, methodName);
-                            }
-
-                            return empty;
-                        }
-
-                        return getSuperMethod(target.constructor.options, key).bind(target);
-                    }
-                });
-            }
-        }
-    });
-
-    Vue.filter('image', (value) => {
-        if (!value) {
-            return '';
-        }
-
-        return `${context.assetsPath}${value}`;
-    });
-
-    Vue.filter('currency', (value, format = 'EUR') => {
-        return utils.currency(value, format);
-    });
-
-    Vue.filter('date', (value) => {
-        return utils.date(value);
-    });
-
+export default function VueAdapter(context, componentFactory, stateFactory) {
     return {
         createInstance,
         initComponents,
@@ -98,13 +47,12 @@ export default function VueAdapter(context, componentFactory, stateFactory, Vue)
      * @returns {Vue}
      */
     function createInstance(renderElement, router, providers) {
+        initPlugins();
+        initFilters();
+        initInheritance();
+
+        const store = initState(router);
         const components = getComponents();
-
-        // We need the store instance to inject it into the Vue constructor
-        const store = stateFactory.initialize(Vue);
-
-        // Enables to see the router changes in VueX
-        stateFactory.mapRouterToState(router);
 
         return new Vue({
             el: renderElement,
@@ -178,6 +126,111 @@ export default function VueAdapter(context, componentFactory, stateFactory, Vue)
      */
     function getComponents() {
         return vueComponents;
+    }
+
+    /**
+     * Initialises all plugins for VueJS
+     *
+     * @private
+     * @memberOf module:app/adapter/view/vue
+     */
+    function initPlugins() {
+        Vue.use(VueRouter);
+        Vue.use(VueX);
+        Vue.use(VueMoment);
+    }
+
+    /**
+     * Initializes the state modules with VueX
+     *
+     * @private
+     * @memberOf module:app/adapter/view/vue
+     * @param router
+     * @returns {Store}
+     */
+    function initState(router) {
+        // We need the store instance to inject it into the Vue constructor
+        const store = new VueX.Store(storeDefinition);
+
+        // Enables to see the router changes in VueX
+        sync(store, router);
+
+        // Add all registered state modules to the VueX store
+        stateFactory.getStateRegistry().forEach((stateModule, name) => {
+            store.registerModule(name, stateModule);
+        });
+
+        return store;
+    }
+
+    /**
+     * Initialises helpful filters for global use
+     *
+     * @private
+     * @memberOf module:app/adapter/view/vue
+     */
+    function initFilters() {
+        Vue.filter('image', (value) => {
+            if (!value) {
+                return '';
+            }
+
+            return `${context.assetsPath}${value}`;
+        });
+
+        Vue.filter('currency', (value, format = 'EUR') => {
+            return utils.currency(value, format);
+        });
+
+        Vue.filter('date', (value) => {
+            return utils.date(value);
+        });
+    }
+
+    /**
+     * Extend Vue prototype to access super class for component inheritance.
+     *
+     * @private
+     * @memberOf module:app/adapter/view/vue
+     */
+    function initInheritance() {
+        Object.defineProperties(Vue.prototype, {
+            $super: {
+                get() {
+                    /**
+                     * Registers a proxy as the $super property on every instance.
+                     * Makes it possible to dynamically access methods of an extended component.
+                     */
+                    return new Proxy(this, {
+                        get(target, key) {
+                            /**
+                             * Fallback method which will be returned
+                             * if the called method does not exist on a super class.
+                             */
+                            function empty() {
+                                utils.warn('View', `The method "${key}" is not defined in any super class.`, target);
+                            }
+
+                            /**
+                             * Recursively search for a method in super classes.
+                             * This enables multi level inheritance.
+                             */
+                            function getSuperMethod(comp, methodName) {
+                                if (comp.extends && comp.extends.methods && comp.extends.methods[methodName]) {
+                                    return comp.extends.methods[methodName];
+                                } else if (comp.extends.extends) {
+                                    return getSuperMethod(comp.extends, methodName);
+                                }
+
+                                return empty;
+                            }
+
+                            return getSuperMethod(target.constructor.options, key).bind(target);
+                        }
+                    });
+                }
+            }
+        });
     }
 
     /**

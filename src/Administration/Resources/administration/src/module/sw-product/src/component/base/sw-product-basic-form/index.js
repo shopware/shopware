@@ -13,11 +13,6 @@ Component.register('sw-product-basic-form', {
             required: true,
             default: []
         },
-        isWorking: {
-            type: Boolean,
-            required: true,
-            default: false
-        },
         serviceProvider: {
             type: Object,
             required: true

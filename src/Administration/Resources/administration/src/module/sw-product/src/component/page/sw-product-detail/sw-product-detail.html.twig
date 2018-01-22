@@ -1,22 +1,22 @@
 <sw-workspace>
-    <header class="toolbar--middle-section" slot="header">
+    <header class="toolbar--middle-section" slot="header" v-if="isLoaded">
         <h1 class="workspace--headline">
             <span v-if="product.name">{{ product.name }} <span v-if="product.manufacturer" class="is--small">von {{ product.manufacturer.name }}</span></span>
             <span v-else class="headline--empty">(neues Produkt)</span>
         </h1>
 
         <div class="toolbar--primary-actions">
-            <sw-button :isDisabled="isWorking" link="sw.product.index">
+            <sw-button :isDisabled="isLoading" link="sw.product.index">
                 Abbrechen
             </sw-button>
 
-            <sw-button :isPrimary="true" :isDisabled="isWorking" @click.prevent="onSave">
+            <sw-button :isPrimary="true" :isDisabled="isLoading" @click.prevent="onSave">
                 Speichern
             </sw-button>
         </div>
     </header>
 
-    <div class="sw-product--detail" slot="default">
+    <div class="sw-product--detail" slot="default" v-if="isLoaded">
         <ul class="container--tabs">
             <li class="tabs--item router-link-active">
                 <a href="#" class="item--link">
@@ -45,8 +45,10 @@
             </li>
         </ul>
 
-        <sw-product-basic-form :product="product" :manufacturers="manufacturers" :isWorking="isWorking" :serviceProvider="categoryService"></sw-product-basic-form>
+        <sw-product-basic-form :product="product" :manufacturers="manufacturers" :serviceProvider="categoryService"></sw-product-basic-form>
 
         {% block core_product_detail_workspace_additional %}{% endblock %}
     </div>
+
+    <sw-loader v-if="isLoading"></sw-loader>
 </sw-workspace>

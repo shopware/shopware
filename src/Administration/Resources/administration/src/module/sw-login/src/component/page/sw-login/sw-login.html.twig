@@ -1,13 +1,14 @@
-<div class="sw-login" style="display: flex; align-items: center; justify-content: center; height:100%;">
-    <sw-card style="width: 400px" title="">
+<div class="sw-login">
+    <sw-card class="sw-login__container" title="">
         <transition name="bounce">
-            <div class="sw-alert sw-alert--warning" v-if="login.message.length && login.error.length">
-                <strong class="sw-alert__title">{{ login.error }}!</strong> {{ login.message }}
+            <div class="sw-alert sw-alert--warning" v-if="message.length && error.length">
+                <strong class="sw-alert__title">{{ error }}!</strong> {{ message }}
             </div>
         </transition>
+
         <form v-on:submit.prevent="loginUserWithPassword">
-            <sw-field v-model="login.username" label="Username" placeholder="Your username..."></sw-field>
-            <sw-field v-model="login.password" label="Password" type="password" placeholder="Your password..."></sw-field>
+            <sw-field v-model="username" label="Username" placeholder="Your username..."></sw-field>
+            <sw-field v-model="password" label="Password" type="password" placeholder="Your password..."></sw-field>
 
             <p class="sw-alert sw-alert--info">
                 <strong class="sw-alert__title">Info</strong>
@@ -18,5 +19,5 @@
         </form>
     </sw-card>
 
-    <sw-loader v-if="login.isWorking"></sw-loader>
+    <sw-loader v-if="isLoading"></sw-loader>
 </div>

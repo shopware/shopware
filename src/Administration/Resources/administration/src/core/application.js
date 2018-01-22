@@ -318,11 +318,14 @@ class ApplicationBootstrapper {
         const router = container.router;
         const view = container.view;
 
-        this.applicationRoot = view.createInstance(
-            '#app',
-            router,
-            this.getContainer('service')
-        );
+        // ToDo: What about async initializers?
+        container.entity.then(() => {
+            this.applicationRoot = view.createInstance(
+                '#app',
+                router,
+                this.getContainer('service')
+            );
+        });
 
         return this;
     }

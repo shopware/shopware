@@ -15,7 +15,7 @@ export default {
 };
 
 /**
- * Registry which holds all component registry
+ * Registry which holds all components
  *
  * @type {Map<any, any>}
  */

@@ -1,20 +1,16 @@
-import { Component } from 'src/core/shopware';
-import ProductDetailRepository from 'src/core/repository/product.detail.repository';
+import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-product-detail.html.twig';
 import './sw-product-detail.less';
 
 Component.register('sw-product-detail', {
     inject: ['categoryService', 'productManufacturerService', 'taxService', 'customerGroupService'],
 
-    mixins: [ProductDetailRepository],
+    mixins: [
+        Mixin.getByName('product')
+    ],
 
     data() {
         return {
-            isWorking: false,
-            product: {
-                attribute: {},
-                categories: []
-            },
             taxRates: [],
             manufacturers: [],
             customerGroups: []
@@ -41,12 +37,10 @@ Component.register('sw-product-detail', {
     },
 
     created() {
-        this.initProduct(this.$route.params.id).then((proxy) => {
-            this.$emit(
-                'core-product-detail:load:after',
-                proxy.data
-            );
-        });
+        if (this.$route.params.id) {
+            this.productId = this.$route.params.id;
+        }
+
         this.getData();
     },
 
@@ -80,27 +74,7 @@ Component.register('sw-product-detail', {
         },
 
         onSave() {
-            this.isWorking = true;
-
-            this.$emit(
-                'core-product-detail:save:before',
-                this
-            );
-
-            this.saveProduct().then((data) => {
-                this.isWorking = false;
-
-                this.$emit(
-                    'core-product-detail:save:after',
-                    data
-                );
-
-                if (!this.$route.params.id && data.id) {
-                    this.$router.push({ path: `/core/product/detail/${data.id}` });
-                }
-            }).catch(() => {
-                this.isWorking = false;
-            });
+            this.saveProduct();
         }
     },
 

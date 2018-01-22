@@ -1,4 +1,7 @@
 /* global Shopware */
+// ToDo: Still race conditions with app and modules
+import 'src/app/state';
+import 'src/app/mixin';
 import 'module';
 
 export default function initializeCoreModules() {

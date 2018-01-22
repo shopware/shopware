@@ -10,6 +10,7 @@ export default {
     warn,
     currency,
     date,
+    deepCopyObject,
     getObjectChangeSet,
     createId: uuidv4,
     isObject,
@@ -20,7 +21,8 @@ export default {
     isFunction,
     isDate,
     isString,
-    capitalizeString
+    capitalizeString,
+    debounce
 };
 
 // Todo: This has an issue when you want to copy into a new object
@@ -171,6 +173,32 @@ function isDate(dateObject) {
  */
 function isString(obj) {
     return (Object.prototype.toString.call(obj) === '[object String]');
+}
+
+let debounceTimeout;
+
+/**
+ * Debounces a function call.
+ *
+ * @param {Function} callback
+ * @param {Number} debounceTime
+ * @returns {Number}
+ */
+function debounce(callback, debounceTime) {
+    window.clearTimeout(debounceTimeout);
+
+    debounceTimeout = window.setTimeout(callback, debounceTime);
+    return debounceTimeout;
+}
+
+/**
+ * Deep copy an object
+ *
+ * @param {Object} copyObject
+ * @returns {Object}
+ */
+function deepCopyObject(copyObject = {}) {
+    return JSON.parse(JSON.stringify(copyObject));
 }
 
 function getObjectChangeSet(baseObject, compareObject) {

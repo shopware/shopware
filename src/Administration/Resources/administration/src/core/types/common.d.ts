@@ -1,5 +1,5 @@
 // Type definition for Shopware Exposed Application
-// Project: Showpare Next
+// Project: Shopware Platform
 
 import Bottle from "bottlejs";
 import Vue from "vue";
@@ -101,6 +101,17 @@ declare namespace Shopware {
         ): string;
     }
 
+    export namespace Mixin {
+        export function register(
+            mixinName: string,
+            mixin: object
+        ): object|boolean;
+
+        export function getByName(
+            mixinName: string
+        ): object|undefined;
+    }
+
     export namespace Utils {
         export function merge(
             target: object,
@@ -153,6 +164,15 @@ declare namespace Shopware {
         export function isDate(
             dateObject: any
         ): boolean;
+
+        export function deepCopyObject(
+            copyObject: object
+        ): object;
+
+        export function debounce(
+            callback: Function,
+            debounceTime: number
+        ): number;
 
         export function getObjectChangeSet(
             baseObject: object,
@@ -262,8 +282,30 @@ declare namespace Shopware {
 
     export namespace State {
         export function register(
-            namespacePath: string,
-            moduleDefinition: object
+            name: string,
+            module: object
         ): boolean
+    }
+
+    export namespace Entity {
+        export function addDefinition(
+            entityName: string,
+            entityDefinition: object
+        ): boolean
+
+        export function getEntityDefinition(
+            entityName: string
+        ): object
+
+        export function getDefinitionRegistry(): Map<any, any>
+
+        export function getRawEntityObject(
+            entityName: string,
+            includeObjectAssociations: boolean
+        ): object
+
+        export function getRequiredProperties(
+            entityName: string
+        ): Array<string>
     }
 }

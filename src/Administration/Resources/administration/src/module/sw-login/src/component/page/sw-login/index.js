@@ -3,13 +3,53 @@ import template from './sw-login.html.twig';
 import './sw-login.less';
 
 Component.register('sw-login', {
-    stateMapping: {
-        state: 'login'
+    data() {
+        return {
+            isLoading: false
+        };
     },
 
-    watch: {
-        'login.token'() {
-            if (!this.login.token.length || this.login.expiry === -1) {
+    computed: {
+        username: {
+            get() {
+                return this.$store.state.login.username;
+            },
+            set(value) {
+                this.$store.commit('login/setUserName', value);
+            }
+        },
+        password: {
+            get() {
+                return this.$store.state.login.password;
+            },
+            set(value) {
+                this.$store.commit('login/setUserPassword', value);
+            }
+        },
+        error() {
+            return this.$store.state.login.error;
+        },
+        message() {
+            return this.$store.state.login.message;
+        }
+    },
+
+    methods: {
+        loginUserWithPassword() {
+            this.isLoading = true;
+
+            return this.$store.dispatch('login/loginUserWithPassword').then((success) => {
+                this.isLoading = false;
+
+                if (success === true) {
+                    this.forwardLogin();
+                }
+            });
+        },
+
+        forwardLogin() {
+            if (!this.$store.state.login.token.length ||
+                this.$store.state.login.expiry === -1) {
                 return;
             }
 

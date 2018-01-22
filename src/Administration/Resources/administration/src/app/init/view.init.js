@@ -1,5 +1,4 @@
 /* global Shopware */
-
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
 import ViewFactory from 'src/core/factory/view.factory';
 
@@ -15,8 +14,7 @@ export default function initializeView(container) {
     const adapter = VueAdapter(
         container.contextService,
         factoryContainer.component,
-        factoryContainer.state,
-        factoryContainer.vue
+        factoryContainer.state
     );
     const viewFactory = ViewFactory(adapter);
 

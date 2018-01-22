@@ -22,11 +22,20 @@ export const Template = {
 export const Application = Shopware.Application;
 
 export const State = {
-    mapActions: Shopware.State.mapActions,
-    mapState: Shopware.State.mapState,
-    mapMutations: Shopware.State.mapMutations,
-    mapGetters: Shopware.State.mapGetters,
     register: Shopware.State.register
+};
+
+export const Mixin = {
+    register: Shopware.Mixin.register,
+    getByName: Shopware.Mixin.getByName
+};
+
+export const Entity = {
+    addDefinition: Shopware.Entity.addDefinition,
+    getDefinition: Shopware.Entity.getDefinition,
+    getDefinitionRegistry: Shopware.Entity.getDefinitionRegistry,
+    getRawEntityObject: Shopware.Entity.getRawEntityObject,
+    getRequiredProperties: Shopware.Entity.getRequiredProperties
 };
 
 export default {
@@ -34,5 +43,7 @@ export default {
     Component,
     Template,
     Application,
-    State
+    State,
+    Mixin,
+    Entity
 };

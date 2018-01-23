@@ -27,6 +27,7 @@
       background: #fafafa;
     }
   </style>
+  <style> .swagger-ui .scheme-container, .swagger-ui .topbar { display: none !important; } </style>
 </head>
 
 <body>
@@ -77,9 +78,13 @@ window.onload = function() {
     url: "{{ url('api_info', {'format': 'yaml'}) }}",
     dom_id: '#swagger-ui',
     deepLinking: true,
+    displayOperationId: true,
+    docExpansion: 'list',
+    validatorUrl: null,
+    defaultModelsExpandDepth: -1,
     presets: [
       SwaggerUIBundle.presets.apis,
-      SwaggerUIStandalonePreset
+      SwaggerUIStandalonePreset,
     ],
     plugins: [
       SwaggerUIBundle.plugins.DownloadUrl

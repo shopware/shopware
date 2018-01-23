@@ -114,11 +114,11 @@ class ShopDefinition extends EntityDefinition
             (new OneToManyAssociationField('mailAttachments', MailAttachmentDefinition::class, 'shop_id', false, 'id'))->setFlags(new WriteOnly()),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'shop_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new OneToManyAssociationField('productSearchKeywords', ProductSearchKeywordDefinition::class, 'shop_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
-            (new OneToManyAssociationField('productSeoCategories', ProductSeoCategoryDefinition::class, 'shop_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'shop_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('templateConfigFormFieldValues', ShopTemplateConfigFormFieldValueDefinition::class, 'shop_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('snippets', SnippetDefinition::class, 'shop_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            (new ManyToManyAssociationField('productSeoCategories', CategoryDefinition::class, ProductSeoCategoryDefinition::class, false, 'shop_id', 'id', 'productSeoCategories'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new ManyToManyAssociationField('currencies', CurrencyDefinition::class, ShopCurrencyDefinition::class, false, 'shop_id', 'currency_id', 'currencyIds'))->setFlags(new CascadeDelete()),
         ]);
 

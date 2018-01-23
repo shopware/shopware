@@ -55,7 +55,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 'version' => '1.0.0',
             ],
             'security' => [
-                ['bearerAuth' => new \StdClass()],
+                ['bearerAuth' => []],
             ],
             'tags' => [
                 ['name' => 'Auth', 'description' => 'Endpoint for consumer authentication.'],
@@ -64,9 +64,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 '/auth' => $this->getAuthPath(),
             ],
             'components' => [
-                'schemas' => [
-                    'auth' => $this->getAuthSchema(),
-                ],
+                'schemas' => $this->getDefaultSchemas(),
                 'securitySchemes' => [
                     'bearerAuth' => [
                         'type' => 'http',
@@ -199,6 +197,13 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return $name;
     }
 
+    private function convertToOperationId(string $name): string
+    {
+        $name = ucfirst($this->convertToHumanReadable($name));
+
+        return str_replace(' ', '', $name);
+    }
+
     private function getType(Field $field): string
     {
         switch (true) {
@@ -292,33 +297,23 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $schema = [
             $schemaName => [
                 'allOf' => [
-                    ['$ref' => 'http://jsonapi.org/schema#/definitions/resource'],
+                    ['$ref' => '#/components/schemas/resource'],
                     [
                         'type' => 'object',
                         'properties' => [
                             'type' => ['example' => $definition::getEntityName()],
                             'id' => ['example' => $uuid],
                             'attributes' => [
-                                'allOf' => [
-                                    ['$ref' => 'http://jsonapi.org/schema#/definitions/attributes'],
-                                    [
-                                        'type' => 'object',
-                                        'required' => $requiredAttributes,
-                                        'properties' => $attributes,
-                                    ],
-                                ],
+                                'type' => 'object',
+                                'required' => $requiredAttributes,
+                                'properties' => $attributes,
                             ],
                             'links' => [
-                                'allOf' => [
-                                    ['$ref' => 'http://jsonapi.org/schema#/definitions/links'],
-                                    [
-                                        'type' => 'object',
-                                        'properties' => [
-                                            'self' => [
-                                                'type' => 'string',
-                                                'example' => $detailPath,
-                                            ],
-                                        ],
+                                'properties' => [
+                                    'self' => [
+                                        'type' => 'string',
+                                        'format' => 'uri-reference',
+                                        'example' => $detailPath,
                                     ],
                                 ],
                             ],
@@ -331,6 +326,27 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         if (count($relationships)) {
             $schema[$schemaName]['allOf'][1]['properties']['relationships']['properties'] = $relationships;
         }
+
+        $attributes = array_merge(['id' => ['type' => 'string', 'format' => 'uuid']], $attributes);
+
+        foreach ($relationships as $property => $relationship) {
+            $relationshipData = $relationship['properties']['data'];
+            $type = $relationshipData['type'];
+
+            if ($type === 'object') {
+                $entity = $relationshipData['properties']['type']['example'];
+            } elseif ($type === 'array') {
+                $entity = $relationshipData['items']['properties']['type']['example'];
+            }
+
+            $attributes[$property] = ['$ref' => '#/components/schemas/' . $entity . '_basic_flat'];
+        }
+
+        $schema[$schemaName . '_flat'] = [
+            'type' => 'object',
+            'properties' => $attributes,
+            'required' => $requiredAttributes,
+        ];
 
         return $schema;
     }
@@ -353,20 +369,35 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 'summary' => 'List with basic information of ' . $humanReadableName . ' resources',
                 'tags' => [$humanReadableName],
                 'parameters' => $this->getDefaultListingParameter(),
+                'operationId' => 'get' . $this->convertToOperationId($definition::getEntityName()) . 'List',
                 'responses' => [
                     Response::HTTP_OK => [
                         'description' => 'List of ' . $humanReadableName . ' resources.',
                         'content' => [
                             'application/json' => [
                                 'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'total' => ['type' => 'integer'],
+                                        'data' => [
+                                            'type' => 'array',
+                                            'items' => [
+                                                '$ref' => '#/components/schemas/' . $schemaName . '_flat',
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'application/vnd.api+json' => [
+                                'schema' => [
                                     'allOf' => [
-                                        ['$ref' => 'http://jsonapi.org/schema#/definitions/success'],
+                                        ['$ref' => '#/components/schemas/success'],
                                         [
                                             'type' => 'object',
                                             'properties' => [
                                                 'data' => [
                                                     'allOf' => [
-                                                        ['$ref' => 'http://jsonapi.org/schema#/definitions/data'],
+                                                        ['$ref' => '#/components/schemas/data'],
                                                         [
                                                             'type' => 'array',
                                                             'items' => [
@@ -377,7 +408,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                                                 ],
                                                 'links' => [
                                                     'allOf' => [
-                                                        ['$ref' => 'http://jsonapi.org/schema#/definitions/pagination'],
+                                                        ['$ref' => '#/components/schemas/pagination'],
                                                         [
                                                             'type' => 'object',
                                                             'properties' => [
@@ -401,11 +432,25 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             ],
             'post' => [
                 'summary' => 'Create a new ' . $humanReadableName . ' resources',
+                'description' => 'Create a new ' . $humanReadableName . ' resources. All required fields must be provided in order to create a new resource successfully.',
                 'tags' => [$humanReadableName],
+                'operationId' => 'create' . $this->convertToOperationId($definition::getEntityName()),
+                'parameters' => [
+                    [
+                        'name' => '_response',
+                        'in' => 'query',
+                        'schema' => ['type' => 'string', 'enum' => ['basic', 'detail']],
+                        'description' => 'Data format for response. Empty if none is provided.'
+                    ]
+                ],
                 'requestBody' => [
-                    'description' => 'Create a new ' . $humanReadableName . ' resources. All required fields must be provided in order to create a new resource successfully.',
                     'content' => [
                         'application/json' => [
+                            'schema' => [
+                                '$ref' => '#/components/schemas/' . $definition::getEntityName() . '_detail_flat',
+                            ],
+                        ],
+                        'application/vnd.api+json' => [
                             'schema' => [
                                 '$ref' => '#/components/schemas/' . $definition::getEntityName() . '_detail',
                             ],
@@ -413,8 +458,8 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                     ],
                 ],
                 'responses' => [
-                    Response::HTTP_OK => $this->getDetailResponse($schemaName),
-                    Response::HTTP_BAD_REQUEST => $this->getDetailResponse($schemaName),
+                    Response::HTTP_CREATED => $this->getDetailResponse($definition::getEntityName() . '_detail'),
+                    Response::HTTP_BAD_REQUEST => $this->getResponseRef((string) Response::HTTP_BAD_REQUEST),
                     Response::HTTP_UNAUTHORIZED => $this->getResponseRef((string) Response::HTTP_UNAUTHORIZED),
                 ],
             ],
@@ -436,19 +481,27 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $schemaName = $definition::getEntityName() . '_detail';
         $path = $this->getResourceUri($definition) . '/{id}';
 
+        $responseDataParameter = [
+            'name' => '_response',
+            'in' => 'query',
+            'schema' => ['type' => 'string', 'enum' => ['basic', 'detail']],
+            'description' => 'Data format for response. Empty if none is provided.'
+        ];
+
+        $idParameter = [
+            'name' => 'id',
+            'in' => 'path',
+            'schema' => ['type' => 'string', 'format' => 'uuid'],
+            'description' => 'Identifier for the ' . $definition::getEntityName(),
+            'required' => true,
+        ];
+
         $openapi['paths'][$path] = [
             'get' => [
                 'summary' => 'Detailed information about a ' . $humanReadableName . ' resource',
+                'operationId' => 'get' . $this->convertToOperationId($definition::getEntityName()),
                 'tags' => [$humanReadableName],
-                'parameters' => [
-                    [
-                        'name' => 'id',
-                        'in' => 'path',
-                        'schema' => ['type' => 'string'],
-                        'description' => 'Identifier for the ' . $definition::getEntityName(),
-                        'required' => true,
-                    ],
-                ],
+                'parameters' => [$idParameter],
                 'responses' => [
                     Response::HTTP_OK => $this->getDetailResponse($schemaName),
                     Response::HTTP_NOT_FOUND => $this->getResponseRef((string) Response::HTTP_NOT_FOUND),
@@ -457,20 +510,13 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             ],
             'patch' => [
                 'summary' => 'Partially update information about a ' . $humanReadableName . ' resource',
+                'operationId' => 'update' . $this->convertToOperationId($definition::getEntityName()),
                 'tags' => [$humanReadableName],
-                'parameters' => [
-                    [
-                        'name' => 'id',
-                        'in' => 'path',
-                        'schema' => ['type' => 'string'],
-                        'description' => 'Identifier for the ' . $definition::getEntityName(),
-                        'required' => true,
-                    ],
-                ],
+                'parameters' => [$idParameter, $responseDataParameter],
                 'requestBody' => [
                     'description' => 'Partially update information about a ' . $humanReadableName . ' resource.',
                     'content' => [
-                        'application/json' => [
+                        'application/vnd.api+json' => [
                             'schema' => [
                                 '$ref' => '#/components/schemas/' . $definition::getEntityName() . '_detail',
                             ],
@@ -485,17 +531,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 ],
             ],
             'delete' => [
+                'operationId' => 'delete' . $this->convertToOperationId($definition::getEntityName()),
                 'summary' => 'Delete a ' . $humanReadableName . ' resource',
                 'tags' => [$humanReadableName],
-                'parameters' => [
-                    [
-                        'name' => 'id',
-                        'in' => 'path',
-                        'schema' => ['type' => 'string'],
-                        'description' => 'Identifier for the ' . $definition::getEntityName(),
-                        'required' => true,
-                    ],
-                ],
+                'parameters' => [$idParameter, $responseDataParameter],
                 'responses' => [
                     Response::HTTP_NO_CONTENT => $this->getResponseRef((string) Response::HTTP_NO_CONTENT),
                     Response::HTTP_NOT_FOUND => $this->getResponseRef((string) Response::HTTP_NOT_FOUND),
@@ -510,43 +549,29 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     private function createToOneLinkage(ManyToOneAssociationField $field, string $basePath): array
     {
         return [
-            'allOf' => [
-                ['$ref' => 'http://jsonapi.org/schema#/definitions/relationships'],
-                [
+            'type' => 'object',
+            'properties' => [
+                'links' => [
                     'type' => 'object',
                     'properties' => [
-                        'links' => [
-                            'allOf' => [
-                                ['$ref' => 'http://jsonapi.org/schema#/definitions/relationshipLinks'],
-                                [
-                                    'type' => 'object',
-                                    'properties' => [
-                                        'related' => [
-                                            'type' => 'string',
-                                            'format' => 'uri-reference',
-                                            'example' => $basePath . '/' . $field->getPropertyName(),
-                                        ],
-                                    ],
-                                ],
-                            ],
+                        'related' => [
+                            'type' => 'string',
+                            'format' => 'uri-reference',
+                            'example' => $basePath . '/' . $field->getPropertyName(),
                         ],
-                        'data' => [
-                            'allOf' => [
-                                ['$ref' => 'http://jsonapi.org/schema#/definitions/linkage'],
-                                [
-                                    'type' => 'object',
-                                    'properties' => [
-                                        'type' => [
-                                            'type' => 'string',
-                                            'example' => $field->getReferenceClass()::getEntityName(),
-                                        ],
-                                        'id' => [
-                                            'type' => 'string',
-                                            'example' => Uuid::uuid4()->toString(),
-                                        ],
-                                    ],
-                                ],
-                            ],
+                    ],
+                ],
+                'data' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'type' => [
+                            'type' => 'string',
+                            'example' => $field->getReferenceClass()::getEntityName(),
+                        ],
+                        'id' => [
+                            'type' => 'string',
+                            'format' => 'uuid',
+                            'example' => Uuid::uuid4()->toString(),
                         ],
                     ],
                 ],
@@ -569,50 +594,30 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         }
 
         return [
-            'allOf' => [
-                ['$ref' => 'http://jsonapi.org/schema#/definitions/relationships'],
-                [
+            'type' => 'object',
+            'properties' => [
+                'links' => [
                     'type' => 'object',
                     'properties' => [
-                        'links' => [
-                            'allOf' => [
-                                ['$ref' => 'http://jsonapi.org/schema#/definitions/relationshipLinks'],
-                                [
-                                    'type' => 'object',
-                                    'properties' => [
-                                        'related' => [
-                                            'type' => 'string',
-                                            'format' => 'uri-reference',
-                                            'example' => $basePath . '/' . $field->getPropertyName(),
-                                        ],
-                                    ],
-                                ],
-                            ],
+                        'related' => [
+                            'type' => 'string',
+                            'format' => 'uri-reference',
+                            'example' => $basePath . '/' . $field->getPropertyName(),
                         ],
-                        'data' => [
-                            'allOf' => [
-                                ['$ref' => 'http://jsonapi.org/schema#/definitions/relationshipToMany'],
-                                [
-                                    'type' => 'array',
-                                    'items' => [
-                                        'allOf' => [
-                                            ['$ref' => 'http://jsonapi.org/schema#/definitions/linkage'],
-                                            [
-                                                'type' => 'object',
-                                                'properties' => [
-                                                    'type' => [
-                                                        'type' => 'string',
-                                                        'example' => $associationEntityName,
-                                                    ],
-                                                    'id' => [
-                                                        'type' => 'string',
-                                                        'example' => Uuid::uuid4()->toString(),
-                                                    ],
-                                                ],
-                                            ],
-                                        ],
-                                    ],
-                                ],
+                    ],
+                ],
+                'data' => [
+                    'type' => 'array',
+                    'items' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'type' => [
+                                'type' => 'string',
+                                'example' => $associationEntityName,
+                            ],
+                            'id' => [
+                                'type' => 'string',
+                                'example' => Uuid::uuid4()->toString(),
                             ],
                         ],
                     ],
@@ -683,25 +688,30 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
     private function createErrorResponse(int $statusCode, string $title, string $description): array
     {
-        return [
-            'description' => $title,
-            'content' => [
-                'application/json' => [
-                    'schema' => [
-                        'allOf' => [
-                            ['$ref' => 'http://jsonapi.org/schema#/definitions/failure'],
-                        ],
-                    ],
-                    'example' => [
-                        'errors' => [
-                            [
-                                'status' => (string) $statusCode,
-                                'title' => $title,
-                                'description' => $description,
+        $schema = [
+            'schema' => [
+                'allOf' => [
+                    ['$ref' => '#/components/schemas/failure'],
+                    [
+                        'example' => [
+                            'errors' => [
+                                [
+                                    'status' => (string) $statusCode,
+                                    'title' => $title,
+                                    'description' => $description,
+                                ],
                             ],
                         ],
                     ],
                 ],
+            ],
+        ];
+
+        return [
+            'description' => $title,
+            'content' => [
+                'application/json' => $schema,
+                'application/vnd.api+json' => $schema,
             ],
         ];
     }
@@ -718,8 +728,13 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             'content' => [
                 'application/json' => [
                     'schema' => [
+                        '$ref' => '#/components/schemas/' . $schemaName . '_flat',
+                    ],
+                ],
+                'application/vnd.api+json' => [
+                    'schema' => [
                         'allOf' => [
-                            ['$ref' => 'http://jsonapi.org/schema#/definitions/success'],
+                            ['$ref' => '#/components/schemas/success'],
                             [
                                 'type' => 'object',
                                 'properties' => [
@@ -767,13 +782,15 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                                         'token' => [
                                             'type' => 'string',
                                             'description' => 'The token that should be used for future requests.',
-                                            'example' => 'eyJhbGciOiJSUzI1NiJ9.eyJyb2xlcyI6WyJJU19BVVRIRU5USUNBVEVEX0ZVTExZIiwiUk9MRV9BRE1JTiJdLCJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNTE0OTAzODA3LCJleHAiOjE1MTQ5MDc0MDd9.b28BFrxJ_g6KvuGwbtI4LdhxBQOs3SEw_gIUD-zD6rzFyekACFwDupCSLX-emFDJb9UztJyugIGpEfdGkwtwUxf_gpHyV85FsfCMFlb00fUpdBXD8pP2qu9oBjVgtcPxLeKolY_OXdCcHR40yu-dnxb853uLnJhOIlPIJYMxayf7XLenYtOtQnJ9W7RlTOBLqFxa_qQqGV7wlhq8JUy9gyfbvxIPFE4hH53wQ4jagO6kUlOFYXKLn9lQrrWOhEMq7YqYImbRuWGu6i5a2sa1-k5BxqlzLR2B5WPteDTa7tDZqZsK1CSma5hz0zbusggg8iycQ-nvecAP9jQ6Z83ZEg',
                                         ],
                                         'expiry' => [
                                             'type' => 'integer',
                                             'description' => 'Datetime as unix time when the token expires',
-                                            'example' => 1514907407,
                                         ],
+                                    ],
+                                    'example' => [
+                                        'token' => 'eyJhbGciOiJSUzI1NiJ9.eyJyb2xlcyI6WyJJU19BVVRIRU5USUNBVEVEX0ZVTExZIiwiUk9MRV9BRE1JTiJdLCJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNTE0OTAzODA3LCJleHAiOjE1MTQ5MDc0MDd9.b28BFrxJ_g6KvuGwbtI4LdhxBQOs3SEw_gIUD-zD6rzFyekACFwDupCSLX-emFDJb9UztJyugIGpEfdGkwtwUxf_gpHyV85FsfCMFlb00fUpdBXD8pP2qu9oBjVgtcPxLeKolY_OXdCcHR40yu-dnxb853uLnJhOIlPIJYMxayf7XLenYtOtQnJ9W7RlTOBLqFxa_qQqGV7wlhq8JUy9gyfbvxIPFE4hH53wQ4jagO6kUlOFYXKLn9lQrrWOhEMq7YqYImbRuWGu6i5a2sa1-k5BxqlzLR2B5WPteDTa7tDZqZsK1CSma5hz0zbusggg8iycQ-nvecAP9jQ6Z83ZEg',
+                                        'expiry' => 1514907407,
                                     ],
                                 ],
                             ],
@@ -783,5 +800,236 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 ],
             ],
         ];
+    }
+
+    private function getDefaultSchemas(): array
+    {
+        $defaults = [
+            'auth' => $this->getAuthSchema(),
+            'success' => [
+                'type' => 'object',
+                'required' => ['data'],
+                'additionalProperties' => false,
+                'properties' => [
+                    'meta' => ['$ref' => '#/components/schemas/meta'],
+                    'links' => [
+                        'description' => 'Link members related to the primary data.',
+                        'allOf' => [
+                            ['$ref' => '#/components/schemas/links'],
+                            ['$ref' => '#/components/schemas/pagination'],
+                        ],
+                    ],
+                    'data' => ['$ref' => '#/components/schemas/data'],
+                    'included' => [
+                        'description' => 'To reduce the number of HTTP requests, servers **MAY** allow responses that include related resources along with the requested primary resources. Such responses are called "compound documents".',
+                        'type' => 'array',
+                        'items' => ['$ref' => '#/components/schemas/resource'],
+                        'uniqueItems' => true,
+                    ],
+                ],
+            ],
+            'failure' => [
+                'type' => 'object',
+                'required' => ['errors'],
+                'additionalProperties' => false,
+                'properties' => [
+                    'meta' => ['$ref' => '#/components/schemas/meta'],
+                    'links' => ['$ref' => '#/components/schemas/links'],
+                    'errors' => [
+                        'type' => 'array',
+                        'items' => ['$ref' => '#/components/schemas/error'],
+                        'uniqueItems' => true,
+                    ],
+                ],
+            ],
+            'info' => [
+                'type' => 'object',
+                'required' => ['meta'],
+                'properties' => [
+                    'meta' => ['$ref' => '#/components/schemas/meta'],
+                    'links' => ['$ref' => '#/components/schemas/links'],
+                    'jsonapi' => ['$ref' => '#/components/schemas/jsonapi'],
+                ],
+            ],
+            'meta' => [
+                'description' => 'Non-standard meta-information that can not be represented as an attribute or relationship.',
+                'type' => 'object',
+                'additionalProperties' => true,
+            ],
+            'data' => [
+                'description' => 'The document\'s "primary data" is a representation of the resource or collection of resources targeted by a request.',
+                'oneOf' => [
+                    ['$ref' => '#/components/schemas/resource'],
+                    [
+                        'description' => 'An array of resource objects, an array of resource identifier objects, or an empty array ([]), for requests that target resource collections.',
+                        'type' => 'array',
+                        'items' => [
+                            '$ref' => '#/components/schemas/resource',
+                        ],
+                        'uniqueItems' => true,
+                    ],
+                ],
+            ],
+            'resource' => [
+                'description' => '"Resource objects" appear in a JSON API document to represent resources.',
+                'type' => 'object',
+                'required' => ['type', 'id'],
+                'properties' => [
+                    'type' => ['type' => 'string'],
+                    'id' => ['type' => 'string'],
+                    'attributes' => ['$ref' => '#/components/schemas/attributes'],
+                    'relationships' => ['$ref' => '#/components/schemas/relationships'],
+                    'links' => ['$ref' => '#/components/schemas/links'],
+                    'meta' => ['$ref' => '#/components/schemas/meta'],
+                ],
+            ],
+            'relationshipLinks' => [
+                'description' => 'A resource object **MAY** contain references to other resource objects ("relationships"). Relationships may be to-one or to-many. Relationships can be specified by including a member in a resource\'s links object.',
+                'type' => 'object',
+                'additionalProperties' => true,
+                'properties' => [
+                    'self' => [
+                        'description' => 'A `self` member, whose value is a URL for the relationship itself (a "relationship URL"). This URL allows the client to directly manipulate the relationship. For example, it would allow a client to remove an `author` from an `article` without deleting the people resource itself.',
+                        '$ref' => '#/components/schemas/link',
+                    ],
+                    'related' => ['$ref' => '#/components/schemas/link'],
+                ],
+            ],
+            'links' => [
+                'type' => 'object',
+                'additionalProperties' => [
+                    '$ref' => '#/components/schemas/link',
+                ],
+            ],
+            'link' => [
+                'description' => 'A link **MUST** be represented as either: a string containing the link\'s URL or a link object.',
+                'oneOf' => [
+                    [
+                        'description' => 'A string containing the link\'s URL.',
+                        'type' => 'string',
+                        'format' => 'uri-reference',
+                    ],
+                    [
+                        'type' => 'object',
+                        'required' => ['href'],
+                        'properties' => [
+                            'href' => [
+                                'description' => 'A string containing the link\'s URL.',
+                                'type' => 'string',
+                                'format' => 'uri-reference',
+                            ],
+                            'meta' => ['$ref' => '#/components/schemas/meta'],
+                        ],
+                    ],
+                ],
+            ],
+            'attributes' => [
+                'description' => 'Members of the attributes object ("attributes") represent information about the resource object in which it\'s defined.',
+                'type' => 'object',
+                'additionalProperties' => true,
+            ],
+            'relationships' => [
+                'description' => 'Members of the relationships object ("relationships") represent references from the resource object in which it\'s defined to other resource objects.',
+                'type' => 'object',
+                'anyOf' => [
+                    ['required' => ['data']],
+                    ['required' => ['meta']],
+                    ['required' => ['links']],
+                    [
+                        'type' => 'object',
+                        'properties' => [
+                            'links' => ['$ref' => '#/components/schemas/relationshipLinks'],
+                            'data' => [
+                                'description' => 'Member, whose value represents "resource linkage".',
+                                'oneOf' => [
+                                    ['$ref' => '#/components/schemas/relationshipToOne'],
+                                    ['$ref' => '#/components/schemas/relationshipToMany'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'additionalProperties' => false,
+            ],
+            'relationshipToOne' => [
+                'description' => 'References to other resource objects in a to-one ("relationship"). Relationships can be specified by including a member in a resource\'s links object.',
+                '$ref' => '#/components/schemas/linkage',
+            ],
+            'relationshipToMany' => [
+                'description' => 'An array of objects each containing \"type\" and \"id\" members for to-many relationships.',
+                'type' => 'array',
+                'items' => [
+                    '$ref' => '#/components/schemas/linkage',
+                ],
+                'uniqueItems' => true,
+            ],
+            'linkage' => [
+                'description' => 'The "type" and "id" to non-empty members.',
+                'type' => 'object',
+                'required' => ['type', 'id'],
+                'properties' => [
+                    'type' => ['type' => 'string'],
+                    'id' => ['type' => 'string', 'format' => 'uuid'],
+                    'meta' => ['$ref' => '#/components/schemas/meta'],
+                ],
+                'additionalProperties' => false,
+            ],
+            'pagination' => [
+                'type' => 'object',
+                'properties' => [
+                    'first' => [
+                        'description' => 'The first page of data',
+                        'type' => 'string',
+                        'format' => 'uri-reference',
+                    ],
+                    'last' => [
+                        'description' => 'The last page of data',
+                        'type' => 'string',
+                        'format' => 'uri-reference',
+                    ],
+                    'prev' => [
+                        'description' => 'The previous page of data',
+                        'type' => 'string',
+                        'format' => 'uri-reference',
+                    ],
+                    'next' => [
+                        'description' => 'The next page of data',
+                        'type' => 'string',
+                        'format' => 'uri-reference',
+                    ],
+                ],
+            ],
+            'jsonapi' => [
+                'description' => 'An object describing the server\'s implementation',
+                'type' => 'object',
+                'properties' => [
+                    'version' => ['type' => 'string'],
+                    'meta' => ['$ref' => '#/components/schemas/meta'],
+                ],
+                'additionalProperties' => false,
+            ],
+            'error' => [
+                'type' => 'object',
+                'properties' => [
+                    'id' => ['type' => 'string', 'description' => 'A unique identifier for this particular occurrence of the problem.'],
+                    'links' => ['$ref' => '#/components/schemas/links'],
+                    'status' => ['type' => 'string', 'description' => 'The HTTP status code applicable to this problem, expressed as a string value.'],
+                    'code' => ['type' => 'string', 'description' => 'An application-specific error code, expressed as a string value.'],
+                    'title' => ['type' => 'string', 'description' => 'A short, human-readable summary of the problem. It **SHOULD NOT** change from occurrence to occurrence of the problem, except for purposes of localization.'],
+                    'detail' => ['type' => 'string', 'description' => 'A human-readable explanation specific to this occurrence of the problem.'],
+                    'source' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'pointer' => ['type' => 'string', 'description' => 'A JSON Pointer [RFC6901] to the associated entity in the request document [e.g. "/data" for a primary data object, or "/data/attributes/title" for a specific attribute].'],
+                            'parameter' => ['type' => 'string', 'description' => 'A string indicating which query parameter caused the error.'],
+                        ],
+                    ],
+                    'meta' => ['$ref' => '#/components/schemas/meta'],
+                ],
+                'additionalProperties' => false,
+            ],
+        ];
+
+        return $defaults;
     }
 }

@@ -24,7 +24,7 @@ class ShopDefinitionTest extends TestCase
     {
         $fields = ShopDefinition::getFields()->filterByFlag(CascadeDelete::class);
         $this->assertEquals(
-            ['configFormFieldValues', 'productSearchKeywords', 'productSeoCategories', 'seoUrls', 'children', 'templateConfigFormFieldValues', 'snippets', 'currencies'],
+            ['configFormFieldValues', 'productSearchKeywords', 'seoUrls', 'children', 'templateConfigFormFieldValues', 'snippets', 'productSeoCategories', 'currencies'],
             $fields->getKeys()
         );
     }

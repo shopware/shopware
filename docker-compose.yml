@@ -8,6 +8,7 @@ services:
     volumes:
       - .:/app
       - ~/.composer/cache:/.composer/cache
+      - ~/.npm:/home/application/.npm
 
   app_mysql:
     build: dev-ops/docker/containers/mysql

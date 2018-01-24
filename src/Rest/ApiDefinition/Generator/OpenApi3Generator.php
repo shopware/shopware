@@ -134,6 +134,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
+            if (preg_match('/^audit_log/', $definition::getEntityName())) {
+                continue;
+            }
+
             /* @var string|EntityDefinition $definition */
             try {
                 $definition::getRepositoryClass();
@@ -149,13 +153,13 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             $relationships = [];
             if (array_key_exists('relationships', $schema)) {
                 foreach ($schema['relationships']['properties'] as $propertyName => $relationship) {
-                    $relationshipData = $relationship['allOf'][1]['properties']['data']['allOf'][1];
+                    $relationshipData = $relationship['properties']['data'];
                     $type = $relationshipData['type'];
 
                     if ($type === 'object') {
                         $entity = $relationshipData['properties']['type']['example'];
                     } elseif ($type === 'array') {
-                        $entity = $relationshipData['items']['allOf'][1]['properties']['type']['example'];
+                        $entity = $relationshipData['items']['properties']['type']['example'];
                     } else {
                         throw new \RuntimeException('Invalid schema detected. Aborting');
                     }
@@ -174,13 +178,13 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                         'format' => 'uuid',
                     ],
                 ],
-                $schema['attributes']['allOf'][1]['properties'],
+                $schema['attributes']['properties'],
                 $relationships
             );
 
             $schemaDefinitions[$definition::getEntityName()] = [
                 'name' => $definition::getEntityName(),
-                'required' => $schema['attributes']['allOf'][1]['required'],
+                'required' => $schema['attributes']['required'],
                 'properties' => $properties,
             ];
         }

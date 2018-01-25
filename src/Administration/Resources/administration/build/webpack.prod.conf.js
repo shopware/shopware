@@ -21,7 +21,7 @@ try {
 
     // add hot-reload related code to entry chunks
     Object.keys(plugins).forEach(function (pluginName) {
-        baseWebpackConfig.entry[pluginName] = plugins[pluginName];
+        baseWebpackConfig.entry[pluginName] = path.join('../../../../', plugins[pluginName]);
     });
 } catch(e) {}
 

@@ -29,6 +29,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\KernelInterface;
+use \Exception;
 
 class AdministrationDumpPluginsCommand extends ContainerAwareCommand
 {
@@ -66,18 +67,33 @@ class AdministrationDumpPluginsCommand extends ContainerAwareCommand
         $plugins = [];
 
         foreach (\AppKernel::getPlugins()->getActivePlugins() as $pluginName => $plugin) {
-            $indexFile = $plugin->getPath() . '/Resources/views/administration/src/index.js';
-            if (!file_exists($indexFile)) {
+            try {
+                $indexFile = $this->kernel->locateResource('@' . $pluginName . '/Resources/views/administration/src/index.js');
+            } catch (Exception $e) {
                 continue;
             }
 
-            $pluginName = $plugin->getName();
-            $plugins[$pluginName] = $indexFile;
+            // return the path relative to the projectdir
+            $plugins[$pluginName] = $this->getPathRelativeToProjectDir($indexFile);
         }
 
         file_put_contents(
             $this->kernel->getCacheDir() . '/../../config_administration_plugins.json',
             json_encode($plugins)
         );
+    }
+
+    /**
+     * return a path relative to the projectdir
+     * @param string $absolute
+     * @return string
+     */
+    private function getPathRelativeToProjectDir(string $absolute): string
+    {
+        $projectDir = $this->kernel->getProjectDir();
+        $relative = str_replace($projectDir, '', $absolute);
+        $relative = ltrim($relative, '/');
+
+        return $relative;
     }
 }

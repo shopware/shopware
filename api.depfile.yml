@@ -1,0 +1,135 @@
+paths:
+  - ./src/Api
+
+exclude_files:
+  - .*test.*
+
+layers:
+      - name: Audit
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Audit\\*
+      - name: Category
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Category\\*
+      - name: Config
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Config\\*
+      - name: Country
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Country\\*
+      - name: Currency
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Currency\\*
+      - name: Customer
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Customer\\*
+      - name: DependencyInjection
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\DependencyInjection\\*
+      - name: Entity
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Entity\\*
+      - name: Listing
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Listing\\*
+      - name: Locale
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Locale\\*
+      - name: Log
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Log\\*
+      - name: Mail
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Mail\\*
+      - name: Media
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Media\\*
+      - name: Order
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Order\\*
+      - name: Payment
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Payment\\*
+      - name: Plugin
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Plugin\\*
+      - name: Product
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Product\\*
+      - name: Seo
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Seo\\*
+      - name: Shipping
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Shipping\\*
+      - name: Shop
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Shop\\*
+      - name: Snippet
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Snippet\\*
+      - name: Tax
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Tax\\*
+      - name: Test
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Test\\*
+      - name: Unit
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\Unit\\*
+      - name: User
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\User\\*
+
+ruleset:
+    Audit:
+    Category:
+    Config:
+    Country:
+    Currency:
+    Customer:
+    DependencyInjection:
+    Entity:
+    Listing:
+    Locale:
+    Log:
+    Mail:
+    Media:
+    Order:
+    Payment:
+    Plugin:
+    Product:
+    Seo:
+    Shipping:
+    Shop:
+    Snippet:
+    Tax:
+    Test:
+    Unit:
+    User:
+

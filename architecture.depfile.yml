@@ -1,0 +1,100 @@
+paths:
+  - ./src
+
+exclude_files:
+  - .*test.*
+
+layers:
+      - name: Administration
+        collectors:
+          - type: className
+            regex: ^Shopware\\Administration\\*
+      - name: Api
+        collectors:
+          - type: className
+            regex: ^Shopware\\Api\\*
+      - name: Audit
+        collectors:
+          - type: className
+            regex: ^Shopware\\Audit\\*
+      - name: Cart
+        collectors:
+          - type: className
+            regex: ^Shopware\\Cart\\*
+      - name: CartBridge
+        collectors:
+          - type: className
+            regex: ^Shopware\\CartBridge\\*
+      - name: Category
+        collectors:
+          - type: className
+            regex: ^Shopware\\Category\\*
+      - name: Context
+        collectors:
+          - type: className
+            regex: ^Shopware\\Context\\*
+      - name: DbalIndexing
+        collectors:
+          - type: className
+            regex: ^Shopware\\DbalIndexing\\*
+      - name: Filesystem
+        collectors:
+          - type: className
+            regex: ^Shopware\\Filesystem\\*
+      - name: Framework
+        collectors:
+          - type: className
+            regex: ^Shopware\\Framework\\*
+      - name: Media
+        collectors:
+          - type: className
+            regex: ^Shopware\\Media\\*
+      - name: Product
+        collectors:
+          - type: className
+            regex: ^Shopware\\Product\\*
+      - name: Rest
+        collectors:
+          - type: className
+            regex: ^Shopware\\Rest\\*
+      - name: Seo
+        collectors:
+          - type: className
+            regex: ^Shopware\\Seo\\*
+      - name: Serializer
+        collectors:
+          - type: className
+            regex: ^Shopware\\Serializer\\*
+      - name: Storefront
+        collectors:
+          - type: className
+            regex: ^Shopware\\Storefront\\*
+      - name: Traceable
+        collectors:
+          - type: className
+            regex: ^Shopware\\Traceable\\*
+      - name: Translation
+        collectors:
+          - type: className
+            regex: ^Shopware\\Translation\\*
+
+ruleset:
+    Administration:
+    Api:
+    Audit:
+    Cart:
+    CartBridge:
+    Category:
+    Context:
+    DbalIndexing:
+    Filesystem:
+    Framework:
+    Media:
+    Product:
+    Rest:
+    Seo:
+    Serializer:
+    Storefront:
+    Traceable:
+    Translation:
+

@@ -35,6 +35,7 @@ use Shopware\Cart\LineItem\NestedInterface;
 use Shopware\Cart\Order\OrderPersisterInterface;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Defaults;
 
 class OrderPersister implements OrderPersisterInterface
 {
@@ -75,7 +76,7 @@ class OrderPersister implements OrderPersisterInterface
             'isNet' => !$this->taxDetector->useGross($context),
             'isTaxFree' => $this->taxDetector->isNetDelivery($context),
             'customerId' => $context->getCustomer()->getId(),
-            'stateId' => 'SWAG-ORDER-STATE-ID-0',
+            'stateId' => Defaults::ORDER_STATE_OPEN,
             'paymentMethodId' => $context->getPaymentMethod()->getId(),
             'currencyId' => $context->getCurrency()->getId(),
             'shopId' => $context->getShop()->getId(),
@@ -190,7 +191,7 @@ class OrderPersister implements OrderPersisterInterface
             'shippingDateLatest' => $delivery->getDeliveryDate()->getLatest()->format('Y-m-d H:i:s'),
             'shippingMethodId' => $delivery->getShippingMethod()->getId(),
             'shippingAddress' => $this->convertAddress($delivery->getLocation()->getAddress()),
-            'orderStateId' => 'SWAG-ORDER-STATE-ID-0',
+            'orderStateId' => Defaults::ORDER_STATE_OPEN,
             'positions' => [],
             'payload' => json_encode($delivery),
         ];

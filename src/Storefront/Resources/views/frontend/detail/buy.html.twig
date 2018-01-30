@@ -36,12 +36,13 @@
                                     {% endif %}
 
                                     {% set purchaseSteps = product.purchaseSteps ?? 1 %}
+                                    {% set minPurchase = product.minPurchase ?? 1 %}
 
                                     {% block frontend_detail_buy_quantity_select %}
                                         <div class="select-field">
                                             <select id="sQuantity" name="quantity" class="quantity--select">
-                                                {% for i in range(product.minPurchase, maxQuantity) %}
-                                                    {% if i == product.minPurchase or purchaseSteps > 0 and i % purchaseSteps == 0 %}
+                                                {% for i in range(minPurchase, maxQuantity) %}
+                                                    {% if i == minPurchase or purchaseSteps > 0 and i % purchaseSteps == 0 %}
                                                         <option value="{{ i }}">{{ i }}{% if product.packUnit %} {{ product.packUnit }}{% endif %}</option>
                                                     {% endif %}
                                                 {% endfor %}

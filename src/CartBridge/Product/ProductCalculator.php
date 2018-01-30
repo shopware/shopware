@@ -89,8 +89,8 @@ class ProductCalculator
                     $price,
                     $identifier,
                     $lineItem->getQuantity(),
-                    $product->getStock(),
-                    $product->getWeight(),
+                    (int) $product->getStock(),
+                    (float) $product->getWeight(),
                     $this->getInstockDeliveryDate(),
                     $this->getOutOfStockDeliveryDate(),
                     null
@@ -125,7 +125,7 @@ class ProductCalculator
         );
     }
 
-    private function getQuantityPrice(int $quantity, ProductBasicStruct $product): ?PriceDefinition
+    private function getQuantityPrice(int $quantity, ProductBasicStruct $product): PriceDefinition
     {
         return new PriceDefinition(
             $product->getPrice(),

@@ -30,6 +30,7 @@ use Shopware\Api\Entity\Write\FieldAware\StorageAware;
 use Shopware\Api\Entity\Write\FieldAware\ValidatorAware;
 use Shopware\Api\Entity\Write\FieldAware\WriteContextAware;
 use Shopware\Api\Entity\Write\FieldException\InvalidFieldException;
+use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\WriteContext;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -86,6 +87,11 @@ class FkField extends Field implements WriteContextAware, ValidatorAware, PathAw
             }
         }
 
+        if ($value === null) {
+            yield $this->storageName => null;
+            return;
+        }
+
         yield $this->storageName => Uuid::fromString($value)->getBytes();
     }
 
@@ -118,7 +124,11 @@ class FkField extends Field implements WriteContextAware, ValidatorAware, PathAw
     private function validate(string $fieldName, $value): void
     {
         $violationList = new ConstraintViolationList();
-        $violations = $this->validator->validate($value, [new NotBlank()]);
+        $constraints = [];
+        if ($this->is(Required::class)) {
+            $constraints[] = new NotBlank();
+        }
+        $violations = $this->validator->validate($value, $constraints);
 
         /** @var ConstraintViolation $violation */
         foreach ($violations as $violation) {

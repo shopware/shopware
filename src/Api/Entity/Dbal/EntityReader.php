@@ -22,7 +22,6 @@ use Shopware\Api\Entity\Write\FieldAware\StorageAware;
 use Shopware\Api\Entity\Write\Flag\Deferred;
 use Shopware\Api\Entity\Write\Flag\Extension;
 use Shopware\Api\Entity\Write\Flag\Inherited;
-use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\Struct;
 
@@ -86,7 +85,7 @@ class EntityReader implements EntityReaderInterface
 
         /** @var EntityDefinition $definition */
         $rows = $this->fetch($ids, $definition, $context, $fields);
-       
+
         foreach ($rows as $row) {
             $collection->add(
                 EntityHydrator::hydrate(clone $entity, $definition, $row, $definition::getEntityName())
@@ -99,7 +98,6 @@ class EntityReader implements EntityReaderInterface
         foreach ($associations as $association) {
             $this->loadManyToOne($definition, $association, $context, $collection);
         }
-
 
         /** @var OneToManyAssociationField[] $associations */
         $associations = $fields->filterInstance(OneToManyAssociationField::class);
@@ -182,7 +180,6 @@ class EntityReader implements EntityReaderInterface
 
             if ($field instanceof StorageAware && $field->is(Inherited::class) && $parent !== null) {
                 $parentAlias = $root . '.' . $parent->getPropertyName();
-
                 $child = EntityDefinitionResolver::escape($root) . '.' . EntityDefinitionResolver::escape($field->getStorageName());
                 $parentField = EntityDefinitionResolver::escape($parentAlias) . '.' . EntityDefinitionResolver::escape($field->getStorageName());
                 $fieldAlias = EntityDefinitionResolver::escape($root . '.' . $field->getPropertyName());
@@ -369,7 +366,7 @@ class EntityReader implements EntityReaderInterface
                     EntityDefinitionResolver::escape($mapping::getEntityName()),
                     EntityDefinitionResolver::escape($field->getMappingLocalColumn()),
                     EntityDefinitionResolver::escape($root),
-                    EntityDefinitionResolver::escape('id'),
+                    EntityDefinitionResolver::escape($field->getSourceColumn()),
                     EntityDefinitionResolver::escape($root . '.' . $field->getPropertyName()),
                 ],
                 '(SELECT GROUP_CONCAT(HEX(#alias#.#mapping_reference_column#) SEPARATOR \'||\')

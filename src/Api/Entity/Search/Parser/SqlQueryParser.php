@@ -31,7 +31,7 @@ class SqlQueryParser
 
             foreach ($parsed->getWheres() as $where) {
                 if ($query->getScoreField()) {
-                    $field = EntityDefinitionResolver::resolveField(
+                    $field = EntityDefinitionResolver::getFieldAccessor(
                         $query->getScoreField(),
                         $definition,
                         $root,
@@ -88,7 +88,7 @@ class SqlQueryParser
 
         $key = self::getKey();
 
-        $field = EntityDefinitionResolver::resolveField($query->getField(), $definition, $root, $context);
+        $field = EntityDefinitionResolver::getFieldAccessor($query->getField(), $definition, $root, $context);
 
         $where = [];
 
@@ -120,7 +120,7 @@ class SqlQueryParser
     {
         $key = self::getKey();
 
-        $field = EntityDefinitionResolver::resolveField($query->getField(), $definition, $root, $context);
+        $field = EntityDefinitionResolver::getFieldAccessor($query->getField(), $definition, $root, $context);
 
         $result = new ParseResult();
         $result->addWhere($field . ' LIKE :' . $key);
@@ -132,7 +132,7 @@ class SqlQueryParser
     private static function parseTermsQuery(TermsQuery $query, string $definition, string $root, TranslationContext $context): ParseResult
     {
         $key = self::getKey();
-        $select = EntityDefinitionResolver::resolveField($query->getField(), $definition, $root, $context);
+        $select = EntityDefinitionResolver::getFieldAccessor($query->getField(), $definition, $root, $context);
         $field = EntityDefinitionResolver::getField($query->getField(), $definition, $root);
 
         $result = new ParseResult();
@@ -160,7 +160,7 @@ class SqlQueryParser
     private static function parseTermQuery(TermQuery $query, string $definition, string $root, TranslationContext $context): ParseResult
     {
         $key = self::getKey();
-        $select = EntityDefinitionResolver::resolveField($query->getField(), $definition, $root, $context);
+        $select = EntityDefinitionResolver::getFieldAccessor($query->getField(), $definition, $root, $context);
         $field = EntityDefinitionResolver::getField($query->getField(), $definition, $root);
 
         $result = new ParseResult();

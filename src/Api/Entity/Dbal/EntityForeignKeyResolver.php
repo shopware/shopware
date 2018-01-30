@@ -114,7 +114,7 @@ class EntityForeignKeyResolver
             $alias = $root . '.' . $cascade->getPropertyName();
 
             if ($cascade instanceof OneToManyAssociationField) {
-                EntityDefinitionResolver::joinOneToMany($root, $cascade, $query);
+                EntityDefinitionResolver::joinOneToMany($definition, $root, $cascade, $query);
 
                 $query->addSelect(
                     'GROUP_CONCAT(HEX(' .
@@ -126,7 +126,7 @@ class EntityForeignKeyResolver
             if ($cascade instanceof ManyToManyAssociationField) {
                 $mappingAlias = $root . '.' . $cascade->getPropertyName() . '.mapping';
 
-                EntityDefinitionResolver::joinManyToMany($root, $cascade, $query);
+                EntityDefinitionResolver::joinManyToMany($definition, $root, $cascade, $query);
 
                 $query->addSelect(
                     'GROUP_CONCAT(HEX(' .

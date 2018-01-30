@@ -287,7 +287,6 @@ class ApiController extends RestController
 
             /** @var RepositoryInterface $repository */
             $repository = $this->get($definition::getRepositoryClass());
-
             $events = $this->executeWriteOperation($definition, $payload, $context, $type);
             $event = $events->getEventByDefinition($definition);
 

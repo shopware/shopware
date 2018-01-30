@@ -5,6 +5,7 @@ namespace Shopware\Api\Entity\Dbal;
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\EntityDefinition;
+use Shopware\Api\Entity\InheritedDefinition;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\IdSearchResult;
@@ -29,6 +30,13 @@ class EntitySearcher implements EntitySearcherInterface
         /** @var EntityDefinition $definition */
         $table = $definition::getEntityName();
         $query = new QueryBuilder($this->connection);
+
+        $instance = new $definition();
+        if ($instance instanceof InheritedDefinition) {
+            /** @var InheritedDefinition|EntityDefinition|string $definition */
+            $parent = $definition::getFields()->get($definition::getParentPropertyName());
+            EntityDefinitionResolver::joinManyToOne($definition, $definition::getEntityName(), $parent, $query);
+        }
 
         //add id select, e.g. `product`.`id`;
         $query->addSelect(
@@ -146,7 +154,7 @@ class EntitySearcher implements EntitySearcherInterface
         /* @var string|EntityDefinition $definition */
         foreach ($criteria->getSortings() as $sorting) {
             $query->addOrderBy(
-                EntityDefinitionResolver::resolveField(
+                EntityDefinitionResolver::getFieldAccessor(
                     $sorting->getField(),
                     $definition,
                     $definition::getEntityName(),
@@ -184,7 +192,7 @@ class EntitySearcher implements EntitySearcherInterface
 
         // each order by column has to be inside the group by statement (sql_mode=only_full_group_by)
         foreach ($criteria->getSortings() as $sorting) {
-            $fields[] = EntityDefinitionResolver::resolveField(
+            $fields[] = EntityDefinitionResolver::getFieldAccessor(
                 $sorting->getField(),
                 $definition,
                 $definition::getEntityName(),

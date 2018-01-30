@@ -31,7 +31,7 @@
             <argument type="tagged" tag="shopware.dbal_indexing.indexer"/>
         </service>
 
-        <service class="Shopware\DbalIndexing\ProductCategory\ProductCategoryIndexer" id="shopware.dbal_indexing.product_category_indexer">
+        <service class="Shopware\DbalIndexing\Product\ProductIndexer" id="shopware.dbal_indexing.product_indexer">
             <tag name="shopware.dbal_indexing.indexer" priority="100"/>
             <argument type="service" id="Shopware\Api\Product\Repository\ProductRepository"/>
             <argument type="service" id="dbal_connection"/>

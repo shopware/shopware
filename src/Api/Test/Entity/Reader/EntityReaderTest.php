@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Test\Entity;
+namespace Shopware\Api\Test\Entity\Reader;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;

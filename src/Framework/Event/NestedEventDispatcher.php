@@ -24,6 +24,7 @@
 
 namespace Shopware\Framework\Event;
 
+use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -42,12 +43,18 @@ class NestedEventDispatcher implements NestedEventDispatcherInterface
 
     public function dispatch($eventName, Event $event = null): Event
     {
-        $result = $this->dispatcher->dispatch($eventName, $event);
+        if (!$event instanceof GenericWrittenEvent) {
+            $result = $this->dispatcher->dispatch($eventName, $event);
+        }
 
         if ($event instanceof NestedEvent && $events = $event->getEvents()) {
             foreach ($events as $nested) {
                 $this->dispatch($nested->getName(), $nested);
             }
+        }
+
+        if ($event instanceof GenericWrittenEvent) {
+            $result = $this->dispatcher->dispatch($eventName, $event);
         }
 
         return $result;

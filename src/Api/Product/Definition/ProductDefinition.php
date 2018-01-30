@@ -17,6 +17,7 @@ use Shopware\Api\Entity\Field\LongTextWithHtmlField;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
+use Shopware\Api\Entity\Field\PriceRulesField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
@@ -80,6 +81,7 @@ class ProductDefinition extends EntityDefinition implements InheritedDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
 
+            //inherited fields
             (new FkField('tax_id', 'taxId', TaxDefinition::class))->setFlags(new Inherited()),
             (new FkField('unit_id', 'unitId', UnitDefinition::class))->setFlags(new Inherited()),
             (new FloatField('price', 'price'))->setFlags(new Inherited()),
@@ -106,10 +108,15 @@ class ProductDefinition extends EntityDefinition implements InheritedDefinition
             (new BoolField('allow_notification', 'allowNotification'))->setFlags(new Inherited()),
             (new DateField('release_date', 'releaseDate'))->setFlags(new Inherited()),
             (new IdField('price_group_id', 'priceGroupId'))->setFlags(new Inherited()),
-            (new IdField('media_join_id', 'mediaJoinId'))->setFlags(new Inherited()),
-
             (new ArrayField('category_tree', 'categoryTree'))->setFlags(new Inherited()),
-            (new ArrayField('prices', 'prices'))->setFlags(new Inherited()),
+            (new PriceRulesField('prices', 'prices'))->setFlags(new Inherited()),
+
+            //Read only join ids for inheritance
+            new IdField('media_join_id', 'mediaJoinId'),
+            new IdField('category_join_id', 'categoryJoinId'),
+            new IdField('manufacturer_join_id', 'manufacturerJoinId'),
+            new IdField('tax_join_id', 'taxJoinId'),
+            new IdField('unit_join_id', 'unitJoinId'),
 
             (new TranslatedField(new StringField('additional_text', 'additionalText')))->setFlags(new Inherited()),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Inherited()),
@@ -119,22 +126,23 @@ class ProductDefinition extends EntityDefinition implements InheritedDefinition
             (new TranslatedField(new StringField('meta_title', 'metaTitle')))->setFlags(new Inherited()),
             (new TranslatedField(new StringField('pack_unit', 'packUnit')))->setFlags(new Inherited()),
 
+            //parent - child inheritance
             new ManyToOneAssociationField('parent', 'parent_id', self::class, true),
             (new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete()),
 
-            (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true))->setFlags(new Inherited()),
-            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true))->setFlags(new Inherited()),
-            (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, true))->setFlags(new Inherited()),
-
+            //inherited associations
+            (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true, 'id', 'tax_join_id'))->setFlags(new Inherited()),
+            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true, 'id', 'manufacturer_join_id'))->setFlags(new Inherited()),
+            (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, true, 'id', 'unit_join_id'))->setFlags(new Inherited()),
             (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false, 'media_join_id'))->setFlags(new CascadeDelete(), new Inherited()),
-            (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, false, 'product_id', 'category_id', 'categoryIds'))->setFlags(new CascadeDelete(), new Inherited()),
+            (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, false, 'product_id', 'category_id', 'categoryIds', 'category_join_id'))->setFlags(new CascadeDelete(), new Inherited()),
 
+            //not inherited associations
             (new ManyToManyAssociationField('seoCategories', CategoryDefinition::class, ProductSeoCategoryDefinition::class, false, 'product_id', 'category_id', 'seoCategoryIds'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('tabs', ProductStreamDefinition::class, ProductStreamTabDefinition::class, false, 'product_id', 'product_stream_id', 'tabIds'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('streams', ProductStreamDefinition::class, ProductStreamAssignmentDefinition::class, false, 'product_id', 'product_stream_id', 'streamIds'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', ProductTranslationDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
-
         ]);
 
         foreach (self::$extensions as $extension) {

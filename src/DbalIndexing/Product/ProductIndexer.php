@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\DbalIndexing\ProductCategory;
+namespace Shopware\DbalIndexing\Product;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
@@ -9,6 +9,10 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Product\Definition\ProductCategoryDefinition;
+use Shopware\Api\Product\Definition\ProductDefinition;
+use Shopware\Api\Product\Definition\ProductMediaDefinition;
+use Shopware\Api\Product\Event\Product\ProductWrittenEvent;
+use Shopware\Api\Product\Event\ProductMedia\ProductMediaWrittenEvent;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Shop\Repository\ShopRepository;
 use Shopware\Api\Shop\Struct\ShopBasicStruct;
@@ -22,7 +26,7 @@ use Shopware\DbalIndexing\Indexer\IndexerInterface;
 use Shopware\Defaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ProductCategoryIndexer implements IndexerInterface
+class ProductIndexer implements IndexerInterface
 {
     /**
      * @var ProductRepository
@@ -79,6 +83,8 @@ class ProductCategoryIndexer implements IndexerInterface
         );
 
         while ($ids = $iterator->fetchIds()) {
+            $this->refreshJoinIds($ids);
+
             $this->indexCategoryAssignment($ids);
 
             $this->eventDispatcher->dispatch(
@@ -95,18 +101,21 @@ class ProductCategoryIndexer implements IndexerInterface
 
     public function refresh(GenericWrittenEvent $event): void
     {
-        $productIds = $this->getRefreshedProductIds($event);
-        if (empty($productIds)) {
-            return;
-        }
+        $this->refreshJoinIdsByEvents($event);
 
-        $this->connection->transactional(function () use ($productIds) {
-            $this->indexCategoryAssignment($productIds);
+        $this->connection->transactional(function() use ($event) {
+            $this->indexCategoryAssignment(
+                $this->getRefreshedProductIds($event)
+            );
         });
     }
 
     private function indexCategoryAssignment(array $ids): void
     {
+        if (empty($ids)) {
+            return;
+        }
+
         $categories = $this->fetchCategories($ids);
 
         foreach ($categories as $productId => $mapping) {
@@ -141,7 +150,7 @@ class ProductCategoryIndexer implements IndexerInterface
             "GROUP_CONCAT(HEX(category.id) SEPARATOR '||') as ids",
         ]);
         $query->from('product');
-        $query->leftJoin('product', 'product_category', 'mapping', 'mapping.product_id = product.id');
+        $query->leftJoin('product', 'product_category', 'mapping', 'mapping.product_id = product.category_join_id');
         $query->leftJoin('mapping', 'category', 'category', 'category.id = mapping.category_id');
         $query->addGroupBy('product.id');
         $query->andWhere('product.id IN (:ids)');
@@ -177,5 +186,91 @@ class ProductCategoryIndexer implements IndexerInterface
         $result = $this->shopRepository->search($criteria, TranslationContext::createDefaultContext());
 
         return $result->first();
+    }
+
+    private function refreshJoinIds(array $ids = [])
+    {
+        if (empty($ids)) {
+            $this->connection->executeUpdate(
+                'UPDATE product SET 
+                product.category_join_id = IFNULL((SELECT product_category.product_id FROM product_category WHERE product_category.product_id = product.id LIMIT 1), product.parent_id),
+                product.media_join_id    = IFNULL((SELECT product_media.product_id FROM product_media WHERE product_media.product_id = product.id LIMIT 1), product.parent_id)'
+            );
+
+            $this->connection->executeUpdate(
+                'UPDATE product as variant, product as parent
+                 SET
+                    variant.tax_join_id = IFNULL(variant.tax_id, parent.tax_id),
+                    variant.manufacturer_join_id = IFNULL(variant.product_manufacturer_id, parent.product_manufacturer_id),
+                    variant.unit_join_id = IFNULL(variant.unit_id, parent.unit_id)
+                 WHERE (variant.parent_id = parent.id OR variant.parent_id IS NULL)'
+            );
+
+            return;
+        }
+        $bytes = array_map(function($id) {
+            return Uuid::fromString($id)->getBytes();
+        }, $ids);
+
+        $this->connection->executeUpdate(
+            'UPDATE product SET 
+                product.category_join_id = IFNULL((SELECT product_category.product_id FROM product_category WHERE product_category.product_id = product.id LIMIT 1), product.parent_id),
+                product.media_join_id    = IFNULL((SELECT product_media.product_id FROM product_media WHERE product_media.product_id = product.id LIMIT 1), product.parent_id)
+            WHERE product.id IN (:ids)',
+            ['ids' => $bytes],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+
+        $this->connection->executeUpdate(
+            'UPDATE product as variant, product as parent
+             SET
+                variant.tax_join_id = IFNULL(variant.tax_id, parent.tax_id),
+                variant.manufacturer_join_id = IFNULL(variant.product_manufacturer_id, parent.product_manufacturer_id),
+                variant.unit_join_id = IFNULL(variant.unit_id, parent.unit_id)
+             WHERE (variant.parent_id = parent.id OR variant.parent_id IS NULL)
+             AND variant.id IN (:ids)',
+            ['ids' => $bytes],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+    }
+
+    private function refreshJoinIdsByEvents(GenericWrittenEvent $event)
+    {
+        /** @var ProductWrittenEvent|null $productWritten */
+        $productWritten = $event->getEventByDefinition(ProductDefinition::class);
+
+        $categoryWritten = $event->getEventByDefinition(ProductCategoryDefinition::class);
+
+        $ids = $productWritten ? $productWritten->getIds() : [];
+
+        if ($categoryWritten) {
+            $ids = array_merge($ids, array_column($categoryWritten->getIds(), 'productId'));
+        }
+
+        $ids = array_filter(array_unique($ids));
+        $this->refreshJoinIds($ids);
+
+        /** @var ProductMediaWrittenEvent|null $mediaWritten */
+        $mediaWritten = $event->getEventByDefinition(ProductMediaDefinition::class);
+        
+        if ($mediaWritten) {
+            $this->mediaWritten($mediaWritten->getIds());
+        }
+    }
+
+    private function mediaWritten(array $mediaIds)
+    {
+        $bytes = array_map(function($id) {
+            return Uuid::fromString($id)->getBytes();
+        }, $mediaIds);
+
+        $this->connection->executeUpdate('
+            UPDATE product, product_media
+            SET product.media_join_id = product_media.product_id
+            WHERE product_media.id IN (:ids)
+            AND product_media.product_id = product.id',
+            ['ids' => $bytes],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
     }
 }

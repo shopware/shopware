@@ -96,7 +96,7 @@ class CategoryDefinition extends EntityDefinition
             (new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', CategoryTranslationDefinition::class, 'category_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('shops', ShopDefinition::class, 'category_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'productIds'))->setFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'productIds', 'id', 'category_join_id'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('seoProducts', ProductDefinition::class, ProductSeoCategoryDefinition::class, false, 'category_id', 'product_id', 'seoProductIds'))->setFlags(new CascadeDelete()),
         ]);
 

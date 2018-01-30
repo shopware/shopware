@@ -83,7 +83,7 @@ class EntityAggregator implements EntityAggregatorInterface
     private function fetchAggregation(string $definition, QueryBuilder $query, Aggregation $aggregation, TranslationContext $context)
     {
         /** @var EntityDefinition $definition */
-        $field = EntityDefinitionResolver::resolveField(
+        $field = EntityDefinitionResolver::getFieldAccessor(
             $aggregation->getField(),
             $definition,
             $definition::getEntityName(),

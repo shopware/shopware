@@ -61,7 +61,7 @@ class EntityDefinitionResolver
         );
     }
 
-    public static function resolveField(string $fieldName, string $definition, string $root, TranslationContext $context): string
+    public static function getFieldAccessor(string $fieldName, string $definition, string $root, TranslationContext $context): string
     {
         $original = $fieldName;
         $prefix = $root . '.';
@@ -70,7 +70,7 @@ class EntityDefinitionResolver
             $fieldName = substr($fieldName, strlen($prefix));
         }
 
-        /** @var EntityDefinition $definition */
+        /** @var EntityDefinition|InheritedDefinition $definition */
         $fields = $definition::getFields();
 
         if ($fields->has($fieldName)) {
@@ -81,17 +81,26 @@ class EntityDefinitionResolver
             }
 
             if ($field instanceof TranslatedField) {
-                return implode('.', [
-                    self::escape($root . '.' . 'translation'),
-                    self::escape($field->getStorageName()),
-                ]);
+                [$chain, $inheritedChain] = self::buildTranslationChain($root, $definition, $context);
+                return self::getTranslationFieldAccessor($root, $field, $chain, $inheritedChain);
             }
 
             if ($field instanceof StorageAware) {
-                return implode('.', [
+                $select = implode('.', [
                     self::escape($root),
                     self::escape($field->getStorageName()),
                 ]);
+
+                if (!$field->is(Inherited::class)) {
+                    return $select;
+                }
+
+                $parentSelect = implode('.', [
+                    self::escape($root . '.' . $definition::getParentPropertyName()),
+                    self::escape($field->getStorageName())
+                ]);
+
+                return sprintf('IFNULL(%s, %s)', $select, $parentSelect);
             }
         }
 
@@ -110,7 +119,7 @@ class EntityDefinitionResolver
             $referenceClass = $field->getReferenceDefinition();
         }
 
-        return self::resolveField(
+        return self::getFieldAccessor(
             $original,
             $referenceClass,
             implode('.', [$root, $field->getPropertyName()]),
@@ -155,20 +164,19 @@ class EntityDefinitionResolver
         }
 
         $referenceClass = null;
-
         if ($field instanceof ManyToOneAssociationField) {
             self::joinManyToOne($definition, $root, $field, $query);
             $referenceClass = $field->getReferenceClass();
         }
 
         if ($field instanceof OneToManyAssociationField) {
-            self::joinOneToMany($root, $field, $query);
+            self::joinOneToMany($definition, $root, $field, $query);
             $query->addState(self::REQUIRES_GROUP_BY);
             $referenceClass = $field->getReferenceClass();
         }
 
         if ($field instanceof ManyToManyAssociationField) {
-            self::joinManyToMany($root, $field, $query);
+            self::joinManyToMany($definition, $root, $field, $query);
             $query->addState(self::REQUIRES_GROUP_BY);
             $referenceClass = $field->getReferenceDefinition();
         }
@@ -196,9 +204,9 @@ class EntityDefinitionResolver
      */
     public static function joinManyToOne(string $definition, string $root, ManyToOneAssociationField $field, QueryBuilder $query): void
     {
-        /** @var EntityDefinition $class */
-        $class = $field->getReferenceClass();
-        $table = $class::getEntityName();
+        /** @var EntityDefinition|InheritedDefinition|string $reference */
+        $reference = $field->getReferenceClass();
+        $table = $reference::getEntityName();
         $alias = $root . '.' . $field->getPropertyName();
 
         if ($query->hasState($alias)) {
@@ -206,35 +214,38 @@ class EntityDefinitionResolver
         }
         $query->addState($alias);
 
-        $fieldSelect = self::escape($root) . '.' . self::escape($field->getStorageName());
-        $instance = new $definition;
-        if ($definition !== $class && $instance instanceof InheritedDefinition && $field->is(Inherited::class)) {
-            $fieldSelect = sprintf(
-                'IFNULL(%s, %s)',
-                self::escape($root) . '.' . self::escape($field->getStorageName()),
-                self::escape($root . '.' . $instance::getParentPropertyName()) . '.' . self::escape($field->getStorageName())
-            );
-        }
-
         $query->leftJoin(
             self::escape($root),
             self::escape($table),
             self::escape($alias),
             sprintf(
-                '%s = %s.%s',
-                $fieldSelect,
+                '%s.%s = %s.%s',
+                self::escape($root),
+                self::escape($field->getJoinField()),
                 self::escape($alias),
                 self::escape($field->getReferenceField())
             )
         );
+
+        if ($definition === $reference) {
+            return;
+        }
+
+        $instance = new $reference();
+        if (!$instance instanceof InheritedDefinition) {
+            return;
+        }
+
+        $parent = $reference::getFields()->get($reference::getParentPropertyName());
+        self::joinManyToOne($reference, $alias, $parent, $query);
     }
 
-    public static function joinOneToMany(string $root, OneToManyAssociationField $field, QueryBuilder $query): void
+    public static function joinOneToMany(string $definition, string $root, OneToManyAssociationField $field, QueryBuilder $query): void
     {
-        /** @var EntityDefinition $class */
-        $class = $field->getReferenceClass();
+        /** @var EntityDefinition|InheritedDefinition|string $reference */
+        $reference = $field->getReferenceClass();
 
-        $table = $class::getEntityName();
+        $table = $reference::getEntityName();
 
         $alias = $root . '.' . $field->getPropertyName();
         if ($query->hasState($alias)) {
@@ -254,9 +265,21 @@ class EntityDefinitionResolver
                 self::escape($field->getReferenceField())
             )
         );
+
+        if ($definition === $reference) {
+            return;
+        }
+
+        $instance = new $reference();
+        if (!$instance instanceof InheritedDefinition) {
+            return;
+        }
+
+        $parent = $reference::getFields()->get($reference::getParentPropertyName());
+        self::joinManyToOne($reference, $alias, $parent, $query);
     }
 
-    public static function joinManyToMany(string $root, ManyToManyAssociationField $field, QueryBuilder $query): void
+    public static function joinManyToMany(string $definition, string $root, ManyToManyAssociationField $field, QueryBuilder $query): void
     {
         /** @var EntityDefinition $mapping */
         $mapping = $field->getMappingDefinition();
@@ -282,7 +305,7 @@ class EntityDefinitionResolver
             )
         );
 
-        /** @var EntityDefinition $reference */
+        /** @var EntityDefinition|InheritedDefinition|string $reference */
         $reference = $field->getReferenceDefinition();
         $table = $reference::getEntityName();
 
@@ -297,9 +320,21 @@ class EntityDefinitionResolver
                 self::escape($mappingAlias),
                 self::escape($field->getMappingReferenceColumn()),
                 self::escape($alias),
-                self::escape('id')
+                self::escape($field->getReferenceColumn())
             )
         );
+
+        if ($definition === $reference) {
+            return;
+        }
+
+        $instance = new $reference();
+        if (!$instance instanceof InheritedDefinition) {
+            return;
+        }
+
+        $parent = $reference::getFields()->get($reference::getParentPropertyName());
+        self::joinManyToOne($reference, $alias, $parent, $query);
     }
 
     public static function joinTranslation(string $root, string $definition, QueryBuilder $query, TranslationContext $context): void
@@ -372,63 +407,36 @@ class EntityDefinitionResolver
     {
         self::joinTranslation($root, $definition, $query, $context);
 
-        $instance = new $definition();
-
-        $chain = [$root . '.translation'];
-        $inheritedChain = [$root . '.translation'];
-
-        if ($instance instanceof InheritedDefinition) {
-            /** @var InheritedDefinition|EntityDefinition|string $definition */
-            $parentName = $definition::getParentPropertyName();
-            $inheritedChain[] = $root . '.' . $parentName . '.translation';
-        }
-
-        if ($context->hasFallback()) {
-            $inheritedChain[] = $root . '.translation.fallback';
-            $chain[] = $root . '.translation.fallback';
-        }
-
-        if ($instance instanceof InheritedDefinition && $context->hasFallback()) {
-            /** @var InheritedDefinition|EntityDefinition|string $definition */
-            $parentName = $definition::getParentPropertyName();
-            $inheritedChain[] = $root . '.' . $parentName . '.translation.fallback';
-        }
-
-        if (count($inheritedChain) === 1) {
-            $alias = $root . '.translation';
-
-            /** @var TranslatedField $field */
-            foreach ($fields->getElements() as $property => $field) {
-                $query->addSelect(
-                    self::escape($alias) . '.' . self::escape($field->getStorageName())
-                    . ' as ' .
-                    self::escape($alias . '.' . $property)
-                );
-            }
-
-            return;
-        }
+        [$chain, $inheritedChain] = self::buildTranslationChain($root, $definition, $context);
 
         /** @var TranslatedField $field */
         foreach ($fields->getElements() as $property => $field) {
-            $fieldChain = $chain;
-            if ($field->is(Inherited::class)) {
-                $fieldChain = $inheritedChain;
-            }
-
-            $chainSelect = [];
-            foreach ($fieldChain as $table) {
-                $chainSelect[] = self::escape($table) . '.' . self::escape($field->getStorageName());
-            }
-
-            $select = sprintf(
-                'COALESCE(%s) as %s',
-                implode(',', $chainSelect),
-                self::escape($root . '.translation.' . $field->getPropertyName())
+            $query->addSelect(
+                self::getTranslationFieldAccessor($root, $field, $chain, $inheritedChain)
+                . ' as ' .
+                self::escape($root . '.' . $field->getPropertyName())
             );
-
-            $query->addSelect($select);
         }
+    }
+
+    private static function getTranslationFieldAccessor(string $root, TranslatedField $field, array $chain, array $inheritedChain = []): string
+    {
+        $alias = $root . '.translation';
+        if (count($inheritedChain) === 1) {
+            return self::escape($alias) . '.' . self::escape($field->getStorageName());
+        }
+
+        $fieldChain = $chain;
+        if ($field->is(Inherited::class)) {
+            $fieldChain = $inheritedChain;
+        }
+
+        $chainSelect = [];
+        foreach ($fieldChain as $table) {
+            $chainSelect[] = self::escape($table) . '.' . self::escape($field->getStorageName());
+        }
+
+        return sprintf('COALESCE(%s)', implode(',', $chainSelect));
     }
 
     public static function uuidStringsToBytes(array $ids)
@@ -436,5 +444,33 @@ class EntityDefinitionResolver
         return array_map(function (string $id) {
             return Uuid::fromString($id)->getBytes();
         }, $ids);
+    }
+
+    private static function buildTranslationChain(string $root, string $definition, TranslationContext $context): array
+    {
+        $chain = [$root.'.translation'];
+        $inheritedChain = [$root.'.translation'];
+
+        /** @var string|EntityDefinition|InheritedDefinition $definition */
+        $instance = new $definition();
+
+        if ($instance instanceof InheritedDefinition) {
+            /** @var InheritedDefinition|EntityDefinition|string $definition */
+            $parentName = $definition::getParentPropertyName();
+            $inheritedChain[] = $root.'.'.$parentName.'.translation';
+        }
+
+        if ($context->hasFallback()) {
+            $inheritedChain[] = $root.'.translation.fallback';
+            $chain[] = $root.'.translation.fallback';
+        }
+
+        if ($instance instanceof InheritedDefinition && $context->hasFallback()) {
+            /** @var InheritedDefinition|EntityDefinition|string $definition */
+            $parentName = $definition::getParentPropertyName();
+            $inheritedChain[] = $root.'.'.$parentName.'.translation.fallback';
+        }
+
+        return [$chain, $inheritedChain];
     }
 }

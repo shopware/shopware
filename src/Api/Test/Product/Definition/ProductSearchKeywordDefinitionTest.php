@@ -13,10 +13,12 @@ class ProductSearchKeywordDefinitionTest extends TestCase
     public function testRequiredFieldsDefined()
     {
         $fields = ProductSearchKeywordDefinition::getFields()->filterByFlag(Required::class);
+        $keys = $fields->getKeys();
+        sort($keys);
 
         $this->assertEquals(
-            ['id', 'shopId', 'productId', 'keyword', 'ranking'],
-            $fields->getKeys()
+            ['id', 'keyword', 'productId', 'ranking', 'shopId'],
+            $keys
         );
     }
 

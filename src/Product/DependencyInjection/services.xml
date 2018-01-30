@@ -10,11 +10,5 @@
             <tag name="kernel.event_subscriber" />
             <argument type="service" id="Shopware\Api\Seo\Repository\SeoUrlRepository"/>
         </service>
-
-        <service class="Shopware\Product\Extension\UpdateInheritedJoinIdsSubscriber" id="shopware.product.extension.update_inherited_join_ids_subscriber">
-            <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="dbal_connection"/>
-        </service>
-
     </services>
 </container>

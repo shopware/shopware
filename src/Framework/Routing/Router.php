@@ -48,6 +48,11 @@ class Router implements RouterInterface, RequestMatcherInterface
     public const REQUEST_TYPE_ADMINISTRATION = 'administration';
 
     /**
+     * Generates an seo URL, e.g. "http://example.com/example-category".
+     */
+    public const SEO_URL = 5;
+
+    /**
      * @var RequestContext
      */
     private $context;
@@ -173,13 +178,20 @@ class Router implements RouterInterface, RequestMatcherInterface
             return $generator->generate($name, $parameters, $referenceType);
         }
 
-        //rewrite base url for url generator
-        $stripBaseUrl = $this->rewriteBaseUrl($shop['base_url'], $shop['base_path']);
 
         $route = $this->getRouteCollection()->get($name);
         if ($route && $route->getOption('seo') !== true) {
             return $generator->generate($name, $parameters, $referenceType);
         }
+
+        if ($referenceType !== self::SEO_URL) {
+            //generate new url with shop base path/url
+            $url = $generator->generate($name, $parameters, $referenceType);
+            return rtrim($url, '/');
+        }
+
+        //rewrite base url for url generator
+        $stripBaseUrl = $this->rewriteBaseUrl($shop['base_url'], $shop['base_path']);
 
         //find seo url for path info
         $pathInfo = $generator->generate($name, $parameters, UrlGenerator::ABSOLUTE_PATH);

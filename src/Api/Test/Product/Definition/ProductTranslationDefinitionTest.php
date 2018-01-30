@@ -15,7 +15,7 @@ class ProductTranslationDefinitionTest extends TestCase
         $fields = ProductTranslationDefinition::getFields()->filterByFlag(Required::class);
 
         $this->assertEquals(
-            ['productId', 'languageId', 'name'],
+            ['productId', 'languageId'],
             $fields->getKeys()
         );
     }

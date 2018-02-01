@@ -33,8 +33,6 @@ use Shopware\Cart\Exception\LineItemNotFoundException;
 use Shopware\Cart\LineItem\LineItemCollection;
 use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Order\OrderPersisterInterface;
-use Shopware\CartBridge\View\ViewCart;
-use Shopware\CartBridge\View\ViewCartTransformer;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Storefront\Context\StorefrontContextServiceInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -66,11 +64,6 @@ class StoreFrontCartService
     private $session;
 
     /**
-     * @var ViewCartTransformer
-     */
-    private $viewCartTransformer;
-
-    /**
      * @var OrderPersisterInterface
      */
     private $orderPersister;
@@ -80,54 +73,36 @@ class StoreFrontCartService
      */
     private $cartContainer;
 
-    /**
-     * @var ViewCart
-     */
-    private $viewCart;
-
     public function __construct(
         CartCalculator $calculation,
         CartPersisterInterface $persister,
         StorefrontContextServiceInterface $contextService,
         SessionInterface $session,
-        ViewCartTransformer $viewCartTransformer,
         OrderPersisterInterface $orderPersister
     ) {
         $this->calculation = $calculation;
         $this->persister = $persister;
         $this->contextService = $contextService;
         $this->session = $session;
-        $this->viewCartTransformer = $viewCartTransformer;
         $this->orderPersister = $orderPersister;
     }
 
-    public function createNew(): ViewCart
+    public function createNew(): CalculatedCart
     {
         $this->createNewCart();
 
-        return $this->getCart();
+        return $this->getCalculatedCart();
     }
 
-    public function getCart(): ViewCart
+    public function getCalculatedCart(): CalculatedCart
     {
-        if ($this->viewCart) {
-            return $this->viewCart;
-        }
+        $container = $this->getCartContainer();
 
-        $calculatedCart = $this->getCalculatedCart();
-
-        $viewCart = $this->viewCartTransformer->transform(
-            $calculatedCart,
-            $this->contextService->getShopContext()
-        );
-
-        return $this->viewCart = $viewCart;
+        return $this->calculate($container);
     }
 
     public function add(LineItemInterface $item): void
     {
-        $this->viewCart = null;
-
         $cart = $this->getCartContainer();
 
         $cart->getLineItems()->add($item);
@@ -137,8 +112,6 @@ class StoreFrontCartService
 
     public function fill(LineItemCollection $lineItems): void
     {
-        $this->viewCart = null;
-
         $cart = $this->getCartContainer();
 
         $cart->getLineItems()->fill($lineItems->getElements());
@@ -146,11 +119,12 @@ class StoreFrontCartService
         $this->calculate($cart);
     }
 
+    /**
+     * @throws LineItemNotFoundException
+     */
     public function changeQuantity(string $identifier, int $quantity): void
     {
-        $this->viewCart = null;
-
-        $cart = $this->getCart()->getCalculatedCart()->getCartContainer();
+        $cart = $this->getCartContainer();
 
         if (!$lineItem = $cart->getLineItems()->get($identifier)) {
             throw new LineItemNotFoundException($identifier);
@@ -163,8 +137,6 @@ class StoreFrontCartService
 
     public function remove(string $identifier): void
     {
-        $this->viewCart = null;
-
         $cartContainer = $this->getCartContainer();
         $cartContainer->getLineItems()->remove($identifier);
         $this->calculate($cartContainer);
@@ -173,7 +145,7 @@ class StoreFrontCartService
     public function order(): void
     {
         $this->orderPersister->persist(
-            $this->getCart()->getCalculatedCart(),
+            $this->getCalculatedCart(),
             $this->contextService->getShopContext()
         );
 
@@ -203,13 +175,6 @@ class StoreFrontCartService
         }
     }
 
-    private function getCalculatedCart(): CalculatedCart
-    {
-        $container = $this->getCartContainer();
-
-        return $this->calculate($container);
-    }
-
     private function calculate(CartContainer $cartContainer): CalculatedCart
     {
         $context = $this->contextService->getShopContext();
@@ -235,7 +200,6 @@ class StoreFrontCartService
 
         $this->cartContainer = CartContainer::createNew(self::CART_NAME);
         $this->session->set(self::CART_TOKEN_KEY, $this->cartContainer->getToken());
-        $this->viewCart = null;
 
         return $this->cartContainer;
     }

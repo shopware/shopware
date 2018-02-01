@@ -110,10 +110,10 @@
                             {#{* Order items *}#}
                             {% block frontend_checkout_confirm_product_table_item_outer %}
                                 {% block frontend_checkout_confirm_product_table_item %}
-                                    {% for lineItem in cart.viewLineItems %}
+                                    {% for caculatedLineItem in cart.calculatedLineItems %}
                                         {% sw_include "frontend/checkout/confirm/confirm-item.html.twig"
                                         with {
-                                            'viewLineItem': lineItem,
+                                            'calculatedLineItem': caculatedLineItem,
                                             'depth': 0
                                         } %}
                                     {% endfor %}
@@ -155,13 +155,13 @@
 
                                 {#{* Delivery items *}#}
                                 {% block frontend_checkout_confirm_item_outer %}
-                                    {% for viewPosition in delivery.viewPositions %}
+                                    {% for position in delivery.positions %}
                                         {% block frontend_checkout_confirm_item %}
                                             {% sw_include "frontend/checkout/confirm/delivery-item.html.twig"
                                             with {
                                             'isLast': loop.last,
-                                            'viewLineItem': viewPosition.viewLineItem,
-                                            'deliveryPosition': viewPosition.deliveryPosition
+                                            'calculatedLineItem': position.calculatedLineItem,
+                                            'deliveryPosition': position
                                             } %}
                                         {% endblock %}
                                     {% endfor %}

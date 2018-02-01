@@ -52,7 +52,7 @@ class CheckoutController extends StorefrontController
     {
         return $this->render('@Storefront/widgets/checkout/info.html.twig', [
             'cartQuantity' => $this->cartService->getCartContainer()->getLineItems()->count(),
-            'cartAmount' => $this->cartService->getCart()->getCalculatedCart()->getPrice()->getTotalPrice(),
+            'cartAmount' => $this->cartService->getCalculatedCart()->getPrice()->getTotalPrice(),
             'sNotesQuantity' => 0,
             'sUserLoggedIn' => false,
         ]);

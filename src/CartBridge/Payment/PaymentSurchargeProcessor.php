@@ -70,8 +70,14 @@ class PaymentSurchargeProcessor implements CartProcessorInterface
                 return;
         }
 
-        $calculatedCart->getCalculatedLineItems()->add(
-            new CalculatedLineItem('payment', $surcharge, 1, 'surcharge')
+        $calculatedLineItem = new CalculatedLineItem(
+            'payment',
+            $surcharge,
+            1,
+            'surcharge',
+            'Payment surcharge'
         );
+
+        $calculatedCart->getCalculatedLineItems()->add($calculatedLineItem);
     }
 }

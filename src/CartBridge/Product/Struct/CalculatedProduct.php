@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\Product\Struct;
 
+use Shopware\Api\Media\Struct\MediaBasicStruct;
+use Shopware\Api\Product\Struct\ProductBasicStruct;
 use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Cart\LineItem\DeliverableLineItemInterface;
@@ -68,14 +70,9 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
     protected $rule;
 
     /**
-     * @var int
+     * @var MediaBasicStruct
      */
-    protected $stock;
-
-    /**
-     * @var float
-     */
-    protected $weight;
+    protected $cover;
 
     /**
      * @var \Shopware\Cart\Delivery\Struct\DeliveryDate
@@ -87,24 +84,29 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
      */
     protected $outOfStockDeliveryDate;
 
+    /**
+     * @var ProductBasicStruct
+     */
+    protected $product;
+
     public function __construct(
         LineItemInterface $lineItem,
         Price $price,
         string $identifier,
         int $quantity,
-        int $stock,
-        float $weight,
+        ProductBasicStruct $product,
         DeliveryDate $inStockDeliveryDate,
         DeliveryDate $outOfStockDeliveryDate,
-        ?Rule $rule
+        ?MediaBasicStruct $cover = null,
+        ?Rule $rule = null
     ) {
         $this->lineItem = $lineItem;
         $this->price = $price;
         $this->identifier = $identifier;
         $this->quantity = $quantity;
+        $this->product = $product;
         $this->rule = $rule;
-        $this->stock = $stock;
-        $this->weight = $weight;
+        $this->cover = $cover;
         $this->inStockDeliveryDate = $inStockDeliveryDate;
         $this->outOfStockDeliveryDate = $outOfStockDeliveryDate;
     }
@@ -121,7 +123,7 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
 
     public function getStock(): int
     {
-        return $this->stock;
+        return $this->product->getStock();
     }
 
     public function getInStockDeliveryDate(): DeliveryDate
@@ -136,7 +138,7 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
 
     public function getWeight(): float
     {
-        return $this->weight;
+        return $this->product->getWeight();
     }
 
     public function getQuantity(): int
@@ -167,5 +169,25 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
     public function getType(): string
     {
         return $this->lineItem->getType();
+    }
+
+    public function getLabel(): string
+    {
+        return $this->product->getName();
+    }
+
+    public function getCover(): ?MediaBasicStruct
+    {
+        return $this->cover;
+    }
+
+    public function setCover(MediaBasicStruct $cover): void
+    {
+        $this->cover = $cover;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->product->getDescription();
     }
 }

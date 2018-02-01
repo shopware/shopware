@@ -84,9 +84,9 @@
 
                 {% for delivery in cart.deliveries %}
 
-                    {# @var delivery \Shopware\CartBridge\View\ViewDelivery #}
+                    {# @var delivery \Shopware\Cart\Delivery\Struct\Delivery #}
                     {# @var location \Shopware\Cart\Delivery\Struct\ShippingLocation #}
-                    {% set location = delivery.delivery.location %}
+                    {% set location = delivery.location %}
 
                     {% block frontend_checkout_finish_deliveries_headline %}
                     <div class="panel--title is--underline payment--title">
@@ -98,16 +98,16 @@
                     <div class="panel--body is--wide payment--content">
 
 
-                        Lieferung zwischen {{ delivery.delivery.deliveryDate.earliest.format('d.m.Y') }} und
-                        {{ delivery.delivery.deliveryDate.latest.format('d.m.Y') }}
+                        Lieferung zwischen {{ delivery.deliveryDate.earliest.format('d.m.Y') }} und
+                        {{ delivery.deliveryDate.latest.format('d.m.Y') }}
 
                         <h5>{% trans from 'frontend/checkout/finish' %}FinishDeliveryAddress{% endtrans %}</h5>
 
                         {{ location.address.street }}<br>
                         {{ location.address.zipcode }} {{ location.address.city }}<br>
-                        {% if location.address.state %} {{ location.address.state.name }}<br>{% endif %}
+                        {% if location.state %} {{ location.state.name }}<br>{% endif %}
                         {{ location.country.name }}<br><br>
-                        {{ delivery.delivery.shippingMethod.name }}
+                        {{ delivery.shippingMethod.name }}
                     </div>
                     {% endblock %}
 
@@ -130,7 +130,7 @@
                     {% endblock %}
 
                     {# Article items #}
-                    {% for viewLineItem in cart.viewLineItems %}
+                    {% for calculatedLineItem in cart.calculatedLineItems %}
                         {% block frontend_checkout_finish_item %}
                             {% sw_include "frontend/checkout/finish/finish-item.html.twig" with {'isLast': loop.last} %}
                         {% endblock %}

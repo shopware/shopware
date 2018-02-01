@@ -444,8 +444,8 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                         'name' => '_response',
                         'in' => 'query',
                         'schema' => ['type' => 'string', 'enum' => ['basic', 'detail']],
-                        'description' => 'Data format for response. Empty if none is provided.'
-                    ]
+                        'description' => 'Data format for response. Empty if none is provided.',
+                    ],
                 ],
                 'requestBody' => [
                     'content' => [
@@ -489,7 +489,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             'name' => '_response',
             'in' => 'query',
             'schema' => ['type' => 'string', 'enum' => ['basic', 'detail']],
-            'description' => 'Data format for response. Empty if none is provided.'
+            'description' => 'Data format for response. Empty if none is provided.',
         ];
 
         $idParameter = [

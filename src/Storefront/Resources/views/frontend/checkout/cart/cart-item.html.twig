@@ -5,11 +5,11 @@
 {% block frontend_checkout_cart_item %}
     <div class="table--tr block-group row--product{% if isLast %} is--last-row{% endif %}">
 
-        {% if viewLineItem.extensions.canonicalUrl %}
-            {% set detailUrl = viewLineItem.extensions.canonicalUrl.url %}
+        {% if calculatedLineItem.extensions.canonicalUrl %}
+            {% set detailUrl = calculatedLineItem.extensions.canonicalUrl.url %}
         {% else %}
-            {% if viewLineItem.id %}
-                {% set detailUrl = url('detail_page', { 'id': viewLineItem.id }) %}
+            {% if calculatedLineItem.id %}
+                {% set detailUrl = url('detail_page', { 'id': calculatedLineItem.id }) %}
             {% endif %}
         {% endif %}
 
@@ -31,8 +31,8 @@
 
                                             {% block frontend_checkout_cart_item_image_container_inner %}
 
-                                                {% set image = viewLineItem.cover %}
-                                                {% set desc = viewLineItem.name|striptags|escape %}
+                                                {% set image = calculatedLineItem.cover %}
+                                                {% set desc = calculatedLineItem.name|striptags|escape %}
 
                                                 {% if image.extensions.thumbnails[0] %}
                                                     <a href="{{ detailUrl }}" title="{{ desc }}" class="table--media-link">
@@ -60,29 +60,29 @@
                         {% block frontend_checkout_cart_item_details_title %}
 
                             {% if detailUrl %}
-                                <a class="content--title" href="{{ detailUrl }}" title="{{ viewLineItem.label|striptags|escape }}">
-                                    {{ viewLineItem.label|striptags|truncate(60) }}
+                                <a class="content--title" href="{{ detailUrl }}" title="{{ calculatedLineItem.label|striptags|escape }}">
+                                    {{ calculatedLineItem.label|striptags|truncate(60) }}
                                 </a>
                             {% else %}
-                                <span class="content--title">{{ viewLineItem.label|striptags|truncate(60) }}</span>
+                                <span class="content--title">{{ calculatedLineItem.label|striptags|truncate(60) }}</span>
                             {% endif %}
 
                         {% endblock %}
 
                         {# Product SKU number #}
                         {% block frontend_checkout_cart_item_details_sku %}
-                            {% if viewLineItem.calculatedLineItem.identifier %}
+                            {% if calculatedLineItem.identifier %}
                                 <p class="content--sku content">
                                     {% trans from 'frontend/checkout/cart_item' %}CartItemInfoId{% endtrans %}
-                                    {{ viewLineItem.calculatedLineItem.identifier }}
+                                    {{ calculatedLineItem.identifier }}
                                 </p>
                             {% endif %}
                         {% endblock %}
 
                         {# Product delivery information #}
                         {% block frontend_checkout_cart_item_delivery_informations %}
-                            {% if shopware.config.basketshippinginfo and viewLineItem.calculatedLineItem.deliveryInformation %}
-                                {#{% sw_include '@Shopware/frontend/checkout/cart/items/delivery-information.html.twig' with {'product' : viewLineItem} %}#}
+                            {% if shopware.config.basketshippinginfo and calculatedLineItem.deliveryInformation %}
+                                {#{% sw_include '@Shopware/frontend/checkout/cart/items/delivery-information.html.twig' with {'product' : calculatedLineItem} %}#}
                             {% endif %}
                         {% endblock %}
 
@@ -113,23 +113,23 @@
                         TODO: availability and purchase steps in order to prevent explicit type switches
                         #}
                     {% if depth > 0 %}
-                        {{ viewLineItem.calculatedLineItem.quantity }}
-                    {% elseif not viewLineItem.lastStock or (viewLineItem.lastStock and viewLineItem.calculatedLineItem.stock > 0) %}
+                        {{ calculatedLineItem.quantity }}
+                    {% elseif not calculatedLineItem.lastStock or (calculatedLineItem.lastStock and calculatedLineItem.stock > 0) %}
                         {% set action = path('cart_set_line_item_quantity') %}
                         <form name="cart_product_change_quantity" class="select-field" method="post" action="{{ action }}">
                             <select name="quantity" data-auto-submit="true">
-                                {% set minPurchase = viewLineItem.variant.minPurchase ?? 1 %}
+                                {% set minPurchase = calculatedLineItem.variant.minPurchase ?? 1 %}
                                 {# TODO CONFIG AUSLESEN #}
-                                {% set maxPurchase = viewLineItem.variant.maxPurchase ?? 25 %}
-                                {% set purchaseSteps = viewLineItem.variant.purchaseSteps ?? 1 %}
+                                {% set maxPurchase = calculatedLineItem.variant.maxPurchase ?? 25 %}
+                                {% set purchaseSteps = calculatedLineItem.variant.purchaseSteps ?? 1 %}
                                 {% for quantity in range(minPurchase, maxPurchase, purchaseSteps) %}
-                                    <option value="{{ quantity }}" {% if quantity==viewLineItem.calculatedLineItem.quantity %}selected="selected"{% endif %}>
+                                    <option value="{{ quantity }}" {% if quantity==calculatedLineItem.quantity %}selected="selected"{% endif %}>
                                         {{ quantity }}
                                     </option>
                                     {/section}
                                 {% endfor %}
                             </select>
-                            <input type="hidden" name="identifier" value="{{ viewLineItem.calculatedLineItem.identifier }}" />
+                            <input type="hidden" name="identifier" value="{{ calculatedLineItem.identifier }}" />
 
                             {% block frontend_checkout_cart_item_quantity_target %}
                                 <input type="hidden" name="target" value="checkout_cart" />
@@ -153,7 +153,7 @@
                         {% trans from 'frontend/checkout/cart_header' %}CartColumnPrice{% endtrans %}
                     </div>
                 {% endblock %}
-                {{ viewLineItem.calculatedLineItem.price.unitPrice|localizedcurrency(context.currency.shortName) }}
+                {{ calculatedLineItem.price.unitPrice|localizedcurrency(context.currency.shortName) }}
                 {% block frontend_checkout_cart_tax_symbol %}
                     {% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
                 {% endblock %}
@@ -172,7 +172,7 @@
                     </div>
                 {% endblock %}
 
-                {{ viewLineItem.calculatedLineItem.price.totalPrice|localizedcurrency(context.currency.shortName) }}
+                {{ calculatedLineItem.price.totalPrice|localizedcurrency(context.currency.shortName) }}
                 {{ block('frontend_checkout_cart_tax_symbol') }}
             </div>
         {% endblock %}
@@ -187,7 +187,7 @@
                                 title="{% trans from 'frontend/checkout/cart_item' %}CartItemLinkDelete{% endtrans %}">
                             <i class="icon--cross"></i>
                         </button>
-                        <input type="hidden" name="identifier" value="{{ viewLineItem.calculatedLineItem.identifier }}" />
+                        <input type="hidden" name="identifier" value="{{ calculatedLineItem.identifier }}" />
                         <input type="hidden" name="target" value="{{ 'cart_index' }}" />
                     </form>
                 </div>
@@ -196,11 +196,11 @@
     </div>
 {% endblock %}
 
-{% if viewLineItem.children %}
-    {% for child in viewLineItem.children %}
+{% if calculatedLineItem.children %}
+    {% for child in calculatedLineItem.children %}
         {% sw_include 'frontend/checkout/cart/cart-item.html.twig' with
             {
-                'viewLineItem': child,
+                'calculatedLineItem': child,
                 'depth': depth + 1
             }
         %}

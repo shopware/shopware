@@ -1,16 +1,14 @@
 {% sw_extends "frontend/checkout/cart/cart-item.html.twig" %}
 
-{# @var viewLineItem \Shopware\CartBridge\View\ViewLineItemInterface #}
+{# @var lineItem \Shopware\Cart\LineItem\CalculatedLineItem #}
 {% block frontend_checkout_cart_item_tax_price %}
     <div class="panel--td column--tax-price block is--align-right">
         {% block frontend_checkout_cart_item_tax_label %}
             <div class="column--label tax-price--label">
                 {% trans from "frontend/checkout/confirm_header" %}CheckoutColumnExcludeTax{% endtrans %}
-                {/if}
             </div>
         {% endblock %}
 
-
-        {{ viewLineItem.calculatedLineItem.price.calculatedTaxes.amount|localizedcurrency(context.currency.shortName) }}
+        {{ lineItem.price.calculatedTaxes.amount|localizedcurrency(context.currency.shortName) }}
     </div>
 {% endblock %}

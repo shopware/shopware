@@ -73,7 +73,7 @@ class OrderPersisterTest extends TestCase
         $cart = new CalculatedCart(
             new CartContainer('A', 'a-b-c', new LineItemCollection(), new ErrorCollection()),
             new CalculatedLineItemCollection(),
-            new CartPrice(1,1,1, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
+            new CartPrice(1, 1, 1, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
             new DeliveryCollection()
         );
 

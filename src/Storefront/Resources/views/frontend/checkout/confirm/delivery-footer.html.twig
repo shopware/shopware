@@ -2,9 +2,10 @@
 
 {# @var delivery \Shopware\CartBridge\View\ViewDelivery#}
 {# @var location \Shopware\Cart\Delivery\Struct\ShippingLocation #}
-{% set location = delivery.delivery.location %}
-{% set deliveryDate = delivery.delivery.deliveryDate %}
-{% set shippingMethod = delivery.delivery.shippingMethod %}
+
+{% set location = delivery.location %}
+{% set deliveryDate = delivery.deliveryDate %}
+{% set shippingMethod = delivery.shippingMethod %}
 
 {# Hide add product #}
 {% block frontend_checkout_cart_footer_add_product %}

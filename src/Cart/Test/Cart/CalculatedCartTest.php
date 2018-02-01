@@ -31,7 +31,6 @@ use Shopware\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Cart\Error\ErrorCollection;
 use Shopware\Cart\LineItem\CalculatedLineItem;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
-
 use Shopware\Cart\LineItem\GoodsInterface;
 use Shopware\Cart\LineItem\LineItemCollection;
 use Shopware\Cart\LineItem\LineItemInterface;

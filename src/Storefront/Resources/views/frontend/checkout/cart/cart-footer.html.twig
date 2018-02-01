@@ -80,8 +80,8 @@
 
             {% block frontend_checkout_cart_footer_field_labels_sum_value %}
             <div class="entry--value block">
-                {#{$cart.calculatedCart.price.positionPrice|currency}{s name="Star" namespace="frontend/listing/box_article"}{/s}#}
-                {{ cart.calculatedCart.price.positionPrice|localizedcurrency(context.currency.shortName) }}{% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
+                {#{$cart.price.positionPrice|currency}{s name="Star" namespace="frontend/listing/box_article"}{/s}#}
+                {{ cart.price.positionPrice|localizedcurrency(context.currency.shortName) }}{% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
             </div>
             {% endblock %}
         </li>
@@ -100,7 +100,7 @@
 
             {% block frontend_checkout_cart_footer_field_labels_shipping_value %}
             <div class="entry--value block">
-                {#{$cart.calculatedCart.shippingCosts|currency}{s name="Star" namespace="frontend/listing/box_article"}{/s}#}
+                {#{$cart.shippingCosts|currency}{s name="Star" namespace="frontend/listing/box_article"}{/s}#}
                 {{ cart.totalShippingCosts.unitPrice|localizedcurrency(context.currency.shortName) }}{% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
             </div>
             {% endblock %}
@@ -120,7 +120,7 @@
 
             {% block frontend_checkout_cart_footer_field_labels_total_value %}
             <div class="entry--value block is--no-star">
-                {{ cart.calculatedCart.price.totalPrice|localizedcurrency(context.currency.shortName) }}
+                {{ cart.price.totalPrice|localizedcurrency(context.currency.shortName) }}
             </div>
             {% endblock %}
         </li>
@@ -140,8 +140,8 @@
 
             {% block frontend_checkout_cart_footer_field_labels_totalnet_value %}
             <div class="entry--value block is--no-star">
-                {#{$cart.calculatedCart.price.netPrice|currency}#}
-                {{ cart.calculatedCart.price.netPrice|localizedcurrency(context.currency.shortName) }}
+                {#{$cart.price.netPrice|currency}#}
+                {{ cart.price.netPrice|localizedcurrency(context.currency.shortName) }}
             </div>
             {% endblock %}
         </li>
@@ -151,7 +151,7 @@
         {# Taxes #}
         {% block frontend_checkout_cart_footer_field_labels_taxes %}
 
-        {% for rule in cart.calculatedCart.price.calculatedTaxes %}
+        {% for rule in cart.price.calculatedTaxes %}
         {% set value = rule.tax %}
         {% set rate = rule.taxRate %}
 

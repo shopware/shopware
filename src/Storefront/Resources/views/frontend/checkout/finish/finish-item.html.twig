@@ -1,6 +1,6 @@
 {% sw_extends "frontend/checkout/cart/cart-item.html.twig" %}
 
-{# @var viewLineItem \Shopware\CartBridge\View\ViewLineItemInterface #}
+{# @var calcaultedLineItem \Shopware\Cart\LineItem\CalculatedLineItem #}
 
 {# Delivery item quantity #}
 {% block frontend_checkout_cart_item_quantity %}
@@ -14,7 +14,7 @@
         {% endblock %}
 
         {% block frontend_checkout_cart_item_quantity_selection %}
-            {{ viewLineItem.calculatedLineItem.quantity }}
+            {{ calculatedLineItem.quantity }}
         {% endblock %}
     </div>
 {% endblock %}

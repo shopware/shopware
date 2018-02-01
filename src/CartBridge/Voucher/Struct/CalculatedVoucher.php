@@ -31,10 +31,9 @@ use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Rule\Rule;
 use Shopware\Cart\Rule\Validatable;
-use Shopware\CartBridge\View\ViewLineItemInterface;
 use Shopware\Framework\Struct\Struct;
 
-class CalculatedVoucher extends Struct implements CalculatedLineItemInterface, ViewLineItemInterface, Validatable
+class CalculatedVoucher extends Struct implements CalculatedLineItemInterface, Validatable
 {
     /**
      * @var LineItemInterface
@@ -66,14 +65,33 @@ class CalculatedVoucher extends Struct implements CalculatedLineItemInterface, V
      */
     protected $rule;
 
-    public function __construct(string $code, LineItemInterface $lineItem, Price $price, ?Rule $rule)
-    {
+    /**
+     * @var string|null
+     */
+    protected $description;
+
+    /**
+     * @var MediaBasicStruct
+     */
+    protected $cover;
+
+    public function __construct(
+        string $code,
+        LineItemInterface $lineItem,
+        Price $price,
+        string $label,
+        string $description,
+        MediaBasicStruct $cover,
+        ?Rule $rule
+    ) {
         $this->price = $price;
         $this->lineItem = $lineItem;
         $this->code = $code;
         $this->identifier = $this->lineItem->getIdentifier();
-        $this->label = $code;
         $this->rule = $rule;
+        $this->label = $label;
+        $this->description = $description;
+        $this->cover = $cover;
     }
 
     public function getIdentifier(): string
@@ -101,9 +119,14 @@ class CalculatedVoucher extends Struct implements CalculatedLineItemInterface, V
         return $this->label;
     }
 
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
     public function getCover(): ? MediaBasicStruct
     {
-        return null;
+        return $this->cover;
     }
 
     public function getCode(): string

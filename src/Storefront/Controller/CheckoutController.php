@@ -35,7 +35,7 @@ class CheckoutController extends StorefrontController
     public function cartAction(): Response
     {
         return $this->renderStorefront('@Storefront/frontend/checkout/cart.html.twig', [
-            'cart' => $this->cartService->getCart(),
+            'cart' => $this->cartService->getCalculatedCart(),
         ]);
     }
 
@@ -51,12 +51,12 @@ class CheckoutController extends StorefrontController
         if (!$context->getCustomer()) {
             return $this->redirectToRoute('account_login');
         }
-        if ($this->cartService->getCart()->getCalculatedCart()->getCalculatedLineItems()->count() === 0) {
+        if ($this->cartService->getCalculatedCart()->getCalculatedLineItems()->count() === 0) {
             return $this->redirectToRoute('checkout_cart');
         }
 
         return $this->renderStorefront('@Storefront/frontend/checkout/confirm.html.twig', [
-            'cart' => $this->cartService->getCart(),
+            'cart' => $this->cartService->getCalculatedCart(),
             'customer' => $context->getCustomer(),
         ]);
     }
@@ -74,11 +74,11 @@ class CheckoutController extends StorefrontController
         if (!$context->getCustomer()) {
             return $this->redirectToRoute('account_login');
         }
-        if ($this->cartService->getCart()->getCalculatedCart()->getCalculatedLineItems()->count() === 0) {
+        if ($this->cartService->getCalculatedCart()->getCalculatedLineItems()->count() === 0) {
             return $this->redirectToRoute('checkout_cart');
         }
 
-        $cart = $this->cartService->getCart();
+        $cart = $this->cartService->getCalculatedCart();
         $clonedCart = clone $cart;
         $this->cartService->order();
 

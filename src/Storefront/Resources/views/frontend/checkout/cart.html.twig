@@ -19,7 +19,7 @@
         <h1 style="text-align: center;">Warenkorb Übersicht</h1>
 
         {# If articles are in the basket... #}
-        {% if cart.viewLineItems.count > 0 %}
+        {% if cart.calculatedLineItems.count > 0 %}
             {# Add article informations #}
             {% block frontend_checkout_add_article %}{% endblock %}
 
@@ -78,19 +78,16 @@
                                 {% endblock %}
 
                                 {# Basket items #}
-                                {#{% for viewLineItem in cart.viewLineItems %}#}
                                 {% block frontend_checkout_cart_item %}
-                                    {% for lineItem in cart.viewLineItems %}
-
+                                    {% for calculatedLineItem in cart.calculatedLineItems %}
                                         {% sw_include 'frontend/checkout/cart/cart-item.html.twig' with {
-                                            'viewLineItem': lineItem,
+                                            'lineItem': calculatedLineItem,
                                             'depth': 0
                                         } %}
 
                                     {% endfor %}
                                     {#{include file='frontend/checkout/cart_item.tpl' isLast=$sBasketItem@last}#}
                                 {% endblock %}
-                                {#{% endfor %}#}
 
                                 {# Product table footer #}
                                 {% block frontend_checkout_cart_cart_footer %}

@@ -66,7 +66,6 @@
             <argument type="service" id="shopware.cart.persister" />
             <argument type="service" id="shopware.storefront.context.storefront_context_service" />
             <argument type="service" id="session" />
-            <argument type="service" id="shopware.cart.view.cart_transformer" />
             <argument type="service" id="shopware.cart.order.persister" />
         </service>
 
@@ -78,16 +77,6 @@
         <service id="shopware.cart.persister" class="Shopware\CartBridge\Cart\CartPersister">
             <argument type="service" id="dbal_connection" />
             <argument type="service" id="shopware.serializer.json_serializer" />
-        </service>
-
-        <service id="shopware.cart.view.product_transformer" class="Shopware\CartBridge\View\ViewProductTransformer">
-            <tag name="view.line_item_transformer"/>
-            <argument type="service" id="Shopware\Api\Product\Repository\ProductRepository" />
-            <argument type="service" id="Shopware\Api\Product\Repository\ProductMediaRepository" />
-        </service>
-
-        <service id="shopware.cart.view.cart_transformer" class="Shopware\CartBridge\View\ViewCartTransformer">
-            <argument type="tagged" tag="view.line_item_transformer" />
         </service>
 
         <service id="shopware.cart.voucher.gateway" class="Shopware\CartBridge\Voucher\VoucherGateway" >

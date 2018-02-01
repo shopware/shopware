@@ -178,7 +178,6 @@ class Router implements RouterInterface, RequestMatcherInterface
             return $generator->generate($name, $parameters, $referenceType);
         }
 
-
         $route = $this->getRouteCollection()->get($name);
         if ($route && $route->getOption('seo') !== true) {
             return $generator->generate($name, $parameters, $referenceType);
@@ -187,6 +186,7 @@ class Router implements RouterInterface, RequestMatcherInterface
         if ($referenceType !== self::SEO_URL) {
             //generate new url with shop base path/url
             $url = $generator->generate($name, $parameters, $referenceType);
+
             return rtrim($url, '/');
         }
 

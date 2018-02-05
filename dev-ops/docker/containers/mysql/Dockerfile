@@ -1,4 +1,4 @@
-FROM mysql:5.7.19
+FROM mysql:5.7
 
 # copy mysql config
 ADD dev.cnf /etc/mysql/conf.d/dev.cnf

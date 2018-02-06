@@ -14,10 +14,7 @@ class MediaDefinitionTest extends TestCase
     {
         $fields = MediaDefinition::getFields()->filterByFlag(Required::class);
 
-        $this->assertEquals(
-            ['id', 'albumId', 'fileName', 'mimeType', 'fileSize', 'name', 'translations'],
-            $fields->getKeys()
-        );
+        $this->assertEquals(['id', 'fileName', 'mimeType', 'fileSize', 'translations', 'albumId'],$fields->getKeys());
     }
 
     public function testOnDeleteCascadesDefined()

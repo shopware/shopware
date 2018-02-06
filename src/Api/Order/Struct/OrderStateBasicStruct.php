@@ -9,11 +9,6 @@ class OrderStateBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $name;
-
-    /**
-     * @var string
-     */
     protected $description;
 
     /**
@@ -35,16 +30,6 @@ class OrderStateBasicStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
 
     public function getDescription(): string
     {

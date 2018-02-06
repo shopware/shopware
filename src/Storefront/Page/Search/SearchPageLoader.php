@@ -53,11 +53,13 @@ class SearchPageLoader
 
         $products = $this->productRepository->search($criteria, $context);
 
+        $layout = $config['searchProductBoxLayout'] ?? 'image';
+
         $listingPageStruct = new SearchPageStruct();
         $listingPageStruct->setProducts($products);
         $listingPageStruct->setCriteria($criteria);
         $listingPageStruct->setShowListing(true);
-        $listingPageStruct->setProductBoxLayout($config['searchProductBoxLayout']);
+        $listingPageStruct->setProductBoxLayout($layout);
 
         return $listingPageStruct;
     }

@@ -15,7 +15,7 @@ class ListingSortingDefinitionTest extends TestCase
         $fields = ListingSortingDefinition::getFields()->filterByFlag(Required::class);
 
         $this->assertEquals(
-            ['id', 'payload', 'label', 'translations'],
+            ['id', 'payload', 'translations'],
             $fields->getKeys()
         );
     }

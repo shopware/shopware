@@ -24,45 +24,19 @@
 
 namespace Shopware\Api\Entity\Field;
 
-use Shopware\Api\Entity\Write\FieldAware\ConstraintBuilderAware;
-use Shopware\Api\Entity\Write\FieldAware\FilterRegistryAware;
-use Shopware\Api\Entity\Write\FieldAware\PathAware;
+use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
+use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
-use Shopware\Api\Entity\Write\FieldAware\ValidatorAware;
 use Shopware\Api\Entity\Write\FieldException\InvalidFieldException;
-use Shopware\Api\Entity\Write\Filter\FilterRegistry;
-use Shopware\Api\Entity\Write\Validation\ConstraintBuilder;
-use Shopware\Api\Entity\Write\WriteResource;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class FloatField extends Field implements PathAware, ConstraintBuilderAware, FilterRegistryAware, ValidatorAware, StorageAware
+class FloatField extends Field implements StorageAware
 {
-    /**
-     * @var ConstraintBuilder
-     */
-    private $constraintBuilder;
-
-    /**
-     * @var FilterRegistry
-     */
-    private $filterRegistry;
-
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
     /**
      * @var string
      */
     private $storageName;
-
-    /**
-     * @var string
-     */
-    private $path;
 
     public function __construct(string $storageName, string $propertyName)
     {
@@ -73,52 +47,18 @@ class FloatField extends Field implements PathAware, ConstraintBuilderAware, Fil
     /**
      * {@inheritdoc}
      */
-    public function __invoke(string $type, string $key, $value = null): \Generator
+    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
-        switch ($type) {
-            case WriteResource::FOR_INSERT:
-                $this->validate($this->getInsertConstraints(), $key, $value);
-                break;
-            case WriteResource::FOR_UPDATE:
-                $this->validate($this->getUpdateConstraints(), $key, $value);
-                break;
-            default:
-                throw new \DomainException(sprintf('Could not understand %s', $type));
+        $key = $data->getKey();
+        $value = $data->getValue();
+
+        if ($existence->exists()) {
+            $this->validate($this->getUpdateConstraints(), $key, $value);
+        } else {
+            $this->validate($this->getInsertConstraints(), $key, $value);
         }
 
         yield $this->storageName => $value;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setConstraintBuilder(ConstraintBuilder $constraintBuilder): void
-    {
-        $this->constraintBuilder = $constraintBuilder;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setFilterRegistry(FilterRegistry $filterRegistry): void
-    {
-        $this->filterRegistry = $filterRegistry;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setValidator(ValidatorInterface $validator): void
-    {
-        $this->validator = $validator;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setPath(string $path = ''): void
-    {
-        $this->path = $path;
     }
 
     public function getStorageName(): string
@@ -170,6 +110,7 @@ class FloatField extends Field implements PathAware, ConstraintBuilderAware, Fil
     {
         return $this->constraintBuilder
             ->isNumeric()
+            ->isNotBlank()
             ->getConstraints();
     }
 
@@ -180,6 +121,7 @@ class FloatField extends Field implements PathAware, ConstraintBuilderAware, Fil
     {
         return $this->constraintBuilder
             ->isNumeric()
+            ->isNotBlank()
             ->getConstraints();
     }
 }

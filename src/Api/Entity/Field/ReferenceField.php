@@ -24,21 +24,12 @@
 
 namespace Shopware\Api\Entity\Field;
 
-use Ramsey\Uuid\Uuid;
-use Shopware\Api\Entity\Write\FieldAware\ExceptionStackAware;
-use Shopware\Api\Entity\Write\FieldAware\FieldExtenderCollection;
-use Shopware\Api\Entity\Write\FieldAware\FieldExtenderCollectionAware;
-use Shopware\Api\Entity\Write\FieldAware\PathAware;
+use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
+use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
-use Shopware\Api\Entity\Write\FieldAware\WriteContextAware;
-use Shopware\Api\Entity\Write\FieldAware\WriteQueryQueueAware;
-use Shopware\Api\Entity\Write\FieldException\FieldExceptionStack;
 use Shopware\Api\Entity\Write\FieldException\MalformatDataException;
-use Shopware\Api\Entity\Write\Query\WriteQueryQueue;
-use Shopware\Api\Entity\Write\WriteContext;
-use Shopware\Api\Entity\Write\WriteResource;
 
-class ReferenceField extends Field implements PathAware, ExceptionStackAware, WriteQueryQueueAware, WriteContextAware, FieldExtenderCollectionAware, StorageAware
+class ReferenceField extends Field implements StorageAware
 {
     /**
      * @var string
@@ -51,34 +42,9 @@ class ReferenceField extends Field implements PathAware, ExceptionStackAware, Wr
     private $referenceClass;
 
     /**
-     * @var WriteContext
-     */
-    private $writeContext;
-
-    /**
-     * @var FieldExceptionStack
-     */
-    private $exceptionStack;
-
-    /**
-     * @var WriteQueryQueue
-     */
-    private $queryQueue;
-
-    /**
      * @var string
      */
     private $storageName;
-
-    /**
-     * @var string
-     */
-    private $path;
-
-    /**
-     * @var FieldExtenderCollection
-     */
-    private $fieldExtender;
 
     public function __construct(string $storageName, string $propertyName, string $referenceField, string $referenceClass)
     {
@@ -91,76 +57,30 @@ class ReferenceField extends Field implements PathAware, ExceptionStackAware, Wr
     /**
      * {@inheritdoc}
      */
-    public function __invoke(string $type, string $key, $value = null): \Generator
+    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
+        $key = $data->getKey();
+        $value = $data->getValue();
+
         if (!is_array($value)) {
             throw new MalformatDataException($this->path, 'Expected array');
         }
 
-        WriteResource::extract(
+        $this->writeResource->extract(
             $value,
             $this->referenceClass,
             $this->exceptionStack,
-            $this->queryQueue,
+            $this->commandQueue,
             $this->writeContext,
-            $this->fieldExtender,
+            $this->fieldExtenderCollection,
             $this->path . '/' . $key
         );
 
         $id = $this->writeContext->get($this->referenceClass, $this->referenceField);
 
-        yield $this->storageName => Uuid::fromString($id)->getBytes();
-    }
+        $fkField = $this->definition::getFields()->getByStorageName($this->storageName);
 
-    public function collectPrimaryKeys(string $type, string $key, $value = null): \Generator
-    {
-        if (!is_array($value)) {
-            throw new MalformatDataException($this->path, 'Expected array');
-        }
-
-        WriteResource::collectPrimaryKeys(
-            $value,
-            $this->referenceClass,
-            $this->exceptionStack,
-            $this->queryQueue,
-            $this->writeContext,
-            $this->fieldExtender,
-            $this->path . '/' . $key
-        );
-
-        yield $this->storageName => $this->writeContext->get($this->referenceClass, $this->referenceField);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setWriteContext(WriteContext $writeContext): void
-    {
-        $this->writeContext = $writeContext;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setExceptionStack(FieldExceptionStack $exceptionStack): void
-    {
-        $this->exceptionStack = $exceptionStack;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setWriteQueryQueue(WriteQueryQueue $queryQueue): void
-    {
-        $this->queryQueue = $queryQueue;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setPath(string $path = ''): void
-    {
-        $this->path = $path;
+        yield $fkField->getPropertyName() => $id;
     }
 
     public function getReferenceField(): string
@@ -173,8 +93,8 @@ class ReferenceField extends Field implements PathAware, ExceptionStackAware, Wr
         return $this->storageName;
     }
 
-    public function setFieldExtenderCollection(FieldExtenderCollection $fieldExtenderCollection): void
+    public function getExtractPriority(): int
     {
-        $this->fieldExtender = $fieldExtenderCollection;
+        return 80;
     }
 }

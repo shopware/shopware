@@ -56,7 +56,7 @@ class ListingFacetDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('unique_key', 'uniqueKey'))->setFlags(new Required()),
             (new LongTextField('payload', 'payload'))->setFlags(new Required()),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
+            new TranslatedField(new StringField('name', 'name')),
             new BoolField('active', 'active'),
             new BoolField('display_in_categories', 'displayInCategories'),
             new BoolField('deletable', 'deletable'),

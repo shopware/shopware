@@ -4,7 +4,7 @@ namespace Shopware\Api\Entity\Search\Parser;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Api\Entity\Dbal\EntityDefinitionResolver;
+use Shopware\Api\Entity\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\ArrayField;
 use Shopware\Api\Entity\Field\FkField;
@@ -31,7 +31,7 @@ class SqlQueryParser
 
             foreach ($parsed->getWheres() as $where) {
                 if ($query->getScoreField()) {
-                    $field = EntityDefinitionResolver::getFieldAccessor(
+                    $field = EntityDefinitionQueryHelper::getFieldAccessor(
                         $query->getScoreField(),
                         $definition,
                         $root,
@@ -88,7 +88,7 @@ class SqlQueryParser
 
         $key = self::getKey();
 
-        $field = EntityDefinitionResolver::getFieldAccessor($query->getField(), $definition, $root, $context);
+        $field = EntityDefinitionQueryHelper::getFieldAccessor($query->getField(), $definition, $root, $context);
 
         $where = [];
 
@@ -120,7 +120,7 @@ class SqlQueryParser
     {
         $key = self::getKey();
 
-        $field = EntityDefinitionResolver::getFieldAccessor($query->getField(), $definition, $root, $context);
+        $field = EntityDefinitionQueryHelper::getFieldAccessor($query->getField(), $definition, $root, $context);
 
         $result = new ParseResult();
         $result->addWhere($field . ' LIKE :' . $key);
@@ -132,8 +132,8 @@ class SqlQueryParser
     private static function parseTermsQuery(TermsQuery $query, string $definition, string $root, TranslationContext $context): ParseResult
     {
         $key = self::getKey();
-        $select = EntityDefinitionResolver::getFieldAccessor($query->getField(), $definition, $root, $context);
-        $field = EntityDefinitionResolver::getField($query->getField(), $definition, $root);
+        $select = EntityDefinitionQueryHelper::getFieldAccessor($query->getField(), $definition, $root, $context);
+        $field = EntityDefinitionQueryHelper::getField($query->getField(), $definition, $root);
 
         $result = new ParseResult();
 
@@ -160,8 +160,8 @@ class SqlQueryParser
     private static function parseTermQuery(TermQuery $query, string $definition, string $root, TranslationContext $context): ParseResult
     {
         $key = self::getKey();
-        $select = EntityDefinitionResolver::getFieldAccessor($query->getField(), $definition, $root, $context);
-        $field = EntityDefinitionResolver::getField($query->getField(), $definition, $root);
+        $select = EntityDefinitionQueryHelper::getFieldAccessor($query->getField(), $definition, $root, $context);
+        $field = EntityDefinitionQueryHelper::getField($query->getField(), $definition, $root);
 
         $result = new ParseResult();
 

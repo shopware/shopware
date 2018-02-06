@@ -74,24 +74,10 @@ class DefaultExtender extends FieldExtender
 
     public function extend(Field $field): void
     {
-        if ($field instanceof  ValidatorAware) {
-            $field->setValidator($this->validator);
-        }
-
-        if ($field instanceof ConstraintBuilderAware) {
-            $field->setConstraintBuilder($this->constraintBuilder);
-        }
-
-        if ($field instanceof IdGeneratorRegistryAware) {
-            $field->setIdGeneratorRegistry($this->generatorRegistry);
-        }
-
-        if ($field instanceof FilterRegistryAware) {
-            $field->setFilterRegistry($this->filterRegistry);
-        }
-
-        if ($field instanceof ValueTransformerRegistryAware) {
-            $field->setValueTransformerRegistry($this->valueTransformerRegistry);
-        }
+        $field->setValidator($this->validator);
+        $field->setConstraintBuilder($this->constraintBuilder);
+        $field->setGeneratorRegistry($this->generatorRegistry);
+        $field->setFilterRegistry($this->filterRegistry);
+        $field->setValueTransformerRegistry($this->valueTransformerRegistry);
     }
 }

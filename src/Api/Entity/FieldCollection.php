@@ -19,7 +19,7 @@ class FieldCollection extends Collection
     /**
      * @var string[]
      */
-    protected $mapping = [];
+    public $mapping = [];
 
     public function __construct(array $elements = [])
     {

@@ -7,6 +7,7 @@ use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
+use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Context\Struct\TranslationContext;
@@ -102,7 +103,7 @@ abstract class EntityDefinition
         return new $class($ids, $context, $errors);
     }
 
-    public static function getDefaults(string $type): array
+    public static function getDefaults(EntityExistence $existence): array
     {
         return [];
     }
@@ -115,6 +116,11 @@ abstract class EntityDefinition
     public static function getDetailCollectionClass(): string
     {
         return static::getBasicCollectionClass();
+    }
+
+    public static function getParentPropertyName(): ?string
+    {
+        return null;
     }
 
     protected static function filterAssociationReferences(string $type, FieldCollection $fields)

@@ -62,23 +62,28 @@ class MediaDefinition extends EntityDefinition
 
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('media_album_id', 'albumId', MediaAlbumDefinition::class))->setFlags(new Required()),
-            new FkField('user_id', 'userId', UserDefinition::class),
+
             (new StringField('file_name', 'fileName'))->setFlags(new Required()),
             (new StringField('mime_type', 'mimeType'))->setFlags(new Required()),
             (new IntField('file_size', 'fileSize'))->setFlags(new Required()),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
             new LongTextField('meta_data', 'metaData'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
+
+            (new TranslationsAssociationField('translations', MediaTranslationDefinition::class, 'media_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             new TranslatedField(new LongTextField('description', 'description')),
-            new ManyToOneAssociationField('album', 'media_album_id', MediaAlbumDefinition::class, true),
-            new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, false),
+            new TranslatedField(new StringField('name', 'name')),
+
             new OneToManyAssociationField('categories', CategoryDefinition::class, 'media_id', false, 'id'),
             (new OneToManyAssociationField('mailAttachments', MailAttachmentDefinition::class, 'media_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new TranslationsAssociationField('translations', MediaTranslationDefinition::class, 'media_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             new OneToManyAssociationField('productManufacturers', ProductManufacturerDefinition::class, 'media_id', false, 'id'),
             (new OneToManyAssociationField('productMedia', ProductMediaDefinition::class, 'media_id', false, 'id'))->setFlags(new CascadeDelete()),
+
+            new ManyToOneAssociationField('album', 'media_album_id', MediaAlbumDefinition::class, true),
+            new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, false),
+
+            (new FkField('media_album_id', 'albumId', MediaAlbumDefinition::class))->setFlags(new Required()),
+            new FkField('user_id', 'userId', UserDefinition::class),
         ]);
 
         foreach (self::$extensions as $extension) {

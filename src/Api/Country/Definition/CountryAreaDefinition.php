@@ -54,7 +54,7 @@ class CountryAreaDefinition extends EntityDefinition
 
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
+            new TranslatedField(new StringField('name', 'name')),
             new BoolField('active', 'active'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),

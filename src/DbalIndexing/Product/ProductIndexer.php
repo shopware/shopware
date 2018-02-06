@@ -4,7 +4,7 @@ namespace Shopware\DbalIndexing\Product;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Api\Entity\Dbal\EntityDefinitionResolver;
+use Shopware\Api\Entity\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
@@ -104,9 +104,9 @@ class ProductIndexer implements IndexerInterface
         $this->refreshJoinIdsByEvents($event);
 
         $this->connection->transactional(function() use ($event) {
-            $this->indexCategoryAssignment(
-                $this->getRefreshedProductIds($event)
-            );
+            $ids = $this->getRefreshedProductIds($event);
+
+            $this->indexCategoryAssignment($ids);
         });
     }
 
@@ -155,7 +155,7 @@ class ProductIndexer implements IndexerInterface
         $query->addGroupBy('product.id');
         $query->andWhere('product.id IN (:ids)');
 
-        $bytes = EntityDefinitionResolver::uuidStringsToBytes($ids);
+        $bytes = EntityDefinitionQueryHelper::uuidStringsToBytes($ids);
 
         $query->setParameter('ids', $bytes, Connection::PARAM_STR_ARRAY);
 
@@ -208,6 +208,7 @@ class ProductIndexer implements IndexerInterface
 
             return;
         }
+
         $bytes = array_map(function($id) {
             return Uuid::fromString($id)->getBytes();
         }, $ids);
@@ -248,7 +249,9 @@ class ProductIndexer implements IndexerInterface
         }
 
         $ids = array_filter(array_unique($ids));
-        $this->refreshJoinIds($ids);
+        if (!empty($ids)) {
+            $this->refreshJoinIds($ids);
+        }
 
         /** @var ProductMediaWrittenEvent|null $mediaWritten */
         $mediaWritten = $event->getEventByDefinition(ProductMediaDefinition::class);

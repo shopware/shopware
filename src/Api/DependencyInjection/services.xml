@@ -38,10 +38,19 @@
             <argument id="dbal_connection" type="service"/>
         </service>
 
-        <service class="Shopware\Api\Entity\Dbal\EntityWriter" id="shopware.api.entity_writer">
-            <argument type="service" id="dbal_connection"/>
+        <service class="Shopware\Api\Entity\Write\EntityWriter" id="shopware.api.entity_writer">
+            <argument type="service" id="Shopware\Api\Entity\Write\WriteCommandExtractor"/>
             <argument type="service" id="shopware.api.write.field_aware.default_extender"/>
             <argument type="service" id="Shopware\Api\Entity\Dbal\EntityForeignKeyResolver"/>
+            <argument id="Shopware\Api\Entity\Write\EntityWriteGatewayInterface" type="service"/>
+        </service>
+
+        <service class="Shopware\Api\Entity\Write\WriteCommandExtractor" id="Shopware\Api\Entity\Write\WriteCommandExtractor">
+            <argument id="Shopware\Api\Entity\Write\EntityWriteGatewayInterface" type="service"/>
+        </service>
+
+        <service class="Shopware\Api\Entity\Dbal\EntityWriteGateway" id="Shopware\Api\Entity\Write\EntityWriteGatewayInterface">
+            <argument id="dbal_connection" type="service"/>
         </service>
 
         <service id="shopware.validation.constraint_builder" class="Shopware\Api\Entity\Write\Validation\ConstraintBuilder"/>

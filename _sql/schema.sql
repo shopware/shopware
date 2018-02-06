@@ -746,7 +746,6 @@ CREATE TABLE `order_line_item` (
 DROP TABLE IF EXISTS `order_state`;
 CREATE TABLE `order_state` (
   `id` binary(16) NOT NULL,
-  `name` varchar(55) COLLATE utf8mb4_unicode_ci NOT NULL,
   `position` int(11) NOT NULL DEFAULT '1',
   `has_mail` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,

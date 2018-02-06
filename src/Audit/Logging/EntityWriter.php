@@ -50,7 +50,7 @@ class EntityWriter implements EntityWriterInterface
 
     public function upsert(string $definition, array $rawData, WriteContext $writeContext): array
     {
-        $this->writeAuditLog($definition, $rawData, $writeContext, __FUNCTION__);
+//        $this->writeAuditLog($definition, $rawData, $writeContext, __FUNCTION__);
 
         return $this->decorated->upsert($definition, $rawData, $writeContext);
     }
@@ -68,21 +68,21 @@ class EntityWriter implements EntityWriterInterface
             }
         }
 
-        $this->writeAuditLog($definition, $rawData, $writeContext, __FUNCTION__);
+//        $this->writeAuditLog($definition, $rawData, $writeContext, __FUNCTION__);
 
         return $this->decorated->insert($definition, $rawData, $writeContext);
     }
 
     public function update(string $definition, array $rawData, WriteContext $writeContext): array
     {
-        $this->writeAuditLog($definition, $rawData, $writeContext, __FUNCTION__);
+//        $this->writeAuditLog($definition, $rawData, $writeContext, __FUNCTION__);
 
         return $this->decorated->update($definition, $rawData, $writeContext);
     }
 
     public function delete(string $definition, array $ids, WriteContext $writeContext)
     {
-        $this->writeAuditLog($definition, $ids, $writeContext, __FUNCTION__);
+//        $this->writeAuditLog($definition, $ids, $writeContext, __FUNCTION__);
 
         return $this->decorated->delete($definition, $ids, $writeContext);
     }

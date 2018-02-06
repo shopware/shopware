@@ -24,53 +24,20 @@
 
 namespace Shopware\Api\Entity\Field;
 
-use Shopware\Api\Entity\Write\FieldAware\ConstraintBuilderAware;
-use Shopware\Api\Entity\Write\FieldAware\FilterRegistryAware;
-use Shopware\Api\Entity\Write\FieldAware\PathAware;
+use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
+use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
-use Shopware\Api\Entity\Write\FieldAware\ValidatorAware;
-use Shopware\Api\Entity\Write\FieldAware\ValueTransformerRegistryAware;
 use Shopware\Api\Entity\Write\FieldException\InvalidFieldException;
-use Shopware\Api\Entity\Write\Filter\FilterRegistry;
-use Shopware\Api\Entity\Write\Validation\ConstraintBuilder;
 use Shopware\Api\Entity\Write\ValueTransformer\ValueTransformerBoolean;
-use Shopware\Api\Entity\Write\ValueTransformer\ValueTransformerRegistry;
-use Shopware\Api\Entity\Write\WriteResource;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class BoolField extends Field implements PathAware, ConstraintBuilderAware, FilterRegistryAware, ValidatorAware, ValueTransformerRegistryAware, StorageAware
+class BoolField extends Field implements StorageAware
 {
-    /**
-     * @var ConstraintBuilder
-     */
-    private $constraintBuilder;
-
-    /**
-     * @var FilterRegistry
-     */
-    private $filterRegistry;
-
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    /**
-     * @var ValueTransformerRegistry
-     */
-    private $valueTransformerRegistry;
-
     /**
      * @var string
      */
     private $storageName;
-
-    /**
-     * @var string
-     */
-    private $path;
 
     public function __construct(string $storageName, string $propertyName)
     {
@@ -81,62 +48,20 @@ class BoolField extends Field implements PathAware, ConstraintBuilderAware, Filt
     /**
      * {@inheritdoc}
      */
-    public function __invoke(string $type, string $key, $value = null): \Generator
+    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
-        switch ($type) {
-            case WriteResource::FOR_INSERT:
-                $this->validate($this->getInsertConstraints(), $key, $value);
-                break;
-            case WriteResource::FOR_UPDATE:
-                $this->validate($this->getUpdateConstraints(), $key, $value);
-                break;
-            default:
-                throw new \DomainException(sprintf('Could not understand %s', $type));
+        $key = $data->getKey();
+        $value = $data->getValue();
+
+        if ($existence->exists()) {
+            $this->validate($this->getUpdateConstraints(), $key, $value);
+        } else {
+            $this->validate($this->getInsertConstraints(), $key, $value);
         }
 
         yield $this->storageName => $this->valueTransformerRegistry
                 ->get(ValueTransformerBoolean::class)
                 ->transform($value);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setConstraintBuilder(ConstraintBuilder $constraintBuilder): void
-    {
-        $this->constraintBuilder = $constraintBuilder;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setFilterRegistry(FilterRegistry $filterRegistry): void
-    {
-        $this->filterRegistry = $filterRegistry;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setValidator(ValidatorInterface $validator): void
-    {
-        $this->validator = $validator;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setPath(string $path = ''): void
-    {
-        $this->path = $path;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setValueTransformerRegistry(ValueTransformerRegistry $valueTransformerRegistry): void
-    {
-        $this->valueTransformerRegistry = $valueTransformerRegistry;
     }
 
     public function getStorageName(): string
@@ -188,7 +113,6 @@ class BoolField extends Field implements PathAware, ConstraintBuilderAware, Filt
     {
         return $this->constraintBuilder
             ->isBool()
-            ->isShorterThen(255)
             ->getConstraints();
     }
 
@@ -199,7 +123,6 @@ class BoolField extends Field implements PathAware, ConstraintBuilderAware, Filt
     {
         return $this->constraintBuilder
             ->isBool()
-            ->isShorterThen(255)
             ->getConstraints();
     }
 }

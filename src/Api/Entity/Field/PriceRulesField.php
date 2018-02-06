@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Entity\Field;
 
+use Shopware\Api\Entity\Write\FieldAware\SqlParseAware;
 use Shopware\Context\Struct\TranslationContext;
 
 class PriceRulesField extends StringField implements SqlParseAware

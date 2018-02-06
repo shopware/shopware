@@ -15,7 +15,7 @@ class LocaleDefinitionTest extends TestCase
         $fields = LocaleDefinition::getFields()->filterByFlag(Required::class);
 
         $this->assertEquals(
-            ['id', 'code', 'name', 'territory', 'translations'],
+            ['id', 'code', 'translations'],
             $fields->getKeys()
         );
     }

@@ -24,19 +24,11 @@
 
 namespace Shopware\Api\Entity\Field;
 
-use Shopware\Api\Entity\Write\FieldAware\ExceptionStackAware;
-use Shopware\Api\Entity\Write\FieldAware\FieldExtenderCollection;
-use Shopware\Api\Entity\Write\FieldAware\FieldExtenderCollectionAware;
-use Shopware\Api\Entity\Write\FieldAware\PathAware;
-use Shopware\Api\Entity\Write\FieldAware\WriteContextAware;
-use Shopware\Api\Entity\Write\FieldAware\WriteQueryQueueAware;
-use Shopware\Api\Entity\Write\FieldException\FieldExceptionStack;
+use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
+use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\FieldException\MalformatDataException;
-use Shopware\Api\Entity\Write\Query\WriteQueryQueue;
-use Shopware\Api\Entity\Write\WriteContext;
-use Shopware\Api\Entity\Write\WriteResource;
 
-class SubresourceField extends Field implements PathAware, ExceptionStackAware, WriteQueryQueueAware, WriteContextAware, FieldExtenderCollectionAware
+class SubresourceField extends Field
 {
     /**
      * @var string
@@ -44,34 +36,9 @@ class SubresourceField extends Field implements PathAware, ExceptionStackAware, 
     protected $referenceClass;
 
     /**
-     * @var WriteQueryQueue
-     */
-    private $queryQueue;
-
-    /**
-     * @var WriteContext
-     */
-    private $writeContext;
-
-    /**
-     * @var FieldExceptionStack
-     */
-    private $exceptionStack;
-
-    /**
      * @var
      */
     private $possibleKey;
-
-    /**
-     * @var string
-     */
-    private $path;
-
-    /**
-     * @var FieldExtenderCollection
-     */
-    private $fieldExtender;
 
     public function __construct(string $propertyName, string $referenceClass, $possibleKey = null)
     {
@@ -83,8 +50,11 @@ class SubresourceField extends Field implements PathAware, ExceptionStackAware, 
     /**
      * {@inheritdoc}
      */
-    public function __invoke(string $type, string $key, $value = null): \Generator
+    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
+        $key = $data->getKey();
+        $value = $data->getValue();
+
         if (!is_array($value)) {
             throw new MalformatDataException($this->path . '/' . $key, 'Value must be an array.');
         }
@@ -100,87 +70,18 @@ class SubresourceField extends Field implements PathAware, ExceptionStackAware, 
                 $subresources[$this->possibleKey] = $keyValue;
             }
 
-            WriteResource::extract(
+            $this->writeResource->extract(
                 $subresources,
                 $this->referenceClass,
                 $this->exceptionStack,
-                $this->queryQueue,
+                $this->commandQueue,
                 $this->writeContext,
-                $this->fieldExtender,
+                $this->fieldExtenderCollection,
                 $this->path . '/' . $key . '/' . $keyValue
             );
         }
 
         return;
         yield __CLASS__ => __METHOD__;
-    }
-
-    public function collectPrimaryKeys(string $type, string $key, $value = null): \Generator
-    {
-        if (!is_array($value)) {
-            throw new MalformatDataException($this->path . '/' . $key, 'Value must be an array.');
-        }
-
-        $isNumeric = array_keys($value) === range(0, count($value) - 1);
-
-        foreach ($value as $keyValue => $subresources) {
-            if (!is_array($subresources)) {
-                throw new MalformatDataException($this->path . '/' . $key, 'Value must be an array.');
-            }
-
-            if ($this->possibleKey && !$isNumeric) {
-                $subresources[$this->possibleKey] = $keyValue;
-            }
-
-            WriteResource::collectPrimaryKeys(
-                $subresources,
-                $this->referenceClass,
-                $this->exceptionStack,
-                $this->queryQueue,
-                $this->writeContext,
-                $this->fieldExtender,
-                $this->path . '/' . $key . '/' . $keyValue
-            );
-        }
-
-        return;
-        yield __CLASS__ => __METHOD__;
-    }
-
-    /**
-     * @param WriteContext $writeContext
-     */
-    public function setWriteContext(WriteContext $writeContext): void
-    {
-        $this->writeContext = $writeContext;
-    }
-
-    /**
-     * @param FieldExceptionStack $exceptionStack
-     */
-    public function setExceptionStack(FieldExceptionStack $exceptionStack): void
-    {
-        $this->exceptionStack = $exceptionStack;
-    }
-
-    /**
-     * @param WriteQueryQueue $queryQueue
-     */
-    public function setWriteQueryQueue(WriteQueryQueue $queryQueue): void
-    {
-        $this->queryQueue = $queryQueue;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setPath(string $path = ''): void
-    {
-        $this->path = $path;
-    }
-
-    public function setFieldExtenderCollection(FieldExtenderCollection $fieldExtenderCollection): void
-    {
-        $this->fieldExtender = $fieldExtenderCollection;
     }
 }

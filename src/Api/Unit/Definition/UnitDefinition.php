@@ -54,8 +54,8 @@ class UnitDefinition extends EntityDefinition
 
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new TranslatedField(new StringField('short_code', 'shortCode')))->setFlags(new Required()),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
+            new TranslatedField(new StringField('short_code', 'shortCode')),
+            new TranslatedField(new StringField('name', 'name')),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             (new OneToManyAssociationField('products', ProductDefinition::class, 'unit_id', false, 'id'))->setFlags(new RestrictDelete()),

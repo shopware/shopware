@@ -13,7 +13,7 @@ class CategoryDefinitionTest extends TestCase
     public function testRequiredFieldsDefined()
     {
         $fields = CategoryDefinition::getFields()->filterByFlag(Required::class);
-        $this->assertEquals(['id', 'name', 'translations'], $fields->getKeys());
+        $this->assertEquals(['id', 'translations'], $fields->getKeys());
     }
 
     public function testOnDeleteCascadesDefined()

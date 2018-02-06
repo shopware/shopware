@@ -5,7 +5,6 @@ namespace Shopware\Api\Entity\Dbal;
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\Entity\InheritedDefinition;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\IdSearchResult;
@@ -31,23 +30,22 @@ class EntitySearcher implements EntitySearcherInterface
         $table = $definition::getEntityName();
         $query = new QueryBuilder($this->connection);
 
-        $instance = new $definition();
-        if ($instance instanceof InheritedDefinition) {
-            /** @var InheritedDefinition|EntityDefinition|string $definition */
+        if ($definition::getParentPropertyName()) {
+            /** @var EntityDefinition|string $definition */
             $parent = $definition::getFields()->get($definition::getParentPropertyName());
-            EntityDefinitionResolver::joinManyToOne($definition, $definition::getEntityName(), $parent, $query);
+            EntityDefinitionQueryHelper::joinManyToOne($definition, $definition::getEntityName(), $parent, $query);
         }
 
         //add id select, e.g. `product`.`id`;
         $query->addSelect(
-            EntityDefinitionResolver::escape($table) . '.' . EntityDefinitionResolver::escape('id') . ' as array_key',
-            EntityDefinitionResolver::escape($table) . '.' . EntityDefinitionResolver::escape('id') . ' as primary_key'
+            EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id') . ' as array_key',
+            EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id') . ' as primary_key'
         );
 
         //build from path with escaped alias, e.g. FROM product as `product`
         $query->from(
-            EntityDefinitionResolver::escape($table),
-            EntityDefinitionResolver::escape($table)
+            EntityDefinitionQueryHelper::escape($table),
+            EntityDefinitionQueryHelper::escape($table)
         );
 
         $fields = array_merge(
@@ -59,7 +57,7 @@ class EntitySearcher implements EntitySearcherInterface
 
         //join association and translated fields
         foreach ($fields as $fieldName) {
-            EntityDefinitionResolver::joinField($fieldName, $definition, $table, $query, $context);
+            EntityDefinitionQueryHelper::joinField($fieldName, $definition, $table, $query, $context);
         }
 
         $this->addFilters($definition, $criteria, $query, $context);
@@ -112,7 +110,7 @@ class EntitySearcher implements EntitySearcherInterface
             return;
         }
 
-        $query->addState(EntityDefinitionResolver::REQUIRES_GROUP_BY);
+        $query->addState(EntityDefinitionQueryHelper::REQUIRES_GROUP_BY);
 
         $select = 'SUM(' . implode(' + ', $queries->getWheres()) . ')';
         $query->addSelect($select . ' as score');
@@ -154,7 +152,7 @@ class EntitySearcher implements EntitySearcherInterface
         /* @var string|EntityDefinition $definition */
         foreach ($criteria->getSortings() as $sorting) {
             $query->addOrderBy(
-                EntityDefinitionResolver::getFieldAccessor(
+                EntityDefinitionQueryHelper::getFieldAccessor(
                     $sorting->getField(),
                     $definition,
                     $definition::getEntityName(),
@@ -182,17 +180,17 @@ class EntitySearcher implements EntitySearcherInterface
         /** @var string|EntityDefinition $definition */
         $table = $definition::getEntityName();
 
-        if (!$query->hasState(EntityDefinitionResolver::REQUIRES_GROUP_BY)) {
+        if (!$query->hasState(EntityDefinitionQueryHelper::REQUIRES_GROUP_BY)) {
             return;
         }
 
         $fields = [
-            EntityDefinitionResolver::escape($table) . '.' . EntityDefinitionResolver::escape('id'),
+            EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id'),
         ];
 
         // each order by column has to be inside the group by statement (sql_mode=only_full_group_by)
         foreach ($criteria->getSortings() as $sorting) {
-            $fields[] = EntityDefinitionResolver::getFieldAccessor(
+            $fields[] = EntityDefinitionQueryHelper::getFieldAccessor(
                 $sorting->getField(),
                 $definition,
                 $definition::getEntityName(),

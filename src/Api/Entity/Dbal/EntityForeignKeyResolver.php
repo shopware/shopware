@@ -92,9 +92,9 @@ class EntityForeignKeyResolver
         $query = new QueryBuilder($this->connection);
 
         $root = $definition::getEntityName();
-        $rootAlias = EntityDefinitionResolver::escape($definition::getEntityName());
+        $rootAlias = EntityDefinitionQueryHelper::escape($definition::getEntityName());
 
-        $query->from(EntityDefinitionResolver::escape($definition::getEntityName()), $rootAlias);
+        $query->from(EntityDefinitionQueryHelper::escape($definition::getEntityName()), $rootAlias);
         $query->addSelect($rootAlias . '.id as root');
 
         $cascades = $definition::getFields()->filterByFlag($class);
@@ -114,35 +114,35 @@ class EntityForeignKeyResolver
             $alias = $root . '.' . $cascade->getPropertyName();
 
             if ($cascade instanceof OneToManyAssociationField) {
-                EntityDefinitionResolver::joinOneToMany($definition, $root, $cascade, $query);
+                EntityDefinitionQueryHelper::joinOneToMany($definition, $root, $cascade, $query);
 
                 $query->addSelect(
                     'GROUP_CONCAT(HEX(' .
-                    EntityDefinitionResolver::escape($alias) . '.id)' .
-                    ' SEPARATOR \'||\')  as ' . EntityDefinitionResolver::escape($alias)
+                    EntityDefinitionQueryHelper::escape($alias) . '.id)' .
+                    ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
                 );
             }
 
             if ($cascade instanceof ManyToManyAssociationField) {
                 $mappingAlias = $root . '.' . $cascade->getPropertyName() . '.mapping';
 
-                EntityDefinitionResolver::joinManyToMany($definition, $root, $cascade, $query);
+                EntityDefinitionQueryHelper::joinManyToMany($definition, $root, $cascade, $query);
 
                 $query->addSelect(
                     'GROUP_CONCAT(HEX(' .
-                    EntityDefinitionResolver::escape($mappingAlias) . '.' . $cascade->getMappingReferenceColumn() .
-                    ') SEPARATOR \'||\')  as ' . EntityDefinitionResolver::escape($alias)
+                    EntityDefinitionQueryHelper::escape($mappingAlias) . '.' . $cascade->getMappingReferenceColumn() .
+                    ') SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
                 );
                 continue;
             }
 
             if ($cascade instanceof ManyToOneAssociationField) {
-                EntityDefinitionResolver::joinManyToOne($definition, $root, $cascade, $query);
+                EntityDefinitionQueryHelper::joinManyToOne($definition, $root, $cascade, $query);
 
                 $query->addSelect(
                     'GROUP_CONCAT(HEX(' .
-                    EntityDefinitionResolver::escape($alias) . '.id)' .
-                    ' SEPARATOR \'||\')  as ' . EntityDefinitionResolver::escape($alias)
+                    EntityDefinitionQueryHelper::escape($alias) . '.id)' .
+                    ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
                 );
             }
 
@@ -169,7 +169,7 @@ class EntityForeignKeyResolver
                 $part[] = sprintf(
                     '%s.%s = :%s',
                     $rootAlias,
-                    EntityDefinitionResolver::escape($key),
+                    EntityDefinitionQueryHelper::escape($key),
                     $param
                 );
 
@@ -180,7 +180,7 @@ class EntityForeignKeyResolver
         }
 
         foreach ($group as $column) {
-            $query->addGroupBy($rootAlias . '.' . EntityDefinitionResolver::escape($column));
+            $query->addGroupBy($rootAlias . '.' . EntityDefinitionQueryHelper::escape($column));
         }
     }
 
@@ -206,7 +206,7 @@ class EntityForeignKeyResolver
                     $value
                 );
 
-                $field = EntityDefinitionResolver::getField($key, $definition, $root);
+                $field = EntityDefinitionQueryHelper::getField($key, $definition, $root);
 
                 if (!$field) {
                     throw new \RuntimeException(sprintf('Field by key %s not found', $key));

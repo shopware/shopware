@@ -15,7 +15,7 @@ class CountryAreaDefinitionTest extends TestCase
         $fields = CountryAreaDefinition::getFields()->filterByFlag(Required::class);
 
         $this->assertEquals(
-            ['id', 'name', 'translations'],
+            ['id', 'translations'],
             $fields->getKeys()
         );
     }

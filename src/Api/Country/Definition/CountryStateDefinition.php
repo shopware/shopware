@@ -61,7 +61,7 @@ class CountryStateDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),
             (new StringField('short_code', 'shortCode'))->setFlags(new Required()),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
+            new TranslatedField(new StringField('name', 'name')),
             new IntField('position', 'position'),
             new BoolField('active', 'active'),
             new DateField('created_at', 'createdAt'),

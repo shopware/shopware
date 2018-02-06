@@ -25,29 +25,22 @@
 namespace Shopware\Api\Entity\Field;
 
 use Ramsey\Uuid\Uuid;
-use Shopware\Api\Entity\Write\FieldAware\PathAware;
+use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
+use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
-use Shopware\Api\Entity\Write\FieldAware\ValidatorAware;
-use Shopware\Api\Entity\Write\FieldAware\WriteContextAware;
 use Shopware\Api\Entity\Write\FieldException\InvalidFieldException;
+use Shopware\Api\Entity\Write\Flag\Inherited;
 use Shopware\Api\Entity\Write\Flag\Required;
-use Shopware\Api\Entity\Write\WriteContext;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class FkField extends Field implements WriteContextAware, ValidatorAware, PathAware, StorageAware
+class FkField extends Field implements StorageAware
 {
     /**
      * @var string
      */
     private $storageName;
-
-    /**
-     * @var WriteContext
-     */
-    private $writeContext;
 
     /**
      * @var string
@@ -59,16 +52,6 @@ class FkField extends Field implements WriteContextAware, ValidatorAware, PathAw
      */
     private $referenceField;
 
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    /**
-     * @var string
-     */
-    private $path;
-
     public function __construct(string $storageName, string $propertyName, string $referenceClass, string $referenceField = 'id')
     {
         $this->referenceClass = $referenceClass;
@@ -77,18 +60,22 @@ class FkField extends Field implements WriteContextAware, ValidatorAware, PathAw
         parent::__construct($propertyName);
     }
 
-    public function __invoke(string $type, string $key, $value = null): \Generator
+    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
-        if (!$value) {
+        $key = $data->getKey();
+        $value = $data->getValue();
+
+        if ($this->shouldUseContext($data, $existence)) {
             try {
                 $value = $this->writeContext->get($this->referenceClass, $this->referenceField);
             } catch (\InvalidArgumentException $exception) {
-                $this->validate($key, $value);
+                $this->validate($key, $value, $existence);
             }
         }
 
         if ($value === null) {
             yield $this->storageName => null;
+
             return;
         }
 
@@ -100,34 +87,17 @@ class FkField extends Field implements WriteContextAware, ValidatorAware, PathAw
         return $this->storageName;
     }
 
-    public function setWriteContext(WriteContext $writeContext): void
-    {
-        $this->writeContext = $writeContext;
-    }
-
-    public function setValidator(ValidatorInterface $validator): void
-    {
-        $this->validator = $validator;
-    }
-
-    public function setPath(string $path = ''): void
-    {
-        $this->path = $path;
-    }
-
     /**
      * @param string $fieldName
      * @param $value
-     *
-     * @throws InvalidFieldException
+     * @param array $raw
      */
-    private function validate(string $fieldName, $value): void
+    private function validate(string $fieldName, $value, EntityExistence $existence): void
     {
         $violationList = new ConstraintViolationList();
-        $constraints = [];
-        if ($this->is(Required::class)) {
-            $constraints[] = new NotBlank();
-        }
+
+        $constraints = $this->getConstraints($existence);
+
         $violations = $this->validator->validate($value, $constraints);
 
         /** @var ConstraintViolation $violation */
@@ -151,5 +121,33 @@ class FkField extends Field implements WriteContextAware, ValidatorAware, PathAw
         if (count($violationList)) {
             throw new InvalidFieldException($this->path . '/' . $fieldName, $violationList);
         }
+    }
+
+    private function getConstraints(EntityExistence $existence): array
+    {
+        if ($this->is(Inherited::class) && $existence->isChild()) {
+            return [];
+        }
+
+        if ($this->is(Required::class)) {
+            return [new NotBlank()];
+        }
+
+        return [];
+    }
+
+    public function getExtractPriority(): int
+    {
+        return 70;
+    }
+
+    /**
+     * @param KeyValuePair $data
+     * @param EntityExistence $existence
+     * @return bool
+     */
+    private function shouldUseContext(KeyValuePair $data, EntityExistence $existence): bool
+    {
+        return $data->isRaw() && $data->getValue() === null && $this->is(Required::class);
     }
 }

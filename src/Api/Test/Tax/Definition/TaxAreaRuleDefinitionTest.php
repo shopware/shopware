@@ -15,7 +15,7 @@ class TaxAreaRuleDefinitionTest extends TestCase
         $fields = TaxAreaRuleDefinition::getFields()->filterByFlag(Required::class);
 
         $this->assertEquals(
-            ['id', 'taxId', 'customerGroupId', 'taxRate', 'name', 'translations'],
+            ['id', 'taxId', 'customerGroupId', 'taxRate','translations'],
             $fields->getKeys()
         );
     }

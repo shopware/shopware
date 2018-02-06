@@ -15,7 +15,7 @@ class ProductManufacturerDefinitionTest extends TestCase
         $fields = ProductManufacturerDefinition::getFields()->filterByFlag(Required::class);
 
         $this->assertEquals(
-            ['id', 'name', 'translations'],
+            ['id', 'translations'],
             $fields->getKeys()
         );
     }

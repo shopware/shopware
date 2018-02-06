@@ -96,10 +96,10 @@ class AuditLogSearchTest extends KernelTestCase
         $p2 = Uuid::uuid4()->toString();
 
         $this->productRepository->upsert([
-            ['id' => $p1, 'name' => 'test product 1', 'price' => 10],
-            ['id' => $p2, 'name' => 'test product 2', 'price' => 10],
-            ['id' => Uuid::uuid4()->toString(), 'name' => 'notmatch', 'price' => 10],
-            ['id' => Uuid::uuid4()->toString(), 'name' => 'notmatch', 'price' => 10],
+            ['id' => $p1, 'name' => 'test product 1', 'price' => 10, 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9', 'manufacturer' => ['name' => 'test']],
+            ['id' => $p2, 'name' => 'test product 2', 'price' => 10, 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9', 'manufacturer' => ['name' => 'test']],
+            ['id' => Uuid::uuid4()->toString(), 'name' => 'notmatch', 'price' => 10, 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9', 'manufacturer' => ['name' => 'test']],
+            ['id' => Uuid::uuid4()->toString(), 'name' => 'notmatch', 'price' => 10, 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9', 'manufacturer' => ['name' => 'test']],
         ], $context);
 
         $result = $this->search->search('test product', 1, 20, $context, $this->userId);

@@ -62,7 +62,7 @@ class CountryDefinition extends EntityDefinition
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new FkField('country_area_id', 'areaId', CountryAreaDefinition::class),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
+            new TranslatedField(new StringField('name', 'name')),
             new StringField('iso', 'iso'),
             new IntField('position', 'position'),
             new BoolField('shipping_free', 'shippingFree'),

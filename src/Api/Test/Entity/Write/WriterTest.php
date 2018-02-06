@@ -168,6 +168,8 @@ class WriterTest extends KernelTestCase
                 'id' => $productId->toString(),
                 'name' => 'test 1',
                 'price' => 10,
+                'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                'manufacturer' => ['name' => 'test'],
                 'categories' => [
                     ['category' => ['id' => $categoryId->toString(), 'name' => 'test']],
                 ],
@@ -215,15 +217,29 @@ class WriterTest extends KernelTestCase
                 'id' => $productId->toString(),
                 'name' => 'test 1',
                 'price' => 10,
+                'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                'manufacturer' => ['name' => 'test'],
                 'categories' => [
                     ['category' => ['id' => $categoryId->toString(), 'name' => 'test']],
                 ],
-            ], [
+            ],
+            [
                 'id' => $productId2->toString(),
                 'name' => 'test 1',
                 'price' => 10,
+                'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                'manufacturer' => ['name' => 'test'],
                 'categories' => [
                     ['categoryId' => $categoryId->toString()],
+                ],
+            ],
+            [
+                'name' => 'test 1',
+                'price' => 10,
+                'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                'manufacturer' => ['name' => 'test'],
+                'categories' => [
+                    ['category' => ['name' => 'test']],
                 ],
             ],
         ], $context);
@@ -354,6 +370,7 @@ class WriterTest extends KernelTestCase
                     'id' => $this->id,
                     'name' => '_THE_TITLE_',
                     'the_unknown_field' => 'do nothing?',
+                    'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
                     'description' => '<p>no html</p>',
                     'descriptionLong' => '<p>html</p>',
                     'availableFrom' => new \DateTime('2011-01-01T15:03:01.012345Z'),
@@ -536,7 +553,7 @@ class WriterTest extends KernelTestCase
                     'id' => $this->id,
                     'name' => 'Test product',
                     'price' => 10,
-                    'tax_id' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                    'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
                     'manufacturer' => [
                         'id' => Uuid::uuid4()->toString(),
                         'name' => 'shopware AG',

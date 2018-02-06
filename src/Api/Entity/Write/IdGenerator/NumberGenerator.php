@@ -32,10 +32,12 @@ abstract class NumberGenerator implements Generator
      * @var Connection
      */
     private $connection;
+
     /**
      * @var string
      */
     private $name;
+
     /**
      * @var string
      */
@@ -51,7 +53,7 @@ abstract class NumberGenerator implements Generator
         $this->prefix = $prefix;
     }
 
-    public function toDatabase(string $value): string
+    public function toStorageValue(string $value): string
     {
         return $value;
     }

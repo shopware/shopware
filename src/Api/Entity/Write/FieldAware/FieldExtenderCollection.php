@@ -44,8 +44,6 @@ class FieldExtenderCollection extends FieldExtender
             $fieldExtender->extend($field);
         }
 
-        if ($field instanceof FieldExtenderCollectionAware) {
-            $field->setFieldExtenderCollection($this);
-        }
+        $field->setFieldExtenderCollection($this);
     }
 }

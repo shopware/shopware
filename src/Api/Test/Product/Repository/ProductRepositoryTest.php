@@ -10,6 +10,7 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Sorting\FieldSorting;
+use Shopware\Api\Entity\Write\FieldException\WriteStackException;
 use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
 use Shopware\Api\Product\Event\Product\ProductWrittenEvent;
@@ -20,6 +21,9 @@ use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
 use Shopware\Api\Product\Struct\ProductDetailStruct;
 use Shopware\Api\Product\Struct\ProductManufacturerBasicStruct;
+use Shopware\Api\Tax\Definition\TaxDefinition;
+use Shopware\Api\Tax\Event\Tax\TaxWrittenEvent;
+use Shopware\Api\Tax\Struct\TaxBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -47,6 +51,11 @@ class ProductRepositoryTest extends KernelTestCase
      */
     private $connection;
 
+    /**
+     * @var TranslationContext
+     */
+    private $context;
+
     protected function setUp()
     {
         self::bootKernel();
@@ -57,12 +66,156 @@ class ProductRepositoryTest extends KernelTestCase
         $this->connection = $this->container->get('dbal_connection');
         $this->connection->beginTransaction();
         $this->connection->executeUpdate('DELETE FROM product');
+        $this->context = TranslationContext::createDefaultContext();
+
     }
 
     protected function tearDown()
     {
         $this->connection->rollBack();
         parent::tearDown();
+    }
+
+    public function testWriteProductWithDifferentTaxFormat()
+    {
+        $tax = Uuid::uuid4()->toString();
+
+        $data = [
+            [
+                'id' => Uuid::uuid4()->toString(),
+                'name' => 'Test',
+                'price' => 10,
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['rate' => 19, 'name' => 'without id']
+            ],
+            [
+                'id' => Uuid::uuid4()->toString(),
+                'name' => 'Test',
+                'price' => 10,
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['id' => $tax, 'rate' => 17, 'name' => 'with id']
+            ],
+            [
+                'id' => Uuid::uuid4()->toString(),
+                'name' => 'Test',
+                'price' => 10,
+                'manufacturer' => ['name' => 'test'],
+                'taxId' => $tax
+            ],
+            [
+                'id' => Uuid::uuid4()->toString(),
+                'name' => 'Test',
+                'price' => 10,
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['id' => $tax, 'rate' => 18]
+            ]
+        ];
+
+        $this->repository->create($data, $this->context);
+        $ids = array_column($data, 'id');
+        $products = $this->repository->readBasic($ids, $this->context);
+
+        $product = $products->get($ids[0]);
+
+        /** @var ProductBasicStruct $product */
+        $this->assertInstanceOf(ProductBasicStruct::class, $product);
+        $this->assertInstanceOf(TaxBasicStruct::class, $product->getTax());
+        $this->assertEquals('without id', $product->getTax()->getName());
+        $this->assertEquals(19, $product->getTax()->getRate());
+
+
+        $product = $products->get($ids[1]);
+        $this->assertInstanceOf(ProductBasicStruct::class, $product);
+        $this->assertInstanceOf(TaxBasicStruct::class, $product->getTax());
+        $this->assertEquals($tax, $product->getTaxId());
+        $this->assertEquals($tax, $product->getTax()->getId());
+        $this->assertEquals('with id', $product->getTax()->getName());
+        $this->assertEquals(18, $product->getTax()->getRate());
+
+        $product = $products->get($ids[2]);
+        $this->assertInstanceOf(ProductBasicStruct::class, $product);
+        $this->assertInstanceOf(TaxBasicStruct::class, $product->getTax());
+        $this->assertEquals($tax, $product->getTaxId());
+        $this->assertEquals($tax, $product->getTax()->getId());
+        $this->assertEquals('with id', $product->getTax()->getName());
+        $this->assertEquals(18, $product->getTax()->getRate());
+
+        $product = $products->get($ids[2]);
+        $this->assertInstanceOf(ProductBasicStruct::class, $product);
+        $this->assertInstanceOf(TaxBasicStruct::class, $product->getTax());
+        $this->assertEquals($tax, $product->getTaxId());
+        $this->assertEquals($tax, $product->getTax()->getId());
+        $this->assertEquals('with id', $product->getTax()->getName());
+        $this->assertEquals(18, $product->getTax()->getRate());
+    }
+
+    public function testWriteProductWithDifferentManufacturerStructures()
+    {
+        $manufacturerId = Uuid::uuid4()->toString();
+
+        $data = [
+            [
+                'id' => Uuid::uuid4()->toString(),
+                'name' => 'Test',
+                'price' => 10,
+                'tax' => ['rate' => 17, 'name' => 'test'],
+                'manufacturer' => ['name' => 'without id']
+            ],
+            [
+                'id' => Uuid::uuid4()->toString(),
+                'name' => 'Test',
+                'price' => 10,
+                'tax' => ['rate' => 17, 'name' => 'test'],
+                'manufacturer' => ['id' => $manufacturerId, 'name' => 'with id']
+            ],
+            [
+                'id' => Uuid::uuid4()->toString(),
+                'name' => 'Test',
+                'price' => 10,
+                'tax' => ['rate' => 17, 'name' => 'test'],
+                'manufacturerId' => $manufacturerId
+            ],
+            [
+                'id' => Uuid::uuid4()->toString(),
+                'name' => 'Test',
+                'price' => 10,
+                'tax' => ['rate' => 17, 'name' => 'test'],
+                'manufacturer' => ['id' => $manufacturerId, 'link' => 'test']
+            ]
+        ];
+
+        $this->repository->create($data, $this->context);
+        $ids = array_column($data, 'id');
+        $products = $this->repository->readBasic($ids, $this->context);
+
+        $product = $products->get($ids[0]);
+
+        /** @var ProductBasicStruct $product */
+        $this->assertInstanceOf(ProductBasicStruct::class, $product);
+        $this->assertInstanceOf(ProductManufacturerBasicStruct::class, $product->getManufacturer());
+        $this->assertEquals('without id', $product->getManufacturer()->getName());
+
+        $product = $products->get($ids[1]);
+        $this->assertInstanceOf(ProductBasicStruct::class, $product);
+        $this->assertInstanceOf(ProductManufacturerBasicStruct::class, $product->getManufacturer());
+        $this->assertEquals($manufacturerId, $product->getManufacturerId());
+        $this->assertEquals($manufacturerId, $product->getManufacturer()->getId());
+        $this->assertEquals('with id', $product->getManufacturer()->getName());
+
+        $product = $products->get($ids[2]);
+        $this->assertInstanceOf(ProductBasicStruct::class, $product);
+        $this->assertInstanceOf(ProductManufacturerBasicStruct::class, $product->getManufacturer());
+        $this->assertEquals($manufacturerId, $product->getManufacturerId());
+        $this->assertEquals($manufacturerId, $product->getManufacturer()->getId());
+        $this->assertEquals('with id', $product->getManufacturer()->getName());
+
+        $product = $products->get($ids[2]);
+        $this->assertInstanceOf(ProductBasicStruct::class, $product);
+        $this->assertInstanceOf(ProductManufacturerBasicStruct::class, $product->getManufacturer());
+        $this->assertEquals($manufacturerId, $product->getManufacturerId());
+        $this->assertEquals($manufacturerId, $product->getManufacturer()->getId());
+        $this->assertEquals('with id', $product->getManufacturer()->getName());
+        $this->assertEquals('test', $product->getManufacturer()->getLink());
     }
 
     public function testReadAndWriteOfProductManufacturerAssociation()
@@ -80,7 +233,8 @@ class ProductRepositoryTest extends KernelTestCase
                 'id' => $id->toString(),
                 'name' => 'Test',
                 'price' => 10,
-                'manufacturer' => ['id' => $id->toString(), 'name' => 'test'],
+                'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                'manufacturer' => ['name' => 'test'],
             ],
         ], TranslationContext::createDefaultContext());
 
@@ -108,7 +262,6 @@ class ProductRepositoryTest extends KernelTestCase
 
         //check nested element loaded
         $manufacturer = $product->getManufacturer();
-        $this->assertEquals($id->toString(), $manufacturer->getId());
         $this->assertEquals('test', $manufacturer->getName());
     }
 
@@ -119,6 +272,8 @@ class ProductRepositoryTest extends KernelTestCase
             'id' => $id->toString(),
             'name' => 'price test',
             'price' => 100,
+            'manufacturer' => ['name' => 'test'],
+            'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
             'prices' => json_encode([
                 'H_D_E' => 5,
                 'H_D' => 10,
@@ -157,18 +312,24 @@ class ProductRepositoryTest extends KernelTestCase
                 'id' => $id->toString(),
                 'name' => 'price test 1',
                 'price' => 100,
+                'manufacturer' => ['name' => 'test'],
+                'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
                 'prices' => json_encode(['H_D_E' => 15]),
             ],
             [
                 'id' => $id2->toString(),
                 'name' => 'price test 2',
                 'price' => 500,
+                'manufacturer' => ['name' => 'test'],
+                'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
                 'prices' => json_encode(['H_D_E' => 5]),
             ],
             [
                 'id' => $id3->toString(),
                 'name' => 'price test 3',
                 'price' => 500,
+                'manufacturer' => ['name' => 'test'],
+                'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
                 'prices' => json_encode(['H_D_E' => 10]),
             ],
         ];
@@ -207,16 +368,23 @@ class ProductRepositoryTest extends KernelTestCase
         $parentPrice = 10;
         $parentName = 'T-shirt';
         $greenPrice = 12;
+
         $redName = 'Red shirt';
 
         $products = [
-            ['id' => $parentId, 'name' => $parentName, 'price' => $parentPrice],
+            [
+                'id' => $parentId,
+                'name' => $parentName,
+                'price' => $parentPrice,
+                'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                'manufacturer' => ['name' => 'test']
+            ],
 
             //price should be inherited
-            ['id' => $redId,    'name' => $redName, 'parentId' => $parentId],
+            ['id' => $redId, 'name' => $redName, 'parentId' => $parentId],
 
             //name should be inherited
-            ['id' => $greenId,  'price' => $greenPrice, 'parentId' => $parentId],
+            ['id' => $greenId, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
         $this->repository->create($products, TranslationContext::createDefaultContext());
@@ -245,6 +413,113 @@ class ProductRepositoryTest extends KernelTestCase
 
         $this->assertEquals($greenPrice, $green->getPrice());
         $this->assertEquals($parentName, $green->getName());
+
+        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromString($parentId)->getBytes()]);
+        $this->assertEquals($parentPrice, $row['price']);
+        $row = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromString($parentId)->getBytes()]);
+        $this->assertEquals($parentName, $row['name']);
+
+        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromString($redId)->getBytes()]);
+        $this->assertNull($row['price']);
+        $row = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromString($redId)->getBytes()]);
+        $this->assertEquals($redName, $row['name']);
+
+        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromString($greenId)->getBytes()]);
+        $this->assertEquals($greenPrice, $row['price']);
+        $row = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromString($greenId)->getBytes()]);
+        $this->assertEmpty($row);
+    }
+
+    public function testInsertAndUpdateInOneStep()
+    {
+        $id = Uuid::uuid4()->toString();
+
+        $data = [
+            ['id' => $id, 'name' => 'Insert', 'price' => 10, 'tax' => ['name' => 'test', 'rate' => 10], 'manufacturer' => ['name' => 'test']],
+            ['id' => $id, 'name' => 'Update', 'price' => 12]
+        ];
+
+        $this->repository->upsert($data, TranslationContext::createDefaultContext());
+
+        $products = $this->repository->readBasic([$id], TranslationContext::createDefaultContext());
+        $this->assertTrue($products->has($id));
+
+        /** @var ProductBasicStruct $product */
+        $product = $products->get($id);
+
+        $this->assertEquals('Update', $product->getName());
+        $this->assertEquals(12, $product->getPrice());
+
+        $count = $this->connection->fetchColumn('SELECT COUNT(id) FROM product');
+        $this->assertEquals(1, $count);
+    }
+
+    public function testSwitchVariantToFullProduct()
+    {
+        $id = Uuid::uuid4()->toString();
+        $child = Uuid::uuid4()->toString();
+
+        $data = [
+            ['id' => $id, 'name' => 'Insert', 'price' => 10, 'tax' => ['name' => 'test', 'rate' => 10], 'manufacturer' => ['name' => 'test']],
+            ['id' => $child, 'parentId' => $id, 'name' => 'Update', 'price' => 12]
+        ];
+
+        $this->repository->upsert($data, TranslationContext::createDefaultContext());
+
+        $products = $this->repository->readBasic([$id, $child], TranslationContext::createDefaultContext());
+        $this->assertTrue($products->has($id));
+        $this->assertTrue($products->has($child));
+
+        $raw = $this->connection->fetchAll('SELECT * FROM product');
+        $this->assertCount(2, $raw);
+
+        $data = [
+            [
+                'id' => $child,
+                'parentId' => null
+            ]
+        ];
+
+        $e = null;
+        try {
+            $this->repository->upsert($data, TranslationContext::createDefaultContext());
+        } catch (\Exception $e) {
+        }
+        $this->assertInstanceOf(WriteStackException::class, $e);
+
+        /** @var WriteStackException $e */
+        $this->assertArrayHasKey('/taxId', $e->toArray());
+        $this->assertArrayHasKey('/manufacturerId', $e->toArray());
+        $this->assertArrayHasKey('/price', $e->toArray());
+        $this->assertArrayHasKey('/translations', $e->toArray());
+
+        $data = [
+            [
+                'id' => $child,
+                'parentId' => null,
+                'name' => 'Child transformed to parent',
+                'price' => 13,
+                'tax' => ['name' => 'test', 'rate' => 15],
+                'manufacturer' => ['name' => 'test3']
+            ]
+        ];
+
+        $this->repository->upsert($data, TranslationContext::createDefaultContext());
+
+        $raw = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', [
+            'id' => Uuid::fromString($child)->getBytes()
+        ]);
+
+        $this->assertNull($raw['parent_id']);
+
+        $products = $this->repository->readBasic([$child], TranslationContext::createDefaultContext());
+        $product = $products->get($child);
+
+        /** @var ProductBasicStruct $product */
+        $this->assertEquals('Child transformed to parent', $product->getName());
+        $this->assertEquals(13, $product->getPrice());
+        $this->assertEquals('test3', $product->getManufacturer()->getName());
+        $this->assertEquals(15, $product->getTax()->getRate());
     }
 
     public function testVariantInheritanceWithTax()
@@ -257,7 +532,13 @@ class ProductRepositoryTest extends KernelTestCase
         $greenTax = Uuid::uuid4()->toString();
 
         $products = [
-            ['id' => $parentId, 'name' => 'T-shirt', 'price' => 10, 'tax' => ['id' => $parentTax, 'rate' => 15, 'name' => 'parent']],
+            [
+                'id' => $parentId,
+                'price' => 10,
+                'manufacturer' => ['name' => 'test'],
+                'name' => 'parent',
+                'tax' => ['id' => $parentTax, 'rate' => 13, 'name' => 'green']
+            ],
 
             //price should be inherited
             ['id' => $redId, 'parentId' => $parentId],
@@ -292,6 +573,38 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertEquals($parentTax, $red->getTaxId());
         $this->assertEquals($greenTax, $green->getTaxId());
 
+        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromString($parentId)->getBytes()]);
+        $this->assertEquals(10, $row['price']);
+        $this->assertEquals($parentTax, Uuid::fromBytes($row['tax_id'])->toString());
+
+        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromString($redId)->getBytes()]);
+        $this->assertNull($row['price']);
+        $this->assertNull($row['tax_id']);
+
+        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromString($greenId)->getBytes()]);
+        $this->assertNull($row['price']);
+        $this->assertEquals($greenTax, Uuid::fromBytes($row['tax_id'])->toString());
+    }
+
+    public function testWriteProductWithSameTaxes()
+    {
+        $this->connection->executeUpdate('DELETE FROM tax');
+        $tax = ['id' => Uuid::uuid4()->toString(), 'rate' => 19, 'name' => 'test'];
+
+        $data = [
+            ['name' => 'test', 'tax' => $tax, 'price' => 10, 'manufacturer' => ['name' => 'test']],
+            ['name' => 'test', 'tax' => $tax, 'price' => 10, 'manufacturer' => ['name' => 'test']],
+            ['name' => 'test', 'tax' => $tax, 'price' => 10, 'manufacturer' => ['name' => 'test']],
+            ['name' => 'test', 'tax' => $tax, 'price' => 10, 'manufacturer' => ['name' => 'test']],
+            ['name' => 'test', 'tax' => $tax, 'price' => 10, 'manufacturer' => ['name' => 'test']],
+        ];
+
+        $written = $this->repository->create($data, TranslationContext::createDefaultContext());
+
+        /** @var TaxWrittenEvent $taxes */
+        $taxes = $written->getEventByDefinition(TaxDefinition::class);
+        $this->assertInstanceOf(TaxWrittenEvent::class, $taxes);
+        $this->assertCount(1, array_unique($taxes->getIds()));
     }
 
     public function testVariantInheritanceWithMedia()
@@ -308,6 +621,8 @@ class ProductRepositoryTest extends KernelTestCase
                 'id' => $parentId,
                 'name' => 'T-shirt',
                 'price' => 10,
+                'manufacturer' => ['name' => 'test'],
+                'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
                 'media' => [
                     [
                         'id' => $parentMedia,
@@ -319,11 +634,11 @@ class ProductRepositoryTest extends KernelTestCase
                             'fileSize' => 1,
                             'album' => [
                                 'id' => $parentMedia,
-                                'name' => 'test album'
-                            ]
-                        ]
-                    ]
-                ]
+                                'name' => 'test album',
+                            ],
+                        ],
+                    ],
+                ],
             ],
             ['id' => $redId, 'parentId' => $parentId, 'name' => 'red'],
             [
@@ -339,11 +654,11 @@ class ProductRepositoryTest extends KernelTestCase
                             'mimeType' => 'test_file',
                             'name' => 'test file',
                             'fileSize' => 1,
-                            'albumId' => $parentMedia
-                        ]
-                    ]
-                ]
-            ]
+                            'albumId' => $parentMedia,
+                        ],
+                    ],
+                ],
+            ],
         ];
 
         $this->repository->create($products, TranslationContext::createDefaultContext());
@@ -372,6 +687,15 @@ class ProductRepositoryTest extends KernelTestCase
 
         $this->assertCount(1, $red->getMedia());
         $this->assertTrue($red->getMedia()->has($parentMedia));
+
+        $row = $this->connection->fetchAssoc('SELECT * FROM product_media WHERE product_id = :id', ['id' => Uuid::fromString($parentId)->getBytes()]);
+        $this->assertEquals($parentMedia, Uuid::fromBytes($row['media_id'])->toString());
+
+        $row = $this->connection->fetchAssoc('SELECT * FROM product_media WHERE product_id = :id', ['id' => Uuid::fromString($redId)->getBytes()]);
+        $this->assertEmpty($row['media_id']);
+
+        $row = $this->connection->fetchAssoc('SELECT * FROM product_media WHERE product_id = :id', ['id' => Uuid::fromString($greenId)->getBytes()]);
+        $this->assertEquals($greenMedia, Uuid::fromBytes($row['media_id'])->toString());
     }
 
     public function testVariantInheritanceWithCategories()
@@ -388,10 +712,11 @@ class ProductRepositoryTest extends KernelTestCase
                 'id' => $parentId,
                 'name' => 'T-shirt',
                 'price' => 10,
+                'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                'manufacturer' => ['name' => 'test'],
                 'categories' => [
-                    ['category' => ['id' => $parentCategory, 'name' => 'parent']]
-                ]
-
+                    ['category' => ['id' => $parentCategory, 'name' => 'parent']],
+                ],
             ],
             ['id' => $redId, 'parentId' => $parentId, 'name' => 'red'],
             [
@@ -399,9 +724,9 @@ class ProductRepositoryTest extends KernelTestCase
                 'parentId' => $parentId,
                 'name' => 'green',
                 'categories' => [
-                    ['category' => ['id' => $greenCategory, 'name' => 'green']]
-                ]
-            ]
+                    ['category' => ['id' => $greenCategory, 'name' => 'green']],
+                ],
+            ],
         ];
 
         $this->repository->create($products, TranslationContext::createDefaultContext());
@@ -425,6 +750,18 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertEquals([$parentCategory], $parent->getCategoryIds());
         $this->assertEquals([$parentCategory], $red->getCategoryIds());
         $this->assertEquals([$greenCategory], $green->getCategoryIds());
+
+        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromString($parentId)->getBytes()]);
+        $this->assertContains($parentCategory, json_decode($row['category_tree'], true));
+        $this->assertEquals($parentId, Uuid::fromBytes($row['category_join_id'])->toString());
+
+        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromString($redId)->getBytes()]);
+        $this->assertNull($row['category_tree']);
+        $this->assertEquals($parentId, Uuid::fromBytes($row['category_join_id'])->toString());
+
+        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromString($greenId)->getBytes()]);
+        $this->assertContains($greenCategory, json_decode($row['category_tree'], true));
+        $this->assertEquals($greenId, Uuid::fromBytes($row['category_join_id'])->toString());
     }
 
     public function testSearchByInheritedName()
@@ -439,7 +776,7 @@ class ProductRepositoryTest extends KernelTestCase
         $redName = 'Red shirt';
 
         $products = [
-            ['id' => $parentId, 'name' => $parentName, 'price' => $parentPrice],
+            ['id' => $parentId, 'name' => $parentName, 'manufacturer' => ['name' => 'test'], 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9', 'price' => $parentPrice],
 
             //price should be inherited
             ['id' => $redId,    'name' => $redName, 'parentId' => $parentId],
@@ -478,7 +815,7 @@ class ProductRepositoryTest extends KernelTestCase
         $redName = 'Red shirt';
 
         $products = [
-            ['id' => $parentId, 'name' => $parentName, 'price' => $parentPrice],
+            ['id' => $parentId, 'manufacturer' => ['name' => 'test'], 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9', 'name' => $parentName, 'price' => $parentPrice],
 
             //price should be inherited
             ['id' => $redId,    'name' => $redName, 'parentId' => $parentId],
@@ -521,11 +858,13 @@ class ProductRepositoryTest extends KernelTestCase
         $products = [
             [
                 'id' => $parentId,
+                'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
                 'name' => $parentName,
                 'price' => $parentPrice,
+                'manufacturer' => ['name' => 'test'],
                 'categories' => [
-                    ['category' => ['id' => $categoryId, 'name' => 'test']]
-                ]
+                    ['category' => ['id' => $categoryId, 'name' => 'test']],
+                ],
             ],
 
             //price should be inherited
@@ -574,12 +913,13 @@ class ProductRepositoryTest extends KernelTestCase
         $products = [
             [
                 'id' => $parentId,
+                'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
                 'name' => $parentName,
                 'price' => $parentPrice,
                 'manufacturer' => [
                     'id' => $manufacturerId,
-                    'name' => 'test'
-                ]
+                    'name' => 'test',
+                ],
             ],
             //price should be inherited
             [
@@ -589,11 +929,11 @@ class ProductRepositoryTest extends KernelTestCase
                 'manufacturer' => [
                     'id' => $manufacturerId2,
                     'name' => 'test'
-                ]
+                ],
             ],
 
             //manufacturer should be inherited
-            ['id' => $greenId,  'price' => $greenPrice, 'parentId' => $parentId],
+            ['id' => $greenId, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
         $this->repository->create($products, TranslationContext::createDefaultContext());
@@ -619,10 +959,16 @@ class ProductRepositoryTest extends KernelTestCase
                 'name' => 'Cat1',
                 'products' => [
                     [
-                        'product' => ['id' => $productId, 'name' => 'test']
-                    ]
-                ]
-            ]
+                        'product' => [
+                            'id' => $productId,
+                            'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                            'name' => 'test',
+                            'price' => 10,
+                            'manufacturer' => ['name' => 'test']
+                        ],
+                    ],
+                ],
+            ],
         ];
 
         $repository = $this->container->get(CategoryRepository::class);
@@ -651,9 +997,15 @@ class ProductRepositoryTest extends KernelTestCase
                 'id' => $manufacturerId,
                 'name' => 'Manufacturer',
                 'products' => [
-                    ['id' => $productId, 'name' => 'test', 'manufacturerId' => $manufacturerId]
-                ]
-            ]
+                    [
+                        'id' => $productId,
+                        'name' => 'test',
+                        'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                        'manufacturerId' => $manufacturerId,
+                        'price' => 10,
+                    ],
+                ],
+            ],
         ];
 
         $repository = $this->container->get(ProductManufacturerRepository::class);

@@ -17,7 +17,7 @@ class ProductDefinitionTest extends TestCase
         $fields = ProductDefinition::getFields()->filterByFlag(Required::class);
 
         $this->assertEquals(
-            ['id'],
+            ['id', 'manufacturerId', 'taxId', 'price', 'translations'],
             $fields->getKeys()
         );
     }
@@ -41,7 +41,7 @@ class ProductDefinitionTest extends TestCase
     {
         $fields = ProductDefinition::getFields()->filterByFlag(Inherited::class);
         $this->assertEquals(
-            ['taxId', 'unitId', 'price', 'supplierNumber', 'ean', 'isCloseout', 'minStock', 'purchaseSteps', 'maxPurchase', 'minPurchase', 'purchaseUnit', 'referenceUnit', 'shippingFree', 'purchasePrice', 'pseudoSales', 'markAsTopseller', 'sales', 'position', 'weight', 'width', 'height', 'length', 'template', 'allowNotification', 'releaseDate', 'priceGroupId', 'categoryTree', 'prices', 'additionalText', 'name', 'keywords', 'description', 'descriptionLong', 'metaTitle', 'packUnit', 'tax', 'manufacturer', 'unit', 'media', 'categories'],
+            ['manufacturerId', 'unitId', 'taxId', 'price', 'supplierNumber', 'ean', 'isCloseout', 'minStock', 'purchaseSteps', 'maxPurchase', 'minPurchase', 'purchaseUnit', 'referenceUnit', 'shippingFree', 'purchasePrice', 'pseudoSales', 'markAsTopseller', 'sales', 'position', 'weight', 'width', 'height', 'length', 'template', 'allowNotification', 'releaseDate', 'priceGroupId', 'categoryTree', 'prices', 'additionalText', 'name', 'keywords', 'description', 'descriptionLong', 'metaTitle', 'packUnit', 'tax', 'manufacturer', 'unit', 'media', 'categories', 'translations'],
             $fields->getKeys()
         );
     }

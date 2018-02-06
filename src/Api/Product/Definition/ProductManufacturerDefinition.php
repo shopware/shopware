@@ -58,7 +58,7 @@ class ProductManufacturerDefinition extends EntityDefinition
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new FkField('media_id', 'mediaId', MediaDefinition::class),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
+            new TranslatedField(new StringField('name', 'name')),
             new StringField('link', 'link'),
             new DateField('updated_at', 'updatedAt'),
             new DateField('created_at', 'createdAt'),
@@ -68,7 +68,7 @@ class ProductManufacturerDefinition extends EntityDefinition
             new TranslatedField(new StringField('meta_keywords', 'metaKeywords')),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
             (new OneToManyAssociationField('products', ProductDefinition::class, 'manufacturer_join_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new TranslationsAssociationField('translations', ProductManufacturerTranslationDefinition::class, 'product_manufacturer_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
+            (new TranslationsAssociationField('translations', ProductManufacturerTranslationDefinition::class, 'product_manufacturer_id', false, 'id'))->setFlags(new CascadeDelete(), new Required()),
         ]);
 
         foreach (self::$extensions as $extension) {

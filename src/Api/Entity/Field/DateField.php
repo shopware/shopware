@@ -24,47 +24,21 @@
 
 namespace Shopware\Api\Entity\Field;
 
-use Shopware\Api\Entity\Write\FieldAware\ConstraintBuilderAware;
-use Shopware\Api\Entity\Write\FieldAware\PathAware;
+use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
+use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
-use Shopware\Api\Entity\Write\FieldAware\ValidatorAware;
-use Shopware\Api\Entity\Write\FieldAware\ValueTransformerRegistryAware;
 use Shopware\Api\Entity\Write\FieldException\InvalidFieldException;
-use Shopware\Api\Entity\Write\Validation\ConstraintBuilder;
 use Shopware\Api\Entity\Write\ValueTransformer\ValueTransformer;
 use Shopware\Api\Entity\Write\ValueTransformer\ValueTransformerDate;
-use Shopware\Api\Entity\Write\ValueTransformer\ValueTransformerRegistry;
-use Shopware\Api\Entity\Write\WriteResource;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class DateField extends Field implements PathAware, ConstraintBuilderAware, ValueTransformerRegistryAware, ValidatorAware, StorageAware
+class DateField extends Field implements StorageAware
 {
-    /**
-     * @var ConstraintBuilder
-     */
-    private $constraintBuilder;
-
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
     /**
      * @var string
      */
     private $storageName;
-
-    /**
-     * @var string
-     */
-    private $path;
-
-    /**
-     * @var ValueTransformerRegistry
-     */
-    private $valueTransformerRegistry;
 
     public function __construct(string $storageName, string $propertyName)
     {
@@ -75,52 +49,16 @@ class DateField extends Field implements PathAware, ConstraintBuilderAware, Valu
     /**
      * {@inheritdoc}
      */
-    public function __invoke(string $type, string $key, $value = null): \Generator
+    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
-        switch ($type) {
-            case WriteResource::FOR_INSERT:
-                $this->validate($this->getInsertConstraints(), $key, $value);
-                break;
-            case WriteResource::FOR_UPDATE:
-                $this->validate($this->getUpdateConstraints(), $key, $value);
-                break;
-            default:
-                throw new \DomainException(sprintf('Could not understand %s', $type));
+        $key = $data->getKey();
+        $value = $data->getValue();
+
+        if ($existence->exists()) {
+            $this->validate($this->getUpdateConstraints(), $key, $value);
         }
 
         yield $this->storageName => $this->getValueTransformer()->transform($value);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setConstraintBuilder(ConstraintBuilder $constraintBuilder): void
-    {
-        $this->constraintBuilder = $constraintBuilder;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setValueTransformerRegistry(ValueTransformerRegistry $valueTransformerRegistry): void
-    {
-        $this->valueTransformerRegistry = $valueTransformerRegistry;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setValidator(ValidatorInterface $validator): void
-    {
-        $this->validator = $validator;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setPath(string $path = ''): void
-    {
-        $this->path = $path;
     }
 
     public function getStorageName(): string

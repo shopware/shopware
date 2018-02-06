@@ -13,7 +13,6 @@ use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Entity\InheritedDefinition;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
@@ -130,11 +129,10 @@ class EntityReader implements EntityReaderInterface
 
         $parent = null;
 
-        $instance = new $definition();
-        if ($instance instanceof InheritedDefinition) {
-            /** @var InheritedDefinition|EntityDefinition|string $definition */
+        if ($definition::getParentPropertyName()) {
+            /** @var EntityDefinition|string $definition */
             $parent = $definition::getFields()->get($definition::getParentPropertyName());
-            EntityDefinitionResolver::joinManyToOne($definition, $root, $parent, $query);
+            EntityDefinitionQueryHelper::joinManyToOne($definition, $root, $parent, $query);
         }
 
         foreach ($filtered as $field) {
@@ -159,7 +157,7 @@ class EntityReader implements EntityReaderInterface
                     continue;
                 }
 
-                EntityDefinitionResolver::joinManyToOne($definition, $root, $field, $query);
+                EntityDefinitionQueryHelper::joinManyToOne($definition, $root, $field, $query);
 
                 $alias = $root . '.' . $field->getPropertyName();
                 $this->joinBasic($field->getReferenceClass(), $context, $alias, $query, $basics);
@@ -180,9 +178,9 @@ class EntityReader implements EntityReaderInterface
 
             if ($field instanceof StorageAware && $field->is(Inherited::class) && $parent !== null) {
                 $parentAlias = $root . '.' . $parent->getPropertyName();
-                $child = EntityDefinitionResolver::escape($root) . '.' . EntityDefinitionResolver::escape($field->getStorageName());
-                $parentField = EntityDefinitionResolver::escape($parentAlias) . '.' . EntityDefinitionResolver::escape($field->getStorageName());
-                $fieldAlias = EntityDefinitionResolver::escape($root . '.' . $field->getPropertyName());
+                $child = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
+                $parentField = EntityDefinitionQueryHelper::escape($parentAlias) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
+                $fieldAlias = EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName());
 
                 $query->addSelect(
                     sprintf('COALESCE(%s, %s) as %s', $child, $parentField, $fieldAlias)
@@ -194,9 +192,9 @@ class EntityReader implements EntityReaderInterface
             if ($field instanceof StorageAware) {
                 /* @var Field $field */
                 $query->addSelect(
-                    EntityDefinitionResolver::escape($root) . '.' . EntityDefinitionResolver::escape($field->getStorageName())
+                    EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName())
                     . ' as ' .
-                    EntityDefinitionResolver::escape($root . '.' . $field->getPropertyName())
+                    EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName())
                 );
                 continue;
             }
@@ -207,7 +205,7 @@ class EntityReader implements EntityReaderInterface
             return;
         }
 
-        EntityDefinitionResolver::addTranslationSelect($root, $definition, $query, $context, $translatedFields);
+        EntityDefinitionQueryHelper::addTranslationSelect($root, $definition, $query, $context, $translatedFields);
     }
 
     /**
@@ -223,12 +221,12 @@ class EntityReader implements EntityReaderInterface
         $table = $definition::getEntityName();
 
         $query = new QueryBuilder($this->connection);
-        $query->from(EntityDefinitionResolver::escape($table), EntityDefinitionResolver::escape($table));
+        $query->from(EntityDefinitionQueryHelper::escape($table), EntityDefinitionQueryHelper::escape($table));
 
         $this->joinBasic($definition, $context, $table, $query, $fields);
 
-        $query->andWhere(EntityDefinitionResolver::escape($table) . '.`id` IN (:ids)');
-        $query->setParameter('ids', array_values(EntityDefinitionResolver::uuidStringsToBytes($ids)), Connection::PARAM_STR_ARRAY);
+        $query->andWhere(EntityDefinitionQueryHelper::escape($table) . '.`id` IN (:ids)');
+        $query->setParameter('ids', array_values(EntityDefinitionQueryHelper::uuidStringsToBytes($ids)), Connection::PARAM_STR_ARRAY);
 
         return $query->execute()->fetchAll();
     }
@@ -274,15 +272,13 @@ class EntityReader implements EntityReaderInterface
     private function loadOneToMany(string $definition, OneToManyAssociationField $association, TranslationContext $context, EntityCollection $collection): void
     {
         $ids = array_values($collection->getIds());
-        $instance = new $definition();
-        /** @var string|EntityDefinition|InheritedDefinition $definition */
-
+        /** @var string|EntityDefinition $definition */
         $parentId = null;
-        if ($instance instanceof InheritedDefinition) {
+        if ($definition::getParentPropertyName()) {
             /** @var ManyToOneAssociationField $parent */
             $parent = $definition::getFields()->get($definition::getParentPropertyName());
             $parentId = $definition::getFields()->getByStorageName($parent->getStorageName());
-            $parentIds = $collection->map(function(Entity $entity) use ($parentId) {
+            $parentIds = $collection->map(function (Entity $entity) use ($parentId) {
                 return $entity->get($parentId->getPropertyName());
             });
             $parentIds = array_values(array_filter($parentIds));
@@ -305,7 +301,7 @@ class EntityReader implements EntityReaderInterface
             //filter by property allows to avoid building the getter function name
             $structData = $data->filterByProperty($field->getPropertyName(), $struct->getId());
 
-            if ($structData->count() <= 0 && $instance instanceof InheritedDefinition && $association->is(Inherited::class)) {
+            if ($structData->count() <= 0 && $definition::getParentPropertyName() && $association->is(Inherited::class)) {
                 $structData = $data->filterByProperty($field->getPropertyName(), $struct->get($parentId->getPropertyName()));
             }
 
@@ -361,13 +357,13 @@ class EntityReader implements EntityReaderInterface
                     '#property#',
                 ],
                 [
-                    EntityDefinitionResolver::escape($root . '.' . $field->getPropertyName() . '.mapping'),
-                    EntityDefinitionResolver::escape($field->getMappingReferenceColumn()),
-                    EntityDefinitionResolver::escape($mapping::getEntityName()),
-                    EntityDefinitionResolver::escape($field->getMappingLocalColumn()),
-                    EntityDefinitionResolver::escape($root),
-                    EntityDefinitionResolver::escape($field->getSourceColumn()),
-                    EntityDefinitionResolver::escape($root . '.' . $field->getPropertyName()),
+                    EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName() . '.mapping'),
+                    EntityDefinitionQueryHelper::escape($field->getMappingReferenceColumn()),
+                    EntityDefinitionQueryHelper::escape($mapping::getEntityName()),
+                    EntityDefinitionQueryHelper::escape($field->getMappingLocalColumn()),
+                    EntityDefinitionQueryHelper::escape($root),
+                    EntityDefinitionQueryHelper::escape($field->getSourceColumn()),
+                    EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName()),
                 ],
                 '(SELECT GROUP_CONCAT(HEX(#alias#.#mapping_reference_column#) SEPARATOR \'||\')
                   FROM #mapping_table# #alias#
@@ -390,7 +386,7 @@ class EntityReader implements EntityReaderInterface
     }
 
     /**
-     * @param string $definition
+     * @param string          $definition
      * @param FieldCollection $fields
      *
      * @return mixed

@@ -61,6 +61,8 @@ class EntityReaderTest extends KernelTestCase
             'name' => 'Test product',
             'price' => 100,
             'categories' => $mapping,
+            'manufacturer' => ['name' => 'Test'],
+            'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
         ];
 
         $this->container->get(ProductRepository::class)

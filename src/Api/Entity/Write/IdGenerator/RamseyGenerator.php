@@ -33,7 +33,7 @@ class RamseyGenerator implements Generator
         return  Uuid::uuid4()->toString();
     }
 
-    public function toDatabase(string $value): string
+    public function toStorageValue(string $value): string
     {
         return Uuid::fromString($value)->getBytes();
     }

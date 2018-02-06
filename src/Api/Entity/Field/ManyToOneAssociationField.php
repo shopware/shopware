@@ -22,7 +22,7 @@ class ManyToOneAssociationField extends ReferenceField implements AssociationInt
         parent::__construct($storageName, $propertyName, $referenceField, $referenceClass);
         $this->loadInBasic = $loadInBasic;
         $this->referenceClass = $referenceClass;
-        
+
         if (!$joinField) {
             $joinField = $storageName;
         }

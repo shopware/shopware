@@ -57,7 +57,7 @@ class ListingSortingDefinition extends EntityDefinition
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new LongTextField('payload', 'payload'))->setFlags(new Required()),
-            (new TranslatedField(new StringField('label', 'label')))->setFlags(new Required()),
+            new TranslatedField(new StringField('label', 'label')),
             new BoolField('active', 'active'),
             new BoolField('display_in_categories', 'displayInCategories'),
             new IntField('position', 'position'),

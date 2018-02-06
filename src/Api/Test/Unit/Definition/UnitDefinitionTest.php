@@ -15,7 +15,7 @@ class UnitDefinitionTest extends TestCase
         $fields = UnitDefinition::getFields()->filterByFlag(Required::class);
 
         $this->assertEquals(
-            ['id', 'shortCode', 'name', 'translations'],
+            ['id', 'translations'],
             $fields->getKeys()
         );
     }

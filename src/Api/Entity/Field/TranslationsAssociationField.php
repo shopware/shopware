@@ -38,4 +38,9 @@ class TranslationsAssociationField extends SubresourceField implements Associati
     {
         return $this->localField;
     }
+
+    public function getExtractPriority(): int
+    {
+        return 90;
+    }
 }

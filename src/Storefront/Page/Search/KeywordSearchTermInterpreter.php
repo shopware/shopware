@@ -47,10 +47,7 @@ class KeywordSearchTermInterpreter
         $scoring = array_slice($scoring, 0, 10);
 
         foreach ($scoring as $match) {
-            $this->logger->info(
-                'Search match: ' . $match['keyword'],
-                $match
-            );
+            $this->logger->info('Search match: ' . $match['keyword'], $match);
         }
         $pattern = new SearchPattern(new SearchTerm($word));
 

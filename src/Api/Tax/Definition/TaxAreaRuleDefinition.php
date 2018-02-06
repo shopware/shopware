@@ -65,7 +65,7 @@ class TaxAreaRuleDefinition extends EntityDefinition
             (new FkField('tax_id', 'taxId', TaxDefinition::class))->setFlags(new Required()),
             (new FkField('customer_group_id', 'customerGroupId', CustomerGroupDefinition::class))->setFlags(new Required()),
             (new FloatField('tax_rate', 'taxRate'))->setFlags(new Required()),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
+            new TranslatedField(new StringField('name', 'name')),
             new BoolField('active', 'active'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),

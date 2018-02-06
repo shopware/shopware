@@ -24,32 +24,52 @@
 
 namespace Shopware\Api\Entity\Write;
 
+use Shopware\Api\Entity\EntityDefinition;
+use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Shop\Definition\ShopDefinition;
 use Shopware\Context\Struct\TranslationContext;
 
 class WriteContext
 {
     private const SPACER = '::';
+
+    /**
+     * @var array
+     */
     private $paths = [];
-
-    /**
-     * @var array[]
-     */
-    private $pkMapping = [];
-
-    /**
-     * @var array[]
-     */
-    private $primaryKeys = [];
 
     /**
      * @var TranslationContext
      */
     private $translationContext;
 
+    /**
+     * @var array[]
+     *
+     * @example
+     * [
+     *      product
+     *          uuid-1 => null
+     *          uuid-2 => uuid-1
+     * ]
+     */
+    private $inheritance = [];
+
     private function __construct(TranslationContext $translationContext)
     {
         $this->translationContext = $translationContext;
+    }
+
+    public function addInheritance(string $definition, array $inheritance): void
+    {
+        if (!isset($this->inheritance[$definition])) {
+            $this->inheritance[$definition] = [];
+        }
+
+        $this->inheritance[$definition] = array_replace_recursive(
+            $this->inheritance[$definition],
+            $inheritance
+        );
     }
 
     public static function createFromTranslationContext(TranslationContext $context): self
@@ -101,70 +121,37 @@ class WriteContext
     }
 
     /**
-     * @param string $tableName
-     * @param array  $primaryKeys
-     */
-    public function addPrimaryKeyMapping(string $tableName, array $primaryKeys)
-    {
-        if (!array_key_exists($tableName, $this->pkMapping)) {
-            $this->pkMapping[$tableName] = ['rows' => [], 'columns' => []];
-        }
-
-        $this->pkMapping[$tableName]['rows'][] = $primaryKeys;
-        $this->pkMapping[$tableName]['columns'] += array_flip(array_keys($primaryKeys));
-    }
-
-    /**
-     * @return array
-     */
-    public function getPrimaryKeyMapping(): array
-    {
-        return $this->pkMapping;
-    }
-
-    /**
-     * @param string $tableName
-     *
-     * @return array
-     */
-    public function getPrimaryKeysForTable(string $tableName): array
-    {
-        return $this->pkMapping[$tableName];
-    }
-
-    /**
-     * @param string $table
-     * @param array  $existingPrimaries
-     */
-    public function setExistingPrimaries(string $table, array $existingPrimaries)
-    {
-        foreach ($existingPrimaries as $row) {
-            ksort($row);
-            $this->primaryKeys[$table][] = $row;
-        }
-    }
-
-    /**
-     * @param string $table
-     * @param array  $primaryKey
+     * @param string|EntityDefinition $definition
+     * @param array                   $raw
      *
      * @return bool
      */
-    public function primaryKeyExists(string $table, array $primaryKey): bool
+    public function isChild(string $definition, array $raw): bool
     {
-        if (!array_key_exists($table, $this->primaryKeys)) {
+        if (array_key_exists($definition::getParentPropertyName(), $raw)) {
+            return true;
+        }
+
+        /** @var ManyToOneAssociationField $parent */
+        $parent = $definition::getFields()->get(
+            $definition::getParentPropertyName()
+        );
+
+        $fk = $definition::getFields()->getByStorageName(
+            $parent->getStorageName()
+        );
+
+        if (isset($raw[$fk->getPropertyName()])) {
+            return true;
+        }
+
+        if (!array_key_exists($definition, $this->inheritance)) {
             return false;
         }
 
-        $keys = $this->primaryKeys[$table];
-        ksort($primaryKey);
-        foreach ($keys as $key) {
-            if ($key === $primaryKey) {
-                return true;
-            }
-        }
+        $inheritance = $this->inheritance[$definition];
 
-        return false;
+        return isset($inheritance[$raw['id']]);
     }
 
     public function getTranslationContext(): TranslationContext
@@ -181,5 +168,11 @@ class WriteContext
     private function buildPathName(string $className, string $propertyName): string
     {
         return $className . self::SPACER . $propertyName;
+    }
+
+    public function resetPaths(): void
+    {
+        $this->paths = [];
+        $this->set(ShopDefinition::class, 'id', $this->translationContext->getShopId());
     }
 }

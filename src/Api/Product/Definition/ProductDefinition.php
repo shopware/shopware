@@ -22,7 +22,7 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Entity\InheritedDefinition;
+use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\Inherited;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
@@ -37,7 +37,7 @@ use Shopware\Api\Product\Struct\ProductDetailStruct;
 use Shopware\Api\Tax\Definition\TaxDefinition;
 use Shopware\Api\Unit\Definition\UnitDefinition;
 
-class ProductDefinition extends EntityDefinition implements InheritedDefinition
+class ProductDefinition extends EntityDefinition
 {
     /**
      * @var FieldCollection
@@ -76,15 +76,17 @@ class ProductDefinition extends EntityDefinition implements InheritedDefinition
 
             //not inherited fields
             new BoolField('active', 'active'),
-            new FkField('product_manufacturer_id', 'manufacturerId', ProductManufacturerDefinition::class),
             new IntField('stock', 'stock'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
 
-            //inherited fields
-            (new FkField('tax_id', 'taxId', TaxDefinition::class))->setFlags(new Inherited()),
+            //inherited foreign keys
+            (new FkField('product_manufacturer_id', 'manufacturerId', ProductManufacturerDefinition::class))->setFlags(new Inherited(), new Required()),
             (new FkField('unit_id', 'unitId', UnitDefinition::class))->setFlags(new Inherited()),
-            (new FloatField('price', 'price'))->setFlags(new Inherited()),
+            (new FkField('tax_id', 'taxId', TaxDefinition::class))->setFlags(new Inherited(), new Required()),
+
+            //inherited data fields
+            (new FloatField('price', 'price'))->setFlags(new Inherited(), new Required()),
             (new StringField('supplier_number', 'supplierNumber'))->setFlags(new Inherited()),
             (new StringField('ean', 'ean'))->setFlags(new Inherited()),
             (new BoolField('is_closeout', 'isCloseout'))->setFlags(new Inherited()),
@@ -142,7 +144,7 @@ class ProductDefinition extends EntityDefinition implements InheritedDefinition
             (new ManyToManyAssociationField('tabs', ProductStreamDefinition::class, ProductStreamTabDefinition::class, false, 'product_id', 'product_stream_id', 'tabIds'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('streams', ProductStreamDefinition::class, ProductStreamAssignmentDefinition::class, false, 'product_id', 'product_stream_id', 'streamIds'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField('translations', ProductTranslationDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField('translations', ProductTranslationDefinition::class, 'product_id', false, 'id'))->setFlags(new Inherited(), new CascadeDelete(), new Required())
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -191,4 +193,23 @@ class ProductDefinition extends EntityDefinition implements InheritedDefinition
     {
         return ProductDetailCollection::class;
     }
+
+    public static function getDefaults(EntityExistence $existence): array
+    {
+        if ($existence->exists()) {
+            return [];
+        }
+        if ($existence->isChild()) {
+            return [];
+        }
+        return [
+            'minPurchase' => 1,
+            'isCloseout' => false,
+            'purchaseSteps' => 1,
+            'shippingFree' => false,
+            'sales' => 0
+        ];
+    }
+
+
 }

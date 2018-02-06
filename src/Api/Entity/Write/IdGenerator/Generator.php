@@ -28,5 +28,5 @@ interface Generator
 {
     public function create(): string;
 
-    public function toDatabase(string $value): string;
+    public function toStorageValue(string $value): string;
 }

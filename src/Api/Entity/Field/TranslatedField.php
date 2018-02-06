@@ -24,12 +24,12 @@
 
 namespace Shopware\Api\Entity\Field;
 
+use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
+use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
-use Shopware\Api\Entity\Write\FieldAware\WriteContextAware;
-use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Shop\Definition\ShopDefinition;
 
-class TranslatedField extends Field implements WriteContextAware
+class TranslatedField extends Field
 {
     /**
      * @var string
@@ -40,11 +40,6 @@ class TranslatedField extends Field implements WriteContextAware
      * @var string
      */
     private $referencedClassName;
-
-    /**
-     * @var WriteContext
-     */
-    private $writeContext;
 
     /**
      * @var string
@@ -74,8 +69,11 @@ class TranslatedField extends Field implements WriteContextAware
     /**
      * {@inheritdoc}
      */
-    public function __invoke(string $type, string $key, $value = null): \Generator
+    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
+        $key = $data->getKey();
+        $value = $data->getValue();
+
         if (is_array($value)) {
             $isNumeric = count(array_diff($value, range(0, count($value)))) === 0;
 
@@ -124,11 +122,8 @@ class TranslatedField extends Field implements WriteContextAware
         return $this->referencedClassName;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setWriteContext(WriteContext $writeContext): void
+    public function getExtractPriority(): int
     {
-        $this->writeContext = $writeContext;
+        return 100;
     }
 }

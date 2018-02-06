@@ -15,7 +15,7 @@ class ListingFacetDefinitionTest extends TestCase
         $fields = ListingFacetDefinition::getFields()->filterByFlag(Required::class);
 
         $this->assertEquals(
-            ['id', 'uniqueKey', 'payload', 'name', 'translations'],
+            ['id', 'uniqueKey', 'payload', 'translations'],
             $fields->getKeys()
         );
     }

@@ -37,6 +37,7 @@ class ManyToManyAssociationField extends SubresourceField implements Association
      * @var string
      */
     private $sourceColumn;
+
     /**
      * @var string
      */

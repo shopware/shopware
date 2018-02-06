@@ -59,7 +59,7 @@ class MediaAlbumDefinition extends EntityDefinition
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new FkField('parent_id', 'parentId', self::class),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
+            new TranslatedField(new StringField('name', 'name')),
             new IntField('position', 'position'),
             new BoolField('create_thumbnails', 'createThumbnails'),
             new LongTextField('thumbnail_size', 'thumbnailSize'),

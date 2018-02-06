@@ -15,7 +15,7 @@ class CurrencyDefinitionTest extends TestCase
         $fields = CurrencyDefinition::getFields()->filterByFlag(Required::class);
 
         $this->assertEquals(
-            ['id', 'factor', 'symbol', 'shortName', 'name', 'translations'],
+            ['id', 'factor', 'symbol', 'translations'],
             $fields->getKeys()
         );
     }

@@ -217,8 +217,8 @@ INSERT INTO `country_translation` (`country_id`, `language_id`, `name`) VALUES
   (unhex('9d8661d69c10416c858dbf408ec2500a'),	unhex('ffa32a50e2d04cf38389a53f8d6cd594'),	'Finnland'),
   (unhex('e85c25e1cdfc4cd4af49d54c34aa3d25'),	unhex('ffa32a50e2d04cf38389a53f8d6cd594'),	'Frankreich');
 
-INSERT INTO `order_state` (`id`, `name`, `position`, `has_mail`, `created_at`, `updated_at`) VALUES
-  (UNHEX('1194A493806742C9B85E61F1F2CF9BE8'),	'open',	1,	0,	'2018-01-08 09:12:15',	NULL);
+INSERT INTO `order_state` (`id`, `position`, `has_mail`, `created_at`, `updated_at`) VALUES
+  (UNHEX('1194A493806742C9B85E61F1F2CF9BE8'),	1,	0,	'2018-01-08 09:12:15',	NULL);
 
 INSERT INTO `order_state_translation` (`description`, `order_state_id`, `language_id`) VALUES
   ('Offen',	UNHEX('1194A493806742C9B85E61F1F2CF9BE8'),	UNHEX('FFA32A50E2D04CF38389A53F8D6CD594'));

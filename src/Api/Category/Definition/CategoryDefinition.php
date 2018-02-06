@@ -68,7 +68,7 @@ class CategoryDefinition extends EntityDefinition
             new FkField('parent_id', 'parentId', self::class),
             new FkField('media_id', 'mediaId', MediaDefinition::class),
             new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
+            new TranslatedField(new StringField('name', 'name')),
             new LongTextField('path', 'path'),
             new IntField('position', 'position'),
             new IntField('level', 'level'),

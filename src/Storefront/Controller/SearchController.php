@@ -46,10 +46,12 @@ class SearchController extends StorefrontController
             $context->getShop()->getParentId()
         );
 
-        if (empty($searchTerm) || strlen($searchTerm) < (int) $config['minsearchlenght']) {
+        $minLength = $config['minsearchlenght'] ?? 1;
+
+        if (empty($searchTerm) || strlen($searchTerm) < (int) $minLength) {
             // ToDo: Catch in frontend error handling.
             throw new MinimumSearchTermLengthNotGiven(
-                sprintf('Minimum search term length of %d not given.', (int) $config['minsearchlenght'])
+                sprintf('Minimum search term length of %d not given.', (int) $minLength)
             );
         }
 

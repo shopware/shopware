@@ -57,7 +57,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $query = new QueryBuilder($this->connection);
 
         //build from path with escaped alias, e.g. FROM product as `product`
-        $query->from($table, EntityDefinitionResolver::escape($table));
+        $query->from($table, EntityDefinitionQueryHelper::escape($table));
 
         $fields = array_merge(
             $criteria->getFilterFields(),
@@ -66,7 +66,7 @@ class EntityAggregator implements EntityAggregatorInterface
 
         //join association and translated fields
         foreach ($fields as $fieldName) {
-            EntityDefinitionResolver::joinField($fieldName, $definition, $table, $query, $context);
+            EntityDefinitionQueryHelper::joinField($fieldName, $definition, $table, $query, $context);
         }
 
         $parsed = SqlQueryParser::parse($criteria->getFilters(), $definition, $context);
@@ -83,7 +83,7 @@ class EntityAggregator implements EntityAggregatorInterface
     private function fetchAggregation(string $definition, QueryBuilder $query, Aggregation $aggregation, TranslationContext $context)
     {
         /** @var EntityDefinition $definition */
-        $field = EntityDefinitionResolver::getFieldAccessor(
+        $field = EntityDefinitionQueryHelper::getFieldAccessor(
             $aggregation->getField(),
             $definition,
             $definition::getEntityName(),

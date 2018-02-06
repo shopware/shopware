@@ -2,6 +2,8 @@
 
 namespace Shopware\Api\Entity\Field;
 
+use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
+use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\Flag\Deferred;
 use Shopware\Api\Entity\Write\Flag\ReadOnly;
 
@@ -25,7 +27,7 @@ class StructField extends Field implements AssociationInterface
         $this->setFlags(new ReadOnly(), new Deferred());
     }
 
-    public function __invoke(string $type, string $key, $value = null): \Generator
+    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         throw new \Exception('Struct fields can be invoked in write context');
     }

@@ -15,7 +15,7 @@ class OrderStateDefinitionTest extends TestCase
         $fields = OrderStateDefinition::getFields()->filterByFlag(Required::class);
 
         $this->assertEquals(
-            ['id', 'name', 'description', 'translations'],
+            ['id', 'translations'],
             $fields->getKeys()
         );
     }

@@ -26,6 +26,8 @@ declare(strict_types=1);
 namespace Shopware\Framework\Config;
 
 use Doctrine\DBAL\Connection;
+use Ramsey\Uuid\Uuid;
+use Shopware\Defaults;
 use Shopware\Framework\Framework;
 
 class ConfigService implements ConfigServiceInterface
@@ -53,9 +55,9 @@ class ConfigService implements ConfigServiceInterface
             ->leftJoin('e', 'config_form_field_value', 'parentShop', 'parentShop.config_form_field_id = e.id AND parentShop.shop_id = :parentShopId')
             ->leftJoin('e', 'config_form_field_value', 'fallbackShop', 'fallbackShop.config_form_field_id = e.id AND fallbackShop.shop_id = :fallbackShopId')
             ->leftJoin('e', 'config_form', 'forms', 'forms.id = e.config_form_id')
-            ->setParameter('fallbackShopId', 'FFA32A50-E2D0-4CF3-8389-A53F8D6CD594')
-            ->setParameter('currentShopId', $shopId)
-            ->setParameter('parentShopId', $parentId ?: 'FFA32A50-E2D0-4CF3-8389-A53F8D6CD594')
+            ->setParameter('fallbackShopId', Uuid::fromString(Defaults::SHOP)->getBytes())
+            ->setParameter('currentShopId', Uuid::fromString($shopId)->getBytes())
+            ->setParameter('parentShopId', $parentId ? Uuid::fromString($parentId)->getBytes() : Uuid::fromString(Defaults::SHOP)->getBytes())
         ;
 
         $data = $builder->execute()->fetchAll(\PDO::FETCH_KEY_PAIR);

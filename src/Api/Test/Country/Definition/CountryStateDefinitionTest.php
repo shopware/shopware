@@ -15,7 +15,7 @@ class CountryStateDefinitionTest extends TestCase
         $fields = CountryStateDefinition::getFields()->filterByFlag(Required::class);
 
         $this->assertEquals(
-            ['id', 'countryId', 'shortCode', 'name', 'translations'],
+            ['id', 'countryId', 'shortCode', 'translations'],
             $fields->getKeys()
         );
     }

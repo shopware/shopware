@@ -803,8 +803,9 @@ INSERT INTO `shipping_method_translation` (`shipping_method_id`, `language_id`, 
   (unhex('3f84d11afa7742f19b192f6c7d4187e7'),	unhex('ffa32a50e2d04cf38389a53f8d6cd594'),	'Standard Versand ins Ausland',	'Die Versandart tritt in Kraft wenn das Lieferland nicht Deutschland ist. ',	'Die Versandart tritt in Kraft wenn das Lieferland nicht Deutschland ist. '),
   (unhex('417beeb2dddf45d1b90188fd211343c3'),	unhex('ffa32a50e2d04cf38389a53f8d6cd594'),	'Standard Versand',	'',	'');
 
-INSERT INTO `tax` (`id`, `tax_rate`, `name`, `created_at`, `updated_at`)
-VALUES (unhex('4926035368e34d9fa695e017d7a231b9'), '19', '19%', '2017-12-14 15:51:51', NULL),
-  (unhex('a297709e9e914995af8263ee214583e6'), '7', '7%', '2017-12-14 15:51:51', NULL);
+INSERT INTO `tax` (`id`, `version_id`, `tax_rate`, `name`, `created_at`, `updated_at`)
+VALUES
+  (unhex('4926035368e34d9fa695e017d7a231b9'), unhex('ffffffffffffffffffffffffffffffff'), '19', '19%', '2017-12-14 15:51:51', NULL),
+  (unhex('a297709e9e914995af8263ee214583e6'), unhex('ffffffffffffffffffffffffffffffff'), '7', '7%', '2017-12-14 15:51:51', NULL);
 
 SET FOREIGN_KEY_CHECKS=1;

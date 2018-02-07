@@ -929,18 +929,6 @@ CREATE TABLE `product_search_keyword` (
   CONSTRAINT `shop_id` FOREIGN KEY (`shop_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `audit_log` (
-  `id` binary(16) NOT NULL,
-  `action` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_id` binary(16) NULL,
-  `entity` varchar(1000) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `foreign_key` binary(16) NULL,
-  `payload` longtext COLLATE utf8mb4_unicode_ci,
-  `created_at` datetime NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
 DROP TABLE IF EXISTS `product_manufacturer`;
 CREATE TABLE `product_manufacturer` (
   `id` binary(16) NOT NULL,
@@ -1366,11 +1354,12 @@ CREATE TABLE `snippet` (
 DROP TABLE IF EXISTS `tax`;
 CREATE TABLE `tax` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `tax_rate` decimal(10,2) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`id`, `version_id`),
   KEY `tax` (`tax_rate`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1378,6 +1367,7 @@ CREATE TABLE `tax` (
 DROP TABLE IF EXISTS `tax_area_rule`;
 CREATE TABLE `tax_area_rule` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `tax_rate` decimal(10,2) NOT NULL,
   `active` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `country_area_id` binary(16) DEFAULT NULL,
@@ -1387,7 +1377,7 @@ CREATE TABLE `tax_area_rule` (
   `customer_group_id` binary(16) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`id`, `version_id`),
   KEY `fk_tax_area_rule.country_id` (`country_id`),
   KEY `fk_tax_area_rule.country_area_id` (`country_area_id`),
   KEY `fk_tax_area_rule.country_state_id` (`country_state_id`),
@@ -1404,9 +1394,10 @@ CREATE TABLE `tax_area_rule` (
 DROP TABLE IF EXISTS `tax_area_rule_translation`;
 CREATE TABLE `tax_area_rule_translation` (
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `tax_area_rule_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  PRIMARY KEY (`tax_area_rule_id`,`language_id`),
+  PRIMARY KEY (`tax_area_rule_id`,`language_id`, `version_id`),
   KEY `language_id` (`language_id`),
   CONSTRAINT `tax_area_rule_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `tax_area_rule_translation_ibfk_2` FOREIGN KEY (`tax_area_rule_id`) REFERENCES `tax_area_rule` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -1459,6 +1450,40 @@ CREATE TABLE `user` (
   UNIQUE KEY `username` (`username`),
   KEY `fk_user.locale_id` (`locale_id`),
   CONSTRAINT `fk_user.locale_id` FOREIGN KEY (`locale_id`) REFERENCES `locale` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `version`;
+CREATE TABLE `version` (
+  `id` binary(16) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `version_commit`;
+CREATE TABLE `version_commit` (
+  `id` binary(16) NOT NULL PRIMARY KEY,
+  `ai` bigint NOT NULL AUTO_INCREMENT UNIQUE,
+  `message` varchar(5000) NULL DEFAULT NULL,
+  `user_id` binary(16) DEFAULT NULL,
+  `version_id` binary(16) NOT NULL,
+  `created_at` datetime NOT NULL,
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `version_commit_data`;
+CREATE TABLE `version_commit_data` (
+  `id` binary(16) NOT NULL,
+  `ai` bigint NOT NULL AUTO_INCREMENT UNIQUE,
+  `version_commit_id` binary(16) NOT NULL,
+  `entity_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `entity_id` json NOT NULL,
+  `action` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` json NOT NULL,
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`version_commit_id`) REFERENCES `version_commit` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS=1;

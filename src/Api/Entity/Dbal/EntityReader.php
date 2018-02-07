@@ -362,7 +362,7 @@ class EntityReader implements EntityReaderInterface
                     EntityDefinitionQueryHelper::escape($mapping::getEntityName()),
                     EntityDefinitionQueryHelper::escape($field->getMappingLocalColumn()),
                     EntityDefinitionQueryHelper::escape($root),
-                    EntityDefinitionQueryHelper::escape($field->getSourceColumn()),
+                    EntityDefinitionQueryHelper::escape($field->getLocalField()),
                     EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName()),
                 ],
                 '(SELECT GROUP_CONCAT(HEX(#alias#.#mapping_reference_column#) SEPARATOR \'||\')

@@ -11,4 +11,6 @@ final class Defaults
     public const ROOT_CATEGORY = '57f4ecb1-1628-43e6-9dab-c4a6a7b66eab';
 
     public const ORDER_STATE_OPEN = '1194a493-8067-42c9-b85e-61f1f2cf9be8';
+
+    public const LIVE_VERSION = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
 }

@@ -28,6 +28,7 @@ use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Dbal\EntityForeignKeyResolver;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\Field;
+use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\MappingEntityDefinition;
 use Shopware\Api\Entity\Write\FieldAware\DefaultExtender;
@@ -39,6 +40,7 @@ use Shopware\Api\Entity\Write\Command\InsertCommand;
 use Shopware\Api\Entity\Write\Command\UpdateCommand;
 use Shopware\Api\Entity\Write\Command\WriteCommandInterface;
 use Shopware\Api\Entity\Write\Command\WriteCommandQueue;
+use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Validation\RestrictDeleteViolation;
 use Shopware\Api\Entity\Write\Validation\RestrictDeleteViolationException;
 
@@ -207,10 +209,15 @@ class EntityWriter implements EntityWriterInterface
             }
 
             $identifiers[$resource] = [];
-
             /** @var WriteCommandInterface[] $commands */
             foreach ($commands as $command) {
-                $identifiers[$resource][] = $this->getCommandPrimaryKey($command);
+                $primaryKey = $this->getCommandPrimaryKey($command);
+                $payload = $this->getCommandPayload($command);
+
+                $identifiers[$resource][] = [
+                    'primaryKey' => $primaryKey,
+                    'payload' => $payload
+                ];
             }
         }
 
@@ -269,5 +276,44 @@ class EntityWriter implements EntityWriterInterface
         }
 
         return $data;
+    }
+
+    private function getCommandPayload(WriteCommandInterface $command): array
+    {
+        /** @var InsertCommand|UpdateCommand $command */
+        $payload = $command instanceof DeleteCommand ? [] : $command->getPayload();
+
+        $fields = $command->getDefinition()::getFields();
+
+        $convertedPayload = [];
+        foreach ($payload as $key => $value) {
+            $field = $fields->getByStorageName($key);
+
+            if ($field instanceof IdField || $field instanceof FkField) {
+                $value = Uuid::fromBytes($value)->toString();
+            }
+            $convertedPayload[$field->getPropertyName()] = $value;
+        }
+
+        $primaryKeys = $fields->filterByFlag(PrimaryKey::class);
+
+        /** @var Field|StorageAware $primaryKey */
+        foreach ($primaryKeys as $primaryKey) {
+            if (array_key_exists($primaryKey->getPropertyName(), $payload)) {
+                continue;
+            }
+
+            if (!array_key_exists($primaryKey->getStorageName(), $command->getPrimaryKey())) {
+                throw new \RuntimeException(
+                    sprintf('Primary key field %s::%s not found in payload or command primary key', $command->getDefinition(), $primaryKey->getStorageName())
+                );
+            }
+
+            $key = $command->getPrimaryKey()[$primaryKey->getStorageName()];
+
+            $convertedPayload[$primaryKey->getPropertyName()] = Uuid::fromBytes($key)->toString();
+        }
+
+        return $convertedPayload;
     }
 }

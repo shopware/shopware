@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\Version\VersionManager" id="Shopware\Version\VersionManager">
+            <argument id="shopware.api.entity_writer" type="service"/>
+            <argument type="service" id="shopware.api.entity_reader"/>
+            <argument type="service" id="shopware.api.entity_searcher"/>
+            <argument type="service" id="shopware.api.entity_definition_registry"/>
+        </service>
+
+    </services>
+</container>                
+                

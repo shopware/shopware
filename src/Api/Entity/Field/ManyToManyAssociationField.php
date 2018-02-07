@@ -96,12 +96,12 @@ class ManyToManyAssociationField extends SubresourceField implements Association
         return $this->structIdMappingProperty;
     }
 
-    public function getSourceColumn(): string
+    public function getLocalField(): string
     {
         return $this->sourceColumn;
     }
 
-    public function getReferenceColumn(): string
+    public function getReferenceField(): string
     {
         return $this->referenceColumn;
     }

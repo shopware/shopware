@@ -32,7 +32,7 @@ class ValueTransformerDate implements ValueTransformer
     public function transform($phpValue)
     {
         if (!$phpValue instanceof \DateTimeInterface) {
-            throw new \InvalidArgumentException('Unable to do this');
+            throw new \InvalidArgumentException(sprintf('Unable to format date %s', $phpValue));
         }
 
         return $phpValue->format('Y-m-d H:i:s');

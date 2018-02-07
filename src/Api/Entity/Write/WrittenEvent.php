@@ -26,10 +26,16 @@ abstract class WrittenEvent extends NestedEvent
     /**
      * @var array
      */
-    protected $ids = [];
+    protected $ids;
+
+    /**
+     * @var array
+     */
+    protected $payload;
 
     public function __construct(
         array $ids,
+        array $payload,
         TranslationContext $context,
         array $errors = []
     ) {
@@ -37,6 +43,7 @@ abstract class WrittenEvent extends NestedEvent
         $this->context = $context;
         $this->errors = $errors;
         $this->ids = $ids;
+        $this->payload = $payload;
     }
 
     abstract public function getDefinition(): string;
@@ -64,5 +71,10 @@ abstract class WrittenEvent extends NestedEvent
     public function addEvent(NestedEvent $event): void
     {
         $this->events->add($event);
+    }
+
+    public function getPayload(): array
+    {
+        return $this->payload;
     }
 }

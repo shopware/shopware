@@ -40,17 +40,17 @@ class FkField extends Field implements StorageAware
     /**
      * @var string
      */
-    private $storageName;
+    protected $storageName;
 
     /**
      * @var string
      */
-    private $referenceClass;
+    protected $referenceClass;
 
     /**
      * @var string
      */
-    private $referenceField;
+    protected $referenceField;
 
     public function __construct(string $storageName, string $propertyName, string $referenceClass, string $referenceField = 'id')
     {

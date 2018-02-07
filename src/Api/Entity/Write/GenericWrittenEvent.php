@@ -67,9 +67,16 @@ class GenericWrittenEvent extends NestedEvent
         $events = new NestedEventCollection();
 
         /** @var EntityDefinition $definition */
-        foreach ($identifiers as $definition => $ids) {
+        foreach ($identifiers as $definition => $data) {
             $class = $definition::getWrittenEventClass();
-            $events->add(new $class($ids, $context, $errors));
+            $events->add(
+                new $class(
+                    array_column($data, 'primaryKey'),
+                    array_column($data, 'payload'),
+                    $context,
+                    $errors
+                )
+            );
         }
 
         return new self($context, $events, $errors);
@@ -80,9 +87,16 @@ class GenericWrittenEvent extends NestedEvent
         $events = new NestedEventCollection();
 
         /** @var EntityDefinition $definition */
-        foreach ($identifiers as $definition => $ids) {
+        foreach ($identifiers as $definition => $data) {
             $class = $definition::getDeletedEventClass();
-            $events->add(new $class($ids, $context, $errors));
+            $events->add(
+                new $class(
+                    array_column($data, 'primaryKey'),
+                    array_column($data, 'payload'),
+                    $context,
+                    $errors
+                )
+            );
         }
 
         return new self($context, $events, $errors);

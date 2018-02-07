@@ -21,6 +21,7 @@ use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\PriceRulesField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\Extension;
 
@@ -132,6 +133,7 @@ class EntityHydrator
         switch (true) {
             case $field instanceof FkField:
             case $field instanceof IdField:
+            case $field instanceof VersionField:
                 if ($value === null) {
                     return null;
                 }

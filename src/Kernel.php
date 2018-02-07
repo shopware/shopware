@@ -54,7 +54,7 @@ class Kernel extends HttpKernel
 
             // shopware
             new \Shopware\Framework\Framework(),
-            new \Shopware\Audit\Audit(),
+            new \Shopware\Version\Version(),
             new \Shopware\Rest\Rest(),
             new \Shopware\Api\Api(),
             new \Shopware\Cart\Cart(),

@@ -108,7 +108,7 @@ class EntityDefinitionQueryHelper
         $associationKey = array_shift($associationKey);
 
         if (!$fields->has($associationKey)) {
-            throw new \RuntimeException(sprintf('Unmapped field %s for definition class', $original));
+            throw new \RuntimeException(sprintf('Unmapped field %s for definition class %s', $original, $definition));
         }
 
         /** @var AssociationInterface|Field $field */
@@ -318,7 +318,7 @@ class EntityDefinitionQueryHelper
                 self::escape($mappingAlias),
                 self::escape($field->getMappingReferenceColumn()),
                 self::escape($alias),
-                self::escape($field->getReferenceColumn())
+                self::escape($field->getReferenceField())
             )
         );
 

@@ -71,7 +71,7 @@ class CalculatedVoucher extends Struct implements CalculatedLineItemInterface, V
     protected $description;
 
     /**
-     * @var MediaBasicStruct
+     * @var MediaBasicStruct|null
      */
     protected $cover;
 
@@ -80,9 +80,9 @@ class CalculatedVoucher extends Struct implements CalculatedLineItemInterface, V
         LineItemInterface $lineItem,
         Price $price,
         string $label,
-        string $description,
-        MediaBasicStruct $cover,
-        ?Rule $rule
+        ?Rule $rule = null,
+        ?string $description = null,
+        ?MediaBasicStruct $cover = null
     ) {
         $this->price = $price;
         $this->lineItem = $lineItem;
@@ -124,7 +124,7 @@ class CalculatedVoucher extends Struct implements CalculatedLineItemInterface, V
         return $this->description;
     }
 
-    public function getCover(): ? MediaBasicStruct
+    public function getCover(): ?MediaBasicStruct
     {
         return $this->cover;
     }

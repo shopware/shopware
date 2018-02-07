@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace Shopware\Cart\Cart;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Cart\Exception\CircularCartCalculationException;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
@@ -64,18 +64,18 @@ class CartCalculator
         $this->calculator = $calculator;
     }
 
-    public function calculate(CartContainer $cartContainer, ShopContext $context): CalculatedCart
+    public function calculate(Cart $cart, ShopContext $context): CalculatedCart
     {
-        $dataCollection = $this->prepare($cartContainer, $context);
+        $dataCollection = $this->prepare($cart, $context);
 
-        return $this->process($cartContainer, $context, $dataCollection, 0);
+        return $this->process($cart, $context, $dataCollection, 0);
     }
 
-    private function prepare(CartContainer $cartContainer, ShopContext $context): StructCollection
+    private function prepare(Cart $cart, ShopContext $context): StructCollection
     {
         $fetchCollection = new StructCollection();
         foreach ($this->collectors as $collector) {
-            $collector->prepare($fetchCollection, $cartContainer, $context);
+            $collector->prepare($fetchCollection, $cart, $context);
         }
 
         $dataCollection = new StructCollection();
@@ -87,7 +87,7 @@ class CartCalculator
     }
 
     private function process(
-        CartContainer $cartContainer,
+        Cart $cart,
         ShopContext $context,
         StructCollection $dataCollection,
         int $iteration
@@ -97,7 +97,7 @@ class CartCalculator
         }
 
         $lineItems = new CalculatedLineItemCollection(
-            $cartContainer->getLineItems()->filterInstance(
+            $cart->getLineItems()->filterInstance(
                 CalculatedLineItemInterface::class
             )->getElements()
         );
@@ -105,7 +105,7 @@ class CartCalculator
         $calculatedCart = $this->createCalculatedCart(
             $lineItems,
             new DeliveryCollection(),
-            $cartContainer,
+            $cart,
             $context
         );
 
@@ -113,7 +113,7 @@ class CartCalculator
 
         foreach ($this->processors as $processor) {
             try {
-                $processor->process($cartContainer, $calculatedCart, $dataCollection, $context);
+                $processor->process($cart, $calculatedCart, $dataCollection, $context);
             } catch (RecalculateCartException $e) {
                 $recalculate = true;
             }
@@ -121,13 +121,13 @@ class CartCalculator
             $calculatedCart = $this->createCalculatedCart(
                 $calculatedCart->getCalculatedLineItems(),
                 $calculatedCart->getDeliveries(),
-                $cartContainer,
+                $cart,
                 $context
             );
         }
 
         if ($recalculate) {
-            return $this->process($cartContainer, $context, $dataCollection, $iteration + 1);
+            return $this->process($cart, $context, $dataCollection, $iteration + 1);
         }
 
         return $calculatedCart;
@@ -136,7 +136,7 @@ class CartCalculator
     private function createCalculatedCart(
         CalculatedLineItemCollection $lineItems,
         DeliveryCollection $deliveries,
-        CartContainer $container,
+        Cart $container,
         ShopContext $context
     ): CalculatedCart {
         return new CalculatedCart(

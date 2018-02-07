@@ -30,7 +30,7 @@ use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Order\Repository\OrderRepository;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Cart\Error\ErrorCollection;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
@@ -71,7 +71,7 @@ class OrderPersisterTest extends TestCase
         $shopContext->expects($this->any())->method('getCustomer')->willReturn($customer);
 
         $cart = new CalculatedCart(
-            new CartContainer('A', 'a-b-c', new LineItemCollection(), new ErrorCollection()),
+            new Cart('A', 'a-b-c', new LineItemCollection(), new ErrorCollection()),
             new CalculatedLineItemCollection(),
             new CartPrice(1, 1, 1, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
             new DeliveryCollection()

@@ -25,7 +25,7 @@
 namespace Shopware\CartBridge\Voucher;
 
 use Shopware\Cart\Cart\CollectorInterface;
-use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\CartBridge\Voucher\Struct\VoucherData;
 use Shopware\CartBridge\Voucher\Struct\VoucherFetchDefinition;
 use Shopware\Context\Struct\ShopContext;
@@ -48,10 +48,10 @@ class VoucherCollector implements CollectorInterface
 
     public function prepare(
         StructCollection $fetchDefinition,
-        CartContainer $cartContainer,
+        Cart $cart,
         ShopContext $context
     ): void {
-        $vouchers = $cartContainer->getLineItems()->filterType(VoucherProcessor::TYPE_VOUCHER);
+        $vouchers = $cart->getLineItems()->filterType(VoucherProcessor::TYPE_VOUCHER);
 
         if ($vouchers->count() === 0) {
             return;

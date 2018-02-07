@@ -3,7 +3,7 @@
 namespace Shopware\Traceable\Cart;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Context\Struct\ShopContext;
 
 class TracedCartActions
@@ -19,9 +19,9 @@ class TracedCartActions
     public $calculatedCart;
 
     /**
-     * @var CartContainer
+     * @var Cart
      */
-    public $cartContainer;
+    public $cart;
 
     /**
      * @var ShopContext

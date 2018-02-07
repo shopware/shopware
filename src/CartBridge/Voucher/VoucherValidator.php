@@ -53,7 +53,7 @@ class VoucherValidator implements ValidatorInterface
 //                continue;
 //            }
 //
-//            $cart->getCartContainer()->getLineItems()->remove(
+//            $cart->getCart()->getLineItems()->remove(
 //                $voucher->getLineItem()->getIdentifier()
 //            );
 //

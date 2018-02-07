@@ -27,7 +27,7 @@ namespace Shopware\CartBridge\Test\Cart;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Cart\Error\ErrorCollection;
 use Shopware\Cart\Exception\CartTokenNotFoundException;
@@ -75,7 +75,7 @@ class CartPersisterTest extends TestCase
             ->method('fetchColumn')
             ->will($this->returnValue(
                 json_encode([
-                    '_class' => CartContainer::class,
+                    '_class' => Cart::class,
                     'lineItems' => new LineItemCollection(),
                     'token' => 'existing',
                     'name' => 'shopware',
@@ -91,7 +91,7 @@ class CartPersisterTest extends TestCase
         $cart = $persister->load('existing', 'shopware');
 
         $this->assertEquals(
-            new CartContainer('shopware', 'existing', new LineItemCollection(), new ErrorCollection()),
+            new Cart('shopware', 'existing', new LineItemCollection(), new ErrorCollection()),
             $cart
         );
     }
@@ -107,7 +107,7 @@ class CartPersisterTest extends TestCase
         );
 
         $calc = new CalculatedCart(
-            new CartContainer('shopware', 'existing', new LineItemCollection(), new ErrorCollection()),
+            new Cart('shopware', 'existing', new LineItemCollection(), new ErrorCollection()),
             new CalculatedLineItemCollection([]),
             new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
             new DeliveryCollection()
@@ -126,15 +126,14 @@ class CartPersisterTest extends TestCase
         );
 
         $calc = new CalculatedCart(
-            new CartContainer('shopware', 'existing', new LineItemCollection(), new ErrorCollection()),
+            new Cart('shopware', 'existing', new LineItemCollection(), new ErrorCollection()),
             new CalculatedLineItemCollection([
                 new CalculatedLineItem(
                     'A',
                     new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
                     1,
                     'test',
-                    null,
-                    null
+                    'label'
                 ),
             ]),
             new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),

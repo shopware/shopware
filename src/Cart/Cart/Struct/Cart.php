@@ -30,7 +30,7 @@ use Shopware\Cart\Error\ErrorCollection;
 use Shopware\Cart\LineItem\LineItemCollection;
 use Shopware\Framework\Struct\Struct;
 
-class CartContainer extends Struct
+class Cart extends Struct
 {
     /**
      * @var string

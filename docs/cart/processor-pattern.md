@@ -40,13 +40,13 @@ class ProductProcessor implements CartProcessorInterface
     private $calculator;
 
     public function process(
-        CartContainer $cartContainer,
+        Cart $cart,
         ProcessorCart $processorCart,
         StructCollection $dataCollection,
         ShopContext $context
     ): void {
 
-        $collection = $cartContainer->getLineItems()->filterType(self::TYPE_PRODUCT);
+        $collection = $cart->getLineItems()->filterType(self::TYPE_PRODUCT);
         if ($collection->count() === 0) {
             return;
         }

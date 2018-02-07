@@ -27,7 +27,7 @@ namespace Shopware\CartBridge\Rule\Collector;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Cart\Cart\CollectorInterface;
-use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Rule\RuleCollection;
 use Shopware\Cart\Rule\Validatable;
 use Shopware\CartBridge\Rule\Data\OrderClearedStateRuleData;
@@ -52,7 +52,7 @@ class OrderClearedStateRuleCollector implements CollectorInterface
 
     public function prepare(
         StructCollection $fetchDefinition,
-        CartContainer $cartContainer,
+        Cart $cart,
         ShopContext $context
     ): void {
     }

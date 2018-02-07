@@ -27,7 +27,7 @@ namespace Shopware\CartBridge\Product;
 
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 
@@ -49,12 +49,12 @@ class ProductProcessor implements CartProcessorInterface
     }
 
     public function process(
-        CartContainer $cartContainer,
+        Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
         ShopContext $context
     ): void {
-        $collection = $cartContainer->getLineItems()->filterType(self::TYPE_PRODUCT);
+        $collection = $cart->getLineItems()->filterType(self::TYPE_PRODUCT);
 
         if ($collection->count() === 0) {
             return;

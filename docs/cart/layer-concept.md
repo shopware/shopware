@@ -3,12 +3,12 @@
 With regards to performance and seperation of responsibilities we introduced a three-layer-architecture for the cart. Each layer serves a new purpose, while the level of abstraction decreases from inside to outside.
 
 ## Cart container
-The first and innermost layer is the `\Shopware\Cart\Cart\CartContainer`. 
+The first and innermost layer is the `\Shopware\Cart\Cart\Cart`. 
 This layer can be viewed as a shopping list. Here, you only define which elements are to be calculated and validated later.
 At this time, neither taxes, prices, or availability are of interest or anyway considered.
 
 ```php
-$container = CartContainer::createNew('my_cart');
+$container = Cart::createNew('my_cart');
 $container->getLineItems()->add(
     new LineItem(
         $identifier = 'SW1000',

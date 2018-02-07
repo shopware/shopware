@@ -3,7 +3,7 @@
 namespace Shopware\Traceable\DataCollector;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Traceable\Cart\TracedCartActions;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,7 +31,7 @@ class CartCollector extends DataCollector
     {
         $this->data = [
             'actions' => $this->cartActions->actions,
-            'cartContainer' => $this->cartActions->cartContainer,
+            'cart' => $this->cartActions->cart,
             'calculatedCart' => $this->cartActions->calculatedCart,
             'context' => $this->cartActions->context,
         ];
@@ -42,9 +42,9 @@ class CartCollector extends DataCollector
         return $this->data['actions'];
     }
 
-    public function getCartContainer(): ?CartContainer
+    public function getCart(): ?Cart
     {
-        return $this->data['cartContainer'];
+        return $this->data['cart'];
     }
 
     public function getContext(): ?ShopContext

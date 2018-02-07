@@ -26,12 +26,12 @@ declare(strict_types=1);
 namespace Shopware\Cart\Cart;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Context\Struct\ShopContext;
 
 interface CartPersisterInterface
 {
-    public function load(string $token, string $name): CartContainer;
+    public function load(string $token, string $name): Cart;
 
     public function save(CalculatedCart $cart, ShopContext $context): void;
 

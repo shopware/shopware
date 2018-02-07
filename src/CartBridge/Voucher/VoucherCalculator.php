@@ -50,6 +50,12 @@ class VoucherCalculator
             $discount = $this->absolutePriceCalculator->calculate($price->getPrice(), $prices, $context);
         }
 
-        return new CalculatedVoucher($lineItem->getIdentifier(), $lineItem, $discount, $voucher->getRule());
+        return new CalculatedVoucher(
+            $lineItem->getIdentifier(),
+            $lineItem,
+            $discount,
+            'Voucher',
+            $voucher->getRule()
+        );
     }
 }

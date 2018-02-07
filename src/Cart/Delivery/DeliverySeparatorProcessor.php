@@ -27,7 +27,7 @@ namespace Shopware\Cart\Delivery;
 
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\LineItem\DeliverableLineItemInterface;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
@@ -45,7 +45,7 @@ class DeliverySeparatorProcessor implements CartProcessorInterface
     }
 
     public function process(
-        CartContainer $cartContainer,
+        Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
         ShopContext $context

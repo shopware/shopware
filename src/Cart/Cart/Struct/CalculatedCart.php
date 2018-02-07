@@ -40,9 +40,9 @@ class CalculatedCart extends Struct
     protected $price;
 
     /**
-     * @var CartContainer
+     * @var Cart
      */
-    protected $cartContainer;
+    protected $cart;
 
     /**
      * @var CalculatedLineItemCollection
@@ -55,12 +55,12 @@ class CalculatedCart extends Struct
     protected $deliveries;
 
     public function __construct(
-        CartContainer $cartContainer,
+        Cart $cart,
         CalculatedLineItemCollection $calculatedLineItems,
         CartPrice $price,
         DeliveryCollection $deliveries
     ) {
-        $this->cartContainer = $cartContainer;
+        $this->cart = $cart;
         $this->calculatedLineItems = $calculatedLineItems;
         $this->price = $price;
         $this->deliveries = $deliveries;
@@ -68,12 +68,12 @@ class CalculatedCart extends Struct
 
     public function getName(): string
     {
-        return $this->cartContainer->getName();
+        return $this->cart->getName();
     }
 
     public function getToken(): string
     {
-        return $this->cartContainer->getToken();
+        return $this->cart->getToken();
     }
 
     public function getPrice(): CartPrice
@@ -81,9 +81,9 @@ class CalculatedCart extends Struct
         return clone $this->price;
     }
 
-    public function getCartContainer(): CartContainer
+    public function getCart(): Cart
     {
-        return $this->cartContainer;
+        return $this->cart;
     }
 
     public function getCalculatedLineItems(): CalculatedLineItemCollection
@@ -98,12 +98,12 @@ class CalculatedCart extends Struct
 
     public function getErrors(): ErrorCollection
     {
-        return $this->cartContainer->getErrors();
+        return $this->cart->getErrors();
     }
 
     public function clearErrors(): ErrorCollection
     {
-        return $this->cartContainer->clearErrors();
+        return $this->cart->clearErrors();
     }
 
     public function getShippingCosts(): Price

@@ -4,7 +4,7 @@ namespace Shopware\Traceable\Cart;
 
 use Shopware\Cart\Cart\CartCalculator;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Context\Struct\ShopContext;
 
 class CartCalculatorTracer extends CartCalculator
@@ -27,15 +27,15 @@ class CartCalculatorTracer extends CartCalculator
         $this->actions = $actions;
     }
 
-    public function calculate(CartContainer $cartContainer, ShopContext $context): CalculatedCart
+    public function calculate(Cart $cart, ShopContext $context): CalculatedCart
     {
         $time = microtime(true);
-        $cart = $this->calculator->calculate($cartContainer, $context);
+        $cart = $this->calculator->calculate($cart, $context);
 
         $required = microtime(true) - $time;
         $this->actions->calculationTime = $required;
         $this->actions->calculatedCart = $cart;
-        $this->actions->cartContainer = $cartContainer;
+        $this->actions->cart = $cart;
         $this->actions->context = $context;
 
         return $cart;

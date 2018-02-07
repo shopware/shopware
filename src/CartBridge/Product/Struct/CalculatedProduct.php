@@ -70,7 +70,7 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
     protected $rule;
 
     /**
-     * @var MediaBasicStruct
+     * @var MediaBasicStruct|null
      */
     protected $cover;
 
@@ -94,11 +94,11 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
         Price $price,
         string $identifier,
         int $quantity,
-        ProductBasicStruct $product,
         DeliveryDate $inStockDeliveryDate,
         DeliveryDate $outOfStockDeliveryDate,
-        ?MediaBasicStruct $cover = null,
-        ?Rule $rule = null
+        ProductBasicStruct $product,
+        ?Rule $rule = null,
+        ?MediaBasicStruct $cover = null
     ) {
         $this->lineItem = $lineItem;
         $this->price = $price;
@@ -123,7 +123,7 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
 
     public function getStock(): int
     {
-        return $this->product->getStock();
+        return $this->product->getStock() ?? 0;
     }
 
     public function getInStockDeliveryDate(): DeliveryDate
@@ -179,11 +179,6 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
     public function getCover(): ?MediaBasicStruct
     {
         return $this->cover;
-    }
-
-    public function setCover(MediaBasicStruct $cover): void
-    {
-        $this->cover = $cover;
     }
 
     public function getDescription(): ?string

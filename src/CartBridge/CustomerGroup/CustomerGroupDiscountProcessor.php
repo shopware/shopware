@@ -28,7 +28,7 @@ namespace Shopware\CartBridge\CustomerGroup;
 use Shopware\Api\Customer\Collection\CustomerGroupDiscountBasicCollection;
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\LineItem\CalculatedLineItem;
 use Shopware\Cart\LineItem\Discount;
 use Shopware\Cart\Price\PercentagePriceCalculator;
@@ -48,7 +48,7 @@ class CustomerGroupDiscountProcessor implements CartProcessorInterface
     }
 
     public function process(
-        CartContainer $cartContainer,
+        Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
         ShopContext $context

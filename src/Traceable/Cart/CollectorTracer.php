@@ -3,7 +3,7 @@
 namespace Shopware\Traceable\Cart;
 
 use Shopware\Cart\Cart\CollectorInterface;
-use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 
@@ -27,11 +27,11 @@ class CollectorTracer implements CollectorInterface
 
     public function prepare(
         StructCollection $fetchDefinition,
-        CartContainer $cartContainer,
+        Cart $cart,
         ShopContext $context
     ): void {
         $before = clone $fetchDefinition;
-        $this->decorated->prepare($fetchDefinition, $cartContainer, $context);
+        $this->decorated->prepare($fetchDefinition, $cart, $context);
 
         $class = $this->getClassName($this->decorated);
 

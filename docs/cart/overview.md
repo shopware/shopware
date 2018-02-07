@@ -228,7 +228,7 @@ public function showDeliveriesAction()
 The cart passes through different states during the calculation process.
 In order to provide a valid state for each service layer, the states are reflected in different classes:
 
-* `Shopware\Cart\Cart\CartContainer`
+* `Shopware\Cart\Cart\Cart`
     * Defines which line items have to be calculated inside the process
 * `Shopware\Cart\Cart\ProcessorCart`
     * Defines which line items have already been calculated and which deliveries have been generated 
@@ -254,7 +254,7 @@ use Shopware\Framework\Struct\StructCollection;
 interface CartProcessorInterface
 {
    public function process(
-        CartContainer $cartContainer,
+        Cart $cart,
         ProcessorCart $processorCart,
         StructCollection $dataCollection,
         ShopContext $context
@@ -316,7 +316,7 @@ The following examples shows one possible solution for creating dynamic discount
 namespace SwagCartExtension\Cart;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Cart\Cart\CartContainer;
+use Shopware\Cart\Cart\Cart;
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\ProcessorCart;
 use Shopware\Cart\LineItem\Discount;
@@ -350,7 +350,7 @@ class NewCustomerDiscountProcessor implements CartProcessorInterface
 
 
     public function process(
-        CartContainer $cartContainer,
+        Cart $cart,
         ProcessorCart $processorCart,
         StructCollection $dataCollection,
         ShopContext $context
@@ -425,7 +425,7 @@ The following examples shows a possible solution for preventing some products fr
 namespace SwagBlacklist\Cart;
 
 
-use Shopware\Cart\Cart\CartContainer;
+use Shopware\Cart\Cart\Cart;
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\ProcessorCart;
 use Shopware\Cart\LineItem\LineItem;
@@ -441,19 +441,19 @@ class BlacklistedProductProcessor implements CartProcessorInterface
     ];
 
     public function process(
-        CartContainer $cartContainer,
+        Cart $cart,
         ProcessorCart $processorCart,
         StructCollection $dataCollection,
         ShopContext $context
     ): void
     {
         /** @var LineItemCollection $products */
-        $products = $cartContainer->getLineItems()->filterType(ProductProcessor::TYPE_PRODUCT);
+        $products = $cart->getLineItems()->filterType(ProductProcessor::TYPE_PRODUCT);
 
         /** @var LineItem $product */
         foreach ($products as $product) {
             if (in_array($product->getIdentifier(), $this->blackList)) {
-                $cartContainer->getLineItems()->remove($product->getIdentifier());
+                $cart->getLineItems()->remove($product->getIdentifier());
             }
         }
     }

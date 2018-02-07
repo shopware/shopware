@@ -29,7 +29,7 @@ use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Cart\Cart\CartPersisterInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Serializer\JsonSerializer;
@@ -52,7 +52,7 @@ class CartPersister implements CartPersisterInterface
         $this->serializer = $serializer;
     }
 
-    public function load(string $token, string $name): CartContainer
+    public function load(string $token, string $name): Cart
     {
         $content = $this->connection->fetchColumn(
             'SELECT container FROM cart WHERE `token` = :token AND `name` = :name',
@@ -84,7 +84,7 @@ class CartPersister implements CartPersisterInterface
             'token' => $cart->getToken(),
             'name' => $cart->getName(),
             'calculated' => $this->serializer->serialize($cart),
-            'container' => $this->serializer->serialize($cart->getCartContainer()),
+            'container' => $this->serializer->serialize($cart->getCart()),
             'currency_id' => Uuid::fromString($context->getCurrency()->getId())->getBytes(),
             'shipping_method_id' => Uuid::fromString($context->getShippingMethod()->getId())->getBytes(),
             'payment_method_id' => Uuid::fromString($context->getPaymentMethod()->getId())->getBytes(),

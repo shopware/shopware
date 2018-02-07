@@ -27,7 +27,7 @@ namespace Shopware\Cart\Test\Cart;
 use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\CartCalculator;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\Price\AmountCalculator;
@@ -61,7 +61,7 @@ class CartCalculatorTest extends TestCase
             $generator
         );
 
-        $container = CartContainer::createNew('test');
+        $container = Cart::createNew('test');
 
         $cart = new CalculatedCart(
             $container,

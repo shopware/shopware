@@ -4,7 +4,7 @@ namespace Shopware\Traceable\Cart;
 
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
@@ -32,14 +32,14 @@ class ProcessorTracer implements CartProcessorInterface
     }
 
     public function process(
-        CartContainer $cartContainer,
+        Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
         ShopContext $context
     ): void {
         $before = clone $calculatedCart;
 
-        $this->decorated->process($cartContainer, $calculatedCart, $dataCollection, $context);
+        $this->decorated->process($cart, $calculatedCart, $dataCollection, $context);
 
         $lineItems = $before->getCalculatedLineItems();
         $deliveries = $before->getDeliveries();

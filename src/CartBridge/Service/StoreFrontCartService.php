@@ -28,7 +28,7 @@ namespace Shopware\CartBridge\Service;
 use Shopware\Cart\Cart\CartCalculator;
 use Shopware\Cart\Cart\CartPersisterInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Exception\LineItemNotFoundException;
 use Shopware\Cart\LineItem\LineItemCollection;
 use Shopware\Cart\LineItem\LineItemInterface;
@@ -69,9 +69,9 @@ class StoreFrontCartService
     private $orderPersister;
 
     /**
-     * @var \Shopware\Cart\Cart\Struct\CartContainer
+     * @var \Shopware\Cart\Cart\Struct\Cart
      */
-    private $cartContainer;
+    private $cart;
 
     public function __construct(
         CartCalculator $calculation,
@@ -96,14 +96,14 @@ class StoreFrontCartService
 
     public function getCalculatedCart(): CalculatedCart
     {
-        $container = $this->getCartContainer();
+        $container = $this->getCart();
 
         return $this->calculate($container);
     }
 
     public function add(LineItemInterface $item): void
     {
-        $cart = $this->getCartContainer();
+        $cart = $this->getCart();
 
         $cart->getLineItems()->add($item);
 
@@ -112,7 +112,7 @@ class StoreFrontCartService
 
     public function fill(LineItemCollection $lineItems): void
     {
-        $cart = $this->getCartContainer();
+        $cart = $this->getCart();
 
         $cart->getLineItems()->fill($lineItems->getElements());
 
@@ -124,7 +124,7 @@ class StoreFrontCartService
      */
     public function changeQuantity(string $identifier, int $quantity): void
     {
-        $cart = $this->getCartContainer();
+        $cart = $this->getCart();
 
         if (!$lineItem = $cart->getLineItems()->get($identifier)) {
             throw new LineItemNotFoundException($identifier);
@@ -137,9 +137,9 @@ class StoreFrontCartService
 
     public function remove(string $identifier): void
     {
-        $cartContainer = $this->getCartContainer();
-        $cartContainer->getLineItems()->remove($identifier);
-        $this->calculate($cartContainer);
+        $cart = $this->getCart();
+        $cart->getLineItems()->remove($identifier);
+        $this->calculate($cart);
     }
 
     public function order(): void
@@ -152,33 +152,33 @@ class StoreFrontCartService
         $this->createNewCart();
     }
 
-    public function getCartContainer(): CartContainer
+    public function getCart(): Cart
     {
-        if ($this->cartContainer) {
-            return $this->cartContainer;
+        if ($this->cart) {
+            return $this->cart;
         }
 
         if ($this->getCartToken() === null) {
             //first access for frontend session
-            return $this->cartContainer = $this->createNewCart();
+            return $this->cart = $this->createNewCart();
         }
 
         try {
-            //try to access existing cartContainer, identified by session token
-            return $this->cartContainer = $this->persister->load(
+            //try to access existing cart, identified by session token
+            return $this->cart = $this->persister->load(
                 $this->getCartToken(),
                 self::CART_NAME
             );
         } catch (\Exception $e) {
-            //token not found, create new cartContainer
-            return $this->cartContainer = $this->createNewCart();
+            //token not found, create new cart
+            return $this->cart = $this->createNewCart();
         }
     }
 
-    private function calculate(CartContainer $cartContainer): CalculatedCart
+    private function calculate(Cart $cart): CalculatedCart
     {
         $context = $this->contextService->getShopContext();
-        $calculated = $this->calculation->calculate($cartContainer, $context);
+        $calculated = $this->calculation->calculate($cart, $context);
 
         $this->save($calculated, $context);
 
@@ -189,19 +189,19 @@ class StoreFrontCartService
     {
         $this->persister->save($calculatedCart, $context);
         $this->session->set(self::CART_TOKEN_KEY, $calculatedCart->getToken());
-        $this->cartContainer = $calculatedCart->getCartContainer();
+        $this->cart = $calculatedCart->getCart();
     }
 
-    private function createNewCart(): CartContainer
+    private function createNewCart(): Cart
     {
         if ($token = $this->getCartToken()) {
             $this->persister->delete($token);
         }
 
-        $this->cartContainer = CartContainer::createNew(self::CART_NAME);
-        $this->session->set(self::CART_TOKEN_KEY, $this->cartContainer->getToken());
+        $this->cart = Cart::createNew(self::CART_NAME);
+        $this->session->set(self::CART_TOKEN_KEY, $this->cart->getToken());
 
-        return $this->cartContainer;
+        return $this->cart;
     }
 
     private function getCartToken(): ? string

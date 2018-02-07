@@ -4,7 +4,7 @@ namespace Shopware\CartBridge\Product;
 
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\LineItem\LineItem;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
@@ -12,12 +12,12 @@ use Shopware\Framework\Struct\StructCollection;
 class ProductPreValidator implements CartProcessorInterface
 {
     public function process(
-        CartContainer $cartContainer,
+        Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
         ShopContext $context
     ): void {
-        $products = $cartContainer->getLineItems()->filterType(ProductProcessor::TYPE_PRODUCT);
+        $products = $cart->getLineItems()->filterType(ProductProcessor::TYPE_PRODUCT);
         if ($products->count() <= 0) {
             return;
         }
@@ -31,7 +31,7 @@ class ProductPreValidator implements CartProcessorInterface
                 continue;
             }
 
-            $cartContainer->getLineItems()->remove($identifier);
+            $cart->getLineItems()->remove($identifier);
         }
     }
 }

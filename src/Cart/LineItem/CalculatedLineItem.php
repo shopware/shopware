@@ -51,7 +51,7 @@ class CalculatedLineItem extends Struct implements CalculatedLineItemInterface, 
     protected $description;
 
     /**
-     * @var null|Rule
+     * @var Rule|null
      */
     protected $rule;
 
@@ -61,10 +61,10 @@ class CalculatedLineItem extends Struct implements CalculatedLineItemInterface, 
         int $quantity,
         string $type,
         string $label,
-        string $description = '',
-        MediaBasicStruct $cover = null,
         ?LineItemInterface $lineItem = null,
-        ?Rule $rule = null
+        ?Rule $rule = null,
+        ?string $description = '',
+        ?MediaBasicStruct $cover = null
     ) {
         $this->identifier = $identifier;
         $this->price = $price;

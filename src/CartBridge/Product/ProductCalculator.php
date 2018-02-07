@@ -83,14 +83,16 @@ class ProductCalculator
 
             $price = $this->priceCalculator->calculate($priceDefinition, $context);
 
+
             $calculatedProduct = new CalculatedProduct(
                 $lineItem,
                 $price,
                 $identifier,
                 $lineItem->getQuantity(),
-                $product,
                 $this->getInstockDeliveryDate(),
-                $this->getOutOfStockDeliveryDate()
+                $this->getOutOfStockDeliveryDate(),
+                $product,
+                null
             );
 
             $products->add($calculatedProduct);

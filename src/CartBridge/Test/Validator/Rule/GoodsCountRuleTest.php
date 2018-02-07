@@ -81,6 +81,7 @@ class GoodsCountRuleTest extends TestCase
                         'Code1',
                         new LineItem('1', VoucherProcessor::TYPE_VOUCHER, 1),
                         new Price(-1, -1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        'voucher',
                         new AndRule()
                     ),
                 ])
@@ -152,6 +153,7 @@ class GoodsCountRuleTest extends TestCase
                         'Code1',
                         new LineItem('1', VoucherProcessor::TYPE_VOUCHER, 1),
                         new Price(-1, -1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        'voucher',
                         new AndRule()
                     ),
                 ])
@@ -227,6 +229,7 @@ class ItemForGoodsRule extends CalculatedLineItem implements GoodsInterface
             $identifier,
             new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
             1,
+            'test',
             'test'
         );
     }

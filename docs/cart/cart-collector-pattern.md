@@ -24,7 +24,7 @@ interface CollectorInterface
 {
     public function prepare(
         StructCollection $fetchDefinition,
-        CartContainer $cartContainer,
+        Cart $cart,
         ShopContext $context
     ): void;
 

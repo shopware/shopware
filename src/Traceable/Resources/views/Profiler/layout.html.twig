@@ -3,8 +3,8 @@
 {# @var cart \Shopware\Cart\Cart\Struct\CalculatedCart #}
 {% set cart = collector.calculatedCart %}
 
-{# @var cartContainer \Shopware\Cart\Cart\Struct\CartContainer#}
-{% set cartContainer = collector.cartContainer %}
+{# @var cart \Shopware\Cart\Cart\Struct\Cart#}
+{% set cart = collector.cart %}
 
 {% set lineItemsCount = cart.calculatedLineItems.flatElements|length %}
 {% set currencyName = collector.context.currency.shortName %}
@@ -57,7 +57,7 @@
         <div class="sf-toolbar-info-piece">
             <div class="sf-toolbar-info-piece">
                 <b>Container line items</b>
-                <span class="sf-toolbar-status">{{ cartContainer.lineItems.count }}</span>
+                <span class="sf-toolbar-status">{{ cart.lineItems.count }}</span>
             </div>
             <div class="sf-toolbar-info-piece">
                 <b>Calculated line items</b>
@@ -128,7 +128,7 @@
             <th>Price definition</th>
         </tr>
 
-        {% for item in cartContainer.lineItems %}
+        {% for item in cart.lineItems %}
             {# @var item \Shopware\Cart\LineItem\LineItemInterface #}
             <tr>
                 <td>{{ item.identifier }}</td>

@@ -31,7 +31,7 @@ use Shopware\Api\Customer\Struct\CustomerGroupDiscountBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Cart\Cart\CollectorInterface;
-use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 
@@ -49,7 +49,7 @@ class CustomerGroupDiscountCollector implements CollectorInterface
 
     public function prepare(
         StructCollection $fetchDefinition,
-        CartContainer $cartContainer,
+        Cart $cart,
         ShopContext $context
     ): void {
     }

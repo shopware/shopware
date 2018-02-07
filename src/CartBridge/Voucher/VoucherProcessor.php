@@ -27,7 +27,7 @@ namespace Shopware\CartBridge\Voucher;
 
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\CartContainer;
+use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Error\VoucherNotFoundError;
 use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\CartBridge\Voucher\Struct\VoucherData;
@@ -49,12 +49,12 @@ class VoucherProcessor implements CartProcessorInterface
     }
 
     public function process(
-        CartContainer $cartContainer,
+        Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
         ShopContext $context
     ): void {
-        $lineItems = $cartContainer->getLineItems()->filterType(self::TYPE_VOUCHER);
+        $lineItems = $cart->getLineItems()->filterType(self::TYPE_VOUCHER);
 
         if ($lineItems->count() === 0) {
             return;
@@ -71,8 +71,8 @@ class VoucherProcessor implements CartProcessorInterface
 
             /** @var VoucherData $voucher */
             if (!$voucher = $dataCollection->get($code)) {
-//                $cartContainer->getErrors()->add(new VoucherNotFoundError($code));
-                $cartContainer->getLineItems()->remove($code);
+//                $cart->getErrors()->add(new VoucherNotFoundError($code));
+                $cart->getLineItems()->remove($code);
                 continue;
             }
 

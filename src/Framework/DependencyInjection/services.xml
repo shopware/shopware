@@ -17,7 +17,7 @@
         <!-- database / doctrine -->
         <service id="dbal_connection" alias="doctrine.dbal.default_connection" />
 
-        <service id="db_connection" class="PDO" public="true" >
+        <service id="PDO" class="PDO" public="true" >
             <factory class="AppKernel" method="getConnection" />
         </service>
 
@@ -30,47 +30,42 @@
         <service id="shopware.cache" alias="cache.app" />
 
         <!-- Routing -->
-        <service id="router" alias="shopware.router" />
+        <service id="router" alias="Shopware\Framework\Routing\Router" />
 
-        <service id="shopware.router" class="Shopware\Framework\Routing\Router">
+        <service id="Shopware\Framework\Routing\Router" class="Shopware\Framework\Routing\Router">
             <argument type="service" id="service_container" />
             <argument>%router.resource%</argument>
             <argument type="service" id="kernel" />
             <argument type="service" id="router.request_context" on-invalid="ignore" />
             <argument type="service" id="logger" on-invalid="ignore" />
-            <argument type="service" id="shopware.framework.routing.url_resolver" />
-            <argument type="service" id="shopware.framework.routing.shop_finder" />
+            <argument type="service" id="Shopware\Framework\Routing\UrlResolver" />
+            <argument type="service" id="Shopware\Framework\Routing\ShopFinder" />
             <argument id="shopware.cache" type="service"/>
             <argument type="service" id="shopware.api.route_collector"/>
             <argument type="service" id="security.token_storage"/>
         </service>
 
-        <service class="Shopware\Framework\Struct\FieldHelper" id="shopware.framework.struct.field_helper">
-            <argument id="dbal_connection" type="service"/>
-            <argument id="shopware.cache" type="service"/>
-        </service>
-
         <!-- Config -->
-        <service id="shopware.config.cache_warmer" class="Shopware\Framework\Config\CacheWarmer">
+        <service id="Shopware\Framework\Config\CacheWarmer" class="Shopware\Framework\Config\CacheWarmer">
             <tag name="kernel.cache_warmer" />
 
             <argument type="service" id="dbal_connection" />
-            <argument type="service" id="shopware.config.config_service" />
+            <argument type="service" id="Shopware\Framework\Config\ConfigService" />
         </service>
 
-        <service id="shopware.config.config_service" class="Shopware\Framework\Config\ConfigService">
+        <service id="Shopware\Framework\Config\ConfigService" class="Shopware\Framework\Config\ConfigService">
             <argument type="service" id="dbal_connection" />
         </service>
 
-        <service id="shopware.config.cached_config_service" class="Shopware\Framework\Config\CachedConfigService" decorates="shopware.config.config_service">
-            <argument type="service" id="shopware.config.cached_config_service.inner" />
+        <service id="Shopware\Framework\Config\CachedConfigService" class="Shopware\Framework\Config\CachedConfigService" decorates="Shopware\Framework\Config\ConfigService">
+            <argument type="service" id="Shopware\Framework\Config\CachedConfigService.inner" />
             <argument type="service" id="shopware.cache" />
         </service>
 
-        <service id="shopware.config" alias="shopware.config.config" />
-        <service synthetic="true" id="shopware.config.config" class="Shopware\Framework\Config\Config" />
+        <service id="shopware.config" alias="Shopware\Framework\Config\Config" />
+        <service synthetic="true" id="Shopware\Framework\Config\Config" class="Shopware\Framework\Config\Config" />
 
-        <service class="Shopware\Framework\Routing\ShopFinder" id="shopware.framework.routing.shop_finder">
+        <service class="Shopware\Framework\Routing\ShopFinder" id="Shopware\Framework\Routing\ShopFinder">
             <argument id="dbal_connection" type="service"/>
         </service>
 
@@ -78,60 +73,60 @@
             <argument>%shopware.slug.config%</argument>
         </service>
 
-        <service class="Shopware\Framework\Routing\UrlResolver" id="shopware.framework.routing.url_resolver">
+        <service class="Shopware\Framework\Routing\UrlResolver" id="Shopware\Framework\Routing\UrlResolver">
             <argument type="service" id="Shopware\Api\Seo\Repository\SeoUrlRepository"/>
         </service>
 
         <!-- Pluginsystem -->
-        <service id="shopware.framework.plugin.manager" class="Shopware\Framework\Plugin\PluginManager">
+        <service id="Shopware\Framework\Plugin\PluginManager" class="Shopware\Framework\Plugin\PluginManager">
             <argument>%kernel.plugin_dir%</argument>
             <argument type="service" id="kernel"/>
             <argument type="service" id="dbal_connection"/>
             <argument type="service" id="service_container"/>
-            <argument type="service" id="shopware.framework.plugin.requirement_validator" />
+            <argument type="service" id="Shopware\Framework\Plugin\RequirementValidator" />
         </service>
 
-        <service class="Shopware\Framework\Plugin\XmlPluginInfoReader" id="shopware.framework.plugin.xml_plugin_info_reader"/>
+        <service class="Shopware\Framework\Plugin\XmlPluginInfoReader" id="Shopware\Framework\Plugin\XmlPluginInfoReader"/>
 
-        <service class="Shopware\Framework\Plugin\RequirementValidator" id="shopware.framework.plugin.requirement_validator">
-            <argument id="shopware.framework.plugin.xml_plugin_info_reader" type="service"/>
+        <service class="Shopware\Framework\Plugin\RequirementValidator" id="Shopware\Framework\Plugin\RequirementValidator">
+            <argument id="Shopware\Framework\Plugin\XmlPluginInfoReader" type="service"/>
 
         </service>
 
 
-        <service class="Shopware\Framework\Plugin\Command\PluginUpdateCommand" id="shopware.framework.commands.plugin_update_command">
+        <service class="Shopware\Framework\Plugin\Command\PluginUpdateCommand" id="Shopware\Framework\Plugin\Command\PluginUpdateCommand">
             <tag name="console.command" />
-            <argument type="service" id="shopware.framework.plugin.manager" />
+            <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
         </service>
 
-        <service class="Shopware\Framework\Plugin\Command\PluginInstallCommand" id="shopware.framework.commands.plugin_install_command">
+        <service class="Shopware\Framework\Plugin\Command\PluginInstallCommand" id="Shopware\Framework\Plugin\Command\PluginInstallCommand">
             <tag name="console.command" />
-            <argument type="service" id="shopware.framework.plugin.manager" />
+            <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
         </service>
 
         <service class="Shopware\Framework\Plugin\Command\PluginActivateCommand" id="shopware.framework.commands.plugin_activate_command">
             <tag name="console.command" />
-            <argument type="service" id="shopware.framework.plugin.manager" />
+            <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
         </service>
 
         <service class="Shopware\Framework\Plugin\Command\PluginDeactivateCommand" id="shopware.framework.commands.plugin_deactivate_command">
             <tag name="console.command" />
-            <argument type="service" id="shopware.framework.plugin.manager" />
+            <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
         </service>
 
         <service class="Shopware\Framework\Plugin\Command\PluginUninstallCommand" id="shopware.framework.commands.plugin_uninstall_command">
             <tag name="console.command" />
-            <argument type="service" id="shopware.framework.plugin.manager" />
+            <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
         </service>
 
         <service class="Shopware\Framework\Plugin\Command\PluginUpgradeCommand" id="shopware.framework.commands.plugin_upgrade_command">
             <tag name="console.command" />
-            <argument type="service" id="shopware.framework.plugin.manager" />
+            <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
         </service>
 
         <service class="Shopware\Framework\Plugin\Command\PluginListCommand" id="shopware.framework.commands.plugin_list_command">
             <tag name="console.command" />
-            <argument type="service" id="shopware.framework.plugin.manager" />
+            <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
         </service>
 
         <service class="Shopware\Framework\Command\DemodataCommand" id="shopware.framework.command.demodata_command">

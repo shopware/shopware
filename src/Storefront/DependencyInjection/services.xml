@@ -15,7 +15,7 @@
 
             <argument type="service" id="translator" />
             <argument type="service" id="request_stack" />
-            <argument type="service" id="shopware.config.config_service" />
+            <argument type="service" id="Shopware\Framework\Config\ConfigService" />
             <argument type="service" id="shopware.storefront.component.theme.config_reader" />
         </service>
 
@@ -63,14 +63,14 @@
         <service class="Shopware\Storefront\Page\Detail\DetailPageUrlGenerator" id="shopware.storefront.detail_page.detail_page_url_generator">
             <argument id="Shopware\Api\Product\Repository\ProductRepository" type="service"/>
             <argument id="slugify" type="service"/>
-            <argument id="shopware.router" type="service"/>
+            <argument id="Shopware\Framework\Routing\Router" type="service"/>
             <argument id="Shopware\Api\Seo\Repository\SeoUrlRepository" type="service" />
         </service>
 
         <service class="Shopware\Storefront\Page\Listing\ListingPageUrlGenerator" id="shopware.storefront.listing_page.listing_page_url_generator">
             <argument id="Shopware\Api\Category\Repository\CategoryRepository" type="service"/>
             <argument id="slugify" type="service"/>
-            <argument id="shopware.router" type="service"/>
+            <argument id="Shopware\Framework\Routing\Router" type="service"/>
             <argument id="Shopware\Api\Seo\Repository\SeoUrlRepository" type="service" />
         </service>
 
@@ -105,7 +105,7 @@
         </service>
 
         <service class="Shopware\Storefront\Page\Search\SearchPageLoader" id="shopware.storefront.page.search.search_page_loader">
-            <argument type="service" id="shopware.config.config_service" />
+            <argument type="service" id="Shopware\Framework\Config\ConfigService" />
             <argument id="shopware.storefront.product_repository" type="service"/>
             <argument type="service" id="shopware.storefront.search_term_interpreter"/>
         </service>
@@ -145,7 +145,7 @@
         </service>
 
         <service class="Shopware\Storefront\Controller\SearchController" public="true" id="Shopware\Storefront\Controller\SearchController">
-            <argument id="shopware.config.config_service" type="service"/>
+            <argument id="Shopware\Framework\Config\ConfigService" type="service"/>
             <argument id="shopware.storefront.page.search.search_page_loader" type="service"/>
         </service>
 

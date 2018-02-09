@@ -7,6 +7,7 @@ use Shopware\Api\Entity\Search\Term\SearchTerm;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Doctrine\DBAL\Connection;
 
 class KeywordSearchTermInterpreterTest extends KernelTestCase
 {
@@ -25,7 +26,7 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
         self::bootKernel();
         $container = self::$kernel->getContainer();
 
-        $this->connection = $container->get('dbal_connection');
+        $this->connection = $container->get(Connection::class);
         $this->connection->beginTransaction();
         $this->interpreter = $container->get(KeywordSearchTermInterpreter::class);
         $this->connection->executeUpdate('DELETE FROM search_keyword');

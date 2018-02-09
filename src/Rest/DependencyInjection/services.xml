@@ -22,7 +22,7 @@
         </service>
 
         <service class="Shopware\Rest\Firewall\AuthProvider" id="Shopware\Rest\Firewall\AuthProvider">
-            <argument type="service" id="dbal_connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
         </service>
 
         <service id="Shopware\Rest\Firewall\AuthenticationFailureListener" class="Shopware\Rest\Firewall\AuthenticationFailureListener">

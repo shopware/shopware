@@ -50,7 +50,7 @@ class AuditLogSearchTest extends KernelTestCase
         $kernel = self::bootKernel();
         $this->container = $kernel->getContainer();
 
-        $this->connection = $this->container->get('dbal_connection');
+        $this->connection = $this->container->get(Connection::class);
         $this->connection->beginTransaction();
 
         $this->productRepository = $this->container->get(ProductRepository::class);

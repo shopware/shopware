@@ -75,7 +75,7 @@
         </service>
 
         <service id="Shopware\Cart\Delivery\DeliveryCalculator" class="Shopware\Cart\Delivery\DeliveryCalculator">
-            <argument id="dbal_connection" type="service"/>
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="Shopware\Cart\Price\PriceCalculator" type="service"/>
             <argument id="Shopware\Cart\Tax\PercentageTaxRuleBuilder" type="service"/>
         </service>

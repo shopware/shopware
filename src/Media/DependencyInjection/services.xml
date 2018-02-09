@@ -21,7 +21,7 @@
         <!-- ProductMedia Extension -->
 
         <service id="Shopware\Media\GarbageCollector\GarbageCollectorFactory" class="Shopware\Media\GarbageCollector\GarbageCollectorFactory">
-            <argument type="service" id="dbal_connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Media\Strategy\StrategyInterface" />
         </service>
 

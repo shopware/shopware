@@ -259,7 +259,7 @@ class SyncControllerTest extends ApiTestCase
         $client->request('POST', '/api/sync', $data);
 
         /** @var Connection $connection */
-        $connection = self::$container->get('dbal_connection');
+        $connection = self::$container->get(Connection::class);
         $exists = $connection->fetchAll(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [$product->getBytes(), $product2->getBytes()]],

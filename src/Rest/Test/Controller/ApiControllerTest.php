@@ -129,7 +129,7 @@ class ApiControllerTest extends ApiTestCase
         self::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         /** @var Connection $connection */
-        $connection = self::$container->get('dbal_connection');
+        $connection = self::$container->get(Connection::class);
         $exists = $connection->fetchAll('SELECT * FROM product WHERE id = :id', ['id' => $id->getBytes()]);
         $this->assertNotEmpty($exists);
 
@@ -159,7 +159,7 @@ class ApiControllerTest extends ApiTestCase
         self::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         /** @var Connection $connection */
-        $connection = self::$container->get('dbal_connection');
+        $connection = self::$container->get(Connection::class);
         $exists = $connection->fetchAll('SELECT * FROM country WHERE id = :id', ['id' => $id->getBytes()]);
         $this->assertNotEmpty($exists);
 
@@ -190,7 +190,7 @@ class ApiControllerTest extends ApiTestCase
         self::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         /** @var Connection $connection */
-        $connection = self::$container->get('dbal_connection');
+        $connection = self::$container->get(Connection::class);
         $exists = $connection->fetchAll('SELECT * FROM country WHERE id = :id', ['id' => $country->getBytes()]);
         $this->assertNotEmpty($exists);
 
@@ -231,7 +231,7 @@ class ApiControllerTest extends ApiTestCase
         self::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         /** @var Connection $connection */
-        $connection = self::$container->get('dbal_connection');
+        $connection = self::$container->get(Connection::class);
         $exists = $connection->fetchAll('SELECT * FROM product WHERE id = :id', ['id' => $id->getBytes()]);
         $this->assertNotEmpty($exists);
 

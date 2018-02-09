@@ -37,7 +37,7 @@ class ApiTestCase extends WebTestCase
 
     public static function tearDownAfterClass()
     {
-        self::$container->get('dbal_connection')->executeQuery('DELETE FROM user WHERE username IN (:usernames)', ['usernames' => self::$apiUsernames], ['usernames' => Connection::PARAM_STR_ARRAY]);
+        self::$container->get(Connection::class)->executeQuery('DELETE FROM user WHERE username IN (:usernames)', ['usernames' => self::$apiUsernames], ['usernames' => Connection::PARAM_STR_ARRAY]);
 
         parent::tearDownAfterClass();
     }
@@ -57,7 +57,7 @@ class ApiTestCase extends WebTestCase
         $username = Uuid::uuid4()->toString();
         $password = Uuid::uuid4()->toString();
 
-        self::$container->get('dbal_connection')->insert('user', [
+        self::$container->get(Connection::class)->insert('user', [
             'id' => Uuid::uuid4()->getBytes(),
             'name' => $username,
             'email' => 'admin@example.com',

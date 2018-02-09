@@ -15,7 +15,7 @@
 
     <services>
         <!-- database / doctrine -->
-        <service id="dbal_connection" alias="doctrine.dbal.default_connection" />
+        <service id="Doctrine\DBAL\Connection" alias="doctrine.dbal.default_connection" />
 
         <service id="PDO" class="PDO" public="true" >
             <factory class="AppKernel" method="getConnection" />
@@ -45,24 +45,16 @@
             <argument type="service" id="security.token_storage"/>
         </service>
 
-        <service class="Shopware\Framework\Command\ReplaceServiceIdsCommand" id="Shopware\Framework\Command\ReplaceServiceIdsCommand">
-            <call method="setContainer">
-                <argument id="service_container" type="service"/>
-            </call>
-            <tag name="console.command"/>
-        </service>
-
-
         <!-- Config -->
         <service id="Shopware\Framework\Config\CacheWarmer" class="Shopware\Framework\Config\CacheWarmer">
             <tag name="kernel.cache_warmer" />
 
-            <argument type="service" id="dbal_connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Framework\Config\ConfigService" />
         </service>
 
         <service id="Shopware\Framework\Config\ConfigService" class="Shopware\Framework\Config\ConfigService">
-            <argument type="service" id="dbal_connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
         </service>
 
         <service id="Shopware\Framework\Config\CachedConfigService" class="Shopware\Framework\Config\CachedConfigService" decorates="Shopware\Framework\Config\ConfigService">
@@ -74,7 +66,7 @@
         <service synthetic="true" id="Shopware\Framework\Config\Config" class="Shopware\Framework\Config\Config" />
 
         <service class="Shopware\Framework\Routing\ShopFinder" id="Shopware\Framework\Routing\ShopFinder">
-            <argument id="dbal_connection" type="service"/>
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
         <service id="slugify" class="Cocur\Slugify\Slugify" public="false">
@@ -89,7 +81,7 @@
         <service id="Shopware\Framework\Plugin\PluginManager" class="Shopware\Framework\Plugin\PluginManager">
             <argument>%kernel.plugin_dir%</argument>
             <argument type="service" id="kernel"/>
-            <argument type="service" id="dbal_connection"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="service_container"/>
             <argument type="service" id="Shopware\Framework\Plugin\RequirementValidator" />
         </service>
@@ -98,9 +90,7 @@
 
         <service class="Shopware\Framework\Plugin\RequirementValidator" id="Shopware\Framework\Plugin\RequirementValidator">
             <argument id="Shopware\Framework\Plugin\XmlPluginInfoReader" type="service"/>
-
         </service>
-
 
         <service class="Shopware\Framework\Plugin\Command\PluginUpdateCommand" id="Shopware\Framework\Plugin\Command\PluginUpdateCommand">
             <tag name="console.command" />

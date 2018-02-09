@@ -52,7 +52,7 @@
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeConfigReader" class="Shopware\Storefront\Theme\ThemeConfigReader">
-            <argument type="service" id="dbal_connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
         </service>
 
         <service id="Shopware\Storefront\Session\ShopSubscriber" class="Shopware\Storefront\Session\ShopSubscriber">
@@ -150,7 +150,7 @@
         </service>
 
         <service class="Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter" id="Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter">
-            <argument type="service" id="dbal_connection"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Api\Entity\Search\Term\Tokenizer"/>
             <argument type="service" id="logger"/>
         </service>

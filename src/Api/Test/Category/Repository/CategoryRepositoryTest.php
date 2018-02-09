@@ -43,7 +43,7 @@ class CategoryRepositoryTest extends KernelTestCase
         self::bootKernel();
         $this->container = self::$kernel->getContainer();
         $this->repository = $this->container->get(CategoryRepository::class);
-        $this->connection = $this->container->get('dbal_connection');
+        $this->connection = $this->container->get(Connection::class);
         $this->connection->beginTransaction();
     }
 

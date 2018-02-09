@@ -7,7 +7,7 @@
     <services>
 
         <service id="Shopware\Translation\ImportService" class="Shopware\Translation\ImportService">
-            <argument type="service" id="dbal_connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="event_dispatcher" />
             <argument type="service" id="logger" />
         </service>
@@ -23,7 +23,7 @@
         <service id="Shopware\Translation\DatabaseLoader" class="Shopware\Translation\DatabaseLoader">
             <tag name="translation.loader" alias="database" />
 
-            <argument type="service" id="dbal_connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
         </service>
 
 

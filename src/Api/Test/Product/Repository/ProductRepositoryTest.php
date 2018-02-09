@@ -63,7 +63,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->container = self::$kernel->getContainer();
         $this->repository = $this->container->get(ProductRepository::class);
         $this->eventDispatcher = $this->container->get('event_dispatcher');
-        $this->connection = $this->container->get('dbal_connection');
+        $this->connection = $this->container->get(Connection::class);
         $this->connection->beginTransaction();
         $this->connection->executeUpdate('DELETE FROM product');
         $this->context = TranslationContext::createDefaultContext();

@@ -28,7 +28,7 @@ class EntityReaderTest extends KernelTestCase
         parent::setUp();
         $this->container = self::$kernel->getContainer();
 
-        $this->connection = $this->container->get('dbal_connection');
+        $this->connection = $this->container->get(Connection::class);
         $this->connection->beginTransaction();
         $this->connection->executeUpdate('DELETE FROM product');
     }

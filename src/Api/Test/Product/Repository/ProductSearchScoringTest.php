@@ -27,7 +27,7 @@ class ProductSearchScoringTest extends KernelTestCase
     {
         parent::setUp();
         $kernel = self::bootKernel();
-        $this->connection = $kernel->getContainer()->get('dbal_connection');
+        $this->connection = $kernel->getContainer()->get(Connection::class);
         $this->repository = $kernel->getContainer()->get(ProductRepository::class);
         $this->connection->beginTransaction();
         $this->connection->executeUpdate('DELETE FROM product');

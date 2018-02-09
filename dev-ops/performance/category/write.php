@@ -1,4 +1,4 @@
-#!/usr/bin/env php
+use Doctrine\DBAL\Connection;#!/usr/bin/env php
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
@@ -23,7 +23,7 @@ function createWriteContext(): \Shopware\Api\Entity\Write\WriteContext
 $container = $kernel->getContainer();
 
 /** @var \Doctrine\DBAL\Connection $con */
-$con = $container->get('dbal_connection');
+$con = $container->get(Connection::class);
 $con->executeUpdate("DELETE FROM category WHERE id NOT IN ('SWAG-CATEGORY-ID-3', 'SWAG-CATEGORY-ID-39', 'SWAG-CATEGORY-ID-1');");
 
 echo "\nPreparing\n\n";

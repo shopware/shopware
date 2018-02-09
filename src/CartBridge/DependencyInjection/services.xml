@@ -75,42 +75,42 @@
         </service>
 
         <service id="Shopware\CartBridge\Cart\CartPersister" class="Shopware\CartBridge\Cart\CartPersister">
-            <argument type="service" id="dbal_connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Serializer\JsonSerializer" />
         </service>
 
         <service id="Shopware\CartBridge\Voucher\VoucherGateway" class="Shopware\CartBridge\Voucher\VoucherGateway" >
-            <argument type="service" id="dbal_connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Cart\Tax\PercentageTaxRuleBuilder" />
         </service>
 
         <service id="Shopware\CartBridge\Rule\Collector\ProductOfCategoriesRuleCollector" class="Shopware\CartBridge\Rule\Collector\ProductOfCategoriesRuleCollector">
-            <argument id="dbal_connection" type="service"/>
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
             <tag name="cart.collector" priority="-1000" />
         </service>
 
         <service id="Shopware\CartBridge\Rule\Collector\LastOrderRuleCollector" class="Shopware\CartBridge\Rule\Collector\LastOrderRuleCollector">
-            <argument type="service" id="dbal_connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
             <tag name="cart.collector" priority="-1000" />
         </service>
 
         <service id="Shopware\CartBridge\Rule\Collector\OrderClearedStateRuleCollector" class="Shopware\CartBridge\Rule\Collector\OrderClearedStateRuleCollector">
-            <argument type="service" id="dbal_connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
             <tag name="cart.collector" priority="-1000" />
         </service>
 
         <service id="Shopware\CartBridge\Rule\Collector\OrderCountRuleCollector" class="Shopware\CartBridge\Rule\Collector\OrderCountRuleCollector">
-            <argument type="service" id="dbal_connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
             <tag name="cart.collector" priority="-1000" />
         </service>
 
         <service id="Shopware\CartBridge\Rule\Collector\ProductAttributeRuleCollector" class="Shopware\CartBridge\Rule\Collector\ProductAttributeRuleCollector">
-            <argument type="service" id="dbal_connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
             <tag name="cart.collector" priority="-1000" />
         </service>
 
         <service id="Shopware\CartBridge\Rule\Collector\ProductOfManufacturersRuleCollector" class="Shopware\CartBridge\Rule\Collector\ProductOfManufacturersRuleCollector" >
-            <argument type="service" id="dbal_connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
             <tag name="cart.collector" priority="-1000" />
         </service>
 

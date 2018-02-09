@@ -32,7 +32,7 @@ class WriterTest extends KernelTestCase
         $this->idBytes = Uuid::fromString($this->id)->getBytes();
 
         $container = self::$kernel->getContainer();
-        $this->connection = $container->get('dbal_connection');
+        $this->connection = $container->get(Connection::class);
         $this->connection->beginTransaction();
     }
 

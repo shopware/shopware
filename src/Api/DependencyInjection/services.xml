@@ -25,17 +25,17 @@
         </service>
 
         <service class="Shopware\Api\Entity\Dbal\EntityReader" id="Shopware\Api\Entity\Dbal\EntityReader">
-            <argument id="dbal_connection" type="service"/>
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument type="service" id="Shopware\Api\Entity\Dbal\EntitySearcher"/>
         </service>
 
         <service class="Shopware\Api\Entity\Dbal\EntityAggregator" id="Shopware\Api\Entity\Dbal\EntityAggregator">
-            <argument id="dbal_connection" type="service"/>
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
         </service>
 
         <service class="Shopware\Api\Entity\Dbal\EntitySearcher" id="Shopware\Api\Entity\Dbal\EntitySearcher" >
-            <argument id="dbal_connection" type="service"/>
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
         <service class="Shopware\Api\Entity\Write\EntityWriter" id="Shopware\Api\Entity\Write\EntityWriter">
@@ -50,7 +50,7 @@
         </service>
 
         <service class="Shopware\Api\Entity\Dbal\EntityWriteGateway" id="Shopware\Api\Entity\Dbal\EntityWriteGateway">
-            <argument id="dbal_connection" type="service"/>
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
         <service id="Shopware\Api\Entity\Write\Validation\ConstraintBuilder" class="Shopware\Api\Entity\Write\Validation\ConstraintBuilder"/>
@@ -98,13 +98,13 @@
         </service>
 
         <service id="Shopware\Api\Entity\Write\IdGenerator\ProductNumberGenerator" class="Shopware\Api\Entity\Write\IdGenerator\ProductNumberGenerator">
-            <argument type="service" id="dbal_connection"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="shopware.api.entity.write.id_generator"/>
         </service>
 
         <service id="Shopware\Api\Entity\Dbal\EntityForeignKeyResolver" class="Shopware\Api\Entity\Dbal\EntityForeignKeyResolver">
-            <argument id="dbal_connection" type="service"/>
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
 

@@ -9,6 +9,8 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
+use Shopware\Traceable\Cart\TracedCartActions;
+use Shopware\Cart\Cart\CartCalculator;
 
 class CartTracerCompilerPass implements CompilerPassInterface
 {
@@ -28,19 +30,19 @@ class CartTracerCompilerPass implements CompilerPassInterface
         $definition = new Definition(
             CartCalculatorTracer::class,
             [
-                new Reference('cart.calculator.tracer.inner'),
-                new Reference('shopware.traceable.traced_cart_actions'),
+                new Reference('Shopware\Cart\Cart\CartCalculator.tracer.inner'),
+                new Reference(TracedCartActions::class),
             ]
         );
-        $definition->setDecoratedService('cart.calculator');
-        $container->setDefinition('cart.calculator.tracer', $definition);
+        $definition->setDecoratedService(CartCalculator::class);
+        $container->setDefinition('Shopware\Cart\Cart\CartCalculator.tracer', $definition);
     }
 
     protected function decorateService(ContainerBuilder $container, string $serviceId, string $class): void
     {
         $new = new Definition($class, [
             new Reference($serviceId . '.tracer.inner'),
-            new Reference('shopware.traceable.traced_cart_actions'),
+            new Reference(TracedCartActions::class),
         ]);
 
         $new->setDecoratedService($serviceId);

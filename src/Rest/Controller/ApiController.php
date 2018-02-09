@@ -20,6 +20,8 @@ use Shopware\Rest\ApiContext;
 use Shopware\Rest\RestController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Shopware\Api\Entity\DefinitionRegistry;
+use Shopware\Api\Entity\Write\EntityWriter;
 
 class ApiController extends RestController
 {
@@ -34,7 +36,7 @@ class ApiController extends RestController
         $root = $path[0]['entity'];
         $id = $path[count($path) - 1]['value'];
 
-        $definition = $this->get('shopware.api.entity_definition_registry')->get($root);
+        $definition = $this->get(DefinitionRegistry::class)->get($root);
 
         $associations = array_column($path, 'entity');
         array_shift($associations);
@@ -253,7 +255,7 @@ class ApiController extends RestController
                 $reference->getPropertyName() => $id,
             ];
 
-            $writer = $this->get('shopware.api.entity_writer');
+            $writer = $this->get(EntityWriter::class);
 
             $writer->delete(
                 $definition,
@@ -449,7 +451,7 @@ class ApiController extends RestController
         $parts = array_filter($parts);
         $first = array_shift($parts);
 
-        $registry = $this->get('shopware.api.entity_definition_registry');
+        $registry = $this->get(DefinitionRegistry::class);
         $root = $registry->get($first['entity']);
 
         $entities = [

@@ -5,22 +5,22 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Category\Extension\CategoryPathBuilder" id="shopware.category.path_builder">
+        <service class="Shopware\Category\Extension\CategoryPathBuilder" id="Shopware\Category\Extension\CategoryPathBuilder">
             <argument id="Shopware\Api\Category\Repository\CategoryRepository" type="service"/>
             <argument id="dbal_connection" type="service"/>
             <argument type="service" id="event_dispatcher"/>
             <tag name="kernel.event_subscriber" />
         </service>
 
-        <service class="Shopware\Category\Extension\CanonicalUrlExtension" id="shopware.category.extension.canonical_url_extension">
+        <service class="Shopware\Category\Extension\CanonicalUrlExtension" id="Shopware\Category\Extension\CanonicalUrlExtension">
             <argument id="Shopware\Api\Seo\Repository\SeoUrlRepository" type="service"/>
             <tag name="kernel.event_subscriber"/>
             <tag name="shopware.entity.extension"/>
         </service>
 
-        <service class="Shopware\Category\Command\BuildCategoryPathCommand" id="shopware.category.build_category_path_command">
+        <service class="Shopware\Category\Command\BuildCategoryPathCommand" id="Shopware\Category\Command\BuildCategoryPathCommand">
             <argument type="service" id="dbal_connection"/>
-            <argument type="service" id="shopware.category.path_builder"/>
+            <argument type="service" id="Shopware\Category\Extension\CategoryPathBuilder"/>
             <tag name="console.command"/>
             <tag name="kernel.event_subscriber" />
         </service>

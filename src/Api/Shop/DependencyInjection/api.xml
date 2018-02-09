@@ -5,67 +5,67 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-         <service class="Shopware\Api\Shop\Definition\ShopDefinition" id="shopware.shop.shop_definition" >
+         <service class="Shopware\Api\Shop\Definition\ShopDefinition" id="Shopware\Api\Shop\Definition\ShopDefinition" >
             <tag name="shopware.entity.definition" entity="shop" />
         </service>
         <service class="Shopware\Api\Shop\Repository\ShopRepository" id="Shopware\Api\Shop\Repository\ShopRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Api\Shop\Definition\ShopCurrencyDefinition" id="shopware.shop.shop_currency_definition" >
+         <service class="Shopware\Api\Shop\Definition\ShopCurrencyDefinition" id="Shopware\Api\Shop\Definition\ShopCurrencyDefinition" >
             <tag name="shopware.entity.definition" entity="shop_currency" />
         </service>
-         <service class="Shopware\Api\Shop\Definition\ShopTemplateDefinition" id="shopware.shop.shop_template_definition" >
+         <service class="Shopware\Api\Shop\Definition\ShopTemplateDefinition" id="Shopware\Api\Shop\Definition\ShopTemplateDefinition" >
             <tag name="shopware.entity.definition" entity="shop_template" />
         </service>
         <service class="Shopware\Api\Shop\Repository\ShopTemplateRepository" id="Shopware\Api\Shop\Repository\ShopTemplateRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Api\Shop\Definition\ShopTemplateConfigFormDefinition" id="shopware.shop.shop_template_config_form_definition" >
+         <service class="Shopware\Api\Shop\Definition\ShopTemplateConfigFormDefinition" id="Shopware\Api\Shop\Definition\ShopTemplateConfigFormDefinition" >
             <tag name="shopware.entity.definition" entity="shop_template_config_form" />
         </service>
         <service class="Shopware\Api\Shop\Repository\ShopTemplateConfigFormRepository" id="Shopware\Api\Shop\Repository\ShopTemplateConfigFormRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Api\Shop\Definition\ShopTemplateConfigFormFieldDefinition" id="shopware.shop.shop_template_config_form_field_definition" >
+         <service class="Shopware\Api\Shop\Definition\ShopTemplateConfigFormFieldDefinition" id="Shopware\Api\Shop\Definition\ShopTemplateConfigFormFieldDefinition" >
             <tag name="shopware.entity.definition" entity="shop_template_config_form_field" />
         </service>
         <service class="Shopware\Api\Shop\Repository\ShopTemplateConfigFormFieldRepository" id="Shopware\Api\Shop\Repository\ShopTemplateConfigFormFieldRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Api\Shop\Definition\ShopTemplateConfigFormFieldValueDefinition" id="shopware.shop.shop_template_config_form_field_value_definition" >
+         <service class="Shopware\Api\Shop\Definition\ShopTemplateConfigFormFieldValueDefinition" id="Shopware\Api\Shop\Definition\ShopTemplateConfigFormFieldValueDefinition" >
             <tag name="shopware.entity.definition" entity="shop_template_config_form_field_value" />
         </service>
         <service class="Shopware\Api\Shop\Repository\ShopTemplateConfigFormFieldValueRepository" id="Shopware\Api\Shop\Repository\ShopTemplateConfigFormFieldValueRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Api\Shop\Definition\ShopTemplateConfigPresetDefinition" id="shopware.shop.shop_template_config_preset_definition" >
+         <service class="Shopware\Api\Shop\Definition\ShopTemplateConfigPresetDefinition" id="Shopware\Api\Shop\Definition\ShopTemplateConfigPresetDefinition" >
             <tag name="shopware.entity.definition" entity="shop_template_config_preset" />
         </service>
         <service class="Shopware\Api\Shop\Repository\ShopTemplateConfigPresetRepository" id="Shopware\Api\Shop\Repository\ShopTemplateConfigPresetRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
     </services>

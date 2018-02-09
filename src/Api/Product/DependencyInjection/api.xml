@@ -5,86 +5,86 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-         <service class="Shopware\Api\Product\Definition\ProductDefinition" id="shopware.product.product_definition" >
+         <service class="Shopware\Api\Product\Definition\ProductDefinition" id="Shopware\Api\Product\Definition\ProductDefinition" >
             <tag name="shopware.entity.definition" entity="product" />
         </service>
         <service class="Shopware\Api\Product\Repository\ProductRepository" id="Shopware\Api\Product\Repository\ProductRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Api\Product\Definition\ProductCategoryDefinition" id="shopware.product.product_category_definition" >
+         <service class="Shopware\Api\Product\Definition\ProductCategoryDefinition" id="Shopware\Api\Product\Definition\ProductCategoryDefinition" >
             <tag name="shopware.entity.definition" entity="product_category" />
         </service>
-         <service class="Shopware\Api\Product\Definition\ProductManufacturerDefinition" id="shopware.product.product_manufacturer_definition" >
+         <service class="Shopware\Api\Product\Definition\ProductManufacturerDefinition" id="Shopware\Api\Product\Definition\ProductManufacturerDefinition" >
             <tag name="shopware.entity.definition" entity="product_manufacturer" />
         </service>
         <service class="Shopware\Api\Product\Repository\ProductManufacturerRepository" id="Shopware\Api\Product\Repository\ProductManufacturerRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Api\Product\Definition\ProductManufacturerTranslationDefinition" id="shopware.product.product_manufacturer_translation_definition" >
+         <service class="Shopware\Api\Product\Definition\ProductManufacturerTranslationDefinition" id="Shopware\Api\Product\Definition\ProductManufacturerTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="product_manufacturer_translation" />
         </service>
         <service class="Shopware\Api\Product\Repository\ProductManufacturerTranslationRepository" id="Shopware\Api\Product\Repository\ProductManufacturerTranslationRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Api\Product\Definition\ProductMediaDefinition" id="shopware.product.product_media_definition" >
+         <service class="Shopware\Api\Product\Definition\ProductMediaDefinition" id="Shopware\Api\Product\Definition\ProductMediaDefinition" >
             <tag name="shopware.entity.definition" entity="product_media" />
         </service>
         <service class="Shopware\Api\Product\Repository\ProductMediaRepository" id="Shopware\Api\Product\Repository\ProductMediaRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Api\Product\Definition\ProductSearchKeywordDefinition" id="shopware.product.product_search_keyword_definition" >
+         <service class="Shopware\Api\Product\Definition\ProductSearchKeywordDefinition" id="Shopware\Api\Product\Definition\ProductSearchKeywordDefinition" >
             <tag name="shopware.entity.definition" entity="product_search_keyword" />
         </service>
         <service class="Shopware\Api\Product\Repository\ProductSearchKeywordRepository" id="Shopware\Api\Product\Repository\ProductSearchKeywordRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Api\Product\Definition\ProductSeoCategoryDefinition" id="shopware.product.product_seo_category_definition" >
+         <service class="Shopware\Api\Product\Definition\ProductSeoCategoryDefinition" id="Shopware\Api\Product\Definition\ProductSeoCategoryDefinition" >
             <tag name="shopware.entity.definition" entity="product_seo_category" />
         </service>
-         <service class="Shopware\Api\Product\Definition\ProductStreamDefinition" id="shopware.product.product_stream_definition" >
+         <service class="Shopware\Api\Product\Definition\ProductStreamDefinition" id="Shopware\Api\Product\Definition\ProductStreamDefinition" >
             <tag name="shopware.entity.definition" entity="product_stream" />
         </service>
         <service class="Shopware\Api\Product\Repository\ProductStreamRepository" id="Shopware\Api\Product\Repository\ProductStreamRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Api\Product\Definition\ProductStreamAssignmentDefinition" id="shopware.product.product_stream_assignment_definition" >
+         <service class="Shopware\Api\Product\Definition\ProductStreamAssignmentDefinition" id="Shopware\Api\Product\Definition\ProductStreamAssignmentDefinition" >
             <tag name="shopware.entity.definition" entity="product_stream_assignment" />
         </service>
-         <service class="Shopware\Api\Product\Definition\ProductStreamTabDefinition" id="shopware.product.product_stream_tab_definition" >
+         <service class="Shopware\Api\Product\Definition\ProductStreamTabDefinition" id="Shopware\Api\Product\Definition\ProductStreamTabDefinition" >
             <tag name="shopware.entity.definition" entity="product_stream_tab" />
         </service>
-         <service class="Shopware\Api\Product\Definition\ProductTranslationDefinition" id="shopware.product.product_translation_definition" >
+         <service class="Shopware\Api\Product\Definition\ProductTranslationDefinition" id="Shopware\Api\Product\Definition\ProductTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="product_translation" />
         </service>
         <service class="Shopware\Api\Product\Repository\ProductTranslationRepository" id="Shopware\Api\Product\Repository\ProductTranslationRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
     </services>

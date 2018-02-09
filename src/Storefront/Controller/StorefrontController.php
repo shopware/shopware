@@ -27,6 +27,9 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Storefront\Navigation\Navigation;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
+use Shopware\Storefront\Navigation\NavigationService;
+use Shopware\Storefront\Context\StorefrontContextService;
+use Shopware\Storefront\Twig\TemplateFinder;
 
 abstract class StorefrontController extends Controller
 {
@@ -55,7 +58,7 @@ abstract class StorefrontController extends Controller
             $view = implode('/', $view);
         }
 
-        return $this->get('shopware.storefront.twig.template_finder')->find($view, true);
+        return $this->get(TemplateFinder::class)->find($view, true);
     }
 
     /**
@@ -63,9 +66,9 @@ abstract class StorefrontController extends Controller
      */
     private function getNavigation(): Navigation
     {
-        $context = $this->get('shopware.storefront.context.storefront_context_service')->getShopContext();
+        $context = $this->get(StorefrontContextService::class)->getShopContext();
         $navigationId = $this->get('request_stack')->getCurrentRequest()->attributes->get('active_category_id');
 
-        return $this->get('shopware.storefront.navigation.navigation_service')->load($navigationId, $context);
+        return $this->get(NavigationService::class)->load($navigationId, $context);
     }
 }

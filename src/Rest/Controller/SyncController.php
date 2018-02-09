@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @Route(service="shopware.api.controller.sync_controller", path="/api/sync")
+ * @Route(service="Shopware\Rest\Controller\SyncController", path="/api/sync")
  */
 class SyncController extends RestController
 {

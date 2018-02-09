@@ -5,21 +5,21 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Administration\Command\AdministrationDumpPluginsCommand" id="shopware.administration.command.dump_plugins">
+        <service class="Shopware\Administration\Command\AdministrationDumpPluginsCommand" id="Shopware\Administration\Command\AdministrationDumpPluginsCommand">
             <argument type="service" id="kernel" />
             <tag name="console.command"/>
         </service>
 
-        <service class="Shopware\Administration\Search\AuditLogSearch" id="shopware.administration.search.audit_log_search">
+        <service class="Shopware\Administration\Search\AuditLogSearch" id="Shopware\Administration\Search\AuditLogSearch">
             <argument id="service_container" type="service"/>
-            <argument id="shopware.api.search_term_interpreter" type="service"/>
-            <argument id="shopware.api.search.entity_score_query_builder" type="service"/>
+            <argument id="Shopware\Api\Entity\Search\Term\SearchTermInterpreter" type="service"/>
+            <argument id="Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder" type="service"/>
             <argument id="dbal_connection" type="service"/>
         </service>
 
-        <service class="Shopware\Administration\Controller\AdministrationController" id="shopware.administration.controller">
-            <argument id="shopware.administration.search.audit_log_search" type="service"/>
-            <argument id="shopware.storefront.twig.template_finder" type="service"/>
+        <service class="Shopware\Administration\Controller\AdministrationController" id="Shopware\Administration\Controller\AdministrationController">
+            <argument id="Shopware\Administration\Search\AuditLogSearch" type="service"/>
+            <argument id="Shopware\Storefront\Twig\TemplateFinder" type="service"/>
         </service>
     </services>
 </container>

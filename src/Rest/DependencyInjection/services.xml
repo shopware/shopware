@@ -6,57 +6,57 @@
 
     <services>
 
-        <service id="shopware.api.cors_listener" class="Shopware\Rest\EventListener\CorsListener">
+        <service id="Shopware\Rest\EventListener\CorsListener" class="Shopware\Rest\EventListener\CorsListener">
             <tag name="kernel.event_subscriber" />
         </service>
 
-        <service id="shopware.api.event_listener.api_exception_listener" class="Shopware\Rest\EventListener\ApiExceptionListener">
+        <service id="Shopware\Rest\EventListener\ApiExceptionListener" class="Shopware\Rest\EventListener\ApiExceptionListener">
             <tag name="kernel.event_subscriber" />
             <argument type="service" id="logger" />
         </service>
 
-        <service class="Shopware\Rest\ApiContextValueResolver" id="shopware.api.api_context_value_resolver">
+        <service class="Shopware\Rest\ApiContextValueResolver" id="Shopware\Rest\ApiContextValueResolver">
             <tag name="controller.argument_value_resolver"/>
             <argument type="service" id="security.token_storage"/>
-            <argument type="service" id="shopware.api.entity_searcher"/>
+            <argument type="service" id="Shopware\Api\Entity\Dbal\EntitySearcher"/>
         </service>
 
-        <service class="Shopware\Rest\Firewall\AuthProvider" id="shopware.rest.firewall.auth_provider">
+        <service class="Shopware\Rest\Firewall\AuthProvider" id="Shopware\Rest\Firewall\AuthProvider">
             <argument type="service" id="dbal_connection" />
         </service>
 
-        <service id="shopware.rest.firewall.event.authentication_failure_listener" class="Shopware\Rest\Firewall\AuthenticationFailureListener">
+        <service id="Shopware\Rest\Firewall\AuthenticationFailureListener" class="Shopware\Rest\Firewall\AuthenticationFailureListener">
             <tag name="kernel.event_listener" event="lexik_jwt_authentication.on_authentication_failure" method="onAuthenticationFailureResponse" />
             <tag name="kernel.event_listener" event="lexik_jwt_authentication.on_jwt_invalid" method="onJWTInvalid" />
             <tag name="kernel.event_listener" event="lexik_jwt_authentication.on_jwt_not_found" method="onJWTNotFound" />
             <tag name="kernel.event_listener" event="lexik_jwt_authentication.on_jwt_expired" method="onJWTExpired" />
         </service>
 
-        <service class="Shopware\Rest\Firewall\AuthenticationSuccessListener" id="shopware.rest.firewall.jwtcreated_listener">
+        <service class="Shopware\Rest\Firewall\AuthenticationSuccessListener" id="Shopware\Rest\Firewall\AuthenticationSuccessListener">
             <argument>%lexik_jwt_authentication.token_ttl%</argument>
             <tag name="kernel.event_listener" event="lexik_jwt_authentication.on_authentication_success" method="onAuthenticationSuccessResponse" />
         </service>
 
-        <service class="Shopware\Rest\Command\UserCreateCommand" id="shopware.rest.command.user_create_command">
+        <service class="Shopware\Rest\Command\UserCreateCommand" id="Shopware\Rest\Command\UserCreateCommand">
             <argument id="Shopware\Api\User\Repository\UserRepository" type="service"/>
             <argument id="security.encoder_factory.generic" type="service"/>
             <tag name="console.command"/>
         </service>
 
-        <service class="Shopware\Rest\Controller\ApiController" id="shopware.rest.controller.api_controller">
-            <argument id="shopware.api.entity_definition_registry" type="service"/>
+        <service class="Shopware\Rest\Controller\ApiController" id="Shopware\Rest\Controller\ApiController">
+            <argument id="Shopware\Api\Entity\DefinitionRegistry" type="service"/>
             <call method="setContainer">
                 <argument id="service_container" type="service"/>
             </call>
         </service>
 
-        <service class="Shopware\Rest\Controller\SyncController" public="true" id="shopware.api.controller.sync_controller" >
-            <argument type="service" id="shopware.api.entity_definition_registry"/>
+        <service class="Shopware\Rest\Controller\SyncController" public="true" id="Shopware\Rest\Controller\SyncController" >
+            <argument type="service" id="Shopware\Api\Entity\DefinitionRegistry"/>
             <argument type="service" id="service_container"/>
         </service>
 
-        <service class="Shopware\Rest\Routing\RouteCollector" id="shopware.api.route_collector">
-            <argument id="shopware.api.entity_definition_registry" type="service"/>
+        <service class="Shopware\Rest\Routing\RouteCollector" id="Shopware\Rest\Routing\RouteCollector">
+            <argument id="Shopware\Api\Entity\DefinitionRegistry" type="service"/>
         </service>
 
         <service class="Shopware\Rest\ApiDefinition\DefinitionService" id="Shopware\Rest\ApiDefinition\DefinitionService">
@@ -64,7 +64,7 @@
         </service>
 
         <service class="Shopware\Rest\ApiDefinition\Generator\OpenApi3Generator" id="Shopware\Rest\ApiDefinition\Generator\OpenApi3Generator">
-            <argument type="service" id="shopware.api.entity_definition_registry" />
+            <argument type="service" id="Shopware\Api\Entity\DefinitionRegistry" />
             <tag name="shopware.rest.definition_generator" />
         </service>
 

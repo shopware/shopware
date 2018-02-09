@@ -7,34 +7,34 @@
     <services>
 
         <!-- Filesystem -->
-        <service id="shopware.filesystem.factory" class="Shopware\Filesystem\FilesystemFactory">
-            <argument type="tagged" tag="shopware.filesystem.factory"/>
+        <service id="Shopware\Filesystem\FilesystemFactory" class="Shopware\Filesystem\FilesystemFactory">
+            <argument type="tagged" tag="Shopware\Filesystem\FilesystemFactory"/>
         </service>
 
         <service id="shopware.filesystem.public" class="League\Flysystem\FilesystemInterface">
-            <factory service="shopware.filesystem.factory" method="factory" />
+            <factory service="Shopware\Filesystem\FilesystemFactory" method="factory" />
             <argument>%shopware.filesystem.public%</argument>
         </service>
 
         <service id="shopware.filesystem.private" class="League\Flysystem\FilesystemInterface">
-            <factory service="shopware.filesystem.factory" method="factory" />
+            <factory service="Shopware\Filesystem\FilesystemFactory" method="factory" />
             <argument>%shopware.filesystem.private%</argument>
         </service>
 
-        <service id="shopware.filesystem.factory.local" class="Shopware\Filesystem\Adapter\LocalFactory">
-            <tag name="shopware.filesystem.factory" />
+        <service id="Shopware\Filesystem\FilesystemFactory.local" class="Shopware\Filesystem\Adapter\LocalFactory">
+            <tag name="Shopware\Filesystem\FilesystemFactory" />
         </service>
 
-        <service id="shopware.filesystem.factory.amazon_s3" class="Shopware\Filesystem\Adapter\AwsS3v3Factory">
-            <tag name="shopware.filesystem.factory" />
+        <service id="Shopware\Filesystem\FilesystemFactory.amazon_s3" class="Shopware\Filesystem\Adapter\AwsS3v3Factory">
+            <tag name="Shopware\Filesystem\FilesystemFactory" />
         </service>
 
-        <service id="shopware.filesystem.factory.google_storage" class="Shopware\Filesystem\Adapter\GoogleStorageFactory">
-            <tag name="shopware.filesystem.factory" />
+        <service id="Shopware\Filesystem\FilesystemFactory.google_storage" class="Shopware\Filesystem\Adapter\GoogleStorageFactory">
+            <tag name="Shopware\Filesystem\FilesystemFactory" />
         </service>
 
-        <service id="shopware.filesystem.factory.microsoft_azure" class="Shopware\Filesystem\Adapter\AzureFactory">
-            <tag name="shopware.filesystem.factory" />
+        <service id="Shopware\Filesystem\FilesystemFactory.microsoft_azure" class="Shopware\Filesystem\Adapter\AzureFactory">
+            <tag name="Shopware\Filesystem\FilesystemFactory" />
         </service>
         
     </services>

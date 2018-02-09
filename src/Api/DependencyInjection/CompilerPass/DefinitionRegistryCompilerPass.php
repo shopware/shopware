@@ -4,6 +4,7 @@ namespace Shopware\Api\DependencyInjection\CompilerPass;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Shopware\Api\Entity\DefinitionRegistry;
 
 class DefinitionRegistryCompilerPass implements CompilerPassInterface
 {
@@ -40,7 +41,7 @@ class DefinitionRegistryCompilerPass implements CompilerPassInterface
             $classes[$entity] = $service->getClass();
         }
 
-        $registry = $container->getDefinition('shopware.api.entity_definition_registry');
+        $registry = $container->getDefinition(DefinitionRegistry::class);
         $registry->replaceArgument(0, $classes);
     }
 }

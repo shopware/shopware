@@ -55,7 +55,7 @@ class CartController extends StorefrontController
             ]);
         }
         /** @var StoreFrontCartService $cartService */
-        $cartService = $this->get('shopware.cart.storefront_service');
+        $cartService = $this->get(StoreFrontCartService::class);
         $cartService->add(
             new LineItem($identifier, ProductProcessor::TYPE_PRODUCT, $quantity, ['id' => $identifier])
         );
@@ -79,7 +79,7 @@ class CartController extends StorefrontController
             ]);
         }
 
-        $cartService = $this->get('shopware.cart.storefront_service');
+        $cartService = $this->get(StoreFrontCartService::class);
         $cartService->remove($identifier);
 
         return $this->conditionalResponse($request, $target);
@@ -102,7 +102,7 @@ class CartController extends StorefrontController
             ]);
         }
 
-        $cartService = $this->get('shopware.cart.storefront_service');
+        $cartService = $this->get(StoreFrontCartService::class);
         $cartService->changeQuantity($identifier, $quantity);
 
         return $this->conditionalResponse($request, $target);
@@ -124,7 +124,7 @@ class CartController extends StorefrontController
             ]);
         }
 
-        $cartService = $this->get('shopware.cart.storefront_service');
+        $cartService = $this->get(StoreFrontCartService::class);
         $cartService->add(
             new LineItem($identifier, VoucherProcessor::TYPE_VOUCHER, 1, ['code' => $identifier])
         );

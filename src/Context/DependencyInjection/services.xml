@@ -5,7 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Context\Service\ContextFactory" id="shopware.context.service.context_factory">
+        <service class="Shopware\Context\Service\ContextFactory" id="Shopware\Context\Service\ContextFactory">
             <argument type="service" id="Shopware\Api\Shop\Repository\ShopRepository"/>
             <argument type="service" id="Shopware\Api\Currency\Repository\CurrencyRepository"/>
             <argument type="service" id="Shopware\Api\Customer\Repository\CustomerRepository"/>

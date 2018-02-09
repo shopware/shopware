@@ -5,24 +5,24 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-         <service class="Shopware\Api\Currency\Definition\CurrencyDefinition" id="shopware.currency.currency_definition" >
+         <service class="Shopware\Api\Currency\Definition\CurrencyDefinition" id="Shopware\Api\Currency\Definition\CurrencyDefinition" >
             <tag name="shopware.entity.definition" entity="currency" />
         </service>
         <service class="Shopware\Api\Currency\Repository\CurrencyRepository" id="Shopware\Api\Currency\Repository\CurrencyRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Api\Currency\Definition\CurrencyTranslationDefinition" id="shopware.currency.currency_translation_definition" >
+         <service class="Shopware\Api\Currency\Definition\CurrencyTranslationDefinition" id="Shopware\Api\Currency\Definition\CurrencyTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="currency_translation" />
         </service>
         <service class="Shopware\Api\Currency\Repository\CurrencyTranslationRepository" id="Shopware\Api\Currency\Repository\CurrencyTranslationRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
     </services>

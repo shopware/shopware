@@ -3,7 +3,6 @@
 namespace Shopware\Api\Entity\Dbal;
 
 use Doctrine\DBAL\Connection;
-
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Field\FkField;

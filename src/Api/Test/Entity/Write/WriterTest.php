@@ -13,6 +13,7 @@ use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Defaults;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Api\Entity\Write\EntityWriter;
 
 class WriterTest extends KernelTestCase
 {
@@ -569,6 +570,6 @@ class WriterTest extends KernelTestCase
 
     private function getWriter(): EntityWriterInterface
     {
-        return self::$kernel->getContainer()->get('shopware.api.entity_writer');
+        return self::$kernel->getContainer()->get(EntityWriter::class);
     }
 }

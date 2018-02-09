@@ -22,7 +22,7 @@
         </service>
 
         <!-- plugins -->
-        <service id="shopware.plugins" class="Shopware\Framework\Plugin\PluginCollection">
+        <service id="Shopware\Framework\Plugin\PluginCollection" class="Shopware\Framework\Plugin\PluginCollection">
             <factory service="kernel" method="getPlugins" />
         </service>
 
@@ -41,9 +41,17 @@
             <argument type="service" id="Shopware\Framework\Routing\UrlResolver" />
             <argument type="service" id="Shopware\Framework\Routing\ShopFinder" />
             <argument id="shopware.cache" type="service"/>
-            <argument type="service" id="shopware.api.route_collector"/>
+            <argument type="service" id="Shopware\Rest\Routing\RouteCollector"/>
             <argument type="service" id="security.token_storage"/>
         </service>
+
+        <service class="Shopware\Framework\Command\ReplaceServiceIdsCommand" id="Shopware\Framework\Command\ReplaceServiceIdsCommand">
+            <call method="setContainer">
+                <argument id="service_container" type="service"/>
+            </call>
+            <tag name="console.command"/>
+        </service>
+
 
         <!-- Config -->
         <service id="Shopware\Framework\Config\CacheWarmer" class="Shopware\Framework\Config\CacheWarmer">
@@ -104,35 +112,35 @@
             <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
         </service>
 
-        <service class="Shopware\Framework\Plugin\Command\PluginActivateCommand" id="shopware.framework.commands.plugin_activate_command">
+        <service class="Shopware\Framework\Plugin\Command\PluginActivateCommand" id="Shopware\Framework\Plugin\Command\PluginActivateCommand">
             <tag name="console.command" />
             <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
         </service>
 
-        <service class="Shopware\Framework\Plugin\Command\PluginDeactivateCommand" id="shopware.framework.commands.plugin_deactivate_command">
+        <service class="Shopware\Framework\Plugin\Command\PluginDeactivateCommand" id="Shopware\Framework\Plugin\Command\PluginDeactivateCommand">
             <tag name="console.command" />
             <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
         </service>
 
-        <service class="Shopware\Framework\Plugin\Command\PluginUninstallCommand" id="shopware.framework.commands.plugin_uninstall_command">
+        <service class="Shopware\Framework\Plugin\Command\PluginUninstallCommand" id="Shopware\Framework\Plugin\Command\PluginUninstallCommand">
             <tag name="console.command" />
             <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
         </service>
 
-        <service class="Shopware\Framework\Plugin\Command\PluginUpgradeCommand" id="shopware.framework.commands.plugin_upgrade_command">
+        <service class="Shopware\Framework\Plugin\Command\PluginUpgradeCommand" id="Shopware\Framework\Plugin\Command\PluginUpgradeCommand">
             <tag name="console.command" />
             <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
         </service>
 
-        <service class="Shopware\Framework\Plugin\Command\PluginListCommand" id="shopware.framework.commands.plugin_list_command">
+        <service class="Shopware\Framework\Plugin\Command\PluginListCommand" id="Shopware\Framework\Plugin\Command\PluginListCommand">
             <tag name="console.command" />
             <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
         </service>
 
-        <service class="Shopware\Framework\Command\DemodataCommand" id="shopware.framework.command.demodata_command">
+        <service class="Shopware\Framework\Command\DemodataCommand" id="Shopware\Framework\Command\DemodataCommand">
             <tag name="console.command" command="framework:demodata" />
             <argument>framework:demodata</argument>
-            <argument type="service" id="shopware.api.entity_writer"/>
+            <argument type="service" id="Shopware\Api\Entity\Write\EntityWriter"/>
         </service>
 
     </services>

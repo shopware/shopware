@@ -69,9 +69,9 @@ security:
 
     providers:
         api:
-            id: shopware.rest.firewall.auth_provider
+            id: Shopware\Rest\Firewall\AuthProvider
         customer:
-            id: shopware.storefront.firewall.customer_provider
+            id: Shopware\Storefront\Firewall\CustomerProvider
 
     encoders:
         Symfony\Component\Security\Core\User\User:

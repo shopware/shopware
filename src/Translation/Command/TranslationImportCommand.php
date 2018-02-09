@@ -12,6 +12,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\Framework\Plugin\PluginCollection;
 
 class TranslationImportCommand extends ContainerAwareCommand implements EventSubscriberInterface
 {
@@ -86,7 +87,7 @@ class TranslationImportCommand extends ContainerAwareCommand implements EventSub
         ];
 
         if ($input->getOption('with-plugins')) {
-            foreach ($this->getContainer()->get('shopware.plugins')->getActivePlugins() as $plugin) {
+            foreach ($this->getContainer()->get(PluginCollection::class)->getActivePlugins() as $plugin) {
                 $translationPath = $plugin->getPath() . '/Resources/translations';
                 if (!file_exists($translationPath)) {
                     continue;

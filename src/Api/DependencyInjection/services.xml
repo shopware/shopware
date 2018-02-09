@@ -6,98 +6,98 @@
 
     <services>
 
-        <service class="Shopware\Api\Entity\Search\Term\Tokenizer" id="shopware.search.tokenizer"/>
+        <service class="Shopware\Api\Entity\Search\Term\Tokenizer" id="Shopware\Api\Entity\Search\Term\Tokenizer"/>
 
-        <service class="Shopware\Api\Entity\Search\Term\StopWordFilter" id="shopware.search.filter"/>
+        <service class="Shopware\Api\Entity\Search\Term\StopWordFilter" id="Shopware\Api\Entity\Search\Term\StopWordFilter"/>
 
-        <service class="Shopware\Api\Entity\Search\Term\SearchTermInterpreter" id="shopware.api.search_term_interpreter">
-            <argument id="shopware.search.tokenizer" type="service"/>
+        <service class="Shopware\Api\Entity\Search\Term\SearchTermInterpreter" id="Shopware\Api\Entity\Search\Term\SearchTermInterpreter">
+            <argument id="Shopware\Api\Entity\Search\Term\Tokenizer" type="service"/>
         </service>
 
-        <service class="Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder" id="shopware.api.search.entity_score_query_builder"/>
+        <service class="Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder" id="Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder"/>
 
-        <service class="Shopware\Api\Entity\ExtensionRegistry" id="shopware.api.entity.extension_registry" public="true">
+        <service class="Shopware\Api\Entity\ExtensionRegistry" id="Shopware\Api\Entity\ExtensionRegistry" public="true">
             <argument type="tagged" tag="shopware.entity.extension" />
         </service>
 
-        <service class="Shopware\Api\Entity\DefinitionRegistry" id="shopware.api.entity_definition_registry">
+        <service class="Shopware\Api\Entity\DefinitionRegistry" id="Shopware\Api\Entity\DefinitionRegistry">
             <argument type="collection" />
         </service>
 
-        <service class="Shopware\Api\Entity\Dbal\EntityReader" id="shopware.api.entity_reader">
+        <service class="Shopware\Api\Entity\Dbal\EntityReader" id="Shopware\Api\Entity\Dbal\EntityReader">
             <argument id="dbal_connection" type="service"/>
-            <argument type="service" id="shopware.api.entity_searcher"/>
+            <argument type="service" id="Shopware\Api\Entity\Dbal\EntitySearcher"/>
         </service>
 
-        <service class="Shopware\Api\Entity\Dbal\EntityAggregator" id="shopware.api.entity_aggregator">
+        <service class="Shopware\Api\Entity\Dbal\EntityAggregator" id="Shopware\Api\Entity\Dbal\EntityAggregator">
             <argument id="dbal_connection" type="service"/>
-            <argument id="shopware.api.entity_reader" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
         </service>
 
-        <service class="Shopware\Api\Entity\Dbal\EntitySearcher" id="shopware.api.entity_searcher" >
+        <service class="Shopware\Api\Entity\Dbal\EntitySearcher" id="Shopware\Api\Entity\Dbal\EntitySearcher" >
             <argument id="dbal_connection" type="service"/>
         </service>
 
-        <service class="Shopware\Api\Entity\Write\EntityWriter" id="shopware.api.entity_writer">
+        <service class="Shopware\Api\Entity\Write\EntityWriter" id="Shopware\Api\Entity\Write\EntityWriter">
             <argument type="service" id="Shopware\Api\Entity\Write\WriteCommandExtractor"/>
-            <argument type="service" id="shopware.api.write.field_aware.default_extender"/>
+            <argument type="service" id="Shopware\Api\Entity\Write\FieldAware\DefaultExtender"/>
             <argument type="service" id="Shopware\Api\Entity\Dbal\EntityForeignKeyResolver"/>
-            <argument id="Shopware\Api\Entity\Write\EntityWriteGatewayInterface" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntityWriteGateway" type="service"/>
         </service>
 
         <service class="Shopware\Api\Entity\Write\WriteCommandExtractor" id="Shopware\Api\Entity\Write\WriteCommandExtractor">
-            <argument id="Shopware\Api\Entity\Write\EntityWriteGatewayInterface" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntityWriteGateway" type="service"/>
         </service>
 
-        <service class="Shopware\Api\Entity\Dbal\EntityWriteGateway" id="Shopware\Api\Entity\Write\EntityWriteGatewayInterface">
+        <service class="Shopware\Api\Entity\Dbal\EntityWriteGateway" id="Shopware\Api\Entity\Dbal\EntityWriteGateway">
             <argument id="dbal_connection" type="service"/>
         </service>
 
-        <service id="shopware.validation.constraint_builder" class="Shopware\Api\Entity\Write\Validation\ConstraintBuilder"/>
+        <service id="Shopware\Api\Entity\Write\Validation\ConstraintBuilder" class="Shopware\Api\Entity\Write\Validation\ConstraintBuilder"/>
 
-        <service class="Shopware\Api\Entity\Write\FieldAware\DefaultExtender" id="shopware.api.write.field_aware.default_extender">
+        <service class="Shopware\Api\Entity\Write\FieldAware\DefaultExtender" id="Shopware\Api\Entity\Write\FieldAware\DefaultExtender">
             <argument id="validator" type="service"/>
-            <argument id="shopware.validation.constraint_builder" type="service"/>
-            <argument id="shopware.api.entity.write.id_generator.registry" type="service"/>
-            <argument id="shopware.api.entity.write.filter.registry" type="service"/>
-            <argument id="shopware.api.entity.write.value_transformer.registry" type="service"/>
+            <argument id="Shopware\Api\Entity\Write\Validation\ConstraintBuilder" type="service"/>
+            <argument id="Shopware\Api\Entity\Write\IdGenerator\GeneratorRegistry" type="service"/>
+            <argument id="Shopware\Api\Entity\Write\Filter\FilterRegistry" type="service"/>
+            <argument id="Shopware\Api\Entity\Write\ValueTransformer\ValueTransformerRegistry" type="service"/>
         </service>
 
 
-        <service class="Shopware\Api\Entity\Search\Parser\SqlQueryParser" id="shopware.search.sql_parser"/>
+        <service class="Shopware\Api\Entity\Search\Parser\SqlQueryParser" id="Shopware\Api\Entity\Search\Parser\SqlQueryParser"/>
 
         <!-- Value transformer -->
-        <service class="Shopware\Api\Entity\Write\ValueTransformer\ValueTransformerRegistry" id="shopware.api.entity.write.value_transformer.registry">
+        <service class="Shopware\Api\Entity\Write\ValueTransformer\ValueTransformerRegistry" id="Shopware\Api\Entity\Write\ValueTransformer\ValueTransformerRegistry">
             <argument type="tagged" tag="shopware.api.entity.write.value_transformer" />
         </service>
 
-        <service class="Shopware\Api\Entity\Write\ValueTransformer\ValueTransformerDate" id="shopware.api.entity.write.value_transformer.date">
+        <service class="Shopware\Api\Entity\Write\ValueTransformer\ValueTransformerDate" id="Shopware\Api\Entity\Write\ValueTransformer\ValueTransformerDate">
             <tag name="shopware.api.entity.write.value_transformer"/>
         </service>
 
-        <service class="Shopware\Api\Entity\Write\ValueTransformer\ValueTransformerBoolean" id="shopware.api.entity.write.value_transformer.boolean">
+        <service class="Shopware\Api\Entity\Write\ValueTransformer\ValueTransformerBoolean" id="Shopware\Api\Entity\Write\ValueTransformer\ValueTransformerBoolean">
             <tag name="shopware.api.entity.write.value_transformer"/>
         </service>
 
         <!-- Filter -->
-        <service class="Shopware\Api\Entity\Write\Filter\FilterRegistry" id="shopware.api.entity.write.filter.registry">
+        <service class="Shopware\Api\Entity\Write\Filter\FilterRegistry" id="Shopware\Api\Entity\Write\Filter\FilterRegistry">
             <argument type="tagged" tag="shopware.api.entity.write.filter" />
         </service>
 
-        <service class="Shopware\Api\Entity\Write\Filter\HtmlFilter" id="shopware.api.entity.write.filter.html_filter">
+        <service class="Shopware\Api\Entity\Write\Filter\HtmlFilter" id="Shopware\Api\Entity\Write\Filter\HtmlFilter">
             <tag name="shopware.api.entity.write.filter"/>
         </service>
 
         <!-- ID GENERATOR -->
-        <service id="shopware.api.entity.write.id_generator.registry" class="Shopware\Api\Entity\Write\IdGenerator\GeneratorRegistry">
+        <service id="Shopware\Api\Entity\Write\IdGenerator\GeneratorRegistry" class="Shopware\Api\Entity\Write\IdGenerator\GeneratorRegistry">
             <argument type="tagged" tag="shopware.api.entity.write.id_generator" />
         </service>
 
-        <service id="shopware.api.entity.write.id_generator.ramsey_generator" class="Shopware\Api\Entity\Write\IdGenerator\RamseyGenerator">
+        <service id="Shopware\Api\Entity\Write\IdGenerator\RamseyGenerator" class="Shopware\Api\Entity\Write\IdGenerator\RamseyGenerator">
             <tag name="shopware.api.entity.write.id_generator"/>
         </service>
 
-        <service id="shopware.api.entity.write.id_generator.product_number_generator" class="Shopware\Api\Entity\Write\IdGenerator\ProductNumberGenerator">
+        <service id="Shopware\Api\Entity\Write\IdGenerator\ProductNumberGenerator" class="Shopware\Api\Entity\Write\IdGenerator\ProductNumberGenerator">
             <argument type="service" id="dbal_connection"/>
 
             <tag name="shopware.api.entity.write.id_generator"/>

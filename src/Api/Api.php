@@ -34,7 +34,7 @@ class Api extends Bundle
     {
         parent::boot();
 
-        $registry = $this->container->get('shopware.api.entity.extension_registry');
+        $registry = $this->container->get(Entity\ExtensionRegistry::class);
         foreach ($registry->getExtensions() as $extension) {
             /** @var EntityDefinition $definition */
             $definition = $extension->getDefinitionClass();

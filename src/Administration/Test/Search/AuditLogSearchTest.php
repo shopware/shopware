@@ -54,9 +54,8 @@ class AuditLogSearchTest extends KernelTestCase
         $this->connection->beginTransaction();
 
         $this->productRepository = $this->container->get(ProductRepository::class);
-        $this->search = $this->container->get('shopware.administration.search.audit_log_search');
+        $this->search = $this->container->get(AuditLogSearch::class);
         $this->context = $context = TranslationContext::createDefaultContext();
-
         $this->connection->executeUpdate('
             DELETE FROM `audit_log`;
             DELETE FROM `user`;

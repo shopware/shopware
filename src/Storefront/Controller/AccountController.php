@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 /**
- * @Route(service="shopware.storefront.controller.account")
+ * @Route(service="Shopware\Storefront\Controller\AccountController")
  */
 class AccountController extends StorefrontController
 {

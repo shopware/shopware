@@ -5,91 +5,91 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="cart.price.rounding.precision">2</parameter>
+        <parameter key="Shopware\Cart\Price\PriceRounding.precision">2</parameter>
     </parameters>
 
     <services>
 
         <!-- price calculation -->
-        <service id="cart.price.amount_calculator" class="Shopware\Cart\Price\AmountCalculator" >
-            <argument type="service" id="cart.tax.detector" />
-            <argument type="service" id="cart.price.rounding" />
-            <argument type="service" id="cart.tax.amount_calculator" />
+        <service id="Shopware\Cart\Price\AmountCalculator" class="Shopware\Cart\Price\AmountCalculator" >
+            <argument type="service" id="Shopware\Cart\Tax\TaxDetector" />
+            <argument type="service" id="Shopware\Cart\Price\PriceRounding" />
+            <argument type="service" id="Shopware\Cart\Tax\TaxAmountCalculator" />
         </service>
 
-        <service id="cart.price.rounding" class="Shopware\Cart\Price\PriceRounding">
-            <argument>%cart.price.rounding.precision%</argument>
+        <service id="Shopware\Cart\Price\PriceRounding" class="Shopware\Cart\Price\PriceRounding">
+            <argument>%Shopware\Cart\Price\PriceRounding.precision%</argument>
         </service>
 
-        <service id="cart.price.calculator" class="Shopware\Cart\Price\PriceCalculator">
-            <argument type="service" id="cart.tax.calculator" />
-            <argument type="service" id="cart.price.rounding" />
-            <argument type="service" id="cart.tax.detector" />
+        <service id="Shopware\Cart\Price\PriceCalculator" class="Shopware\Cart\Price\PriceCalculator">
+            <argument type="service" id="Shopware\Cart\Tax\TaxCalculator" />
+            <argument type="service" id="Shopware\Cart\Price\PriceRounding" />
+            <argument type="service" id="Shopware\Cart\Tax\TaxDetector" />
         </service>
 
-        <service id="cart.price.percentage_calculator" class="Shopware\Cart\Price\PercentagePriceCalculator">
-            <argument type="service" id="cart.price.rounding"/>
-            <argument type="service" id="cart.price.calculator"/>
-            <argument type="service" id="cart.tax.percentage_rule_builder"/>
+        <service id="Shopware\Cart\Price\PercentagePriceCalculator" class="Shopware\Cart\Price\PercentagePriceCalculator">
+            <argument type="service" id="Shopware\Cart\Price\PriceRounding"/>
+            <argument type="service" id="Shopware\Cart\Price\PriceCalculator"/>
+            <argument type="service" id="Shopware\Cart\Tax\PercentageTaxRuleBuilder"/>
         </service>
 
-        <service id="cart.price.absolute_calculator" class="Shopware\Cart\Price\AbsolutePriceCalculator">
-            <argument type="service" id="cart.price.calculator"/>
-            <argument type="service" id="cart.tax.percentage_rule_builder"/>
+        <service id="Shopware\Cart\Price\AbsolutePriceCalculator" class="Shopware\Cart\Price\AbsolutePriceCalculator">
+            <argument type="service" id="Shopware\Cart\Price\PriceCalculator"/>
+            <argument type="service" id="Shopware\Cart\Tax\PercentageTaxRuleBuilder"/>
         </service>
 
         <!-- tax calculation -->
-        <service id="cart.tax.percentage_rule_builder" class="Shopware\Cart\Tax\PercentageTaxRuleBuilder" />
+        <service id="Shopware\Cart\Tax\PercentageTaxRuleBuilder" class="Shopware\Cart\Tax\PercentageTaxRuleBuilder" />
 
-        <service id="cart.tax.detector" class="Shopware\Cart\Tax\TaxDetector" />
+        <service id="Shopware\Cart\Tax\TaxDetector" class="Shopware\Cart\Tax\TaxDetector" />
 
-        <service id="cart.tax.calculator" class="Shopware\Cart\Tax\TaxCalculator" >
-            <argument type="service" id="cart.price.rounding" />
-            <argument type="tagged" tag="cart.tax.rule_calculator" />
+        <service id="Shopware\Cart\Tax\TaxCalculator" class="Shopware\Cart\Tax\TaxCalculator" >
+            <argument type="service" id="Shopware\Cart\Price\PriceRounding" />
+            <argument type="tagged" tag="Shopware\Cart\Tax\TaxRuleCalculator" />
         </service>
 
-        <service id="cart.tax.rule_calculator" class="Shopware\Cart\Tax\TaxRuleCalculator">
-            <argument type="service" id="cart.price.rounding" />
-            <tag name="cart.tax.rule_calculator" />
+        <service id="Shopware\Cart\Tax\TaxRuleCalculator" class="Shopware\Cart\Tax\TaxRuleCalculator">
+            <argument type="service" id="Shopware\Cart\Price\PriceRounding" />
+            <tag name="Shopware\Cart\Tax\TaxRuleCalculator" />
         </service>
 
-        <service id="cart.tax.percentage_rule_calculator" class="Shopware\Cart\Tax\PercentageTaxRuleCalculator">
-            <argument type="service" id="cart.tax.rule_calculator" />
-            <tag name="cart.tax.rule_calculator" />
+        <service id="Shopware\Cart\Tax\PercentageTaxRuleCalculator" class="Shopware\Cart\Tax\PercentageTaxRuleCalculator">
+            <argument type="service" id="Shopware\Cart\Tax\TaxRuleCalculator" />
+            <tag name="Shopware\Cart\Tax\TaxRuleCalculator" />
         </service>
 
-        <service id="cart.tax.amount_calculator" class="Shopware\Cart\Tax\TaxAmountCalculator" >
-            <argument type="service" id="cart.tax.percentage_rule_builder" />
-            <argument type="service" id="cart.tax.calculator" />
-            <argument type="service" id="cart.tax.detector" />
+        <service id="Shopware\Cart\Tax\TaxAmountCalculator" class="Shopware\Cart\Tax\TaxAmountCalculator" >
+            <argument type="service" id="Shopware\Cart\Tax\PercentageTaxRuleBuilder" />
+            <argument type="service" id="Shopware\Cart\Tax\TaxCalculator" />
+            <argument type="service" id="Shopware\Cart\Tax\TaxDetector" />
         </service>
 
-        <service id="cart.calculator" class="Shopware\Cart\Cart\CartCalculator">
+        <service id="Shopware\Cart\Cart\CartCalculator" class="Shopware\Cart\Cart\CartCalculator">
             <argument type="tagged" tag="cart.processor" />
             <argument type="tagged" tag="cart.collector" />
-            <argument type="service" id="cart.price.amount_calculator" />
+            <argument type="service" id="Shopware\Cart\Price\AmountCalculator" />
         </service>
 
-        <service id="cart.delivery.stock_separator" class="Shopware\Cart\Delivery\StockDeliverySeparator">
-            <argument type="service" id="cart.price.calculator" />
+        <service id="Shopware\Cart\Delivery\StockDeliverySeparator" class="Shopware\Cart\Delivery\StockDeliverySeparator">
+            <argument type="service" id="Shopware\Cart\Price\PriceCalculator" />
         </service>
 
-        <service id="cart.delivery.calculator" class="Shopware\Cart\Delivery\DeliveryCalculator">
+        <service id="Shopware\Cart\Delivery\DeliveryCalculator" class="Shopware\Cart\Delivery\DeliveryCalculator">
             <argument id="dbal_connection" type="service"/>
-            <argument id="cart.price.calculator" type="service"/>
-            <argument id="cart.tax.percentage_rule_builder" type="service"/>
+            <argument id="Shopware\Cart\Price\PriceCalculator" type="service"/>
+            <argument id="Shopware\Cart\Tax\PercentageTaxRuleBuilder" type="service"/>
         </service>
 
         <!-- cart processors-->
 
         <!--processors-->
-        <service id="cart.delivery.separator_processor" class="Shopware\Cart\Delivery\DeliverySeparatorProcessor">
-            <argument type="service" id="cart.delivery.stock_separator" />
+        <service id="Shopware\Cart\Delivery\DeliverySeparatorProcessor" class="Shopware\Cart\Delivery\DeliverySeparatorProcessor">
+            <argument type="service" id="Shopware\Cart\Delivery\StockDeliverySeparator" />
             <tag name="cart.processor" priority="-100" />
         </service>
 
-        <service id="cart.delivery.calculator_processor" class="Shopware\Cart\Delivery\DeliveryCalculatorProcessor">
-            <argument id="cart.delivery.calculator" type="service"/>
+        <service id="Shopware\Cart\Delivery\DeliveryCalculator_processor" class="Shopware\Cart\Delivery\DeliveryCalculatorProcessor">
+            <argument id="Shopware\Cart\Delivery\DeliveryCalculator" type="service"/>
             <tag name="cart.processor" priority="-200" />
         </service>
     </services>

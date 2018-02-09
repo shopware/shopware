@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @Route(service="shopware.administration.controller", path="/")
+ * @Route(service="Shopware\Administration\Controller\AdministrationController", path="/")
  */
 class AdministrationController extends Controller
 {

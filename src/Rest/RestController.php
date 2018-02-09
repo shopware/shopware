@@ -62,7 +62,7 @@ abstract class RestController extends Controller
             $response->setErrors($result['errors']);
         }
 
-        $registry = $this->get('shopware.serializer.serializer_registry');
+        $registry = $this->get(SerializerRegistry::class);
 
         $response->setData(
             $registry->serialize($result['data'], SerializerRegistry::FORMAT_API_JSON)

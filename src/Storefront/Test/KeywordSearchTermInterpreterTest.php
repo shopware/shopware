@@ -27,7 +27,7 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
 
         $this->connection = $container->get('dbal_connection');
         $this->connection->beginTransaction();
-        $this->interpreter = $container->get('shopware.storefront.search_term_interpreter');
+        $this->interpreter = $container->get(KeywordSearchTermInterpreter::class);
         $this->connection->executeUpdate('DELETE FROM search_keyword');
 
         $this->setupKeywords();

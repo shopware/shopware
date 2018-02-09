@@ -4,6 +4,8 @@ namespace Shopware\Api;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
+use Shopware\Api\Tax\Definition\TaxAreaRuleDefinition;
+use Shopware\Api\Tax\Definition\TaxAreaRuleTranslationDefinition;
 use Shopware\Api\Tax\Definition\TaxDefinition;
 use Shopware\Api\Tax\Repository\TaxRepository;
 use Shopware\Context\Struct\TranslationContext;
@@ -29,41 +31,35 @@ class VersioningTest extends KernelTestCase
 
         $this->repository = $kernel->getContainer()->get(TaxRepository::class);
         $this->connection = $kernel->getContainer()->get('dbal_connection');
-
-//        $this->connection->beginTransaction();
-        $this->connection->executeQuery('DELETE FROM tax');
-        $this->connection->executeQuery('DELETE FROM version');
-        $this->connection->executeQuery('DELETE FROM version_commit');
-        $this->connection->executeQuery('DELETE FROM version_commit_data');
+        $this->connection->beginTransaction();
     }
 
     public function tearDown()
     {
-//        $this->connection->rollBack();
+        $this->connection->rollBack();
     }
 
-//    public function testVersionChangeOnInsert()
-//    {
-//        $uuid = Uuid::uuid4()->toString();
-//        $context = TranslationContext::createDefaultContext();
-//        $taxData = [
-//            'id' => $uuid,
-//            'name' => 'foo tax',
-//            'rate' => 20,
-//        ];
-//
-//        $this->repository->create([$taxData], $context);
-//
-//        $changes = $this->connection->fetchAll('SELECT * FROM version_commit WHERE entity_id = :entityId AND entity_name = "tax"', ['entityId' => Uuid::fromString($uuid)->getBytes()]);
-//
-//        $this->assertCount(1, $changes, sprintf('Change for entity_id "%s" was not created.', $uuid));
-//
-//        $change = array_shift($changes);
-//
-//        $taxData['versionId'] = Defaults::LIVE_VERSION;
-//
-//        $this->assertEquals($taxData, json_decode($change['payload'], true));
-//    }
+    public function testVersionChangeOnInsert()
+    {
+        $uuid = Uuid::uuid4()->toString();
+        $context = TranslationContext::createDefaultContext();
+        $taxData = [
+            'id' => $uuid,
+            'name' => 'foo tax',
+            'rate' => 20,
+        ];
+
+        $this->repository->create([$taxData], $context);
+
+        $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid, Defaults::LIVE_VERSION);
+        $this->assertCount(1, $changes, sprintf('Change for entity_id "%s" was not created.', $uuid));
+
+        $change = array_shift($changes);
+
+        $taxData['versionId'] = Defaults::LIVE_VERSION;
+
+        $this->assertEquals($taxData, json_decode($change['payload'], true));
+    }
 
     public function testVersionChangeOnInsertWithSubresources()
     {
@@ -88,20 +84,20 @@ class VersioningTest extends KernelTestCase
 
         $this->repository->create([$taxData], $context);
 
-        $changes = $this->connection->fetchAll(
-            'SELECT * FROM version_commit_data ORDER BY ai ASC',
-            ['entityId' => Uuid::fromString($uuid)->getBytes()]
-        );
-
-        $this->assertCount(3, $changes, 'Change history was not written correctly. Should include: tax, tax_area_rule, tax_area_rule_translation');
-
+        $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid, Defaults::LIVE_VERSION);
+        $this->assertCount(1, $changes);
         $taxChange = [
             'id' => $uuid,
             'versionId' => Defaults::LIVE_VERSION,
             'name' => 'foo tax',
             'rate' => 20,
         ];
+        $this->assertEquals($taxChange, json_decode($changes[0]['payload'], true));
 
+
+
+        $changes = $this->getVersionData(TaxAreaRuleDefinition::getEntityName(), $ruleId, Defaults::LIVE_VERSION);
+        $this->assertCount(1, $changes);
         $taxAreaChange = [
             'id' => $ruleId,
             'versionId' => Defaults::LIVE_VERSION,
@@ -110,17 +106,18 @@ class VersioningTest extends KernelTestCase
             'active' => 1,
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
         ];
+        $this->assertEquals($taxAreaChange, json_decode($changes[0]['payload'], true));
 
+
+        $changes = $this->getTranslationVersionData(TaxAreaRuleTranslationDefinition::getEntityName(), Defaults::SHOP, 'taxAreaRuleId', $ruleId, Defaults::LIVE_VERSION);
+        $this->assertCount(1, $changes);
         $taxAreaTranslationChange = [
             'taxAreaRuleId' => $ruleId,
             'name' => 'required',
             'languageId' => Defaults::SHOP,
             'versionId' => Defaults::LIVE_VERSION
         ];
-
-        $this->assertEquals($taxChange, json_decode($changes[0]['payload'], true));
-        $this->assertEquals($taxAreaChange, json_decode($changes[1]['payload'], true));
-        $this->assertEquals($taxAreaTranslationChange, json_decode($changes[2]['payload'], true));
+        $this->assertEquals($taxAreaTranslationChange, json_decode($changes[0]['payload'], true));
     }
 
     public function testCreateNewVersion()
@@ -135,7 +132,7 @@ class VersioningTest extends KernelTestCase
 
         $this->repository->create([$taxData], $context);
 
-        $versionId = $this->repository->createVersion(['id' => $uuid->toString()], $context, 'testCreateVersionWithoutRelations version');
+        $versionId = $this->repository->createVersion($uuid->toString(), $context, 'testCreateVersionWithoutRelations version');
 
         $this->assertNotEmpty($versionId);
 
@@ -180,7 +177,7 @@ class VersioningTest extends KernelTestCase
 
         $this->repository->create([$taxData], $context);
 
-        $versionId = $this->versionManager->createVersion(TaxDefinition::class, $uuid, $context, 'testCreateVersionWithSubresources version');
+        $versionId = $this->repository->createVersion($uuid->toString(), $context, 'testCreateVersionWithSubresources version');
 
         $this->assertNotEmpty($versionId);
 
@@ -222,7 +219,7 @@ class VersioningTest extends KernelTestCase
 
         $this->repository->create([$taxData], $context);
 
-        $versionId = $this->repository->createVersion(['id' => $uuid->toString()], $context, 'testMerge version');
+        $versionId = $this->repository->createVersion($uuid->toString(), $context, 'testMerge version');
 
         $versionId = Uuid::fromString($versionId);
 
@@ -232,6 +229,62 @@ class VersioningTest extends KernelTestCase
             'versionId' => $versionId->toString()
         ]], $context);
 
+        $this->assertNotEmpty(
+            $this->getVersionData(TaxDefinition::getEntityName(), $uuid->toString(), $versionId->toString())
+        );
+
         $this->repository->merge($versionId->toString(), $context);
+
+        $row = $this->connection->fetchAssoc('SELECT * FROM tax WHERE id = :id AND version_id = :version', [
+            'id' => $uuid->getBytes(),
+            'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes()
+        ]);
+
+        $this->assertEquals('new merged name', $row['name']);
+
+        $row = $this->connection->fetchAssoc('SELECT * FROM version WHERE id = :id', ['id' => $versionId->getBytes()]);
+        $this->assertEmpty($row);
+
+        $row = $this->connection->fetchAssoc('SELECT * FROM version_commit WHERE version_id = :id', ['id' => $versionId->getBytes()]);
+        $this->assertEmpty($row);
+
+        $this->assertEmpty(
+            $this->getVersionData(TaxDefinition::getEntityName(), $uuid->toString(), $versionId->toString())
+        );
+    }
+
+    private function getVersionData(string $entity, string $id, string $versionId): array
+    {
+        return $this->connection->fetchAll(
+            "SELECT * 
+             FROM version_commit_data 
+             WHERE entity_name = :entity 
+             AND JSON_EXTRACT(entity_id, '$.id') = :id
+             AND JSON_EXTRACT(entity_id, '$.versionId') = :version",
+            [
+                'entity' => $entity,
+                'id' => $id,
+                'version' => $versionId
+            ]
+        );
+    }
+
+    private function getTranslationVersionData(string $entity, string $languageId, string $foreignKeyName, string $foreignKey, string $versionId): array
+    {
+        return $this->connection->fetchAll(
+            "SELECT * 
+             FROM version_commit_data 
+             WHERE entity_name = :entity 
+             AND JSON_EXTRACT(entity_id, '$.".$foreignKeyName."') = :id
+             AND JSON_EXTRACT(entity_id, '$.languageId') = :language
+             AND JSON_EXTRACT(entity_id, '$.versionId') = :version",
+            [
+                'entity' => $entity,
+                'id' => $foreignKey,
+                'language' => $languageId,
+                'version' => $versionId
+            ]
+        );
     }
 }
+

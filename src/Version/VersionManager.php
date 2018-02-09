@@ -22,6 +22,7 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
+use Shopware\Api\Tax\Definition\TaxDefinition;
 use Shopware\Api\Version\Collection\VersionCommitBasicCollection;
 use Shopware\Api\Version\Definition\VersionCommitDefinition;
 use Shopware\Api\Version\Definition\VersionDefinition;
@@ -105,7 +106,7 @@ class VersionManager
         return $writtenEvent;
     }
 
-    public function delete(string $definition, array $ids, WriteContext $writeContext)
+    public function delete(string $definition, array $ids, WriteContext $writeContext): array
     {
         $writtenEvent = $this->entityWriter->delete($definition, $ids, $writeContext);
 
@@ -114,15 +115,15 @@ class VersionManager
         return $writtenEvent;
     }
 
-    public function createVersion(string $definition, array $primaryKey, WriteContext $context, ?string $name = null): string
+    public function createVersion(string $definition, string $id, WriteContext $context, ?string $name = null): string
     {
-        if (!array_key_exists('versionId', $primaryKey)) {
-            $primaryKey['versionId'] = Defaults::LIVE_VERSION;
-        }
-
-        $versionData = [
-            'id' => Uuid::uuid4()->toString(),
+        $primaryKey = [
+            'id' => $id,
+            'versionId' => Defaults::LIVE_VERSION
         ];
+
+        $versionId = Uuid::uuid4()->toString();
+        $versionData = ['id' => $versionId];
 
         if ($name) {
             $versionData['name'] = $name;
@@ -131,14 +132,14 @@ class VersionManager
         $this->entityWriter->insert(VersionDefinition::class, [$versionData], $context);
 
         /** @var EntityDefinition|string $definition */
-        $identifiers = $this->clone($definition, $primaryKey, $versionData['id'], $context);
+        $identifiers = $this->clone($definition, $primaryKey, $versionId, $context);
 
-        $this->writeAuditLog($identifiers, $context, 'clone');
+        $this->writeAuditLog($identifiers, $context, 'clone', $versionId);
 
         return $versionData['id'];
     }
 
-    public function merge(string $versionId, WriteContext $context)
+    public function merge(string $versionId, WriteContext $context): void
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('version_commit.versionId', $versionId));
@@ -221,26 +222,6 @@ class VersionManager
             }
             $this->entityWriter->delete($definition, [$primary], $context);
         }
-
-        return;
-
-
-
-        $payload = $this->removeVersion($definition, $payload);
-
-        /** @var RepositoryInterface $repository */
-        $repository = $this->container->get($definition::getRepositoryClass());
-        $repository->update([$payload], $context);
-
-        $primary = ['id' => $entityId, 'versionId' => $versionId];
-        $repository->delete([$primary], $context);
-
-        $commitIds = $commits->map(function (VersionCommitBasicStruct $change) {
-            return ['id' => $change->getId()];
-        });
-
-//        $this->versionChangeRepository->delete(array_values($changeIds), $context);
-//        $this->versionRepository->delete([['id' => $versionId]], $context);
     }
 
     private function clone(string $definition, array $primaryKey, string $versionId, WriteContext $context): array
@@ -270,10 +251,11 @@ class VersionManager
 
         $payload = array_filter($payload);
         $payload = $this->removeVersion($definition, $payload);
-        $payload['versionId'] = $versionId;
         $payload['id'] = $detail->getId();
 
-        return $this->entityWriter->insert($definition, [$payload], $context);
+        $newContext = $context->createWithVersionId($versionId);
+
+        return $this->entityWriter->insert($definition, [$payload], $newContext);
     }
 
     /**
@@ -349,25 +331,23 @@ class VersionManager
         return $value;
     }
 
-
-    /**
-     * @param string|EntityDefinition $definition
-     * @param array $writtenEvents
-     * @param WriteContext $writeContext
-     * @param string $action
-     */
-    private function writeAuditLog(array $writtenEvents, WriteContext $writeContext, string $action)
+    private function writeAuditLog(array $writtenEvents, WriteContext $writeContext, string $action, ?string $versionId = null): void
     {
         $userId = null;//$this->getUserId($writeContext->getTranslationContext());
 
-        $commits = [];
+        $versionId = $versionId ?? $writeContext->getTranslationContext()->getVersionId();
+
+        $commit = array_filter([
+            'versionId' => $versionId,
+            'userId' => $userId,
+            'data' => []
+        ]);
 
         /**
          * @var string|EntityDefinition $definition
          * @var array $item
          */
         foreach ($writtenEvents as $definition => $items) {
-
             if (strpos('version', $definition::getEntityName()) === 0) {
                 continue;
             }
@@ -375,39 +355,29 @@ class VersionManager
             foreach ($items as $item) {
                 $payload = $item['payload'];
 
-                $versionId = $payload['versionId'];
-
-                if (!array_key_exists($versionId, $commits)) {
-                    $commit = array_filter([
-                        'versionId' => $versionId,
-                        'userId' => $userId,
-                        'data' => []
-                    ]);
-
-                } else {
-                    $commit = $commits[$versionId];
+                $primary = $item['primaryKey'];
+                if (!is_array($primary)) {
+                    $primary = ['id' => $item['primaryKey']];
                 }
+
+                $primary['versionId'] = $versionId;
 
                 // writing to live version, no logging enabled
                 $commit['data'][] = [
                     'entityName' => $definition::getEntityName(),
-                    'entityId' => json_encode($item['primaryKey']),
+                    'entityId' => json_encode($primary),
                     'payload' => json_encode($payload),
                     'action' => $action,
                     'createdAt' => new \DateTime(),
                 ];
-
-                $commits[$versionId] = $commit;
             }
         }
 
-        $commits = array_values($commits);
-
-        if (empty($commits)) {
+        if (empty($commit['data'])) {
             return;
         }
 
-        $this->entityWriter->insert(VersionCommitDefinition::class, $commits, $writeContext);
+        $this->entityWriter->insert(VersionCommitDefinition::class, [$commit], $writeContext);
     }
 
     private function getUserId(TranslationContext $context): ?string

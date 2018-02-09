@@ -168,9 +168,9 @@ class TaxRepository implements RepositoryInterface
         return $event;
     }
 
-    public function createVersion(array $primaryKey, TranslationContext $context, ?string $name = null): string
+    public function createVersion(string $id, TranslationContext $context, ?string $name = null): string
     {
-        return $this->versionManager->createVersion(TaxDefinition::class, $primaryKey, WriteContext::createFromTranslationContext($context), $name);
+        return $this->versionManager->createVersion(TaxDefinition::class, $id, WriteContext::createFromTranslationContext($context), $name);
     }
 
     public function merge(string $versionId, TranslationContext $context)

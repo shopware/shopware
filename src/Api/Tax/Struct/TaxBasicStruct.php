@@ -3,13 +3,9 @@
 namespace Shopware\Api\Tax\Struct;
 
 use Shopware\Api\Entity\Entity;
-use Shopware\Api\Entity\Versionable;
-use Shopware\Api\Entity\VersionableTrait;
 
-class TaxBasicStruct extends Entity implements Versionable
+class TaxBasicStruct extends Entity
 {
-    use VersionableTrait;
-
     /**
      * @var float
      */

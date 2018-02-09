@@ -7,7 +7,7 @@ use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\StringField;
-use Shopware\Api\Entity\Field\SubVersionField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -51,7 +51,7 @@ class TaxAreaRuleTranslationDefinition extends EntityDefinition
         self::$fields = new FieldCollection([
             (new FkField('tax_area_rule_id', 'taxAreaRuleId', TaxAreaRuleDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            new SubVersionField(TaxDefinition::class),
+            new VersionField(),
 
             (new StringField('name', 'name'))->setFlags(new Required()),
             new ManyToOneAssociationField('taxAreaRule', 'tax_area_rule_id', TaxAreaRuleDefinition::class, false),

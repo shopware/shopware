@@ -30,6 +30,7 @@ use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\IdField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\MappingEntityDefinition;
 use Shopware\Api\Entity\Write\FieldAware\DefaultExtender;
 use Shopware\Api\Entity\Write\FieldAware\FieldExtenderCollection;
@@ -258,6 +259,9 @@ class EntityWriter implements EntityWriterInterface
     private function getCommandPrimaryKey(WriteCommandInterface $command)
     {
         $fields = $command->getDefinition()::getPrimaryKeys();
+        $fields = $fields->filter(function(Field $field) {
+            return !$field instanceof VersionField;
+        });
 
         $primaryKey = $command->getPrimaryKey();
 

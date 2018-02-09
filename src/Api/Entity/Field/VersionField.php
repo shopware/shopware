@@ -46,14 +46,7 @@ class VersionField extends FkField
      */
     public function __invoke(EntityExistence $existence, KeyValuePair $kvPair): \Generator
     {
-        $value = $kvPair->getValue();
-
-        if (!$value) {
-            $value = Defaults::LIVE_VERSION;
-        }
-
-        $this->writeContext->set($this->definition, $this->propertyName, $value);
-
+        $value = $this->writeContext->getTranslationContext()->getVersionId();
         yield $this->storageName => Uuid::fromString($value)->getBytes();
     }
 }

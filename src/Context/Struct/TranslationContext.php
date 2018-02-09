@@ -25,6 +25,7 @@
 namespace Shopware\Context\Struct;
 
 use Shopware\Api\Shop\Struct\ShopBasicStruct;
+use Shopware\Defaults;
 use Shopware\Framework\Struct\Struct;
 
 class TranslationContext extends Struct
@@ -44,11 +45,17 @@ class TranslationContext extends Struct
      */
     protected $shopId;
 
-    public function __construct(string $shopId, bool $isDefaultShop, ?string $fallbackId)
+    /**
+     * @var string
+     */
+    protected $versionId;
+
+    public function __construct(string $shopId, bool $isDefaultShop, ?string $fallbackId, string $versionId = Defaults::LIVE_VERSION)
     {
         $this->fallbackId = $fallbackId;
         $this->isDefaultShop = $isDefaultShop;
         $this->shopId = $shopId;
+        $this->versionId = $versionId;
     }
 
     public function getFallbackId(): ? string
@@ -83,5 +90,10 @@ class TranslationContext extends Struct
     public function getShopId(): string
     {
         return $this->shopId;
+    }
+
+    public function getVersionId(): string
+    {
+        return $this->versionId;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Entity\Dbal;
 
+use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\AssociationInterface;
@@ -15,6 +16,7 @@ use Shopware\Api\Entity\Write\FieldAware\SqlParseAware;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
 use Shopware\Api\Entity\Write\Flag\Inherited;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Defaults;
 
 class EntityDefinitionQueryHelper
 {
@@ -127,6 +129,25 @@ class EntityDefinitionQueryHelper
         );
     }
 
+    public static function getBaseQuery(Connection $connection, string $definition, TranslationContext $context): QueryBuilder
+    {
+        /** @var string|EntityDefinition $definition */
+        $table = $definition::getEntityName();
+
+        $query = new QueryBuilder($connection);
+        $query->from(self::escape($table), self::escape($table));
+
+        if ($definition::isVersionAware() && $context->getVersionId() !== Defaults::LIVE_VERSION) {
+            self::buildVersionFrom($connection, $query, $definition, $context);
+
+        } else if ($definition::isVersionAware()) {
+            $query->andWhere(self::escape($table) . '.`version_id` = :version');
+            $query->setParameter('version', Uuid::fromString($context->getVersionId())->getBytes());
+        }
+
+        return $query;
+    }
+
     public static function joinField(string $fieldName, string $definition, string $root, QueryBuilder $query, TranslationContext $context): void
     {
         $original = $fieldName;
@@ -214,16 +235,24 @@ class EntityDefinitionQueryHelper
         }
         $query->addState($alias);
 
+        $versionJoin = '';
+        if ($definition::isVersionAware() && $reference::isVersionAware()) {
+            $versionJoin = ' AND #root#.version_id = #alias#.version_id';
+        }
+
         $query->leftJoin(
             self::escape($root),
             self::escape($table),
             self::escape($alias),
-            sprintf(
-                '%s.%s = %s.%s',
-                self::escape($root),
-                self::escape($field->getJoinField()),
-                self::escape($alias),
-                self::escape($field->getReferenceField())
+            str_replace(
+                ['#root#', '#source_column#', '#alias#', '#reference_column#'],
+                [
+                    self::escape($root),
+                    self::escape($field->getJoinField()),
+                    self::escape($alias),
+                    self::escape($field->getReferenceField()),
+                ],
+                '#root#.#source_column# = #alias#.#reference_column#' . $versionJoin
             )
         );
 
@@ -252,16 +281,25 @@ class EntityDefinitionQueryHelper
         }
         $query->addState($alias);
 
+        $versionJoin = '';
+        /** @var string|EntityDefinition $definition */
+        if ($definition::isVersionAware()) {
+            $versionJoin = ' AND #root#.version_id = #alias#.version_id';
+        }
+
         $query->leftJoin(
             self::escape($root),
             self::escape($table),
             self::escape($alias),
-            sprintf(
-                '%s.%s = %s.%s',
-                self::escape($root),
-                self::escape($field->getLocalField()),
-                self::escape($alias),
-                self::escape($field->getReferenceField())
+            str_replace(
+                ['#root#', '#source_column#', '#alias#', '#reference_column#'],
+                [
+                    self::escape($root),
+                    self::escape($field->getLocalField()),
+                    self::escape($alias),
+                    self::escape($field->getReferenceField())
+                ],
+                '#root#.#source_column# = #alias#.#reference_column#' . $versionJoin
             )
         );
 
@@ -290,16 +328,25 @@ class EntityDefinitionQueryHelper
         }
         $query->addState($mappingAlias);
 
+        $versionJoin = '';
+        /** @var string|EntityDefinition $definition */
+        if ($definition::isVersionAware() && $mapping::isVersionAware()) {
+            $versionJoin = ' AND #root#.version_id = #alias#.version_id';
+        }
+
         $query->leftJoin(
             self::escape($root),
             self::escape($table),
             self::escape($mappingAlias),
-            sprintf(
-                '%s.%s = %s.%s',
-                self::escape($root),
-                self::escape('id'),
-                self::escape($mappingAlias),
-                self::escape($field->getMappingLocalColumn())
+            str_replace(
+                ['#root#', '#source_column#', '#alias#', '#reference_column#'],
+                [
+                    self::escape($root),
+                    self::escape('id'),
+                    self::escape($mappingAlias),
+                    self::escape($field->getMappingLocalColumn()),
+                ],
+                '#root#.#source_column# = #alias#.#reference_column#' . $versionJoin
             )
         );
 
@@ -309,16 +356,26 @@ class EntityDefinitionQueryHelper
 
         $alias = $root . '.' . $field->getPropertyName();
 
+        $versionJoin = '';
+        /** @var string|EntityDefinition $definition */
+        if ($reference::isVersionAware()) {
+            $versionJoin = 'AND #alias#.version_id = :liveVersion';
+            $query->setParameter('liveVersion', Uuid::fromString(Defaults::LIVE_VERSION)->getBytes());
+        }
+
         $query->leftJoin(
             self::escape($mappingAlias),
             self::escape($table),
             self::escape($alias),
-            sprintf(
-                '%s.%s = %s.%s',
-                self::escape($mappingAlias),
-                self::escape($field->getMappingReferenceColumn()),
-                self::escape($alias),
-                self::escape($field->getReferenceField())
+            str_replace(
+                ['#mapping#', '#source_column#', '#alias#', '#reference_column#'],
+                [
+                    self::escape($mappingAlias),
+                    self::escape($field->getMappingReferenceColumn()),
+                    self::escape($alias),
+                    self::escape($field->getReferenceField())
+                ],
+                '#mapping#.#source_column# = #alias#.#reference_column# ' . $versionJoin
             )
         );
 
@@ -372,6 +429,40 @@ class EntityDefinitionQueryHelper
         }, $ids);
     }
 
+    private static function buildVersionFrom(Connection $connection, QueryBuilder $query, string $definition, TranslationContext $context): void
+    {
+        /** @var string|EntityDefinition $definition */
+        $root = $definition::getEntityName();
+
+        $versionQuery = $connection->createQueryBuilder();
+        $versionQuery->select([
+            'coalesce(draft.id, live.id) as id',
+            'coalesce(draft.version_id, live.version_id) as version_id'
+        ]);
+        $versionQuery->from(self::escape($root), 'live');
+        $versionQuery->leftJoin('live', self::escape($root), 'draft', 'draft.id = live.id AND draft.version_id = :version');
+        $versionQuery->andWhere('live.version_id = :liveVersion');
+
+        $query->setParameter('liveVersion', Uuid::fromString(Defaults::LIVE_VERSION)->getBytes());
+        $query->setParameter('version', Uuid::fromString($context->getVersionId())->getBytes());
+
+        $versionRoot = $root . '_version';
+
+        $query->innerJoin(
+            self::escape($root),
+            '(' . $versionQuery->getSQL() . ')',
+            self::escape($versionRoot),
+            str_replace(
+                ['#version#', '#root#'],
+                [
+                    self::escape($versionRoot),
+                    self::escape($root)
+                ],
+                '#version#.version_id = #root#.version_id AND #version#.id = #root#.id'
+            )
+        );
+    }
+
     private static function joinTranslationTable(string $root, string $definition, QueryBuilder $query, TranslationContext $context): void
     {
         $alias = $root . '.translation';
@@ -387,16 +478,23 @@ class EntityDefinitionQueryHelper
         $languageId = Uuid::fromString($context->getShopId())->getBytes();
         $query->setParameter('languageId', $languageId);
 
+        $versionJoin = '';
+        if ($definition::isVersionAware()) {
+            $versionJoin = ' AND #alias#.version_id = #root#.version_id';
+        }
+
         $query->leftJoin(
             self::escape($root),
             self::escape($table),
             self::escape($alias),
-            sprintf(
-                '%s.%s_id = %s.id AND %s.language_id = :languageId',
-                self::escape($alias),
-                $definition::getEntityName(),
-                self::escape($root),
-                self::escape($alias)
+            str_replace(
+                ['#alias#', '#entity#', '#root#'],
+                [
+                    self::escape($alias),
+                    $definition::getEntityName(),
+                    self::escape($root)
+                ],
+                '#alias#.#entity#_id = #root#.id AND #alias#.language_id = :languageId' . $versionJoin
             )
         );
 
@@ -410,12 +508,14 @@ class EntityDefinitionQueryHelper
             self::escape($root),
             self::escape($table),
             self::escape($alias),
-            sprintf(
-                '%s.%s_id = %s.id AND %s.language_id = :fallbackLanguageId',
-                self::escape($alias),
-                $definition::getEntityName(),
-                self::escape($root),
-                self::escape($alias)
+            str_replace(
+                ['#alias#', '#entity#', '#root#'],
+                [
+                    self::escape($alias),
+                    $definition::getEntityName(),
+                    self::escape($root)
+                ],
+                '#alias#.#entity#_id = #root#.id AND #alias#.language_id = :fallbackLanguageId' . $versionJoin
             )
         );
         $languageId = Uuid::fromString($context->getFallbackId())->getBytes();

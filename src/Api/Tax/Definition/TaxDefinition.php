@@ -25,7 +25,6 @@ use Shopware\Api\Tax\Event\Tax\TaxWrittenEvent;
 use Shopware\Api\Tax\Repository\TaxRepository;
 use Shopware\Api\Tax\Struct\TaxBasicStruct;
 use Shopware\Api\Tax\Struct\TaxDetailStruct;
-use Shopware\Api\Version\Definition\VersionDefinition;
 
 class TaxDefinition extends EntityDefinition
 {
@@ -55,7 +54,8 @@ class TaxDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             (new FloatField('tax_rate', 'rate'))->setFlags(new Required()),

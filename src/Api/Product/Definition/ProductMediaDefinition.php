@@ -21,7 +21,7 @@ use Shopware\Api\Product\Event\ProductMedia\ProductMediaWrittenEvent;
 use Shopware\Api\Product\Repository\ProductMediaRepository;
 use Shopware\Api\Product\Struct\ProductMediaBasicStruct;
 use Shopware\Api\Product\Struct\ProductMediaDetailStruct;
-
+use Shopware\Api\Entity\Field\VersionField;
 class ProductMediaDefinition extends EntityDefinition
 {
     /**
@@ -50,7 +50,8 @@ class ProductMediaDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new Required()),
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->setFlags(new Required()),

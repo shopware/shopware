@@ -22,7 +22,7 @@ use Shopware\Api\Snippet\Event\Snippet\SnippetWrittenEvent;
 use Shopware\Api\Snippet\Repository\SnippetRepository;
 use Shopware\Api\Snippet\Struct\SnippetBasicStruct;
 use Shopware\Api\Snippet\Struct\SnippetDetailStruct;
-
+use Shopware\Api\Entity\Field\VersionField;
 class SnippetDefinition extends EntityDefinition
 {
     /**
@@ -51,7 +51,8 @@ class SnippetDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('shop_id', 'shopId', ShopDefinition::class))->setFlags(new Required()),
             (new StringField('namespace', 'namespace'))->setFlags(new Required()),

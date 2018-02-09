@@ -24,7 +24,7 @@ use Shopware\Api\Plugin\Repository\PluginRepository;
 use Shopware\Api\Plugin\Struct\PluginBasicStruct;
 use Shopware\Api\Plugin\Struct\PluginDetailStruct;
 use Shopware\Api\Shop\Definition\ShopTemplateDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class PluginDefinition extends EntityDefinition
 {
     /**
@@ -53,7 +53,8 @@ class PluginDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new StringField('label', 'label'))->setFlags(new Required()),

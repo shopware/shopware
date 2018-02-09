@@ -19,7 +19,7 @@ use Shopware\Api\Mail\Repository\MailTranslationRepository;
 use Shopware\Api\Mail\Struct\MailTranslationBasicStruct;
 use Shopware\Api\Mail\Struct\MailTranslationDetailStruct;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class MailTranslationDefinition extends EntityDefinition
 {
     /**
@@ -49,6 +49,7 @@ class MailTranslationDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
+            new VersionField(),
             (new FkField('mail_id', 'mailId', MailDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('from_mail', 'fromMail'))->setFlags(new Required()),

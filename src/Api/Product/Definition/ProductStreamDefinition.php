@@ -26,7 +26,7 @@ use Shopware\Api\Product\Event\ProductStream\ProductStreamWrittenEvent;
 use Shopware\Api\Product\Repository\ProductStreamRepository;
 use Shopware\Api\Product\Struct\ProductStreamBasicStruct;
 use Shopware\Api\Product\Struct\ProductStreamDetailStruct;
-
+use Shopware\Api\Entity\Field\VersionField;
 class ProductStreamDefinition extends EntityDefinition
 {
     /**
@@ -55,7 +55,8 @@ class ProductStreamDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new FkField('listing_sorting_id', 'listingSortingId', ListingSortingDefinition::class),
             (new StringField('name', 'name'))->setFlags(new Required()),

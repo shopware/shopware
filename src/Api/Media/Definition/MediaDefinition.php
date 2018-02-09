@@ -31,7 +31,7 @@ use Shopware\Api\Media\Struct\MediaDetailStruct;
 use Shopware\Api\Product\Definition\ProductManufacturerDefinition;
 use Shopware\Api\Product\Definition\ProductMediaDefinition;
 use Shopware\Api\User\Definition\UserDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class MediaDefinition extends EntityDefinition
 {
     /**
@@ -60,7 +60,8 @@ class MediaDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
 
             (new StringField('file_name', 'fileName'))->setFlags(new Required()),

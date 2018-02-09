@@ -31,7 +31,7 @@ use Shopware\Api\Shipping\Repository\ShippingMethodRepository;
 use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Api\Shipping\Struct\ShippingMethodDetailStruct;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class ShippingMethodDefinition extends EntityDefinition
 {
     /**
@@ -60,7 +60,8 @@ class ShippingMethodDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new FkField('customer_group_id', 'customerGroupId', CustomerGroupDefinition::class),
             (new IntField('type', 'type'))->setFlags(new Required()),

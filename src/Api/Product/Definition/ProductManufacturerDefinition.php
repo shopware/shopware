@@ -26,7 +26,7 @@ use Shopware\Api\Product\Event\ProductManufacturer\ProductManufacturerWrittenEve
 use Shopware\Api\Product\Repository\ProductManufacturerRepository;
 use Shopware\Api\Product\Struct\ProductManufacturerBasicStruct;
 use Shopware\Api\Product\Struct\ProductManufacturerDetailStruct;
-
+use Shopware\Api\Entity\Field\VersionField;
 class ProductManufacturerDefinition extends EntityDefinition
 {
     /**
@@ -55,7 +55,8 @@ class ProductManufacturerDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new FkField('media_id', 'mediaId', MediaDefinition::class),
             new TranslatedField(new StringField('name', 'name')),

@@ -20,7 +20,7 @@ use Shopware\Api\Shop\Event\ShopTemplateConfigPreset\ShopTemplateConfigPresetWri
 use Shopware\Api\Shop\Repository\ShopTemplateConfigPresetRepository;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigPresetBasicStruct;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigPresetDetailStruct;
-
+use Shopware\Api\Entity\Field\VersionField;
 class ShopTemplateConfigPresetDefinition extends EntityDefinition
 {
     /**
@@ -49,7 +49,8 @@ class ShopTemplateConfigPresetDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('shop_template_id', 'shopTemplateId', ShopTemplateDefinition::class))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),

@@ -42,7 +42,7 @@ use Shopware\Api\Shop\Repository\ShopRepository;
 use Shopware\Api\Shop\Struct\ShopBasicStruct;
 use Shopware\Api\Shop\Struct\ShopDetailStruct;
 use Shopware\Api\Snippet\Definition\SnippetDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class ShopDefinition extends EntityDefinition
 {
     /**
@@ -71,7 +71,8 @@ class ShopDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new FkField('parent_id', 'parentId', self::class),
             (new FkField('shop_template_id', 'templateId', ShopTemplateDefinition::class))->setFlags(new Required()),

@@ -20,7 +20,7 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Locale\Definition\LocaleDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class ConfigFormTranslationDefinition extends EntityDefinition
 {
     /**
@@ -50,6 +50,7 @@ class ConfigFormTranslationDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('config_form_id', 'configFormId', ConfigFormDefinition::class))->setFlags(new Required()),
             (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new Required()),

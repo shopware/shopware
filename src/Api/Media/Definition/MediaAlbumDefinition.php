@@ -27,7 +27,7 @@ use Shopware\Api\Media\Event\MediaAlbum\MediaAlbumWrittenEvent;
 use Shopware\Api\Media\Repository\MediaAlbumRepository;
 use Shopware\Api\Media\Struct\MediaAlbumBasicStruct;
 use Shopware\Api\Media\Struct\MediaAlbumDetailStruct;
-
+use Shopware\Api\Entity\Field\VersionField;
 class MediaAlbumDefinition extends EntityDefinition
 {
     /**
@@ -56,7 +56,8 @@ class MediaAlbumDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new FkField('parent_id', 'parentId', self::class),
             new TranslatedField(new StringField('name', 'name')),

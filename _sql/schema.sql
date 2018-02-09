@@ -4,6 +4,7 @@ SET FOREIGN_KEY_CHECKS=0;
 
 DROP TABLE IF EXISTS `cart`;
 CREATE TABLE `cart` (
+  `version_id` binary(16) NOT NULL,
   `token` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
   `container` json NOT NULL,
@@ -36,6 +37,10 @@ CREATE TABLE `cart` (
 DROP TABLE IF EXISTS `category`;
 CREATE TABLE `category` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `parent_id` binary(16) DEFAULT NULL,
+  `media_id` binary(16) DEFAULT NULL,
+  `product_stream_id` binary(16) DEFAULT NULL,
   `path` longtext COLLATE utf8mb4_unicode_ci,
   `position` int(11) unsigned NOT NULL DEFAULT '1',
   `level` int(11) unsigned NOT NULL DEFAULT '1',
@@ -49,9 +54,6 @@ CREATE TABLE `category` (
   `hide_sortings` tinyint(1) NOT NULL DEFAULT '0',
   `sorting_ids` longtext COLLATE utf8mb4_unicode_ci,
   `facet_ids` longtext COLLATE utf8mb4_unicode_ci,
-  `parent_id` binary(16) DEFAULT NULL,
-  `media_id` binary(16) DEFAULT NULL,
-  `product_stream_id` binary(16) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -69,6 +71,9 @@ CREATE TABLE `category` (
 
 DROP TABLE IF EXISTS `category_translation`;
 CREATE TABLE `category_translation` (
+  `category_id` binary(16) NOT NULL,
+  `language_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `path_names` longtext COLLATE utf8mb4_unicode_ci,
   `meta_keywords` mediumtext COLLATE utf8mb4_unicode_ci,
@@ -76,8 +81,6 @@ CREATE TABLE `category_translation` (
   `meta_description` mediumtext COLLATE utf8mb4_unicode_ci,
   `cms_headline` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cms_description` mediumtext COLLATE utf8mb4_unicode_ci,
-  `category_id` binary(16) NOT NULL,
-  `language_id` binary(16) NOT NULL,
   PRIMARY KEY (`category_id`,`language_id`),
   KEY `language_id` (`language_id`),
   CONSTRAINT `category_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -88,6 +91,7 @@ CREATE TABLE `category_translation` (
 DROP TABLE IF EXISTS `config_form`;
 CREATE TABLE `config_form` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `position` int(11) NOT NULL DEFAULT '1',
   `parent_id` binary(16) DEFAULT NULL,
@@ -106,6 +110,7 @@ CREATE TABLE `config_form` (
 DROP TABLE IF EXISTS `config_form_field`;
 CREATE TABLE `config_form_field` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `value` text COLLATE utf8mb4_unicode_ci,
   `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -126,6 +131,7 @@ CREATE TABLE `config_form_field` (
 DROP TABLE IF EXISTS `config_form_field_translation`;
 CREATE TABLE `config_form_field_translation` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `label` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `description` text COLLATE utf8mb4_unicode_ci,
   `config_form_field_id` binary(16) NOT NULL,
@@ -141,9 +147,10 @@ CREATE TABLE `config_form_field_translation` (
 DROP TABLE IF EXISTS `config_form_field_value`;
 CREATE TABLE `config_form_field_value` (
   `id` binary(16) NOT NULL,
-  `value` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `config_form_field_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `shop_id` binary(16) DEFAULT NULL,
+  `config_form_field_id` binary(16) NOT NULL,
+  `value` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -157,10 +164,11 @@ CREATE TABLE `config_form_field_value` (
 DROP TABLE IF EXISTS `config_form_translation`;
 CREATE TABLE `config_form_translation` (
   `id` binary(16) NOT NULL,
-  `label` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
+  `version_id` binary(16) NOT NULL,
   `config_form_id` binary(16) NOT NULL,
   `locale_id` binary(16) NOT NULL,
+  `label` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`id`),
   KEY `fk_config_form_translation.config_form_id` (`config_form_id`),
   KEY `fk_config_form_translation.locale_id` (`locale_id`),
@@ -172,6 +180,7 @@ CREATE TABLE `config_form_translation` (
 DROP TABLE IF EXISTS `country`;
 CREATE TABLE `country` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `iso` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `position` int(11) NOT NULL DEFAULT '1',
   `shipping_free` tinyint(1) NOT NULL DEFAULT '0',
@@ -194,6 +203,7 @@ CREATE TABLE `country` (
 DROP TABLE IF EXISTS `country_area`;
 CREATE TABLE `country_area` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `active` tinyint(1) NOT NULL DEFAULT '1',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
@@ -203,9 +213,10 @@ CREATE TABLE `country_area` (
 
 DROP TABLE IF EXISTS `country_area_translation`;
 CREATE TABLE `country_area_translation` (
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `country_area_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`country_area_id`,`language_id`),
   KEY `language_id` (`language_id`),
   CONSTRAINT `country_area_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -216,10 +227,11 @@ CREATE TABLE `country_area_translation` (
 DROP TABLE IF EXISTS `country_state`;
 CREATE TABLE `country_state` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `country_id` binary(16) NOT NULL,
   `short_code` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `position` int(11) NOT NULL DEFAULT '1',
   `active` tinyint(1) NOT NULL DEFAULT '1',
-  `country_id` binary(16) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -230,9 +242,10 @@ CREATE TABLE `country_state` (
 
 DROP TABLE IF EXISTS `country_state_translation`;
 CREATE TABLE `country_state_translation` (
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `country_state_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`country_state_id`,`language_id`),
   KEY `language_id` (`language_id`),
   CONSTRAINT `country_state_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -242,9 +255,10 @@ CREATE TABLE `country_state_translation` (
 
 DROP TABLE IF EXISTS `country_translation`;
 CREATE TABLE `country_translation` (
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `country_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`country_id`,`language_id`),
   KEY `language_id` (`language_id`),
   CONSTRAINT `country_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -255,6 +269,7 @@ CREATE TABLE `country_translation` (
 DROP TABLE IF EXISTS `currency`;
 CREATE TABLE `currency` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `is_default` tinyint(1) NOT NULL DEFAULT '0',
   `factor` double NOT NULL,
   `symbol` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -268,10 +283,11 @@ CREATE TABLE `currency` (
 
 DROP TABLE IF EXISTS `currency_translation`;
 CREATE TABLE `currency_translation` (
-  `short_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `currency_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `short_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`currency_id`,`language_id`),
   KEY `language_id` (`language_id`),
   CONSTRAINT `currency_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -282,6 +298,13 @@ CREATE TABLE `currency_translation` (
 DROP TABLE IF EXISTS `customer`;
 CREATE TABLE `customer` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `customer_group_id` binary(16) NOT NULL,
+  `default_payment_method_id` binary(16) NOT NULL,
+  `shop_id` binary(16) NOT NULL,
+  `last_payment_method_id` binary(16) DEFAULT NULL,
+  `default_billing_address_id` binary(16) NOT NULL,
+  `default_shipping_address_id` binary(16) NOT NULL,
   `customer_number` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
   `salutation` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
   `first_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -304,12 +327,6 @@ CREATE TABLE `customer` (
   `failed_logins` int(11) NOT NULL DEFAULT '0',
   `locked_until` datetime DEFAULT NULL,
   `birthday` date DEFAULT NULL,
-  `customer_group_id` binary(16) NOT NULL,
-  `default_payment_method_id` binary(16) NOT NULL,
-  `shop_id` binary(16) NOT NULL,
-  `last_payment_method_id` binary(16) DEFAULT NULL,
-  `default_billing_address_id` binary(16) NOT NULL,
-  `default_shipping_address_id` binary(16) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -334,6 +351,10 @@ CREATE TABLE `customer` (
 DROP TABLE IF EXISTS `customer_address`;
 CREATE TABLE `customer_address` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `customer_id` binary(16) NOT NULL,
+  `country_id` binary(16) NOT NULL,
+  `country_state_id` binary(16) DEFAULT NULL,
   `company` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `department` varchar(35) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `salutation` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -347,9 +368,6 @@ CREATE TABLE `customer_address` (
   `phone_number` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `additional_address_line1` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `additional_address_line2` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `customer_id` binary(16) NOT NULL,
-  `country_id` binary(16) NOT NULL,
-  `country_state_id` binary(16) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -365,6 +383,7 @@ CREATE TABLE `customer_address` (
 DROP TABLE IF EXISTS `customer_group`;
 CREATE TABLE `customer_group` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `display_gross` tinyint(1) NOT NULL DEFAULT '1',
   `input_gross` tinyint(1) NOT NULL DEFAULT '1',
   `has_global_discount` tinyint(1) NOT NULL DEFAULT '0',
@@ -380,9 +399,10 @@ CREATE TABLE `customer_group` (
 DROP TABLE IF EXISTS `customer_group_discount`;
 CREATE TABLE `customer_group_discount` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `customer_group_id` binary(16) NOT NULL,
   `percentage_discount` double NOT NULL,
   `minimum_cart_amount` double NOT NULL,
-  `customer_group_id` binary(16) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -394,9 +414,10 @@ CREATE TABLE `customer_group_discount` (
 
 DROP TABLE IF EXISTS `customer_group_translation`;
 CREATE TABLE `customer_group_translation` (
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `customer_group_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`customer_group_id`,`language_id`),
   KEY `language_id` (`language_id`),
   CONSTRAINT `customer_group_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -407,6 +428,7 @@ CREATE TABLE `customer_group_translation` (
 DROP TABLE IF EXISTS `listing_facet`;
 CREATE TABLE `listing_facet` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `active` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `unique_key` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `display_in_categories` tinyint(1) unsigned NOT NULL DEFAULT '1',
@@ -423,9 +445,10 @@ CREATE TABLE `listing_facet` (
 
 DROP TABLE IF EXISTS `listing_facet_translation`;
 CREATE TABLE `listing_facet_translation` (
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `listing_facet_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`listing_facet_id`,`language_id`),
   KEY `language_id` (`language_id`),
   CONSTRAINT `listing_facet_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -436,6 +459,7 @@ CREATE TABLE `listing_facet_translation` (
 DROP TABLE IF EXISTS `listing_sorting`;
 CREATE TABLE `listing_sorting` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `active` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `display_in_categories` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `position` int(11) NOT NULL DEFAULT '1',
@@ -449,9 +473,10 @@ CREATE TABLE `listing_sorting` (
 
 DROP TABLE IF EXISTS `listing_sorting_translation`;
 CREATE TABLE `listing_sorting_translation` (
-  `label` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `listing_sorting_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `label` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`listing_sorting_id`,`language_id`),
   KEY `language_id` (`language_id`),
   CONSTRAINT `listing_sorting_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -462,6 +487,7 @@ CREATE TABLE `listing_sorting_translation` (
 DROP TABLE IF EXISTS `locale`;
 CREATE TABLE `locale` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `code` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
@@ -472,10 +498,11 @@ CREATE TABLE `locale` (
 
 DROP TABLE IF EXISTS `locale_translation`;
 CREATE TABLE `locale_translation` (
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `territory` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `locale_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `territory` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`locale_id`,`language_id`),
   KEY `language_id` (`language_id`),
   CONSTRAINT `locale_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -486,6 +513,7 @@ CREATE TABLE `locale_translation` (
 DROP TABLE IF EXISTS `log`;
 CREATE TABLE `log` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `text` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -503,13 +531,14 @@ CREATE TABLE `log` (
 DROP TABLE IF EXISTS `mail`;
 CREATE TABLE `mail` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `order_state_id` binary(16) DEFAULT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `is_html` tinyint(1) NOT NULL,
   `attachment` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `mail_type` int(11) NOT NULL DEFAULT '1',
   `context` longtext COLLATE utf8mb4_unicode_ci,
   `dirty` tinyint(1) DEFAULT NULL,
-  `order_state_id` binary(16) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -522,6 +551,7 @@ CREATE TABLE `mail` (
 DROP TABLE IF EXISTS `mail_attachment`;
 CREATE TABLE `mail_attachment` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `mail_id` binary(16) NOT NULL,
   `media_id` binary(16) NOT NULL,
   `shop_id` binary(16) DEFAULT NULL,
@@ -539,13 +569,14 @@ CREATE TABLE `mail_attachment` (
 
 DROP TABLE IF EXISTS `mail_translation`;
 CREATE TABLE `mail_translation` (
+  `mail_id` binary(16) NOT NULL,
+  `language_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `from_mail` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `from_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `subject` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `content` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `content_html` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `mail_id` binary(16) NOT NULL,
-  `language_id` binary(16) NOT NULL,
   PRIMARY KEY (`mail_id`,`language_id`),
   KEY `language_id` (`language_id`),
   CONSTRAINT `mail_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -556,12 +587,13 @@ CREATE TABLE `mail_translation` (
 DROP TABLE IF EXISTS `media`;
 CREATE TABLE `media` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `media_album_id` binary(16) NOT NULL,
+  `user_id` binary(16) DEFAULT NULL,
   `file_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `mime_type` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `file_size` int(10) unsigned NOT NULL,
   `meta_data` text COLLATE utf8mb4_unicode_ci,
-  `media_album_id` binary(16) NOT NULL,
-  `user_id` binary(16) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -576,6 +608,8 @@ CREATE TABLE `media` (
 DROP TABLE IF EXISTS `media_album`;
 CREATE TABLE `media_album` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `parent_id` binary(16) DEFAULT NULL,
   `position` int(11) NOT NULL DEFAULT '1',
   `create_thumbnails` tinyint(1) NOT NULL DEFAULT '0',
   `thumbnail_size` text COLLATE utf8mb4_unicode_ci,
@@ -583,7 +617,6 @@ CREATE TABLE `media_album` (
   `thumbnail_high_dpi` tinyint(1) NOT NULL DEFAULT '1',
   `thumbnail_quality` int(11) DEFAULT NULL,
   `thumbnail_high_dpi_quality` int(11) DEFAULT NULL,
-  `parent_id` binary(16) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -594,9 +627,10 @@ CREATE TABLE `media_album` (
 
 DROP TABLE IF EXISTS `media_album_translation`;
 CREATE TABLE `media_album_translation` (
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `media_album_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`media_album_id`,`language_id`),
   KEY `language_id` (`language_id`),
   CONSTRAINT `media_album_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -606,10 +640,11 @@ CREATE TABLE `media_album_translation` (
 
 DROP TABLE IF EXISTS `media_translation`;
 CREATE TABLE `media_translation` (
+  `language_id` binary(16) NOT NULL,
+  `media_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` text COLLATE utf8mb4_unicode_ci,
-  `media_id` binary(16) NOT NULL,
-  `language_id` binary(16) NOT NULL,
   PRIMARY KEY (`media_id`,`language_id`),
   KEY `language_id` (`language_id`),
   CONSTRAINT `media_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -620,6 +655,13 @@ CREATE TABLE `media_translation` (
 DROP TABLE IF EXISTS `order`;
 CREATE TABLE `order` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `customer_id` binary(16) NOT NULL,
+  `order_state_id` binary(16) NOT NULL,
+  `payment_method_id` binary(16) NOT NULL,
+  `currency_id` binary(16) NOT NULL,
+  `shop_id` binary(16) NOT NULL,
+  `billing_address_id` binary(16) NOT NULL,
   `order_date` datetime NOT NULL,
   `amount_total` double NOT NULL,
   `position_price` double NOT NULL,
@@ -628,12 +670,6 @@ CREATE TABLE `order` (
   `is_tax_free` tinyint(1) NOT NULL,
   `context` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `customer_id` binary(16) NOT NULL,
-  `order_state_id` binary(16) NOT NULL,
-  `payment_method_id` binary(16) NOT NULL,
-  `currency_id` binary(16) NOT NULL,
-  `shop_id` binary(16) NOT NULL,
-  `billing_address_id` binary(16) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -655,6 +691,9 @@ CREATE TABLE `order` (
 DROP TABLE IF EXISTS `order_address`;
 CREATE TABLE `order_address` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `country_id` binary(16) NOT NULL,
+  `country_state_id` binary(16) DEFAULT NULL,
   `company` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `department` varchar(35) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `salutation` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -668,8 +707,6 @@ CREATE TABLE `order_address` (
   `phone_number` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `additional_address_line1` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `additional_address_line2` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `country_id` binary(16) NOT NULL,
-  `country_state_id` binary(16) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -683,14 +720,15 @@ CREATE TABLE `order_address` (
 DROP TABLE IF EXISTS `order_delivery`;
 CREATE TABLE `order_delivery` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `order_id` binary(16) NOT NULL,
+  `shipping_address_id` binary(16) NOT NULL,
+  `shipping_method_id` binary(16) NOT NULL,
+  `order_state_id` binary(16) NOT NULL,
   `tracking_code` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `shipping_date_earliest` date NOT NULL,
   `shipping_date_latest` date NOT NULL,
   `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `order_id` binary(16) NOT NULL,
-  `shipping_address_id` binary(16) NOT NULL,
-  `order_state_id` binary(16) NOT NULL,
-  `shipping_method_id` binary(16) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -708,12 +746,13 @@ CREATE TABLE `order_delivery` (
 DROP TABLE IF EXISTS `order_delivery_position`;
 CREATE TABLE `order_delivery_position` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `order_delivery_id` binary(16) NOT NULL,
+  `order_line_item_id` binary(16) NOT NULL,
   `unit_price` double NOT NULL,
   `total_price` double NOT NULL,
   `quantity` double NOT NULL,
   `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `order_delivery_id` binary(16) NOT NULL,
-  `order_line_item_id` binary(16) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -727,6 +766,7 @@ CREATE TABLE `order_delivery_position` (
 DROP TABLE IF EXISTS `order_line_item`;
 CREATE TABLE `order_line_item` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `parent_id` binary(16) DEFAULT NULL,
   `identifier` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `quantity` int(11) NOT NULL,
@@ -746,6 +786,7 @@ CREATE TABLE `order_line_item` (
 DROP TABLE IF EXISTS `order_state`;
 CREATE TABLE `order_state` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `position` int(11) NOT NULL DEFAULT '1',
   `has_mail` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
@@ -756,9 +797,10 @@ CREATE TABLE `order_state` (
 
 DROP TABLE IF EXISTS `order_state_translation`;
 CREATE TABLE `order_state_translation` (
-  `description` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `order_state_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `description` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`order_state_id`,`language_id`),
   KEY `language_id` (`language_id`),
   CONSTRAINT `order_state_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -769,6 +811,7 @@ CREATE TABLE `order_state_translation` (
 DROP TABLE IF EXISTS `payment_method`;
 CREATE TABLE `payment_method` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `technical_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `template` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `class` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -798,10 +841,11 @@ CREATE TABLE `payment_method` (
 
 DROP TABLE IF EXISTS `payment_method_translation`;
 CREATE TABLE `payment_method_translation` (
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `additional_description` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `payment_method_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `additional_description` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`payment_method_id`,`language_id`),
   KEY `language_id` (`language_id`),
   CONSTRAINT `payment_method_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -812,6 +856,7 @@ CREATE TABLE `payment_method_translation` (
 DROP TABLE IF EXISTS `plugin`;
 CREATE TABLE `plugin` (
   `id` VARCHAR(250) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `label` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` mediumtext COLLATE utf8mb4_unicode_ci,
@@ -844,6 +889,7 @@ CREATE TABLE `plugin` (
 DROP TABLE IF EXISTS `product`;
 CREATE TABLE `product` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `active` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `price` decimal(10,3) DEFAULT NULL,
   `parent_id` binary(16) DEFAULT NULL,
@@ -899,6 +945,7 @@ DROP TABLE IF EXISTS `product_category`;
 CREATE TABLE `product_category` (
   `product_id` binary(16) NOT NULL,
   `category_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`product_id`, `category_id`),
@@ -910,6 +957,7 @@ CREATE TABLE `product_category` (
 
 CREATE TABLE `search_keyword` (
   `keyword` varchar(500) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `shop_id` binary(16) NOT NULL,
   PRIMARY KEY `keyword_shop_uuid` (`keyword`, `shop_id`),
   CONSTRAINT `fk_search_keyword.shop_id` FOREIGN KEY (`shop_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -917,6 +965,7 @@ CREATE TABLE `search_keyword` (
 
 CREATE TABLE `product_search_keyword` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `keyword` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
   `shop_id` binary(16) NOT NULL,
   `product_id` binary(16) NOT NULL,
@@ -932,6 +981,7 @@ CREATE TABLE `product_search_keyword` (
 DROP TABLE IF EXISTS `product_manufacturer`;
 CREATE TABLE `product_manufacturer` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `link` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
   `media_id` binary(16) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
@@ -944,13 +994,14 @@ CREATE TABLE `product_manufacturer` (
 
 DROP TABLE IF EXISTS `product_manufacturer_translation`;
 CREATE TABLE `product_manufacturer_translation` (
+  `product_manufacturer_id` binary(16) NOT NULL,
+  `language_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` longtext COLLATE utf8mb4_unicode_ci,
   `meta_title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `meta_description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `meta_keywords` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `product_manufacturer_id` binary(16) NOT NULL,
-  `language_id` binary(16) NOT NULL,
   PRIMARY KEY (`product_manufacturer_id`,`language_id`),
   KEY `language_id` (`language_id`),
   CONSTRAINT `product_manufacturer_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -961,6 +1012,7 @@ CREATE TABLE `product_manufacturer_translation` (
 DROP TABLE IF EXISTS `product_media`;
 CREATE TABLE `product_media` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `is_cover` tinyint(1) NOT NULL,
   `position` int(11) NOT NULL DEFAULT '1',
   `product_id` binary(16) NOT NULL,
@@ -979,6 +1031,7 @@ DROP TABLE IF EXISTS `product_seo_category`;
 CREATE TABLE `product_seo_category` (
   `shop_id` binary(16) NOT NULL,
   `product_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `category_id` binary(16) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
@@ -994,6 +1047,7 @@ CREATE TABLE `product_seo_category` (
 DROP TABLE IF EXISTS `product_stream`;
 CREATE TABLE `product_stream` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `conditions` text COLLATE utf8mb4_unicode_ci,
   `type` int(11) DEFAULT NULL,
@@ -1010,6 +1064,7 @@ CREATE TABLE `product_stream` (
 DROP TABLE IF EXISTS `product_stream_assignment`;
 CREATE TABLE `product_stream_assignment` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `product_stream_id` binary(16) NOT NULL,
   `product_id` binary(16) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
@@ -1025,6 +1080,7 @@ CREATE TABLE `product_stream_assignment` (
 DROP TABLE IF EXISTS `product_stream_tab`;
 CREATE TABLE `product_stream_tab` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `product_stream_id` binary(16) NOT NULL,
   `product_id` binary(16) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
@@ -1039,6 +1095,9 @@ CREATE TABLE `product_stream_tab` (
 
 DROP TABLE IF EXISTS `product_translation`;
 CREATE TABLE `product_translation` (
+  `product_id` binary(16) NOT NULL,
+  `language_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `additional_text` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
   `keywords` mediumtext COLLATE utf8mb4_unicode_ci,
@@ -1046,8 +1105,6 @@ CREATE TABLE `product_translation` (
   `description_long` mediumtext COLLATE utf8mb4_unicode_ci,
   `meta_title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `pack_unit` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `product_id` binary(16) NOT NULL,
-  `language_id` binary(16) NOT NULL,
   PRIMARY KEY (`product_id`,`language_id`),
   KEY `fk_product_trans.language_id` (`language_id`),
   CONSTRAINT `fk_product_trans.language_id` FOREIGN KEY (`language_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -1068,12 +1125,13 @@ CREATE TABLE `schema_version` (
 DROP TABLE IF EXISTS `seo_url`;
 CREATE TABLE `seo_url` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `shop_id` binary(16) NOT NULL,
   `name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `foreign_key` binary(16) NOT NULL,
   `path_info` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `seo_path_info` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `is_canonical` tinyint(1) NOT NULL DEFAULT '0',
-  `shop_id` binary(16) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -1105,6 +1163,7 @@ CREATE TABLE `sessions` (
 DROP TABLE IF EXISTS `shipping_method`;
 CREATE TABLE `shipping_method` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `type` int(11) unsigned NOT NULL,
   `active` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `position` int(11) NOT NULL DEFAULT '1',
@@ -1138,10 +1197,11 @@ CREATE TABLE `shipping_method` (
 DROP TABLE IF EXISTS `shipping_method_price`;
 CREATE TABLE `shipping_method_price` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `shipping_method_id` binary(16) NOT NULL,
   `quantity_from` decimal(10,3) unsigned NOT NULL,
   `price` decimal(10,2) NOT NULL,
   `factor` decimal(10,2) NOT NULL,
-  `shipping_method_id` binary(16) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -1153,11 +1213,12 @@ CREATE TABLE `shipping_method_price` (
 
 DROP TABLE IF EXISTS `shipping_method_translation`;
 CREATE TABLE `shipping_method_translation` (
+  `shipping_method_id` binary(16) NOT NULL,
+  `language_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` mediumtext COLLATE utf8mb4_unicode_ci,
   `comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `shipping_method_id` binary(16) NOT NULL,
-  `language_id` binary(16) NOT NULL,
   PRIMARY KEY (`shipping_method_id`,`language_id`),
   KEY `language_id` (`language_id`),
   CONSTRAINT `shipping_method_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -1168,18 +1229,10 @@ CREATE TABLE `shipping_method_translation` (
 DROP TABLE IF EXISTS `shop`;
 CREATE TABLE `shop` (
   `id` binary(16) NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `position` int(11) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `host` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `base_path` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `base_url` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `hosts` text COLLATE utf8mb4_unicode_ci,
-  `is_secure` tinyint(1) unsigned NOT NULL DEFAULT '1',
-  `customer_scope` tinyint(1) NOT NULL DEFAULT '0',
-  `is_default` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `active` tinyint(1) NOT NULL DEFAULT '1',
-  `tax_calculation_type` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'vertical',
   `parent_id` binary(16) DEFAULT NULL,
   `shop_template_id` binary(16) NOT NULL,
   `document_template_id` binary(16) NOT NULL,
@@ -1191,6 +1244,15 @@ CREATE TABLE `shop` (
   `payment_method_id` binary(16) NOT NULL,
   `shipping_method_id` binary(16) NOT NULL,
   `country_id` binary(16) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `position` int(11) NOT NULL,
+  `hosts` text COLLATE utf8mb4_unicode_ci,
+  `is_secure` tinyint(1) unsigned NOT NULL DEFAULT '1',
+  `customer_scope` tinyint(1) NOT NULL DEFAULT '0',
+  `is_default` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `active` tinyint(1) NOT NULL DEFAULT '1',
+  `tax_calculation_type` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'vertical',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -1223,6 +1285,7 @@ CREATE TABLE `shop` (
 DROP TABLE IF EXISTS `shop_currency`;
 CREATE TABLE `shop_currency` (
   `shop_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `currency_id` binary(16) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
@@ -1236,6 +1299,7 @@ CREATE TABLE `shop_currency` (
 DROP TABLE IF EXISTS `shop_template`;
 CREATE TABLE `shop_template` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `template` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -1261,6 +1325,7 @@ CREATE TABLE `shop_template` (
 DROP TABLE IF EXISTS `shop_template_config_form`;
 CREATE TABLE `shop_template_config_form` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -1280,6 +1345,7 @@ CREATE TABLE `shop_template_config_form` (
 DROP TABLE IF EXISTS `shop_template_config_form_field`;
 CREATE TABLE `shop_template_config_form_field` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `position` int(11) NOT NULL DEFAULT '0',
@@ -1306,6 +1372,7 @@ CREATE TABLE `shop_template_config_form_field` (
 DROP TABLE IF EXISTS `shop_template_config_form_field_value`;
 CREATE TABLE `shop_template_config_form_field_value` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `value` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `shop_template_config_form_field_id` binary(16) NOT NULL,
   `shop_id` binary(16) NOT NULL,
@@ -1322,6 +1389,7 @@ CREATE TABLE `shop_template_config_form_field_value` (
 DROP TABLE IF EXISTS `shop_template_config_preset`;
 CREATE TABLE `shop_template_config_preset` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `element_values` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1337,6 +1405,7 @@ CREATE TABLE `shop_template_config_preset` (
 DROP TABLE IF EXISTS `snippet`;
 CREATE TABLE `snippet` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `namespace` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `locale` varchar(5) COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1393,10 +1462,10 @@ CREATE TABLE `tax_area_rule` (
 
 DROP TABLE IF EXISTS `tax_area_rule_translation`;
 CREATE TABLE `tax_area_rule_translation` (
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `version_id` binary(16) NOT NULL,
   `tax_area_rule_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`tax_area_rule_id`,`language_id`, `version_id`),
   KEY `language_id` (`language_id`),
   CONSTRAINT `tax_area_rule_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -1407,6 +1476,7 @@ CREATE TABLE `tax_area_rule_translation` (
 DROP TABLE IF EXISTS `unit`;
 CREATE TABLE `unit` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
@@ -1415,10 +1485,11 @@ CREATE TABLE `unit` (
 
 DROP TABLE IF EXISTS `unit_translation`;
 CREATE TABLE `unit_translation` (
-  `short_code` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `unit_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `short_code` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`unit_id`,`language_id`),
   KEY `language_id` (`language_id`),
   CONSTRAINT `unit_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -1429,6 +1500,7 @@ CREATE TABLE `unit_translation` (
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
   `username` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `encoder` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'LegacyBackendMd5',

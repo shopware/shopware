@@ -29,7 +29,7 @@ use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Order\Definition\OrderDefinition;
 use Shopware\Api\Shop\Definition\ShopCurrencyDefinition;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class CurrencyDefinition extends EntityDefinition
 {
     /**
@@ -58,7 +58,8 @@ class CurrencyDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FloatField('factor', 'factor'))->setFlags(new Required()),
             (new StringField('symbol', 'symbol'))->setFlags(new Required()),

@@ -20,7 +20,7 @@ use Shopware\Api\Order\Event\OrderDeliveryPosition\OrderDeliveryPositionWrittenE
 use Shopware\Api\Order\Repository\OrderDeliveryPositionRepository;
 use Shopware\Api\Order\Struct\OrderDeliveryPositionBasicStruct;
 use Shopware\Api\Order\Struct\OrderDeliveryPositionDetailStruct;
-
+use Shopware\Api\Entity\Field\VersionField;
 class OrderDeliveryPositionDefinition extends EntityDefinition
 {
     /**
@@ -49,7 +49,8 @@ class OrderDeliveryPositionDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('order_delivery_id', 'orderDeliveryId', OrderDeliveryDefinition::class))->setFlags(new Required()),
             (new FkField('order_line_item_id', 'orderLineItemId', OrderLineItemDefinition::class))->setFlags(new Required()),

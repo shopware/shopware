@@ -24,7 +24,7 @@ use Shopware\Api\User\Event\User\UserWrittenEvent;
 use Shopware\Api\User\Repository\UserRepository;
 use Shopware\Api\User\Struct\UserBasicStruct;
 use Shopware\Api\User\Struct\UserDetailStruct;
-
+use Shopware\Api\Entity\Field\VersionField;
 class UserDefinition extends EntityDefinition
 {
     /**
@@ -53,7 +53,8 @@ class UserDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new Required()),
             (new StringField('username', 'username'))->setFlags(new Required()),

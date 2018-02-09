@@ -18,7 +18,7 @@ use Shopware\Api\Listing\Repository\ListingSortingTranslationRepository;
 use Shopware\Api\Listing\Struct\ListingSortingTranslationBasicStruct;
 use Shopware\Api\Listing\Struct\ListingSortingTranslationDetailStruct;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class ListingSortingTranslationDefinition extends EntityDefinition
 {
     /**
@@ -47,7 +47,8 @@ class ListingSortingTranslationDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new FkField('listing_sorting_id', 'listingSortingId', ListingSortingDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('label', 'label'))->setFlags(new Required()),

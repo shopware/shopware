@@ -19,7 +19,7 @@ use Shopware\Api\Shipping\Event\ShippingMethodPrice\ShippingMethodPriceWrittenEv
 use Shopware\Api\Shipping\Repository\ShippingMethodPriceRepository;
 use Shopware\Api\Shipping\Struct\ShippingMethodPriceBasicStruct;
 use Shopware\Api\Shipping\Struct\ShippingMethodPriceDetailStruct;
-
+use Shopware\Api\Entity\Field\VersionField;
 class ShippingMethodPriceDefinition extends EntityDefinition
 {
     /**
@@ -48,7 +48,8 @@ class ShippingMethodPriceDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->setFlags(new Required()),
             (new FloatField('quantity_from', 'quantityFrom'))->setFlags(new Required()),

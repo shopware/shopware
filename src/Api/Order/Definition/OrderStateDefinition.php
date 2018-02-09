@@ -25,7 +25,7 @@ use Shopware\Api\Order\Event\OrderState\OrderStateWrittenEvent;
 use Shopware\Api\Order\Repository\OrderStateRepository;
 use Shopware\Api\Order\Struct\OrderStateBasicStruct;
 use Shopware\Api\Order\Struct\OrderStateDetailStruct;
-
+use Shopware\Api\Entity\Field\VersionField;
 class OrderStateDefinition extends EntityDefinition
 {
     /**
@@ -54,7 +54,8 @@ class OrderStateDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new TranslatedField(new StringField('description', 'description')),
             new IntField('position', 'position'),

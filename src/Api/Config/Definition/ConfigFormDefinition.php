@@ -26,7 +26,7 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Plugin\Definition\PluginDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class ConfigFormDefinition extends EntityDefinition
 {
     /**
@@ -55,7 +55,8 @@ class ConfigFormDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new FkField('parent_id', 'parentId', self::class),
             new FkField('plugin_id', 'pluginId', PluginDefinition::class),

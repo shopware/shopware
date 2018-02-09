@@ -12,7 +12,7 @@ use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Product\Event\ProductSeoCategory\ProductSeoCategoryDeletedEvent;
 use Shopware\Api\Product\Event\ProductSeoCategory\ProductSeoCategoryWrittenEvent;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class ProductSeoCategoryDefinition extends MappingEntityDefinition
 {
     /**
@@ -36,7 +36,8 @@ class ProductSeoCategoryDefinition extends MappingEntityDefinition
             return self::$fields;
         }
 
-        return self::$fields = new FieldCollection([
+        return self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new FkField('shop_id', 'shopId', ShopDefinition::class))->setFlags(new Required()),
             (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new Required()),
             (new FkField('category_id', 'categoryId', CategoryDefinition::class))->setFlags(new Required()),

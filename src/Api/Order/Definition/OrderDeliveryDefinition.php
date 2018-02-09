@@ -23,7 +23,7 @@ use Shopware\Api\Order\Repository\OrderDeliveryRepository;
 use Shopware\Api\Order\Struct\OrderDeliveryBasicStruct;
 use Shopware\Api\Order\Struct\OrderDeliveryDetailStruct;
 use Shopware\Api\Shipping\Definition\ShippingMethodDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class OrderDeliveryDefinition extends EntityDefinition
 {
     /**
@@ -52,7 +52,8 @@ class OrderDeliveryDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('order_id', 'orderId', OrderDefinition::class))->setFlags(new Required()),
             (new FkField('shipping_address_id', 'shippingAddressId', OrderAddressDefinition::class))->setFlags(new Required()),

@@ -20,7 +20,7 @@ use Shopware\Api\Product\Repository\ProductTranslationRepository;
 use Shopware\Api\Product\Struct\ProductTranslationBasicStruct;
 use Shopware\Api\Product\Struct\ProductTranslationDetailStruct;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class ProductTranslationDefinition extends EntityDefinition
 {
     /**
@@ -50,6 +50,7 @@ class ProductTranslationDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
+            new VersionField(),
             (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             new StringField('additional_text', 'additionalText'),

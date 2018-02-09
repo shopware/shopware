@@ -58,7 +58,8 @@ class TaxAreaRuleDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             (new FkField('tax_id', 'taxId', TaxDefinition::class))->setFlags(new Required()),

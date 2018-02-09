@@ -19,7 +19,7 @@ use Shopware\Api\Payment\Repository\PaymentMethodTranslationRepository;
 use Shopware\Api\Payment\Struct\PaymentMethodTranslationBasicStruct;
 use Shopware\Api\Payment\Struct\PaymentMethodTranslationDetailStruct;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class PaymentMethodTranslationDefinition extends EntityDefinition
 {
     /**
@@ -48,7 +48,8 @@ class PaymentMethodTranslationDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),

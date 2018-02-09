@@ -27,7 +27,7 @@ use Shopware\Api\Order\Struct\OrderBasicStruct;
 use Shopware\Api\Order\Struct\OrderDetailStruct;
 use Shopware\Api\Payment\Definition\PaymentMethodDefinition;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class OrderDefinition extends EntityDefinition
 {
     /**
@@ -57,6 +57,7 @@ class OrderDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('customer_id', 'customerId', CustomerDefinition::class))->setFlags(new Required()),
             (new FkField('order_state_id', 'stateId', OrderStateDefinition::class))->setFlags(new Required()),

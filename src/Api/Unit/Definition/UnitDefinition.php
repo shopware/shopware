@@ -23,7 +23,7 @@ use Shopware\Api\Unit\Event\Unit\UnitWrittenEvent;
 use Shopware\Api\Unit\Repository\UnitRepository;
 use Shopware\Api\Unit\Struct\UnitBasicStruct;
 use Shopware\Api\Unit\Struct\UnitDetailStruct;
-
+use Shopware\Api\Entity\Field\VersionField;
 class UnitDefinition extends EntityDefinition
 {
     /**
@@ -53,6 +53,7 @@ class UnitDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new TranslatedField(new StringField('short_code', 'shortCode')),
             new TranslatedField(new StringField('name', 'name')),

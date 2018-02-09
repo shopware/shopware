@@ -3,6 +3,7 @@
 namespace Shopware\Api\Entity\Dbal;
 
 use Doctrine\DBAL\Connection;
+use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Entity\EntityDefinition;
@@ -22,6 +23,7 @@ use Shopware\Api\Entity\Write\Flag\Deferred;
 use Shopware\Api\Entity\Write\Flag\Extension;
 use Shopware\Api\Entity\Write\Flag\Inherited;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Defaults;
 use Shopware\Framework\Struct\Struct;
 
 class EntityReader implements EntityReaderInterface
@@ -84,7 +86,6 @@ class EntityReader implements EntityReaderInterface
 
         /** @var EntityDefinition $definition */
         $rows = $this->fetch($ids, $definition, $context, $fields);
-
         foreach ($rows as $row) {
             $collection->add(
                 EntityHydrator::hydrate(clone $entity, $definition, $row, $definition::getEntityName())
@@ -167,7 +168,7 @@ class EntityReader implements EntityReaderInterface
 
             //add sub select for many to many field
             if ($field instanceof ManyToManyAssociationField) {
-                $this->addManyToManySelect($root, $field, $query);
+                $this->addManyToManySelect($definition, $root, $field, $query);
                 continue;
             }
 
@@ -220,8 +221,7 @@ class EntityReader implements EntityReaderInterface
     {
         $table = $definition::getEntityName();
 
-        $query = new QueryBuilder($this->connection);
-        $query->from(EntityDefinitionQueryHelper::escape($table), EntityDefinitionQueryHelper::escape($table));
+        $query = EntityDefinitionQueryHelper::getBaseQuery($this->connection, $definition, $context);
 
         $this->joinBasic($definition, $context, $table, $query, $fields);
 
@@ -340,10 +340,16 @@ class EntityReader implements EntityReaderInterface
         }
     }
 
-    private function addManyToManySelect(string $root, ManyToManyAssociationField $field, QueryBuilder $query): void
+    private function addManyToManySelect(string $definition, string $root, ManyToManyAssociationField $field, QueryBuilder $query): void
     {
         /** @var EntityDefinition $mapping */
         $mapping = $field->getMappingDefinition();
+
+        $versionCondition = '';
+        /** @var string|EntityDefinition $definition */
+        if ($mapping::isVersionAware() && $definition::isVersionAware()) {
+            $versionCondition = 'AND #alias#.version_id = #root#.version_id';
+        }
 
         $query->addSelect(
             str_replace(
@@ -367,7 +373,9 @@ class EntityReader implements EntityReaderInterface
                 ],
                 '(SELECT GROUP_CONCAT(HEX(#alias#.#mapping_reference_column#) SEPARATOR \'||\')
                   FROM #mapping_table# #alias#
-                  WHERE #alias#.#mapping_local_column# = #root#.#source_column#) as #property#'
+                  WHERE #alias#.#mapping_local_column# = #root#.#source_column#
+                  '. $versionCondition .'
+                  ) as #property#'
             )
         );
     }

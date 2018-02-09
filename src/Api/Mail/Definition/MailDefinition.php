@@ -27,7 +27,7 @@ use Shopware\Api\Mail\Repository\MailRepository;
 use Shopware\Api\Mail\Struct\MailBasicStruct;
 use Shopware\Api\Mail\Struct\MailDetailStruct;
 use Shopware\Api\Order\Definition\OrderStateDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class MailDefinition extends EntityDefinition
 {
     /**
@@ -57,6 +57,7 @@ class MailDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new FkField('order_state_id', 'orderStateId', OrderStateDefinition::class),
             (new StringField('name', 'name'))->setFlags(new Required()),

@@ -19,7 +19,7 @@ use Shopware\Api\Media\Repository\MediaTranslationRepository;
 use Shopware\Api\Media\Struct\MediaTranslationBasicStruct;
 use Shopware\Api\Media\Struct\MediaTranslationDetailStruct;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class MediaTranslationDefinition extends EntityDefinition
 {
     /**
@@ -49,6 +49,7 @@ class MediaTranslationDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
+            new VersionField(),
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),

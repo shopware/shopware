@@ -137,4 +137,9 @@ abstract class EntityDefinition
 
         return array_filter($associations);
     }
+
+    public static function isVersionAware(): bool
+    {
+        return static::getFields()->has('versionId');
+    }
 }

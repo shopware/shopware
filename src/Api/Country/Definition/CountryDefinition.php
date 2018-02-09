@@ -30,7 +30,7 @@ use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Order\Definition\OrderAddressDefinition;
 use Shopware\Api\Shop\Definition\ShopDefinition;
 use Shopware\Api\Tax\Definition\TaxAreaRuleDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class CountryDefinition extends EntityDefinition
 {
     /**
@@ -60,6 +60,7 @@ class CountryDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new FkField('country_area_id', 'areaId', CountryAreaDefinition::class),
             new TranslatedField(new StringField('name', 'name')),

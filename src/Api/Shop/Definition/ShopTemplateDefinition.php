@@ -25,7 +25,7 @@ use Shopware\Api\Shop\Event\ShopTemplate\ShopTemplateWrittenEvent;
 use Shopware\Api\Shop\Repository\ShopTemplateRepository;
 use Shopware\Api\Shop\Struct\ShopTemplateBasicStruct;
 use Shopware\Api\Shop\Struct\ShopTemplateDetailStruct;
-
+use Shopware\Api\Entity\Field\VersionField;
 class ShopTemplateDefinition extends EntityDefinition
 {
     /**
@@ -54,7 +54,8 @@ class ShopTemplateDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new FkField('plugin_id', 'pluginId', PluginDefinition::class),
             new FkField('parent_id', 'parentId', self::class),

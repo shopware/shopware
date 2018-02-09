@@ -96,4 +96,14 @@ class TranslationContext extends Struct
     {
         return $this->versionId;
     }
+
+    public function createWithVersionId(string $versionId)
+    {
+        return new self(
+            $this->shopId,
+            $this->isDefaultShop,
+            $this->fallbackId,
+            $versionId
+        );
+    }
 }

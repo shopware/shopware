@@ -22,7 +22,7 @@ use Shopware\Api\Shop\Event\ShopTemplateConfigForm\ShopTemplateConfigFormWritten
 use Shopware\Api\Shop\Repository\ShopTemplateConfigFormRepository;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigFormBasicStruct;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigFormDetailStruct;
-
+use Shopware\Api\Entity\Field\VersionField;
 class ShopTemplateConfigFormDefinition extends EntityDefinition
 {
     /**
@@ -52,6 +52,7 @@ class ShopTemplateConfigFormDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new FkField('parent_id', 'parentId', self::class),
             (new FkField('shop_template_id', 'shopTemplateId', ShopTemplateDefinition::class))->setFlags(new Required()),

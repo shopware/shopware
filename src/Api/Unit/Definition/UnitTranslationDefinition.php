@@ -18,7 +18,7 @@ use Shopware\Api\Unit\Event\UnitTranslation\UnitTranslationWrittenEvent;
 use Shopware\Api\Unit\Repository\UnitTranslationRepository;
 use Shopware\Api\Unit\Struct\UnitTranslationBasicStruct;
 use Shopware\Api\Unit\Struct\UnitTranslationDetailStruct;
-
+use Shopware\Api\Entity\Field\VersionField;
 class UnitTranslationDefinition extends EntityDefinition
 {
     /**
@@ -48,6 +48,7 @@ class UnitTranslationDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
+            new VersionField(),
             (new FkField('unit_id', 'unitId', UnitDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('short_code', 'shortCode'))->setFlags(new Required()),

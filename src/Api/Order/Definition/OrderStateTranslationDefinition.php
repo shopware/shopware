@@ -18,7 +18,7 @@ use Shopware\Api\Order\Repository\OrderStateTranslationRepository;
 use Shopware\Api\Order\Struct\OrderStateTranslationBasicStruct;
 use Shopware\Api\Order\Struct\OrderStateTranslationDetailStruct;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class OrderStateTranslationDefinition extends EntityDefinition
 {
     /**
@@ -47,7 +47,8 @@ class OrderStateTranslationDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new FkField('order_state_id', 'orderStateId', OrderStateDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('description', 'description'))->setFlags(new Required()),

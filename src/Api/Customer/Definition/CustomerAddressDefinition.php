@@ -21,7 +21,7 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
-
+use Shopware\Api\Entity\Field\VersionField;
 class CustomerAddressDefinition extends EntityDefinition
 {
     /**
@@ -51,6 +51,7 @@ class CustomerAddressDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('customer_id', 'customerId', CustomerDefinition::class))->setFlags(new Required()),
             (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),

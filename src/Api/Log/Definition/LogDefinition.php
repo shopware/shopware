@@ -16,7 +16,7 @@ use Shopware\Api\Log\Event\Log\LogDeletedEvent;
 use Shopware\Api\Log\Event\Log\LogWrittenEvent;
 use Shopware\Api\Log\Repository\LogRepository;
 use Shopware\Api\Log\Struct\LogBasicStruct;
-
+use Shopware\Api\Entity\Field\VersionField;
 class LogDefinition extends EntityDefinition
 {
     /**
@@ -45,7 +45,8 @@ class LogDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('type', 'type'))->setFlags(new Required()),
             (new StringField('key', 'key'))->setFlags(new Required()),

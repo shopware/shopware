@@ -173,7 +173,7 @@ class VersionManager
                         $payload = json_decode($data->getPayload(), true);
                         $payload['versionId'] = Defaults::LIVE_VERSION;
                         $this->entityWriter->upsert($dataDefinition, [$payload], $context);
-                    break;
+                        break;
 
                     case 'delete':
                         $id = $data->getEntityId();
@@ -182,7 +182,6 @@ class VersionManager
                         $this->entityWriter->delete($dataDefinition, [$id], $context);
                         break;
                 }
-
             }
 
             $this->entityWriter->delete(VersionCommitDefinition::class, [['id' => $commit->getId()]], $context);
@@ -207,6 +206,7 @@ class VersionManager
         $commit = [
             'versionId' => Defaults::LIVE_VERSION,
             'data' => $newData,
+//            'merge' => true,  //todo add flag for merge commit
             'message' => 'merge commit ' . (new \DateTime())->format(\DateTime::ATOM)
         ];
 

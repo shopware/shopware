@@ -24,7 +24,7 @@ use Shopware\Api\Order\Event\OrderLineItem\OrderLineItemWrittenEvent;
 use Shopware\Api\Order\Repository\OrderLineItemRepository;
 use Shopware\Api\Order\Struct\OrderLineItemBasicStruct;
 use Shopware\Api\Order\Struct\OrderLineItemDetailStruct;
-
+use Shopware\Api\Entity\Field\VersionField;
 class OrderLineItemDefinition extends EntityDefinition
 {
     /**
@@ -53,7 +53,8 @@ class OrderLineItemDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('order_id', 'orderId', OrderDefinition::class))->setFlags(new Required()),
             (new StringField('identifier', 'identifier'))->setFlags(new Required()),

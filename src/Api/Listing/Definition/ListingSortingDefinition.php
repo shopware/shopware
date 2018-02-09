@@ -25,7 +25,7 @@ use Shopware\Api\Listing\Repository\ListingSortingRepository;
 use Shopware\Api\Listing\Struct\ListingSortingBasicStruct;
 use Shopware\Api\Listing\Struct\ListingSortingDetailStruct;
 use Shopware\Api\Product\Definition\ProductStreamDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class ListingSortingDefinition extends EntityDefinition
 {
     /**
@@ -55,6 +55,7 @@ class ListingSortingDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new LongTextField('payload', 'payload'))->setFlags(new Required()),
             new TranslatedField(new StringField('label', 'label')),

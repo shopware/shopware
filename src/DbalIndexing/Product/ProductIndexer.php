@@ -79,7 +79,7 @@ class ProductIndexer implements IndexerInterface
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
-            new ProgressStartedEvent('Start building category product tree', $iterator->getTotal())
+            new ProgressStartedEvent('Start building product category tree and parent inheritance', $iterator->getTotal())
         );
 
         while ($ids = $iterator->fetchIds()) {
@@ -95,7 +95,7 @@ class ProductIndexer implements IndexerInterface
 
         $this->eventDispatcher->dispatch(
             ProgressFinishedEvent::NAME,
-            new ProgressFinishedEvent('Finished building category product tree')
+            new ProgressFinishedEvent('Finished building product category tree and parent inheritance')
         );
     }
 
@@ -214,22 +214,24 @@ class ProductIndexer implements IndexerInterface
         }, $ids);
 
         $this->connection->executeUpdate(
-            'UPDATE product SET 
-                product.category_join_id = IFNULL((SELECT product_category.product_id FROM product_category WHERE product_category.product_id = product.id LIMIT 1), product.parent_id),
-                product.media_join_id    = IFNULL((SELECT product_media.product_id FROM product_media WHERE product_media.product_id = product.id LIMIT 1), product.parent_id)
-            WHERE product.id IN (:ids)',
-            ['ids' => $bytes],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        );
-
-        $this->connection->executeUpdate(
             'UPDATE product as variant, product as parent
              SET
                 variant.tax_join_id = IFNULL(variant.tax_id, parent.tax_id),
                 variant.manufacturer_join_id = IFNULL(variant.product_manufacturer_id, parent.product_manufacturer_id),
                 variant.unit_join_id = IFNULL(variant.unit_id, parent.unit_id)
-             WHERE (variant.parent_id = parent.id OR variant.parent_id IS NULL)
+             WHERE (variant.parent_id = parent.id)
              AND variant.id IN (:ids)',
+            ['ids' => $bytes],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+
+        $this->connection->executeUpdate(
+            'UPDATE product as variant
+             SET
+                variant.tax_join_id = variant.tax_id,
+                variant.manufacturer_join_id = variant.product_manufacturer_id,
+                variant.unit_join_id = variant.unit_id
+             WHERE variant.parent_id IS NULL AND variant.id IN (:ids)',
             ['ids' => $bytes],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );

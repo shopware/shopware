@@ -32,7 +32,7 @@ use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Api\Payment\Struct\PaymentMethodDetailStruct;
 use Shopware\Api\Plugin\Definition\PluginDefinition;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class PaymentMethodDefinition extends EntityDefinition
 {
     /**
@@ -61,7 +61,8 @@ class PaymentMethodDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new FkField('plugin_id', 'pluginId', PluginDefinition::class),
             (new StringField('technical_name', 'technicalName'))->setFlags(new Required()),

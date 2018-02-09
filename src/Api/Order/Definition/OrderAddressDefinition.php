@@ -23,7 +23,7 @@ use Shopware\Api\Order\Event\OrderAddress\OrderAddressWrittenEvent;
 use Shopware\Api\Order\Repository\OrderAddressRepository;
 use Shopware\Api\Order\Struct\OrderAddressBasicStruct;
 use Shopware\Api\Order\Struct\OrderAddressDetailStruct;
-
+use Shopware\Api\Entity\Field\VersionField;
 class OrderAddressDefinition extends EntityDefinition
 {
     /**
@@ -52,7 +52,8 @@ class OrderAddressDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),
             new FkField('country_state_id', 'countryStateId', CountryStateDefinition::class),

@@ -230,7 +230,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         $exists = $query->execute()->fetch(\PDO::FETCH_ASSOC);
         if ($exists) {
-
             return $exists;
         }
 

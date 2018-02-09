@@ -4,6 +4,8 @@ namespace Shopware\Api;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Tax\Definition\TaxAreaRuleDefinition;
 use Shopware\Api\Tax\Definition\TaxAreaRuleTranslationDefinition;
 use Shopware\Api\Tax\Definition\TaxDefinition;
@@ -216,22 +218,36 @@ class VersioningTest extends KernelTestCase
         $uuid = Uuid::uuid4();
         $context = TranslationContext::createDefaultContext();
         $taxData = ['id' => $uuid->toString(), 'name' => 'foo tax', 'rate' => 20];
-
         $this->repository->create([$taxData], $context);
 
-        $versionId = $this->repository->createVersion($uuid->toString(), $context, 'testMerge version');
+        $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->toString(), Defaults::LIVE_VERSION);
+        $this->assertCount(1, $changes);
 
+        $versionId = $this->repository->createVersion($uuid->toString(), $context, 'testMerge version');
         $versionId = Uuid::fromString($versionId);
 
-        $this->repository->update([[
-            'id' => $uuid->toString(),
-            'name' => 'new merged name',
-            'versionId' => $versionId->toString()
-        ]], $context);
+        $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->toString(), $versionId);
+        $this->assertCount(1, $changes);
+        $this->assertEquals('clone', $changes[0]['action']);
 
-        $this->assertNotEmpty(
-            $this->getVersionData(TaxDefinition::getEntityName(), $uuid->toString(), $versionId->toString())
+        $versionContext = new TranslationContext(
+            $context->getShopId(),
+            $context->isDefaultShop(),
+            $context->getFallbackId(),
+            $versionId->toString()
         );
+        $this->repository->update([['id' => $uuid->toString(), 'name' => 'new merged name']], $versionContext);
+
+        $row = $this->connection->fetchAssoc('SELECT * FROM tax WHERE id = :id AND version_id = :version', [
+            'id' => $uuid->getBytes(),
+            'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes()
+        ]);
+        $this->assertEquals('foo tax', $row['name']);
+
+        $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->toString(), $versionId->toString());
+        $this->assertCount(2, $changes);
+        $this->assertEquals('clone', $changes[0]['action']);
+        $this->assertEquals('update', $changes[1]['action']);
 
         $this->repository->merge($versionId->toString(), $context);
 
@@ -248,9 +264,107 @@ class VersioningTest extends KernelTestCase
         $row = $this->connection->fetchAssoc('SELECT * FROM version_commit WHERE version_id = :id', ['id' => $versionId->getBytes()]);
         $this->assertEmpty($row);
 
-        $this->assertEmpty(
-            $this->getVersionData(TaxDefinition::getEntityName(), $uuid->toString(), $versionId->toString())
-        );
+        $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->toString(), $versionId->toString());
+        $this->assertEmpty($changes);
+
+        $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->toString(), Defaults::LIVE_VERSION);
+        $this->assertCount(2, $changes);
+
+        $this->assertEquals('insert', $changes[0]['action']);
+        $this->assertEquals('update', $changes[1]['action']);
+    }
+
+    public function testReadConsiderVersion()
+    {
+        $uuid = Uuid::uuid4();
+        $liveVersionContext = TranslationContext::createDefaultContext();
+        $taxData = ['id' => $uuid->toString(), 'name' => 'foo tax', 'rate' => 20];
+        $this->repository->create([$taxData], $liveVersionContext);
+
+        $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->toString(), Defaults::LIVE_VERSION);
+        $this->assertCount(1, $changes);
+
+        $versionId = $this->repository->createVersion($uuid->toString(), $liveVersionContext, 'testMerge version');
+        $versionId = Uuid::fromString($versionId);
+
+        $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->toString(), $versionId);
+        $this->assertCount(1, $changes);
+        $this->assertEquals('clone', $changes[0]['action']);
+
+        $versionContext = $liveVersionContext->createWithVersionId($versionId);
+        $this->repository->update([['id' => $uuid->toString(), 'name' => 'new merged name']], $versionContext);
+
+        $basic = $this->repository->readBasic([$uuid->toString()], $liveVersionContext);
+        $this->assertCount(1, $basic);
+        $this->assertTrue($basic->has($uuid->toString()));
+        $tax = $basic->get($uuid->toString());
+        $this->assertEquals('foo tax', $tax->getName());
+
+        $basic = $this->repository->readBasic([$uuid->toString()], $versionContext);
+        $this->assertCount(1, $basic);
+        $this->assertTrue($basic->has($uuid->toString()));
+        $tax = $basic->get($uuid->toString());
+        $this->assertEquals('new merged name', $tax->getName());
+
+        $row = $this->connection->fetchAssoc('SELECT * FROM tax WHERE id = :id AND version_id = :version', [
+            'id' => $uuid->getBytes(),
+            'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes()
+        ]);
+        $this->assertEquals('foo tax', $row['name']);
+
+        $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->toString(), $versionId->toString());
+        $this->assertCount(2, $changes);
+        $this->assertEquals('clone', $changes[0]['action']);
+        $this->assertEquals('update', $changes[1]['action']);
+
+        $this->repository->merge($versionId->toString(), $liveVersionContext);
+
+        $basic = $this->repository->readBasic([$uuid->toString()], $liveVersionContext);
+        $this->assertCount(1, $basic);
+        $this->assertTrue($basic->has($uuid->toString()));
+        $tax = $basic->get($uuid->toString());
+        $this->assertEquals('new merged name', $tax->getName());
+
+        $basic = $this->repository->readBasic([$uuid->toString()], $versionContext);
+        $this->assertCount(1, $basic);
+
+        $row = $this->connection->fetchAssoc('SELECT * FROM tax WHERE id = :id AND version_id = :version', [
+            'id' => $uuid->getBytes(),
+            'version' => Uuid::fromString($versionId)->getBytes()
+        ]);
+        $this->assertEmpty($row);
+    }
+
+    public function testSearcherConsidersVersionFallback()
+    {
+        $uuid = Uuid::uuid4();
+        $liveVersionContext = TranslationContext::createDefaultContext();
+        $taxData = ['id' => $uuid->toString(), 'name' => 'foo tax', 'rate' => 5];
+        $this->repository->create([$taxData], $liveVersionContext);
+
+        $versionId = $this->repository->createVersion($uuid->toString(), $liveVersionContext, 'testMerge version');
+        $versionId = Uuid::fromString($versionId);
+
+        $versionContext = $liveVersionContext->createWithVersionId($versionId);
+        $this->repository->update([['id' => $uuid->toString(), 'name' => 'new merged name', 'rate' => 4]], $versionContext);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermQuery('tax.rate', 4));
+
+        $result = $this->repository->searchIds($criteria, $liveVersionContext);
+        $this->assertEquals(0, $result->getTotal());
+
+        $result = $this->repository->searchIds($criteria, $versionContext);
+        $this->assertEquals(1, $result->getTotal());
+
+        $taxData = ['name' => 'foo tax', 'rate' => 4];
+        $this->repository->create([$taxData], $liveVersionContext);
+
+        $result = $this->repository->searchIds($criteria, $versionContext);
+        $this->assertEquals(2, $result->getTotal());
+
+        $result = $this->repository->searchIds($criteria, $liveVersionContext);
+        $this->assertEquals(1, $result->getTotal());
     }
 
     private function getVersionData(string $entity, string $id, string $versionId): array
@@ -260,7 +374,8 @@ class VersioningTest extends KernelTestCase
              FROM version_commit_data 
              WHERE entity_name = :entity 
              AND JSON_EXTRACT(entity_id, '$.id') = :id
-             AND JSON_EXTRACT(entity_id, '$.versionId') = :version",
+             AND JSON_EXTRACT(entity_id, '$.versionId') = :version
+             ORDER BY ai",
             [
                 'entity' => $entity,
                 'id' => $id,

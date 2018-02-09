@@ -18,7 +18,7 @@ use Shopware\Api\Listing\Repository\ListingFacetTranslationRepository;
 use Shopware\Api\Listing\Struct\ListingFacetTranslationBasicStruct;
 use Shopware\Api\Listing\Struct\ListingFacetTranslationDetailStruct;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class ListingFacetTranslationDefinition extends EntityDefinition
 {
     /**
@@ -47,7 +47,8 @@ class ListingFacetTranslationDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new FkField('listing_facet_id', 'listingFacetId', ListingFacetDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),

@@ -17,7 +17,7 @@ use Shopware\Api\Version\Event\Version\VersionDeletedEvent;
 use Shopware\Api\Version\Event\Version\VersionWrittenEvent;
 use Shopware\Api\Version\Struct\VersionBasicStruct;
 use Shopware\Api\Version\Repository\VersionRepository;
-
+use Shopware\Api\Entity\Field\VersionField;
 class VersionDefinition extends EntityDefinition
 {
     /**

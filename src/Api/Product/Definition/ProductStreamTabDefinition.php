@@ -12,7 +12,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Product\Event\ProductStreamTab\ProductStreamTabDeletedEvent;
 use Shopware\Api\Product\Event\ProductStreamTab\ProductStreamTabWrittenEvent;
-
+use Shopware\Api\Entity\Field\VersionField;
 class ProductStreamTabDefinition extends MappingEntityDefinition
 {
     /**
@@ -37,6 +37,7 @@ class ProductStreamTabDefinition extends MappingEntityDefinition
         }
 
         return self::$fields = new FieldCollection([
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class))->setFlags(new Required()),
             (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new Required()),

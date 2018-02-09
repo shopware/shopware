@@ -176,11 +176,13 @@ class SearchIndexer implements IndexerInterface
         foreach ($keywords as $keyword => $ranking) {
             $queue->addInsert($table, [
                 'shop_id' => $shopId,
+                'version_id' => Uuid::fromString($context->getVersionId())->getBytes(),
                 'keyword' => $keyword,
             ]);
 
             $queue->addInsert($documentTable, [
                 'id' => Uuid::uuid4()->getBytes(),
+                'version_id' => Uuid::fromString($context->getVersionId())->getBytes(),
                 'shop_id' => $shopId,
                 'keyword' => $keyword,
                 'ranking' => $ranking,

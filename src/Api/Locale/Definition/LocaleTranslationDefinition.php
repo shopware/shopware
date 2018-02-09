@@ -18,7 +18,7 @@ use Shopware\Api\Locale\Repository\LocaleTranslationRepository;
 use Shopware\Api\Locale\Struct\LocaleTranslationBasicStruct;
 use Shopware\Api\Locale\Struct\LocaleTranslationDetailStruct;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class LocaleTranslationDefinition extends EntityDefinition
 {
     /**
@@ -47,7 +47,8 @@ class LocaleTranslationDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),

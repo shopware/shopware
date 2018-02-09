@@ -20,7 +20,7 @@ use Shopware\Api\Product\Repository\ProductSearchKeywordRepository;
 use Shopware\Api\Product\Struct\ProductSearchKeywordBasicStruct;
 use Shopware\Api\Product\Struct\ProductSearchKeywordDetailStruct;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-
+use Shopware\Api\Entity\Field\VersionField;
 class ProductSearchKeywordDefinition extends EntityDefinition
 {
     /**
@@ -49,7 +49,8 @@ class ProductSearchKeywordDefinition extends EntityDefinition
             return self::$fields;
         }
 
-        self::$fields = new FieldCollection([
+        self::$fields = new FieldCollection([ 
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('keyword', 'keyword'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('shop_id', 'shopId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),

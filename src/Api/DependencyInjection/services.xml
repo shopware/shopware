@@ -89,21 +89,21 @@
         </service>
 
         <!-- ID GENERATOR -->
-        <service id="Shopware\Api\Entity\Write\IdGenerator\GeneratorRegistry" class="Shopware\Api\Entity\Write\IdGenerator\GeneratorRegistry">
+        <service class="Shopware\Api\Entity\Write\IdGenerator\GeneratorRegistry" id="Shopware\Api\Entity\Write\IdGenerator\GeneratorRegistry">
             <argument type="tagged" tag="shopware.api.entity.write.id_generator" />
         </service>
 
-        <service id="Shopware\Api\Entity\Write\IdGenerator\RamseyGenerator" class="Shopware\Api\Entity\Write\IdGenerator\RamseyGenerator">
+        <service class="Shopware\Api\Entity\Write\IdGenerator\RamseyGenerator" id="Shopware\Api\Entity\Write\IdGenerator\RamseyGenerator">
             <tag name="shopware.api.entity.write.id_generator"/>
         </service>
 
-        <service id="Shopware\Api\Entity\Write\IdGenerator\ProductNumberGenerator" class="Shopware\Api\Entity\Write\IdGenerator\ProductNumberGenerator">
+        <service class="Shopware\Api\Entity\Write\IdGenerator\ProductNumberGenerator" id="Shopware\Api\Entity\Write\IdGenerator\ProductNumberGenerator">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="shopware.api.entity.write.id_generator"/>
         </service>
 
-        <service id="Shopware\Api\Entity\Dbal\EntityForeignKeyResolver" class="Shopware\Api\Entity\Dbal\EntityForeignKeyResolver">
+        <service class="Shopware\Api\Entity\Dbal\EntityForeignKeyResolver" id="Shopware\Api\Entity\Dbal\EntityForeignKeyResolver">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 

@@ -6,13 +6,13 @@
 
     <services>
 
-        <service id="Shopware\Translation\ImportService" class="Shopware\Translation\ImportService">
+        <service class="Shopware\Translation\ImportService" id="Shopware\Translation\ImportService">
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="event_dispatcher" />
             <argument type="service" id="logger" />
         </service>
 
-        <service id="Shopware\Translation\Command\TranslationImportCommand" class="Shopware\Translation\Command\TranslationImportCommand">
+        <service class="Shopware\Translation\Command\TranslationImportCommand" id="Shopware\Translation\Command\TranslationImportCommand">
             <tag name="kernel.event_subscriber" />
             <tag name="console.command" />
 
@@ -20,7 +20,7 @@
         </service>
 
         <!-- Translation / Snippet -->
-        <service id="Shopware\Translation\DatabaseLoader" class="Shopware\Translation\DatabaseLoader">
+        <service class="Shopware\Translation\DatabaseLoader" id="Shopware\Translation\DatabaseLoader">
             <tag name="translation.loader" alias="database" />
 
             <argument type="service" id="Doctrine\DBAL\Connection" />

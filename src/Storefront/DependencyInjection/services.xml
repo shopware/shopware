@@ -10,7 +10,7 @@
 
     <services>
 
-        <service id="Shopware\Storefront\Twig\TemplateDataExtension" class="Shopware\Storefront\Twig\TemplateDataExtension">
+        <service class="Shopware\Storefront\Twig\TemplateDataExtension" id="Shopware\Storefront\Twig\TemplateDataExtension">
             <tag name="twig.extension" />
 
             <argument type="service" id="translator" />
@@ -20,7 +20,7 @@
         </service>
 
         <!-- Twig / Theme -->
-        <service id="Shopware\Storefront\Theme\ThemeCacheWarmer" class="Shopware\Storefront\Theme\ThemeCacheWarmer" public="false">
+        <service class="Shopware\Storefront\Theme\ThemeCacheWarmer" public="false" id="Shopware\Storefront\Theme\ThemeCacheWarmer">
             <tag name="kernel.cache_warmer" priority="15" />
 
             <argument>%assetic.variables%</argument>
@@ -28,34 +28,34 @@
             <argument>%assetic.write_to%</argument>
         </service>
 
-        <service id="Shopware\Storefront\Twig\TemplateFinder" class="Shopware\Storefront\Twig\TemplateFinder" public="true">
+        <service class="Shopware\Storefront\Twig\TemplateFinder" public="true" id="Shopware\Storefront\Twig\TemplateFinder">
             <argument id="kernel" type="service"/>
             <argument id="twig.loader" type="service"/>
         </service>
 
-        <service id="Shopware\Storefront\Twig\InheritanceExtension" class="Shopware\Storefront\Twig\InheritanceExtension" public="false">
+        <service class="Shopware\Storefront\Twig\InheritanceExtension" public="false" id="Shopware\Storefront\Twig\InheritanceExtension">
             <tag name="twig.extension" />
 
             <argument type="service" id="Shopware\Storefront\Twig\TemplateFinder" />
         </service>
 
-        <service id="twig.extension.intl" class="Twig_Extensions_Extension_Intl">
+        <service class="Twig_Extensions_Extension_Intl" id="twig.extension.intl">
             <tag name="twig.extension" />
         </service>
 
-        <service id="twig.extension.text" class="Twig_Extensions_Extension_Text">
+        <service class="Twig_Extensions_Extension_Text" id="twig.extension.text">
             <tag name="twig.extension" />
         </service>
 
-        <service id="Shopware\Storefront\Twig\InstanceOfExtension" class="Shopware\Storefront\Twig\InstanceOfExtension">
+        <service class="Shopware\Storefront\Twig\InstanceOfExtension" id="Shopware\Storefront\Twig\InstanceOfExtension">
             <tag name="twig.extension"/>
         </service>
 
-        <service id="Shopware\Storefront\Theme\ThemeConfigReader" class="Shopware\Storefront\Theme\ThemeConfigReader">
+        <service class="Shopware\Storefront\Theme\ThemeConfigReader" id="Shopware\Storefront\Theme\ThemeConfigReader">
             <argument type="service" id="Doctrine\DBAL\Connection" />
         </service>
 
-        <service id="Shopware\Storefront\Session\ShopSubscriber" class="Shopware\Storefront\Session\ShopSubscriber">
+        <service class="Shopware\Storefront\Session\ShopSubscriber" id="Shopware\Storefront\Session\ShopSubscriber">
             <argument type="service" id="Shopware\Storefront\Context\StorefrontContextService" />
             <tag name="kernel.event_subscriber" />
         </service>

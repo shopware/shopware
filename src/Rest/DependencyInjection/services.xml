@@ -6,11 +6,11 @@
 
     <services>
 
-        <service id="Shopware\Rest\EventListener\CorsListener" class="Shopware\Rest\EventListener\CorsListener">
+        <service class="Shopware\Rest\EventListener\CorsListener" id="Shopware\Rest\EventListener\CorsListener">
             <tag name="kernel.event_subscriber" />
         </service>
 
-        <service id="Shopware\Rest\EventListener\ApiExceptionListener" class="Shopware\Rest\EventListener\ApiExceptionListener">
+        <service class="Shopware\Rest\EventListener\ApiExceptionListener" id="Shopware\Rest\EventListener\ApiExceptionListener">
             <tag name="kernel.event_subscriber" />
             <argument type="service" id="logger" />
         </service>
@@ -25,7 +25,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection" />
         </service>
 
-        <service id="Shopware\Rest\Firewall\AuthenticationFailureListener" class="Shopware\Rest\Firewall\AuthenticationFailureListener">
+        <service class="Shopware\Rest\Firewall\AuthenticationFailureListener" id="Shopware\Rest\Firewall\AuthenticationFailureListener">
             <tag name="kernel.event_listener" event="lexik_jwt_authentication.on_authentication_failure" method="onAuthenticationFailureResponse" />
             <tag name="kernel.event_listener" event="lexik_jwt_authentication.on_jwt_invalid" method="onJWTInvalid" />
             <tag name="kernel.event_listener" event="lexik_jwt_authentication.on_jwt_not_found" method="onJWTNotFound" />

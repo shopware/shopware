@@ -7,7 +7,7 @@
     <services>
 
         <!--calculations-->
-        <service id="Shopware\CartBridge\Product\ProductCalculator" class="Shopware\CartBridge\Product\ProductCalculator">
+        <service class="Shopware\CartBridge\Product\ProductCalculator" id="Shopware\CartBridge\Product\ProductCalculator">
             <argument id="Shopware\Cart\Price\PriceCalculator" type="service"/>
         </service>
 
@@ -18,7 +18,7 @@
 
 
         <!--cart processors-->
-        <service id="Shopware\CartBridge\Product\ProductProcessor" class="Shopware\CartBridge\Product\ProductProcessor">
+        <service class="Shopware\CartBridge\Product\ProductProcessor" id="Shopware\CartBridge\Product\ProductProcessor">
             <argument type="service" id="Shopware\CartBridge\Product\ProductCalculator" />
             <tag name="cart.processor" priority="1000" />
         </service>
@@ -28,24 +28,24 @@
             <tag name="cart.processor" priority="900"/>
         </service>
 
-        <service id="Shopware\CartBridge\CustomerGroup\CustomerGroupDiscountProcessor" class="Shopware\CartBridge\CustomerGroup\CustomerGroupDiscountProcessor">
+        <service class="Shopware\CartBridge\CustomerGroup\CustomerGroupDiscountProcessor" id="Shopware\CartBridge\CustomerGroup\CustomerGroupDiscountProcessor">
             <argument id="Shopware\Cart\Price\PercentagePriceCalculator" type="service"/>
             <tag name="cart.processor" priority="800"/>
         </service>
 
-        <service id="Shopware\CartBridge\Order\MinimumOrderAmountProcessor" class="Shopware\CartBridge\Order\MinimumOrderAmountProcessor">
+        <service class="Shopware\CartBridge\Order\MinimumOrderAmountProcessor" id="Shopware\CartBridge\Order\MinimumOrderAmountProcessor">
             <argument type="service" id="Shopware\Cart\Price\AbsolutePriceCalculator"/>
             <tag name="cart.processor" priority="700"/>
         </service>
 
-        <service id="Shopware\CartBridge\Payment\PaymentSurchargeProcessor" class="Shopware\CartBridge\Payment\PaymentSurchargeProcessor">
+        <service class="Shopware\CartBridge\Payment\PaymentSurchargeProcessor" id="Shopware\CartBridge\Payment\PaymentSurchargeProcessor">
             <tag name="cart.processor" priority="600"/>
             <argument type="service" id="Shopware\Cart\Price\PercentagePriceCalculator"/>
             <argument type="service" id="Shopware\Cart\Price\AbsolutePriceCalculator"/>
         </service>
 
         <!--cart line item data collectors-->
-        <service id="Shopware\CartBridge\Product\ProductCollector" class="Shopware\CartBridge\Product\ProductCollector">
+        <service class="Shopware\CartBridge\Product\ProductCollector" id="Shopware\CartBridge\Product\ProductCollector">
             <argument id="Shopware\CartBridge\Product\ProductGateway" type="service"/>
             <tag name="cart.collector" priority="1000" />
         </service>
@@ -61,7 +61,7 @@
             <argument type="service" id="Shopware\Api\Product\Repository\ProductRepository"/>
         </service>
 
-        <service id="Shopware\CartBridge\Service\StoreFrontCartService" class="Shopware\CartBridge\Service\StoreFrontCartService">
+        <service class="Shopware\CartBridge\Service\StoreFrontCartService" id="Shopware\CartBridge\Service\StoreFrontCartService">
             <argument type="service" id="Shopware\Cart\Cart\CartCalculator" />
             <argument type="service" id="Shopware\CartBridge\Cart\CartPersister" />
             <argument type="service" id="Shopware\Storefront\Context\StorefrontContextService" />
@@ -69,12 +69,12 @@
             <argument type="service" id="Shopware\CartBridge\Order\OrderPersister" />
         </service>
 
-        <service id="Shopware\CartBridge\Order\OrderPersister" class="Shopware\CartBridge\Order\OrderPersister">
+        <service class="Shopware\CartBridge\Order\OrderPersister" id="Shopware\CartBridge\Order\OrderPersister">
             <argument id="Shopware\Api\Order\Repository\OrderRepository" type="service"/>
             <argument id="Shopware\Cart\Tax\TaxDetector" type="service"/>
         </service>
 
-        <service id="Shopware\CartBridge\Cart\CartPersister" class="Shopware\CartBridge\Cart\CartPersister">
+        <service class="Shopware\CartBridge\Cart\CartPersister" id="Shopware\CartBridge\Cart\CartPersister">
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Serializer\JsonSerializer" />
         </service>
@@ -84,27 +84,27 @@
             <argument type="service" id="Shopware\Cart\Tax\PercentageTaxRuleBuilder" />
         </service>
 
-        <service id="Shopware\CartBridge\Rule\Collector\ProductOfCategoriesRuleCollector" class="Shopware\CartBridge\Rule\Collector\ProductOfCategoriesRuleCollector">
+        <service class="Shopware\CartBridge\Rule\Collector\ProductOfCategoriesRuleCollector" id="Shopware\CartBridge\Rule\Collector\ProductOfCategoriesRuleCollector">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <tag name="cart.collector" priority="-1000" />
         </service>
 
-        <service id="Shopware\CartBridge\Rule\Collector\LastOrderRuleCollector" class="Shopware\CartBridge\Rule\Collector\LastOrderRuleCollector">
+        <service class="Shopware\CartBridge\Rule\Collector\LastOrderRuleCollector" id="Shopware\CartBridge\Rule\Collector\LastOrderRuleCollector">
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <tag name="cart.collector" priority="-1000" />
         </service>
 
-        <service id="Shopware\CartBridge\Rule\Collector\OrderClearedStateRuleCollector" class="Shopware\CartBridge\Rule\Collector\OrderClearedStateRuleCollector">
+        <service class="Shopware\CartBridge\Rule\Collector\OrderClearedStateRuleCollector" id="Shopware\CartBridge\Rule\Collector\OrderClearedStateRuleCollector">
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <tag name="cart.collector" priority="-1000" />
         </service>
 
-        <service id="Shopware\CartBridge\Rule\Collector\OrderCountRuleCollector" class="Shopware\CartBridge\Rule\Collector\OrderCountRuleCollector">
+        <service class="Shopware\CartBridge\Rule\Collector\OrderCountRuleCollector" id="Shopware\CartBridge\Rule\Collector\OrderCountRuleCollector">
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <tag name="cart.collector" priority="-1000" />
         </service>
 
-        <service id="Shopware\CartBridge\Rule\Collector\ProductAttributeRuleCollector" class="Shopware\CartBridge\Rule\Collector\ProductAttributeRuleCollector">
+        <service class="Shopware\CartBridge\Rule\Collector\ProductAttributeRuleCollector" id="Shopware\CartBridge\Rule\Collector\ProductAttributeRuleCollector">
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <tag name="cart.collector" priority="-1000" />
         </service>
@@ -114,7 +114,7 @@
             <tag name="cart.collector" priority="-1000" />
         </service>
 
-        <service id="Shopware\CartBridge\CustomerGroup\CustomerGroupDiscountCollector" class="Shopware\CartBridge\CustomerGroup\CustomerGroupDiscountCollector">
+        <service class="Shopware\CartBridge\CustomerGroup\CustomerGroupDiscountCollector" id="Shopware\CartBridge\CustomerGroup\CustomerGroupDiscountCollector">
             <tag name="cart.collector" priority="-1000"/>
             <argument type="service" id="Shopware\Api\Customer\Repository\CustomerGroupDiscountRepository"/>
         </service>

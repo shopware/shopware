@@ -22,7 +22,7 @@
         </service>
 
         <!-- plugins -->
-        <service id="Shopware\Framework\Plugin\PluginCollection" class="Shopware\Framework\Plugin\PluginCollection">
+        <service class="Shopware\Framework\Plugin\PluginCollection" id="Shopware\Framework\Plugin\PluginCollection">
             <factory service="kernel" method="getPlugins" />
         </service>
 
@@ -32,7 +32,7 @@
         <!-- Routing -->
         <service id="router" alias="Shopware\Framework\Routing\Router" />
 
-        <service id="Shopware\Framework\Routing\Router" class="Shopware\Framework\Routing\Router">
+        <service class="Shopware\Framework\Routing\Router" id="Shopware\Framework\Routing\Router">
             <argument type="service" id="service_container" />
             <argument>%router.resource%</argument>
             <argument type="service" id="kernel" />
@@ -46,18 +46,18 @@
         </service>
 
         <!-- Config -->
-        <service id="Shopware\Framework\Config\CacheWarmer" class="Shopware\Framework\Config\CacheWarmer">
+        <service class="Shopware\Framework\Config\CacheWarmer" id="Shopware\Framework\Config\CacheWarmer">
             <tag name="kernel.cache_warmer" />
 
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Framework\Config\ConfigService" />
         </service>
 
-        <service id="Shopware\Framework\Config\ConfigService" class="Shopware\Framework\Config\ConfigService">
+        <service class="Shopware\Framework\Config\ConfigService" id="Shopware\Framework\Config\ConfigService">
             <argument type="service" id="Doctrine\DBAL\Connection" />
         </service>
 
-        <service id="Shopware\Framework\Config\CachedConfigService" class="Shopware\Framework\Config\CachedConfigService" decorates="Shopware\Framework\Config\ConfigService">
+        <service class="Shopware\Framework\Config\CachedConfigService" decorates="Shopware\Framework\Config\ConfigService" id="Shopware\Framework\Config\CachedConfigService">
             <argument type="service" id="Shopware\Framework\Config\CachedConfigService.inner" />
             <argument type="service" id="shopware.cache" />
         </service>
@@ -69,7 +69,7 @@
             <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
-        <service id="slugify" class="Cocur\Slugify\Slugify" public="false">
+        <service class="Cocur\Slugify\Slugify" public="false" id="slugify">
             <argument>%shopware.slug.config%</argument>
         </service>
 
@@ -78,7 +78,7 @@
         </service>
 
         <!-- Pluginsystem -->
-        <service id="Shopware\Framework\Plugin\PluginManager" class="Shopware\Framework\Plugin\PluginManager">
+        <service class="Shopware\Framework\Plugin\PluginManager" id="Shopware\Framework\Plugin\PluginManager">
             <argument>%kernel.plugin_dir%</argument>
             <argument type="service" id="kernel"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>

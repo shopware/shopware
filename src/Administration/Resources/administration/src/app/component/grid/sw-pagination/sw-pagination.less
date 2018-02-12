@@ -1,6 +1,15 @@
+@import "~less/variables";
+
+@sw-pagination-color-background:        @color-white;
+@sw-pagination-controls-color-border:   @color-border;
+@sw-pagination-controls-color-hover:    @color-shopware-blue;
+@sw-pagination-controls-color-disabled: #D2DEE6;
+@sw-pagination-controls-color-text:     #7b8c9d;
+@sw-pagination-border-radius:           3px;
+
 .sw-pagination {
     padding: 15px 20px;
-    background: #ffffff;
+    background: @sw-pagination-color-background;
     text-align: center;
 
     .page-selection, .page-total, .per-page {
@@ -21,27 +30,27 @@
         font-size: 16px;
         line-height: 12px;
         text-align: center;
-        color: #7b8c9d;
-        border: 1px solid #D2DEE6;
-        border-radius: 3px;
-        background-color: #FFFFFF;
+        color: @sw-pagination-controls-color-text;
+        border: 1px solid @sw-pagination-controls-color-border;
+        border-radius: @sw-pagination-border-radius;
+        background-color: @sw-pagination-color-background;
         vertical-align: middle;
         cursor: pointer;
         -webkit-appearance: none;
         outline: none;
 
         &:hover {
-            color: #189eff;
-            border-color: #189eff;
+            color: @sw-pagination-controls-color-hover;
+            border-color: @sw-pagination-controls-color-hover;
         }
 
         &[disabled="disabled"] {
-            color: #D2DEE6;
+            color: @sw-pagination-controls-color-disabled;
             cursor: default;
 
             &:hover {
-                color: #D2DEE6;
-                border-color: #D2DEE6;
+                color: @sw-pagination-controls-color-disabled;
+                border-color: @sw-pagination-controls-color-disabled;
             }
         }
     }
@@ -59,9 +68,9 @@
             height: 32px;
             width: 40px;
             font-weight: bold;
-            border: 1px solid #D2DEE6;
-            border-radius: 3px;
-            background-color: #FFFFFF;
+            border: 1px solid @sw-pagination-controls-color-border;
+            border-radius: @sw-pagination-border-radius;
+            background-color: @sw-pagination-color-background;
             text-align: center;
             -webkit-appearance: none;
             outline: none;
@@ -77,9 +86,9 @@
             width: 60px;
             padding: 0 0 0 5px;
             font-weight: bold;
-            border: 1px solid #D2DEE6;
-            border-radius: 3px;
-            background-color: #FFFFFF;
+            border: 1px solid @sw-pagination-controls-color-border;
+            border-radius: @sw-pagination-border-radius;
+            background-color: @sw-pagination-color-background;
             text-align: center;
             outline: none;
         }

@@ -27,7 +27,8 @@ module.exports = {
             'src': resolve('src'),
             'atom': resolve('src/app/common/atom'),
             'molecule': resolve('src/app/common/molecule'),
-            'module': resolve('src/module')
+            'module': resolve('src/module'),
+            'less': resolve('src/app/assets/less')
         }
     },
     module: {

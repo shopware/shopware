@@ -1,3 +1,5 @@
+@import "~less/variables";
+
 .sw-product--detail {
     max-width: 800px;
     margin: 0 auto;
@@ -21,6 +23,7 @@
         &:first-child {
             padding-right: 16px;
         }
+
         &:last-child {
             padding-left: 16px;
         }
@@ -67,10 +70,10 @@
         }
 
         &.router-link-active {
-            background: #fff;
+            background: @color-white;
 
             .item--link {
-                color: #4da1ff;
+                color: @color-shopware-blue;
             }
         }
     }

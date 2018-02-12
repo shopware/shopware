@@ -1,30 +1,52 @@
+@import '~less/variables';
+
+@sw-button-default-color-background: #FCFCFC;
+@sw-button-default-color-text:       #54698D;
+@sw-button-default-color-border:     @color-border;
+@sw-button-primary-color-background: @color-shopware-blue;
+@sw-button-primary-color-text:       @color-white;
+@sw-button-transition:               all 0.3s ease-out;
+
 .sw-button {
+    vertical-align: middle;
     display: inline-block;
 
-    .sw-button--inner {
+    .sw-button__element {
+        border: 1px solid @sw-button-default-color-border;
+        background: @sw-button-default-color-background;
+        color: @sw-button-default-color-text;
+        transition: @sw-button-transition;
+        display: inline-block;
         border-radius: 6px;
-        background: #F9FAFB;
-        padding: 13px 24px;
-        border: 0 none;
+        padding: 2px 24px;
         font-size: 14px;
-        line-height: 19px;
-        color: #5c5c5c;
-        transition: all 0.3s ease-out;
+        line-height: 34px;
         outline: none;
+        font-weight: 600;
         text-decoration: none;
+        cursor: pointer;
+        margin: 0;
 
         &:hover {
-            color: darken(#5c5c5c, 10%);
-            background: darken(#F9FAFB, 10%);
+            color: darken(@sw-button-default-color-text, 5%);
+            background: darken(@sw-button-default-color-background, 5%);
+            border-color: darken(@sw-button-default-color-border, 5%);
         }
 
-        &.is--primary {
-            background: #189EFF;
-            color: #fff;
+        &.sw-button__element--primary {
+            background: @sw-button-primary-color-background;
+            color: @sw-button-primary-color-text;
+            line-height: 36px;
+            border: 0 none;
 
             &:hover {
-                background: darken(#189EFF, 10%);
+                background: darken(@sw-button-primary-color-background, 10%);
             }
+        }
+
+        &.sw-button__element--small {
+            font-size: 12px;
+            line-height: 28px;
         }
     }
 }

@@ -1,7 +1,8 @@
+import { Component } from 'src/core/shopware';
 import PaginationMixin from 'src/app/component/mixin/pagination.mixin';
 import template from './sw-order-delivery-list.html.twig';
 
-Shopware.Component.register('core-order-delivery-list', {
+Component.register('core-order-delivery-list', {
     inject: ['orderDeliveryService'],
     mixins: [PaginationMixin],
 

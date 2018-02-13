@@ -1,8 +1,9 @@
+import { Component } from 'src/core/shopware';
 import ProductDetailRepository from 'src/core/repository/product.detail.repository';
 import template from './sw-product-detail.html.twig';
 import './sw-product-detail.less';
 
-Shopware.Component.register('sw-product-detail', {
+Component.register('sw-product-detail', {
     inject: ['categoryService', 'productManufacturerService', 'taxService', 'customerGroupService'],
 
     mixins: [ProductDetailRepository],

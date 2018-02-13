@@ -1,6 +1,7 @@
+import { Component } from 'src/core/shopware';
 import template from './sw-order-basic-form.html.twig';
 
-Shopware.Component.register('core-order-basic-form', {
+Component.register('core-order-basic-form', {
     props: {
         order: {
             type: Object,

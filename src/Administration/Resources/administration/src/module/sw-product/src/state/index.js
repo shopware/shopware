@@ -1,3 +1,4 @@
+import { State } from 'src/core/shopware';
 import {
     SET_WORKING,
     RECEIVE_PRODUCT_LIST,
@@ -5,7 +6,7 @@ import {
     RECEIVE_PRODUCT_LIST_FAILURE
 } from './types';
 
-Shopware.State.register('productList', {
+State.register('productList', {
     state() {
         return {
             isWorking: false,

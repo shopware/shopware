@@ -1,5 +1,6 @@
+import { Component } from 'src/core/shopware';
 import template from './sw-dashboard.html.twig';
 
-Shopware.Component.register('sw-dashboard', {
+Component.register('sw-dashboard', {
     template
 });

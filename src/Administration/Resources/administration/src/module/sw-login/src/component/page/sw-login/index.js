@@ -1,7 +1,8 @@
+import { Component } from 'src/core/shopware';
 import template from './sw-login.html.twig';
 import './sw-login.less';
 
-Shopware.Component.register('sw-login', {
+Component.register('sw-login', {
     stateMapping: {
         state: 'login'
     },

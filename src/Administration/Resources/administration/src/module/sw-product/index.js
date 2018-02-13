@@ -1,7 +1,8 @@
+import { Module } from 'src/core/shopware';
 import './src/component';
 import './src/state';
 
-Shopware.Module.register('sw-product', {
+Module.register('sw-product', {
     type: 'core',
     name: 'Produkt Übersicht',
     description: 'The module for managing products.',

@@ -1,3 +1,4 @@
+import { State } from 'src/core/shopware';
 import {
     SET_WORKING,
     LOGIN_USER_WITH_PASSWORD,
@@ -5,7 +6,7 @@ import {
     LOGIN_USER_WITH_PASSWORD_FAILURE
 } from './types';
 
-Shopware.State.register('login', {
+State.register('login', {
     state() {
         return {
             isWorking: false,

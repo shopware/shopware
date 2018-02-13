@@ -1,6 +1,7 @@
+import { Module } from 'src/core/shopware';
 import './src/component';
 
-Shopware.Module.register('sw-order', {
+Module.register('sw-order', {
     type: 'core',
     name: 'Bestellübersicht',
     description: 'Enter description here...',

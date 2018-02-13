@@ -1,6 +1,7 @@
+import { Module } from 'src/core/shopware';
 import './src/component/page/dashboard';
 
-Shopware.Module.register('sw-dashboard', {
+Module.register('sw-dashboard', {
     type: 'core',
     name: 'Core Dashboard Module',
     description: 'Enter description here...',

@@ -1,9 +1,10 @@
+import { Component } from 'src/core/shopware';
 import PaginationMixin from 'src/app/component/mixin/pagination.mixin';
 import utils from 'src/core/service/util.service';
 import './sw-order-list.less';
 import template from './sw-order-list.twig';
 
-Shopware.Component.register('sw-order-list', {
+Component.register('sw-order-list', {
     inject: ['orderService'],
     mixins: [PaginationMixin],
 

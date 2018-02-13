@@ -1,6 +1,7 @@
+import { Component } from 'src/core/shopware';
 import template from './sw-product-basic-form.html.twig';
 
-Shopware.Component.register('sw-product-basic-form', {
+Component.register('sw-product-basic-form', {
     props: {
         product: {
             type: Object,

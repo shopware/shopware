@@ -1,6 +1,6 @@
 @import "~less/variables";
 
-@sw-field-color-border:       @color-border;
+@sw-field-color-border:       @color-steam-cloud;
 @sw-field-color-border-focus: @color-shopware-blue;
 @sw-field-color-text:         @color-deep-cove;
 @sw-field-color-background:   @color-white;
@@ -9,7 +9,7 @@
 @sw-field-font-family:        @font-family-default;
 @sw-field-transition:         border-color 0.3s ease-out;
 @sw-field-border-radius:      4px;
-@sw-field-color-label:        @color-deep-cove;
+@sw-field-color-label:        @color-kashmir;
 
 .sw-field {
     width: 100%;
@@ -45,7 +45,7 @@
         }
 
         &:focus + .sw-form-field--suffix {
-            border-color: darken(#E9EFF4, 10%);
+            border-color: darken(@sw-field-color-background, 10%);
         }
 
         &::placeholder {

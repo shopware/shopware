@@ -1,3 +1,5 @@
+@import "~less/variables";
+
 .workspace-container {
     position: absolute;
     top: 80px;
@@ -9,7 +11,7 @@
     .workspace--toolbar {
         height: 70px;
         border-bottom: 2px solid;
-        background: #fff;
+        background: @color-white;
         position: absolute;
         top: 0;
         left: 0;
@@ -21,7 +23,7 @@
         padding-top: 24px;
         font-size: 18px;
         line-height: 23px;
-        color: #000;
+        color: @color-kashmir;
         float: left;
         white-space: nowrap;
         overflow: hidden;
@@ -68,7 +70,7 @@
     }
 
     .workspace--content {
-        background: #f5f6fa;
+        background: @color-iron;
         position: absolute;
         top: 70px;
         left: 0;

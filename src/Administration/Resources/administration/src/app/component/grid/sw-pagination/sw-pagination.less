@@ -1,10 +1,9 @@
 @import "~less/variables";
 
-@sw-pagination-color-background:        @color-white;
-@sw-pagination-controls-color-border:   @color-border;
+@sw-pagination-color-background:        @color-link-water;
+@sw-pagination-controls-color-border:   @color-steam-cloud;
 @sw-pagination-controls-color-hover:    @color-shopware-blue;
-@sw-pagination-controls-color-disabled: #D2DEE6;
-@sw-pagination-controls-color-text:     #7b8c9d;
+@sw-pagination-controls-color-text:     @color-gutenberg;
 @sw-pagination-border-radius:           3px;
 
 .sw-pagination {
@@ -16,7 +15,7 @@
         display: inline-block;
         font-size: 14px;
         line-height: 16px;
-        color: #353E47;
+        color: @color-kashmir;
     }
 
     .number {
@@ -45,13 +44,10 @@
         }
 
         &[disabled="disabled"] {
-            color: @sw-pagination-controls-color-disabled;
+            background: darken(@sw-pagination-color-background, 5%);
+            border-color: darken(@sw-pagination-controls-color-border, 10%);
+            color: lighten(@sw-pagination-controls-color-text, 20%);
             cursor: default;
-
-            &:hover {
-                color: @sw-pagination-controls-color-disabled;
-                border-color: @sw-pagination-controls-color-disabled;
-            }
         }
     }
 

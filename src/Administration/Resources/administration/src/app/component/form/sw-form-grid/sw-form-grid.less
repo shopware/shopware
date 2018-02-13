@@ -1,7 +1,9 @@
+@import "~less/variables";
+
 .sw-form-grid {
     display: block;
     width: 100%;
-    border: 1px solid #d2dee6;
+    border: 1px solid @color-steam-cloud;
     border-radius: 3px;
     font-size: 12px;
     line-height: 14px;
@@ -20,8 +22,8 @@
     }
 
     .grid--header {
-        background: #f3f6f8;
-        color: #484E56;
+        background: @color-light-gray;
+        color: @color-kashmir;
         font-weight: bold;
 
         .grid--cell {
@@ -30,21 +32,21 @@
     }
 
     .grid--item {
-        background: #ffffff;
+        background: @color-white;
 
         &:nth-child(even) {
-            background: #F5F8FA;
+            background: @color-light-gray;
         }
 
         &:hover {
-            background: #A4BCCD;
-            color: #ffffff;
-            border-color: #D2DEE6;
+            background: darken(@color-light-gray, 10%);
+            color: @color-white;
+            border-color: @color-steam-cloud;
         }
     }
 
     .grid--cell {
-        border-right: 1px solid #d2dee6;
+        border-right: 1px solid @color-steam-cloud;
         position: relative;
 
         &:last-child {
@@ -66,9 +68,9 @@
                 position: absolute;
                 top: -2%;
                 left: -2%;
-                background: #ffffff;
-                border: 1px solid #189EFF;
-                box-shadow: 0 0 4px 0 rgba(24, 158, 255, 0.3);
+                background: @color-white;
+                border: 1px solid @color-shopware-blue;
+                box-shadow: 0 0 4px 0 @color-cadet-blue;
                 border-radius: 3px;
             }
         }
@@ -102,9 +104,9 @@
                         position: absolute;
                         top: -2%;
                         left: -2%;
-                        background: #ffffff;
-                        border: 1px solid #189EFF;
-                        box-shadow: 0 0 4px 0 rgba(24, 158, 255, 0.3);
+                        background: @color-white;
+                        border: 1px solid @color-shopware-blue;
+                        box-shadow: 0 0 4px 0 @color-cadet-blue;
                         border-radius: 3px;
                     }
                 }

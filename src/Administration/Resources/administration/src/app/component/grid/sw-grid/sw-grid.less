@@ -1,3 +1,20 @@
+@import "~less/variables";
+
+@sw-grid-item-color-border:            @color-steam-cloud;
+@sw-grid-item-color-background:        @color-white;
+@sw-grid-item-even-color-background:   @color-light-gray;
+@sw-grid-item-active-color-border:     @color-shopware-blue;
+@sw-grid-item-active-color-background: @color-cadet-blue;
+@sw-grid-header-color-background:      @color-light-gray;
+@sw-grid-header-color-border:          @color-steam-cloud;
+@sw-grid-header-color-text:            @color-kashmir;
+@sw-grid-sidebar-color-background:     @color-white;
+@sw-grid-sidebar-color-border:         @color-steam-cloud;
+@sw-grid-sidebar-icon-color:           @color-gutenberg;
+@sw-grid-sidebar-active-icon-color:    @color-shopware-blue;
+@sw-grid-actions-icon-color:           @color-gutenberg;
+@sw-grid-actions-icon-hover-color:     @color-shopware-blue;
+
 .sw-grid {
     width: 100%;
     height: 100%;
@@ -32,8 +49,8 @@
     .sw-grid--sidebar {
         width: 64px;
         height: 100%;
-        background-color: #fff;
-        border-left: 1px solid #DEE7ED;
+        background-color: @sw-grid-sidebar-color-background;
+        border-left: 1px solid @sw-grid-sidebar-color-border;
 
         button {
             width: 64px;
@@ -43,15 +60,15 @@
             text-align: center;
             border-width: 0 0 1px 0;
             border-style: solid;
-            border-color: #dadde4;
-            color: #788a9e;
+            border-color: @sw-grid-sidebar-color-border;
+            color: @sw-grid-sidebar-icon-color;
             background: none;
             cursor: pointer;
             outline: none;
 
             &:hover {
                 background: #e8f6ff;
-                color: #179dfe;
+                color: @sw-grid-sidebar-active-icon-color;
             }
         }
     }
@@ -60,14 +77,14 @@
         height: 64px;
         display: grid;
         grid-auto-flow: column;
-        background-color: #F3F6F8;
-        border-bottom: 1px solid #D2DEE6;
+        background-color: @sw-grid-header-color-background;
+        border-bottom: 1px solid @sw-grid-header-color-border;
         padding-right: 17px;
 
         .sw-grid--cell {
             font-size: 16px;
             font-weight: bold;
-            color: #353E47;
+            color: @sw-grid-header-color-text;
         }
     }
 
@@ -79,11 +96,11 @@
     .sw-grid--item {
         display: grid;
         grid-auto-flow: column;
-        border-bottom: 1px solid #D2DEE6;
-        background: #fff;
+        border-bottom: 1px solid @sw-grid-item-color-border;
+        background: @sw-grid-item-color-background;
 
         &:nth-child(even) {
-            background: #f5f8fa;
+            background: @sw-grid-item-even-color-background;
         }
 
         &:last-child {
@@ -91,12 +108,12 @@
         }
 
         &:hover {
-            background: #f1f9fe;
+            background: lighten(@sw-grid-item-active-color-background, 2%);
         }
 
         &.is--selected {
-            background: #e8f6ff;
-            border-bottom: 1px solid #1b9dfb;
+            background: @sw-grid-item-active-color-background;
+            border-bottom: 1px solid @sw-grid-item-active-color-border;
         }
     }
 
@@ -115,17 +132,17 @@
             cursor: pointer;
             outline: none;
             font-size: 20px;
-            color: #788b9c;
+            color: @sw-grid-actions-icon-color;
 
             &:hover {
-                color: #169fff;
+                color: @sw-grid-actions-icon-hover-color;
             }
         }
     }
 
     .sw-grid--pagination {
         height: 64px;
-        background: #fff;
-        border-top: 1px solid #D2DEE6;
+        background: @sw-grid-item-color-background;
+        border-top: 1px solid @sw-grid-item-color-border;
     }
 }

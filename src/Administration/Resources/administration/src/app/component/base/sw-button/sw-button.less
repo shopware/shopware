@@ -1,11 +1,13 @@
 @import '~less/variables';
 
-@sw-button-default-color-background: #FCFCFC;
-@sw-button-default-color-text:       #54698D;
-@sw-button-default-color-border:     @color-border;
+@sw-button-default-color-background: @color-link-water;
+@sw-button-default-color-text:       @color-gutenberg;
+@sw-button-default-color-border:     @color-steam-cloud;
 @sw-button-primary-color-background: @color-shopware-blue;
 @sw-button-primary-color-text:       @color-white;
-@sw-button-transition:               all 0.3s ease-out;
+@sw-button-ghost-color:              @color-shopware-blue;
+@sw-button-ghost-color-text-hover:   @color-white;
+@sw-button-transition:               all 0.15s ease-out;
 
 .sw-button {
     vertical-align: middle;
@@ -33,20 +35,84 @@
             border-color: darken(@sw-button-default-color-border, 5%);
         }
 
+        &:active {
+            color: darken(@sw-button-default-color-text, 10%);
+            background: darken(@sw-button-default-color-background, 10%);
+            border-color: darken(@sw-button-default-color-border, 20%);
+        }
+
+        &:disabled,
+        &.sw-button__element--disabled {
+            background: darken(@sw-button-default-color-background, 5%);
+            border-color: darken(@sw-button-default-color-border, 10%);
+            color: lighten(@sw-button-default-color-text, 20%);
+            cursor: default;
+        }
+
         &.sw-button__element--primary {
             background: @sw-button-primary-color-background;
             color: @sw-button-primary-color-text;
             line-height: 36px;
             border: 0 none;
 
+            &.sw-button__element--small {
+                line-height: 28px;
+            }
+
+            &.sw-button__element--large {
+                line-height: 44px;
+            }
+
             &:hover {
                 background: darken(@sw-button-primary-color-background, 10%);
+            }
+
+            &:active {
+                background: darken(@sw-button-primary-color-background, 15%);
+            }
+
+            &:disabled,
+            &.sw-button__element--disabled {
+                background: lighten(@sw-button-primary-color-background, 20%);
+            }
+        }
+
+        &.sw-button__element--ghost {
+            background-color: transparent;
+            border-color: @sw-button-ghost-color;
+            color: @sw-button-ghost-color;
+
+            &:hover {
+                background-color: @sw-button-ghost-color;
+                color: @sw-button-ghost-color-text-hover;
+            }
+
+            &:active {
+                background-color: darken(@sw-button-ghost-color, 10%);
+                border-color: darken(@sw-button-ghost-color, 10%);
+                color: @sw-button-ghost-color-text-hover;
+            }
+
+            &:disabled,
+            &.sw-button__element--disabled {
+                background-color: transparent;
+                border-color: lighten(@sw-button-ghost-color, 20%);
+                color: lighten(@sw-button-ghost-color, 20%);
             }
         }
 
         &.sw-button__element--small {
+            padding-left: 15px;
+            padding-right: 15px;
             font-size: 12px;
-            line-height: 28px;
+            line-height: 26px;
+        }
+
+        &.sw-button__element--large {
+            padding-left: 28px;
+            padding-right: 28px;
+            line-height: 42px;
+            font-size: 15px;
         }
     }
 }

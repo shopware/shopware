@@ -1,11 +1,13 @@
 <div class="sw-button">
     <router-link v-if="link.length"
                  :to="{ 'name': link }"
-                 :class="['sw-button__element', isPrimary ? 'sw-button__element--primary' : 'sw-button__element--secondary']">
+                 class="sw-button__element"
+                 :class="buttonClasses">
         <slot></slot>
     </router-link>
 
-    <button :class="['sw-button__element', isPrimary ? 'sw-button__element--primary' : 'sw-button__element--secondary']"
+    <button class="sw-button__element"
+            :class="buttonClasses"
             :disabled="isDisabled"
             v-on="$listeners"
             v-else>

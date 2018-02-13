@@ -24,20 +24,6 @@ class ShopBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getParentIds(): array
-    {
-        return $this->fmap(function (ShopBasicStruct $shop) {
-            return $shop->getParentId();
-        });
-    }
-
-    public function filterByParentId(string $id): self
-    {
-        return $this->filter(function (ShopBasicStruct $shop) use ($id) {
-            return $shop->getParentId() === $id;
-        });
-    }
-
     public function getTemplateIds(): array
     {
         return $this->fmap(function (ShopBasicStruct $shop) {

@@ -10,8 +10,9 @@
             <argument type="service" id="shopware.api.entity_reader"/>
             <argument type="service" id="shopware.api.entity_searcher"/>
             <argument type="service" id="shopware.api.entity_definition_registry"/>
+            <argument type="service" id="security.token_storage"/>
+            <argument type="service" id="shopware.api.entity_searcher"/>
         </service>
-
     </services>
 </container>                
                 

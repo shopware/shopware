@@ -31,7 +31,7 @@ use Shopware\Framework\Struct\Struct;
 class TranslationContext extends Struct
 {
     /**
-     * @var string|null
+     * @var string
      */
     protected $fallbackId;
 
@@ -50,7 +50,7 @@ class TranslationContext extends Struct
      */
     protected $versionId;
 
-    public function __construct(string $shopId, bool $isDefaultShop, ?string $fallbackId, string $versionId = Defaults::LIVE_VERSION)
+    public function __construct(string $shopId, bool $isDefaultShop, string $fallbackId = Defaults::SHOP, string $versionId = Defaults::LIVE_VERSION)
     {
         $this->fallbackId = $fallbackId;
         $this->isDefaultShop = $isDefaultShop;
@@ -70,21 +70,23 @@ class TranslationContext extends Struct
 
     public static function createDefaultContext(): self
     {
-        return new self('ffa32a50-e2d0-4cf3-8389-a53f8d6cd594', true, null);
+        return new self('ffa32a50-e2d0-4cf3-8389-a53f8d6cd594', true);
     }
 
     public static function createFromShop(ShopBasicStruct $shop): self
     {
         return new self(
             $shop->getId(),
-            $shop->getIsDefault(),
-            $shop->getParentId()
+            $shop->getIsDefault()
         );
     }
 
     public function hasFallback(): bool
     {
-        return !$this->isDefaultShop() && $this->getFallbackId() !== $this->getShopId();
+        if ($this->isDefaultShop) {
+            return false;
+        }
+        return $this->getFallbackId() !== $this->getShopId();
     }
 
     public function getShopId(): string

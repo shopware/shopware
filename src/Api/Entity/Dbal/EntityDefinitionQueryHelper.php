@@ -14,6 +14,7 @@ use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\FieldAware\SqlParseAware;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\Inherited;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Defaults;
@@ -138,7 +139,7 @@ class EntityDefinitionQueryHelper
         $query->from(self::escape($table), self::escape($table));
 
         if ($definition::isVersionAware() && $context->getVersionId() !== Defaults::LIVE_VERSION) {
-            self::buildVersionFrom($connection, $query, $definition, $context);
+            self::joinVersion($query, $definition, $definition::getEntityName(), $context);
 
         } else if ($definition::isVersionAware()) {
             $query->andWhere(self::escape($table) . '.`version_id` = :version');
@@ -186,18 +187,18 @@ class EntityDefinitionQueryHelper
 
         $referenceClass = null;
         if ($field instanceof ManyToOneAssociationField) {
-            self::joinManyToOne($definition, $root, $field, $query);
+            self::joinManyToOne($definition, $root, $field, $query, $context);
             $referenceClass = $field->getReferenceClass();
         }
 
         if ($field instanceof OneToManyAssociationField) {
-            self::joinOneToMany($definition, $root, $field, $query);
+            self::joinOneToMany($definition, $root, $field, $query, $context);
             $query->addState(self::REQUIRES_GROUP_BY);
             $referenceClass = $field->getReferenceClass();
         }
 
         if ($field instanceof ManyToManyAssociationField) {
-            self::joinManyToMany($definition, $root, $field, $query);
+            self::joinManyToMany($definition, $root, $field, $query, $context);
             $query->addState(self::REQUIRES_GROUP_BY);
             $referenceClass = $field->getReferenceDefinition();
         }
@@ -223,7 +224,7 @@ class EntityDefinitionQueryHelper
      * @param ManyToOneAssociationField $field
      * @param QueryBuilder              $query
      */
-    public static function joinManyToOne(string $definition, string $root, ManyToOneAssociationField $field, QueryBuilder $query): void
+    public static function joinManyToOne(string $definition, string $root, ManyToOneAssociationField $field, QueryBuilder $query, TranslationContext $context): void
     {
         /** @var EntityDefinition|string $reference */
         $reference = $field->getReferenceClass();
@@ -235,26 +236,67 @@ class EntityDefinitionQueryHelper
         }
         $query->addState($alias);
 
-        $versionJoin = '';
-        if ($definition::isVersionAware() && $reference::isVersionAware()) {
-            $versionJoin = ' AND #root#.version_id = #alias#.version_id';
+        $versionAware = ($definition::isVersionAware() && $reference::isVersionAware());
+
+        if ($versionAware && $context->getVersionId() !== Defaults::LIVE_VERSION) {
+
+            $subRoot = $field->getReferenceClass()::getEntityName();
+            $versionQuery = new QueryBuilder($query->getConnection());
+            $versionQuery->select(self::escape($subRoot) . '.*');
+            $versionQuery->from(self::escape($subRoot), self::escape($subRoot));
+
+            self::joinVersion($versionQuery, $field->getReferenceClass(), $subRoot, $context);
+
+            $query->leftJoin(
+                self::escape($root),
+                '('. $versionQuery->getSQL() .')',
+                self::escape($alias),
+                str_replace(
+                    ['#root#', '#source_column#', '#alias#', '#reference_column#'],
+                    [
+                        self::escape($root),
+                        self::escape($field->getJoinField()),
+                        self::escape($alias),
+                        self::escape($field->getReferenceField()),
+                    ],
+                    '#root#.#source_column# = #alias#.#reference_column#'
+                )
+            );
+
+        } else if ($versionAware) {
+            $query->leftJoin(
+                self::escape($root),
+                self::escape($table),
+                self::escape($alias),
+                str_replace(
+                    ['#root#', '#source_column#', '#alias#', '#reference_column#'],
+                    [
+                        self::escape($root),
+                        self::escape($field->getJoinField()),
+                        self::escape($alias),
+                        self::escape($field->getReferenceField()),
+                    ],
+                    '#root#.#source_column# = #alias#.#reference_column# AND #root#.version_id = #alias#.version_id'
+                )
+            );
+        } else {
+            $query->leftJoin(
+                self::escape($root),
+                self::escape($table),
+                self::escape($alias),
+                str_replace(
+                    ['#root#', '#source_column#', '#alias#', '#reference_column#'],
+                    [
+                        self::escape($root),
+                        self::escape($field->getJoinField()),
+                        self::escape($alias),
+                        self::escape($field->getReferenceField()),
+                    ],
+                    '#root#.#source_column# = #alias#.#reference_column#'
+                )
+            );
         }
 
-        $query->leftJoin(
-            self::escape($root),
-            self::escape($table),
-            self::escape($alias),
-            str_replace(
-                ['#root#', '#source_column#', '#alias#', '#reference_column#'],
-                [
-                    self::escape($root),
-                    self::escape($field->getJoinField()),
-                    self::escape($alias),
-                    self::escape($field->getReferenceField()),
-                ],
-                '#root#.#source_column# = #alias#.#reference_column#' . $versionJoin
-            )
-        );
 
         if ($definition === $reference) {
             return;
@@ -265,10 +307,10 @@ class EntityDefinitionQueryHelper
         }
 
         $parent = $reference::getFields()->get($reference::getParentPropertyName());
-        self::joinManyToOne($reference, $alias, $parent, $query);
+        self::joinManyToOne($reference, $alias, $parent, $query, $context);
     }
 
-    public static function joinOneToMany(string $definition, string $root, OneToManyAssociationField $field, QueryBuilder $query): void
+    public static function joinOneToMany(string $definition, string $root, OneToManyAssociationField $field, QueryBuilder $query, TranslationContext $context): void
     {
         /** @var EntityDefinition|string $reference */
         $reference = $field->getReferenceClass();
@@ -283,7 +325,7 @@ class EntityDefinitionQueryHelper
 
         $versionJoin = '';
         /** @var string|EntityDefinition $definition */
-        if ($definition::isVersionAware()) {
+        if ($definition::isVersionAware() && $field->is(CascadeDelete::class)) {
             $versionJoin = ' AND #root#.version_id = #alias#.version_id';
         }
 
@@ -312,10 +354,10 @@ class EntityDefinitionQueryHelper
         }
 
         $parent = $reference::getFields()->get($reference::getParentPropertyName());
-        self::joinManyToOne($reference, $alias, $parent, $query);
+        self::joinManyToOne($reference, $alias, $parent, $query, $context);
     }
 
-    public static function joinManyToMany(string $definition, string $root, ManyToManyAssociationField $field, QueryBuilder $query): void
+    public static function joinManyToMany(string $definition, string $root, ManyToManyAssociationField $field, QueryBuilder $query, TranslationContext $context): void
     {
         /** @var EntityDefinition $mapping */
         $mapping = $field->getMappingDefinition();
@@ -330,8 +372,9 @@ class EntityDefinitionQueryHelper
 
         $versionJoin = '';
         /** @var string|EntityDefinition $definition */
-        if ($definition::isVersionAware() && $mapping::isVersionAware()) {
-            $versionJoin = ' AND #root#.version_id = #alias#.version_id';
+        if ($definition::isVersionAware() && $mapping::isVersionAware() && $field->is(CascadeDelete::class)) {
+            $versionField = $definition::getEntityName() . '_version_id';
+            $versionJoin = ' AND #root#.version_id = #alias#.' . $versionField;
         }
 
         $query->leftJoin(
@@ -359,8 +402,8 @@ class EntityDefinitionQueryHelper
         $versionJoin = '';
         /** @var string|EntityDefinition $definition */
         if ($reference::isVersionAware()) {
-            $versionJoin = 'AND #alias#.version_id = :liveVersion';
-            $query->setParameter('liveVersion', Uuid::fromString(Defaults::LIVE_VERSION)->getBytes());
+            $versionField = $reference::getEntityName() . '_version_id';
+            $versionJoin = 'AND #alias#.version_id = #mapping#.' . $versionField;
         }
 
         $query->leftJoin(
@@ -388,14 +431,14 @@ class EntityDefinitionQueryHelper
         }
 
         $parent = $reference::getFields()->get($reference::getParentPropertyName());
-        self::joinManyToOne($reference, $alias, $parent, $query);
+        self::joinManyToOne($reference, $alias, $parent, $query, $context);
     }
 
-    public static function joinTranslation(string $root, string $definition, QueryBuilder $query, TranslationContext $context): void
+    public static function joinTranslation(string $root, string $definition, QueryBuilder $query, TranslationContext $context, bool $raw = false): void
     {
         self::joinTranslationTable($root, $definition, $query, $context);
 
-        if (!$definition::getParentPropertyName()) {
+        if (!$definition::getParentPropertyName() || $raw) {
             return;
         }
 
@@ -406,11 +449,11 @@ class EntityDefinitionQueryHelper
         self::joinTranslationTable($alias, $definition, $query, $context);
     }
 
-    public static function addTranslationSelect(string $root, string $definition, QueryBuilder $query, TranslationContext $context, FieldCollection $fields): void
+    public static function addTranslationSelect(string $root, string $definition, QueryBuilder $query, TranslationContext $context, FieldCollection $fields, bool $raw = false): void
     {
-        self::joinTranslation($root, $definition, $query, $context);
+        self::joinTranslation($root, $definition, $query, $context, $raw);
 
-        [$chain, $inheritedChain] = self::buildTranslationChain($root, $definition, $context);
+        [$chain, $inheritedChain] = self::buildTranslationChain($root, $definition, $context, $raw);
 
         /** @var TranslatedField $field */
         foreach ($fields->getElements() as $property => $field) {
@@ -429,18 +472,19 @@ class EntityDefinitionQueryHelper
         }, $ids);
     }
 
-    private static function buildVersionFrom(Connection $connection, QueryBuilder $query, string $definition, TranslationContext $context): void
+    private static function joinVersion(QueryBuilder $query, string $definition, string $root, TranslationContext $context): void
     {
         /** @var string|EntityDefinition $definition */
-        $root = $definition::getEntityName();
+        $table = $definition::getEntityName();
 
+        $connection = $query->getConnection();
         $versionQuery = $connection->createQueryBuilder();
         $versionQuery->select([
-            'coalesce(draft.id, live.id) as id',
-            'coalesce(draft.version_id, live.version_id) as version_id'
+            'COALESCE(draft.id, live.id) as id',
+            'COALESCE(draft.version_id, live.version_id) as version_id'
         ]);
-        $versionQuery->from(self::escape($root), 'live');
-        $versionQuery->leftJoin('live', self::escape($root), 'draft', 'draft.id = live.id AND draft.version_id = :version');
+        $versionQuery->from(self::escape($table), 'live');
+        $versionQuery->leftJoin('live', self::escape($table), 'draft', 'draft.id = live.id AND draft.version_id = :version');
         $versionQuery->andWhere('live.version_id = :liveVersion');
 
         $query->setParameter('liveVersion', Uuid::fromString(Defaults::LIVE_VERSION)->getBytes());
@@ -454,10 +498,7 @@ class EntityDefinitionQueryHelper
             self::escape($versionRoot),
             str_replace(
                 ['#version#', '#root#'],
-                [
-                    self::escape($versionRoot),
-                    self::escape($root)
-                ],
+                [self::escape($versionRoot), self::escape($root)],
                 '#version#.version_id = #root#.version_id AND #version#.id = #root#.id'
             )
         );
@@ -542,13 +583,13 @@ class EntityDefinitionQueryHelper
         return sprintf('COALESCE(%s)', implode(',', $chainSelect));
     }
 
-    private static function buildTranslationChain(string $root, string $definition, TranslationContext $context): array
+    private static function buildTranslationChain(string $root, string $definition, TranslationContext $context, bool $raw = false): array
     {
         $chain = [$root . '.translation'];
         $inheritedChain = [$root . '.translation'];
 
         /** @var string|EntityDefinition $definition */
-        if ($definition::getParentPropertyName()) {
+        if ($definition::getParentPropertyName() && !$raw) {
             /** @var EntityDefinition|string $definition */
             $parentName = $definition::getParentPropertyName();
             $inheritedChain[] = $root . '.' . $parentName . '.translation';
@@ -559,7 +600,7 @@ class EntityDefinitionQueryHelper
             $chain[] = $root . '.translation.fallback';
         }
 
-        if ($definition::getParentPropertyName() && $context->hasFallback()) {
+        if ($definition::getParentPropertyName() && $context->hasFallback() && !$raw) {
             /** @var EntityDefinition|string $definition */
             $parentName = $definition::getParentPropertyName();
             $inheritedChain[] = $root . '.' . $parentName . '.translation.fallback';

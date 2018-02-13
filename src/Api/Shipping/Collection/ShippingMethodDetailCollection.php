@@ -14,15 +14,6 @@ class ShippingMethodDetailCollection extends ShippingMethodBasicCollection
      */
     protected $elements = [];
 
-    public function getCustomerGroups(): CustomerGroupBasicCollection
-    {
-        return new CustomerGroupBasicCollection(
-            $this->fmap(function (ShippingMethodDetailStruct $shippingMethod) {
-                return $shippingMethod->getCustomerGroup();
-            })
-        );
-    }
-
     public function getOrderDeliveryIds(): array
     {
         $ids = [];

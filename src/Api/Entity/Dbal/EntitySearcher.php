@@ -34,7 +34,7 @@ class EntitySearcher implements EntitySearcherInterface
         if ($definition::getParentPropertyName()) {
             /** @var EntityDefinition|string $definition */
             $parent = $definition::getFields()->get($definition::getParentPropertyName());
-            EntityDefinitionQueryHelper::joinManyToOne($definition, $definition::getEntityName(), $parent, $query);
+            EntityDefinitionQueryHelper::joinManyToOne($definition, $definition::getEntityName(), $parent, $query, $context);
         }
 
         //add id select, e.g. `product`.`id`;

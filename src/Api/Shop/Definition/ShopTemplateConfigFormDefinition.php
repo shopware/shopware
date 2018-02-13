@@ -10,6 +10,7 @@ use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
+use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
@@ -52,10 +53,12 @@ class ShopTemplateConfigFormDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
             new FkField('parent_id', 'parentId', self::class),
+            new ReferenceVersionField(self::class, 'parent_version_id'),
             (new FkField('shop_template_id', 'shopTemplateId', ShopTemplateDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(ShopTemplateDefinition::class))->setFlags(new Required()),
             (new StringField('type', 'type'))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             new StringField('title', 'title'),

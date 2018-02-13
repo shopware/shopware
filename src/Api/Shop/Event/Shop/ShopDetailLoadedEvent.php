@@ -53,9 +53,6 @@ class ShopDetailLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
-        if ($this->shops->getParents()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->shops->getParents(), $this->context);
-        }
         if ($this->shops->getTemplates()->count() > 0) {
             $events[] = new ShopTemplateBasicLoadedEvent($this->shops->getTemplates(), $this->context);
         }

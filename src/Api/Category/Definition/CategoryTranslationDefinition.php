@@ -14,6 +14,7 @@ use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
+use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
@@ -49,9 +50,12 @@ class CategoryTranslationDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([ 
-            new VersionField(),
             (new FkField('category_id', 'categoryId', CategoryDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
+
             (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new ReferenceVersionField(ShopDefinition::class, 'language_version_id'))->setFlags(new PrimaryKey(), new Required()),
+
             (new StringField('name', 'name'))->setFlags(new Required()),
             new LongTextField('path_names', 'pathNames'),
             new LongTextField('meta_keywords', 'metaKeywords'),

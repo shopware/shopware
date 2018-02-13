@@ -46,8 +46,8 @@ class LogDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([ 
-            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
             (new StringField('type', 'type'))->setFlags(new Required()),
             (new StringField('key', 'key'))->setFlags(new Required()),
             (new LongTextField('text', 'text'))->setFlags(new Required()),

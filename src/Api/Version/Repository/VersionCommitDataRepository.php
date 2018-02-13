@@ -3,11 +3,13 @@
 namespace Shopware\Api\Version\Repository;
 
 use Shopware\Api\Version\Collection\VersionCommitBasicCollection;
+use Shopware\Api\Version\Collection\VersionCommitDataBasicCollection;
 use Shopware\Api\Version\Definition\VersionCommitDataDefinition;
 use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataAggregationResultLoadedEvent;
 use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataBasicLoadedEvent;
 use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataIdSearchResultLoadedEvent;
 use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataSearchResultLoadedEvent;
+use Shopware\Api\Version\Struct\VersionCommitDataSearchResult;
 use Shopware\Api\Version\Struct\VersionCommitSearchResult;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
@@ -63,7 +65,7 @@ class VersionCommitDataRepository implements RepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): VersionCommitSearchResult
+    public function search(Criteria $criteria, TranslationContext $context): VersionCommitDataSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -74,7 +76,7 @@ class VersionCommitDataRepository implements RepositoryInterface
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = VersionCommitSearchResult::createFromResults($ids, $entities, $aggregations);
+        $result = VersionCommitDataSearchResult::createFromResults($ids, $entities, $aggregations);
 
         $event = new VersionCommitDataSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -102,9 +104,9 @@ class VersionCommitDataRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, TranslationContext $context): VersionCommitBasicCollection
+    public function readBasic(array $ids, TranslationContext $context): VersionCommitDataBasicCollection
     {
-        /** @var VersionCommitBasicCollection $entities */
+        /** @var VersionCommitDataBasicCollection $entities */
         $entities = $this->reader->readBasic(VersionCommitDataDefinition::class, $ids, $context);
 
         $event = new VersionCommitDataBasicLoadedEvent($entities, $context);
@@ -113,7 +115,7 @@ class VersionCommitDataRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, TranslationContext $context): VersionCommitBasicCollection
+    public function readDetail(array $ids, TranslationContext $context): VersionCommitDataBasicCollection
     {
         return $this->readBasic($ids, $context);
     }

@@ -10,11 +10,6 @@ use Shopware\Api\Shop\Collection\ShopBasicCollection;
 class ShippingMethodDetailStruct extends ShippingMethodBasicStruct
 {
     /**
-     * @var CustomerGroupBasicStruct|null
-     */
-    protected $customerGroup;
-
-    /**
      * @var OrderDeliveryBasicCollection
      */
     protected $orderDeliveries;
@@ -36,16 +31,6 @@ class ShippingMethodDetailStruct extends ShippingMethodBasicStruct
         $this->translations = new ShippingMethodTranslationBasicCollection();
 
         $this->shops = new ShopBasicCollection();
-    }
-
-    public function getCustomerGroup(): ?CustomerGroupBasicStruct
-    {
-        return $this->customerGroup;
-    }
-
-    public function setCustomerGroup(?CustomerGroupBasicStruct $customerGroup): void
-    {
-        $this->customerGroup = $customerGroup;
     }
 
     public function getOrderDeliveries(): OrderDeliveryBasicCollection

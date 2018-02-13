@@ -55,7 +55,6 @@ class TaxDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([ 
-            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             (new FloatField('tax_rate', 'rate'))->setFlags(new Required()),

@@ -18,6 +18,7 @@ use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\PriceRulesField;
+use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
@@ -37,6 +38,7 @@ use Shopware\Api\Product\Struct\ProductDetailStruct;
 use Shopware\Api\Tax\Definition\TaxDefinition;
 use Shopware\Api\Unit\Definition\UnitDefinition;
 use Shopware\Api\Entity\Field\VersionField;
+
 class ProductDefinition extends EntityDefinition
 {
     /**
@@ -71,9 +73,11 @@ class ProductDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([ 
-            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
+
             new FkField('parent_id', 'parentId', self::class),
+            new ReferenceVersionField(self::class, 'parent_version_id'),
 
             //not inherited fields
             new BoolField('active', 'active'),
@@ -81,10 +85,15 @@ class ProductDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
 
-            //inherited foreign keys
+            //inherited foreign keys with version fields
             (new FkField('product_manufacturer_id', 'manufacturerId', ProductManufacturerDefinition::class))->setFlags(new Inherited(), new Required()),
+            (new ReferenceVersionField(ProductManufacturerDefinition::class))->setFlags(new Inherited(), new Required()),
+
             (new FkField('unit_id', 'unitId', UnitDefinition::class))->setFlags(new Inherited()),
+            new ReferenceVersionField(UnitDefinition::class),
+
             (new FkField('tax_id', 'taxId', TaxDefinition::class))->setFlags(new Inherited(), new Required()),
+            (new ReferenceVersionField(TaxDefinition::class))->setFlags(new Inherited(), new Required()),
 
             //inherited data fields
             (new FloatField('price', 'price'))->setFlags(new Inherited(), new Required()),

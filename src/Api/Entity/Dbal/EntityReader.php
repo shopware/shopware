@@ -3,7 +3,6 @@
 namespace Shopware\Api\Entity\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Entity\EntityDefinition;
@@ -19,12 +18,14 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\Deferred;
 use Shopware\Api\Entity\Write\Flag\Extension;
 use Shopware\Api\Entity\Write\Flag\Inherited;
 use Shopware\Context\Struct\TranslationContext;
-use Shopware\Defaults;
+use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Framework\Struct\Struct;
+use Shopware\Framework\Struct\StructCollection;
 
 class EntityReader implements EntityReaderInterface
 {
@@ -78,14 +79,37 @@ class EntityReader implements EntityReaderInterface
         );
     }
 
-    private function read(array $ids, string $definition, TranslationContext $context, Entity $entity, EntityCollection $collection, FieldCollection $fields): EntityCollection
+    public function readRaw(string $definition, array $ids, TranslationContext $context): EntityCollection
+    {
+        /** @var EntityDefinition $definition */
+        $collectionClass = EntityCollection::class;
+
+        $structClass = ArrayStruct::class;
+
+        $details = $this->read(
+            $ids,
+            $definition,
+            $context,
+            new $structClass(),
+            new $collectionClass(),
+            $definition::getFields()->getDetailProperties(),
+            true
+        );
+
+        $this->removeInheritance($definition, $details);
+
+        return $details;
+
+    }
+
+    private function read(array $ids, string $definition, TranslationContext $context, Entity $entity, EntityCollection $collection, FieldCollection $fields, bool $raw = false): EntityCollection
     {
         if (empty($ids)) {
             return $collection;
         }
 
-        /** @var EntityDefinition $definition */
-        $rows = $this->fetch($ids, $definition, $context, $fields);
+        /** @var EntityDefinition|string $definition */
+        $rows = $this->fetch($ids, $definition, $context, $fields, $raw);
         foreach ($rows as $row) {
             $collection->add(
                 EntityHydrator::hydrate(clone $entity, $definition, $row, $definition::getEntityName())
@@ -121,7 +145,8 @@ class EntityReader implements EntityReaderInterface
         TranslationContext $context,
         string $root,
         QueryBuilder $query,
-        FieldCollection $fields
+        FieldCollection $fields,
+        bool $raw = false
     ): void {
         /** @var EntityDefinition $definition */
         $filtered = $fields->filter(function (Field $field) {
@@ -130,10 +155,10 @@ class EntityReader implements EntityReaderInterface
 
         $parent = null;
 
-        if ($definition::getParentPropertyName()) {
+        if ($definition::getParentPropertyName() && !$raw) {
             /** @var EntityDefinition|string $definition */
             $parent = $definition::getFields()->get($definition::getParentPropertyName());
-            EntityDefinitionQueryHelper::joinManyToOne($definition, $root, $parent, $query);
+            EntityDefinitionQueryHelper::joinManyToOne($definition, $root, $parent, $query, $context);
         }
 
         foreach ($filtered as $field) {
@@ -158,10 +183,10 @@ class EntityReader implements EntityReaderInterface
                     continue;
                 }
 
-                EntityDefinitionQueryHelper::joinManyToOne($definition, $root, $field, $query);
+                EntityDefinitionQueryHelper::joinManyToOne($definition, $root, $field, $query, $context);
 
                 $alias = $root . '.' . $field->getPropertyName();
-                $this->joinBasic($field->getReferenceClass(), $context, $alias, $query, $basics);
+                $this->joinBasic($field->getReferenceClass(), $context, $alias, $query, $basics, $raw);
 
                 continue;
             }
@@ -177,7 +202,8 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
-            if ($field instanceof StorageAware && $field->is(Inherited::class) && $parent !== null) {
+            /** @var Field $field */
+            if ($field instanceof StorageAware && $field->is(Inherited::class) && $parent !== null && !$raw) {
                 $parentAlias = $root . '.' . $parent->getPropertyName();
                 $child = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
                 $parentField = EntityDefinitionQueryHelper::escape($parentAlias) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
@@ -206,7 +232,7 @@ class EntityReader implements EntityReaderInterface
             return;
         }
 
-        EntityDefinitionQueryHelper::addTranslationSelect($root, $definition, $query, $context, $translatedFields);
+        EntityDefinitionQueryHelper::addTranslationSelect($root, $definition, $query, $context, $translatedFields, $raw);
     }
 
     /**
@@ -217,13 +243,13 @@ class EntityReader implements EntityReaderInterface
      *
      * @return array
      */
-    private function fetch(array $ids, string $definition, TranslationContext $context, FieldCollection $fields): array
+    private function fetch(array $ids, string $definition, TranslationContext $context, FieldCollection $fields, bool $raw): array
     {
         $table = $definition::getEntityName();
 
         $query = EntityDefinitionQueryHelper::getBaseQuery($this->connection, $definition, $context);
 
-        $this->joinBasic($definition, $context, $table, $query, $fields);
+        $this->joinBasic($definition, $context, $table, $query, $fields, $raw);
 
         $query->andWhere(EntityDefinitionQueryHelper::escape($table) . '.`id` IN (:ids)');
         $query->setParameter('ids', array_values(EntityDefinitionQueryHelper::uuidStringsToBytes($ids)), Connection::PARAM_STR_ARRAY);
@@ -319,7 +345,7 @@ class EntityReader implements EntityReaderInterface
     private function loadManyToMany(ManyToManyAssociationField $association, TranslationContext $context, EntityCollection $collection): void
     {
         $idProperty = $association->getStructIdMappingProperty();
-
+        
         //collect all ids of many to many association which already stored inside the struct instances
         $ids = $this->collectManyToManyIds($collection, $idProperty);
 
@@ -347,8 +373,9 @@ class EntityReader implements EntityReaderInterface
 
         $versionCondition = '';
         /** @var string|EntityDefinition $definition */
-        if ($mapping::isVersionAware() && $definition::isVersionAware()) {
-            $versionCondition = 'AND #alias#.version_id = #root#.version_id';
+        if ($mapping::isVersionAware() && $definition::isVersionAware() && $field->is(CascadeDelete::class)) {
+            $versionField = $definition::getEntityName() . '_version_id';
+            $versionCondition = ' AND #alias#.'.$versionField.' = #root#.version_id';
         }
 
         $query->addSelect(
@@ -423,5 +450,47 @@ class EntityReader implements EntityReaderInterface
         }
 
         return false;
+    }
+
+    /**
+     * @param string $definition
+     * @param $details
+     */
+    private function removeInheritance(string $definition, $details): void
+    {
+        $inherited = $definition::getFields()->filterInstance(AssociationInterface::class)->filterByFlag(
+            Inherited::class
+        );
+
+        foreach ($details as $detail) {
+
+            foreach ($inherited as $association) {
+                if ($association instanceof ManyToOneAssociationField) {
+                    $joinField = $association->getJoinField();
+                    $idField = $association->getStorageName();
+                } else {
+                    if ($association instanceof ManyToManyAssociationField) {
+                        $joinField = $association->getLocalField();
+                        $idField = 'id';
+                    } else {
+                        if ($association instanceof OneToManyAssociationField) {
+                            $joinField = $association->getLocalField();
+                            $idField = 'id';
+                        }
+                    }
+                }
+
+                $join = $definition::getFields()->getByStorageName($joinField);
+                $id = $definition::getFields()->getByStorageName($idField);
+
+                /** @var ArrayStruct $detail */
+                $idValue = $detail->get($id->getPropertyName());
+                $joinValue = $detail->get($join->getPropertyName());
+
+                if ($idValue !== $joinValue) {
+                    $detail->offsetUnset($association->getPropertyName());
+                }
+            }
+        }
     }
 }

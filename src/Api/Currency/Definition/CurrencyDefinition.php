@@ -59,8 +59,8 @@ class CurrencyDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([ 
-            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
             (new FloatField('factor', 'factor'))->setFlags(new Required()),
             (new StringField('symbol', 'symbol'))->setFlags(new Required()),
             new TranslatedField(new StringField('short_name', 'shortName')),

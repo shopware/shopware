@@ -4,6 +4,7 @@ namespace Shopware\Api\Version\Definition;
 
 use Shopware\Api\Entity\Field\ArrayField;
 use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Version\Collection\VersionCommitDataBasicCollection;
 use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataDeletedEvent;
@@ -42,6 +43,11 @@ class VersionCommitDataDefinition extends EntityDefinition
         return 'version_commit_data';
     }
 
+    public static function isVersionAware(): bool
+    {
+        return false;
+    }
+
     public static function getFields(): FieldCollection
     {
         if (self::$fields) {
@@ -52,7 +58,8 @@ class VersionCommitDataDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('version_commit_id', 'versionCommitId', VersionCommitDefinition::class))->setFlags(new Required()),
             new ManyToOneAssociationField('commit', 'version_commit_id', VersionCommitDefinition::class, false),
-
+            new IdField('user_id', 'userId'),
+            new IntField('ai', 'ai'),
             (new StringField('entity_name', 'entityName'))->setFlags(new Required()),
             (new ArrayField('entity_id', 'entityId'))->setFlags(new Required()),
             (new StringField('action', 'action'))->setFlags(new Required()),

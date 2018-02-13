@@ -37,10 +37,6 @@ class ProductMediaBasicStruct extends Entity
      */
     protected $updatedAt;
 
-    /**
-     * @var string|null
-     */
-    protected $parentId;
 
     /**
      * @var MediaBasicStruct
@@ -105,16 +101,6 @@ class ProductMediaBasicStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-    }
-
-    public function getParentId(): ?string
-    {
-        return $this->parentId;
-    }
-
-    public function setParentId(?string $parentId): void
-    {
-        $this->parentId = $parentId;
     }
 
     public function getMedia(): MediaBasicStruct

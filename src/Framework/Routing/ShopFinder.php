@@ -60,7 +60,6 @@ class ShopFinder
 
         //first use default shop than main shops
         $query->addOrderBy('shop.is_default', 'DESC');
-        $query->addOrderBy('shop.parent_id', 'ASC');
 
         $shops = $query->execute()->fetchAll();
 
@@ -111,7 +110,6 @@ class ShopFinder
         $query = $this->connection->createQueryBuilder();
         $query->select([
             'shop.id',
-            'shop.parent_id',
             'shop.base_url',
             'shop.hosts',
             'shop.category_id',

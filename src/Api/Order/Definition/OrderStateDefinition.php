@@ -55,8 +55,8 @@ class OrderStateDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([ 
-            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
             new TranslatedField(new StringField('description', 'description')),
             new IntField('position', 'position'),
             new BoolField('has_mail', 'hasMail'),

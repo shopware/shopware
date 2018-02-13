@@ -4,6 +4,7 @@ namespace Shopware\Rest\Test;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
+use Shopware\Defaults;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Client;
 use Symfony\Component\DependencyInjection\Container;
@@ -66,6 +67,8 @@ class ApiTestCase extends WebTestCase
             'locale_id' => Uuid::fromString('7b52d9dd-2b06-40ec-90be-9f57edf29be7')->getBytes(),
             'user_role_id' => '123',
             'active' => 1,
+            'version_id' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes(),
+            'locale_version_id' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes()
         ]);
 
         self::$apiUsernames[] = $username;

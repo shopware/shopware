@@ -11,6 +11,7 @@ use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
+use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
@@ -54,9 +55,10 @@ class UserDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([ 
-            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
             (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(LocaleDefinition::class))->setFlags(new Required()),
             (new StringField('username', 'username'))->setFlags(new Required()),
             (new StringField('password', 'password'))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),

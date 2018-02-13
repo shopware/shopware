@@ -13,11 +13,6 @@ use Shopware\Api\Shop\Collection\ShopBasicCollection;
 class ShopDetailStruct extends ShopBasicStruct
 {
     /**
-     * @var ShopBasicStruct|null
-     */
-    protected $parent;
-
-    /**
      * @var ShopTemplateBasicStruct
      */
     protected $template;
@@ -77,16 +72,6 @@ class ShopDetailStruct extends ShopBasicStruct
         $this->children = new ShopBasicCollection();
 
         $this->currencies = new CurrencyBasicCollection();
-    }
-
-    public function getParent(): ?ShopBasicStruct
-    {
-        return $this->parent;
-    }
-
-    public function setParent(?ShopBasicStruct $parent): void
-    {
-        $this->parent = $parent;
     }
 
     public function getTemplate(): ShopTemplateBasicStruct

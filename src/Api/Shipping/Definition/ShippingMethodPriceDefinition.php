@@ -9,6 +9,7 @@ use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\FloatField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
+use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -49,9 +50,12 @@ class ShippingMethodPriceDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([ 
-            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
+
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(ShippingMethodDefinition::class))->setFlags(new Required()),
+
             (new FloatField('quantity_from', 'quantityFrom'))->setFlags(new Required()),
             (new FloatField('price', 'price'))->setFlags(new Required()),
             (new FloatField('factor', 'factor'))->setFlags(new Required()),

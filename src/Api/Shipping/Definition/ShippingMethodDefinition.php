@@ -61,9 +61,8 @@ class ShippingMethodDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([ 
-            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            new FkField('customer_group_id', 'customerGroupId', CustomerGroupDefinition::class),
+            new VersionField(),
             (new IntField('type', 'type'))->setFlags(new Required()),
             (new BoolField('bind_shippingfree', 'bindShippingfree'))->setFlags(new Required()),
             (new BoolField('bind_laststock', 'bindLaststock'))->setFlags(new Required()),
@@ -90,7 +89,6 @@ class ShippingMethodDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             new TranslatedField(new LongTextField('description', 'description')),
             new TranslatedField(new StringField('comment', 'comment')),
-            new ManyToOneAssociationField('customerGroup', 'customer_group_id', CustomerGroupDefinition::class, false),
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('prices', ShippingMethodPriceDefinition::class, 'shipping_method_id', true, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', ShippingMethodTranslationDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),

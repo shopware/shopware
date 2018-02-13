@@ -10,6 +10,7 @@ use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
+use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
@@ -53,12 +54,21 @@ class OrderDeliveryDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([ 
-            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
+
             (new FkField('order_id', 'orderId', OrderDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(OrderDefinition::class))->setFlags(new Required()),
+            
             (new FkField('shipping_address_id', 'shippingAddressId', OrderAddressDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(OrderAddressDefinition::class))->setFlags(new Required()),
+            
             (new FkField('order_state_id', 'orderStateId', OrderStateDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(OrderStateDefinition::class))->setFlags(new Required()),
+            
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(ShippingMethodDefinition::class))->setFlags(new Required()),
+            
             (new DateField('shipping_date_earliest', 'shippingDateEarliest'))->setFlags(new Required()),
             (new DateField('shipping_date_latest', 'shippingDateLatest'))->setFlags(new Required()),
             (new LongTextField('payload', 'payload'))->setFlags(new Required()),

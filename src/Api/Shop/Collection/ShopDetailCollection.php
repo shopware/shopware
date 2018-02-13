@@ -17,15 +17,6 @@ class ShopDetailCollection extends ShopBasicCollection
      */
     protected $elements = [];
 
-    public function getParents(): ShopBasicCollection
-    {
-        return new ShopBasicCollection(
-            $this->fmap(function (ShopDetailStruct $shop) {
-                return $shop->getParent();
-            })
-        );
-    }
-
     public function getTemplates(): ShopTemplateBasicCollection
     {
         return new ShopTemplateBasicCollection(

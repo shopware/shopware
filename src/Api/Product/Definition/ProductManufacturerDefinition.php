@@ -10,6 +10,7 @@ use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
+use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
@@ -56,9 +57,11 @@ class ProductManufacturerDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([ 
-            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
             new FkField('media_id', 'mediaId', MediaDefinition::class),
+            new ReferenceVersionField(MediaDefinition::class),
+
             new TranslatedField(new StringField('name', 'name')),
             new StringField('link', 'link'),
             new DateField('updated_at', 'updatedAt'),

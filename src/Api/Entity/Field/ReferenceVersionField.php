@@ -25,19 +25,35 @@
 namespace Shopware\Api\Entity\Field;
 
 use Ramsey\Uuid\Uuid;
+use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
 use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Version\Definition\VersionDefinition;
+use Shopware\Defaults;
 
-class VersionField extends FkField
+class ReferenceVersionField extends FkField
 {
-    public function __construct()
-    {
-        parent::__construct('version_id', 'versionId', VersionDefinition::class);
+    /**
+     * @var EntityDefinition|string
+     */
+    private $versionReference;
 
-        $this->setFlags(new PrimaryKey(), new Required());
+    public function __construct(string $definition, ?string $storageName = null)
+    {
+        /** @var string|EntityDefinition $definition */
+        $entity = $definition::getEntityName();
+        $storageName = $storageName ?? $entity . '_version_id';
+
+        $propertyName = explode('_', $storageName);
+        $propertyName = array_map('ucfirst', $propertyName);
+        $propertyName = lcfirst(implode($propertyName));
+
+        parent::__construct($storageName, $propertyName, VersionDefinition::class);
+
+        $this->setFlags(new Required());
+        $this->versionReference = $definition;
     }
 
     /**
@@ -45,10 +61,16 @@ class VersionField extends FkField
      */
     public function __invoke(EntityExistence $existence, KeyValuePair $kvPair): \Generator
     {
-        $value = $this->writeContext->getTranslationContext()->getVersionId();
+        if ($this->definition === $this->versionReference) {
+            //parent inheritance with versioning
+            $value = $kvPair->getValue() ?? Defaults::LIVE_VERSION;
 
-        //write version id of current object to write context
-        $this->writeContext->set($this->definition, 'versionId', $value);
+        } else if ($this->writeContext->has($this->versionReference, 'versionId')) {
+            $value = $this->writeContext->get($this->versionReference, 'versionId');
+
+        } else {
+            $value = Defaults::LIVE_VERSION;
+        }
 
         yield $this->storageName => Uuid::fromString($value)->getBytes();
     }

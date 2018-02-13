@@ -83,9 +83,9 @@ class ProductIndexer implements IndexerInterface
         );
 
         while ($ids = $iterator->fetchIds()) {
-            $this->refreshJoinIds($ids);
+            $this->refreshJoinIds($ids, $context);
 
-            $this->indexCategoryAssignment($ids);
+            $this->indexCategoryAssignment($ids, $context);
 
             $this->eventDispatcher->dispatch(
                 ProgressAdvancedEvent::NAME,
@@ -106,17 +106,17 @@ class ProductIndexer implements IndexerInterface
         $this->connection->transactional(function() use ($event) {
             $ids = $this->getRefreshedProductIds($event);
 
-            $this->indexCategoryAssignment($ids);
+            $this->indexCategoryAssignment($ids, $event->getContext());
         });
     }
 
-    private function indexCategoryAssignment(array $ids): void
+    private function indexCategoryAssignment(array $ids, TranslationContext $context): void
     {
         if (empty($ids)) {
             return;
         }
 
-        $categories = $this->fetchCategories($ids);
+        $categories = $this->fetchCategories($ids, $context);
 
         foreach ($categories as $productId => $mapping) {
             $categoryIds = array_filter(explode('||', (string) $mapping['ids']));
@@ -135,13 +135,17 @@ class ProductIndexer implements IndexerInterface
             $categoryIds = array_keys(array_flip(array_filter($categoryIds)));
 
             $this->connection->executeUpdate(
-                'UPDATE product SET category_tree = :tree WHERE id = :id',
-                ['id' => $productId, 'tree' => json_encode($categoryIds)]
+                'UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version',
+                [
+                    'id' => $productId,
+                    'tree' => json_encode($categoryIds),
+                    'version' => Uuid::fromString($context->getVersionId())->getBytes()
+                ]
             );
         }
     }
 
-    private function fetchCategories(array $ids): array
+    private function fetchCategories(array $ids, TranslationContext $context): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->select([
@@ -150,10 +154,15 @@ class ProductIndexer implements IndexerInterface
             "GROUP_CONCAT(HEX(category.id) SEPARATOR '||') as ids",
         ]);
         $query->from('product');
-        $query->leftJoin('product', 'product_category', 'mapping', 'mapping.product_id = product.category_join_id');
-        $query->leftJoin('mapping', 'category', 'category', 'category.id = mapping.category_id');
+        $query->leftJoin('product', 'product_category', 'mapping', 'mapping.product_id = product.category_join_id AND product.version_id = mapping.product_version_id');
+        $query->leftJoin('mapping', 'category', 'category', 'category.id = mapping.category_id AND category.version_id = :live');
         $query->addGroupBy('product.id');
+
         $query->andWhere('product.id IN (:ids)');
+        $query->andWhere('product.version_id = :version');
+
+        $query->setParameter('version', Uuid::fromString($context->getVersionId())->getBytes());
+        $query->setParameter('live', Uuid::fromString(Defaults::LIVE_VERSION)->getBytes());
 
         $bytes = EntityDefinitionQueryHelper::uuidStringsToBytes($ids);
 
@@ -188,13 +197,16 @@ class ProductIndexer implements IndexerInterface
         return $result->first();
     }
 
-    private function refreshJoinIds(array $ids = [])
+    private function refreshJoinIds(array $ids = [], TranslationContext $context)
     {
+        $version = Uuid::fromString($context->getVersionId())->getBytes();
         if (empty($ids)) {
             $this->connection->executeUpdate(
                 'UPDATE product SET 
-                product.category_join_id = IFNULL((SELECT product_category.product_id FROM product_category WHERE product_category.product_id = product.id LIMIT 1), product.parent_id),
-                product.media_join_id    = IFNULL((SELECT product_media.product_id FROM product_media WHERE product_media.product_id = product.id LIMIT 1), product.parent_id)'
+                product.category_join_id = IFNULL((SELECT product_category.product_id FROM product_category WHERE product_category.product_id = product.id AND product.version_id = product_category.product_version_id LIMIT 1), product.parent_id),
+                product.media_join_id    = IFNULL((SELECT product_media.product_id FROM product_media WHERE product_media.product_id = product.id AND product.version_id = product_media.version_id LIMIT 1), product.parent_id)
+                WHERE product.version_id = :version',
+                ['version' => $version]
             );
 
             $this->connection->executeUpdate(
@@ -203,7 +215,21 @@ class ProductIndexer implements IndexerInterface
                     variant.tax_join_id = IFNULL(variant.tax_id, parent.tax_id),
                     variant.manufacturer_join_id = IFNULL(variant.product_manufacturer_id, parent.product_manufacturer_id),
                     variant.unit_join_id = IFNULL(variant.unit_id, parent.unit_id)
-                 WHERE (variant.parent_id = parent.id OR variant.parent_id IS NULL)'
+                 WHERE variant.parent_id = parent.id
+                 AND variant.version_id = parent.version_id
+                 AND variant.version_id = :version',
+                ['version' => $version]
+            );
+
+            $this->connection->executeUpdate(
+                'UPDATE product as variant
+                 SET
+                    variant.tax_join_id = variant.tax_id,
+                    variant.manufacturer_join_id = variant.product_manufacturer_id,
+                    variant.unit_join_id = variant.unit_id
+                 WHERE variant.parent_id IS NULL 
+                 AND variant.version_id = :version',
+                ['version' => $version]
             );
 
             return;
@@ -214,15 +240,27 @@ class ProductIndexer implements IndexerInterface
         }, $ids);
 
         $this->connection->executeUpdate(
+            'UPDATE product SET 
+                product.category_join_id = IFNULL((SELECT product_category.product_id FROM product_category WHERE product_category.product_id = product.id AND product.version_id = product_category.product_version_id LIMIT 1), product.parent_id),
+                product.media_join_id    = IFNULL((SELECT product_media.product_id FROM product_media WHERE product_media.product_id = product.id AND product.version_id = product_media.version_id LIMIT 1), product.parent_id)
+                WHERE product.version_id = :version
+                AND product.id IN (:ids)',
+            ['ids' => $bytes, 'version' => $version],
+            ['ids' => Connection::PARAM_STR_ARRAY, 'version' => \PDO::PARAM_STR]
+        );
+
+        $this->connection->executeUpdate(
             'UPDATE product as variant, product as parent
              SET
                 variant.tax_join_id = IFNULL(variant.tax_id, parent.tax_id),
                 variant.manufacturer_join_id = IFNULL(variant.product_manufacturer_id, parent.product_manufacturer_id),
                 variant.unit_join_id = IFNULL(variant.unit_id, parent.unit_id)
              WHERE (variant.parent_id = parent.id)
-             AND variant.id IN (:ids)',
-            ['ids' => $bytes],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+             AND variant.id IN (:ids)
+             AND variant.version_id = parent.version_id
+             AND variant.version_id = :version',
+            ['ids' => $bytes, 'version' => $version],
+            ['ids' => Connection::PARAM_STR_ARRAY, 'version' => \PDO::PARAM_STR]
         );
 
         $this->connection->executeUpdate(
@@ -231,9 +269,11 @@ class ProductIndexer implements IndexerInterface
                 variant.tax_join_id = variant.tax_id,
                 variant.manufacturer_join_id = variant.product_manufacturer_id,
                 variant.unit_join_id = variant.unit_id
-             WHERE variant.parent_id IS NULL AND variant.id IN (:ids)',
-            ['ids' => $bytes],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+             WHERE variant.parent_id IS NULL
+             AND variant.version_id = :version 
+             AND variant.id IN (:ids)',
+            ['ids' => $bytes, 'version' => $version],
+            ['ids' => Connection::PARAM_STR_ARRAY, 'version' => \PDO::PARAM_STR]
         );
     }
 
@@ -252,30 +292,35 @@ class ProductIndexer implements IndexerInterface
 
         $ids = array_filter(array_unique($ids));
         if (!empty($ids)) {
-            $this->refreshJoinIds($ids);
+            $this->refreshJoinIds($ids, $event->getContext());
         }
 
         /** @var ProductMediaWrittenEvent|null $mediaWritten */
         $mediaWritten = $event->getEventByDefinition(ProductMediaDefinition::class);
         
         if ($mediaWritten) {
-            $this->mediaWritten($mediaWritten->getIds());
+            $this->mediaWritten($mediaWritten->getIds(), $mediaWritten->getContext());
         }
     }
 
-    private function mediaWritten(array $mediaIds)
+    private function mediaWritten(array $mediaIds, TranslationContext $context)
     {
+        $version = Uuid::fromString($context->getVersionId())->getBytes();
+
         $bytes = array_map(function($id) {
             return Uuid::fromString($id)->getBytes();
         }, $mediaIds);
 
         $this->connection->executeUpdate('
             UPDATE product, product_media
-            SET product.media_join_id = product_media.product_id
+              SET product.media_join_id = product_media.product_id
+
             WHERE product_media.id IN (:ids)
+            AND product.version_id = product_media.version_id
+            AND product.version_id = :version
             AND product_media.product_id = product.id',
-            ['ids' => $bytes],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => $bytes, 'version' => $version],
+            ['ids' => Connection::PARAM_STR_ARRAY, 'version' => \PDO::PARAM_STR]
         );
     }
 }

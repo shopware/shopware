@@ -2,24 +2,27 @@
 
 namespace Shopware\Administration\Search;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Customer\Definition\CustomerDefinition;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
+use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\Query\TermQuery;
+use Shopware\Api\Entity\Search\Query\TermsQuery;
 use Shopware\Api\Entity\Search\SearchResultInterface;
+use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
 use Shopware\Api\Order\Definition\OrderDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;
-use Shopware\Api\RepositoryInterface;
+use Shopware\Api\Version\Repository\VersionCommitDataRepository;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Struct\ArrayStruct;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class AuditLogSearch
+class AdministrationSearch
 {
     /**
      * @var ContainerInterface
@@ -37,20 +40,20 @@ class AuditLogSearch
     private $scoreBuilder;
 
     /**
-     * @var Connection
+     * @var VersionCommitDataRepository
      */
-    private $connection;
+    private $changesRepository;
 
     public function __construct(
         ContainerInterface $container,
         SearchTermInterpreter $interpreter,
         EntityScoreQueryBuilder $scoreBuilder,
-        Connection $connection
+        VersionCommitDataRepository $changesRepository
     ) {
         $this->container = $container;
         $this->interpreter = $interpreter;
         $this->scoreBuilder = $scoreBuilder;
-        $this->connection = $connection;
+        $this->changesRepository = $changesRepository;
     }
 
     public function search(string $term, int $page, int $limit, TranslationContext $context, string $userId): array
@@ -128,34 +131,38 @@ class AuditLogSearch
      */
     private function applyAuditLog(array $results, string $userId): array
     {
-        /** @var QueryBuilder $query */
-        $query = $this->connection->createQueryBuilder();
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new TermsQuery('version_commit_data.entityName', [
+                ProductDefinition::getEntityName(),
+                OrderDefinition::getEntityName(),
+                CustomerDefinition::getEntityName(),
+            ])
+        );
+        $criteria->addFilter(
+            new TermQuery('version_commit_data.userId', $userId)
+        );
 
-        $query->addSelect([
-            'log.entity',
-            'log.foreign_key',
-            'COUNT(log.user_id) as `action_count`',
-        ]);
-        $query->from('audit_log', 'log');
-        $query->andWhere('log.user_id = :user');
-        $query->setParameter('user', Uuid::fromString($userId)->getBytes());
-        $query->addGroupBy('entity');
-        $query->addGroupBy('foreign_key');
-        $query->addOrderBy('action_count', 'DESC');
+        $criteria->addSorting(new FieldSorting('version_commit_data.ai', 'DESC'));
+        $criteria->setLimit(100);
 
-        $data = $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_ASSOC);
+        $changes = $this->changesRepository->search($criteria, TranslationContext::createDefaultContext());
 
-        /** @var EntityDefinition $definition */
-        foreach ($results as $definition => $result) {
-            if (!array_key_exists($definition, $data)) {
+        foreach ($results as $definition => $entities) {
+            $definitionChanges = $changes->filterByEntity($definition);
+
+            if ($definitionChanges->count() <= 0) {
                 continue;
             }
 
-            $scoring = $data[$definition];
-
             /** @var Entity $entity */
-            foreach ($result as $entity) {
-                $score = $this->getEntityScore($scoring, $entity->getId());
+            foreach ($entities as $entity) {
+                $entityChanges = $definitionChanges->filterByEntityPrimary($definition, ['id' => $entity->getId()]);
+
+                $score = 1.1;
+                if ($entityChanges->count() > 0) {
+                    $score = 1 + ($entityChanges->count() / 10);
+                }
 
                 if (!$entity->hasExtension('search')) {
                     continue;
@@ -170,18 +177,6 @@ class AuditLogSearch
         return $results;
     }
 
-    private function getEntityScore(array $scoring, string $id)
-    {
-        $fallback = 1.0;
-        foreach ($scoring as $score) {
-            $foreignKey = Uuid::fromBytes($score['foreign_key'])->toString();
-            if ($foreignKey === $id) {
-                return 1 + ($score['action_count'] / 10);
-            }
-        }
-
-        return $fallback;
-    }
 
     /**
      * @param SearchResultInterface[] $results

@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Version\Event\VersionCommitData;
 
+use Shopware\Api\Version\Struct\VersionCommitDataSearchResult;
 use Shopware\Api\Version\Struct\VersionCommitSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Framework\Event\NestedEvent;
@@ -15,7 +16,7 @@ class VersionCommitDataSearchResultLoadedEvent extends NestedEvent
      */
     protected $result;
 
-    public function __construct(VersionCommitSearchResult $result)
+    public function __construct(VersionCommitDataSearchResult $result)
     {
         $this->result = $result;
     }

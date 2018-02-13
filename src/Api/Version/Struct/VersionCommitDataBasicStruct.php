@@ -47,6 +47,11 @@ class VersionCommitDataBasicStruct extends Entity
     protected $commit;
 
     /**
+     * @var string
+     */
+    protected $userId;
+
+    /**
      * @return int
      */
     public function getAi(): int
@@ -166,5 +171,15 @@ class VersionCommitDataBasicStruct extends Entity
     public function setCommit(VersionCommitBasicStruct $commit): void
     {
         $this->commit = $commit;
+    }
+
+    public function getUserId(): string
+    {
+        return $this->userId;
+    }
+
+    public function setUserId(string $userId): void
+    {
+        $this->userId = $userId;
     }
 }

@@ -20,6 +20,7 @@ use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
+use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
@@ -65,11 +66,18 @@ class CategoryDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([ 
-            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
+
             new FkField('parent_id', 'parentId', self::class),
+            new ReferenceVersionField(self::class, 'parent_version_id'),
+
             new FkField('media_id', 'mediaId', MediaDefinition::class),
+            new ReferenceVersionField(MediaDefinition::class),
+
             new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class),
+            new ReferenceVersionField(ProductStreamDefinition::class),
+
             new TranslatedField(new StringField('name', 'name')),
             new LongTextField('path', 'path'),
             new IntField('position', 'position'),

@@ -53,8 +53,8 @@ class ListingFacetDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
-            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
             (new StringField('unique_key', 'uniqueKey'))->setFlags(new Required()),
             (new LongTextField('payload', 'payload'))->setFlags(new Required()),
             new TranslatedField(new StringField('name', 'name')),

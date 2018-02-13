@@ -9,11 +9,6 @@ use Shopware\Api\Locale\Struct\LocaleBasicStruct;
 class ShopBasicStruct extends Entity
 {
     /**
-     * @var string|null
-     */
-    protected $parentId;
-
-    /**
      * @var string
      */
     protected $templateId;
@@ -142,16 +137,6 @@ class ShopBasicStruct extends Entity
      * @var CurrencyBasicStruct
      */
     protected $currency;
-
-    public function getParentId(): ?string
-    {
-        return $this->parentId;
-    }
-
-    public function setParentId(?string $parentId): void
-    {
-        $this->parentId = $parentId;
-    }
 
     public function getTemplateId(): string
     {

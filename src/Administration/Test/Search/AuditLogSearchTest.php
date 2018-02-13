@@ -5,12 +5,13 @@ namespace Shopware\Administration\Test\Search;
 use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
 use Ramsey\Uuid\Uuid;
-use Shopware\Administration\Search\AuditLogSearch;
+use Shopware\Administration\Search\AdministrationSearch;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
 use Shopware\Api\User\Repository\UserRepository;
 use Shopware\Context\Struct\TranslationContext;
+use Shopware\Defaults;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class AuditLogSearchTest extends KernelTestCase
@@ -31,7 +32,7 @@ class AuditLogSearchTest extends KernelTestCase
     private $connection;
 
     /**
-     * @var AuditLogSearch
+     * @var AdministrationSearch
      */
     private $search;
 
@@ -54,10 +55,13 @@ class AuditLogSearchTest extends KernelTestCase
         $this->connection->beginTransaction();
 
         $this->productRepository = $this->container->get(ProductRepository::class);
-        $this->search = $this->container->get(AuditLogSearch::class);
+        $this->search = $this->container->get(AdministrationSearch::class);
         $this->context = $context = TranslationContext::createDefaultContext();
+
         $this->connection->executeUpdate('
-            DELETE FROM `audit_log`;
+            DELETE FROM `version`;
+            DELETE FROM `version_commit`;
+            DELETE FROM `version_commit_data`;
             DELETE FROM `user`;
             DELETE FROM `order`;
             DELETE FROM `customer`;
@@ -92,11 +96,11 @@ class AuditLogSearchTest extends KernelTestCase
         $context = TranslationContext::createDefaultContext();
 
         $p1 = Uuid::uuid4()->toString();
-        $p2 = Uuid::uuid4()->toString();
+        $productId2 = Uuid::uuid4()->toString();
 
         $this->productRepository->upsert([
             ['id' => $p1, 'name' => 'test product 1', 'price' => 10, 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9', 'manufacturer' => ['name' => 'test']],
-            ['id' => $p2, 'name' => 'test product 2', 'price' => 10, 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9', 'manufacturer' => ['name' => 'test']],
+            ['id' => $productId2, 'name' => 'test product 2', 'price' => 10, 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9', 'manufacturer' => ['name' => 'test']],
             ['id' => Uuid::uuid4()->toString(), 'name' => 'notmatch', 'price' => 10, 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9', 'manufacturer' => ['name' => 'test']],
             ['id' => Uuid::uuid4()->toString(), 'name' => 'notmatch', 'price' => 10, 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9', 'manufacturer' => ['name' => 'test']],
         ], $context);
@@ -120,40 +124,27 @@ class AuditLogSearchTest extends KernelTestCase
 
         self::assertSame($secondScore, $firstScore);
 
-        $logs = [
-            [
-                'id' => Uuid::uuid4()->getBytes(),
-                'user_id' => Uuid::fromString($this->userId)->getBytes(),
-                'entity' => ProductDefinition::class,
-                'foreign_key' => Uuid::fromString($p2)->getBytes(),
-                'action' => 'insert',
-                'payload' => json_encode(''),
-                'created_at' => '2017-01-01',
-            ],
-            [
-                'id' => Uuid::uuid4()->getBytes(),
-                'user_id' => Uuid::fromString($this->userId)->getBytes(),
-                'entity' => ProductDefinition::class,
-                'foreign_key' => Uuid::fromString($p2)->getBytes(),
-                'action' => 'update',
-                'payload' => json_encode(''),
-                'created_at' => '2017-01-02',
-            ],
-            [
-                'id' => Uuid::uuid4()->getBytes(),
-                'user_id' => Uuid::fromString($this->userId)->getBytes(),
-                'entity' => ProductDefinition::class,
-                'foreign_key' => Uuid::fromString($p2)->getBytes(),
-                'action' => 'upsert',
-                'payload' => json_encode(''),
-                'created_at' => '2017-01-03',
-            ],
-        ];
+        $this->productRepository->update([
+            ['id' => $productId2, 'price' => 15],
+            ['id' => $productId2, 'price' => 20],
+            ['id' => $productId2, 'price' => 25],
+            ['id' => $productId2, 'price' => 30]
+        ], TranslationContext::createDefaultContext());
 
-        //now insert audit log operations for `product-2`
-        foreach ($logs as $log) {
-            $this->connection->insert('audit_log', $log);
-        }
+        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId2, Defaults::LIVE_VERSION);
+        $this->assertNotEmpty($changes);
+
+        $this->connection->executeUpdate('UPDATE version_commit_data SET user_id = NULL');
+        $this->connection->executeUpdate(
+            "UPDATE version_commit_data SET user_id = :user
+             WHERE entity_name = :entity 
+             AND JSON_EXTRACT(entity_id, '$.id') = :id",
+            [
+                'id' => $productId2,
+                'entity' => ProductDefinition::getEntityName(),
+                'user' => Uuid::fromString($this->userId)->getBytes()
+            ]
+        );
 
         $result = $this->search->search('test product', 1, 20, $context, $this->userId);
 
@@ -169,12 +160,31 @@ class AuditLogSearchTest extends KernelTestCase
         self::assertInstanceOf(ProductBasicStruct::class, $second);
 
         // `product-2` should now be boosted
-        self::assertSame($first->getId(), $p2);
+        self::assertSame($first->getId(), $productId2);
         self::assertSame($second->getId(), $p1);
 
         $firstScore = $first->getExtension('search')->get('score');
         $secondScore = $second->getExtension('search')->get('score');
 
         self::assertTrue($firstScore > $secondScore);
+    }
+
+    private function getVersionData(string $entity, string $id, string $versionId): array
+    {
+        return $this->connection->fetchAll(
+            "SELECT d.* 
+             FROM version_commit_data d
+             INNER JOIN version_commit c
+               ON c.id = d.version_commit_id
+               AND c.version_id = :version
+             WHERE entity_name = :entity 
+             AND JSON_EXTRACT(entity_id, '$.id') = :id
+             ORDER BY ai",
+            [
+                'entity' => $entity,
+                'id' => $id,
+                'version' => Uuid::fromString($versionId)->getBytes()
+            ]
+        );
     }
 }

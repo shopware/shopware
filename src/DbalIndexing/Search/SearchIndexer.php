@@ -17,6 +17,7 @@ use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\DbalIndexing\Indexer\IndexerInterface;
+use Shopware\Defaults;
 use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Product\Struct\ProductSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -178,15 +179,18 @@ class SearchIndexer implements IndexerInterface
                 'shop_id' => $shopId,
                 'version_id' => Uuid::fromString($context->getVersionId())->getBytes(),
                 'keyword' => $keyword,
+                'shop_version_id' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes()
             ]);
 
             $queue->addInsert($documentTable, [
                 'id' => Uuid::uuid4()->getBytes(),
                 'version_id' => Uuid::fromString($context->getVersionId())->getBytes(),
+                'product_version_id' => Uuid::fromString($context->getVersionId())->getBytes(),
+                'shop_version_id' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes(),
+                'product_id' => $productId,
                 'shop_id' => $shopId,
                 'keyword' => $keyword,
-                'ranking' => $ranking,
-                'product_id' => $productId,
+                'ranking' => $ranking
             ]);
         }
     }

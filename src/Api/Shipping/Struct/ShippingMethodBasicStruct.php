@@ -8,11 +8,6 @@ use Shopware\Api\Shipping\Collection\ShippingMethodPriceBasicCollection;
 class ShippingMethodBasicStruct extends Entity
 {
     /**
-     * @var string|null
-     */
-    protected $customerGroupId;
-
-    /**
      * @var int
      */
     protected $type;
@@ -146,16 +141,6 @@ class ShippingMethodBasicStruct extends Entity
      * @var ShippingMethodPriceBasicCollection
      */
     protected $prices;
-
-    public function getCustomerGroupId(): ?string
-    {
-        return $this->customerGroupId;
-    }
-
-    public function setCustomerGroupId(?string $customerGroupId): void
-    {
-        $this->customerGroupId = $customerGroupId;
-    }
 
     public function getType(): int
     {

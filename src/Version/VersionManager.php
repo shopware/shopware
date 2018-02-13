@@ -8,6 +8,8 @@ use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\AssociationInterface;
 use Shopware\Api\Entity\Field\Field;
+use Shopware\Api\Entity\Field\ManyToManyAssociationField;
+use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\SubresourceField;
 use Shopware\Api\Entity\Field\SubVersionField;
 use Shopware\Api\Entity\Field\VersionField;
@@ -23,6 +25,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Tax\Definition\TaxDefinition;
+use Shopware\Api\User\Definition\UserDefinition;
 use Shopware\Api\Version\Collection\VersionCommitBasicCollection;
 use Shopware\Api\Version\Definition\VersionCommitDefinition;
 use Shopware\Api\Version\Definition\VersionDefinition;
@@ -35,7 +38,10 @@ use Shopware\Api\Version\Struct\VersionCommitDataBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Collection;
+use Shopware\Framework\Struct\Struct;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class VersionManager
 {
@@ -59,6 +65,22 @@ class VersionManager
      */
     private $entityDefinitionRegistry;
 
+
+    /**
+     * @var TokenStorageInterface
+     */
+    private $tokenStorage;
+
+    /**
+     * @var EntitySearcherInterface
+     */
+    private $searcher;
+
+    /**
+     * @var array
+     */
+    private $mapping = [];
+
     /**
      * VersionManager constructor.
      * @param EntityWriterInterface $entityWriter
@@ -70,13 +92,17 @@ class VersionManager
         EntityWriterInterface $entityWriter,
         EntityReaderInterface $entityReader,
         EntitySearcherInterface $entitySearcher,
-        DefinitionRegistry $entityDefinitionRegistry
+        DefinitionRegistry $entityDefinitionRegistry,
+        TokenStorageInterface $tokenStorage,
+        EntitySearcherInterface $searcher
     )
     {
         $this->entityWriter = $entityWriter;
         $this->entityReader = $entityReader;
         $this->entitySearcher = $entitySearcher;
         $this->entityDefinitionRegistry = $entityDefinitionRegistry;
+        $this->tokenStorage = $tokenStorage;
+        $this->searcher = $searcher;
     }
 
     public function upsert(string $definition, array $rawData, WriteContext $writeContext): array
@@ -115,21 +141,21 @@ class VersionManager
         return $writtenEvent;
     }
 
-    public function createVersion(string $definition, string $id, WriteContext $context, ?string $name = null): string
+    public function createVersion(string $definition, string $id, WriteContext $context, ?string $name = null, ?string $versionId = null): string
     {
         $primaryKey = [
             'id' => $id,
             'versionId' => Defaults::LIVE_VERSION
         ];
 
-        $versionId = Uuid::uuid4()->toString();
+        $versionId = $versionId ?? Uuid::uuid4()->toString();
         $versionData = ['id' => $versionId];
 
         if ($name) {
             $versionData['name'] = $name;
         }
 
-        $this->entityWriter->insert(VersionDefinition::class, [$versionData], $context);
+        $this->entityWriter->upsert(VersionDefinition::class, [$versionData], $context);
 
         /** @var EntityDefinition|string $definition */
         $identifiers = $this->clone($definition, $primaryKey, $versionId, $context);
@@ -153,6 +179,9 @@ class VersionManager
         $allChanges = [];
         $entities = [];
 
+        $versionContext = $context->createWithVersionId($versionId);
+        $liveContext = $context->createWithVersionId(Defaults::LIVE_VERSION);
+
         /** @var VersionCommitBasicCollection $commits */
         foreach ($commits as $commit) {
             foreach ($commit->getData() as $data) {
@@ -170,33 +199,36 @@ class VersionManager
                 switch ($data->getAction()) {
                     case 'insert':
                     case 'update':
+                    case 'upsert':
                         $payload = json_decode($data->getPayload(), true);
-                        $payload['versionId'] = Defaults::LIVE_VERSION;
-                        $this->entityWriter->upsert($dataDefinition, [$payload], $context);
+                        $payload = $this->addVersionToPayload($payload, $dataDefinition, Defaults::LIVE_VERSION);
+                        $this->entityWriter->upsert($dataDefinition, [$payload], $liveContext);
                         break;
 
                     case 'delete':
                         $id = $data->getEntityId();
-                        $id['versionId'] = Defaults::LIVE_VERSION;
-
-                        $this->entityWriter->delete($dataDefinition, [$id], $context);
+                        $id = $this->addVersionToPayload($id, $dataDefinition, Defaults::LIVE_VERSION);
+                        $this->entityWriter->delete($dataDefinition, [$id], $liveContext);
                         break;
                 }
             }
 
-            $this->entityWriter->delete(VersionCommitDefinition::class, [['id' => $commit->getId()]], $context);
+            $this->entityWriter->delete(VersionCommitDefinition::class, [['id' => $commit->getId()]], $liveContext);
         }
 
         $newData = array_map(function(VersionCommitDataBasicStruct $data) {
+            $definition = $this->entityDefinitionRegistry->get($data->getEntityName());
+
             $id = $data->getEntityId();
-            $id['versionId'] = Defaults::LIVE_VERSION;
+            $id = $this->addVersionToPayload($id, $definition, Defaults::LIVE_VERSION);
 
             $payload = json_decode($data->getPayload(), true);
-            $payload['versionId'] = Defaults::LIVE_VERSION;
+            $payload = $this->addVersionToPayload($payload, $definition, Defaults::LIVE_VERSION);
 
             return [
                 'entityId' => json_encode($id),
                 'payload' => json_encode($payload),
+                'userId' => $data->getUserId(),
                 'entityName' => $data->getEntityName(),
                 'action' => $data->getAction(),
                 'createdAt' => (new \DateTime())->format(\DateTime::ATOM)
@@ -206,7 +238,8 @@ class VersionManager
         $commit = [
             'versionId' => Defaults::LIVE_VERSION,
             'data' => $newData,
-//            'merge' => true,  //todo add flag for merge commit
+            'userId' => $this->getUserId(),
+            'isMerge' => true,
             'message' => 'merge commit ' . (new \DateTime())->format(\DateTime::ATOM)
         ];
 
@@ -216,11 +249,9 @@ class VersionManager
         foreach ($entities as $entity) {
             $primary = $entity['primary'];
             $definition = $entity['definition'];
+            $primary = $this->addVersionToPayload($primary, $definition, $versionId);
 
-            if ($primary['versionId'] !== $versionId) {
-                continue;
-            }
-            $this->entityWriter->delete($definition, [$primary], $context);
+            $this->entityWriter->delete($definition, [$primary], $versionContext);
         }
     }
 
@@ -228,7 +259,7 @@ class VersionManager
     {
         /** @var Entity $detail */
         /** @var string|EntityDefinition $definition */
-        $detail = $this->entityReader->readDetail($definition, [$primaryKey['id']], $context->getTranslationContext())->first();
+        $detail = $this->entityReader->readRaw($definition, [$primaryKey['id']], $context->getTranslationContext())->first();
 
         if ($detail === null) {
             throw new \Exception(sprintf('Cannot create new version. %s by id (%s) not found.', $definition::getEntityName(), print_r($primaryKey, true)));
@@ -241,17 +272,37 @@ class VersionManager
         $detailArray = $detail->jsonSerialize();
 
         $payload = [];
+
         foreach ($detailArray as $key => $value) {
-            if (!in_array($key, $fields->getKeys()) || !$value) {
+            if (!in_array($key, $fields->getKeys(), true) || !$value) {
                 continue;
             }
 
-            $payload[$key] = $this->convertValue($value);
+            $field = $fields->get($key);
+
+            if ($field instanceof ManyToManyAssociationField) {
+                $mapping = $field->getMappingDefinition();
+                $fk = $mapping::getFields()->getByStorageName($field->getMappingReferenceColumn());
+
+                $new = [];
+                /** @var Entity $nested */
+                foreach ($value as $nested) {
+                    $new[] = [$fk->getPropertyName() => $nested->getId()];
+                }
+                $payload[$key] = $new;
+            } else {
+                $payload[$key] = $this->convertValue($value);
+            }
         }
 
         $payload = array_filter($payload);
         $payload = $this->removeVersion($definition, $payload);
         $payload['id'] = $detail->getId();
+
+        //do not versioning child elements, child elements can have their own version
+        if (array_key_exists('children', $payload)) {
+            unset($payload['children']);
+        }
 
         $newContext = $context->createWithVersionId($versionId);
 
@@ -328,12 +379,21 @@ class VersionManager
             return $elements;
         }
 
+        if ($value instanceof Struct) {
+            $entity = $value->jsonSerialize();
+
+            foreach ($entity as &$data) {
+                $data = $this->convertValue($data);
+            }
+            return array_filter($entity);
+        }
+
         return $value;
     }
 
     private function writeAuditLog(array $writtenEvents, WriteContext $writeContext, string $action, ?string $versionId = null): void
     {
-        $userId = null;//$this->getUserId($writeContext->getTranslationContext());
+        $userId = $this->getUserId();
 
         $versionId = $versionId ?? $writeContext->getTranslationContext()->getVersionId();
 
@@ -353,6 +413,7 @@ class VersionManager
             }
 
             foreach ($items as $item) {
+
                 $payload = $item['payload'];
 
                 $primary = $item['primaryKey'];
@@ -367,6 +428,7 @@ class VersionManager
                     'entityName' => $definition::getEntityName(),
                     'entityId' => json_encode($primary),
                     'payload' => json_encode($payload),
+                    'userId' => $userId,
                     'action' => $action,
                     'createdAt' => new \DateTime(),
                 ];
@@ -380,7 +442,7 @@ class VersionManager
         $this->entityWriter->insert(VersionCommitDefinition::class, [$commit], $writeContext);
     }
 
-    private function getUserId(TranslationContext $context): ?string
+    private function getUserId(): ?string
     {
         $token = $this->tokenStorage->getToken();
         if (!$token) {
@@ -399,7 +461,7 @@ class VersionManager
         $criteria->setLimit(1);
         $criteria->addFilter(new TermQuery(UserDefinition::getEntityName() . '.username', $name));
 
-        $users = $this->searcher->search(UserDefinition::class, $criteria, $context);
+        $users = $this->searcher->search(UserDefinition::class, $criteria, TranslationContext::createDefaultContext());
         $ids = $users->getIds();
 
         $id = array_shift($ids);
@@ -409,5 +471,20 @@ class VersionManager
         }
 
         return $this->mapping[$name] = $id;
+    }
+
+    private function addVersionToPayload(array $payload, string $definition, string $versionId): array
+    {
+        /** @var string|EntityDefinition $definition */
+        $fields = $definition::getFields()->filter(function(Field $field) {
+            return $field instanceof VersionField || $field instanceof ReferenceVersionField;
+        });
+
+        /** @var Field $field */
+        foreach ($fields as $field) {
+            $payload[$field->getPropertyName()] = $versionId;
+        }
+
+        return $payload;
     }
 }

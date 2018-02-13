@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Entity\Write\Validation;
 
+use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Framework\ShopwareException;
 
 class RestrictDeleteViolationException extends \DomainException implements ShopwareException
@@ -11,10 +12,16 @@ class RestrictDeleteViolationException extends \DomainException implements Shopw
      */
     protected $restrictions;
 
-    public function __construct(array $restrictions)
+    /**
+     * @var string|EntityDefinition
+     */
+    protected $definition;
+
+    public function __construct(string $definition, array $restrictions)
     {
         $this->restrictions = $restrictions;
         parent::__construct('Delete of entities restricted', 400);
+        $this->definition = $definition;
     }
 
     /**

@@ -52,9 +52,9 @@ class CategoryPathBuilder implements EventSubscriberInterface
 
     public function categoryWritten(CategoryWrittenEvent $event): void
     {
-        $context = TranslationContext::createDefaultContext();
+        $context = $event->getContext();
 
-        $parentIds = $this->fetchParentIds($event->getIds());
+        $parentIds = $this->fetchParentIds($event->getIds(), $event->getContext());
 
         foreach ($parentIds as $id) {
             $this->update($id, $context);
@@ -63,8 +63,16 @@ class CategoryPathBuilder implements EventSubscriberInterface
 
     public function update(string $parentId, TranslationContext $context): void
     {
-        $this->connection->executeUpdate('UPDATE category SET path = NULL');
-        $count = (int) $this->connection->fetchColumn('SELECT COUNT(id) FROM category WHERE parent_id IS NOT NULL');
+        $version = Uuid::fromString($context->getVersionId())->getBytes();
+
+        $this->connection->executeUpdate(
+            'UPDATE category SET path = NULL WHERE version_id = :version',
+            ['version' => $version]
+        );
+        $count = (int) $this->connection->fetchColumn(
+            'SELECT COUNT(id) FROM category WHERE parent_id IS NOT NULL AND version_id = :version',
+            ['version' => $version]
+        );
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
@@ -97,8 +105,10 @@ class CategoryPathBuilder implements EventSubscriberInterface
         $criteria->addFilter(new TermQuery('category.parentId', $parent->getId()));
         $categories = $this->repository->search($criteria, $context);
 
-        $pathUpdate = $this->connection->prepare('UPDATE category SET path = :path, level = :level WHERE id = :id');
-        $nameUpdate = $this->connection->prepare('UPDATE category_translation SET path_names = :names WHERE category_id = :id');
+        $pathUpdate = $this->connection->prepare('UPDATE category SET path = :path, level = :level WHERE id = :id AND version_id = :version');
+        $nameUpdate = $this->connection->prepare('UPDATE category_translation SET path_names = :names WHERE category_id = :id AND version_id = :version');
+
+        $version = Uuid::fromString($context->getVersionId())->getBytes();
 
         /** @var CategoryBasicStruct $category */
         foreach ($categories as $category) {
@@ -121,10 +131,12 @@ class CategoryPathBuilder implements EventSubscriberInterface
                 'path' => '|' . $idPath . '|',
                 'id' => $id,
                 'level' => $parent->getLevel() + 1,
+                'version' => $version
             ]);
             $nameUpdate->execute([
                 'names' => '|' . $names . '|',
                 'id' => $id,
+                'version' => $version
             ]);
         }
 
@@ -150,13 +162,17 @@ class CategoryPathBuilder implements EventSubscriberInterface
         return $parents;
     }
 
-    private function fetchParentIds(array $ids): array
+    private function fetchParentIds(array $ids, TranslationContext $context): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->select(['parent_id']);
         $query->from('category');
-        $query->where('category.id IN (:ids)');
+        $query->andWhere('category.id IN (:ids)');
+        $query->andWhere('category.version_id = :version');
+
+        $query->setParameter('version', Uuid::fromString($context->getVersionId())->getBytes());
         $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
+
         $parents = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
 
         $parents = array_filter($parents);

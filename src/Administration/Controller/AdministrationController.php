@@ -3,7 +3,7 @@
 namespace Shopware\Administration\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Administration\Search\AuditLogSearch;
+use Shopware\Administration\Search\AdministrationSearch;
 use Shopware\Rest\ApiContext;
 use Shopware\Storefront\Twig\TemplateFinder;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 class AdministrationController extends Controller
 {
     /**
-     * @var AuditLogSearch
+     * @var AdministrationSearch
      */
     private $search;
 
@@ -25,7 +25,7 @@ class AdministrationController extends Controller
      */
     private $finder;
 
-    public function __construct(AuditLogSearch $search, TemplateFinder $finder)
+    public function __construct(AdministrationSearch $search, TemplateFinder $finder)
     {
         $this->search = $search;
         $this->finder = $finder;

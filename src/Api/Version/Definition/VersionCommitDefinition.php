@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Version\Definition;
 
+use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
@@ -61,6 +62,7 @@ class VersionCommitDefinition extends EntityDefinition
             (new FkField('version_id', 'versionId', VersionDefinition::class))->setFlags(new Required()),
             new IdField('user_id', 'userId'),
             (new IntField('ai', 'ai'))->setFlags(new ReadOnly()),
+            (new BoolField('is_merge', 'isMerge'))->setFlags(new ReadOnly()),
             new StringField('message', 'message'),
             (new DateField('created_at', 'createdAt'))->setFlags(new Required()),
             (new OneToManyAssociationField('data', VersionCommitDataDefinition::class, 'version_commit_id', true))->setFlags(new CascadeDelete()),

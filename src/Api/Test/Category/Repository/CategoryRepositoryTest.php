@@ -101,7 +101,8 @@ class CategoryRepositoryTest extends KernelTestCase
             ['ids' => [$parentId->getBytes(), $childId->getBytes()]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
-
+    
+        
         $this->assertEmpty($exists);
     }
 

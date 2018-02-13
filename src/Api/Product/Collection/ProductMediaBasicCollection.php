@@ -51,20 +51,6 @@ class ProductMediaBasicCollection extends EntityCollection
         });
     }
 
-    public function getParentIds(): array
-    {
-        return $this->fmap(function (ProductMediaBasicStruct $productMedia) {
-            return $productMedia->getParentId();
-        });
-    }
-
-    public function filterByParentId(string $id): self
-    {
-        return $this->filter(function (ProductMediaBasicStruct $productMedia) use ($id) {
-            return $productMedia->getParentId() === $id;
-        });
-    }
-
     public function getMedia(): MediaBasicCollection
     {
         return new MediaBasicCollection(

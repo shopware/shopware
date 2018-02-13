@@ -19,6 +19,7 @@ use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
+use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
@@ -72,19 +73,38 @@ class ShopDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([ 
-            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            new FkField('parent_id', 'parentId', self::class),
+            new VersionField(),
             (new FkField('shop_template_id', 'templateId', ShopTemplateDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(ShopTemplateDefinition::class))->setFlags(new Required()),
+
             (new FkField('document_template_id', 'documentTemplateId', ShopTemplateDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(ShopTemplateDefinition::class, 'document_template_version_id'))->setFlags(new Required()),
+
             (new FkField('category_id', 'categoryId', CategoryDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(CategoryDefinition::class))->setFlags(new Required()),
+
             (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(LocaleDefinition::class))->setFlags(new Required()),
+
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(CurrencyDefinition::class))->setFlags(new Required()),
+
             (new FkField('customer_group_id', 'customerGroupId', CustomerGroupDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(CustomerGroupDefinition::class))->setFlags(new Required()),
+
             new FkField('fallback_translation_id', 'fallbackTranslationId', self::class),
+            new ReferenceVersionField(self::class, 'fallback_translation_version_id'),
+
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(PaymentMethodDefinition::class))->setFlags(new Required()),
+
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(ShippingMethodDefinition::class))->setFlags(new Required()),
+
             (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(CountryDefinition::class))->setFlags(new Required()),
+
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new IntField('position', 'position'))->setFlags(new Required()),
             (new StringField('host', 'host'))->setFlags(new Required()),
@@ -99,7 +119,6 @@ class ShopDefinition extends EntityDefinition
             new StringField('tax_calculation_type', 'taxCalculationType'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
             new ManyToOneAssociationField('template', 'shop_template_id', ShopTemplateDefinition::class, false),
             new ManyToOneAssociationField('documentTemplate', 'document_template_id', ShopTemplateDefinition::class, false),
             new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class, false),
@@ -116,7 +135,6 @@ class ShopDefinition extends EntityDefinition
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'shop_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new OneToManyAssociationField('productSearchKeywords', ProductSearchKeywordDefinition::class, 'shop_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'shop_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
-            (new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('templateConfigFormFieldValues', ShopTemplateConfigFormFieldValueDefinition::class, 'shop_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('snippets', SnippetDefinition::class, 'shop_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new ManyToManyAssociationField('productSeoCategories', CategoryDefinition::class, ProductSeoCategoryDefinition::class, false, 'shop_id', 'id', 'productSeoCategories'))->setFlags(new CascadeDelete(), new WriteOnly()),

@@ -36,7 +36,7 @@ class WriteContext
     /**
      * @var array
      */
-    private $paths = [];
+    public $paths = [];
 
     /**
      * @var TranslationContext

@@ -6,12 +6,17 @@ use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\AssociationInterface;
+use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
+use Shopware\Api\Entity\Field\ReferenceVersionField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Context\Struct\TranslationContext;
+use Shopware\Defaults;
 
 class EntityForeignKeyResolver
 {
@@ -47,9 +52,9 @@ class EntityForeignKeyResolver
      *
      * @return array
      */
-    public function getAffectedDeleteRestrictions(string $definition, array $ids): array
+    public function getAffectedDeleteRestrictions(string $definition, array $ids, TranslationContext $context): array
     {
-        return $this->fetch($definition, $ids, RestrictDelete::class);
+        return $this->fetch($definition, $ids, RestrictDelete::class, $context);
     }
 
     /**
@@ -74,9 +79,9 @@ class EntityForeignKeyResolver
      *
      * @return array
      */
-    public function getAffectedDeletes(string $definition, array $ids): array
+    public function getAffectedDeletes(string $definition, array $ids, TranslationContext $context): array
     {
-        return $this->fetch($definition, $ids, CascadeDelete::class);
+        return $this->fetch($definition, $ids, CascadeDelete::class, $context);
     }
 
     /**
@@ -87,8 +92,16 @@ class EntityForeignKeyResolver
      *
      * @return array
      */
-    private function fetch(string $definition, array $ids, string $class): array
+    private function fetch(string $definition, array $ids, string $class, TranslationContext $context): array
     {
+        if ($context->getVersionId() !== Defaults::LIVE_VERSION) {
+            return [];
+        }
+
+        if (!$definition::getFields()->has('id')) {
+            return [];
+        }
+
         $query = new QueryBuilder($this->connection);
 
         $root = $definition::getEntityName();
@@ -99,22 +112,25 @@ class EntityForeignKeyResolver
 
         $cascades = $definition::getFields()->filterByFlag($class);
 
-        $this->joinCascades($definition, $cascades, $root, $query, $class);
+        $this->joinCascades($definition, $cascades, $root, $query, $class, $context);
 
         $this->addWhere($ids, $rootAlias, $query);
+
+        $query->setParameter('version', Uuid::fromString($context->getVersionId())->getBytes());
+        $query->setParameter('liveVersion', Uuid::fromString(Defaults::LIVE_VERSION)->getBytes());
 
         $result = $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
 
         return $this->extractValues($definition, $result, $root);
     }
 
-    private function joinCascades(string $definition, FieldCollection $cascades, string $root, QueryBuilder $query, string $class): void
+    private function joinCascades(string $definition, FieldCollection $cascades, string $root, QueryBuilder $query, string $class, TranslationContext $context): void
     {
         foreach ($cascades as $cascade) {
             $alias = $root . '.' . $cascade->getPropertyName();
 
             if ($cascade instanceof OneToManyAssociationField) {
-                EntityDefinitionQueryHelper::joinOneToMany($definition, $root, $cascade, $query);
+                EntityDefinitionQueryHelper::joinOneToMany($definition, $root, $cascade, $query, $context);
 
                 $query->addSelect(
                     'GROUP_CONCAT(HEX(' .
@@ -126,7 +142,7 @@ class EntityForeignKeyResolver
             if ($cascade instanceof ManyToManyAssociationField) {
                 $mappingAlias = $root . '.' . $cascade->getPropertyName() . '.mapping';
 
-                EntityDefinitionQueryHelper::joinManyToMany($definition, $root, $cascade, $query);
+                EntityDefinitionQueryHelper::joinManyToMany($definition, $root, $cascade, $query, $context);
 
                 $query->addSelect(
                     'GROUP_CONCAT(HEX(' .
@@ -137,7 +153,7 @@ class EntityForeignKeyResolver
             }
 
             if ($cascade instanceof ManyToOneAssociationField) {
-                EntityDefinitionQueryHelper::joinManyToOne($definition, $root, $cascade, $query);
+                EntityDefinitionQueryHelper::joinManyToOne($definition, $root, $cascade, $query, $context);
 
                 $query->addSelect(
                     'GROUP_CONCAT(HEX(' .
@@ -152,7 +168,7 @@ class EntityForeignKeyResolver
             }
             $nested = $cascade->getReferenceClass()::getFields()->filterByFlag($class);
 
-            $this->joinCascades($cascade->getReferenceClass(), $nested, $alias, $query, $class);
+            $this->joinCascades($cascade->getReferenceClass(), $nested, $alias, $query, $class, $context);
         }
     }
 
@@ -243,7 +259,7 @@ class EntityForeignKeyResolver
                     $restrictions[$class] = [];
                 }
 
-                $restrictions[$class] = array_merge($restrictions[$class], $value);
+                $restrictions[$class] = array_merge_recursive($restrictions[$class], $value);
             }
 
             if (empty($restrictions)) {

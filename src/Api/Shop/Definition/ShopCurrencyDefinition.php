@@ -6,6 +6,7 @@ use Shopware\Api\Currency\Definition\CurrencyDefinition;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
+use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\MappingEntityDefinition;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
@@ -37,9 +38,10 @@ class ShopCurrencyDefinition extends MappingEntityDefinition
         }
 
         return self::$fields = new FieldCollection([ 
-            new VersionField(),
             (new FkField('shop_id', 'shopId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new ReferenceVersionField(CurrencyDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('shop', 'shop_id', ShopDefinition::class, false),

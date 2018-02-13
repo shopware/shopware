@@ -10,7 +10,7 @@
             <tag name="console.command"/>
         </service>
 
-        <service class="Shopware\Administration\Search\AuditLogSearch" id="Shopware\Administration\Search\AuditLogSearch">
+        <service class="Shopware\Administration\Search\AdministrationSearch" id="Shopware\Administration\Search\AdministrationSearch">
             <argument id="service_container" type="service"/>
             <argument id="Shopware\Api\Entity\Search\Term\SearchTermInterpreter" type="service"/>
             <argument id="Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder" type="service"/>
@@ -18,7 +18,7 @@
         </service>
 
         <service class="Shopware\Administration\Controller\AdministrationController" id="Shopware\Administration\Controller\AdministrationController">
-            <argument id="Shopware\Administration\Search\AuditLogSearch" type="service"/>
+            <argument id="Shopware\Administration\Search\AdministrationSearch" type="service"/>
             <argument id="Shopware\Storefront\Twig\TemplateFinder" type="service"/>
         </service>
     </services>

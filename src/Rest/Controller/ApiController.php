@@ -9,6 +9,8 @@ use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
+use Shopware\Api\Entity\Field\ReferenceVersionField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
@@ -535,6 +537,10 @@ class ApiController extends RestController
         $repository = $this->get($definition::getRepositoryClass());
 
         $fields = $definition::getPrimaryKeys();
+
+        $fields = $fields->filter(function(Field $field) {
+            return !$field instanceof VersionField && !$field instanceof ReferenceVersionField;
+        });
 
         if ($fields->count() > 1 && empty($context->getPayload())) {
             throw new \RuntimeException(

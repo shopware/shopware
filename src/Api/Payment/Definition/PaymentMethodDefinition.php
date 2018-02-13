@@ -62,8 +62,8 @@ class PaymentMethodDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([ 
-            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
             new FkField('plugin_id', 'pluginId', PluginDefinition::class),
             (new StringField('technical_name', 'technicalName'))->setFlags(new Required()),
             new TranslatedField(new StringField('name', 'name')),

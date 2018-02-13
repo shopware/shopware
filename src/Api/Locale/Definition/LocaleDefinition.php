@@ -54,8 +54,8 @@ class LocaleDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([ 
-            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
             (new StringField('code', 'code'))->setFlags(new Required()),
             new TranslatedField(new StringField('name', 'name')),
             new TranslatedField(new StringField('territory', 'territory')),

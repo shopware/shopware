@@ -9,6 +9,7 @@ use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
+use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
@@ -50,9 +51,10 @@ class ShopTemplateConfigPresetDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([ 
-            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
             (new FkField('shop_template_id', 'shopTemplateId', ShopTemplateDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(ShopTemplateDefinition::class))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new LongTextField('description', 'description'))->setFlags(new Required()),
             (new LongTextField('element_values', 'elementValues'))->setFlags(new Required()),

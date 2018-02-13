@@ -40,6 +40,11 @@ class VersionDefinition extends EntityDefinition
         return 'version';
     }
 
+    public static function isVersionAware(): bool
+    {
+        return false;
+    }
+
     public static function getFields(): FieldCollection
     {
         if (self::$fields) {

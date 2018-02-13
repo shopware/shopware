@@ -58,8 +58,8 @@ class CustomerGroupDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([ 
-            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
             new TranslatedField(new StringField('name', 'name')),
             new BoolField('display_gross', 'displayGross'),
             new BoolField('input_gross', 'inputGross'),

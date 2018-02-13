@@ -22,20 +22,6 @@ class ShippingMethodBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getCustomerGroupIds(): array
-    {
-        return $this->fmap(function (ShippingMethodBasicStruct $shippingMethod) {
-            return $shippingMethod->getCustomerGroupId();
-        });
-    }
-
-    public function filterByCustomerGroupId(string $id): self
-    {
-        return $this->filter(function (ShippingMethodBasicStruct $shippingMethod) use ($id) {
-            return $shippingMethod->getCustomerGroupId() === $id;
-        });
-    }
-
     public function getPriceIds(): array
     {
         $ids = [];

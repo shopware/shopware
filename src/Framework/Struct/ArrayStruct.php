@@ -2,14 +2,16 @@
 
 namespace Shopware\Framework\Struct;
 
-class ArrayStruct extends Struct implements \ArrayAccess
+use Shopware\Api\Entity\Entity;
+
+class ArrayStruct extends Entity implements \ArrayAccess
 {
     /**
      * @var array
      */
     protected $data;
 
-    public function __construct(array $data)
+    public function __construct(array $data = [])
     {
         $this->data = $data;
     }
@@ -34,7 +36,7 @@ class ArrayStruct extends Struct implements \ArrayAccess
         unset($this->data[$offset]);
     }
 
-    public function get($key)
+    public function get(string $key)
     {
         return $this->offsetGet($key);
     }
@@ -42,5 +44,21 @@ class ArrayStruct extends Struct implements \ArrayAccess
     public function set($key, $value)
     {
         return $this->offsetSet($key, $value);
+    }
+
+    public function assign(array $options)
+    {
+        $this->data = array_replace_recursive($this->data, $options);
+
+        if (array_key_exists('id', $options)) {
+            $this->id = $options['id'];
+        }
+
+        return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return $this->data;
     }
 }

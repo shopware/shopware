@@ -58,6 +58,10 @@ class ArrayField extends Field implements StorageAware
             $this->validate($this->getInsertConstraints(), $key, $value);
         }
 
+        if (is_array($value)) {
+            $value = json_encode($value);
+        }
+
         yield $this->storageName => $value;
     }
 
@@ -119,7 +123,6 @@ class ArrayField extends Field implements StorageAware
     private function getUpdateConstraints(): array
     {
         return $this->constraintBuilder
-            ->isString()
             ->getConstraints();
     }
 }

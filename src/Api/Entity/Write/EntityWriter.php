@@ -30,6 +30,7 @@ use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\IdField;
+use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\MappingEntityDefinition;
 use Shopware\Api\Entity\Write\FieldAware\DefaultExtender;
@@ -147,13 +148,24 @@ class EntityWriter implements EntityWriterInterface
 
             /** @var StorageAware|IdField $field */
             foreach ($fields as $field) {
-                if (!array_key_exists($field->getPropertyName(), $raw)) {
-                    throw new \InvalidArgumentException(
-                        sprintf('Missing primary key value %s for entity %s', $field->getPropertyName(), $definition::getEntityName())
-                    );
+                if (array_key_exists($field->getPropertyName(), $raw)) {
+                   $mapped[$field->getStorageName()] = $raw[$field->getPropertyName()];
+                   continue;
                 }
 
-                $mapped[$field->getStorageName()] = $raw[$field->getPropertyName()];
+                if ($field instanceof ReferenceVersionField) {
+                    $mapped[$field->getStorageName()] = $writeContext->getTranslationContext()->getVersionId();
+                    continue;
+                }
+
+                if ($field instanceof VersionField) {
+                    $mapped[$field->getStorageName()] = $writeContext->getTranslationContext()->getVersionId();
+                    continue;
+                }
+
+                throw new \InvalidArgumentException(
+                    sprintf('Missing primary key value %s for entity %s', $field->getPropertyName(), $definition::getEntityName())
+                );
             }
 
             $resolved[] = $mapped;
@@ -161,24 +173,36 @@ class EntityWriter implements EntityWriterInterface
 
         $instance = new $definition();
         if (!$instance instanceof MappingEntityDefinition) {
-            $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($definition, $resolved);
+            $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($definition, $resolved, $writeContext->getTranslationContext());
 
             if (!empty($restrictions)) {
                 $restrictions = array_map(function ($restriction) {
                     return new RestrictDeleteViolation($restriction['pk'], $restriction['restrictions']);
                 }, $restrictions);
 
-                throw new RestrictDeleteViolationException($restrictions);
+                throw new RestrictDeleteViolationException($definition, $restrictions);
             }
         }
 
         $cascades = [];
         if (!$instance instanceof MappingEntityDefinition) {
-            $cascadeDeletes = $this->foreignKeyResolver->getAffectedDeletes($definition, $resolved);
+            $cascadeDeletes = $this->foreignKeyResolver->getAffectedDeletes($definition, $resolved, $writeContext->getTranslationContext());
 
             $cascadeDeletes = array_column($cascadeDeletes, 'restrictions');
             foreach ($cascadeDeletes as $cascadeDelete) {
                 $cascades = array_merge_recursive($cascades, $cascadeDelete);
+            }
+
+            foreach ($cascades as &$cascade) {
+                $cascade = array_map(function($key) {
+                    $payload = $key;
+
+                    if (!is_array($key)) {
+                        $payload = ['id' => $key];
+                    }
+
+                    return ['primaryKey' => $key, 'payload' => $payload];
+                }, $cascade);
             }
         }
 
@@ -260,7 +284,7 @@ class EntityWriter implements EntityWriterInterface
     {
         $fields = $command->getDefinition()::getPrimaryKeys();
         $fields = $fields->filter(function(Field $field) {
-            return !$field instanceof VersionField;
+            return !$field instanceof VersionField && !$field instanceof ReferenceVersionField;
         });
 
         $primaryKey = $command->getPrimaryKey();
@@ -293,7 +317,7 @@ class EntityWriter implements EntityWriterInterface
         foreach ($payload as $key => $value) {
             $field = $fields->getByStorageName($key);
 
-            if ($field instanceof IdField || $field instanceof FkField) {
+            if (($field instanceof IdField || $field instanceof FkField) && !empty($value)) {
                 $value = Uuid::fromBytes($value)->toString();
             }
             $convertedPayload[$field->getPropertyName()] = $value;

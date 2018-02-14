@@ -79,14 +79,14 @@ class SearchIndexer implements IndexerInterface
         $table = $this->indexTableOperator->getIndexName(self::TABLE, $timestamp);
         $documentTable = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp);
 
-        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD PRIMARY KEY `shop_keyword` (`keyword`, `shop_id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD INDEX `keyword` (`keyword`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD FOREIGN KEY (`shop_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD PRIMARY KEY `shop_keyword` (`keyword`, `shop_id`, `version_id`, `shop_version_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD INDEX `keyword` (`keyword`, `shop_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD FOREIGN KEY (`shop_id`, `shop_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE');
 
-        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD PRIMARY KEY `product_shop_keyword` (`keyword`, `shop_id`, `product_id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD INDEX `keyword` (`keyword`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
-        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`shop_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD PRIMARY KEY `product_shop_keyword` (`id`, `version_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD UNIQUE KEY (`keyword`, `shop_id`, `product_id`, `version_id`, `shop_version_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`shop_id`, `shop_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE');
 
         $contexts = $this->contextVariationService->createContexts();
 

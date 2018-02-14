@@ -45,7 +45,7 @@ class VersioningTest extends KernelTestCase
 
         $this->taxRepository = $kernel->getContainer()->get(TaxRepository::class);
         $this->productRepository = $kernel->getContainer()->get(ProductRepository::class);
-        $this->connection = $kernel->getContainer()->get('dbal_connection');
+        $this->connection = $kernel->getContainer()->get(Connection::class);
         $this->connection->beginTransaction();
         $this->connection->executeUpdate('DELETE FROM product');
         $this->connection->executeUpdate('DELETE FROM tax');

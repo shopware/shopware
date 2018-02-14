@@ -77,7 +77,7 @@ class OrderDefinition extends EntityDefinition
             (new ReferenceVersionField(ShopDefinition::class))->setFlags(new Required()),
             
             (new FkField('billing_address_id', 'billingAddressId', OrderAddressDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(OrderAddressDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(OrderAddressDefinition::class, 'billing_address_version_id'))->setFlags(new Required()),
             
             (new DateField('order_date', 'date'))->setFlags(new Required()),
             (new FloatField('amount_total', 'amountTotal'))->setFlags(new Required()),

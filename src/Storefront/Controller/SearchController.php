@@ -43,7 +43,7 @@ class SearchController extends StorefrontController
         $searchTerm = $request->get('search');
         $config = $this->configService->getByShop(
             $context->getShop()->getId(),
-            $context->getShop()->getParentId()
+            null
         );
 
         $minLength = $config['minsearchlenght'] ?? 1;

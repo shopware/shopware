@@ -61,7 +61,7 @@ class OrderDeliveryDefinition extends EntityDefinition
             (new ReferenceVersionField(OrderDefinition::class))->setFlags(new Required()),
             
             (new FkField('shipping_address_id', 'shippingAddressId', OrderAddressDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(OrderAddressDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(OrderAddressDefinition::class, 'shipping_address_version_id'))->setFlags(new Required()),
             
             (new FkField('order_state_id', 'orderStateId', OrderStateDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(OrderStateDefinition::class))->setFlags(new Required()),

@@ -47,13 +47,13 @@ class SearchPageLoader
      */
     public function load(string $searchTerm, Request $request, ShopContext $context): SearchPageStruct
     {
-        $config = $this->configService->getByShop($context->getShop()->getId(), $context->getShop()->getParentId());
+        $config = $this->configService->getByShop($context->getShop()->getId(), null);
 
         $criteria = $this->createCriteria(trim($searchTerm), $request, $context);
 
         $products = $this->productRepository->search($criteria, $context);
 
-        $layout = $config['searchProductBoxLayout'] ?? 'image';
+        $layout = $config['searchProductBoxLayout'] ?? 'basic';
 
         $listingPageStruct = new SearchPageStruct();
         $listingPageStruct->setProducts($products);

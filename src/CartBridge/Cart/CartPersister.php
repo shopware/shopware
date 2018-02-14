@@ -32,6 +32,7 @@ use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Defaults;
 use Shopware\Serializer\JsonSerializer;
 
 class CartPersister implements CartPersisterInterface
@@ -80,21 +81,32 @@ class CartPersister implements CartPersisterInterface
             ['token' => $cart->getToken(), 'name' => $cart->getName()]
         );
 
-        $this->connection->insert('cart', [
+        $liveVersion = Uuid::fromString(Defaults::LIVE_VERSION)->getBytes();
+
+        $data = [
+            'version_id' => $liveVersion,
             'token' => $cart->getToken(),
             'name' => $cart->getName(),
-            'calculated' => $this->serializer->serialize($cart),
-            'container' => $this->serializer->serialize($cart->getCart()),
             'currency_id' => Uuid::fromString($context->getCurrency()->getId())->getBytes(),
+            'currency_version_id' => $liveVersion,
             'shipping_method_id' => Uuid::fromString($context->getShippingMethod()->getId())->getBytes(),
+            'shipping_method_version_id' => $liveVersion,
             'payment_method_id' => Uuid::fromString($context->getPaymentMethod()->getId())->getBytes(),
+            'payment_method_version_id' => $liveVersion,
             'country_id' => Uuid::fromString($context->getShippingLocation()->getCountry()->getId())->getBytes(),
+            'country_version_id' => $liveVersion,
             'shop_id' => Uuid::fromString($context->getShop()->getId())->getBytes(),
+            'shop_version_id' => $liveVersion,
             'customer_id' => $context->getCustomer() ? Uuid::fromString($context->getCustomer()->getId())->getBytes() : null,
+            'customer_version_id' => $context->getCustomer() ? $liveVersion : null,
             'price' => $cart->getPrice()->getTotalPrice(),
             'line_item_count' => $cart->getCalculatedLineItems()->count(),
-            'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
-        ]);
+            'calculated' => $this->serializer->serialize($cart),
+            'container' => $this->serializer->serialize($cart->getCart()),
+            'created_at' => (new \DateTime())->format('Y-m-d H:i:s')
+        ];
+
+        $this->connection->insert('cart', $data);
     }
 
     public function delete(string $token, ?string $name = null): void

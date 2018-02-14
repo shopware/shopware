@@ -2,14 +2,15 @@
 
 @sw-field-color-border:       @color-steam-cloud;
 @sw-field-color-border-focus: @color-shopware-blue;
-@sw-field-color-text:         @color-deep-cove;
+@sw-field-color-text:         @color-gutenberg;
 @sw-field-color-background:   @color-white;
 @sw-field-suffix-background:  @color-iron;
 @sw-field-font-size:          14px;
 @sw-field-font-family:        @font-family-default;
 @sw-field-transition:         border-color 0.3s ease-out;
-@sw-field-border-radius:      4px;
+@sw-field-border-radius:      @border-radius-default;
 @sw-field-color-label:        @color-kashmir;
+@sw-field-color-placeholder:  lighten(@sw-field-color-text, 25%);
 
 .sw-field {
     width: 100%;
@@ -22,8 +23,8 @@
     label {
         display: block;
         color: @sw-field-color-label;
-        margin-bottom: 12px;
-        font-weight: bold;
+        margin-bottom: 8px;
+        font-weight: 600;
     }
 
     input,
@@ -41,15 +42,16 @@
 
         &:focus {
             border-color: @sw-field-color-border-focus;
+            box-shadow: 0 0 4px lighten(@sw-field-color-border-focus, 30%);
             outline: none;
         }
 
         &:focus + .sw-form-field--suffix {
-            border-color: darken(@sw-field-color-background, 10%);
+            border-color: darken(@sw-field-color-border, 10%);
         }
 
         &::placeholder {
-            color: #d2d4d8;
+            color: @sw-field-color-placeholder;
         }
     }
 
@@ -78,7 +80,7 @@
             font-family: 'sw-icons';
             font-size: 14px;
             text-align: center;
-            color: #808FA3;
+            color: @sw-field-color-text;
         }
 
         select {
@@ -100,6 +102,7 @@
             &:focus {
                 border-color: @sw-field-color-border-focus;
                 color: @sw-field-color-border-focus;
+                box-shadow: 0 0 4px lighten(@sw-field-color-border-focus, 30%);
                 outline: none;
             }
 
@@ -108,7 +111,7 @@
             }
 
             &::placeholder {
-                color: #d2d4d8;
+                color: @sw-field-color-placeholder;
             }
         }
     }

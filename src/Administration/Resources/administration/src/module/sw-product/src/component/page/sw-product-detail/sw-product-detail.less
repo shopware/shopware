@@ -32,9 +32,10 @@
 
 // Tabs container definition
 .container--tabs {
-    background: #F0F3F7;
-    border-radius: 6px;
-    padding: 6px;
+    background: @color-light-gray;
+    border-radius: @border-radius-default;
+    border: 1px solid @color-steam-cloud;
+    padding: 4px 30px;
     display: block;
     margin-bottom: 28px;
 
@@ -49,15 +50,14 @@
     .tabs--item {
         display: block;
         float: left;
-        padding: 12px 26px;
+        padding: 9px 28px;
         margin: 0 10px;
-        border-radius: 6px;
-        color: #c9cdd1;
+        border-radius: @border-radius-default;
         font-size: 14px;
         line-height: 18px;
 
         .item--link {
-            color: #c9cdd1;
+            color: @color-kashmir;
             text-decoration: none;
         }
 
@@ -70,7 +70,9 @@
         }
 
         &.router-link-active {
+            border: 1px solid @color-steam-cloud;
             background: @color-white;
+            font-weight: 600;
 
             .item--link {
                 color: @color-shopware-blue;

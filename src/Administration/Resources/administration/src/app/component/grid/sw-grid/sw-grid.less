@@ -1,19 +1,20 @@
 @import "~less/variables";
 
-@sw-grid-item-color-border:            @color-steam-cloud;
-@sw-grid-item-color-background:        @color-white;
-@sw-grid-item-even-color-background:   @color-light-gray;
-@sw-grid-item-active-color-border:     @color-shopware-blue;
-@sw-grid-item-active-color-background: @color-cadet-blue;
-@sw-grid-header-color-background:      @color-light-gray;
-@sw-grid-header-color-border:          @color-steam-cloud;
-@sw-grid-header-color-text:            @color-kashmir;
-@sw-grid-sidebar-color-background:     @color-white;
-@sw-grid-sidebar-color-border:         @color-steam-cloud;
-@sw-grid-sidebar-icon-color:           @color-gutenberg;
-@sw-grid-sidebar-active-icon-color:    @color-shopware-blue;
-@sw-grid-actions-icon-color:           @color-gutenberg;
-@sw-grid-actions-icon-hover-color:     @color-shopware-blue;
+@sw-grid-item-color-border:               @color-steam-cloud;
+@sw-grid-item-color-background:           @color-white;
+@sw-grid-item-even-color-background:      @color-light-gray;
+@sw-grid-item-active-color-border:        @color-shopware-blue;
+@sw-grid-item-active-color-background:    @color-cadet-blue;
+@sw-grid-header-color-background:         @color-light-gray;
+@sw-grid-header-color-border:             @color-steam-cloud;
+@sw-grid-header-color-text:               @color-kashmir;
+@sw-grid-sidebar-color-background:        @color-white;
+@sw-grid-sidebar-color-border:            @color-steam-cloud;
+@sw-grid-sidebar-icon-color:              @color-gutenberg;
+@sw-grid-sidebar-active-icon-color:       @color-shopware-blue;
+@sw-grid-sidebar-active-color-background: @color-cadet-blue;
+@sw-grid-actions-icon-color:              @color-gutenberg;
+@sw-grid-actions-icon-hover-color:        @color-shopware-blue;
 
 .sw-grid {
     width: 100%;
@@ -67,7 +68,7 @@
             outline: none;
 
             &:hover {
-                background: #e8f6ff;
+                background: @sw-grid-sidebar-active-color-background;
                 color: @sw-grid-sidebar-active-icon-color;
             }
         }

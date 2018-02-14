@@ -267,8 +267,7 @@ class ContextFactory implements ContextFactoryInterface
 
         return new TranslationContext(
             Uuid::fromBytes($data['id'])->toString(),
-            (bool) $data['is_default'],
-            $data['fallback_translation_id'] ? Uuid::fromBytes($data['fallback_translation_id'])->toString() : null
+            (bool) $data['is_default']
         );
     }
 

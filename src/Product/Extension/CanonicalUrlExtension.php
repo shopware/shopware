@@ -14,6 +14,7 @@ use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
 use Shopware\Api\Seo\Definition\SeoUrlDefinition;
 use Shopware\Api\Seo\Repository\SeoUrlRepository;
+use Shopware\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer;
 use Shopware\Storefront\Page\Detail\DetailPageUrlGenerator;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -55,7 +56,7 @@ class CanonicalUrlExtension implements EntityExtensionInterface, EventSubscriber
         }
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('seo_url.name', DetailPageUrlGenerator::ROUTE_NAME));
+        $criteria->addFilter(new TermQuery('seo_url.name', DetailPageSeoUrlIndexer::ROUTE_NAME));
         $criteria->addFilter(new TermsQuery('seo_url.foreignKey', $event->getProducts()->getIds()));
         $criteria->addFilter(new TermQuery('seo_url.isCanonical', 1));
 

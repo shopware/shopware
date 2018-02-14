@@ -27,6 +27,26 @@
             <argument type="tagged" tag="shopware.search_analyzer"/>
         </service>
 
+        <service class="Shopware\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer" id="Shopware\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument id="slugify" type="service"/>
+            <argument id="Shopware\Framework\Routing\Router" type="service"/>
+            <argument id="Shopware\Api\Product\Repository\ProductRepository" type="service"/>
+            <argument id="Shopware\Api\Shop\Repository\ShopRepository" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <tag name="shopware.dbal_indexing.indexer" priority="-100"/>
+        </service>
+
+        <service class="Shopware\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer" id="Shopware\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument id="slugify" type="service"/>
+            <argument id="Shopware\Framework\Routing\Router" type="service"/>
+            <argument id="Shopware\Api\Category\Repository\CategoryRepository" type="service"/>
+            <argument id="Shopware\Api\Shop\Repository\ShopRepository" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <tag name="shopware.dbal_indexing.indexer" priority="-200"/>
+        </service>
+
         <service class="Shopware\DbalIndexing\Indexer\ShopIndexer" id="Shopware\DbalIndexing\Indexer\ShopIndexer">
             <argument type="tagged" tag="shopware.dbal_indexing.indexer"/>
         </service>

@@ -81,7 +81,7 @@ class UserCreateCommand extends Command
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('user.username', $username));
 
-        $result = $this->userRepository->searchIds($criteria, new TranslationContext('FFA32A50-E2D0-4CF3-8389-A53F8D6CD594', true, null));
+        $result = $this->userRepository->searchIds($criteria, TranslationContext::createDefaultContext());
 
         return $result->getTotal() > 0;
     }
@@ -91,7 +91,7 @@ class UserCreateCommand extends Command
         $encoder = $this->encoderFactory->getEncoder(User::class);
         $password = $encoder->encodePassword($password, $username);
 
-        $context = new TranslationContext('FFA32A50-E2D0-4CF3-8389-A53F8D6CD594', true, null);
+        $context = TranslationContext::createDefaultContext();
 
         $this->userRepository->create([
             [

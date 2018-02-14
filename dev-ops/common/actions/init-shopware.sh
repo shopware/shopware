@@ -5,8 +5,6 @@ bin/console translation:import --with-plugins
 
 bin/console framework:demodata --products=200 --categories=5 --manufacturers=25
 
-bin/console seo:url:generate -v
-
 bin/console plugin:update
 
 bin/console assetic:dump

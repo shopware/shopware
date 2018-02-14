@@ -417,4 +417,9 @@ class CategoryBasicStruct extends Entity
     {
         return array_filter(explode('|', (string) $this->path));
     }
+
+    public function getPathNamesArray(): array
+    {
+        return array_filter(explode('|', (string) $this->pathNames));
+    }
 }

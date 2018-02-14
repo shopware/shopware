@@ -60,20 +60,6 @@
             <tag name="kernel.event_subscriber" />
         </service>
 
-        <service class="Shopware\Storefront\Page\Detail\DetailPageUrlGenerator" id="Shopware\Storefront\Page\Detail\DetailPageUrlGenerator">
-            <argument id="Shopware\Api\Product\Repository\ProductRepository" type="service"/>
-            <argument id="slugify" type="service"/>
-            <argument id="Shopware\Framework\Routing\Router" type="service"/>
-            <argument id="Shopware\Api\Seo\Repository\SeoUrlRepository" type="service" />
-        </service>
-
-        <service class="Shopware\Storefront\Page\Listing\ListingPageUrlGenerator" id="Shopware\Storefront\Page\Listing\ListingPageUrlGenerator">
-            <argument id="Shopware\Api\Category\Repository\CategoryRepository" type="service"/>
-            <argument id="slugify" type="service"/>
-            <argument id="Shopware\Framework\Routing\Router" type="service"/>
-            <argument id="Shopware\Api\Seo\Repository\SeoUrlRepository" type="service" />
-        </service>
-
         <service class="Shopware\Storefront\Context\ShopContextValueResolver" id="Shopware\Storefront\Context\ShopContextValueResolver">
             <argument type="service" id="Shopware\Storefront\Context\StorefrontContextService" />
             <tag name="controller.argument_value_resolver"/>

@@ -69,9 +69,6 @@ class IndexController extends StorefrontController
     private function loadShops(ShopContext $context)
     {
         $criteria = new Criteria();
-
-        $ids = array_filter([$context->getShop()->getParentId(), $context->getShop()->getId()]);
-        $criteria->addFilter(new TermsQuery('shop.parentId', $ids));
         $criteria->addFilter(new TermQuery('shop.active', 1));
 
         $shops = $this->shopRepository->search($criteria, $context->getTranslationContext());

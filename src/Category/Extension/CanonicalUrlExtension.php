@@ -14,7 +14,7 @@ use Shopware\Api\Entity\Write\Flag\Deferred;
 use Shopware\Api\Entity\Write\Flag\Extension;
 use Shopware\Api\Seo\Definition\SeoUrlDefinition;
 use Shopware\Api\Seo\Repository\SeoUrlRepository;
-use Shopware\Storefront\Page\Listing\ListingPageUrlGenerator;
+use Shopware\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CanonicalUrlExtension implements EntityExtensionInterface, EventSubscriberInterface
@@ -55,12 +55,11 @@ class CanonicalUrlExtension implements EntityExtensionInterface, EventSubscriber
         }
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('seo_url.name', ListingPageUrlGenerator::ROUTE_NAME));
+        $criteria->addFilter(new TermQuery('seo_url.name', ListingPageSeoUrlIndexer::ROUTE_NAME));
         $criteria->addFilter(new TermsQuery('seo_url.foreignKey', $event->getCategories()->getIds()));
         $criteria->addFilter(new TermQuery('seo_url.isCanonical', 1));
 
         $urls = $this->seoUrlRepository->search($criteria, $event->getContext());
-
         foreach ($urls as $url) {
             $category = $event->getCategories()->get($url->getForeignKey());
             $category->addExtension('canonicalUrl', $url);

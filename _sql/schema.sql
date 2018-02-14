@@ -1123,6 +1123,7 @@ CREATE TABLE `seo_url` (
   `path_info` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `seo_path_info` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `is_canonical` tinyint(1) NOT NULL DEFAULT '0',
+  `is_modified` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`, `version_id`),

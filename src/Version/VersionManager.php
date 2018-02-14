@@ -72,11 +72,6 @@ class VersionManager
     private $tokenStorage;
 
     /**
-     * @var EntitySearcherInterface
-     */
-    private $searcher;
-
-    /**
      * @var array
      */
     private $mapping = [];
@@ -93,8 +88,7 @@ class VersionManager
         EntityReaderInterface $entityReader,
         EntitySearcherInterface $entitySearcher,
         DefinitionRegistry $entityDefinitionRegistry,
-        TokenStorageInterface $tokenStorage,
-        EntitySearcherInterface $searcher
+        TokenStorageInterface $tokenStorage
     )
     {
         $this->entityWriter = $entityWriter;
@@ -102,7 +96,6 @@ class VersionManager
         $this->entitySearcher = $entitySearcher;
         $this->entityDefinitionRegistry = $entityDefinitionRegistry;
         $this->tokenStorage = $tokenStorage;
-        $this->searcher = $searcher;
     }
 
     public function upsert(string $definition, array $rawData, WriteContext $writeContext): array
@@ -461,7 +454,7 @@ class VersionManager
         $criteria->setLimit(1);
         $criteria->addFilter(new TermQuery(UserDefinition::getEntityName() . '.username', $name));
 
-        $users = $this->searcher->search(UserDefinition::class, $criteria, TranslationContext::createDefaultContext());
+        $users = $this->entitySearcher->search(UserDefinition::class, $criteria, TranslationContext::createDefaultContext());
         $ids = $users->getIds();
 
         $id = array_shift($ids);

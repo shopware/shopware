@@ -14,6 +14,7 @@ use Shopware\Context\Struct\TranslationContext;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
+use Shopware\Defaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -117,6 +118,9 @@ class CategoryPathBuilder implements EventSubscriberInterface
             $names = $parents->map(
                 function (CategoryBasicStruct $parent) {
                     if ($parent->getLevel() === 0) {
+                        return null;
+                    }
+                    if ($parent->getParentId() === Defaults::ROOT_CATEGORY) {
                         return null;
                     }
 

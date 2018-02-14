@@ -4,11 +4,10 @@ namespace Shopware\DbalIndexing\Search;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
-use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Repository\ProductRepository;
+use Shopware\Api\Product\Struct\ProductSearchResult;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\DbalIndexing\Common\ContextVariationService;
 use Shopware\DbalIndexing\Common\IndexTableOperator;
@@ -19,7 +18,6 @@ use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\DbalIndexing\Indexer\IndexerInterface;
 use Shopware\Defaults;
 use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
-use Shopware\Product\Struct\ProductSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SearchIndexer implements IndexerInterface
@@ -120,11 +118,7 @@ class SearchIndexer implements IndexerInterface
 
     private function indexContext(TranslationContext $context, \DateTime $timestamp): void
     {
-        $criteria = new Criteria();
-        $criteria->setOffset(0);
-        $criteria->setLimit(200);
-
-        $iterator = new RepositoryIterator($this->productRepository, $context, $criteria);
+        $iterator = new RepositoryIterator($this->productRepository, $context);
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
@@ -137,11 +131,9 @@ class SearchIndexer implements IndexerInterface
         $table = $this->indexTableOperator->getIndexName(self::TABLE, $timestamp);
         $documentTable = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp);
 
-        /** @var ProductBasicCollection $products */
-        $products = $iterator->fetch();
 
         /** @var ProductSearchResult $products */
-        while ($products) {
+        while ($products = $iterator->fetch()) {
             $queue = new MultiInsertQueryQueue($this->connection, 250, false, true);
             foreach ($products as $product) {
                 $keywords = $this->analyzerRegistry->analyze($product, $context);
@@ -153,8 +145,6 @@ class SearchIndexer implements IndexerInterface
                 ProgressAdvancedEvent::NAME,
                 new ProgressAdvancedEvent($products->count())
             );
-
-            $products = $iterator->fetch();
         }
 
         $this->eventDispatcher->dispatch(
@@ -173,20 +163,22 @@ class SearchIndexer implements IndexerInterface
     ) {
         $shopId = Uuid::fromString($context->getShopId())->getBytes();
         $productId = Uuid::fromString($productId)->getBytes();
+        $versionId = Uuid::fromString($context->getVersionId())->getBytes();
+        $liveVersionId = Uuid::fromString(Defaults::LIVE_VERSION)->getBytes();
 
         foreach ($keywords as $keyword => $ranking) {
             $queue->addInsert($table, [
                 'shop_id' => $shopId,
-                'version_id' => Uuid::fromString($context->getVersionId())->getBytes(),
+                'version_id' => $versionId,
                 'keyword' => $keyword,
-                'shop_version_id' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes()
+                'shop_version_id' => $liveVersionId
             ]);
 
             $queue->addInsert($documentTable, [
                 'id' => Uuid::uuid4()->getBytes(),
-                'version_id' => Uuid::fromString($context->getVersionId())->getBytes(),
-                'product_version_id' => Uuid::fromString($context->getVersionId())->getBytes(),
-                'shop_version_id' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes(),
+                'version_id' => $versionId,
+                'product_version_id' => $versionId,
+                'shop_version_id' => $liveVersionId,
                 'product_id' => $productId,
                 'shop_id' => $shopId,
                 'keyword' => $keyword,

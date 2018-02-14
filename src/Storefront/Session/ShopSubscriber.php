@@ -27,6 +27,8 @@ namespace Shopware\Storefront\Session;
 
 use Shopware\Api\Seo\Struct\SeoUrlBasicStruct;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer;
+use Shopware\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer;
 use Shopware\Framework\Routing\Router;
 use Shopware\Storefront\Context\StorefrontContextServiceInterface;
 use Shopware\Storefront\Page\Detail\DetailPageUrlGenerator;
@@ -160,10 +162,10 @@ class ShopSubscriber implements EventSubscriberInterface
         $route = $request->attributes->get('_route');
 
         switch ($route) {
-            case ListingPageUrlGenerator::ROUTE_NAME:
+            case ListingPageSeoUrlIndexer::ROUTE_NAME:
                 return $request->attributes->get('_route_params')['id'];
 
-            case DetailPageUrlGenerator::ROUTE_NAME:
+            case DetailPageSeoUrlIndexer::ROUTE_NAME:
             default:
                 return $context->getShop()->getCategory()->getId();
         }

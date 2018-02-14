@@ -5,22 +5,10 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Seo\Generator\SeoUrlGeneratorRegistry" id="Shopware\Seo\Generator\SeoUrlGeneratorRegistry">
-            <argument type="collection">
-                <argument id="Shopware\Storefront\Page\Listing\ListingPageUrlGenerator" type="service" />
-                <argument id="Shopware\Storefront\Page\Detail\DetailPageUrlGenerator" type="service" />
-            </argument>
-            <argument id="Shopware\Api\Seo\Repository\SeoUrlRepository" type="service"/>
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
-            <argument id="Shopware\Api\Shop\Repository\ShopRepository" type="service"/>
-        </service>
-
         <service class="Shopware\Seo\Extension\UrlGeneratorExtension" id="Shopware\Seo\Extension\UrlGeneratorExtension">
             <argument id="router.request_context" type="service"/>
             <tag name="kernel.event_subscriber"/>
             <tag name="shopware.entity.extension"/>
         </service>
-
-
     </services>
 </container>

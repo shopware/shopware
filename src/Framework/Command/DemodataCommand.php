@@ -196,7 +196,7 @@ class DemodataCommand extends ContainerAwareCommand
                 'manufacturerId' => $manufacturer[random_int(0, $manufacturerCount)],
                 'active' => true,
                 'categories' => [
-                    ['categoryId' => $categories[random_int(0, $categoryCount)]],
+                    ['id' => $categories[random_int(0, $categoryCount)]],
                 ],
                 'stock' => $this->faker->randomNumber(),
             ];

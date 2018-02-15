@@ -37,9 +37,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $exists = !empty($state);
 
         $isChild = $this->isChild($definition, $data, $state);
-        
+
         $wasChild = $this->wasChild($definition, $state);
-        
+
         return new EntityExistence($definition, $primaryKey, $exists, $isChild, $wasChild);
     }
 

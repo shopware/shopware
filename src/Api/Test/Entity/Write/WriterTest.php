@@ -172,7 +172,7 @@ class WriterTest extends KernelTestCase
                 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
-                    ['category' => ['id' => $categoryId->toString(), 'name' => 'test']],
+                    ['id' => $categoryId->toString(), 'name' => 'test'],
                 ],
             ],
         ], $context);
@@ -221,7 +221,7 @@ class WriterTest extends KernelTestCase
                 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
-                    ['category' => ['id' => $categoryId->toString(), 'name' => 'test']],
+                    ['id' => $categoryId->toString(), 'name' => 'test'],
                 ],
             ],
             [
@@ -231,7 +231,7 @@ class WriterTest extends KernelTestCase
                 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
-                    ['categoryId' => $categoryId->toString()],
+                    ['id' => $categoryId->toString()],
                 ],
             ],
             [
@@ -240,7 +240,7 @@ class WriterTest extends KernelTestCase
                 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
-                    ['category' => ['name' => 'test']],
+                    ['name' => 'test'],
                 ],
             ],
         ], $context);
@@ -341,9 +341,8 @@ class WriterTest extends KernelTestCase
                     'additionaltext' => 'S / Schwarz',
                     'inStock' => 15,
                     'isMain' => true,
-
                     'categories' => [
-                        ['categoryId' => Defaults::ROOT_CATEGORY],
+                        ['id' => Defaults::ROOT_CATEGORY],
                     ],
                     'price' => 10,
                 ],

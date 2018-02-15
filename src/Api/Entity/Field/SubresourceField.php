@@ -24,6 +24,7 @@
 
 namespace Shopware\Api\Entity\Field;
 
+use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
 use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\FieldException\MalformatDataException;
@@ -31,14 +32,14 @@ use Shopware\Api\Entity\Write\FieldException\MalformatDataException;
 class SubresourceField extends Field
 {
     /**
-     * @var string
+     * @var string|EntityDefinition
      */
     protected $referenceClass;
 
     /**
      * @var
      */
-    private $possibleKey;
+    protected $possibleKey;
 
     public function __construct(string $propertyName, string $referenceClass, $possibleKey = null)
     {

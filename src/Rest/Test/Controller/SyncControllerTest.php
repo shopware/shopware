@@ -134,7 +134,7 @@ class SyncControllerTest extends ApiTestCase
                     'price' => 10,
                     'manufacturer' => ['name' => 'test'],
                     'categories' => [
-                        ['categoryId' => $categoryId],
+                        ['id' => $categoryId],
                     ],
                 ],
             ],
@@ -178,12 +178,7 @@ class SyncControllerTest extends ApiTestCase
                     'price' => 10,
                     'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
                     'categories' => [
-                        [
-                            'category' => [
-                                'id' => $category,
-                                'name' => 'NESTED-CAT-1',
-                            ],
-                        ],
+                        ['id' => $category, 'name' => 'NESTED-CAT-1'],
                     ],
                 ],
             ],
@@ -197,7 +192,7 @@ class SyncControllerTest extends ApiTestCase
                     'price' => 10,
                     'manufacturer' => ['name' => 'test'],
                     'categories' => [
-                        ['categoryId' => $category],
+                        ['id' => $category],
                     ],
                 ],
             ],

@@ -3,6 +3,8 @@
 namespace Shopware\Api\Entity\Field;
 
 use Shopware\Api\Entity\EntityDefinition;
+use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
+use Shopware\Api\Entity\Write\EntityExistence;
 
 class ManyToManyAssociationField extends SubresourceField implements AssociationInterface
 {
@@ -65,6 +67,51 @@ class ManyToManyAssociationField extends SubresourceField implements Association
         $this->referenceColumn = $referenceColumn;
     }
 
+    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    {
+        $key = $data->getKey();
+        $value = $data->getValue();
+
+        if (!is_array($value)) {
+            throw new MalformatDataException($this->path . '/' . $key, 'Value must be an array.');
+        }
+
+        $isNumeric = array_keys($value) === range(0, count($value) - 1);
+
+        $mappingAssociation = $this->getMappingAssociation();
+
+        foreach ($value as $keyValue => $subresources) {
+            $mapped = $subresources;
+            if ($mappingAssociation) {
+                /** @var ManyToOneAssociationField $mappingAssociation */
+                $mapped = [$mappingAssociation->getPropertyName() => $subresources];
+            }
+
+            if (!is_array($mapped)) {
+                throw new MalformatDataException($this->path . '/' . $key, 'Value must be an array.');
+            }
+
+            if ($this->possibleKey && !$isNumeric) {
+                $mapped[$this->possibleKey] = $keyValue;
+            }
+
+            $this->writeResource->extract(
+                $mapped,
+                $this->referenceClass,
+                $this->exceptionStack,
+                $this->commandQueue,
+                $this->writeContext,
+                $this->fieldExtenderCollection,
+                $this->path . '/' . $key . '/' . $keyValue
+            );
+        }
+
+        return;
+        yield __CLASS__ => __METHOD__;
+
+    }
+
+
     /**
      * @return string|EntityDefinition
      */
@@ -104,5 +151,19 @@ class ManyToManyAssociationField extends SubresourceField implements Association
     public function getReferenceField(): string
     {
         return $this->referenceColumn;
+    }
+
+    private function getMappingAssociation(): ?AssociationInterface
+    {
+        $associations = $this->getReferenceClass()::getFields()->filterInstance(AssociationInterface::class);
+
+        /** @var ManyToOneAssociationField $association */
+        foreach ($associations as $association) {
+            if ($association->getStorageName() === $this->getMappingReferenceColumn()) {
+                return $association;
+            }
+        }
+
+        return null;
     }
 }

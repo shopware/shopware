@@ -637,7 +637,7 @@ class VersioningTest extends KernelTestCase
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'rate' => 19],
                 'categories' => [
-                    ['category' => ['id' => $category, 'parentId' => $parentCategory, 'name' => 'TEST cat']]
+                    ['id' => $category, 'parentId' => $parentCategory, 'name' => 'TEST cat']
                 ]
             ],[
                 'id' => $product2->toString(),
@@ -646,7 +646,7 @@ class VersioningTest extends KernelTestCase
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'rate' => 19],
                 'categories' => [
-                    ['categoryId' => $category]
+                    ['id' => $category]
                 ]
             ]
         ];

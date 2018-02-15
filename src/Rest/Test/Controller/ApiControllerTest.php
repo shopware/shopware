@@ -220,9 +220,7 @@ class ApiControllerTest extends ApiTestCase
             'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
             'manufacturer' => ['name' => 'test'],
             'categories' => [
-                ['category' => [
-                    'id' => $category->toString(), 'name' => 'Test',
-                ]],
+                ['id' => $category->toString(), 'name' => 'Test'],
             ],
         ];
 

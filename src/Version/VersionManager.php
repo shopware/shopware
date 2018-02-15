@@ -271,21 +271,7 @@ class VersionManager
                 continue;
             }
 
-            $field = $fields->get($key);
-
-            if ($field instanceof ManyToManyAssociationField) {
-                $mapping = $field->getMappingDefinition();
-                $fk = $mapping::getFields()->getByStorageName($field->getMappingReferenceColumn());
-
-                $new = [];
-                /** @var Entity $nested */
-                foreach ($value as $nested) {
-                    $new[] = [$fk->getPropertyName() => $nested->getId()];
-                }
-                $payload[$key] = $new;
-            } else {
-                $payload[$key] = $this->convertValue($value);
-            }
+            $payload[$key] = $this->convertValue($value);
         }
 
         $payload = array_filter($payload);

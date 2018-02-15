@@ -76,6 +76,32 @@ class ProductRepositoryTest extends KernelTestCase
         parent::tearDown();
     }
 
+    public function testWriteCategories()
+    {
+        $id = Uuid::uuid4();
+
+        $data = [
+            'id' => $id->toString(),
+            'name' => 'test',
+            'price' => 15,
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'rate' => 15],
+            'categories' => [
+                ['id' => $id->toString(), 'name' => 'asd']
+            ]
+        ];
+
+        $this->repository->create([$data], $this->context);
+
+        $record = $this->connection->fetchAssoc('SELECT * FROM product_category WHERE product_id = :id', ['id' => $id->getBytes()]);
+        $this->assertNotEmpty($record);
+        $this->assertEquals($record['product_id'], $id->getBytes());
+        $this->assertEquals($record['category_id'], $id->getBytes());
+
+        $record = $this->connection->fetchAssoc('SELECT * FROM category WHERE id = :id', ['id' => $id->getBytes()]);
+        $this->assertNotEmpty($record);
+    }
+
     public function testWriteProductWithDifferentTaxFormat()
     {
         $tax = Uuid::uuid4()->toString();
@@ -715,7 +741,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
-                    ['category' => ['id' => $parentCategory, 'name' => 'parent']],
+                    ['id' => $parentCategory, 'name' => 'parent'],
                 ],
             ],
             ['id' => $redId, 'parentId' => $parentId, 'name' => 'red'],
@@ -724,7 +750,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'parentId' => $parentId,
                 'name' => 'green',
                 'categories' => [
-                    ['category' => ['id' => $greenCategory, 'name' => 'green']],
+                    ['id' => $greenCategory, 'name' => 'green'],
                 ],
             ],
         ];
@@ -863,7 +889,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'price' => $parentPrice,
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
-                    ['category' => ['id' => $categoryId, 'name' => 'test']],
+                    ['id' => $categoryId, 'name' => 'test'],
                 ],
             ],
 
@@ -959,13 +985,11 @@ class ProductRepositoryTest extends KernelTestCase
                 'name' => 'Cat1',
                 'products' => [
                     [
-                        'product' => [
-                            'id' => $productId,
-                            'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
-                            'name' => 'test',
-                            'price' => 10,
-                            'manufacturer' => ['name' => 'test']
-                        ],
+                        'id' => $productId,
+                        'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                        'name' => 'test',
+                        'price' => 10,
+                        'manufacturer' => ['name' => 'test']
                     ],
                 ],
             ],

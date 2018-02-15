@@ -376,7 +376,7 @@ class ApiController extends RestController
         $payload = [
             'id' => $parent['value'],
             $association->getPropertyName() => [
-                [$foreignKey->getPropertyName() => $entity->getId()],
+                ['id' => $entity->getId()],
             ],
         ];
 

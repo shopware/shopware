@@ -52,7 +52,7 @@ class EntityReaderTest extends KernelTestCase
             ->create($categories, TranslationContext::createDefaultContext());
 
         $mapping = array_map(function (array $category) {
-            return ['categoryId' => $category['id']];
+            return ['id' => $category['id']];
         }, $categories);
 
         $id = Uuid::uuid4()->toString();

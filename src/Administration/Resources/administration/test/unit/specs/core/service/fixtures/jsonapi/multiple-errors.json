@@ -1,0 +1,20 @@
+{
+  "errors": [
+    {
+      "status": "403",
+      "source": { "pointer": "/data/attributes/secret-powers" },
+      "detail": "Editing secret powers is not authorized on Sundays."
+    },
+    {
+      "status": "422",
+      "source": { "pointer": "/data/attributes/volume" },
+      "detail": "Volume does not, in fact, go to 11."
+    },
+    {
+      "status": "500",
+      "source": { "pointer": "/data/attributes/reputation" },
+      "title": "The backend responded with an error",
+      "detail": "Reputation service not responding after three requests."
+    }
+  ]
+}

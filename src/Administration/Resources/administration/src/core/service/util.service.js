@@ -19,6 +19,7 @@ export default {
     isArray,
     isFunction,
     isDate,
+    isString,
     capitalizeString
 };
 
@@ -101,7 +102,7 @@ function date(val, locale = 'de-DE') {
  * @returns {boolean}
  */
 function isObject(object) {
-    return object !== null && typeof object === 'object';
+    return (object instanceof Object && !(object instanceof Array));
 }
 
 /**
@@ -160,6 +161,16 @@ function isFunction(func) {
  */
 function isDate(dateObject) {
     return dateObject instanceof Date;
+}
+
+/**
+ * Checks if the provided argument is a string
+ *
+ * @param {String|Number|Object|Array} obj
+ * @returns {boolean}
+ */
+function isString(obj) {
+    return (Object.prototype.toString.call(obj) === '[object String]');
 }
 
 function getObjectChangeSet(baseObject, compareObject) {

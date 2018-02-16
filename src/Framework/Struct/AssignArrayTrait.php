@@ -29,9 +29,8 @@ trait AssignArrayTrait
     public function assign(array $options)
     {
         foreach ($options as $key => $value) {
-            $setter = 'set' . ucfirst($key);
             try {
-                $this->$setter($value);
+                $this->$key = $value;
             } catch (\TypeError $error) {
                 throw $error;
             } catch (\Error | \Exception $error) {

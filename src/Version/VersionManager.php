@@ -8,38 +8,31 @@ use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\AssociationInterface;
 use Shopware\Api\Entity\Field\Field;
-use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\SubresourceField;
 use Shopware\Api\Entity\Field\SubVersionField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
-use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Sorting\FieldSorting;
+use Shopware\Api\Entity\Write\Command\InsertCommand;
+use Shopware\Api\Entity\Write\EntityWriteGatewayInterface;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
-use Shopware\Api\Entity\Write\Flag\PrimaryKey;
-use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
-use Shopware\Api\Tax\Definition\TaxDefinition;
 use Shopware\Api\User\Definition\UserDefinition;
 use Shopware\Api\Version\Collection\VersionCommitBasicCollection;
+use Shopware\Api\Version\Definition\VersionCommitDataDefinition;
 use Shopware\Api\Version\Definition\VersionCommitDefinition;
 use Shopware\Api\Version\Definition\VersionDefinition;
 use Shopware\Api\Version\Repository\VersionChangeRepository;
-use Shopware\Api\Version\Repository\VersionCommitDataRepository;
-use Shopware\Api\Version\Repository\VersionCommitRepository;
-use Shopware\Api\Version\Repository\VersionRepository;
-use Shopware\Api\Version\Struct\VersionCommitBasicStruct;
 use Shopware\Api\Version\Struct\VersionCommitDataBasicStruct;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Collection;
 use Shopware\Framework\Struct\Struct;
-use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -77,18 +70,17 @@ class VersionManager
     private $mapping = [];
 
     /**
-     * VersionManager constructor.
-     * @param EntityWriterInterface $entityWriter
-     * @param EntityReaderInterface $entityReader
-     * @param EntitySearcherInterface $entitySearcher
-     * @param DefinitionRegistry $entityDefinitionRegistry
+     * @var EntityWriteGatewayInterface
      */
+    private $entityWriteGateway;
+
     public function __construct(
         EntityWriterInterface $entityWriter,
         EntityReaderInterface $entityReader,
         EntitySearcherInterface $entitySearcher,
         DefinitionRegistry $entityDefinitionRegistry,
-        TokenStorageInterface $tokenStorage
+        TokenStorageInterface $tokenStorage,
+        EntityWriteGatewayInterface $entityWriteGateway
     )
     {
         $this->entityWriter = $entityWriter;
@@ -96,6 +88,7 @@ class VersionManager
         $this->entitySearcher = $entitySearcher;
         $this->entityDefinitionRegistry = $entityDefinitionRegistry;
         $this->tokenStorage = $tokenStorage;
+        $this->entityWriteGateway = $entityWriteGateway;
     }
 
     public function upsert(string $definition, array $rawData, WriteContext $writeContext): array
@@ -374,13 +367,26 @@ class VersionManager
     {
         $userId = $this->getUserId();
 
+        $userId = $userId ? Uuid::fromString($userId)->getBytes() : null;
+
         $versionId = $versionId ?? $writeContext->getTranslationContext()->getVersionId();
 
-        $commit = array_filter([
-            'versionId' => $versionId,
-            'userId' => $userId,
-            'data' => []
-        ]);
+        $commitId = Uuid::uuid4();
+
+        $date = (new \DateTime())->format('Y-m-d H:i:s');
+
+        $insert = new InsertCommand(
+            VersionCommitDefinition::class,
+            [
+                'id' => $commitId->getBytes(),
+                'user_id' => $userId,
+                'version_id' => Uuid::fromString($versionId)->getBytes(),
+                'created_at' => $date
+            ],
+            ['id' => $commitId->getBytes()]
+        );
+
+        $commands = [$insert];
 
         /**
          * @var string|EntityDefinition $definition
@@ -392,33 +398,38 @@ class VersionManager
             }
 
             foreach ($items as $item) {
-
                 $payload = $item['payload'];
 
                 $primary = $item['primaryKey'];
                 if (!is_array($primary)) {
                     $primary = ['id' => $item['primaryKey']];
                 }
-
                 $primary['versionId'] = $versionId;
 
-                // writing to live version, no logging enabled
-                $commit['data'][] = [
-                    'entityName' => $definition::getEntityName(),
-                    'entityId' => json_encode($primary),
-                    'payload' => json_encode($payload),
-                    'userId' => $userId,
-                    'action' => $action,
-                    'createdAt' => new \DateTime(),
-                ];
+                $id = Uuid::uuid4()->getBytes();
+
+                $commands[] = new InsertCommand(
+                    VersionCommitDataDefinition::class,
+                    [
+                        'id' => $id,
+                        'version_commit_id' => $commitId->getBytes(),
+                        'entity_name' => $definition::getEntityName(),
+                        'entity_id' => json_encode($primary),
+                        'payload' => json_encode($payload),
+                        'user_id' => $userId,
+                        'action' => $action,
+                        'created_at' => $date,
+                    ],
+                    ['id' => $id]
+                );
             }
         }
 
-        if (empty($commit['data'])) {
+        if (count($commands) <= 1) {
             return;
         }
 
-        $this->entityWriter->insert(VersionCommitDefinition::class, [$commit], $writeContext);
+        $this->entityWriteGateway->execute($commands);
     }
 
     private function getUserId(): ?string
@@ -430,6 +441,10 @@ class VersionManager
 
         /** @var UserInterface $user */
         $user = $token->getUser();
+
+        if (!$user instanceof UserInterface) {
+            return null;
+        }
 
         $name = $user->getUsername();
         if (array_key_exists($name, $this->mapping)) {

@@ -19,5 +19,8 @@ interface EntityWriteGatewayInterface
      */
     public function getExistence(string $definition, array $primaryKey, array $data, WriteCommandQueue $commandQueue): EntityExistence;
 
-    public function execute(WriteCommandQueue $commandQueue): void;
+    /**
+     * @param WriteCommandInterface[] $commands
+     */
+    public function execute(array $commands): void;
 }

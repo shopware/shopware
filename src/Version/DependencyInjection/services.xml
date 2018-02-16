@@ -11,7 +11,7 @@
             <argument type="service" id="Shopware\Api\Entity\Dbal\EntitySearcher"/>
             <argument type="service" id="Shopware\Api\Entity\DefinitionRegistry"/>
             <argument type="service" id="security.token_storage"/>
-            <argument type="service" id="Shopware\Api\Entity\Dbal\EntitySearcher" />
+            <argument type="service" id="Shopware\Api\Entity\Dbal\EntityWriteGateway"/>
         </service>
     </services>
 </container>                

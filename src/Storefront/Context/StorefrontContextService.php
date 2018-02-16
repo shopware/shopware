@@ -67,6 +67,11 @@ class StorefrontContextService implements StorefrontContextServiceInterface
      */
     private $securityTokenStorage;
 
+    /**
+     * @var ShopContext
+     */
+    private $context;
+
     public function __construct(
         RequestStack $requestStack,
         ContextFactoryInterface $factory,
@@ -88,6 +93,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
 
     public function refresh(): void
     {
+        $this->context = null;
         $this->load(false);
     }
 
@@ -112,11 +118,15 @@ class StorefrontContextService implements StorefrontContextServiceInterface
             $this->getStorefrontStateId()
         );
 
+        if ($this->context) {
+            return $this->context;
+        }
+
         $inputKey = $this->getCacheKey($shopScope, $customerScope, $checkoutScope);
 
         $cacheItem = $this->cache->getItem($inputKey);
         if ($useCache && $context = $cacheItem->get()) {
-            return $this->serializerRegistry->deserialize($context, SerializerRegistry::FORMAT_JSON);
+            return $this->context = $this->serializerRegistry->deserialize($context, SerializerRegistry::FORMAT_JSON);
         }
 
         $context = $this->factory->create($shopScope, $customerScope, $checkoutScope);
@@ -137,7 +147,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         $this->cache->save($cacheItem);
         $this->cache->save($outputCacheItem);
 
-        return $context;
+        return $this->context = $context;
     }
 
     private function getCacheKey(

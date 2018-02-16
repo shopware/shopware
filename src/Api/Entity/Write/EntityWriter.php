@@ -88,7 +88,7 @@ class EntityWriter implements EntityWriterInterface
 
         $writeIdentifiers = $this->getWriteIdentifiers($commandQueue);
 
-        $this->gateway->execute($commandQueue);
+        $this->gateway->execute($commandQueue->getCommandsInOrder());
 
         return $writeIdentifiers;
     }
@@ -102,7 +102,7 @@ class EntityWriter implements EntityWriterInterface
         $writeIdentifiers = $this->getWriteIdentifiers($commandQueue);
 
         $commandQueue->ensureIs($definition, InsertCommand::class);
-        $this->gateway->execute($commandQueue);
+        $this->gateway->execute($commandQueue->getCommandsInOrder());
 
         return $writeIdentifiers;
     }
@@ -117,7 +117,7 @@ class EntityWriter implements EntityWriterInterface
 
         $commandQueue->ensureIs($definition, UpdateCommand::class);
 
-        $this->gateway->execute($commandQueue);
+        $this->gateway->execute($commandQueue->getCommandsInOrder());
 
         return $writeIdentifiers;
     }
@@ -215,7 +215,7 @@ class EntityWriter implements EntityWriterInterface
         }
 
         $identifiers = $this->getWriteIdentifiers($commandQueue);
-        $this->gateway->execute($commandQueue);
+        $this->gateway->execute($commandQueue->getCommandsInOrder());
 
         return array_merge_recursive($identifiers, $cascades);
     }

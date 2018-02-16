@@ -10,6 +10,7 @@ use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Write\Command\DeleteCommand;
 use Shopware\Api\Entity\Write\Command\InsertCommand;
 use Shopware\Api\Entity\Write\Command\UpdateCommand;
+use Shopware\Api\Entity\Write\Command\WriteCommandInterface;
 use Shopware\Api\Entity\Write\Command\WriteCommandQueue;
 use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\EntityWriteGatewayInterface;
@@ -43,10 +44,13 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return new EntityExistence($definition, $primaryKey, $exists, $isChild, $wasChild);
     }
 
-    public function execute(WriteCommandQueue $commandQueue): void
+    /**
+     * @param WriteCommandInterface[] $commands
+     */
+    public function execute(array $commands): void
     {
-        $this->connection->transactional(function() use ($commandQueue) {
-            $commands = $commandQueue->getCommandsInOrder();
+        $this->connection->transactional(function() use ($commands) {
+
             foreach ($commands as $command) {
                 $definition = $command->getDefinition();
                 $table = $definition::getEntityName();

@@ -1,6 +1,7 @@
+import { Component } from 'src/core/shopware';
 import './sw-search-bar.less';
 import template from './sw-search-bar.html.twig';
 
-Shopware.Component.register('sw-search-bar', {
+Component.register('sw-search-bar', {
     template
 });

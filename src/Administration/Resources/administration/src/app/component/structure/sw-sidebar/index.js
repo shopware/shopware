@@ -1,7 +1,8 @@
+import { Component } from 'src/core/shopware';
 import './sw-sidebar.less';
 import template from './sw-sidebar.html.twig';
 
-Shopware.Component.register('sw-sidebar', {
+Component.register('sw-sidebar', {
     inject: ['menuService', 'loginService'],
     template,
 

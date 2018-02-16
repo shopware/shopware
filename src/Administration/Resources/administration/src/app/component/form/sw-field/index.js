@@ -1,7 +1,8 @@
+import { Component } from 'src/core/shopware';
 import './sw-field.less';
 import template from './sw-field.html.twig';
 
-Shopware.Component.register('sw-field', {
+Component.register('sw-field', {
     props: {
         type: {
             type: String,

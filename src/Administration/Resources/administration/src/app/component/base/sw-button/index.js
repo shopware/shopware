@@ -1,7 +1,8 @@
+import { Component } from 'src/core/shopware';
 import './sw-button.less';
 import template from './sw-button.html.twig';
 
-Shopware.Component.register('sw-button', {
+Component.register('sw-button', {
     props: {
         isPrimary: {
             type: Boolean,

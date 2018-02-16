@@ -1,8 +1,8 @@
+import { Component } from 'src/core/shopware';
 import './sw-grid.less';
 import template from './sw-grid.html.twig';
 
-Shopware.Component.register('sw-grid', {
-
+Component.register('sw-grid', {
     data() {
         return {
             columns: []

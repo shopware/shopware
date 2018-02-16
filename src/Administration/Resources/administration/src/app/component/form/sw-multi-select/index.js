@@ -1,7 +1,8 @@
+import { Component } from 'src/core/shopware';
 import './sw-multi-select.less';
 import template from './sw-multi-select.html.twig';
 
-Shopware.Component.register('sw-multi-select', {
+Component.register('sw-multi-select', {
     props: {
         serviceProvider: {
             type: Object,

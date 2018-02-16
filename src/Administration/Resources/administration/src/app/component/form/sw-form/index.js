@@ -1,6 +1,7 @@
+import { Component } from 'src/core/shopware';
 import template from './sw-form.html.twig';
 
-Shopware.Component.register('sw-form', {
+Component.register('sw-form', {
     props: {
         /**
          * "method" attribute for the form component.

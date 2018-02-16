@@ -1,8 +1,8 @@
+import { Component } from 'src/core/shopware';
 import './sw-grid-column.less';
 import template from './sw-grid-column.html.twig';
 
-Shopware.Component.register('sw-grid-column', {
-
+Component.register('sw-grid-column', {
     props: {
         label: {
             type: String,

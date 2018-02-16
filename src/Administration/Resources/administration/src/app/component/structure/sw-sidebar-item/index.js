@@ -1,6 +1,7 @@
+import { Component } from 'src/core/shopware';
 import template from './sw-sidebar-item.html.twig';
 
-Shopware.Component.register('sw-sidebar-item', {
+Component.register('sw-sidebar-item', {
     props: ['entry'],
     template,
     methods: {

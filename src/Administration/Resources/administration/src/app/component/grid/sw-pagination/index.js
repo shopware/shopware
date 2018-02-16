@@ -1,8 +1,8 @@
+import { Component } from 'src/core/shopware';
 import './sw-pagination.less';
 import template from './sw-pagination.html.twig';
 
-Shopware.Component.register('sw-pagination', {
-
+Component.register('sw-pagination', {
     props: ['page', 'maxPage', 'total', 'limit'],
 
     data() {

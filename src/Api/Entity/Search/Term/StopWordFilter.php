@@ -7,12 +7,20 @@ use voku\helper\StopWords;
 
 class StopWordFilter implements SearchFilterInterface
 {
+    /**
+     * @var StopWords
+     */
+    private $filter;
+
+    public function __construct()
+    {
+        $this->filter = new StopWords();
+    }
+
     public function filter(array $tokens, TranslationContext $context): array
     {
-        $stopWords = new StopWords();
-
-        $words = $stopWords->getStopWordsFromLanguage('en');
-        $fallback = $stopWords->getStopWordsFromLanguage();
+        $words = $this->filter->getStopWordsFromLanguage('en');
+        $fallback = $this->filter->getStopWordsFromLanguage();
         $words = array_merge($fallback, $words);
 
         $tokens = array_diff($tokens, $words);

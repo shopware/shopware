@@ -63,7 +63,6 @@ return [
                 'name' => '2',
                 'description' => null,
                 'url' => 'http://shopware.next/media/c2/98/8f/teaser5040640f2861b.jpg',
-                'thumbnails' => [],
                 'versionId' => null,
                 'mediaAlbumVersionId' => null,
                 'userVersionId' => null,

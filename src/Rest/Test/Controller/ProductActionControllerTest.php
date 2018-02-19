@@ -7,6 +7,7 @@ use Shopware\Api\Product\Struct\PriceStruct;
 use Shopware\Api\Product\Struct\ProductDetailStruct;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
+use Shopware\PlatformRequest;
 use Shopware\Rest\Test\ApiTestCase;
 
 class ProductActionControllerTest extends ApiTestCase
@@ -58,7 +59,7 @@ class ProductActionControllerTest extends ApiTestCase
             ],
         ];
 
-        $this->apiClient->request('POST', '/api/product', [], [], [], json_encode($data));
+        $this->apiClient->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
 
         $this->assertSame(204, $this->apiClient->getResponse()->getStatusCode());
 
@@ -85,7 +86,7 @@ class ProductActionControllerTest extends ApiTestCase
         $this->assertEquals($colorId, $red->getOption()->getGroupId());
         $this->assertEquals($colorId, $blue->getOption()->getGroupId());
 
-        $this->apiClient->request('POST', '/api/product/' . $id . '/actions/generate-variants');
+        $this->apiClient->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/actions/generate-variants');
         $this->assertSame(200, $this->apiClient->getResponse()->getStatusCode());
 
         $ids = $this->apiClient->getResponse()->getContent();

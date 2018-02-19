@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Api\Category\Definition\CategoryDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Framework\Struct\Uuid;
+use Shopware\PlatformRequest;
 use Shopware\Rest\Controller\SyncController;
 use Shopware\Rest\Test\ApiTestCase;
 use Symfony\Component\HttpFoundation\Response;
@@ -58,16 +59,16 @@ class SyncControllerTest extends ApiTestCase
 
         self::assertSame(200, $response->getStatusCode(), $response->getContent());
 
-        $this->apiClient->request('GET', '/api/product/' . $id1->getHex());
+        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id1->getHex());
         $this->assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
 
-        $this->apiClient->request('GET', '/api/product/' . $id2->getHex());
+        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id2->getHex());
         $this->assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
 
-        $this->apiClient->request('DELETE', '/api/product/' . $id1->getHex());
+        $this->apiClient->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id1->getHex());
         $this->assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode());
 
-        $this->apiClient->request('DELETE', '/api/product/' . $id2->getHex());
+        $this->apiClient->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id2->getHex());
         $this->assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode());
     }
 
@@ -104,13 +105,13 @@ class SyncControllerTest extends ApiTestCase
         $this->apiClient->request('POST', '/api/sync', [], [], [], json_encode($data));
         self::assertSame(200, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
 
-        $this->apiClient->request('GET', '/api/product/' . $id);
+        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id);
         $this->assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
 
         $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
         $this->assertEquals(false, $responseData['data']['attributes']['active']);
 
-        $this->apiClient->request('DELETE', '/api/product/' . $id);
+        $this->apiClient->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id);
         $this->assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode());
     }
 
@@ -150,7 +151,7 @@ class SyncControllerTest extends ApiTestCase
         $response = $this->apiClient->getResponse();
         self::assertSame(200, $response->getStatusCode());
 
-        $this->apiClient->request('GET', '/api/product/' . $productId);
+        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $productId);
         $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
 
         $this->assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
@@ -159,10 +160,10 @@ class SyncControllerTest extends ApiTestCase
         $this->assertContains($categoryId, $categories);
         $this->assertCount(1, $categories, 'Category Ids should not contain: ' . print_r(array_diff($categories, [$categoryId]), true));
 
-        $this->apiClient->request('DELETE', '/api/category/' . $categoryId);
+        $this->apiClient->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/category/' . $categoryId);
         $this->assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
 
-        $this->apiClient->request('DELETE', '/api/product/' . $productId);
+        $this->apiClient->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $productId);
         $this->assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
     }
 
@@ -205,19 +206,19 @@ class SyncControllerTest extends ApiTestCase
 
         $this->apiClient->request('POST', '/api/sync', [], [], [], json_encode($data));
 
-        $this->apiClient->request('GET', '/api/product/' . $product);
+        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $product);
         $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
         $categories = array_column($responseData['data']['relationships']['categories']['data'], 'id');
         $this->assertContains($category, $categories);
         $this->assertCount(1, $categories);
 
-        $this->apiClient->request('GET', '/api/product/' . $product2);
+        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $product2);
         $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
         $categories = array_column($responseData['data']['relationships']['categories']['data'], 'id');
         $this->assertContains($category, $categories);
         $this->assertCount(1, $categories);
 
-        $this->apiClient->request('GET', '/api/category/' . $category . '/products/');
+        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/category/' . $category . '/products/');
         $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
         $products = array_column($responseData['data'], 'id');
 

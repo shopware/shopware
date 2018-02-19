@@ -22,6 +22,11 @@ class RestContext
      */
     private $applicationContext;
 
+    /**
+     * @var int
+     */
+    private $version;
+
     public function __construct(
         Request $request,
         ApplicationContext $applicationContext,
@@ -30,6 +35,7 @@ class RestContext
         $this->request = $request;
         $this->applicationContext = $applicationContext;
         $this->userId = $userId;
+        $this->version = (int) $this->getRequest()->get('version');
     }
 
     public function getApplicationContext(): ApplicationContext
@@ -45,5 +51,10 @@ class RestContext
     public function getRequest(): Request
     {
         return $this->request;
+    }
+
+    public function getVersion(): int
+    {
+        return $this->version;
     }
 }

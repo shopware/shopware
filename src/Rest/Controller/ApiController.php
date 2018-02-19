@@ -23,6 +23,7 @@ use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Rest\Context\RestContext;
 use Shopware\Rest\Exception\ResourceNotFoundException;
+use Shopware\Rest\Exception\UnknownRepositoryVersionException;
 use Shopware\Rest\Exception\WriteStackHttpException;
 use Shopware\Rest\Response\ResponseFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -82,9 +83,9 @@ class ApiController extends Controller
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 
-    public function detail(Request $request, RestContext $context): Response
+    public function detail(Request $request, RestContext $context, string $path): Response
     {
-        $path = $this->buildEntityPath($request->getPathInfo());
+        $path = $this->buildEntityPath($path);
 
         $root = $path[0]['entity'];
         $id = $path[\count($path) - 1]['value'];
@@ -95,7 +96,7 @@ class ApiController extends Controller
         array_shift($associations);
 
         if (empty($associations)) {
-            $repository = $this->get($definition::getRepositoryClass());
+            $repository = $this->getRepository($definition, $context->getVersion());
         } else {
             /** @var EntityDefinition $definition */
             $field = $this->getAssociation($definition::getFields(), $associations);
@@ -105,7 +106,7 @@ class ApiController extends Controller
                 $definition = $field->getReferenceDefinition();
             }
 
-            $repository = $this->get($definition::getRepositoryClass());
+            $repository = $this->getRepository($definition, $context->getVersion());
         }
 
         /** @var RepositoryInterface $repository */
@@ -120,9 +121,9 @@ class ApiController extends Controller
         return $this->responseFactory->createDetailResponse($entity, (string) $definition, $context);
     }
 
-    public function list(Request $request, RestContext $context): Response
+    public function list(Request $request, RestContext $context, string $path): Response
     {
-        $path = $this->buildEntityPath($request->getPathInfo());
+        $path = $this->buildEntityPath($path);
 
         $first = array_shift($path);
 
@@ -133,8 +134,7 @@ class ApiController extends Controller
             throw new NotFoundHttpException('The requested entity does not exist.');
         }
 
-        /** @var RepositoryInterface $repository */
-        $repository = $this->get($definition::getRepositoryClass());
+        $repository = $this->getRepository($definition, $context->getVersion());
 
         if (empty($path)) {
             $data = $repository->search(
@@ -229,27 +229,26 @@ class ApiController extends Controller
             );
         }
 
-        /** @var RepositoryInterface $repository */
-        $repository = $this->get($definition::getRepositoryClass());
+        $repository = $this->getRepository($definition, $context->getVersion());
 
         $result = $repository->search($criteria, $context->getApplicationContext());
 
         return $this->responseFactory->createListingResponse($result, (string) $definition, $context);
     }
 
-    public function create(Request $request, RestContext $context): Response
+    public function create(Request $request, RestContext $context, string $path): Response
     {
-        return $this->write($request, $context, self::WRITE_CREATE);
+        return $this->write($request, $context, $path, self::WRITE_CREATE);
     }
 
-    public function update(Request $request, RestContext $context)
+    public function update(Request $request, RestContext $context, string $path)
     {
-        return $this->write($request, $context, self::WRITE_UPDATE);
+        return $this->write($request, $context, $path, self::WRITE_UPDATE);
     }
 
-    public function delete(Request $request, RestContext $context): Response
+    public function delete(Request $request, RestContext $context, string $path): Response
     {
-        $path = $this->buildEntityPath($request->getPathInfo());
+        $path = $this->buildEntityPath($path);
 
         $last = $path[\count($path) - 1];
 
@@ -326,8 +325,11 @@ class ApiController extends Controller
         /** @var EntityDefinition|string $definition */
         $definition = $first['definition'];
 
-        /** @var RepositoryInterface $repository */
-        $repository = $this->get($definition::getRepositoryClass());
+        if (!$definition) {
+            throw new NotFoundHttpException('The requested entity does not exist.');
+        }
+
+        $repository = $this->getRepository($definition, $context->getVersion());
 
         if (empty($path)) {
             $data = $repository->search(
@@ -344,7 +346,7 @@ class ApiController extends Controller
         throw new \RuntimeException('Only entities are supported');
     }
 
-    private function write(Request $request, RestContext $context, string $type): Response
+    private function write(Request $request, RestContext $context, string $path, string $type): Response
     {
         $payload = $this->getRequestBody($request);
         $responseDataType = $this->getResponseDataType($request);
@@ -354,7 +356,7 @@ class ApiController extends Controller
             throw new BadRequestHttpException('Only single write operations are supported. Please send the entities one by one or use the /sync api endpoint.');
         }
 
-        $path = $this->buildEntityPath($request->getPathInfo());
+        $path = $this->buildEntityPath($path);
 
         $last = $path[\count($path) - 1];
 
@@ -368,8 +370,7 @@ class ApiController extends Controller
         if (\count($path) === 0) {
             $definition = $first['definition'];
 
-            /** @var RepositoryInterface $repository */
-            $repository = $this->get($definition::getRepositoryClass());
+            $repository = $this->getRepository($definition, $context->getVersion());
 
             $events = $this->executeWriteOperation($definition, $payload, $context, $type);
             $event = $events->getEventByDefinition($definition);
@@ -420,7 +421,7 @@ class ApiController extends Controller
 
             $event = $events->getEventByDefinition($definition);
 
-            $repository = $this->get($definition::getRepositoryClass());
+            $repository = $this->getRepository($definition, $context->getVersion());
 
             if ($responseDataType === self::RESPONSE_DETAIL) {
                 $entities = $repository->readDetail($event->getIds(), $context->getApplicationContext());
@@ -445,7 +446,7 @@ class ApiController extends Controller
                 $foreignKey->getPropertyName() => $entityId,
             ];
 
-            $repository = $this->get($parentDefinition::getRepositoryClass());
+            $repository = $this->getRepository($parentDefinition, $context->getVersion());
             $repository->update([$payload], $context->getApplicationContext());
 
             if (!$responseDataType) {
@@ -469,7 +470,7 @@ class ApiController extends Controller
         $events = $this->executeWriteOperation($reference, $payload, $context, $type);
         $event = $events->getEventByDefinition($reference);
 
-        $repository = $this->get($reference::getRepositoryClass());
+        $repository = $this->getRepository($reference, $context->getVersion());
 
         if ($responseDataType === self::RESPONSE_DETAIL) {
             $entities = $repository->readDetail($event->getIds(), $context->getApplicationContext());
@@ -479,7 +480,7 @@ class ApiController extends Controller
 
         $entity = $entities->first();
 
-        $repository = $this->get($parentDefinition::getRepositoryClass());
+        $repository = $this->getRepository($parentDefinition, $context->getVersion());
 
         $payload = [
             'id' => $parent['value'],
@@ -497,10 +498,16 @@ class ApiController extends Controller
         return $this->responseFactory->createDetailResponse($entity, $definition, $context, $appendLocationHeader);
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     * @param array $payload
+     * @param RestContext $context
+     * @param string $type
+     * @return GenericWrittenEvent
+     */
     private function executeWriteOperation(string $definition, array $payload, RestContext $context, string $type): GenericWrittenEvent
     {
-        /** @var EntityDefinition $definition */
-        $repository = $this->get($definition::getRepositoryClass());
+        $repository = $this->getRepository($definition, $context->getVersion());
 
         try {
             /* @var RepositoryInterface $repository */
@@ -539,8 +546,7 @@ class ApiController extends Controller
 
     private function buildEntityPath(string $pathInfo): array
     {
-        $exploded = str_replace('/api/', '', $pathInfo);
-        $exploded = explode('/', $exploded);
+        $exploded = explode('/', $pathInfo);
 
         $parts = [];
         foreach ($exploded as $index => $part) {
@@ -661,8 +667,7 @@ class ApiController extends Controller
      */
     private function doDelete(RestContext $context, $definition, $id): void
     {
-        /** @var RepositoryInterface $repository */
-        $repository = $this->get($definition::getRepositoryClass());
+        $repository = $this->getRepository($definition, $context->getVersion());
 
         $payload = [];
         $fields = $definition::getPrimaryKeys()->filter(function (Field $field) {
@@ -706,5 +711,24 @@ class ApiController extends Controller
         }
 
         return $response;
+    }
+
+    /**
+     * @param string|EntityDefinition $definition
+     * @param int $version
+     *
+     * @return RepositoryInterface
+     *
+     * @throws UnknownRepositoryVersionException
+     */
+    private function getRepository(string $definition, int $version): RepositoryInterface
+    {
+        $repositoryClass = sprintf('%s.v%d', $definition::getRepositoryClass(), $version);
+
+        if (false === $this->has($repositoryClass)) {
+            throw new UnknownRepositoryVersionException($definition::getEntityName(), $version);
+        }
+
+        return $this->get($repositoryClass);
     }
 }

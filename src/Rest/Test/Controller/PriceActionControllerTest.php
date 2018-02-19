@@ -10,6 +10,7 @@ use Shopware\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
+use Shopware\PlatformRequest;
 use Shopware\Rest\Test\ApiTestCase;
 use Symfony\Component\Serializer\Serializer;
 
@@ -35,7 +36,7 @@ class PriceActionControllerTest extends ApiTestCase
 
     public function testPriceMissingExecption()
     {
-        $this->apiClient->request('POST', '/api/price/actions/calculate');
+        $this->apiClient->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate');
 
         $response = $this->apiClient->getResponse()->getContent();
         $response = json_decode($response, true);
@@ -45,7 +46,7 @@ class PriceActionControllerTest extends ApiTestCase
 
     public function testTaxIdMissingException()
     {
-        $this->apiClient->request('POST', '/api/price/actions/calculate', [], [], [], json_encode([
+        $this->apiClient->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [], [], [], json_encode([
             'price' => 10
         ]));
 
@@ -58,7 +59,7 @@ class PriceActionControllerTest extends ApiTestCase
 
     public function testTaxNotFoundException()
     {
-        $this->apiClient->request('POST', '/api/price/actions/calculate', [], [], [], json_encode([
+        $this->apiClient->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [], [], [], json_encode([
             'price' => 10,
             'taxId' => Uuid::uuid4()->getHex()
         ]));
@@ -246,7 +247,7 @@ class PriceActionControllerTest extends ApiTestCase
 
     private function sendRequest(array $data): CalculatedPrice
     {
-        $this->apiClient->request('POST', '/api/price/actions/calculate', [], [], [], json_encode($data));
+        $this->apiClient->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [], [], [], json_encode($data));
 
         $response = $this->apiClient->getResponse()->getContent();
 

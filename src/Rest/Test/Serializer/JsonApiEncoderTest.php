@@ -211,7 +211,6 @@ class JsonApiEncoderTest extends TestCase
 
         $urlGenerator = $this->getMockBuilder(UrlGeneratorInterface::class)->disableOriginalConstructor()->getMock();
         MediaDefinition::addExtension(new UrlExtension($urlGenerator));
-        MediaDefinition::addExtension(new ThumbnailExtension($urlGenerator));
 
         $this->assertEquals(
             $expected,
@@ -227,7 +226,6 @@ class JsonApiEncoderTest extends TestCase
 
         $urlGenerator = $this->getMockBuilder(UrlGeneratorInterface::class)->disableOriginalConstructor()->getMock();
         MediaDefinition::addExtension(new UrlExtension($urlGenerator));
-        MediaDefinition::addExtension(new ThumbnailExtension($urlGenerator));
 
         $result = json_decode($this->encoder->encode($struct, 'jsonapi', ['uri' => '/api', 'definition' => MediaAlbumDefinition::class, 'basic' => false]), true);
 
@@ -248,7 +246,6 @@ class JsonApiEncoderTest extends TestCase
 
         $urlGenerator = $this->getMockBuilder(UrlGeneratorInterface::class)->disableOriginalConstructor()->getMock();
         MediaDefinition::addExtension(new UrlExtension($urlGenerator));
-        MediaDefinition::addExtension(new ThumbnailExtension($urlGenerator));
 
         $this->assertEquals(
             $expected,
@@ -264,7 +261,6 @@ class JsonApiEncoderTest extends TestCase
 
         $urlGenerator = $this->getMockBuilder(UrlGeneratorInterface::class)->disableOriginalConstructor()->getMock();
         MediaDefinition::addExtension(new UrlExtension($urlGenerator));
-        MediaDefinition::addExtension(new ThumbnailExtension($urlGenerator));
 
         $this->assertEquals(
             $expected,

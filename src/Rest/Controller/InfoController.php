@@ -22,7 +22,7 @@ class InfoController extends Controller
     }
 
     /**
-     * @Route("/api/info.{format}", name="api_info")
+     * @Route("/api/v1/info.{format}", name="api_info")
      *
      * @param string $format
      *
@@ -48,7 +48,7 @@ class InfoController extends Controller
     }
 
     /**
-     * @Route("/api/entity-schema.{format}", name="api_entity_schema")
+     * @Route("/api/v1/entity-schema.{format}", name="api_entity_schema")
      */
     public function entitySchema(string $format)
     {
@@ -68,7 +68,7 @@ class InfoController extends Controller
     }
 
     /**
-     * @Route("/api/info", name="api_info_html")
+     * @Route("/api/v1/info", name="api_info_html")
      */
     public function infoHtml()
     {

@@ -45,7 +45,7 @@ function getApiPath(installationPath, isDevMode) {
         installationPath = process.env.BASE_PATH;
     }
 
-    return `${installationPath}/api`;
+    return `${installationPath}/api/v1`;
 }
 
 /**

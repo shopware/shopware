@@ -17,16 +17,6 @@ return [
                 'name' => 'Lagerkorn-5,0klein',
                 'description' => null,
                 'url' => 'http://shopware.next/media/13/9c/a6/Lagerkorn-50klein.jpg',
-                'thumbnails' => [
-                    [
-                        'width' => 600,
-                        'height' => 800,
-                        'fileName' => 'Lagerkorn-50klein_original.jpg',
-                        'url' => 'http://shopware.next/media/13/9c/a6/Lagerkorn-50klein_original.jpg',
-                        'highDpi' => true,
-                        'extensions' => [],
-                    ],
-                ],
                 'versionId' => null,
                 'mediaAlbumVersionId' => null,
                 'userVersionId' => null,
@@ -63,16 +53,6 @@ return [
                 'name' => 'Jasmine-Lotus-Cover',
                 'description' => null,
                 'url' => 'http://shopware.next/media/63/4d/5a/Jasmine-Lotus-Cover.jpg',
-                'thumbnails' => [
-                    [
-                        'width' => 600,
-                        'height' => 800,
-                        'fileName' => 'Jasmine-Lotus-Cover_original.jpg',
-                        'url' => 'http://shopware.next/media/63/4d/5a/Jasmine-Lotus-Cover_original.jpg',
-                        'highDpi' => true,
-                        'extensions' => [],
-                    ],
-                ],
                 'versionId' => null,
                 'mediaAlbumVersionId' => null,
                 'userVersionId' => null,

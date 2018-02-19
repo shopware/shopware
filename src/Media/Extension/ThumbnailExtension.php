@@ -16,7 +16,7 @@ use Shopware\Media\Struct\ThumbnailStruct;
 use Shopware\Media\UrlGeneratorInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class ThumbnailExtension implements EntityExtensionInterface, EventSubscriberInterface
+class ThumbnailExtension implements EventSubscriberInterface
 {
     /**
      * @var UrlGeneratorInterface
@@ -26,18 +26,6 @@ class ThumbnailExtension implements EntityExtensionInterface, EventSubscriberInt
     public function __construct(UrlGeneratorInterface $urlGenerator)
     {
         $this->urlGenerator = $urlGenerator;
-    }
-
-    public function extendFields(FieldCollection $collection)
-    {
-        $collection->add(
-            (new StructCollectionField('thumbnails', ThumbnailStruct::class, true))->setFlags(new Extension(), new Deferred(), new ReadOnly())
-        );
-    }
-
-    public function getDefinitionClass(): string
-    {
-        return MediaDefinition::class;
     }
 
     public static function getSubscribedEvents()

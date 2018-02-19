@@ -2,6 +2,7 @@
 
 namespace Shopware\Rest\Test\Controller;
 
+use Shopware\PlatformRequest;
 use Shopware\Rest\Test\ApiTestCase;
 
 class AuthControllerTest extends ApiTestCase
@@ -10,9 +11,9 @@ class AuthControllerTest extends ApiTestCase
     {
         $client = $this->getClient();
         $client->setServerParameter('HTTP_Authorization', null);
-        $client->request('GET', '/api/tax');
+        $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
 
-        $this->assertEquals(401, $client->getResponse()->getStatusCode());
+        $this->assertEquals(401, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $response = json_decode($client->getResponse()->getContent(), true);
 
@@ -30,7 +31,7 @@ class AuthControllerTest extends ApiTestCase
         ]);
 
         $client = $this->getClient();
-        $client->request('POST', '/api/auth', [], [], [], $authPayload);
+        $client->request('POST', '/api/v1/auth', [], [], [], $authPayload);
 
         $this->assertEquals(401, $client->getResponse()->getStatusCode());
 
@@ -46,7 +47,7 @@ class AuthControllerTest extends ApiTestCase
     {
         $client = $this->getClient();
         $client->setServerParameter('HTTP_Authorization', 'Bearer invalid_token_provided');
-        $client->request('GET', '/api/tax');
+        $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
 
         $this->assertEquals(401, $client->getResponse()->getStatusCode());
 
@@ -62,7 +63,7 @@ class AuthControllerTest extends ApiTestCase
     {
         $client = $this->getClient();
         $client->setServerParameter('HTTP_Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNTIzMzcwMjc0LCJuYmYiOjE1MjMzNzAyNzQsImV4cCI6MTUyMzM3Mzg3NH0.gyX-FVjyv_nIcRGryeBqk3LtXA0ZhKHOVYq_1YmWi9I');
-        $client->request('GET', '/api/tax');
+        $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
 
         $this->assertEquals(401, $client->getResponse()->getStatusCode());
 
@@ -76,7 +77,7 @@ class AuthControllerTest extends ApiTestCase
 
     public function testAccessProtectedResourceWithToken(): void
     {
-        $this->apiClient->request('GET', '/api/tax');
+        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
 
         $this->assertEquals(200, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
 

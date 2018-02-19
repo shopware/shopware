@@ -51,47 +51,6 @@ class EntityReaderTest extends KernelTestCase
         parent::tearDown();
     }
 
-    public function testMaxGroupConcat()
-    {
-        $parentId = Uuid::uuid4()->getHex();
-        $categories = [
-            ['id' => $parentId, 'name' => 'master'],
-        ];
-
-        for ($i = 0; $i < 400; ++$i) {
-            $categories[] = [
-                'id' => Uuid::uuid4()->getHex(),
-                'name' => 'test' . $i,
-                'parentId' => $parentId,
-            ];
-        }
-
-        $this->container->get(CategoryRepository::class)
-            ->create($categories, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
-
-        $mapping = array_map(function (array $category) {
-            return ['id' => $category['id']];
-        }, $categories);
-
-        $id = Uuid::uuid4()->getHex();
-        $product = [
-            'id' => $id,
-            'name' => 'Test product',
-            'price' => ['gross' => 100, 'net' => 99],
-            'categories' => $mapping,
-            'manufacturer' => ['name' => 'Test'],
-            'tax' => ['name' => 'test', 'rate' => 5],
-        ];
-
-        $this->container->get(ProductRepository::class)
-            ->create([$product], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
-
-        $detail = $this->container->get(ProductRepository::class)
-            ->readDetail([$id], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
-
-        $this->assertCount(401, $detail->getAllCategories());
-    }
-
     public function testInheritanceExtension()
     {
         $redId = Uuid::uuid4()->getHex();

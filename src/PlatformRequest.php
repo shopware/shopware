@@ -4,6 +4,8 @@ namespace Shopware;
 
 final class PlatformRequest
 {
+    // should be increased with every major version
+    public const API_VERSION = 1;
     public const HEADER_ACCESS_KEY = 'x-sw-access-key';
     public const HEADER_APPLICATION_TOKEN = 'x-sw-application-token';
     public const HEADER_CONTEXT_TOKEN = 'x-sw-context-token';

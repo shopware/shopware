@@ -16,6 +16,7 @@
 - [Apache 2.2 or 2.4](https://httpd.apache.org/)
 - Apache's `mod_rewrite` module
 - MySQL 5.7.19 or above
+    - `group_concat_max_len` must be greater or equals 320000
 
 #### Required PHP extensions:
 

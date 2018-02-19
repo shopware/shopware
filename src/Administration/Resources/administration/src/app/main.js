@@ -9,6 +9,7 @@ import initRouter from 'src/app/init/router.init';
 import MenuService from 'src/app/service/menu.service';
 import LoginService from 'src/core/service/login.service';
 import apiServices from 'src/core/service/api';
+import JsonApiParser from 'src/core/service/jsonapi-parser.service';
 
 /** Import global styles */
 import 'src/app/assets/less/all.less';
@@ -28,6 +29,9 @@ application
     .addServiceProvider('loginService', () => {
         const initContainer = application.getContainer('init');
         return LoginService(initContainer.httpClient);
+    })
+    .addServiceProvider('jsonapiParserService', () => {
+        return JsonApiParser;
     });
 
 // Loop through the api services and register them as service providers in the application

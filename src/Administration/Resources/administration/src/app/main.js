@@ -30,7 +30,7 @@ application
         const initContainer = application.getContainer('init');
         return LoginService(initContainer.httpClient);
     })
-    .addServiceProvider('jsonapiParserService', () => {
+    .addServiceProvider('jsonApiParserService', () => {
         return JsonApiParser;
     });
 

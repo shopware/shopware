@@ -4,13 +4,48 @@
 import utils from 'src/core/service/util.service';
 
 /**
- * Tries to convert the provided data, otherwise throws an error.
+ * Converts a JSONApi compliant data structure into a nested object structure which suits the data entry management
+ * of the application much better.
+ *
+ * @example
+ * import jsonApiParserService from 'src/core/service/jsonapi-parser.service';
+ *
+ * httpClient.get('/foo').then((response) => {
+ *     const parsedResponse = jsonApiParserService(response.data);
+ * });
+ *
+ * @param {String|Object} data Data structure
+ * @returns {Object|null} Parsed data structure or `null` if the `data` parameter isn't an object or string.
+ * @method jsonApiParserService
+ * @memberOf module:core/helper/jsonapi-parser
+ */
+export default function jsonApiParserService(data) {
+    const json = convertRawDataToJson(data);
+
+    if (!json) {
+        return null;
+    }
+
+    // Provided data was parsed before or doesn't follows the JSONApi spec, so we're returning data structure untouched
+    if (json.parsed === true || !areTopMemberPropertiesPresent(json)) {
+        return json;
+    }
+
+    const convertedStructure = parseDataStructure(json);
+
+    // Mark the converted structure as "parsed", so we're not parsing it again
+    convertedStructure.parsed = true;
+
+    return convertedStructure;
+}
+
+/**
+ * Tries to convert the raw data input into a JSON format.
  *
  * @param {String|Object} [data={}] Data structure to parse
  * @returns {Boolean|Object} Converted data structure or false when the data type wasn't an object or string.
- * @throws Error
  */
-function convertDataStructure(data) {
+function convertRawDataToJson(data) {
     let jsonData;
     if (utils.isString(data)) {
         try {
@@ -28,7 +63,7 @@ function convertDataStructure(data) {
 }
 
 /**
- * Basic check if we're dealing with a data structure which follows along the JSONApi spec.
+ * Basic check if we're dealing with a data structure which follows the JSONApi spec.
  * @param {Object} json
  * @returns {Boolean}
  */
@@ -78,7 +113,7 @@ function parseDataStructure(json) {
 
     const includedMap = createIncludeMap(json.included);
 
-    // Always cast data to an array, we're flatten it afterwards
+    // Always cast data to an array, we're flattening it afterwards
     if (!utils.isArray(json.data)) {
         json.data = [json.data];
     }
@@ -184,40 +219,4 @@ function mapIncluded(item, includedMap) {
 
     const included = includedMap.get(includedKey);
     return createItem(included, includedMap);
-}
-
-/**
- * Converts a JSONApi compliant data structure into a nested object structure which suits the data entry management
- * of the application much better.
- *
- * @example
- * import JSONApiParser from 'src/core/service/jsonapi-parser.service';
- *
- * httpClient.get('/foo').then((response) => {
- *     const parsedResponse = JSONApiParser(response.data);
- * });
- *
- * @param {String|Object} data Data structure
- * @returns {Object|null} Parsed data structure or `null` if the `data` parameter isn't an object or string.
- * @method JsonApiParser
- * @memberOf module:core/helper/jsonapi-parser
- */
-export default function JsonApiParser(data) {
-    const json = convertDataStructure(data);
-
-    if (!json) {
-        return null;
-    }
-
-    // Provided data was parsed before or doesn't follows the JSONApi spec, so we're returning data structure untouched
-    if (json.parsed === true || !areTopMemberPropertiesPresent(json)) {
-        return json;
-    }
-
-    const convertedStructure = parseDataStructure(json);
-
-    // Mark the converted structure as "parsed", so we're not parsing it again
-    convertedStructure.parsed = true;
-
-    return convertedStructure;
 }

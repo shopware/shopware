@@ -39,7 +39,7 @@ use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 
 class StockDeliverySeparator
 {
@@ -56,7 +56,7 @@ class StockDeliverySeparator
     public function addItemsToDeliveries(
         DeliveryCollection $deliveries,
         CalculatedLineItemCollection $items,
-        ShopContext $context
+        StorefrontContext $context
     ): void {
         foreach ($items as $item) {
             if (!$item instanceof DeliverableLineItemInterface) {
@@ -143,7 +143,7 @@ class StockDeliverySeparator
         DeliverableLineItemInterface $item,
         int $quantity,
         DeliveryDate $deliveryDate,
-        ShopContext $context
+        StorefrontContext $context
     ): DeliveryPosition {
         $definition = new PriceDefinition(
             $item->getPrice()->getUnitPrice(),

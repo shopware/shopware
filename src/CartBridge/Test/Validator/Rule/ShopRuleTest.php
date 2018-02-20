@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Api\Shop\Struct\ShopDetailStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\CartBridge\Rule\ShopRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ShopRuleTest extends TestCase
@@ -42,7 +42,7 @@ class ShopRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getShop')
@@ -60,7 +60,7 @@ class ShopRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getShop')
@@ -80,7 +80,7 @@ class ShopRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getShop')
@@ -100,7 +100,7 @@ class ShopRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getShop')
@@ -120,7 +120,7 @@ class ShopRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getShop')
@@ -138,7 +138,7 @@ class ShopRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getShop')
@@ -156,7 +156,7 @@ class ShopRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getShop')
@@ -174,7 +174,7 @@ class ShopRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getShop')
@@ -198,7 +198,7 @@ class ShopRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getShop')

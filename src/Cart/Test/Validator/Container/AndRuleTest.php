@@ -30,7 +30,7 @@ use Shopware\Cart\Rule\Container\AndRule;
 use Shopware\Cart\Rule\Match;
 use Shopware\Cart\Test\Common\FalseRule;
 use Shopware\Cart\Test\Common\TrueRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class AndRuleTest extends TestCase
@@ -46,7 +46,7 @@ class AndRuleTest extends TestCase
             new Match(true),
             $rule->match(
                 $this->createMock(CalculatedCart::class),
-                $this->createMock(ShopContext::class),
+                $this->createMock(StorefrontContext::class),
                 new StructCollection()
             )
         );
@@ -63,7 +63,7 @@ class AndRuleTest extends TestCase
             new Match(false, []),
             $rule->match(
                 $this->createMock(CalculatedCart::class),
-                $this->createMock(ShopContext::class),
+                $this->createMock(StorefrontContext::class),
                 new StructCollection()
             )
         );

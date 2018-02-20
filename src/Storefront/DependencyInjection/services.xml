@@ -60,7 +60,7 @@
             <tag name="kernel.event_subscriber" />
         </service>
 
-        <service class="Shopware\Storefront\Context\ShopContextValueResolver" id="Shopware\Storefront\Context\ShopContextValueResolver">
+        <service class="Shopware\Storefront\Context\StorefrontContextValueResolver" id="Shopware\Storefront\Context\StorefrontContextValueResolver">
             <argument type="service" id="Shopware\Storefront\Context\StorefrontContextService" />
             <tag name="controller.argument_value_resolver"/>
         </service>

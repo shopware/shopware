@@ -27,7 +27,7 @@ namespace Shopware\CartBridge\Product;
 
 use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Product\Repository\ProductRepository;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 
 class ProductGateway implements ProductGatewayInterface
 {
@@ -41,7 +41,7 @@ class ProductGateway implements ProductGatewayInterface
         $this->repository = $repository;
     }
 
-    public function get(array $numbers, ShopContext $context): ProductBasicCollection
+    public function get(array $numbers, StorefrontContext $context): ProductBasicCollection
     {
         return $this->repository->readBasic($numbers, $context->getTranslationContext());
     }

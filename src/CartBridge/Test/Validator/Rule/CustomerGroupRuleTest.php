@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\CartBridge\Rule\CustomerGroupRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class CustomerGroupRuleTest extends TestCase
@@ -42,7 +42,7 @@ class CustomerGroupRuleTest extends TestCase
         $group = new CustomerGroupBasicStruct();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-1');
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getCurrentCustomerGroup')
@@ -62,7 +62,7 @@ class CustomerGroupRuleTest extends TestCase
         $group = new CustomerGroupBasicStruct();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-3');
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getCurrentCustomerGroup')
@@ -82,7 +82,7 @@ class CustomerGroupRuleTest extends TestCase
         $group = new CustomerGroupBasicStruct();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-5');
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getCurrentCustomerGroup')

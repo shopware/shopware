@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\CartBridge\Rule\LastNameRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class LastNameRuleTest extends TestCase
@@ -42,7 +42,7 @@ class LastNameRuleTest extends TestCase
         $customer = new CustomerBasicStruct();
         $customer->setLastName('shopware');
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -62,7 +62,7 @@ class LastNameRuleTest extends TestCase
         $customer = new CustomerBasicStruct();
         $customer->setLastName('ShopWare');
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -82,7 +82,7 @@ class LastNameRuleTest extends TestCase
         $customer = new CustomerBasicStruct();
         $customer->setLastName('dolore magna aliquyam');
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -99,7 +99,7 @@ class LastNameRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')

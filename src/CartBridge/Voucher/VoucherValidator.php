@@ -27,14 +27,14 @@ namespace Shopware\CartBridge\Voucher;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\ValidatorInterface;
 use Shopware\Cart\Error\ValidationError;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class VoucherValidator implements ValidatorInterface
 {
     public function validate(
         CalculatedCart $cart,
-        ShopContext $context,
+        StorefrontContext $context,
         StructCollection $dataCollection
     ): bool {
 //        $vouchers = $cart->getCalculatedLineItems()->filterInstance(CalculatedVoucher::class);

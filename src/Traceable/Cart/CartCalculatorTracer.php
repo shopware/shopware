@@ -5,7 +5,7 @@ namespace Shopware\Traceable\Cart;
 use Shopware\Cart\Cart\CartCalculator;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 
 class CartCalculatorTracer extends CartCalculator
 {
@@ -27,7 +27,7 @@ class CartCalculatorTracer extends CartCalculator
         $this->actions = $actions;
     }
 
-    public function calculate(Cart $cart, ShopContext $context): CalculatedCart
+    public function calculate(Cart $cart, StorefrontContext $context): CalculatedCart
     {
         $time = microtime(true);
         $cart = $this->calculator->calculate($cart, $context);

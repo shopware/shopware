@@ -33,7 +33,7 @@ use Shopware\Cart\Exception\LineItemNotFoundException;
 use Shopware\Cart\LineItem\LineItemCollection;
 use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Order\OrderPersisterInterface;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Storefront\Context\StorefrontContextServiceInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -146,7 +146,7 @@ class StoreFrontCartService
     {
         $this->orderPersister->persist(
             $this->getCalculatedCart(),
-            $this->contextService->getShopContext()
+            $this->contextService->getStorefrontContext()
         );
 
         $this->createNewCart();
@@ -177,7 +177,7 @@ class StoreFrontCartService
 
     private function calculate(Cart $cart): CalculatedCart
     {
-        $context = $this->contextService->getShopContext();
+        $context = $this->contextService->getStorefrontContext();
         $calculated = $this->calculation->calculate($cart, $context);
 
         $this->save($calculated, $context);
@@ -185,7 +185,7 @@ class StoreFrontCartService
         return $calculated;
     }
 
-    private function save(CalculatedCart $calculatedCart, ShopContext $context): void
+    private function save(CalculatedCart $calculatedCart, StorefrontContext $context): void
     {
         $this->persister->save($calculatedCart, $context);
         $this->session->set(self::CART_TOKEN_KEY, $calculatedCart->getToken());

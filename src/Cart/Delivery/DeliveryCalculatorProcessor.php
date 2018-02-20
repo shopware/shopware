@@ -28,7 +28,7 @@ namespace Shopware\Cart\Delivery;
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class DeliveryCalculatorProcessor implements CartProcessorInterface
@@ -50,7 +50,7 @@ class DeliveryCalculatorProcessor implements CartProcessorInterface
         Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
-        ShopContext $context
+        StorefrontContext $context
     ): void {
         foreach ($calculatedCart->getDeliveries() as $delivery) {
             $this->calculator->calculate($delivery, $context);

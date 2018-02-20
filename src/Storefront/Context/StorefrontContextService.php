@@ -28,7 +28,7 @@ use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Context\Service\ContextFactoryInterface;
 use Shopware\Context\Struct\CheckoutScope;
 use Shopware\Context\Struct\CustomerScope;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Context\Struct\ShopScope;
 use Shopware\Storefront\Firewall\CustomerUser;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -68,7 +68,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
     private $securityTokenStorage;
 
     /**
-     * @var ShopContext
+     * @var StorefrontContext
      */
     private $context;
 
@@ -86,7 +86,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         $this->securityTokenStorage = $securityTokenStorage;
     }
 
-    public function getShopContext(): ShopContext
+    public function getStorefrontContext(): StorefrontContext
     {
         return $this->load(true);
     }
@@ -97,7 +97,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         $this->load(false);
     }
 
-    private function load(bool $useCache): ShopContext
+    private function load(bool $useCache): StorefrontContext
     {
         $shopScope = new ShopScope(
             $this->getStorefrontShopId(),

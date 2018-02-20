@@ -30,7 +30,7 @@ use Shopware\Cart\Rule\Container\XorRule;
 use Shopware\Cart\Rule\Match;
 use Shopware\Cart\Test\Common\FalseRule;
 use Shopware\Cart\Test\Common\TrueRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class XorRuleTest extends TestCase
@@ -47,7 +47,7 @@ class XorRuleTest extends TestCase
             new Match(true),
             $rule->match(
                 $this->createMock(CalculatedCart::class),
-                $this->createMock(ShopContext::class),
+                $this->createMock(StorefrontContext::class),
                 new StructCollection()
             )
         );
@@ -64,7 +64,7 @@ class XorRuleTest extends TestCase
             new Match(false),
             $rule->match(
                 $this->createMock(CalculatedCart::class),
-                $this->createMock(ShopContext::class),
+                $this->createMock(StorefrontContext::class),
                 new StructCollection()
             )
         );
@@ -82,7 +82,7 @@ class XorRuleTest extends TestCase
             new Match(false),
             $rule->match(
                 $this->createMock(CalculatedCart::class),
-                $this->createMock(ShopContext::class),
+                $this->createMock(StorefrontContext::class),
                 new StructCollection()
             )
         );

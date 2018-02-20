@@ -40,7 +40,7 @@ use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\CartBridge\Order\OrderPersister;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 
 class OrderPersisterTest extends TestCase
 {
@@ -67,8 +67,8 @@ class OrderPersisterTest extends TestCase
 
         $persister = new OrderPersister($repository, $taxDetector);
 
-        $shopContext = $this->createMock(ShopContext::class);
-        $shopContext->expects($this->any())->method('getCustomer')->willReturn($customer);
+        $storefrontContext = $this->createMock(StorefrontContext::class);
+        $storefrontContext->expects($this->any())->method('getCustomer')->willReturn($customer);
 
         $cart = new CalculatedCart(
             new Cart('A', 'a-b-c', new LineItemCollection(), new ErrorCollection()),
@@ -77,6 +77,6 @@ class OrderPersisterTest extends TestCase
             new DeliveryCollection()
         );
 
-        $persister->persist($cart, $shopContext);
+        $persister->persist($cart, $storefrontContext);
     }
 }

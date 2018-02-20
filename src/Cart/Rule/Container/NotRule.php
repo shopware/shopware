@@ -28,7 +28,7 @@ namespace Shopware\Cart\Rule\Container;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Rule\Match;
 use Shopware\Cart\Rule\Rule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 /**
@@ -50,7 +50,7 @@ class NotRule extends Container
 
     public function match(
         CalculatedCart $calculatedCart,
-        ShopContext $context,
+        StorefrontContext $context,
         StructCollection $collection
     ): Match {
         $rule = array_shift($this->rules);

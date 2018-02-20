@@ -36,7 +36,7 @@ use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\CartBridge\Voucher\VoucherProcessor;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 
 class CartCalculatorTest extends TestCase
 {
@@ -72,7 +72,7 @@ class CartCalculatorTest extends TestCase
 
         $this->assertEquals(
             $cart,
-            $calculator->calculate($container, $this->createMock(ShopContext::class))
+            $calculator->calculate($container, $this->createMock(StorefrontContext::class))
         );
     }
 }

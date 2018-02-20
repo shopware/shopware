@@ -46,7 +46,7 @@ use Shopware\Api\Tax\Repository\TaxRepository;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Context\Struct\CheckoutScope;
 use Shopware\Context\Struct\CustomerScope;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Context\Struct\ShopScope;
 use Shopware\Context\Struct\TranslationContext;
 use Shopware\Defaults;
@@ -138,7 +138,7 @@ class ContextFactory implements ContextFactoryInterface
         ShopScope $shopScope,
         CustomerScope $customerScope,
         CheckoutScope $checkoutScope
-    ): ShopContext {
+    ): StorefrontContext {
         $translationContext = $this->getTranslationContext($shopScope->getShopId());
 
         //select shop with all fallbacks
@@ -193,7 +193,7 @@ class ContextFactory implements ContextFactoryInterface
         //detect active delivery method, at first checkout scope, at least shop default method
         $delivery = $this->getShippingMethod($shop, $translationContext, $checkoutScope);
 
-        $context = new ShopContext(
+        $context = new StorefrontContext(
             $shop,
             $currency,
             $customerGroup,

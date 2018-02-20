@@ -25,9 +25,9 @@
 namespace Shopware\Cart\Order;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 
 interface OrderPersisterInterface
 {
-    public function persist(CalculatedCart $calculatedCart, ShopContext $context): void;
+    public function persist(CalculatedCart $calculatedCart, StorefrontContext $context): void;
 }

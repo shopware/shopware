@@ -33,14 +33,14 @@ use Shopware\Cart\Test\Common\ValidatableDefinition;
 use Shopware\CartBridge\Rule\Collector\OrderClearedStateRuleCollector;
 use Shopware\CartBridge\Rule\Data\OrderClearedStateRuleData;
 use Shopware\CartBridge\Rule\OrderClearedStateRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class OrderClearedStateRuleCollectorTest extends TestCase
 {
     public function testWithoutRule(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $connection = $this->createMock(Connection::class);
 
@@ -55,7 +55,7 @@ class OrderClearedStateRuleCollectorTest extends TestCase
 
     public function testWithoutCustomer(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $connection = $this->createMock(Connection::class);
 
@@ -72,7 +72,7 @@ class OrderClearedStateRuleCollectorTest extends TestCase
 
     public function testWithStates(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
         $customer = new CustomerBasicStruct();
         $customer->setId('SWAG-CUSTOMER-ID-1');
         $context->method('getCustomer')

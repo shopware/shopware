@@ -27,7 +27,7 @@ namespace Shopware\CartBridge\Rule;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Rule\Match;
 use Shopware\CartBridge\Rule\Data\OrderClearedStateRuleData;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class OrderClearedStateRule extends \Shopware\Cart\Rule\Rule
@@ -47,7 +47,7 @@ class OrderClearedStateRule extends \Shopware\Cart\Rule\Rule
 
     public function match(
         CalculatedCart $calculatedCart,
-        ShopContext $context,
+        StorefrontContext $context,
         StructCollection $collection
     ): Match {
         if (!$collection->has(OrderClearedStateRuleData::class)) {

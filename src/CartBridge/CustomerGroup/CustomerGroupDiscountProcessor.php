@@ -32,7 +32,7 @@ use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\LineItem\CalculatedLineItem;
 use Shopware\Cart\LineItem\Discount;
 use Shopware\Cart\Price\PercentagePriceCalculator;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class CustomerGroupDiscountProcessor implements CartProcessorInterface
@@ -51,7 +51,7 @@ class CustomerGroupDiscountProcessor implements CartProcessorInterface
         Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
-        ShopContext $context
+        StorefrontContext $context
     ): void {
         if (!$context->getCustomer()) {
             return;

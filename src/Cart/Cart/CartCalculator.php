@@ -32,7 +32,7 @@ use Shopware\Cart\Exception\CircularCartCalculationException;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Cart\Price\AmountCalculator;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class CartCalculator
@@ -64,14 +64,14 @@ class CartCalculator
         $this->calculator = $calculator;
     }
 
-    public function calculate(Cart $cart, ShopContext $context): CalculatedCart
+    public function calculate(Cart $cart, StorefrontContext $context): CalculatedCart
     {
         $dataCollection = $this->prepare($cart, $context);
 
         return $this->process($cart, $context, $dataCollection, 0);
     }
 
-    private function prepare(Cart $cart, ShopContext $context): StructCollection
+    private function prepare(Cart $cart, StorefrontContext $context): StructCollection
     {
         $fetchCollection = new StructCollection();
         foreach ($this->collectors as $collector) {
@@ -88,7 +88,7 @@ class CartCalculator
 
     private function process(
         Cart $cart,
-        ShopContext $context,
+        StorefrontContext $context,
         StructCollection $dataCollection,
         int $iteration
     ): CalculatedCart {
@@ -137,7 +137,7 @@ class CartCalculator
         CalculatedLineItemCollection $lineItems,
         DeliveryCollection $deliveries,
         Cart $container,
-        ShopContext $context
+        StorefrontContext $context
     ): CalculatedCart {
         return new CalculatedCart(
             $container,

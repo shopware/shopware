@@ -32,7 +32,7 @@ use Shopware\Cart\Rule\RuleCollection;
 use Shopware\Cart\Rule\Validatable;
 use Shopware\CartBridge\Rule\Data\OrderClearedStateRuleData;
 use Shopware\CartBridge\Rule\OrderClearedStateRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class OrderClearedStateRuleCollector implements CollectorInterface
@@ -53,14 +53,14 @@ class OrderClearedStateRuleCollector implements CollectorInterface
     public function prepare(
         StructCollection $fetchDefinition,
         Cart $cart,
-        ShopContext $context
+        StorefrontContext $context
     ): void {
     }
 
     public function fetch(
         StructCollection $dataCollection,
         StructCollection $fetchCollection,
-        ShopContext $context
+        StorefrontContext $context
     ): void {
         $rules = $dataCollection->filterInstance(Validatable::class);
 

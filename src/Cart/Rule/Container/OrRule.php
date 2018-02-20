@@ -28,7 +28,7 @@ namespace Shopware\Cart\Rule\Container;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Rule\Match;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 /**
@@ -38,7 +38,7 @@ class OrRule extends Container
 {
     public function match(
         CalculatedCart $calculatedCart,
-        ShopContext $context,
+        StorefrontContext $context,
         StructCollection $collection
     ): Match {
         $messages = [];

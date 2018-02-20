@@ -27,7 +27,7 @@ namespace Shopware\Cart\Cart;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 interface CartProcessorInterface
@@ -36,6 +36,6 @@ interface CartProcessorInterface
         Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
-        ShopContext $context
+        StorefrontContext $context
     ): void;
 }

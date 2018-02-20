@@ -34,7 +34,7 @@ use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Cart\LineItem\NestedInterface;
 use Shopware\Cart\Order\OrderPersisterInterface;
 use Shopware\Cart\Tax\TaxDetector;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
 
 class OrderPersister implements OrderPersisterInterface
@@ -55,14 +55,14 @@ class OrderPersister implements OrderPersisterInterface
         $this->taxDetector = $taxDetector;
     }
 
-    public function persist(CalculatedCart $calculatedCart, ShopContext $context): void
+    public function persist(CalculatedCart $calculatedCart, StorefrontContext $context): void
     {
         $order = $this->convert($calculatedCart, $context);
 
         $this->repository->create([$order], $context->getTranslationContext());
     }
 
-    private function convert(CalculatedCart $calculatedCart, ShopContext $context): array
+    private function convert(CalculatedCart $calculatedCart, StorefrontContext $context): array
     {
         $addressId = Uuid::uuid4()->toString();
 

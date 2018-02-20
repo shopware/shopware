@@ -32,7 +32,7 @@ use Shopware\Cart\Rule\Validatable;
 use Shopware\CartBridge\Product\Struct\ProductFetchDefinition;
 use Shopware\CartBridge\Rule\Data\ProductAttributeRuleData;
 use Shopware\CartBridge\Rule\ProductAttributeRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ProductAttributeRuleCollector implements CollectorInterface
@@ -50,14 +50,14 @@ class ProductAttributeRuleCollector implements CollectorInterface
     public function prepare(
         StructCollection $fetchDefinition,
         Cart $cart,
-        ShopContext $context
+        StorefrontContext $context
     ): void {
     }
 
     public function fetch(
         StructCollection $dataCollection,
         StructCollection $fetchCollection,
-        ShopContext $context
+        StorefrontContext $context
     ): void {
         $rules = $dataCollection->filterInstance(Validatable::class);
 

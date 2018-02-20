@@ -29,7 +29,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Shop\Repository\ShopRepository;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Storefront\Controller\StorefrontController;
 
 /**
@@ -51,11 +51,11 @@ class IndexController extends StorefrontController
      * @Route("/widgets/index/shopMenu", name="widgets/shopMenu")
      * @Method({"GET"})
      *
-     * @param ShopContext $context
+     * @param StorefrontContext $context
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function shopMenuAction(ShopContext $context)
+    public function shopMenuAction(StorefrontContext $context)
     {
         return $this->render('@Storefront/widgets/index/shop_menu.html.twig', [
             'shop' => $context->getShop(),
@@ -65,7 +65,7 @@ class IndexController extends StorefrontController
         ]);
     }
 
-    private function loadShops(ShopContext $context)
+    private function loadShops(StorefrontContext $context)
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('shop.active', 1));

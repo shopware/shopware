@@ -31,7 +31,7 @@ use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Error\VoucherNotFoundError;
 use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\CartBridge\Voucher\Struct\VoucherData;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class VoucherProcessor implements CartProcessorInterface
@@ -52,7 +52,7 @@ class VoucherProcessor implements CartProcessorInterface
         Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
-        ShopContext $context
+        StorefrontContext $context
     ): void {
         $lineItems = $cart->getLineItems()->filterType(self::TYPE_VOUCHER);
 

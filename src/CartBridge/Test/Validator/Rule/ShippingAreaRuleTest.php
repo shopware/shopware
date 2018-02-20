@@ -32,7 +32,7 @@ use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\Rule\Rule;
 use Shopware\CartBridge\Rule\ShippingAreaRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ShippingAreaRuleTest extends TestCase
@@ -51,7 +51,7 @@ class ShippingAreaRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getShippingLocation')
@@ -90,7 +90,7 @@ class ShippingAreaRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getShippingLocation')
@@ -128,7 +128,7 @@ class ShippingAreaRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $rule->match($cart, $context, new StructCollection())->matches();
     }

@@ -29,13 +29,13 @@ use Shopware\Api\Country\Struct\CountryBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\Tax\TaxDetector;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 
 class TaxDetectorTest extends TestCase
 {
     public function testUseGrossPrices(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
         $customerGroup = $this->createMock(CustomerGroupBasicStruct::class);
         $customerGroup->expects($this->once())->method('getDisplayGross')->will($this->returnValue(true));
         $context->expects($this->once())->method('getCurrentCustomerGroup')->will($this->returnValue($customerGroup));
@@ -46,7 +46,7 @@ class TaxDetectorTest extends TestCase
 
     public function testDoNotUseGrossPrices(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
         $customerGroup = $this->createMock(CustomerGroupBasicStruct::class);
         $customerGroup->expects($this->once())->method('getDisplayGross')->will($this->returnValue(false));
         $context->expects($this->once())->method('getCurrentCustomerGroup')->will($this->returnValue($customerGroup));
@@ -57,7 +57,7 @@ class TaxDetectorTest extends TestCase
 
     public function testIsNetDelivery(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $country = new CountryBasicStruct();
         $country->setTaxFree(true);
@@ -72,7 +72,7 @@ class TaxDetectorTest extends TestCase
 
     public function testIsNotNetDelivery(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $country = new CountryBasicStruct();
         $country->setTaxFree(false);

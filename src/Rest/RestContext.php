@@ -2,14 +2,14 @@
 
 namespace Shopware\Rest;
 
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Context\Struct\TranslationContext;
 use Symfony\Component\HttpFoundation\Request;
 
 class RestContext
 {
     /**
-     * @var ShopContext
+     * @var StorefrontContext
      */
     private $shopContext;
 
@@ -25,7 +25,7 @@ class RestContext
 
     public function __construct(
         Request $request,
-        ShopContext $shopContext,
+        StorefrontContext $shopContext,
         ?string $userId
     ) {
         $this->request = $request;
@@ -33,7 +33,7 @@ class RestContext
         $this->userId = $userId;
     }
 
-    public function getShopContext(): ShopContext
+    public function getShopContext(): StorefrontContext
     {
         return $this->shopContext;
     }

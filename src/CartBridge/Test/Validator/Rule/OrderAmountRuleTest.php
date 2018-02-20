@@ -30,7 +30,7 @@ use Shopware\Cart\Price\Struct\CartPrice;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\CartBridge\Rule\OrderAmountRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class OrderAmountRuleTest extends TestCase
@@ -46,7 +46,7 @@ class OrderAmountRuleTest extends TestCase
             ->method('getPrice')
             ->will($this->returnValue($price));
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $this->assertTrue(
             $rule->match($cart, $context, new StructCollection())->matches()
@@ -64,7 +64,7 @@ class OrderAmountRuleTest extends TestCase
             ->method('getPrice')
             ->will($this->returnValue($price));
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $this->assertTrue(
             $rule->match($cart, $context, new StructCollection())->matches()
@@ -82,7 +82,7 @@ class OrderAmountRuleTest extends TestCase
             ->method('getPrice')
             ->will($this->returnValue($price));
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $this->assertFalse(
             $rule->match($cart, $context, new StructCollection())->matches()
@@ -100,7 +100,7 @@ class OrderAmountRuleTest extends TestCase
             ->method('getPrice')
             ->will($this->returnValue($price));
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $this->assertTrue(
             $rule->match($cart, $context, new StructCollection())->matches()
@@ -118,7 +118,7 @@ class OrderAmountRuleTest extends TestCase
             ->method('getPrice')
             ->will($this->returnValue($price));
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $this->assertTrue(
             $rule->match($cart, $context, new StructCollection())->matches()
@@ -136,7 +136,7 @@ class OrderAmountRuleTest extends TestCase
             ->method('getPrice')
             ->will($this->returnValue($price));
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $this->assertFalse(
             $rule->match($cart, $context, new StructCollection())->matches()
@@ -161,7 +161,7 @@ class OrderAmountRuleTest extends TestCase
             ->method('getPrice')
             ->will($this->returnValue($price));
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $this->assertFalse(
             $rule->match($cart, $context, new StructCollection())->matches()

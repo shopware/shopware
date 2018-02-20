@@ -31,14 +31,14 @@ use Shopware\Cart\Test\Common\ValidatableDefinition;
 use Shopware\CartBridge\Rule\Collector\LastOrderRuleCollector;
 use Shopware\CartBridge\Rule\Data\LastOrderRuleData;
 use Shopware\CartBridge\Rule\LastOrderRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class LastOrderRuleCollectorTest extends TestCase
 {
     public function testWithoutRule(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $connection = $this->createMock(Connection::class);
 
@@ -53,7 +53,7 @@ class LastOrderRuleCollectorTest extends TestCase
 
     public function testWithoutCustomer(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $connection = $this->createMock(Connection::class);
 
@@ -70,7 +70,7 @@ class LastOrderRuleCollectorTest extends TestCase
 
     public function testWithLastOrder(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
@@ -105,7 +105,7 @@ class LastOrderRuleCollectorTest extends TestCase
 
     public function testWithoutLastOrder(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())

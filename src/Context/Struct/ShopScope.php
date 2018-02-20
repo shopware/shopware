@@ -54,7 +54,7 @@ class ShopScope extends Struct
         return $this->currencyId;
     }
 
-    public static function createFromContext(ShopContext $context): self
+    public static function createFromContext(StorefrontContext $context): self
     {
         return new self(
             $context->getShop()->getId(),

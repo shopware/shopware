@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Config\ConfigServiceInterface;
 use Shopware\Storefront\Exception\MinimumSearchTermLengthNotGiven;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
@@ -31,14 +31,14 @@ class SearchController extends StorefrontController
     /**
      * @Route("/search", name="search_index", options={"seo"=false})
      *
-     * @param ShopContext $context
+     * @param StorefrontContext $context
      * @param Request     $request
      *
      * @throws MinimumSearchTermLengthNotGiven
      *
      * @return Response
      */
-    public function indexAction(ShopContext $context, Request $request): Response
+    public function indexAction(StorefrontContext $context, Request $request): Response
     {
         $searchTerm = $request->get('search');
         $config = $this->configService->getByShop(
@@ -70,12 +70,12 @@ class SearchController extends StorefrontController
     /**
      * @Route("/suggestSearch", name="search_ajax")
      *
-     * @param ShopContext $context
+     * @param StorefrontContext $context
      * @param Request     $request
      *
      * @return Response
      */
-    public function ajaxAction(ShopContext $context, Request $request): Response
+    public function ajaxAction(StorefrontContext $context, Request $request): Response
     {
         $searchTerm = $request->get('search');
 

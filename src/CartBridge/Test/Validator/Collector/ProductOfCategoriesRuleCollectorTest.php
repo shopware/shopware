@@ -33,14 +33,14 @@ use Shopware\CartBridge\Product\Struct\ProductFetchDefinition;
 use Shopware\CartBridge\Rule\Collector\ProductOfCategoriesRuleCollector;
 use Shopware\CartBridge\Rule\Data\ProductOfCategoriesRuleData;
 use Shopware\CartBridge\Rule\ProductOfCategoriesRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ProductOfCategoriesRuleCollectorTest extends TestCase
 {
     public function testWithoutRule(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $connection = $this->createMock(Connection::class);
 
@@ -55,7 +55,7 @@ class ProductOfCategoriesRuleCollectorTest extends TestCase
 
     public function testWithEmptyCart(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $connection = $this->createConnection([]);
 
@@ -72,7 +72,7 @@ class ProductOfCategoriesRuleCollectorTest extends TestCase
 
     public function testWithSingleRule(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $connection = $this->createConnection([
             1 => ['SW1', 'SW2'],
@@ -99,7 +99,7 @@ class ProductOfCategoriesRuleCollectorTest extends TestCase
 
     public function testWithMultipleRules(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $connection = $this->createConnection(
             [

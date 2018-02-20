@@ -24,7 +24,7 @@
 
 namespace Shopware\Storefront\Context;
 
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 
 /**
  * @category  Shopware
@@ -33,7 +33,7 @@ use Shopware\Context\Struct\ShopContext;
  */
 interface StorefrontContextServiceInterface
 {
-    public function getShopContext(): ShopContext;
+    public function getStorefrontContext(): StorefrontContext;
 
     public function refresh(): void;
 }

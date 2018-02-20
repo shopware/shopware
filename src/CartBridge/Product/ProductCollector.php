@@ -28,7 +28,7 @@ namespace Shopware\CartBridge\Product;
 use Shopware\Cart\Cart\CollectorInterface;
 use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\CartBridge\Product\Struct\ProductFetchDefinition;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ProductCollector implements CollectorInterface
@@ -43,7 +43,7 @@ class ProductCollector implements CollectorInterface
         $this->productGateway = $productGateway;
     }
 
-    public function prepare(StructCollection $fetchDefinition, Cart $cart, ShopContext $context): void
+    public function prepare(StructCollection $fetchDefinition, Cart $cart, StorefrontContext $context): void
     {
         $lineItems = $cart->getLineItems()->filterType(ProductProcessor::TYPE_PRODUCT);
         if ($lineItems->count() === 0) {
@@ -56,7 +56,7 @@ class ProductCollector implements CollectorInterface
         $fetchDefinition->add(new ProductFetchDefinition($identifiers));
     }
 
-    public function fetch(StructCollection $dataCollection, StructCollection $fetchCollection, ShopContext $context): void
+    public function fetch(StructCollection $dataCollection, StructCollection $fetchCollection, StorefrontContext $context): void
     {
         $definitions = $fetchCollection->filterInstance(ProductFetchDefinition::class);
         if ($definitions->count() === 0) {

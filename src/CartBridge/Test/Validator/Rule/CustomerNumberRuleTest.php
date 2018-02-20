@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\CartBridge\Rule\CustomerNumberRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class CustomerNumberRuleTest extends TestCase
@@ -42,7 +42,7 @@ class CustomerNumberRuleTest extends TestCase
         $customer = new CustomerBasicStruct();
         $customer->setNumber('NO. 1');
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -62,7 +62,7 @@ class CustomerNumberRuleTest extends TestCase
         $customer = new CustomerBasicStruct();
         $customer->setNumber('NO. 2');
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -82,7 +82,7 @@ class CustomerNumberRuleTest extends TestCase
         $customer = new CustomerBasicStruct();
         $customer->setNumber('no. 1');
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -99,7 +99,7 @@ class CustomerNumberRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -119,7 +119,7 @@ class CustomerNumberRuleTest extends TestCase
         $customer = new CustomerBasicStruct();
         $customer->setNumber('no. 2');
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')

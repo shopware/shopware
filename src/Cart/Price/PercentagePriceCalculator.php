@@ -29,7 +29,7 @@ use Shopware\Cart\Price\Struct\DerivedPrice;
 use Shopware\Cart\Price\Struct\PriceCollection;
 use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 
 class PercentagePriceCalculator
 {
@@ -63,14 +63,14 @@ class PercentagePriceCalculator
      *
      * @param float           $percentage 10.00 for 10%, -10.0 for -10%
      * @param PriceCollection $prices
-     * @param ShopContext     $context
+     * @param StorefrontContext     $context
      *
      * @return DerivedPrice
      */
     public function calculate(
         $percentage,
         PriceCollection $prices,
-        ShopContext $context
+        StorefrontContext $context
     ): DerivedPrice {
         $price = $prices->sum();
 

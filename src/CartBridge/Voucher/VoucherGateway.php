@@ -38,7 +38,7 @@ use Shopware\CartBridge\Rule\ProductOfManufacturerRule;
 use Shopware\CartBridge\Rule\ShopRule;
 use Shopware\CartBridge\Voucher\Struct\VoucherData;
 use Shopware\CartBridge\Voucher\Struct\VoucherDataCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 
 class VoucherGateway implements VoucherGatewayInterface
 {
@@ -52,7 +52,7 @@ class VoucherGateway implements VoucherGatewayInterface
         $this->connection = $connection;
     }
 
-    public function get(array $codes, ShopContext $context): VoucherDataCollection
+    public function get(array $codes, StorefrontContext $context): VoucherDataCollection
     {
         $query = $this->createVoucherQuery($codes);
         $query->setParameter('codes', $codes, Connection::PARAM_STR_ARRAY);

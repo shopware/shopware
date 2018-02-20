@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\CartBridge\Rule\Data\ProductOfCategoriesRuleData;
 use Shopware\CartBridge\Rule\ProductOfCategoriesRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ProductOfCategoriesRuleTest extends TestCase
@@ -39,7 +39,7 @@ class ProductOfCategoriesRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $collection = new StructCollection([
             ProductOfCategoriesRuleData::class => new ProductOfCategoriesRuleData([
@@ -56,7 +56,7 @@ class ProductOfCategoriesRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $collection = new StructCollection([
             ProductOfCategoriesRuleData::class => new ProductOfCategoriesRuleData([
@@ -74,7 +74,7 @@ class ProductOfCategoriesRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $collection = new StructCollection([
             ProductOfCategoriesRuleData::class => new ProductOfCategoriesRuleData([
@@ -92,7 +92,7 @@ class ProductOfCategoriesRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $collection = new StructCollection([
             ProductOfCategoriesRuleData::class => new ProductOfCategoriesRuleData([
@@ -110,7 +110,7 @@ class ProductOfCategoriesRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $this->assertFalse($rule->match($cart, $context, new StructCollection())->matches());
     }

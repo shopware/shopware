@@ -31,14 +31,14 @@ use Shopware\Cart\Test\Common\ValidatableDefinition;
 use Shopware\CartBridge\Rule\Collector\OrderCountRuleCollector;
 use Shopware\CartBridge\Rule\Data\OrderCountRuleData;
 use Shopware\CartBridge\Rule\OrderCountRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class OrderCountRuleCollectorTest extends TestCase
 {
     public function testWithoutRule(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $connection = $this->createMock(Connection::class);
 
@@ -53,7 +53,7 @@ class OrderCountRuleCollectorTest extends TestCase
 
     public function testWithoutCustomer(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $connection = $this->createMock(Connection::class);
 
@@ -70,7 +70,7 @@ class OrderCountRuleCollectorTest extends TestCase
 
     public function testWithOrders(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
@@ -102,7 +102,7 @@ class OrderCountRuleCollectorTest extends TestCase
 
     public function testWithoutOrders(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())

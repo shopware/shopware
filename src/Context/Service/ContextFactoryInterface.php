@@ -26,7 +26,7 @@ namespace Shopware\Context\Service;
 
 use Shopware\Context\Struct\CheckoutScope;
 use Shopware\Context\Struct\CustomerScope;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Context\Struct\ShopScope;
 
 interface ContextFactoryInterface
@@ -35,5 +35,5 @@ interface ContextFactoryInterface
         ShopScope $shopScope,
         CustomerScope $customerScope,
         CheckoutScope $checkoutScope
-    ): ShopContext;
+    ): StorefrontContext;
 }

@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\CartBridge\Rule\Data\LastOrderRuleData;
 use Shopware\CartBridge\Rule\LastOrderRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class LastOrderRuleTest extends TestCase
@@ -39,7 +39,7 @@ class LastOrderRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $date = (new \DateTime())->sub(
             new \DateInterval('P' . 10 . 'D')
@@ -58,7 +58,7 @@ class LastOrderRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $date = (new \DateTime())->sub(
             new \DateInterval('P' . 9 . 'D')
@@ -77,7 +77,7 @@ class LastOrderRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $date = (new \DateTime())->sub(
             new \DateInterval('P' . 50 . 'D')
@@ -96,7 +96,7 @@ class LastOrderRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $this->assertFalse(
             $rule->match($cart, $context, new StructCollection())->matches()

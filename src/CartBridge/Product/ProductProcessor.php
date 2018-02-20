@@ -28,7 +28,7 @@ namespace Shopware\CartBridge\Product;
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ProductProcessor implements CartProcessorInterface
@@ -52,7 +52,7 @@ class ProductProcessor implements CartProcessorInterface
         Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
-        ShopContext $context
+        StorefrontContext $context
     ): void {
         $collection = $cart->getLineItems()->filterType(self::TYPE_PRODUCT);
 

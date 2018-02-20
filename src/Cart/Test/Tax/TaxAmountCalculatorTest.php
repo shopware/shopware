@@ -40,7 +40,7 @@ use Shopware\Cart\Tax\TaxAmountCalculator;
 use Shopware\Cart\Tax\TaxCalculator;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\Cart\Tax\TaxRuleCalculator;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 
 class TaxAmountCalculatorTest extends TestCase
 {
@@ -57,7 +57,7 @@ class TaxAmountCalculatorTest extends TestCase
         $shop = $this->createMock(ShopDetailStruct::class);
         $shop->method('getTaxCalculationType')->will($this->returnValue($calculationType));
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
         $context->method('getShop')->will($this->returnValue($shop));
 
         $taxAmountCalculator = new TaxAmountCalculator(

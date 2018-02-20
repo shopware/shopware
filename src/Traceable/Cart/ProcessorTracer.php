@@ -8,7 +8,7 @@ use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ProcessorTracer implements CartProcessorInterface
@@ -35,7 +35,7 @@ class ProcessorTracer implements CartProcessorInterface
         Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
-        ShopContext $context
+        StorefrontContext $context
     ): void {
         $before = clone $calculatedCart;
 

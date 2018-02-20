@@ -40,7 +40,7 @@ use Shopware\Api\Tax\Collection\TaxBasicCollection;
 use Shopware\Api\Tax\Struct\TaxBasicStruct;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\Tax\TaxDetector;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
 
 class Generator extends TestCase
@@ -113,7 +113,7 @@ class Generator extends TestCase
         $shippingMethod = (new ShippingMethodBasicStruct())->assign(['id' => '8beeb66e-9dda-46b1-8891-a059257a590e']);
         $customer = (new CustomerBasicStruct())->assign(['id' => Uuid::uuid4()->toString()]);
 
-        return new ShopContext(
+        return new StorefrontContext(
             $shop,
             $currency,
             $currentCustomerGroup,

@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\CartBridge\Service\StoreFrontCartService;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -42,11 +42,11 @@ class CheckoutController extends StorefrontController
     /**
      * @Route("/checkout/confirm", name="checkout_confirm", options={"seo"="false"})
      *
-     * @param ShopContext $context
+     * @param StorefrontContext $context
      *
      * @return RedirectResponse|Response
      */
-    public function confirmAction(ShopContext $context): Response
+    public function confirmAction(StorefrontContext $context): Response
     {
         if (!$context->getCustomer()) {
             return $this->redirectToRoute('account_login');
@@ -65,11 +65,11 @@ class CheckoutController extends StorefrontController
      * @Route("/checkout/finish", name="checkout_finish", options={"seo"="false"})
      * @Method({"POST"})
      *
-     * @param ShopContext $context
+     * @param StorefrontContext $context
      *
      * @return RedirectResponse|Response
      */
-    public function finishAction(ShopContext $context): Response
+    public function finishAction(StorefrontContext $context): Response
     {
         if (!$context->getCustomer()) {
             return $this->redirectToRoute('account_login');

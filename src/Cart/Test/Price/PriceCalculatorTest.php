@@ -37,7 +37,7 @@ use Shopware\Cart\Tax\TaxCalculator;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\Cart\Tax\TaxRuleCalculator;
 use Shopware\Cart\Test\Common\Generator;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 
 /**
  * Class PriceCalculatorTest
@@ -96,7 +96,7 @@ class PriceCalculatorTest extends TestCase
             $detector
         );
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $lineItemPrice = $calculator->calculate($priceDefinition, $context);
 
@@ -126,7 +126,7 @@ class PriceCalculatorTest extends TestCase
             $detector
         );
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $lineItemPrice = $calculator->calculate($priceDefinition, $context);
 

@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Page\Listing;
 
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -23,7 +23,7 @@ class ListingPageLoader
     public function load(
         string $categoryId,
         Request $request,
-        ShopContext $context
+        StorefrontContext $context
     ): ListingPageStruct {
         $criteria = $this->createCriteria($categoryId, $request, $context);
 
@@ -40,7 +40,7 @@ class ListingPageLoader
     private function createCriteria(
         string $categoryId,
         Request $request,
-        ShopContext $context
+        StorefrontContext $context
     ): Criteria {
         $limit = $request->query->getInt('limit', 20);
         $page = $request->query->getInt('page', 1);

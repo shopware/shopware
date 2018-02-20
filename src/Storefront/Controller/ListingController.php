@@ -24,7 +24,7 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Storefront\Page\Listing\ListingPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -44,7 +44,7 @@ class ListingController extends StorefrontController
     /**
      * @Route("/listing/{id}", name="listing_page", options={"seo"=true})
      */
-    public function indexAction(string $id, ShopContext $context, Request $request)
+    public function indexAction(string $id, StorefrontContext $context, Request $request)
     {
         $listingPage = $this->listingPageLoader->load($id, $request, $context);
 

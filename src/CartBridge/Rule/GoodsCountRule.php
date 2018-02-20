@@ -29,7 +29,7 @@ use Shopware\Cart\LineItem\GoodsInterface;
 use Shopware\Cart\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Cart\Rule\Match;
 use Shopware\Cart\Rule\Rule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class GoodsCountRule extends Rule
@@ -52,7 +52,7 @@ class GoodsCountRule extends Rule
 
     public function match(
         CalculatedCart $calculatedCart,
-        ShopContext $context,
+        StorefrontContext $context,
         StructCollection $collection
     ): Match {
         $goods = $calculatedCart->getCalculatedLineItems()->filterInstance(GoodsInterface::class);

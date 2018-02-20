@@ -30,7 +30,7 @@ use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\CartBridge\Rule\ShippingZipCodeRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ShippingZipCodeRuleTest extends TestCase
@@ -42,7 +42,7 @@ class ShippingZipCodeRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $location = ShippingLocation::createFromAddress($address);
 
@@ -62,7 +62,7 @@ class ShippingZipCodeRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $location = ShippingLocation::createFromAddress($address);
 
@@ -82,7 +82,7 @@ class ShippingZipCodeRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $location = ShippingLocation::createFromAddress($address);
 
@@ -101,7 +101,7 @@ class ShippingZipCodeRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $location = ShippingLocation::createFromCountry(new CountryBasicStruct());
 

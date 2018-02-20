@@ -27,7 +27,7 @@ namespace Shopware\CartBridge\Rule;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Cart\Rule\Match;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class GoodsPriceRule extends \Shopware\Cart\Rule\Rule
@@ -50,7 +50,7 @@ class GoodsPriceRule extends \Shopware\Cart\Rule\Rule
 
     public function match(
         CalculatedCart $calculatedCart,
-        ShopContext $context,
+        StorefrontContext $context,
         StructCollection $collection
     ): Match {
         $goods = $calculatedCart->getCalculatedLineItems()->filterGoods();

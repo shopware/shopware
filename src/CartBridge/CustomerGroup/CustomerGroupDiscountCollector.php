@@ -32,7 +32,7 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Cart\Cart\CollectorInterface;
 use Shopware\Cart\Cart\Struct\Cart;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class CustomerGroupDiscountCollector implements CollectorInterface
@@ -50,14 +50,14 @@ class CustomerGroupDiscountCollector implements CollectorInterface
     public function prepare(
         StructCollection $fetchDefinition,
         Cart $cart,
-        ShopContext $context
+        StorefrontContext $context
     ): void {
     }
 
     public function fetch(
         StructCollection $dataCollection,
         StructCollection $fetchCollection,
-        ShopContext $context
+        StorefrontContext $context
     ): void {
         $criteria = new Criteria();
         $criteria->addFilter(

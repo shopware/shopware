@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace Shopware\Storefront\Session;
 
 use Shopware\Api\Seo\Struct\SeoUrlBasicStruct;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer;
 use Shopware\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer;
 use Shopware\Framework\Routing\Router;
@@ -127,7 +127,7 @@ class ShopSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $context = $this->contextService->getShopContext();
+        $context = $this->contextService->getStorefrontContext();
         $request->attributes->set(self::SHOP_CONTEXT_PROPERTY, $context);
     }
 
@@ -155,7 +155,7 @@ class ShopSubscriber implements EventSubscriberInterface
         $event->getResponse()->headers->setCookie(new Cookie('currency', $request->attributes->get('_currency_id')));
     }
 
-    private function getActiveCategoryId(Request $request, ShopContext $context)
+    private function getActiveCategoryId(Request $request, StorefrontContext $context)
     {
         $route = $request->attributes->get('_route');
 

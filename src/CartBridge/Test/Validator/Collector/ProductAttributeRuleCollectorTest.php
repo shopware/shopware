@@ -33,14 +33,14 @@ use Shopware\CartBridge\Product\Struct\ProductFetchDefinition;
 use Shopware\CartBridge\Rule\Collector\ProductAttributeRuleCollector;
 use Shopware\CartBridge\Rule\Data\ProductAttributeRuleData;
 use Shopware\CartBridge\Rule\ProductAttributeRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ProductAttributeRuleCollectorTest extends TestCase
 {
     public function testWithoutRule(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $connection = $this->createMock(Connection::class);
 
@@ -55,7 +55,7 @@ class ProductAttributeRuleCollectorTest extends TestCase
 
     public function testWithAttributeData(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $connection = $this->createConnection([
             ['attr1' => 100, 'attr2' => 200],
@@ -87,7 +87,7 @@ class ProductAttributeRuleCollectorTest extends TestCase
 
     public function testWithoutAttributeData(): void
     {
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $connection = $this->createConnection([]);
 

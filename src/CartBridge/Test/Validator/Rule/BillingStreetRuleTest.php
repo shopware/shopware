@@ -29,7 +29,7 @@ use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\CartBridge\Rule\BillingStreetRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class BillingStreetRuleTest extends TestCase
@@ -40,7 +40,7 @@ class BillingStreetRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $billing = new CustomerAddressBasicStruct();
         $billing->setStreet('example street');
@@ -63,7 +63,7 @@ class BillingStreetRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $billing = new CustomerAddressBasicStruct();
         $billing->setStreet('example street');
@@ -86,7 +86,7 @@ class BillingStreetRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $billing = new CustomerAddressBasicStruct();
         $billing->setStreet('test street');
@@ -109,7 +109,7 @@ class BillingStreetRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')

@@ -29,7 +29,7 @@ use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\CartBridge\Rule\DifferentAddressesRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class DifferentAddressesRuleTest extends TestCase
@@ -40,7 +40,7 @@ class DifferentAddressesRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $billing = new CustomerAddressBasicStruct();
         $billing->setId('SWAG-CUSTOMER-ADDRESS-ID-1');
@@ -67,7 +67,7 @@ class DifferentAddressesRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $billing = new CustomerAddressBasicStruct();
         $billing->setId('SWAG-CUSTOMER-ADDRESS-ID-1');
@@ -94,7 +94,7 @@ class DifferentAddressesRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')

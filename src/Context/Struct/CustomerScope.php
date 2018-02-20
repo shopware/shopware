@@ -76,7 +76,7 @@ class CustomerScope extends Struct
         return $this->customerGroupId;
     }
 
-    public static function createFromContext(ShopContext $context): self
+    public static function createFromContext(StorefrontContext $context): self
     {
         if (!$context->getCustomer()) {
             return new self(null, $context->getCurrentCustomerGroup()->getId(), null, null);

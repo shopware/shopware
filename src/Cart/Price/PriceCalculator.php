@@ -31,7 +31,7 @@ use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Cart\Tax\TaxCalculator;
 use Shopware\Cart\Tax\TaxDetector;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 
 class PriceCalculator
 {
@@ -62,7 +62,7 @@ class PriceCalculator
 
     public function calculate(
         PriceDefinition $definition,
-        ShopContext $context
+        StorefrontContext $context
     ): Price {
         $unitPrice = $this->getUnitPrice($definition, $context);
 
@@ -90,7 +90,7 @@ class PriceCalculator
         return new Price($unitPrice, $price, $calculatedTaxes, $taxRules, $definition->getQuantity());
     }
 
-    private function getUnitPrice(PriceDefinition $definition, ShopContext $context): float
+    private function getUnitPrice(PriceDefinition $definition, StorefrontContext $context): float
     {
         //unit price already calculated?
         if ($definition->isCalculated()) {

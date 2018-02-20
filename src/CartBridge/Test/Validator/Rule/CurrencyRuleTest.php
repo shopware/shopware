@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Api\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\CartBridge\Rule\CurrencyRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class CurrencyRuleTest extends TestCase
@@ -42,7 +42,7 @@ class CurrencyRuleTest extends TestCase
         $currency = new CurrencyBasicStruct();
         $currency->setId('SWAG-CURRENCY-ID-1');
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getCurrency')
@@ -62,7 +62,7 @@ class CurrencyRuleTest extends TestCase
         $currency = new CurrencyBasicStruct();
         $currency->setId('SWAG-CURRENCY-ID-5');
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getCurrency')
@@ -82,7 +82,7 @@ class CurrencyRuleTest extends TestCase
         $currency = new CurrencyBasicStruct();
         $currency->setId('SWAG-CURRENCY-ID-3');
 
-        $context = $this->createMock(ShopContext::class);
+        $context = $this->createMock(StorefrontContext::class);
 
         $context->expects($this->any())
             ->method('getCurrency')

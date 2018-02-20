@@ -31,7 +31,7 @@ use Shopware\Cart\Cart\CartPersisterInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -67,7 +67,7 @@ class CartPersister implements CartPersisterInterface
         return $this->serializer->deserialize((string) $content, null, 'json');
     }
 
-    public function save(CalculatedCart $cart, ShopContext $context): void
+    public function save(CalculatedCart $cart, StorefrontContext $context): void
     {
         //prevent empty carts
         if ($cart->getCalculatedLineItems()->count() <= 0) {

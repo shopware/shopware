@@ -6,7 +6,7 @@ use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\CartBridge\Product\Struct\CalculatedProduct;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ProductPostValidator implements CartProcessorInterface
@@ -15,7 +15,7 @@ class ProductPostValidator implements CartProcessorInterface
         Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
-        ShopContext $context
+        StorefrontContext $context
     ): void {
         $products = $calculatedCart->getCalculatedLineItems()->filterInstance(
             CalculatedProduct::class

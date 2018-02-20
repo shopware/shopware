@@ -28,7 +28,7 @@ use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Rule\Match;
 use Shopware\Cart\Rule\Rule;
 use Shopware\CartBridge\Rule\Data\ProductOfCategoriesRuleData;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ProductOfCategoriesRule extends Rule
@@ -48,7 +48,7 @@ class ProductOfCategoriesRule extends Rule
 
     public function match(
         CalculatedCart $calculatedCart,
-        ShopContext $context,
+        StorefrontContext $context,
         StructCollection $collection
     ): Match {
         /** @var ProductOfCategoriesRuleData $data */

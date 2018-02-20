@@ -39,7 +39,7 @@ use Shopware\Framework\Struct\Struct;
  *
  * @copyright Copyright (c) shopware AG (http://www.shopware.de)
  */
-class ShopContext extends Struct
+class StorefrontContext extends Struct
 {
     /**
      * @var CustomerGroupBasicStruct

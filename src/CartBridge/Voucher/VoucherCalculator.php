@@ -8,7 +8,7 @@ use Shopware\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Cart\Price\PercentagePriceCalculator;
 use Shopware\CartBridge\Voucher\Struct\CalculatedVoucher;
 use Shopware\CartBridge\Voucher\Struct\VoucherData;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 
 class VoucherCalculator
 {
@@ -32,7 +32,7 @@ class VoucherCalculator
 
     public function calculate(
         CalculatedCart $calculatedCart,
-        ShopContext $context,
+        StorefrontContext $context,
         VoucherData $voucher,
         LineItemInterface $lineItem
     ): CalculatedVoucher {

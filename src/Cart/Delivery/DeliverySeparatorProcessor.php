@@ -29,7 +29,7 @@ use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\LineItem\DeliverableLineItemInterface;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class DeliverySeparatorProcessor implements CartProcessorInterface
@@ -48,7 +48,7 @@ class DeliverySeparatorProcessor implements CartProcessorInterface
         Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
-        ShopContext $context
+        StorefrontContext $context
     ): void {
         $items = $calculatedCart
             ->getCalculatedLineItems()

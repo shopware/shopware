@@ -35,7 +35,7 @@ use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\Struct\TaxRule;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\CartBridge\Product\Struct\CalculatedProduct;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ProductCalculator
@@ -52,7 +52,7 @@ class ProductCalculator
 
     public function calculate(
         LineItemCollection $collection,
-        ShopContext $context,
+        StorefrontContext $context,
         StructCollection $dataCollection
     ): CalculatedLineItemCollection {
         $products = new CalculatedLineItemCollection();

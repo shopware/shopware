@@ -25,12 +25,12 @@
 namespace Shopware\CartBridge\Voucher;
 
 use Shopware\CartBridge\Voucher\Struct\VoucherDataCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 
 interface VoucherGatewayInterface
 {
     public function get(
         array $codes,
-        ShopContext $context
+        StorefrontContext $context
     ): VoucherDataCollection;
 }

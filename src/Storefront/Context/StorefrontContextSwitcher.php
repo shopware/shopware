@@ -24,7 +24,7 @@
 
 namespace Shopware\Storefront\Context;
 
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 class StorefrontContextSwitcher
@@ -45,7 +45,7 @@ class StorefrontContextSwitcher
         $this->contextService = $contextService;
     }
 
-    public function switchContext(?int $shippingMethodId, ?int $paymentMethodId): ShopContext
+    public function switchContext(?int $shippingMethodId, ?int $paymentMethodId): StorefrontContext
     {
         if ($shippingMethodId !== null) {
             $this->session->set('shippingMethodId', $shippingMethodId);
@@ -56,6 +56,6 @@ class StorefrontContextSwitcher
 
         $this->contextService->refresh();
 
-        return $this->contextService->getShopContext();
+        return $this->contextService->getStorefrontContext();
     }
 }

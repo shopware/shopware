@@ -29,7 +29,7 @@ use Shopware\Cart\Price\Struct\DerivedPrice;
 use Shopware\Cart\Price\Struct\PriceCollection;
 use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 
 class AbsolutePriceCalculator
 {
@@ -54,14 +54,14 @@ class AbsolutePriceCalculator
     /**
      * @param float           $price
      * @param PriceCollection $prices
-     * @param ShopContext     $context
+     * @param StorefrontContext     $context
      *
      * @return DerivedPrice
      */
     public function calculate(
         float $price,
         PriceCollection $prices,
-        ShopContext $context
+        StorefrontContext $context
     ): DerivedPrice {
         $taxRules = $this->percentageTaxRuleBuilder->buildRules($prices->sum());
 

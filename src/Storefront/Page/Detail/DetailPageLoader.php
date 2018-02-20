@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Detail;
 
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository;
 use Shopware\Storefront\Bridge\Product\Struct\ProductBasicStruct;
 
@@ -18,7 +18,7 @@ class DetailPageLoader
         $this->productRepository = $productRepository;
     }
 
-    public function load(string $productId, ShopContext $context): ProductBasicStruct
+    public function load(string $productId, StorefrontContext $context): ProductBasicStruct
     {
         $collection = $this->productRepository->read([$productId], $context);
 

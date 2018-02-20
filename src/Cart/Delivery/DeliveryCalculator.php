@@ -33,7 +33,7 @@ use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 
 class DeliveryCalculator
 {
@@ -70,7 +70,7 @@ class DeliveryCalculator
         $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
 
-    public function calculate(Delivery $delivery, ShopContext $context): void
+    public function calculate(Delivery $delivery, StorefrontContext $context): void
     {
         switch ($delivery->getShippingMethod()->getCalculation()) {
             case self::CALCULATION_BY_WEIGHT:
@@ -116,7 +116,7 @@ class DeliveryCalculator
         $delivery->setShippingCosts($costs);
     }
 
-    private function calculateShippingCosts(float $price, CalculatedLineItemCollection $calculatedLineItems, ShopContext $context): Price
+    private function calculateShippingCosts(float $price, CalculatedLineItemCollection $calculatedLineItems, StorefrontContext $context): Price
     {
         $rules = $this->percentageTaxRuleBuilder->buildRules(
             $calculatedLineItems->getPrices()->sum()

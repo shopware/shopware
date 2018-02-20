@@ -26,9 +26,9 @@ declare(strict_types=1);
 namespace Shopware\CartBridge\Product;
 
 use Shopware\Api\Product\Collection\ProductBasicCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 
 interface ProductGatewayInterface
 {
-    public function get(array $numbers, ShopContext $context): ProductBasicCollection;
+    public function get(array $numbers, StorefrontContext $context): ProductBasicCollection;
 }

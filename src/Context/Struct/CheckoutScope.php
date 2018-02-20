@@ -78,7 +78,7 @@ class CheckoutScope implements \JsonSerializable
         return $this->stateId;
     }
 
-    public static function createFromContext(ShopContext $context): self
+    public static function createFromContext(StorefrontContext $context): self
     {
         $location = $context->getShippingLocation();
 

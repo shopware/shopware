@@ -24,12 +24,12 @@
 
 namespace Shopware\Storefront\Context;
 
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
-class ShopContextValueResolver implements ArgumentValueResolverInterface
+class StorefrontContextValueResolver implements ArgumentValueResolverInterface
 {
     /**
      * @var StorefrontContextServiceInterface
@@ -43,11 +43,11 @@ class ShopContextValueResolver implements ArgumentValueResolverInterface
 
     public function supports(Request $request, ArgumentMetadata $argument)
     {
-        return $argument->getType() === ShopContext::class;
+        return $argument->getType() === StorefrontContext::class;
     }
 
     public function resolve(Request $request, ArgumentMetadata $argument)
     {
-        yield $this->contextService->getShopContext();
+        yield $this->contextService->getStorefrontContext();
     }
 }

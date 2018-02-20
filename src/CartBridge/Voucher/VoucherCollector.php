@@ -28,7 +28,7 @@ use Shopware\Cart\Cart\CollectorInterface;
 use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\CartBridge\Voucher\Struct\VoucherData;
 use Shopware\CartBridge\Voucher\Struct\VoucherFetchDefinition;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class VoucherCollector implements CollectorInterface
@@ -49,7 +49,7 @@ class VoucherCollector implements CollectorInterface
     public function prepare(
         StructCollection $fetchDefinition,
         Cart $cart,
-        ShopContext $context
+        StorefrontContext $context
     ): void {
         $vouchers = $cart->getLineItems()->filterType(VoucherProcessor::TYPE_VOUCHER);
 
@@ -64,7 +64,7 @@ class VoucherCollector implements CollectorInterface
     public function fetch(
         StructCollection $dataCollection,
         StructCollection $fetchCollection,
-        ShopContext $context
+        StorefrontContext $context
     ): void {
         $definitions = $fetchCollection->filterInstance(VoucherFetchDefinition::class);
 

@@ -25,16 +25,16 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Tax;
 
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 
 class TaxDetector
 {
-    public function useGross(ShopContext $context): bool
+    public function useGross(StorefrontContext $context): bool
     {
         return $context->getCurrentCustomerGroup()->getDisplayGross();
     }
 
-    public function isNetDelivery(ShopContext $context): bool
+    public function isNetDelivery(StorefrontContext $context): bool
     {
         return $context->getShippingLocation()->getCountry()->getTaxFree();
     }

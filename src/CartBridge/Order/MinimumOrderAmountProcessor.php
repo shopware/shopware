@@ -7,7 +7,7 @@ use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\LineItem\CalculatedLineItem;
 use Shopware\Cart\Price\AbsolutePriceCalculator;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class MinimumOrderAmountProcessor implements CartProcessorInterface
@@ -26,7 +26,7 @@ class MinimumOrderAmountProcessor implements CartProcessorInterface
         Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
-        ShopContext $context
+        StorefrontContext $context
     ): void {
         if (!$context->getCustomer()) {
             return;

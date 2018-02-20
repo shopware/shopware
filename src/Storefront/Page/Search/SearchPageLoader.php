@@ -6,7 +6,7 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\ScoreQuery;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Config\ConfigServiceInterface;
 use Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,11 +41,11 @@ class SearchPageLoader
     /**
      * @param string      $searchTerm
      * @param Request     $request
-     * @param ShopContext $context
+     * @param StorefrontContext $context
      *
      * @return SearchPageStruct
      */
-    public function load(string $searchTerm, Request $request, ShopContext $context): SearchPageStruct
+    public function load(string $searchTerm, Request $request, StorefrontContext $context): SearchPageStruct
     {
         $config = $this->configService->getByShop($context->getShop()->getId(), null);
 
@@ -67,7 +67,7 @@ class SearchPageLoader
     private function createCriteria(
         string $searchTerm,
         Request $request,
-        ShopContext $context
+        StorefrontContext $context
     ): Criteria {
         $limit = $request->query->getInt('limit', 20);
         $page = $request->query->getInt('page', 1);

@@ -15,21 +15,21 @@ import CurrencyApiService from 'src/core/service/api/currency.api.service';
 import TaxApiService from 'src/core/service/api/tax.api.service';
 import MediaApiService from 'src/core/service/api/media.api.service';
 
-export default [
-    { name: 'shopService', provider: ShopApiService },
-    { name: 'categoryService', provider: CategoryApiService },
-    { name: 'productService', provider: ProductApiService },
-    { name: 'productManufacturerService', provider: ProductManufacturerApiService },
-    { name: 'orderService', provider: OrderApiService },
-    { name: 'orderLineItemService', provider: OrderLineItemApiService },
-    { name: 'orderDeliveryService', provider: OrderDeliveryApiService },
-    { name: 'orderStateService', provider: OrderStateApiService },
-    { name: 'customerService', provider: CustomerApiService },
-    { name: 'customerGroupService', provider: CustomerGroupApiService },
-    { name: 'paymentMethodService', provider: PaymentMethodApiService },
-    { name: 'shippingMethodService', provider: ShippingMethodApiService },
-    { name: 'countryService', provider: CountryApiService },
-    { name: 'currencyService', provider: CurrencyApiService },
-    { name: 'taxService', provider: TaxApiService },
-    { name: 'mediaService', provider: MediaApiService }
-];
+export default {
+    shopService: ShopApiService,
+    categoryService: CategoryApiService,
+    productService: ProductApiService,
+    productManufacturerService: ProductManufacturerApiService,
+    orderService: OrderApiService,
+    orderLineItemService: OrderLineItemApiService,
+    orderDeliveryService: OrderDeliveryApiService,
+    orderStateService: OrderStateApiService,
+    customerService: CustomerApiService,
+    customerGroupService: CustomerGroupApiService,
+    paymentMethodService: PaymentMethodApiService,
+    shippingMethodService: ShippingMethodApiService,
+    countryService: CountryApiService,
+    currencyService: CurrencyApiService,
+    taxService: TaxApiService,
+    mediaService: MediaApiService
+};

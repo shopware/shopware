@@ -32,12 +32,11 @@ application
         return JsonApiParser;
     });
 
-// Loop through the api services and register them as service providers in the application
-apiServices.forEach((service) => {
-    const ServiceFactoryClass = service.provider;
-    const name = service.name;
+// Add api service providers
+Object.keys(apiServices).forEach((key) => {
+    const ServiceFactoryClass = apiServices[key];
 
-    application.addServiceProvider(name, (container) => {
+    application.addServiceProvider(key, (container) => {
         const initContainer = application.getContainer('init');
         return new ServiceFactoryClass(initContainer.httpClient, container.loginService);
     });

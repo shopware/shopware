@@ -1,7 +1,8 @@
+import { Component } from 'src/core/shopware';
 import './sw-alert.less';
 import template from './sw-alert.html.twig';
 
-Shopware.Component.register('sw-alert', {
+Component.register('sw-alert', {
     props: {
         info: {
             type: Boolean,

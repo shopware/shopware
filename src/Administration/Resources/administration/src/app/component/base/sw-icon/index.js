@@ -1,7 +1,8 @@
+import { Component } from 'src/core/shopware';
 import './sw-icon.less';
 import template from './sw-icon.html.twig';
 
-Shopware.Component.register('sw-icon', {
+Component.register('sw-icon', {
     props: {
         name: {
             type: String,

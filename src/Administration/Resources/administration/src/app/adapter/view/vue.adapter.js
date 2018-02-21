@@ -170,7 +170,7 @@ export default function VueAdapter(context, componentFactory, stateFactory) {
      * @memberOf module:app/adapter/view/vue
      */
     function initFilters() {
-        Vue.filter('image', (value) => {
+        Vue.filter('asset', (value) => {
             if (!value) {
                 return '';
             }

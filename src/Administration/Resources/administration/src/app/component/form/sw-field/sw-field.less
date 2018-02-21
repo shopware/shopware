@@ -1,7 +1,7 @@
 @import "~less/variables";
 
 @sw-field-color-border:       @color-steam-cloud;
-@sw-field-color-border-focus: @color-shopware-blue;
+@sw-field-color-focus:        @color-shopware-blue;
 @sw-field-color-text:         @color-gutenberg;
 @sw-field-color-background:   @color-white;
 @sw-field-suffix-background:  @color-iron;
@@ -41,8 +41,8 @@
         color: @sw-field-color-text;
 
         &:focus {
-            border-color: @sw-field-color-border-focus;
-            box-shadow: 0 0 4px lighten(@sw-field-color-border-focus, 30%);
+            border-color: @sw-field-color-focus;
+            box-shadow: 0 0 4px lighten(@sw-field-color-focus, 30%);
             outline: none;
         }
 
@@ -69,16 +69,11 @@
         width: 100%;
         position: relative;
 
-        &:after {
+        .sw-icon {
             display: block;
-            width: 16px;
-            height: 16px;
             position: absolute;
             top: 14px;
             right: 12px;
-            content: '\54';
-            font-family: 'sw-icons';
-            font-size: 14px;
             text-align: center;
             color: @sw-field-color-text;
         }
@@ -100,14 +95,18 @@
             appearance: none;
 
             &:focus {
-                border-color: @sw-field-color-border-focus;
-                color: @sw-field-color-border-focus;
-                box-shadow: 0 0 4px lighten(@sw-field-color-border-focus, 30%);
+                border-color: @sw-field-color-focus;
+                color: @sw-field-color-focus;
+                box-shadow: 0 0 4px lighten(@sw-field-color-focus, 30%);
                 outline: none;
             }
 
             &:focus + .sw-form-field--suffix {
-                border-color: @sw-field-color-border-focus;
+                border-color: @sw-field-color-focus;
+            }
+
+            &:focus + .sw-icon {
+                color: @sw-field-color-focus;
             }
 
             &::placeholder {

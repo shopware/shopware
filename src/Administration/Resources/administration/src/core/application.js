@@ -335,8 +335,8 @@ class ApplicationBootstrapper {
      * to boot successfully.
      *
      * @private
-     * @param {Bottle.IContainer} container
-     * @param {String} [prefix='init']
+     * @param {Bottle.IContainer} container Bottle container
+     * @param {String} [prefix='init'] Nested container prefix
      * @returns {module:core/application.ApplicationBootstrapper}
      */
     instantiateInitializers(container, prefix = 'init') {
